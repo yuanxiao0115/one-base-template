@@ -20,6 +20,8 @@ pnpm install
 pnpm dev
 ```
 
+说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `pnpm -C apps/admin dev`）。如需用 Turborepo 启动可尝试 `pnpm dev:turbo`（部分环境下 turbo 对 dev server 的进程托管可能不稳定）。
+
 默认 `apps/admin` 会启用 dev mock（Vite middleware），不需要后端即可跑通登录/菜单/SSO 基础流程：
 
 - 未登录访问 `/` -> 自动跳转 `/login?redirect=/...`
