@@ -17,6 +17,7 @@ const props = defineProps<{
 
 const menus = computed(() => props.menus ?? menuStore.menus);
 const collapsed = computed(() => Boolean(props.collapsed));
+const activePath = computed(() => (typeof route.meta.activePath === 'string' ? route.meta.activePath : route.path));
 
 function findOpenPaths(list: AppMenuItem[], target: string, parents: string[] = []): string[] {
   for (const item of list) {
@@ -29,7 +30,7 @@ function findOpenPaths(list: AppMenuItem[], target: string, parents: string[] = 
   return [];
 }
 
-const openeds = computed(() => findOpenPaths(menus.value, route.path));
+const openeds = computed(() => findOpenPaths(menus.value, activePath.value));
 
 function onSelect(index: string) {
   const item = findMenuByPath(menus.value, index);
@@ -55,9 +56,9 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
 <template>
   <el-scrollbar class="h-full">
     <el-menu
-      :key="`${route.path}:${collapsed}`"
+      :key="`${activePath}:${collapsed}`"
       class="border-0"
-      :default-active="route.path"
+      :default-active="activePath"
       :default-openeds="openeds"
       :collapse="collapsed"
       :collapse-transition="false"

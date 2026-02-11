@@ -17,7 +17,7 @@ import {
   setupRouterGuards
 } from '@one-base-template/core';
 import { createDefaultAdapter, createSczfwAdapter } from '@one-base-template/adapters';
-import { useAuthStore, useMenuStore, useTabsStore } from '@one-base-template/core';
+import { useAuthStore, useMenuStore, useSystemStore, useTabsStore } from '@one-base-template/core';
 import { setObHttpClient } from './infra/http';
 import { createClientSignature } from './infra/sczfw/crypto';
 
@@ -108,6 +108,7 @@ const http = createObHttp({
       localStorage.removeItem(idTokenKey);
       useAuthStore(pinia).reset();
       useMenuStore(pinia).reset();
+      useSystemStore(pinia).reset();
       useTabsStore(pinia).reset();
       router.replace('/login');
     }
@@ -137,6 +138,28 @@ function resolveLayoutMode(raw: unknown): LayoutMode {
 
 const layoutMode = resolveLayoutMode(import.meta.env.VITE_LAYOUT_MODE);
 
+function parseSystemHomeMap(raw: unknown): Record<string, string> | undefined {
+  if (typeof raw !== 'string' || !raw) return undefined;
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object') return undefined;
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof v === 'string' && v.startsWith('/')) out[k] = v;
+    }
+    return Object.keys(out).length ? out : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+const defaultSystemCode =
+  (import.meta.env.VITE_DEFAULT_SYSTEM_CODE as string | undefined) ||
+  (backend === 'sczfw' ? (import.meta.env.VITE_SCZFW_SYSTEM_PERMISSION_CODE as string | undefined) : undefined);
+
+// 每个系统固定一个首页（JSON：{ [systemCode]: '/path' }）
+const systemHomeMap = parseSystemHomeMap(import.meta.env.VITE_SYSTEM_HOME_MAP);
+
 app.use(
   createCore({
     adapter,
@@ -162,6 +185,11 @@ app.use(
     layout: {
       defaultMode: layoutMode,
       persist: true
+    },
+    systems: {
+      defaultCode: defaultSystemCode,
+      homeMap: systemHomeMap,
+      fallbackHome: '/home/index'
     }
   })
 );

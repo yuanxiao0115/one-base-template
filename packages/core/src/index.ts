@@ -5,6 +5,7 @@ export type {
   MenuAdapter,
   SsoAdapter,
   AppMenuItem,
+  AppMenuSystem,
   AppUser,
   LoginPayload,
   MenuMode
@@ -29,6 +30,7 @@ export { apiWrapper, type ObApiWrapperResult } from './http/apiWrapper';
 export { useAuthStore } from './stores/auth';
 export { useLayoutStore, type LayoutMode, type LayoutOptions } from './stores/layout';
 export { useMenuStore } from './stores/menu';
+export { useSystemStore, type SystemOptions, type AppSystemInfo } from './stores/system';
 export { useTabsStore } from './stores/tabs';
 export { useThemeStore } from './stores/theme';
 

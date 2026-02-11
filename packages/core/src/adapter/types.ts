@@ -24,6 +24,19 @@ export interface AppMenuItem {
   order?: number;
 }
 
+/**
+ * 多系统菜单：一个项目下可能存在多个“系统”，每个系统对应一棵菜单树。
+ *
+ * 约定：
+ * - `code`：系统唯一标识（例如 sczfw 的 permissionCode）
+ * - `name`：系统展示名称（当前阶段优先使用后端返回的 title/resourceName）
+ */
+export interface AppMenuSystem {
+  code: string;
+  name: string;
+  menus: AppMenuItem[];
+}
+
 export interface AuthAdapter {
   /**
    * Cookie 模式：后端通过 Set-Cookie(HttpOnly) 写入会话
@@ -36,6 +49,12 @@ export interface AuthAdapter {
 export interface MenuAdapter {
   /** remote 菜单树 */
   fetchMenuTree(): Promise<AppMenuItem[]>;
+  /**
+   * remote 多系统菜单树（可选实现）：
+   * - 若实现，core 会优先使用它一次性拉取全部系统菜单
+   * - 若未实现，则退化为单系统 `fetchMenuTree()`
+   */
+  fetchMenuSystems?(): Promise<AppMenuSystem[]>;
 }
 
 export interface SsoAdapter {

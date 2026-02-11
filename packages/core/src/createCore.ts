@@ -2,6 +2,7 @@ import type { App } from 'vue';
 import type { BackendAdapter, MenuMode, AppMenuItem } from './adapter/types';
 import { setCoreOptions } from './context';
 import { useLayoutStore, type LayoutOptions } from './stores/layout';
+import { useSystemStore, type SystemOptions } from './stores/system';
 import { useThemeStore } from './stores/theme';
 
 export interface CoreOptions {
@@ -29,6 +30,10 @@ export interface CoreOptions {
    * UI 布局配置（由 UI 包读取 core store，不引入具体 UI 依赖）
    */
   layout?: LayoutOptions;
+  /**
+   * 多系统菜单配置（可选）。
+   */
+  systems?: SystemOptions;
 }
 
 export function createCore(options: CoreOptions): { install(app: App): void } {
@@ -43,6 +48,10 @@ export function createCore(options: CoreOptions): { install(app: App): void } {
       // 布局初始化：默认允许持久化（可通过 options.layout.persist 关闭）
       const layoutStore = useLayoutStore();
       layoutStore.init(options.layout);
+
+      // 系统初始化：默认系统、系统首页映射等（由 app 注入）
+      const systemStore = useSystemStore();
+      systemStore.init(options.systems);
 
       // 允许在模板侧通过 inject 或全局属性扩展，这里不强行注入任何内容
       void app;

@@ -1,4 +1,11 @@
-import type { AppMenuItem, AppUser, BackendAdapter, LoginPayload, ObHttp } from '@one-base-template/core';
+import type {
+  AppMenuItem,
+  AppMenuSystem,
+  AppUser,
+  BackendAdapter,
+  LoginPayload,
+  ObHttp
+} from '@one-base-template/core';
 
 type BizResponse<T> = {
   code?: unknown;
@@ -39,12 +46,21 @@ type SczfwMenuNode = {
 
 type SczfwMenuRoot = {
   permissionCode?: string;
+  title?: string;
+  resourceName?: string;
   children?: SczfwMenuNode[];
   [k: string]: unknown;
 };
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
+}
+
+function readSystemName(root: SczfwMenuRoot): string {
+  if (isNonEmptyString(root.title)) return root.title;
+  if (isNonEmptyString(root.resourceName)) return root.resourceName;
+  if (isNonEmptyString(root.permissionCode)) return root.permissionCode;
+  return '未命名系统';
 }
 
 function mapMenuItems(nodes: SczfwMenuNode[]): AppMenuItem[] {
@@ -139,6 +155,25 @@ export function createSczfwAdapter(
         const systemRoot = list.find(it => it.permissionCode === systemPermissionCode);
         const nodes = Array.isArray(systemRoot?.children) ? systemRoot.children : [];
         return mapMenuItems(nodes);
+      },
+      async fetchMenuSystems(): Promise<AppMenuSystem[]> {
+        const res = await http.get<BizResponse<SczfwMenuRoot[]>>('/cmict/admin/permission/my-tree', {
+          $throwOnBizError: true
+        });
+
+        const roots = Array.isArray(res.data) ? res.data : [];
+
+        return roots
+          .map(root => {
+            const code = isNonEmptyString(root.permissionCode) ? root.permissionCode : '';
+            const nodes = Array.isArray(root.children) ? root.children : [];
+            return {
+              code,
+              name: readSystemName(root),
+              menus: mapMenuItems(nodes)
+            };
+          })
+          .filter(s => s.code);
       }
     },
     sso: {

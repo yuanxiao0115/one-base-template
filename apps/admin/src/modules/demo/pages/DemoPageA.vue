@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
 import { getObHttpClient } from '@/infra/http';
 
 defineOptions({
   name: 'DemoPageA'
 });
+
+const router = useRouter();
 
 async function onDownloadOk() {
   try {
@@ -29,6 +32,10 @@ async function onDownloadError() {
     ElMessage.error(message);
   }
 }
+
+function onGotoSystemB() {
+  router.push('/b/demo/page-1');
+}
 </script>
 
 <template>
@@ -42,6 +49,7 @@ async function onDownloadError() {
     <div class="mt-4 flex flex-wrap gap-2">
       <el-button type="primary" @click="onDownloadOk">下载示例文件</el-button>
       <el-button @click="onDownloadError">下载错误(JSON)示例</el-button>
+      <el-button type="success" plain @click="onGotoSystemB">跳转到系统 B / 页面 1</el-button>
     </div>
     <div class="mt-4">
       <el-input placeholder="输入点东西以验证缓存" />

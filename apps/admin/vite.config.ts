@@ -224,6 +224,7 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
               return ok(res, [
                 {
                   permissionCode: sczfwSystemPermissionCode,
+                  title: '系统 A',
                   children: [
                     { url: '/home/index', resourceName: '首页', resourceType: 1, hidden: 0, routeCache: 1 },
                     {
@@ -234,6 +235,23 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
                       children: [
                         { url: '/demo/page-a', resourceName: '页面 A', resourceType: 1, hidden: 0, routeCache: 1 },
                         { url: '/demo/page-b', resourceName: '页面 B', resourceType: 1, hidden: 0, routeCache: 1 }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  permissionCode: 'b_system',
+                  title: '系统 B',
+                  children: [
+                    { url: '/b/home', resourceName: 'B 首页', resourceType: 1, hidden: 0, routeCache: 1 },
+                    {
+                      url: '/b/demo',
+                      resourceName: 'B 示例',
+                      resourceType: 1,
+                      hidden: 0,
+                      children: [
+                        { url: '/b/demo/page-1', resourceName: '页面 1', resourceType: 1, hidden: 0, routeCache: 1 },
+                        { url: '/b/demo/page-2', resourceName: '页面 2', resourceType: 1, hidden: 0, routeCache: 1 }
                       ]
                     }
                   ]
