@@ -38,14 +38,6 @@ function writeStoredMenuTree(systemCode: string, tree: AppMenuItem[]) {
   }
 }
 
-function clearStoredMenuTree(systemCode: string) {
-  try {
-    localStorage.removeItem(buildMenuTreeKey(systemCode));
-  } catch {
-    // ignore
-  }
-}
-
 function readLegacyStoredMenuTree(): AppMenuItem[] | null {
   try {
     const raw = localStorage.getItem(MENU_TREE_LEGACY_STORAGE_KEY);

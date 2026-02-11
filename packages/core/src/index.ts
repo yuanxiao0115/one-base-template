@@ -1,6 +1,7 @@
 export { createCore, type CoreOptions } from './createCore';
 export type {
   BackendAdapter,
+  AssetAdapter,
   AuthAdapter,
   MenuAdapter,
   SsoAdapter,
@@ -28,6 +29,7 @@ export type {
 export { apiWrapper, type ObApiWrapperResult } from './http/apiWrapper';
 
 export { useAuthStore } from './stores/auth';
+export { useAssetStore } from './stores/assets';
 export { useLayoutStore, type LayoutMode, type LayoutOptions } from './stores/layout';
 export { useMenuStore } from './stores/menu';
 export { useSystemStore, type SystemOptions, type AppSystemInfo } from './stores/system';

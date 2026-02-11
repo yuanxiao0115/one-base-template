@@ -17,6 +17,11 @@ export interface AppMenuItem {
   /** 与路由 path 对齐；外链也用 path 保存 url */
   path: string;
   title: string;
+  /**
+   * 菜单图标：
+   * - 可能是 iconfont class（如 `i-icon-xxx` / `icon-xxx` / 多个 class 拼接）
+   * - 也可能是后端存储在 minio 的资源 id（由 adapter.assets 提供拉取能力）
+   */
   icon?: string;
   children?: AppMenuItem[];
   external?: boolean;
@@ -64,8 +69,17 @@ export interface SsoAdapter {
   exchangeOAuthCode?(payload: { code: string; state?: string; redirectUri?: string }): Promise<void>;
 }
 
+export interface AssetAdapter {
+  /**
+   * 按资源 id 获取图片 Blob（例如菜单 icon 存储在 minio 的场景）。
+   * 注意：core 不假设具体后端路径，由业务 adapter 实现。
+   */
+  fetchImageBlob(payload: { id: string }): Promise<Blob>;
+}
+
 export interface BackendAdapter {
   auth: AuthAdapter;
   menu: MenuAdapter;
   sso?: SsoAdapter;
+  assets?: AssetAdapter;
 }

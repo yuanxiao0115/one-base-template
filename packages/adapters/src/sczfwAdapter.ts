@@ -192,6 +192,14 @@ export function createSczfwAdapter(
         }
         localStorage.setItem(tokenKey, token);
       }
+    },
+    assets: {
+      async fetchImageBlob(payload: { id: string }): Promise<Blob> {
+        return await http.get<Blob>('/cmict/file/resource/show', {
+          params: payload,
+          responseType: 'blob'
+        });
+      }
     }
   };
 }
