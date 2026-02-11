@@ -21,7 +21,6 @@ const STORAGE_KEY = 'ob_layout';
 type StoredLayout = {
   mode?: LayoutMode;
   siderCollapsed?: boolean;
-  activeSystem?: string;
 };
 
 function readStoredLayout(): StoredLayout {
@@ -48,7 +47,6 @@ function normalizeLayoutMode(raw: unknown): LayoutMode | undefined {
 export const useLayoutStore = defineStore('ob-layout', () => {
   const mode = ref<LayoutMode>('side');
   const siderCollapsed = ref(false);
-  const activeSystem = ref<string>('');
 
   // 由 init() 注入（避免在 store 外部硬编码）
   const persistEnabled = ref(true);
@@ -57,8 +55,7 @@ export const useLayoutStore = defineStore('ob-layout', () => {
     if (!persistEnabled.value) return;
     writeStoredLayout({
       mode: mode.value,
-      siderCollapsed: siderCollapsed.value,
-      activeSystem: activeSystem.value
+      siderCollapsed: siderCollapsed.value
     });
   }
 
@@ -69,14 +66,12 @@ export const useLayoutStore = defineStore('ob-layout', () => {
     if (!persistEnabled.value) {
       mode.value = fallbackMode;
       siderCollapsed.value = false;
-      activeSystem.value = '';
       return;
     }
 
     const saved = readStoredLayout();
     mode.value = normalizeLayoutMode(saved.mode) ?? fallbackMode;
     siderCollapsed.value = saved.siderCollapsed ?? false;
-    activeSystem.value = saved.activeSystem ?? '';
   }
 
   function setMode(next: LayoutMode) {
@@ -93,27 +88,19 @@ export const useLayoutStore = defineStore('ob-layout', () => {
     setSiderCollapsed(!siderCollapsed.value);
   }
 
-  function setActiveSystem(path: string) {
-    activeSystem.value = path;
-    persist();
-  }
-
   function reset() {
     mode.value = 'side';
     siderCollapsed.value = false;
-    activeSystem.value = '';
     persist();
   }
 
   return {
     mode,
     siderCollapsed,
-    activeSystem,
     init,
     setMode,
     setSiderCollapsed,
     toggleSiderCollapsed,
-    setActiveSystem,
     reset
   };
 });

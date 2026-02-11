@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore, useMenuStore, useSystemStore, useTabsStore } from '@one-base-template/core';
+import { useAuthStore, useLayoutStore, useMenuStore, useSystemStore, useTabsStore } from '@one-base-template/core';
 import ThemeSwitcher from '../theme/ThemeSwitcher.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const layoutStore = useLayoutStore();
 const menuStore = useMenuStore();
 const systemStore = useSystemStore();
 const tabsStore = useTabsStore();
 
 const userName = computed(() => authStore.user?.name ?? '未登录');
-const showSystemSwitcher = computed(() => systemStore.systems.length > 1);
+// top-side 布局会在顶栏下方渲染 SystemMenu（横向系统切换），此处不重复展示下拉切换
+const showSystemSwitcher = computed(() => systemStore.systems.length > 1 && layoutStore.mode !== 'top-side');
 const currentSystemName = computed(() => systemStore.currentSystemName);
 
 async function onLogout() {

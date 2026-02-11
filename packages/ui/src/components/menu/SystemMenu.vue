@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import type { AppMenuItem } from '@one-base-template/core';
-import MenuIcon from './MenuIcon.vue';
+import type { AppSystemInfo } from '@one-base-template/core';
 
 defineProps<{
-  systems: AppMenuItem[];
+  systems: AppSystemInfo[];
   active: string;
 }>();
 
 const emit = defineEmits<{
-  (e: 'select', path: string): void;
+  (e: 'select', systemCode: string): void;
 }>();
 
 function onSelect(index: string) {
@@ -17,7 +16,7 @@ function onSelect(index: string) {
 </script>
 
 <template>
-  <div v-if="systems.length" class="bg-white border-b border-[var(--el-border-color)] px-2">
+  <div v-if="systems.length > 1" class="bg-white border-b border-[var(--el-border-color)] px-2">
     <el-menu
       class="border-0"
       mode="horizontal"
@@ -26,15 +25,11 @@ function onSelect(index: string) {
     >
       <el-menu-item
         v-for="sys in systems"
-        :key="sys.path"
-        :index="sys.path"
+        :key="sys.code"
+        :index="sys.code"
       >
-        <div class="flex items-center gap-2">
-          <MenuIcon :icon="sys.icon" class="text-base" />
-          <span>{{ sys.title }}</span>
-        </div>
+        <span :title="sys.code">{{ sys.name }}</span>
       </el-menu-item>
     </el-menu>
   </div>
 </template>
-
