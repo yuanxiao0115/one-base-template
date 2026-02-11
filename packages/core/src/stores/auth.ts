@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import type { AppUser } from '../adapter/types';
 import { getCoreOptions } from '../context';
 
-export const useAuthStore = defineStore('sb-auth', () => {
+export const useAuthStore = defineStore('ob-auth', () => {
   const user = ref<AppUser | null>(null);
   const initialized = ref(false);
 

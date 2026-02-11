@@ -2,7 +2,7 @@
 
 全程使用中文进行 thinking、message 回复。
 
-Ethan owns this. Start: say hi + 1 motivating line.
+yuanxiao owns this. Start: say hi + 1 motivating line.
 
 ---
 
@@ -28,7 +28,7 @@ Ethan owns this. Start: say hi + 1 motivating line.
 
 ## 📂 项目结构（Monorepo）
 
-仓库根目录：`/Users/haoqiuzhi/code/standard-base-tamplate`
+仓库根目录：`/Users/haoqiuzhi/code/one-base-template`
 
 ```
 apps/
@@ -89,4 +89,3 @@ packages/
 - 全程中文回复；结构清晰；重要信息加粗
 - 执行前说明要做什么，执行后汇报结果（包含：改动文件、验证命令、风险点）
 - 当用户纠正后：**把新规则补充到本文件**，避免重复犯错
-

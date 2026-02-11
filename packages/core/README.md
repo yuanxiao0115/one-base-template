@@ -1,4 +1,4 @@
-# @standard-base-tamplate/core
+# @one-base-template/core
 
 本包只放“纯逻辑”，不依赖任何具体业务接口字段，也不包含 UI。
 
@@ -6,7 +6,7 @@
 
 ## 1) Adapter 契约（解耦关键）
 
-文件：`/Users/haoqiuzhi/code/standard-base-tamplate/packages/core/src/adapter/types.ts`
+文件：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/adapter/types.ts`
 
 - `auth.login/logout/fetchMe`
 - `menu.fetchMenuTree`
@@ -16,10 +16,10 @@
 
 ## 2) Core 初始化
 
-入口：`/Users/haoqiuzhi/code/standard-base-tamplate/packages/core/src/createCore.ts`
+入口：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/createCore.ts`
 
 ```ts
-import { createCore } from '@standard-base-tamplate/core'
+import { createCore } from '@one-base-template/core'
 
 app.use(createCore({
   adapter,
@@ -43,13 +43,13 @@ app.use(createCore({
 菜单生成工具（适合简单项目）：
 
 ```ts
-import { createStaticMenusFromRoutes } from '@standard-base-tamplate/core'
+import { createStaticMenusFromRoutes } from '@one-base-template/core'
 const staticMenus = createStaticMenusFromRoutes(routes, { rootPath: '/' })
 ```
 
 ## 4) SSO 回调处理（多策略）
 
-文件：`/Users/haoqiuzhi/code/standard-base-tamplate/packages/core/src/router/sso.ts`
+文件：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/router/sso.ts`
 
 统一回调页路由建议固定为 `/sso`，支持按策略优先级匹配：
 - `token`：`?token=...` / `?access_token=...`（可选 direct 或 adapter exchange）
@@ -61,7 +61,7 @@ exchange 成功后会自动：
 
 ## 5) 主题切换（多套主题色）
 
-文件：`/Users/haoqiuzhi/code/standard-base-tamplate/packages/core/src/stores/theme.ts`
+文件：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/stores/theme.ts`
 
 - 通过 `mix()` 计算 Element Plus 主色派生色
 - 写入 CSS 变量：
@@ -71,9 +71,8 @@ exchange 成功后会自动：
 
 ## 6) Tabs + KeepAlive 缓存
 
-文件：`/Users/haoqiuzhi/code/standard-base-tamplate/packages/core/src/stores/tabs.ts`
+文件：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/stores/tabs.ts`
 
 约定：
 - route.meta.keepAlive === true 时加入缓存
 - keep-alive 的 include 使用 **组件名**，推荐约定为 `route.name`
-

@@ -1,4 +1,4 @@
-# standard-base-tamplate
+# one-base-template
 
 Vue 3 + Vite 8(beta) + Tailwind(v4) + Element Plus + Pinia + Vue Router 的 Monorepo 脚手架（pnpm workspaces + Turborepo）。
 
@@ -49,7 +49,7 @@ pnpm build
 
 ## 路由与模块切割
 
-- 路由全量静态声明：`/Users/haoqiuzhi/code/standard-base-tamplate/apps/admin/src/modules/**/routes.ts`
+- 路由全量静态声明：`/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/**/routes.ts`
 - 删除某个 `modules/<name>` 目录即可移除对应功能（做到“可切割”）
 
 ## 动态菜单 + 静态路由（核心规则）
@@ -73,8 +73,8 @@ pnpm build
 
 核心解耦点：`apps/admin` 不直接写死后端字段，统一通过 Adapter 适配。
 
-- 接口契约：`/Users/haoqiuzhi/code/standard-base-tamplate/packages/core/src/adapter/types.ts`
-- 示例实现：`/Users/haoqiuzhi/code/standard-base-tamplate/packages/adapters/src/defaultAdapter.ts`
+- 接口契约：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/adapter/types.ts`
+- 示例实现：`/Users/haoqiuzhi/code/one-base-template/packages/adapters/src/defaultAdapter.ts`
 - Cookie(HttpOnly) 模式：
   - 登录接口需要 `Set-Cookie`
   - HTTP 客户端默认 `withCredentials: true`

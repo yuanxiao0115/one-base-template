@@ -11,9 +11,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@standard-base-tamplate/adapters": "workspace:*",
-    "@standard-base-tamplate/core": "workspace:*",
-    "@standard-base-tamplate/ui": "workspace:*",
+    "@one-base-template/adapters": "workspace:*",
+    "@one-base-template/core": "workspace:*",
+    "@one-base-template/ui": "workspace:*",
     "element-plus": "^2.13.2",
     "pinia": "^3.0.4",
     "vue": "^3.5.28",

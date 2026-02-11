@@ -2,7 +2,7 @@
 import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { useAuthStore, useMenuStore } from '@standard-base-tamplate/core';
+import { useAuthStore, useMenuStore } from '@one-base-template/core';
 
 defineOptions({
   name: 'LoginPage'

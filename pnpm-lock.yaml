@@ -35,13 +35,13 @@ importers:
 
   apps/admin:
     dependencies:
-      '@standard-base-tamplate/adapters':
+      '@one-base-template/adapters':
         specifier: workspace:*
         version: link:../../packages/adapters
-      '@standard-base-tamplate/core':
+      '@one-base-template/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@standard-base-tamplate/ui':
+      '@one-base-template/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       element-plus:
@@ -84,7 +84,7 @@ importers:
 
   packages/adapters:
     dependencies:
-      '@standard-base-tamplate/core':
+      '@one-base-template/core':
         specifier: workspace:*
         version: link:../core
       axios:
@@ -108,7 +108,7 @@ importers:
 
   packages/ui:
     dependencies:
-      '@standard-base-tamplate/core':
+      '@one-base-template/core':
         specifier: workspace:*
         version: link:../core
       element-plus:

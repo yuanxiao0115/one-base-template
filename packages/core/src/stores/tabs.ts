@@ -11,7 +11,7 @@ export interface TabItem {
   keepAlive?: boolean;
 }
 
-export const useTabsStore = defineStore('sb-tabs', () => {
+export const useTabsStore = defineStore('ob-tabs', () => {
   const tabs = ref<TabItem[]>([]);
   const activeFullPath = ref<string>('');
 

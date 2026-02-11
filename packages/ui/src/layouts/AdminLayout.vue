@@ -9,7 +9,7 @@ import KeepAliveView from '../components/view/KeepAliveView.vue';
   <div class="h-screen w-screen flex bg-[var(--el-bg-color-page)]">
     <aside class="w-64 shrink-0 border-r border-[var(--el-border-color)] bg-white">
       <div class="h-14 shrink-0 flex items-center px-4 border-b border-[var(--el-border-color)]">
-        <div class="font-semibold">standard-base</div>
+        <div class="font-semibold">one-base</div>
       </div>
       <SidebarMenu />
     </aside>

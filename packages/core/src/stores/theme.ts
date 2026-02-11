@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { mix } from '../utils/color';
 
-const THEME_KEY = 'sb_theme';
+const THEME_KEY = 'ob_theme';
 
 export interface ThemeOptions {
   defaultTheme: string;
@@ -34,7 +34,7 @@ function applyElementPlusPrimary(primary: string) {
   setCssVar('--el-color-primary-dark-2', mix(primary, black, 0.2));
 }
 
-export const useThemeStore = defineStore('sb-theme', () => {
+export const useThemeStore = defineStore('ob-theme', () => {
   const themes = ref<ThemeOptions['themes']>({});
   const themeKey = ref<string>('');
 

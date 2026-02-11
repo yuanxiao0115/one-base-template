@@ -18,10 +18,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "@standard-base-tamplate/core": ["packages/core/src/index.ts"],
-      "@standard-base-tamplate/ui": ["packages/ui/src/index.ts"],
-      "@standard-base-tamplate/adapters": ["packages/adapters/src/index.ts"]
+      "@one-base-template/core": ["packages/core/src/index.ts"],
+      "@one-base-template/ui": ["packages/ui/src/index.ts"],
+      "@one-base-template/adapters": ["packages/adapters/src/index.ts"]
     }
   }
 }
-

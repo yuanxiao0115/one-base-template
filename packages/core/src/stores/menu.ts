@@ -29,7 +29,7 @@ function collectAllowedPaths(items: AppMenuItem[], out: Set<string>) {
   }
 }
 
-export const useMenuStore = defineStore('sb-menu', () => {
+export const useMenuStore = defineStore('ob-menu', () => {
   const menus = ref<AppMenuItem[]>([]);
   const loaded = ref(false);
   const allowedPaths = ref<string[]>([]);

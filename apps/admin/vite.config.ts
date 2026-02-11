@@ -63,7 +63,7 @@ function setCookie(res: ServerResponse, cookie: string) {
 function mockMiddleware(): Plugin {
   // 简易内存会话：仅用于开发演示
   const sessions = new Map<string, { user: { id: string; name: string } }>();
-  const cookieName = 'sb_session';
+  const cookieName = 'ob_session';
 
   function createSession(userName: string) {
     const sid = crypto.randomUUID();
@@ -82,7 +82,7 @@ function mockMiddleware(): Plugin {
   }
 
   return {
-    name: 'sb-dev-mock-api',
+    name: 'ob-dev-mock-api',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {

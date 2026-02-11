@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { AdminLayout } from '@standard-base-tamplate/ui';
+import { AdminLayout } from '@one-base-template/ui';
 
 type RouteModule = { default?: RouteRecordRaw[]; routes?: RouteRecordRaw[] };
 const modules = import.meta.glob('../modules/**/routes.ts', { eager: true }) as Record<string, RouteModule>;

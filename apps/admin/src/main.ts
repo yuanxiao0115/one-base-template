@@ -13,8 +13,8 @@ import {
   createHttpClient,
   createStaticMenusFromRoutes,
   setupRouterGuards
-} from '@standard-base-tamplate/core';
-import { createDefaultAdapter } from '@standard-base-tamplate/adapters';
+} from '@one-base-template/core';
+import { createDefaultAdapter } from '@one-base-template/adapters';
 
 const app = createApp(App);
 app.use(createPinia());

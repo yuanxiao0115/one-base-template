@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useThemeStore } from '@standard-base-tamplate/core';
+import { useThemeStore } from '@one-base-template/core';
 
 const themeStore = useThemeStore();
 

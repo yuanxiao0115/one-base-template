@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { handleSsoCallbackFromLocation } from '@standard-base-tamplate/core';
+import { handleSsoCallbackFromLocation } from '@one-base-template/core';
 
 defineOptions({
   name: 'SsoCallbackPage'

@@ -1,5 +1,5 @@
 {
-  "name": "@standard-base-tamplate/adapters",
+  "name": "@one-base-template/adapters",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,7 +14,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@standard-base-tamplate/core": "workspace:*",
+    "@one-base-template/core": "workspace:*",
     "axios": "^1.0.0"
   }
 }

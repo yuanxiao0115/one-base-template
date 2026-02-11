@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import type { BackendAdapter, AppMenuItem, AppUser } from '@standard-base-tamplate/core';
+import type { BackendAdapter, AppMenuItem, AppUser } from '@one-base-template/core';
 
 export function createDefaultAdapter(http: AxiosInstance): BackendAdapter {
   return {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useTabsStore } from '@standard-base-tamplate/core';
+import { useTabsStore } from '@one-base-template/core';
 
 const router = useRouter();
 const tabsStore = useTabsStore();
@@ -49,7 +49,7 @@ function onCloseAll() {
       <el-tabs
         v-model="model"
         type="card"
-        class="sb-tabs"
+        class="ob-tabs"
         @tab-click="onTabClick"
         @tab-remove="onTabRemove"
       >

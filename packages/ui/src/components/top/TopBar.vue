@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore, useMenuStore, useTabsStore } from '@standard-base-tamplate/core';
+import { useAuthStore, useMenuStore, useTabsStore } from '@one-base-template/core';
 import ThemeSwitcher from '../theme/ThemeSwitcher.vue';
 
 const router = useRouter();

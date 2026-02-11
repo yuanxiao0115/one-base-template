@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTabsStore } from '@standard-base-tamplate/core';
+import { useTabsStore } from '@one-base-template/core';
 
 const tabsStore = useTabsStore();
 </script>
