@@ -1,0 +1,24 @@
+node_modules
+
+# 构建产物
+dist
+
+# Turborepo
+.turbo
+
+# Vite
+.vite
+
+# 日志
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 自动生成的类型声明（unplugin-auto-import / unplugin-vue-components）
+**/src/auto-imports.d.ts
+**/src/components.d.ts
+
+# 系统文件
+.DS_Store

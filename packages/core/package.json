@@ -1,0 +1,24 @@
+{
+  "name": "@standard-base-tamplate/core",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "axios": "^1.0.0"
+  },
+  "peerDependencies": {
+    "pinia": "^3.0.4",
+    "vue": "^3.5.28",
+    "vue-router": "^5.0.2"
+  }
+}
