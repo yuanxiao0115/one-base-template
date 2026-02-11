@@ -13,6 +13,7 @@ import {
   createCore,
   createObHttp,
   createStaticMenusFromRoutes,
+  type LayoutMode,
   setupRouterGuards
 } from '@one-base-template/core';
 import { createDefaultAdapter, createSczfwAdapter } from '@one-base-template/adapters';
@@ -130,6 +131,12 @@ const staticMenus =
     ? createStaticMenusFromRoutes(routes, { rootPath: '/' })
     : undefined;
 
+function resolveLayoutMode(raw: unknown): LayoutMode {
+  return raw === 'top' || raw === 'top-side' || raw === 'side' ? raw : 'side';
+}
+
+const layoutMode = resolveLayoutMode(import.meta.env.VITE_LAYOUT_MODE);
+
 app.use(
   createCore({
     adapter,
@@ -151,6 +158,10 @@ app.use(
         green: { primary: '#16a34a' },
         orange: { primary: '#f97316' }
       }
+    },
+    layout: {
+      defaultMode: layoutMode,
+      persist: true
     }
   })
 );

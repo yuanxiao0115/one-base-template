@@ -27,6 +27,7 @@ export type {
 export { apiWrapper, type ObApiWrapperResult } from './http/apiWrapper';
 
 export { useAuthStore } from './stores/auth';
+export { useLayoutStore, type LayoutMode, type LayoutOptions } from './stores/layout';
 export { useMenuStore } from './stores/menu';
 export { useTabsStore } from './stores/tabs';
 export { useThemeStore } from './stores/theme';

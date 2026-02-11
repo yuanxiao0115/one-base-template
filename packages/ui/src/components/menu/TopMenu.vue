@@ -4,32 +4,15 @@ import { useRoute, useRouter } from 'vue-router';
 import { useMenuStore, type AppMenuItem } from '@one-base-template/core';
 import MenuItem from './MenuItem.vue';
 
+const props = defineProps<{
+  menus?: AppMenuItem[];
+}>();
+
 const menuStore = useMenuStore();
 const router = useRouter();
 const route = useRoute();
 
-const props = defineProps<{
-  /** 可选：外部传入菜单（例如多系统模式下传入某个 system 的 children） */
-  menus?: AppMenuItem[];
-  /** 是否折叠侧边栏 */
-  collapsed?: boolean;
-}>();
-
 const menus = computed(() => props.menus ?? menuStore.menus);
-const collapsed = computed(() => Boolean(props.collapsed));
-
-function findOpenPaths(list: AppMenuItem[], target: string, parents: string[] = []): string[] {
-  for (const item of list) {
-    if (item.path === target) return parents;
-    if (item.children?.length) {
-      const found = findOpenPaths(item.children, target, [...parents, item.path]);
-      if (found.length) return found;
-    }
-  }
-  return [];
-}
-
-const openeds = computed(() => findOpenPaths(menus.value, route.path));
 
 function onSelect(index: string) {
   const item = findMenuByPath(menus.value, index);
@@ -53,15 +36,11 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
 </script>
 
 <template>
-  <el-scrollbar class="h-full">
+  <div class="px-4 bg-white border-b border-[var(--el-border-color)]">
     <el-menu
-      :key="`${route.path}:${collapsed}`"
       class="border-0"
+      mode="horizontal"
       :default-active="route.path"
-      :default-openeds="openeds"
-      :collapse="collapsed"
-      :collapse-transition="false"
-      :unique-opened="true"
       @select="onSelect"
     >
       <MenuItem
@@ -70,5 +49,6 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
         :item="item"
       />
     </el-menu>
-  </el-scrollbar>
+  </div>
 </template>
+
