@@ -188,8 +188,13 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
       return typeof msg === 'string' ? msg : undefined;
     });
 
-  const successCodes = biz.successCodes ?? [200];
+  // 兼容不同后端：有的用 0 成功，有的用 200 成功（用户已确认默认混用）
+  const successCodes = biz.successCodes ?? [0, 200];
   const logoutCodes = biz.logoutCodes ?? [-401, -402, 401, 1000, 1003, 1020];
+
+  // 兼容 code 可能是 number 或 string（例如 "0"/"200"）
+  const successCodeSet = new Set(successCodes.map(String));
+  const logoutCodeSet = new Set(logoutCodes.map(String));
 
   const download = {
     autoDownload: options.download?.autoDownload ?? true,
@@ -265,7 +270,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
       // 业务码：默认不抛异常，保持旧项目习惯；允许按配置/单次请求强制抛出
       if (isBizResponse(data, response)) {
         const code = getCode(data);
-        const ok = code !== undefined && successCodes.includes(code);
+        const ok = code !== undefined && successCodeSet.has(String(code));
         if (!ok) {
           const msg = getMessage(data) || '请求失败';
 
@@ -273,7 +278,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
             hooks.onBizError?.({ code, message: msg, data, config, response });
           }
 
-          if (code !== undefined && logoutCodes.includes(code)) {
+          if (code !== undefined && logoutCodeSet.has(String(code))) {
             hooks.onUnauthorized?.({ by: 'biz-code', code });
           }
 

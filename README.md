@@ -99,6 +99,7 @@ pnpm build
 脚手架在 `packages/core` 内提供了 `createObHttp()`：
 
 - 默认约定业务响应形态为 `{ code, data, message }`（可在 app 层通过 `options.biz` 覆盖）
+- 默认成功码 **兼容 `0/200` 混用**（可通过 `successCodes` 覆盖）
 - 默认 **不因业务码失败而抛异常**（贴近旧项目习惯）；网络错误仍会抛出
 - 支持 `$isUpload/$isDownload/$noErrorAlert/beforeRequestCallback/beforeResponseCallback` 等字段
 - `$isDownload` 默认 **自动触发下载**（可通过 hooks 自定义）

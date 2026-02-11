@@ -48,8 +48,8 @@ const http = createObHttp({
     getToken: () => localStorage.getItem(tokenKey) || undefined
   },
   biz: {
-    // 默认约定 { code, data, message } 且 code=200 成功；不稳定时可通过 app 层覆盖这些策略
-    successCodes: [200]
+    // 默认约定 { code, data, message } 且 code=0/200 成功；不稳定时可通过 app 层覆盖这些策略
+    successCodes: [0, 200]
   },
   download: {
     autoDownload: true

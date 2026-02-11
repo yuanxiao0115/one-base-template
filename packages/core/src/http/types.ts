@@ -92,7 +92,7 @@ export interface ObHttpBizOptions {
   getCode?: (data: unknown) => ObBizCode | undefined;
   /** 读取业务 message */
   getMessage?: (data: unknown) => string | undefined;
-  /** 成功码集合，默认 [200] */
+  /** 成功码集合，默认 [0, 200]（兼容不同后端） */
   successCodes?: ObBizCode[];
   /** 需要触发登出/跳登录的业务码集合 */
   logoutCodes?: ObBizCode[];
@@ -123,4 +123,3 @@ export interface CreateObHttpOptions {
   beforeRequestCallback?: (config: ObHttpRequestConfig) => void;
   beforeResponseCallback?: (response: AxiosResponse) => void;
 }
-

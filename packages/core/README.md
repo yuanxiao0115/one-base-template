@@ -34,7 +34,7 @@ const http = createObHttp({
   },
   biz: {
     // 默认约定：{ code, data, message }
-    successCodes: [200],
+    successCodes: [0, 200],
     logoutCodes: [401, 1000, 1003, 1020],
   },
   hooks: {
@@ -100,4 +100,3 @@ declare module '@one-base-template/core' {
   - `static`：菜单树从静态路由 `meta.title` 生成（适合简单项目）
 
 注意：本脚手架约定“路由始终静态声明”，菜单只影响**显示与访问控制**，不会做动态 addRoute。
-
