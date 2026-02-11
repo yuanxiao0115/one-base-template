@@ -47,6 +47,14 @@ function json(res: ServerResponse, status: number, data: unknown) {
   res.end(JSON.stringify(data));
 }
 
+function ok(res: ServerResponse, data: unknown = null, message = 'ok') {
+  return json(res, 200, { code: 200, data, message });
+}
+
+function fail(res: ServerResponse, status: number, message: string, code: number = status) {
+  return json(res, status, { code, data: null, message });
+}
+
 function setCookie(res: ServerResponse, cookie: string) {
   const prev = res.getHeader('Set-Cookie');
   if (!prev) {
@@ -100,7 +108,7 @@ function mockMiddleware(): Plugin {
 
             const sid = createSession(userName);
             setCookie(res, `${cookieName}=${encodeURIComponent(sid)}; HttpOnly; Path=/; SameSite=Lax`);
-            return json(res, 200, { ok: true });
+            return ok(res);
           }
 
           // 登出
@@ -108,7 +116,7 @@ function mockMiddleware(): Plugin {
             const cookies = parseCookies(req.headers.cookie);
             clearSession(cookies[cookieName]);
             setCookie(res, `${cookieName}=; Max-Age=0; HttpOnly; Path=/; SameSite=Lax`);
-            return json(res, 200, { ok: true });
+            return ok(res);
           }
 
           // 当前用户
@@ -117,14 +125,14 @@ function mockMiddleware(): Plugin {
             const sid = cookies[cookieName];
             const session = sid ? sessions.get(sid) : undefined;
             if (!session) {
-              return json(res, 401, { message: '未登录' });
+              return fail(res, 401, '未登录');
             }
-            return json(res, 200, session.user);
+            return ok(res, session.user);
           }
 
           // 菜单树
           if (req.method === 'GET' && url === '/api/menu/tree') {
-            return json(res, 200, [
+            return ok(res, [
               { path: '/home', title: '首页', order: 10, keepAlive: true },
               {
                 path: '/demo',
@@ -139,17 +147,45 @@ function mockMiddleware(): Plugin {
             ]);
           }
 
+          // 下载示例：返回二进制流（触发 core 的 autoDownload）
+          if (req.method === 'GET' && url === '/api/demo/download') {
+            const cookies = parseCookies(req.headers.cookie);
+            const sid = cookies[cookieName];
+            const session = sid ? sessions.get(sid) : undefined;
+            if (!session) {
+              return fail(res, 401, '未登录');
+            }
+
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Content-Disposition', 'attachment; filename="ob-demo.txt"');
+
+            const content = [
+              'one-base-template demo download',
+              `user=${session.user.name}`,
+              `time=${new Date().toISOString()}`
+            ].join('\n');
+
+            res.end(Buffer.from(content, 'utf-8'));
+            return;
+          }
+
+          // 下载错误示例：虽然是“下载接口”，但返回 JSON 业务错误（用于验证 blob->json 探测）
+          if (req.method === 'GET' && url === '/api/demo/download-error') {
+            return json(res, 200, { code: 500, data: null, message: '下载失败：模拟业务错误' });
+          }
+
           // SSO: token/ticket/code 换会话
           if (req.method === 'POST' && url.startsWith('/api/sso/')) {
             const sid = createSession('sso-user');
             setCookie(res, `${cookieName}=${encodeURIComponent(sid)}; HttpOnly; Path=/; SameSite=Lax`);
-            return json(res, 200, { ok: true });
+            return ok(res);
           }
 
           return next();
         } catch (e: unknown) {
           const message = e instanceof Error && e.message ? e.message : 'mock error';
-          return json(res, 500, { message });
+          return fail(res, 500, message);
         }
       });
     }

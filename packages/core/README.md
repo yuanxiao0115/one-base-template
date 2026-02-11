@@ -1,78 +1,103 @@
 # @one-base-template/core
 
-本包只放“纯逻辑”，不依赖任何具体业务接口字段，也不包含 UI。
+本包是脚手架的“纯逻辑核心”，目标是让 `apps/*` 与 `packages/ui` 都能在不耦合具体后端字段、也不依赖 UI 库的前提下复用鉴权/菜单/SSO/主题/tabs/http 等能力。
 
-核心目标：让 `apps/*` 只做组装；对接不同后端时只需要替换 Adapter；要裁剪功能时可以直接删模块目录或替换 UI 包。
+## 1. 适配器（Adapter）契约
 
-## 1) Adapter 契约（解耦关键）
+对接真实后端时，推荐只在 `apps/*` 或 `packages/adapters` 实现适配器，避免把后端字段写死进 core。
 
-文件：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/adapter/types.ts`
+- 契约定义：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/adapter/types.ts`
 
-- `auth.login/logout/fetchMe`
+核心接口：
+
+- `auth.login / logout / fetchMe`
 - `menu.fetchMenuTree`
-- `sso.exchange*`（可选）
+- `sso.exchangeToken / exchangeTicket / exchangeOAuthCode`（可选）
 
-脚手架默认走 Cookie(HttpOnly) 模式：登录/换票接口由后端 `Set-Cookie` 写会话，前端默认不读写 token。
+## 2. HTTP 封装：createObHttp（兼容 PureHttp 使用习惯）
 
-## 2) Core 初始化
+入口：
 
-入口：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/createCore.ts`
+- `createObHttp(options)`：创建一个带“业务码处理 + 上传/下载 + hooks 扩展点”的 Axios 包装层
+- 默认返回 `response.data`（可用 `$rawResponse` 获取原始 `AxiosResponse`）
 
-```ts
-import { createCore } from '@one-base-template/core'
-
-app.use(createCore({
-  adapter,
-  menuMode: 'remote',
-  sso: { enabled: true, routePath: '/sso', strategies: [...] },
-  theme: { defaultTheme: 'blue', themes: { blue: { primary: '#1677ff' } } }
-}))
-```
-
-## 3) 静态路由 + 动态菜单（默认权限规则）
-
-- 路由：始终在前端静态声明（不依赖后端 addRoute）
-- 菜单：
-  - `menuMode=remote`：通过 `adapter.menu.fetchMenuTree()` 获取
-  - `menuMode=static`：由 app 提供 `staticMenus`（可通过本包工具函数从路由生成）
-
-默认权限校验（`router/guards.ts`）：
-- **allowedPaths = 菜单树出现过的 path 集合**
-- 用户手动输入一个不在 allowedPaths 的地址 -> `403`
-
-菜单生成工具（适合简单项目）：
+### 2.1 典型用法
 
 ```ts
-import { createStaticMenusFromRoutes } from '@one-base-template/core'
-const staticMenus = createStaticMenusFromRoutes(routes, { rootPath: '/' })
+import { createObHttp } from '@one-base-template/core'
+
+const http = createObHttp({
+  axios: { baseURL: '/api', withCredentials: true },
+  auth: {
+    mode: 'cookie', // cookie | token | mixed
+    getToken: () => localStorage.getItem('ob_token') || undefined,
+  },
+  biz: {
+    // 默认约定：{ code, data, message }
+    successCodes: [200],
+    logoutCodes: [401, 1000, 1003, 1020],
+  },
+  hooks: {
+    onBizError: ({ message }) => console.error(message),
+    onUnauthorized: () => console.warn('unauthorized'),
+  },
+})
+
+await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } })
 ```
 
-## 4) SSO 回调处理（多策略）
+### 2.2 请求配置（ObHttpRequestConfig）
 
-文件：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/router/sso.ts`
+在 Axios 原有 `AxiosRequestConfig` 基础上，core 额外支持（常用）：
 
-统一回调页路由建议固定为 `/sso`，支持按策略优先级匹配：
-- `token`：`?token=...` / `?access_token=...`（可选 direct 或 adapter exchange）
-- `ticket`：`?ticket=...`（走 adapter.exchangeTicket）
-- `oauth`：`?code=...&state=...`（走 adapter.exchangeOAuthCode）
+- `$isUpload?: boolean`：上传接口，自动设置 `multipart/form-data`
+- `$isDownload?: boolean`：下载接口，自动 `responseType=blob`，并按需自动触发下载
+- `$downloadFileName?: string`：下载文件名（优先级最高）
+- `$noErrorAlert?: boolean`：业务码错误时不触发 `onBizError`
+- `$rawResponse?: boolean`：返回原始 `AxiosResponse`
+- `$throwOnBizError?: boolean`：业务码失败时强制抛异常（默认不抛，贴近旧项目习惯）
+- `$isAuth?: boolean` + `token?: string`：token/mixed 模式下，允许单次请求显式传 token
+- `beforeRequestCallback / beforeResponseCallback`：单次请求回调（优先级高于全局）
 
-exchange 成功后会自动：
-`fetchMe()` -> `loadMenus()` -> 返回安全的站内 redirect。
+### 2.3 业务码（Biz）约定与可扩展点
 
-## 5) 主题切换（多套主题色）
+默认“业务码响应”判定：响应 data 里存在 `code` 字段（适配 `{ code, data, message }` 形态）。
 
-文件：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/stores/theme.ts`
+当后端字段不稳定/不同项目不一致时，可在 app 层通过 `options.biz` 覆盖：
 
-- 通过 `mix()` 计算 Element Plus 主色派生色
-- 写入 CSS 变量：
-  - `--el-color-primary`
-  - `--el-color-primary-light-3/5/7/8/9`
-  - `--el-color-primary-dark-2`
+- `isBizResponse(data, response)`：如何判断是业务码包装
+- `getCode(data)`：如何读业务 code
+- `getMessage(data)`：如何读 message
+- `successCodes`：成功码集合（默认 `[200]`）
+- `logoutCodes`：触发登出/跳转登录的业务码集合
 
-## 6) Tabs + KeepAlive 缓存
+### 2.4 下载（自动触发）
 
-文件：`/Users/haoqiuzhi/code/one-base-template/packages/core/src/stores/tabs.ts`
+当 `$isDownload=true` 且 `download.autoDownload=true`（默认 true）时：
 
-约定：
-- route.meta.keepAlive === true 时加入缓存
-- keep-alive 的 include 使用 **组件名**，推荐约定为 `route.name`
+1) 自动切换 `responseType=blob`
+2) 先对 blob 做“有限 JSON 探测”（避免后端返回 JSON 错误被当成文件下载）
+3) 若确认为文件流，则触发自动下载（可用 `hooks.onAutoDownload` 自定义）
+
+### 2.5 如何扩展自定义 `$xxx` 字段
+
+如果你们项目需要增加类似旧项目的 `$isMatter/$isReport` 等标记，推荐用 TS 模块增强，而不是在业务里使用 `as any`：
+
+```ts
+declare module '@one-base-template/core' {
+  interface ObHttpRequestConfig {
+    $isMatter?: boolean
+    $isReport?: boolean
+  }
+}
+```
+
+## 3. 路由守卫与菜单模式
+
+- `setupRouterGuards(router)`：默认实现“未登录跳转登录页 + 菜单 allowedPaths 控制访问”
+- `menuMode=remote|static`
+  - `remote`：菜单树来自 adapter（后端）
+  - `static`：菜单树从静态路由 `meta.title` 生成（适合简单项目）
+
+注意：本脚手架约定“路由始终静态声明”，菜单只影响**显示与访问控制**，不会做动态 addRoute。
+

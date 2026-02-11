@@ -27,6 +27,7 @@ pnpm dev
 - 多标签页（tabs）+ keep-alive 缓存
 - 主题切换（多套主题色）
 - SSO 回调：`/sso?token=xxx` / `ticket` / `code`
+- 下载演示：进入“页面 A”，点击“下载示例文件”（验证 `$isDownload` + 自动触发下载）
 
 ## 构建
 
@@ -38,6 +39,12 @@ pnpm build
 
 建议在 `apps/admin` 下创建 `.env.development` / `.env.local`：
 
+- `VITE_AUTH_MODE=cookie|token|mixed`
+  - `cookie`：默认模式（Cookie HttpOnly + withCredentials）
+  - `token`：每次请求都带 token（通过 `VITE_TOKEN_KEY` 从 localStorage 读取）
+  - `mixed`：同时支持 cookie + token（按需使用 `$isAuth/token` 或全局 getToken）
+- `VITE_TOKEN_KEY=ob_token`
+  - token 模式下使用的 localStorage key（默认 `ob_token`）
 - `VITE_MENU_MODE=remote|static`
   - `remote`：菜单从后端获取（通过 Adapter `menu.fetchMenuTree()`）
   - `static`：菜单从静态路由的 `meta.title` 生成（适合简单项目，无需单独写菜单配置）
@@ -86,3 +93,14 @@ pnpm build
 
 - `createCore({ theme: { defaultTheme, themes } })`
 - `packages/core` 会在切换时写入 Element Plus 主色及派生色 CSS 变量（`--el-color-primary-*`）
+
+## HTTP/Axios 封装（兼容旧项目 PureHttp 习惯）
+
+脚手架在 `packages/core` 内提供了 `createObHttp()`：
+
+- 默认约定业务响应形态为 `{ code, data, message }`（可在 app 层通过 `options.biz` 覆盖）
+- 默认 **不因业务码失败而抛异常**（贴近旧项目习惯）；网络错误仍会抛出
+- 支持 `$isUpload/$isDownload/$noErrorAlert/beforeRequestCallback/beforeResponseCallback` 等字段
+- `$isDownload` 默认 **自动触发下载**（可通过 hooks 自定义）
+
+详细说明见：`/Users/haoqiuzhi/code/one-base-template/packages/core/README.md`。

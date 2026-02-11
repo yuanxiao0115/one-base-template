@@ -10,6 +10,20 @@ export type {
 } from './adapter/types';
 
 export { createHttpClient, type HttpClientOptions } from './http/client';
+export { createObHttp, type ObHttp } from './http/pureHttp';
+export type {
+  CreateObHttpOptions,
+  ObAuthMode,
+  ObBizCode,
+  ObHttpAuthOptions,
+  ObHttpBizOptions,
+  ObHttpDownloadOptions,
+  ObHttpError,
+  ObHttpHooks,
+  ObHttpRequestConfig,
+  RequestMethods
+} from './http/types';
+export { apiWrapper, type ObApiWrapperResult } from './http/apiWrapper';
 
 export { useAuthStore } from './stores/auth';
 export { useMenuStore } from './stores/menu';
