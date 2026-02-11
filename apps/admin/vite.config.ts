@@ -73,6 +73,9 @@ function mockMiddleware(): Plugin {
   const sessions = new Map<string, { user: { id: string; name: string } }>();
   const cookieName = 'ob_session';
 
+  // token 模式（sczfw）mock：用 Authorization 头携带 token
+  const tokenSessions = new Map<string, { user: { id: string; nickName: string; permissionCodes: string[]; roleCodes: string[] } }>();
+
   function createSession(userName: string) {
     const sid = crypto.randomUUID();
     sessions.set(sid, {
@@ -82,6 +85,19 @@ function mockMiddleware(): Plugin {
       }
     });
     return sid;
+  }
+
+  function createTokenSession(userName: string) {
+    const token = crypto.randomUUID();
+    tokenSessions.set(token, {
+      user: {
+        id: token,
+        nickName: userName,
+        permissionCodes: ['admin_server'],
+        roleCodes: ['admin']
+      }
+    });
+    return token;
   }
 
   function clearSession(sid: string | undefined) {
@@ -96,10 +112,91 @@ function mockMiddleware(): Plugin {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url || '';
 
-        // 只拦截 /api
-        if (!url.startsWith('/api/')) return next();
+        // 只拦截 /api 与 /cmict（避免影响静态资源）
+        const isApi = url.startsWith('/api/');
+        const isCmict = url.startsWith('/cmict/');
+        if (!isApi && !isCmict) return next();
 
         try {
+          // ------------------------
+          // sczfw (cmict) mock
+          // ------------------------
+          if (isCmict) {
+            // 登录页配置
+            if (req.method === 'GET' && url.startsWith('/cmict/portal/getLoginPage')) {
+              return ok(res, { webLogoText: '统一门户高效协同', loginPageFodders: [] });
+            }
+
+            // 滑块验证码：获取
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/captcha/block-puzzle')) {
+              // 1x1 png（仅用于占位渲染；校验逻辑由 check 接口 mock 通过）
+              const onePxPng =
+                'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMB/6XbWQAAAABJRU5ErkJggg==';
+              return ok(res, {
+                originBase64: onePxPng,
+                jigsawBase64: onePxPng,
+                captchaKey: crypto.randomUUID()
+              });
+            }
+
+            // 滑块验证码：校验（mock 一律通过）
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/captcha/check')) {
+              return ok(res, true);
+            }
+
+            // 登录（token 模式）
+            if (req.method === 'POST' && url === '/cmict/auth/login') {
+              const body = await readJsonBody(req);
+              const userName =
+                typeof body.userAccount === 'string' && body.userAccount ? body.userAccount : 'demo';
+
+              const token = createTokenSession(userName);
+              return ok(res, { authToken: token, id: token, nickName: userName, permissionCodes: ['admin_server'], roleCodes: ['admin'] });
+            }
+
+            // 当前用户
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/token/verify')) {
+              const token = req.headers.authorization;
+              const session = token ? tokenSessions.get(token) : undefined;
+              if (!session) {
+                return fail(res, 401, '未登录');
+              }
+              return ok(res, session.user);
+            }
+
+            // 登出
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/logout')) {
+              const token = req.headers.authorization;
+              if (token) tokenSessions.delete(token);
+              return ok(res);
+            }
+
+            // 菜单树（my-tree）
+            if (req.method === 'GET' && url.startsWith('/cmict/admin/permission/my-tree')) {
+              // 注意：保持与 sczfwAdapter 的解析规则一致（permissionCode=admin_server）
+              return ok(res, [
+                {
+                  permissionCode: 'admin_server',
+                  children: [
+                    { url: '/home/index', resourceName: '首页', resourceType: 1, hidden: 0, routeCache: 1 },
+                    {
+                      url: '/demo',
+                      resourceName: '示例',
+                      resourceType: 1,
+                      hidden: 0,
+                      children: [
+                        { url: '/demo/page-a', resourceName: '页面 A', resourceType: 1, hidden: 0, routeCache: 1 },
+                        { url: '/demo/page-b', resourceName: '页面 B', resourceType: 1, hidden: 0, routeCache: 1 }
+                      ]
+                    }
+                  ]
+                }
+              ]);
+            }
+
+            return next();
+          }
+
           // 登录
           if (req.method === 'POST' && url === '/api/auth/login') {
             const body = await readJsonBody(req);
@@ -133,7 +230,7 @@ function mockMiddleware(): Plugin {
           // 菜单树
           if (req.method === 'GET' && url === '/api/menu/tree') {
             return ok(res, [
-              { path: '/home', title: '首页', order: 10, keepAlive: true },
+              { path: '/home/index', title: '首页', order: 10, keepAlive: true },
               {
                 path: '/demo',
                 title: '示例',
@@ -226,6 +323,11 @@ export default defineConfig(({ mode }) => {
         ? {
             proxy: {
               '/api': {
+                target: apiBaseUrl,
+                changeOrigin: true,
+                secure: false
+              },
+              '/cmict': {
                 target: apiBaseUrl,
                 changeOrigin: true,
                 secure: false

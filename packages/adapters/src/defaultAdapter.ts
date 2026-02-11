@@ -1,4 +1,4 @@
-import type { BackendAdapter, AppMenuItem, AppUser, ObHttp } from '@one-base-template/core';
+import type { BackendAdapter, AppMenuItem, AppUser, LoginPayload, ObHttp } from '@one-base-template/core';
 
 function isBizWrapped(value: unknown): value is { code?: unknown; data?: unknown } {
   return typeof value === 'object' && value !== null && 'code' in value && 'data' in value;
@@ -14,7 +14,7 @@ function unwrapBizData<T>(value: unknown): T {
 export function createDefaultAdapter(http: ObHttp): BackendAdapter {
   return {
     auth: {
-      async login(payload: { username: string; password: string }) {
+      async login(payload: LoginPayload) {
         await http.post('/api/auth/login', { data: payload });
       },
       async logout() {

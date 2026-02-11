@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import type { AppUser } from '../adapter/types';
+import type { AppUser, LoginPayload } from '../adapter/types';
 import { getCoreOptions } from '../context';
 
 export const useAuthStore = defineStore('ob-auth', () => {
@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('ob-auth', () => {
     }
   }
 
-  async function login(payload: { username: string; password: string }) {
+  async function login(payload: LoginPayload) {
     const { adapter } = getCoreOptions();
     await adapter.auth.login(payload);
     await fetchMe();

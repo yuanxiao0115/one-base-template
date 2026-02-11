@@ -16,7 +16,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: AdminLayout,
-    redirect: '/home',
+    redirect: '/home/index',
     children: moduleRoutes
   },
   {

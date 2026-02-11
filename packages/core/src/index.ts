@@ -6,6 +6,7 @@ export type {
   SsoAdapter,
   AppMenuItem,
   AppUser,
+  LoginPayload,
   MenuMode
 } from './adapter/types';
 

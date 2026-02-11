@@ -1,5 +1,10 @@
 export type MenuMode = 'remote' | 'static';
 
+export type LoginPayload = {
+  username: string;
+  password: string;
+} & Record<string, unknown>;
+
 export interface AppUser {
   id: string;
   name: string;
@@ -23,7 +28,7 @@ export interface AuthAdapter {
   /**
    * Cookie 模式：后端通过 Set-Cookie(HttpOnly) 写入会话
    */
-  login(payload: { username: string; password: string }): Promise<void>;
+  login(payload: LoginPayload): Promise<void>;
   logout(): Promise<void>;
   fetchMe(): Promise<AppUser>;
 }
