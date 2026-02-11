@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { handleSsoCallbackFromLocation } from '@one-base-template/core';
+import { handleSsoCallbackFromLocation, useAuthStore, useMenuStore } from '@one-base-template/core';
+import { getObHttpClient } from '@/infra/http';
 
 defineOptions({
   name: 'SsoCallbackPage'
@@ -11,18 +12,207 @@ defineOptions({
 const router = useRouter();
 const loading = ref(true);
 const error = ref('');
+const loginStatus = ref<'success' | 'fail' | ''>('');
+
+type BackendKind = 'default' | 'sczfw';
+
+type BizResponse<T> = {
+  code?: unknown;
+  data?: T;
+  message?: string;
+};
+
+type TokenResult = {
+  authToken?: string;
+  token?: string;
+  [k: string]: unknown;
+};
+
+type IdTokenResult = {
+  idToken?: string;
+  [k: string]: unknown;
+};
+
+const backend = computed<BackendKind>(() => {
+  const raw = import.meta.env.VITE_BACKEND;
+  if (raw === 'sczfw' || raw === 'default') return raw;
+  return import.meta.env.VITE_API_BASE_URL ? 'sczfw' : 'default';
+});
+
+const tokenKey = computed(() => {
+  const envKey = import.meta.env.VITE_TOKEN_KEY;
+  if (typeof envKey === 'string' && envKey) return envKey;
+  return backend.value === 'sczfw' ? 'token' : 'ob_token';
+});
+
+const idTokenKey = computed(() => {
+  const envKey = import.meta.env.VITE_ID_TOKEN_KEY;
+  if (typeof envKey === 'string' && envKey) return envKey;
+  return 'idToken';
+});
+
+function normalizeRedirect(raw: string | null): string {
+  if (!raw) return '/home/index';
+  try {
+    const decoded = decodeURIComponent(raw);
+    if (!decoded.startsWith('/')) return '/home/index';
+    if (decoded.startsWith('//')) return '/home/index';
+    return decoded;
+  } catch {
+    if (!raw.startsWith('/')) return '/home/index';
+    if (raw.startsWith('//')) return '/home/index';
+    return raw;
+  }
+}
+
+function safeMessage(e: unknown, fallback: string) {
+  return e instanceof Error && e.message ? e.message : fallback;
+}
+
+async function setTokenAndBootstrap(token: string, redirect: string) {
+  localStorage.setItem(tokenKey.value, token);
+
+  const authStore = useAuthStore();
+  await authStore.fetchMe();
+
+  const menuStore = useMenuStore();
+  await menuStore.loadMenus();
+
+  loginStatus.value = 'success';
+  await router.replace(redirect);
+}
+
+async function handleZhxt(token: string, redirect: string) {
+  const http = getObHttpClient();
+  const res = await http.get<BizResponse<TokenResult>>('/cmict/auth/external/zhxt/sso', {
+    params: { 'zhxt-token': token },
+    $isAuth: true,
+    $throwOnBizError: true
+  });
+  const authToken = res.data?.authToken;
+  if (!authToken) throw new Error(res.message || '智慧协同单点登录失败');
+  await setTokenAndBootstrap(authToken, redirect);
+}
+
+async function handleYdbg(token: string, redirect: string) {
+  const http = getObHttpClient();
+  const res = await http.get<BizResponse<TokenResult>>('/cmict/auth/external/ydbg/sso', {
+    params: { 'ydbg-token': token, appType: 2 },
+    $isAuth: true,
+    $throwOnBizError: true
+  });
+  const authToken = res.data?.authToken;
+  if (!authToken) throw new Error(res.message || '移动办公单点登录失败');
+  await setTokenAndBootstrap(authToken, redirect);
+}
+
+async function handleTicket(ticket: string, redirectUrlRaw: string | null, redirect: string) {
+  // 老项目行为：serviceUrl = redirectUrl ? `${origin}/${redirectUrl}` : 当前完整 URL
+  const serviceUrl = redirectUrlRaw ? `${window.location.origin}/${redirectUrlRaw}` : window.location.href;
+
+  const http = getObHttpClient();
+  const res = await http.get<BizResponse<TokenResult>>('/cmict/auth/ticket/sso', {
+    params: { ticket, serviceUrl },
+    $isAuth: true,
+    $throwOnBizError: true
+  });
+
+  const authToken = res.data?.authToken;
+  if (!authToken) throw new Error(res.message || '票据验证失败');
+  await setTokenAndBootstrap(authToken, redirect);
+}
+
+async function handleTypeToken(token: string, redirect: string) {
+  await setTokenAndBootstrap(token, redirect);
+}
+
+async function handleExternalSso(params: { from: 'portal' | 'om'; token: string; redirect: string }) {
+  const http = getObHttpClient();
+  const res = await http.get<BizResponse<TokenResult>>(`/cmict/auth/external/${params.from}/sso`, {
+    params: { token: params.token },
+    $isAuth: true,
+    $throwOnBizError: true
+  });
+
+  const authToken = res.data?.token ?? res.data?.authToken;
+  if (!authToken) throw new Error(res.message || 'SSO 登录失败');
+  localStorage.setItem(tokenKey.value, authToken);
+
+  // 兼容老项目：额外换取 idToken（用于后续桌面统一认证场景）
+  const ssoRes = await http.post<BizResponse<IdTokenResult>>('/cmict/uaa/unity-desktop/sso-login', {
+    $noErrorAlert: true
+  });
+  const idToken = ssoRes.data?.idToken;
+  if (idToken) {
+    localStorage.setItem(idTokenKey.value, idToken);
+  }
+
+  await setTokenAndBootstrap(authToken, params.redirect);
+}
 
 onMounted(async () => {
   loading.value = true;
   error.value = '';
+  loginStatus.value = '';
 
   try {
-    const { redirect } = await handleSsoCallbackFromLocation();
-    await router.replace(redirect);
+    if (backend.value !== 'sczfw') {
+      const { redirect } = await handleSsoCallbackFromLocation();
+      await router.replace(redirect);
+      loginStatus.value = 'success';
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    const sp = url.searchParams;
+
+    const token = sp.get('token');
+    const type = sp.get('type');
+    const userToken = sp.get('Usertoken');
+    const moaToken = sp.get('moaToken');
+    const ticket = sp.get('ticket');
+    const sourceCode = sp.get('sourceCode');
+
+    const redirectUrlRaw = sp.get('redirectUrl') ?? sp.get('redirect');
+    const redirect = normalizeRedirect(redirectUrlRaw);
+
+    if (sourceCode === 'zhxt' && token) {
+      await handleZhxt(token, redirect);
+      return;
+    }
+
+    if (sourceCode === 'YDBG' && token) {
+      await handleYdbg(token, redirect);
+      return;
+    }
+
+    if (ticket) {
+      // ticket 流程对 serviceUrl 有特殊要求，这里保持与老项目一致，不走 core 的通用处理
+      await handleTicket(ticket, sp.get('redirectUrl'), redirect);
+      return;
+    }
+
+    if (type && token) {
+      await handleTypeToken(token, redirect);
+      return;
+    }
+
+    if (moaToken) {
+      await handleExternalSso({ from: 'om', token: moaToken, redirect });
+      return;
+    }
+
+    if (userToken) {
+      await handleExternalSso({ from: 'portal', token: userToken, redirect });
+      return;
+    }
+
+    throw new Error('登录参数无效');
   } catch (e: unknown) {
-    error.value = e instanceof Error && e.message ? e.message : 'SSO 登录失败';
+    loginStatus.value = 'fail';
+    error.value = safeMessage(e, 'SSO 登录失败');
     ElMessage.error(error.value);
-    await router.replace('/login');
+    localStorage.removeItem(tokenKey.value);
   } finally {
     loading.value = false;
   }
@@ -33,14 +223,22 @@ onMounted(async () => {
   <div class="h-screen w-screen flex items-center justify-center bg-[var(--el-bg-color-page)]">
     <el-card class="w-full max-w-md">
       <template #header>
-        <div class="font-medium">SSO 登录中...</div>
+        <div class="font-medium">SSO 登录</div>
       </template>
 
       <div v-if="loading" class="text-sm text-[var(--el-text-color-regular)]">
         正在处理 SSO 回调，请稍候。
       </div>
-      <div v-else-if="error" class="text-sm text-red-600">
-        {{ error }}
+
+      <div v-else-if="loginStatus === 'fail'" class="text-sm">
+        <p class="text-[var(--el-text-color-regular)]">{{ error || '登录失败' }}</p>
+        <div class="mt-4">
+          <el-button type="primary" @click="router.replace('/login')">返回登录页</el-button>
+        </div>
+      </div>
+
+      <div v-else class="text-sm text-[var(--el-text-color-regular)]">
+        登录成功，正在跳转...
       </div>
     </el-card>
   </div>

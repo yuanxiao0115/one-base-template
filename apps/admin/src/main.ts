@@ -42,6 +42,7 @@ const authMode = (import.meta.env.VITE_AUTH_MODE ?? (backend === 'sczfw' ? 'toke
   | 'token'
   | 'mixed';
 const tokenKey = import.meta.env.VITE_TOKEN_KEY ?? (backend === 'sczfw' ? 'token' : 'ob_token');
+const idTokenKey = import.meta.env.VITE_ID_TOKEN_KEY ?? 'idToken';
 
 // sczfw 老项目请求头约定（可用 env 覆盖）
 const sczfwHeaders =
@@ -103,6 +104,7 @@ const http = createObHttp({
     onUnauthorized: () => {
       // 仅做“清状态 + 回登录页”，具体跳转/SSO 可由业务项目再扩展
       localStorage.removeItem(tokenKey);
+      localStorage.removeItem(idTokenKey);
       useAuthStore(pinia).reset();
       useMenuStore(pinia).reset();
       useTabsStore(pinia).reset();

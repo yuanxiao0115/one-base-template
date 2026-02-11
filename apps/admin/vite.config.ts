@@ -154,6 +154,51 @@ function mockMiddleware(): Plugin {
               return ok(res, { authToken: token, id: token, nickName: userName, permissionCodes: ['admin_server'], roleCodes: ['admin'] });
             }
 
+            // 外部 SSO：portal / om（以 token 兑换 authToken）
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/external/portal/sso')) {
+              const u = new URL(url, 'http://localhost');
+              const raw = u.searchParams.get('token') || 'demo';
+              const token = createTokenSession(`portal-${raw}`);
+              return ok(res, { authToken: token, token });
+            }
+
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/external/om/sso')) {
+              const u = new URL(url, 'http://localhost');
+              const raw = u.searchParams.get('token') || 'demo';
+              const token = createTokenSession(`om-${raw}`);
+              return ok(res, { authToken: token, token });
+            }
+
+            // 外部 SSO：智慧协同 / 移动办公
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/external/zhxt/sso')) {
+              const u = new URL(url, 'http://localhost');
+              const raw = u.searchParams.get('zhxt-token') || 'demo';
+              const token = createTokenSession(`zhxt-${raw}`);
+              return ok(res, { authToken: token });
+            }
+
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/external/ydbg/sso')) {
+              const u = new URL(url, 'http://localhost');
+              const raw = u.searchParams.get('ydbg-token') || 'demo';
+              const token = createTokenSession(`ydbg-${raw}`);
+              return ok(res, { authToken: token });
+            }
+
+            // 票据验证（ticket -> authToken）
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/ticket/sso')) {
+              const u = new URL(url, 'http://localhost');
+              const raw = u.searchParams.get('ticket') || 'demo';
+              const token = createTokenSession(`ticket-${raw}`);
+              return ok(res, { authToken: token });
+            }
+
+            // 统一桌面：换取 idToken
+            if (req.method === 'POST' && url.startsWith('/cmict/uaa/unity-desktop/sso-login')) {
+              const token = req.headers.authorization;
+              if (!token) return fail(res, 401, '未登录');
+              return ok(res, { idToken: `idToken-${token}` });
+            }
+
             // 当前用户
             if (req.method === 'GET' && url.startsWith('/cmict/auth/token/verify')) {
               const token = req.headers.authorization;
