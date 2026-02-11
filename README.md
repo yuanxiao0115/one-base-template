@@ -41,6 +41,9 @@ pnpm build
 
 建议在 `apps/admin` 下创建 `.env.development` / `.env.local`：
 
+- `VITE_BACKEND=default|sczfw`
+  - `default`：模板默认后端（`/api/*`，可配合 dev mock）
+  - `sczfw`：对接 sczfw（`/cmict/*`，token 模式为主）
 - `VITE_AUTH_MODE=cookie|token|mixed`
   - `cookie`：默认模式（Cookie HttpOnly + withCredentials）
   - `token`：每次请求都带 token（通过 `VITE_TOKEN_KEY` 从 localStorage 读取）
@@ -50,11 +53,21 @@ pnpm build
 - `VITE_MENU_MODE=remote|static`
   - `remote`：菜单从后端获取（通过 Adapter `menu.fetchMenuTree()`）
   - `static`：菜单从静态路由的 `meta.title` 生成（适合简单项目，无需单独写菜单配置）
+- `VITE_SCZFW_SYSTEM_PERMISSION_CODE=admin_server`
+  - 仅 sczfw Adapter 使用：`/cmict/admin/permission/my-tree` 的根节点 `permissionCode`
+  - 不同系统可配置为不同值（默认 `admin_server`）
 - `VITE_API_BASE_URL=https://your-backend.example.com`
   - 开发环境：存在时会启用 Vite 代理 `/api -> VITE_API_BASE_URL`，并默认关闭 mock
   - 生产环境：如需跨域直连，可作为 Axios `baseURL`（默认仍推荐同源 `/api`）
 - `VITE_USE_MOCK=true`
   - 强制开启 mock（即使配置了 `VITE_API_BASE_URL`）
+
+## 本地缓存（参考老项目）
+
+为了对齐部分老项目“刷新后保留状态”的习惯，core 会把以下信息写入 localStorage：
+
+- `ob_auth_user`：当前用户信息（`auth.fetchMe()` 成功后写入；登出/重置时清理）
+- `ob_menu_tree`：菜单树（`menu.loadMenus()` 成功后写入；重置时清理）
 
 ## 路由与模块切割
 

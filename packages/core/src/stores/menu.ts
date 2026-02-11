@@ -4,6 +4,41 @@ import type { AppMenuItem, MenuMode } from '../adapter/types';
 import { getCoreOptions } from '../context';
 import { isHttpUrl } from '../utils/url';
 
+const MENU_TREE_STORAGE_KEY = 'ob_menu_tree';
+
+function readStoredMenuTree(): AppMenuItem[] | null {
+  try {
+    const raw = localStorage.getItem(MENU_TREE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as AppMenuItem[]) : null;
+  } catch {
+    // localStorage 不可用或 JSON 解析失败时，直接清理缓存，避免后续反复报错
+    try {
+      localStorage.removeItem(MENU_TREE_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    return null;
+  }
+}
+
+function writeStoredMenuTree(tree: AppMenuItem[]) {
+  try {
+    localStorage.setItem(MENU_TREE_STORAGE_KEY, JSON.stringify(tree));
+  } catch {
+    // ignore
+  }
+}
+
+function clearStoredMenuTree() {
+  try {
+    localStorage.removeItem(MENU_TREE_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 function normalizeMenuTree(items: AppMenuItem[]): AppMenuItem[] {
   const walk = (list: AppMenuItem[]): AppMenuItem[] => {
     return list
@@ -38,6 +73,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
   function setMenus(nextMenus: AppMenuItem[]) {
     menus.value = normalizeMenuTree(nextMenus);
+    writeStoredMenuTree(menus.value);
 
     const set = new Set<string>();
     collectAllowedPaths(menus.value, set);
@@ -50,6 +86,12 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
     allowedPaths.value = Array.from(set);
     loaded.value = true;
+  }
+
+  // 参考老项目：把菜单树持久化到 localStorage，刷新后可快速恢复侧边栏与 allowedPaths
+  const storedTree = readStoredMenuTree();
+  if (storedTree?.length) {
+    setMenus(storedTree);
   }
 
   async function loadMenus(mode?: MenuMode) {
@@ -72,6 +114,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
     menus.value = [];
     loaded.value = false;
     allowedPaths.value = [];
+    clearStoredMenuTree();
   }
 
   function isAllowed(path: string): boolean {

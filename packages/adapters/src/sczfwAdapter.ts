@@ -66,7 +66,7 @@ function mapMenuItems(nodes: SczfwMenuNode[]): AppMenuItem[] {
  * sczfw（standard-oa-web-sczfw）后端适配器：
  * - 登录：/cmict/auth/login（返回 authToken）
  * - 当前用户：/cmict/auth/token/verify
- * - 菜单树：/cmict/admin/permission/my-tree（取 permissionCode=admin_server 的 children）
+ * - 菜单树：/cmict/admin/permission/my-tree（取 permissionCode=systemPermissionCode 的 children，默认 admin_server）
  *
  * 说明：
  * - 本适配器默认使用 token 鉴权：会把 authToken 写入 localStorage，供 ObHttp 的 getToken() 使用。

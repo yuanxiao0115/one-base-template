@@ -68,10 +68,12 @@ function setCookie(res: ServerResponse, cookie: string) {
   res.setHeader('Set-Cookie', [String(prev), cookie]);
 }
 
-function mockMiddleware(): Plugin {
+function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugin {
   // 简易内存会话：仅用于开发演示
   const sessions = new Map<string, { user: { id: string; name: string } }>();
   const cookieName = 'ob_session';
+
+  const sczfwSystemPermissionCode = options?.sczfwSystemPermissionCode ?? 'admin_server';
 
   // token 模式（sczfw）mock：用 Authorization 头携带 token
   const tokenSessions = new Map<string, { user: { id: string; nickName: string; permissionCodes: string[]; roleCodes: string[] } }>();
@@ -93,7 +95,7 @@ function mockMiddleware(): Plugin {
       user: {
         id: token,
         nickName: userName,
-        permissionCodes: ['admin_server'],
+        permissionCodes: [sczfwSystemPermissionCode],
         roleCodes: ['admin']
       }
     });
@@ -151,7 +153,7 @@ function mockMiddleware(): Plugin {
                 typeof body.userAccount === 'string' && body.userAccount ? body.userAccount : 'demo';
 
               const token = createTokenSession(userName);
-              return ok(res, { authToken: token, id: token, nickName: userName, permissionCodes: ['admin_server'], roleCodes: ['admin'] });
+              return ok(res, { authToken: token, id: token, nickName: userName, permissionCodes: [sczfwSystemPermissionCode], roleCodes: ['admin'] });
             }
 
             // 外部 SSO：portal / om（以 token 兑换 authToken）
@@ -218,10 +220,10 @@ function mockMiddleware(): Plugin {
 
             // 菜单树（my-tree）
             if (req.method === 'GET' && url.startsWith('/cmict/admin/permission/my-tree')) {
-              // 注意：保持与 sczfwAdapter 的解析规则一致（permissionCode=admin_server）
+              // 注意：保持与 sczfwAdapter 的解析规则一致（permissionCode 可配置）
               return ok(res, [
                 {
-                  permissionCode: 'admin_server',
+                  permissionCode: sczfwSystemPermissionCode,
                   children: [
                     { url: '/home/index', resourceName: '首页', resourceType: 1, hidden: 0, routeCache: 1 },
                     {
@@ -338,6 +340,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiBaseUrl = env.VITE_API_BASE_URL;
   const useMock = env.VITE_USE_MOCK ? env.VITE_USE_MOCK === 'true' : !apiBaseUrl;
+  const sczfwSystemPermissionCode = env.VITE_SCZFW_SYSTEM_PERMISSION_CODE || 'admin_server';
 
   return {
     plugins: [
@@ -351,7 +354,7 @@ export default defineConfig(({ mode }) => {
         dts: 'src/components.d.ts',
         resolvers: [ElementPlusResolver({ importStyle: 'css' })]
       }),
-      ...(useMock ? [mockMiddleware()] : [])
+      ...(useMock ? [mockMiddleware({ sczfwSystemPermissionCode })] : [])
     ],
     resolve: {
       alias: {
