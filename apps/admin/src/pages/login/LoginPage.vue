@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 
 import { useAuthStore, useMenuStore, type LoginPayload } from '@one-base-template/core';
 import { getObHttpClient } from '@/infra/http';
+import { appEnv } from '@/infra/env';
 import VerifySlide from '@/components/verifition-plus/VerifySlide.vue';
 import { sm4EncryptBase64 } from '@/infra/sczfw/crypto';
 
 defineOptions({
   name: 'LoginPage'
 });
-
-type BackendKind = 'default' | 'sczfw';
 
 type BizResponse<T> = {
   code?: unknown;
@@ -32,19 +31,8 @@ const route = useRoute();
 const authStore = useAuthStore();
 const menuStore = useMenuStore();
 
-const backend = computed<BackendKind>(() => {
-  const raw = import.meta.env.VITE_BACKEND;
-  if (raw === 'sczfw' || raw === 'default') return raw;
-  // 默认策略：配置了真实后端地址 -> 使用 sczfw 适配器；否则保持模板默认（mock + /api）
-  return import.meta.env.VITE_API_BASE_URL ? 'sczfw' : 'default';
-});
-
-const tokenKey = computed(() => {
-  const envKey = import.meta.env.VITE_TOKEN_KEY;
-  if (typeof envKey === 'string' && envKey) return envKey;
-  // 兼容老项目：默认 token 存储键名为 token
-  return backend.value === 'sczfw' ? 'token' : 'ob_token';
-});
+const backend = appEnv.backend;
+const tokenKey = appEnv.tokenKey;
 
 const loading = ref(false);
 const formRef = ref<FormInstance>();
@@ -68,7 +56,7 @@ function normalizeRedirect(raw: unknown, fallback: string): string {
 function getRedirectTarget() {
   // 兼容老项目常用 query：redirectUrl
   const raw = route.query.redirect ?? route.query.redirectUrl;
-  const fallback = backend.value === 'sczfw' ? '/home/index' : '/';
+  const fallback = backend === 'sczfw' ? '/home/index' : '/';
   return normalizeRedirect(raw, fallback);
 }
 
@@ -106,7 +94,7 @@ async function loadLoginPageConfig() {
 }
 
 async function handleDirectTokenLogin(token: string) {
-  localStorage.setItem(tokenKey.value, token);
+  localStorage.setItem(tokenKey, token);
   try {
     await authStore.fetchMe();
     await menuStore.loadMenus();
@@ -114,7 +102,7 @@ async function handleDirectTokenLogin(token: string) {
   } catch (e: unknown) {
     const message = e instanceof Error && e.message ? e.message : '登录失败';
     ElMessage.error(message);
-    localStorage.removeItem(tokenKey.value);
+    localStorage.removeItem(tokenKey);
   }
 }
 
@@ -155,7 +143,7 @@ async function doSczfwLogin(captcha: { captcha: string; captchaKey: string }) {
 }
 
 async function onSubmit() {
-  if (backend.value === 'default') {
+  if (backend === 'default') {
     await doDefaultLogin();
     return;
   }
@@ -178,7 +166,7 @@ function onCaptchaSuccess(payload: { captcha: string; captchaKey: string }) {
 }
 
 onMounted(async () => {
-  if (backend.value === 'default') {
+  if (backend === 'default') {
     form.username = 'demo';
     form.password = 'demo';
     return;

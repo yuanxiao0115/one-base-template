@@ -1,6 +1,8 @@
 import type { RouteRecordRaw } from 'vue-router';
 import { AdminLayout } from '@one-base-template/ui';
 
+import { appEnv } from '../infra/env';
+
 type RouteModule = { default?: RouteRecordRaw[]; routes?: RouteRecordRaw[] };
 const modules = import.meta.glob('../modules/**/routes.ts', { eager: true }) as Record<string, RouteModule>;
 
@@ -9,21 +11,6 @@ for (const mod of Object.values(modules)) {
   const routes = mod.default ?? mod.routes;
   if (Array.isArray(routes)) {
     moduleRoutes.push(...routes);
-  }
-}
-
-function parseSystemHomeMap(raw: unknown): Record<string, string> {
-  if (typeof raw !== 'string' || !raw) return {};
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== 'object') return {};
-    const out: Record<string, string> = {};
-    for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
-      if (typeof v === 'string' && v.startsWith('/')) out[k] = v;
-    }
-    return out;
-  } catch {
-    return {};
   }
 }
 
@@ -37,15 +24,9 @@ function resolveRootRedirect(): string {
     }
   })();
 
-  const defaultSystemCode =
-    (import.meta.env.VITE_DEFAULT_SYSTEM_CODE as string | undefined) ||
-    (import.meta.env.VITE_SCZFW_SYSTEM_PERMISSION_CODE as string | undefined) ||
-    '';
+  const code = currentSystemCode || (appEnv.defaultSystemCode ?? '');
 
-  const homeMap = parseSystemHomeMap(import.meta.env.VITE_SYSTEM_HOME_MAP);
-  const code = currentSystemCode || defaultSystemCode;
-
-  const mapped = code ? homeMap[code] : undefined;
+  const mapped = code ? appEnv.systemHomeMap[code] : undefined;
   return typeof mapped === 'string' && mapped.startsWith('/') ? mapped : '/home/index';
 }
 

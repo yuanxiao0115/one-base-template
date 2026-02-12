@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { handleSsoCallbackFromLocation, useAuthStore, useMenuStore } from '@one-base-template/core';
 import { getObHttpClient } from '@/infra/http';
+import { appEnv } from '@/infra/env';
 
 defineOptions({
   name: 'SsoCallbackPage'
@@ -13,8 +14,6 @@ const router = useRouter();
 const loading = ref(true);
 const error = ref('');
 const loginStatus = ref<'success' | 'fail' | ''>('');
-
-type BackendKind = 'default' | 'sczfw';
 
 type BizResponse<T> = {
   code?: unknown;
@@ -33,23 +32,9 @@ type IdTokenResult = {
   [k: string]: unknown;
 };
 
-const backend = computed<BackendKind>(() => {
-  const raw = import.meta.env.VITE_BACKEND;
-  if (raw === 'sczfw' || raw === 'default') return raw;
-  return import.meta.env.VITE_API_BASE_URL ? 'sczfw' : 'default';
-});
-
-const tokenKey = computed(() => {
-  const envKey = import.meta.env.VITE_TOKEN_KEY;
-  if (typeof envKey === 'string' && envKey) return envKey;
-  return backend.value === 'sczfw' ? 'token' : 'ob_token';
-});
-
-const idTokenKey = computed(() => {
-  const envKey = import.meta.env.VITE_ID_TOKEN_KEY;
-  if (typeof envKey === 'string' && envKey) return envKey;
-  return 'idToken';
-});
+const backend = appEnv.backend;
+const tokenKey = appEnv.tokenKey;
+const idTokenKey = appEnv.idTokenKey;
 
 function normalizeRedirect(raw: string | null): string {
   if (!raw) return '/home/index';
@@ -70,7 +55,7 @@ function safeMessage(e: unknown, fallback: string) {
 }
 
 async function setTokenAndBootstrap(token: string, redirect: string) {
-  localStorage.setItem(tokenKey.value, token);
+  localStorage.setItem(tokenKey, token);
 
   const authStore = useAuthStore();
   await authStore.fetchMe();
@@ -136,7 +121,7 @@ async function handleExternalSso(params: { from: 'portal' | 'om'; token: string;
 
   const authToken = res.data?.token ?? res.data?.authToken;
   if (!authToken) throw new Error(res.message || 'SSO 登录失败');
-  localStorage.setItem(tokenKey.value, authToken);
+  localStorage.setItem(tokenKey, authToken);
 
   // 兼容老项目：额外换取 idToken（用于后续桌面统一认证场景）
   const ssoRes = await http.post<BizResponse<IdTokenResult>>('/cmict/uaa/unity-desktop/sso-login', {
@@ -144,7 +129,7 @@ async function handleExternalSso(params: { from: 'portal' | 'om'; token: string;
   });
   const idToken = ssoRes.data?.idToken;
   if (idToken) {
-    localStorage.setItem(idTokenKey.value, idToken);
+    localStorage.setItem(idTokenKey, idToken);
   }
 
   await setTokenAndBootstrap(authToken, params.redirect);
@@ -156,7 +141,7 @@ onMounted(async () => {
   loginStatus.value = '';
 
   try {
-    if (backend.value !== 'sczfw') {
+    if (backend !== 'sczfw') {
       const { redirect } = await handleSsoCallbackFromLocation();
       await router.replace(redirect);
       loginStatus.value = 'success';
@@ -212,7 +197,7 @@ onMounted(async () => {
     loginStatus.value = 'fail';
     error.value = safeMessage(e, 'SSO 登录失败');
     ElMessage.error(error.value);
-    localStorage.removeItem(tokenKey.value);
+    localStorage.removeItem(tokenKey);
   } finally {
     loading.value = false;
   }
