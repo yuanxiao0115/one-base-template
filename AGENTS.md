@@ -91,4 +91,5 @@ packages/
 - 当用户纠正后：**把新规则补充到本文件**，避免重复犯错
 - 老项目（layout/menu 移植来源）固定为：`/Users/haoqiuzhi/code/sczfw/standard-oa-web-sczfw`（不要再误用其他仓库路径）
 - `.codex/` 目录下的工作文档（如 `operations-log.md` / `testing.md` / `verification.md` / `context-*.md`）如果创建或已存在：**开工前必须先阅读**，开发过程中同步更新，并在回复里引用关键结论；禁止“创建了但不看/不维护”
+- 新增/修改功能后：**必须同步更新文档站点** `apps/docs`（VitePress），确保 `pnpm -C apps/docs build` 可通过且内容与代码一致
 - 当前阶段尽量减少分支数量：默认在当前工作分支开发；完成后合并回 `main` 分支，并删除临时分支/工作区（如无特殊需求不再创建多个分支）

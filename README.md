@@ -20,6 +20,22 @@ pnpm install
 pnpm dev
 ```
 
+## 文档站点（VitePress）
+
+文档项目位于：`/Users/haoqiuzhi/code/one-base-template/apps/docs`
+
+启动文档：
+
+```bash
+pnpm -C apps/docs dev
+```
+
+构建文档：
+
+```bash
+pnpm -C apps/docs build
+```
+
 说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `pnpm -C apps/admin dev`）。如需用 Turborepo 启动可尝试 `pnpm dev:turbo`（部分环境下 turbo 对 dev server 的进程托管可能不稳定）。
 
 默认 `apps/admin` 会启用 dev mock（Vite middleware），不需要后端即可跑通登录/菜单/SSO 基础流程：

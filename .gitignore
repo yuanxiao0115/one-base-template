@@ -9,6 +9,9 @@ dist
 # Vite
 .vite
 
+# VitePress
+**/.vitepress/cache
+
 # 日志
 *.log
 npm-debug.log*
