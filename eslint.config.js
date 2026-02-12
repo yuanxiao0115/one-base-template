@@ -9,7 +9,13 @@ export default [
   ...tseslint.configs.recommended,
   ...vue.configs['flat/recommended'],
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/.turbo/**', '**/.vite/**']
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/.turbo/**',
+      '**/.vite/**',
+      '**/.vitepress/cache/**'
+    ]
   },
   {
     files: ['**/*.{ts,tsx,vue}'],
