@@ -56,6 +56,14 @@ export default [
     }
   },
   {
+    // 门户设计器物料组件（迁移自老项目）：schema 本身是动态 JSON，且 defineOptions.name 需与配置对齐
+    files: ['apps/admin/src/modules/portal/materials/**/*.{ts,tsx,vue}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      'vue/component-definition-name-casing': 'off'
+    }
+  },
+  {
     // 约束：环境变量解析必须集中到 apps/admin/src/infra/env.ts，避免散落 import.meta.env 产生不一致
     files: ['apps/admin/src/**/*.{ts,tsx,vue}'],
     ignores: ['apps/admin/src/infra/env.ts'],

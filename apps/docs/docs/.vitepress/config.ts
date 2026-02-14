@@ -15,6 +15,7 @@ export default defineConfig({
       { text: '快速开始', link: '/guide/quick-start' },
       { text: '架构', link: '/guide/architecture' },
       { text: '布局与菜单', link: '/guide/layout-menu' },
+      { text: '门户设计器', link: '/guide/portal-designer' },
       { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' },
       { text: '开发规范', link: '/guide/development' }
     ],
@@ -32,6 +33,7 @@ export default defineConfig({
           items: [
             { text: '目录结构与边界', link: '/guide/architecture' },
             { text: '布局与菜单', link: '/guide/layout-menu' },
+            { text: '门户设计器（PC）', link: '/guide/portal-designer' },
             { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
           ]
         },
@@ -48,4 +50,3 @@ export default defineConfig({
     }
   }
 });
-

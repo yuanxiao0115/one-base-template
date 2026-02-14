@@ -1,0 +1,93 @@
+{
+  "index": {
+    "name": "pb-image-text-list-index"
+  },
+  "content": {
+    "name": "pb-image-text-list-content",
+    "title": {
+      "title": "专栏模块",
+      "titleStyle": "simple",
+      "showMore": false,
+      "moreLink": "/frontPortal/cms/list"
+    },
+    "layout": {
+      "layout": "no-image",
+      "contentGap": 16,
+      "imageHeight": 200,
+      "contentImage": ""
+    },
+    "dataSource": {
+      "categoryId": "",
+      "listType": "image-text",
+      "columnCount": 1,
+      "maxDisplayCount": 10,
+      "showDot": false,
+      "items": []
+    }
+  },
+  "style": {
+    "name": "pb-image-text-list-style",
+    "title": {
+      "titleColor": "#BE0009",
+      "titleFontSize": 16,
+      "titleFontWeight": "bold",
+      "titleAlign": "left",
+      "titleBgColor": "transparent",
+      "lineThickness": 2,
+      "borderColor": "#BE0009",
+      "stripeAccentColor": "#2B6DE5",
+      "stripeAccentCount": 13,
+      "stripeHeight": 8,
+      "stripeWidth": 3,
+      "stripeBaseColor": "#E2E7F0",
+      "linkColor": "#BE0009",
+      "linkFontSize": 14,
+      "titlePaddingTop": 0,
+      "titlePaddingRight": 0,
+      "titlePaddingBottom": 0,
+      "titlePaddingLeft": 0
+    },
+    "container": {
+      "textColor": "#333333",
+      "borderRadius": 4,
+      "containerPaddingTop": 24,
+      "containerPaddingRight": 24,
+      "containerPaddingBottom": 24,
+      "containerPaddingLeft": 24,
+      "boxShadow": "none",
+      "containerBgColor": "#ffffff",
+      "containerBgOpacity": 1,
+      "containerBorderRadius": 0,
+      "containerShadowPreset": "none",
+      "containerBorderWidth": 0,
+      "containerBorderStyle": "solid",
+      "containerBorderColor": "#eaeaea",
+      "containerBoxShadow": "none",
+      "contentBgColor": "transparent",
+      "contentBgOpacity": 1,
+      "contentBorderRadius": 0,
+      "contentPaddingTop": 24,
+      "contentPaddingRight": 24,
+      "contentPaddingBottom": 24,
+      "contentPaddingLeft": 24
+    },
+    "list": {
+      "titleColor": "#333333",
+      "titleFontSize": 16,
+      "titleFontWeight": "normal",
+      "titleHoverColor": "#2B6DE5",
+      "dateColor": "#909399",
+      "dateFontSize": 14,
+      "dotColor": "#2B6DE5",
+      "dotSize": 6,
+      "dotGap": 8,
+      "rowDividerColor": "#EEF0F3",
+      "rowDividerStyle": "dashed",
+      "rowDividerWidth": 1,
+      "rowPaddingY": 8,
+      "imageWidth": 80,
+      "imageHeight": 55,
+      "imageBorderRadius": 0
+    }
+  }
+}

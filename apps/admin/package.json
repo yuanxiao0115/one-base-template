@@ -16,6 +16,7 @@
     "@one-base-template/ui": "workspace:*",
     "element-plus": "^2.13.2",
     "gm-crypto": "^0.1.12",
+    "grid-layout-plus": "^1.1.1",
     "pinia": "^3.0.4",
     "vue": "^3.5.28",
     "vue-router": "^5.0.2"

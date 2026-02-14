@@ -1,0 +1,90 @@
+{
+  "index": {
+    "name": "pb-carousel-text-list-index"
+  },
+  "content": {
+    "name": "pb-carousel-text-list-content",
+    "title": {
+      "title": "内容容器",
+      "titleStyle": "simple",
+      "showMore": false,
+      "moreLink": "/frontPortal/cms/list"
+    },
+    "dataSource": {
+      "categoryId": "",
+      "effect": "fade",
+      "autoplay": true,
+      "interval": 3000,
+      "indicator": true,
+      "arrow": "hover",
+      "maxItems": 5,
+      "listMaxItems": 10
+    }
+  },
+  "style": {
+    "name": "pb-carousel-text-list-style",
+    "title": {
+      "titleColor": "#BE0009",
+      "titleFontSize": 16,
+      "titleFontWeight": "bold",
+      "titleAlign": "left",
+      "titleBgColor": "transparent",
+      "lineThickness": 2,
+      "borderColor": "#BE0009",
+      "linkColor": "#BE0009",
+      "linkFontSize": 14,
+      "titlePaddingTop": 0,
+      "titlePaddingRight": 0,
+      "titlePaddingBottom": 0,
+      "titlePaddingLeft": 0
+    },
+    "container": {
+      "textColor": "#333333",
+      "borderRadius": 4,
+      "containerPaddingTop": 24,
+      "containerPaddingRight": 24,
+      "containerPaddingBottom": 24,
+      "containerPaddingLeft": 24,
+      "boxShadow": "none",
+      "containerBgColor": "#ffffff",
+      "containerBgOpacity": 1,
+      "containerBorderRadius": 0,
+      "containerShadowPreset": "none",
+      "containerBorderWidth": 0,
+      "containerBorderStyle": "solid",
+      "containerBorderColor": "#eaeaea",
+      "containerBoxShadow": "none",
+      "contentBgColor": "transparent",
+      "contentBgOpacity": 1,
+      "contentBorderRadius": 0,
+      "contentPaddingTop": 24,
+      "contentPaddingRight": 24,
+      "contentPaddingBottom": 24,
+      "contentPaddingLeft": 24,
+      "imageWidth": 200,
+      "imageHeight": 160,
+      "imageBorderRadius": 4,
+      "textFontSize": 14,
+      "textLineHeight": "1.5"
+    },
+    "carousel": {
+      "width": 400,
+      "height": 200,
+      "indicatorColor": "rgba(255, 255, 255, 0.7)",
+      "arrowColor": "rgba(255, 255, 255, 0.7)",
+      "imageFit": "cover",
+      "showTitle": true,
+      "titleBackground": "#D62222",
+      "titleColor": "#ffffff",
+      "titleFontSize": 16,
+      "borderRadius": 4,
+      "pageIndicatorColor": "#FFE97C"
+    },
+    "list": {
+      "textColor": "#333333",
+      "titleFontSize": 16,
+      "timeColor": "#9095A1",
+      "timeFontSize": 14
+    }
+  }
+}
