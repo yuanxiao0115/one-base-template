@@ -33,8 +33,8 @@ function resolveRootRedirect(): string {
 export const routes: RouteRecordRaw[] = [
   {
     // 门户预览页：必须是顶层路由，避免被 AdminLayout（侧栏/顶栏）包裹
-    path: '/portal/index/:tabId?',
-    name: 'PortalPreviewRenderPage',
+    path: '/portal/preview/:tabId?',
+    name: 'PortalPreview',
     component: () => import('../modules/portal/pages/PortalPreviewRenderPage.vue'),
     meta: { public: true, hiddenTab: true }
   },

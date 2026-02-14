@@ -2,8 +2,16 @@ import type { RouteRecordRaw } from 'vue-router';
 
 export default [
   {
-    path: 'portal/setting',
-    name: 'PortalTemplateListPage',
+    // 菜单分组节点（mock/后端菜单常用 /portal 作为父节点），这里做 redirect 避免访问 404
+    path: 'portal',
+    redirect: '/portal/templates',
+    meta: {
+      title: '门户'
+    }
+  },
+  {
+    path: 'portal/templates',
+    name: 'PortalTemplateList',
     component: () => import('./pages/PortalTemplateListPage.vue'),
     meta: {
       title: '门户模板',
@@ -11,8 +19,8 @@ export default [
     }
   },
   {
-    path: 'resource/portal/setting',
-    name: 'PortalTemplateSettingPage',
+    path: 'portal/designer',
+    name: 'PortalDesigner',
     component: () => import('./pages/PortalTemplateSettingPage.vue'),
     meta: {
       title: '门户配置',
@@ -21,8 +29,8 @@ export default [
     }
   },
   {
-    path: 'portal/page/edit',
-    name: 'PortalPageEditPage',
+    path: 'portal/layout',
+    name: 'PortalPageEditor',
     component: () => import('./pages/PortalPageEditPage.vue'),
     meta: {
       title: '页面编辑',
@@ -31,4 +39,3 @@ export default [
     }
   }
 ] satisfies RouteRecordRaw[];
-

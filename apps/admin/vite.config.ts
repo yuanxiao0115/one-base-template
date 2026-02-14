@@ -243,10 +243,10 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
                       resourceType: 1,
                       hidden: 0,
                       children: [
-                        { url: '/portal/setting', resourceName: '门户模板', resourceType: 1, hidden: 0, routeCache: 0 },
+                        { url: '/portal/templates', resourceName: '门户模板', resourceType: 1, hidden: 0, routeCache: 0 },
                         // 详情/编辑页通常不出现在菜单里，但需要在白名单中才能直达访问
-                        { url: '/resource/portal/setting', resourceName: '门户配置', resourceType: 1, hidden: 1, routeCache: 0 },
-                        { url: '/portal/page/edit', resourceName: '页面编辑', resourceType: 1, hidden: 1, routeCache: 0 }
+                        { url: '/portal/designer', resourceName: '门户配置', resourceType: 1, hidden: 1, routeCache: 0 },
+                        { url: '/portal/layout', resourceName: '页面编辑', resourceType: 1, hidden: 1, routeCache: 0 }
                       ]
                     }
                   ]

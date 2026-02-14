@@ -3,19 +3,19 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 defineOptions({
-  name: 'PortalTemplateSettingPage'
+  name: 'PortalDesigner'
 });
 
 const route = useRoute();
 const router = useRouter();
 
 const templateId = computed(() => {
-  const v = route.query.id;
+  const v = route.query.templateId;
   return typeof v === 'string' ? v : '';
 });
 
 function onBack() {
-  router.push('/portal/setting');
+  router.push('/portal/templates');
 }
 </script>
 
@@ -38,9 +38,8 @@ function onBack() {
       </template>
 
       <p class="text-sm text-[var(--el-text-color-regular)]">
-        路由：/resource/portal/setting?id=&lt;templateId&gt;
+        路由：/portal/designer?templateId=&lt;templateId&gt;
       </p>
     </el-card>
   </div>
 </template>
-

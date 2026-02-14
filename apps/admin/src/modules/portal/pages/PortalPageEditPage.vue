@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 defineOptions({
-  name: 'PortalPageEditPage'
+  name: 'PortalPageEditor'
 });
 
 const route = useRoute();
@@ -21,10 +21,10 @@ const templateId = computed(() => {
 
 function onBack() {
   if (templateId.value) {
-    router.push({ path: '/resource/portal/setting', query: { id: templateId.value } });
+    router.push({ path: '/portal/designer', query: { templateId: templateId.value } });
     return;
   }
-  router.push('/portal/setting');
+  router.push('/portal/templates');
 }
 </script>
 
@@ -49,9 +49,8 @@ function onBack() {
       </template>
 
       <p class="text-sm text-[var(--el-text-color-regular)]">
-        路由：/portal/page/edit?tabId=&lt;tabId&gt;&amp;templateId=&lt;templateId&gt;
+        路由：/portal/layout?tabId=&lt;tabId&gt;&amp;templateId=&lt;templateId&gt;
       </p>
     </el-card>
   </div>
 </template>
-

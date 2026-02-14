@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 defineOptions({
-  name: 'PortalPreviewRenderPage'
+  name: 'PortalPreview'
 });
 
 const route = useRoute();
@@ -32,9 +32,8 @@ const templateId = computed(() => {
         tabId={{ tabId || '-' }} / templateId={{ templateId || '-' }}
       </div>
       <div class="mt-1 text-xs text-[var(--el-text-color-secondary)]">
-        路由：/portal/index/:tabId?templateId=&lt;templateId&gt;
+        路由：/portal/preview/:tabId?templateId=&lt;templateId&gt;
       </div>
     </el-card>
   </div>
 </template>
-
