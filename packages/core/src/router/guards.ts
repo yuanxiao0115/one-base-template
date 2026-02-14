@@ -32,6 +32,9 @@ export function setupRouterGuards(router: Router) {
     const authStore = useAuthStore();
     const authed = await authStore.ensureAuthed();
     if (!authed) {
+      // 关键要求：退出/换用户后，不能保留旧用户的标签页。
+      // 这里处理“鉴权失效 -> 跳转登录”的场景（例如 Cookie 过期），避免登录后复活旧 tabs。
+      useTabsStore().reset();
       return {
         path: '/login',
         query: { redirect: to.fullPath }
@@ -46,24 +49,33 @@ export function setupRouterGuards(router: Router) {
     // - 权限校验：以 activePath 为准（只要有菜单权限即可访问详情页）
     const menuKey = resolveMenuKey({ path: to.path, meta: to.meta as Record<string, unknown> });
 
-    // 若本地缓存了 path->systemCode 索引，可在菜单未加载前先“预判”系统，减少首次进入跨系统 URL 的跳转抖动
-    const guessedSystem = menuStore.resolveSystemByMenuKey(menuKey);
-    if (guessedSystem && guessedSystem !== systemStore.currentSystemCode) {
-      systemStore.setCurrentSystem(guessedSystem);
+    // 若当前系统的菜单缓存已就绪，且该路由在当前系统的白名单内，则保持当前系统不变。
+    // 这能避免：
+    // 1) 多系统存在相同 path 时，根据 pathIndex 猜系统导致“刷新后切回默认系统”
+    // 2) 业务未配置 systemHomeMap 时，根路径兜底跳到某个公共首页再被错误切系统
+    if (menuStore.loaded && menuStore.isAllowed(menuKey)) {
+      return true;
     }
 
+    // 若当前系统菜单未加载，先加载（remote 模式通常一次拉取所有系统菜单）
     if (!menuStore.loaded) {
       await menuStore.loadMenus();
     }
 
-    // 菜单加载后再做一次“精确系统匹配”（首次进入/缓存缺失时 guessedSystem 可能为空）
+    // 菜单加载后如果当前系统已允许访问该路由，则无需再做“按路径切系统”。
+    // 这对“多系统存在相同 path”或“业务未配置 systemHomeMap”场景尤为重要：应以用户当前系统为准，避免刷新时被覆盖。
+    if (menuStore.isAllowed(menuKey)) {
+      return true;
+    }
+
+    // 当前系统不允许访问该路由时，再尝试根据 menuKey 解析目标系统并切换
     const resolvedSystem = menuStore.resolveSystemByMenuKey(menuKey);
     if (resolvedSystem && resolvedSystem !== systemStore.currentSystemCode) {
       systemStore.setCurrentSystem(resolvedSystem);
-    }
-    // 如果切到的新系统尚未加载（极少发生：缓存不全/系统列表变化），兜底再拉一次
-    if (!menuStore.loaded) {
-      await menuStore.loadMenus();
+      // 如果切到的新系统尚未加载（极少发生：缓存不全/系统列表变化），兜底再拉一次
+      if (!menuStore.loaded) {
+        await menuStore.loadMenus();
+      }
     }
 
     // 菜单树决定可访问路由：不在 allowedPaths 的一律 403（详情页以 menuKey=activePath 判定）

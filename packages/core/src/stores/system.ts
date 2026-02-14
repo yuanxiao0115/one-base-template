@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { readFromStorages, removeByPrefixes, removeFromStorages, safeSetToStorage } from '../utils/storage';
 
 export interface AppSystemInfo {
   code: string;
@@ -31,33 +32,32 @@ function isNonEmptyString(v: unknown): v is string {
 }
 
 function readStoredCurrent(): string | null {
-  try {
-    const raw = localStorage.getItem(SYSTEM_CURRENT_STORAGE_KEY);
-    return isNonEmptyString(raw) ? raw : null;
-  } catch {
-    return null;
-  }
+  const raw = readFromStorages(SYSTEM_CURRENT_STORAGE_KEY, ['local', 'session']);
+  return isNonEmptyString(raw) ? raw : null;
 }
 
 function writeStoredCurrent(code: string) {
-  try {
-    localStorage.setItem(SYSTEM_CURRENT_STORAGE_KEY, code);
-  } catch {
-    // ignore
-  }
+  // 降级策略：
+  // - 优先 localStorage（跨 Tab/浏览器刷新）
+  // - 若 localStorage 满额/不可用，自动清理可再拉取的菜单缓存后重试
+  // - 仍失败则退化写入 sessionStorage（至少保证“刷新保持当前系统”）
+  safeSetToStorage(SYSTEM_CURRENT_STORAGE_KEY, code, {
+    primary: 'local',
+    fallback: 'session',
+    onPrimaryQuotaExceeded: () => {
+      // 菜单树缓存体积最大，且可重新拉取，优先清理为关键状态让路
+      removeByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+    }
+  });
 }
 
 function clearStoredCurrent() {
-  try {
-    localStorage.removeItem(SYSTEM_CURRENT_STORAGE_KEY);
-  } catch {
-    // ignore
-  }
+  removeFromStorages(SYSTEM_CURRENT_STORAGE_KEY, ['local', 'session']);
 }
 
 function readStoredSystems(): AppSystemInfo[] | null {
   try {
-    const raw = localStorage.getItem(SYSTEM_LIST_STORAGE_KEY);
+    const raw = readFromStorages(SYSTEM_LIST_STORAGE_KEY, ['local', 'session']);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return null;
@@ -76,29 +76,23 @@ function readStoredSystems(): AppSystemInfo[] | null {
     return list.length ? list : null;
   } catch {
     // localStorage 不可用或 JSON 解析失败时，直接清理缓存，避免后续反复报错
-    try {
-      localStorage.removeItem(SYSTEM_LIST_STORAGE_KEY);
-    } catch {
-      // ignore
-    }
+    removeFromStorages(SYSTEM_LIST_STORAGE_KEY, ['local', 'session']);
     return null;
   }
 }
 
 function writeStoredSystems(list: AppSystemInfo[]) {
-  try {
-    localStorage.setItem(SYSTEM_LIST_STORAGE_KEY, JSON.stringify(list));
-  } catch {
-    // ignore
-  }
+  safeSetToStorage(SYSTEM_LIST_STORAGE_KEY, JSON.stringify(list), {
+    primary: 'local',
+    fallback: 'session',
+    onPrimaryQuotaExceeded: () => {
+      removeByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+    }
+  });
 }
 
 function clearStoredSystems() {
-  try {
-    localStorage.removeItem(SYSTEM_LIST_STORAGE_KEY);
-  } catch {
-    // ignore
-  }
+  removeFromStorages(SYSTEM_LIST_STORAGE_KEY, ['local', 'session']);
 }
 
 export const useSystemStore = defineStore('ob-system', () => {
@@ -200,4 +194,3 @@ export const useSystemStore = defineStore('ob-system', () => {
     reset
   };
 });
-

@@ -7,7 +7,7 @@ import KeepAliveView from '../../components/view/KeepAliveView.vue';
 
 <template>
   <div class="h-screen w-screen flex flex-col bg-[var(--el-bg-color-page)]">
-    <header class="shrink-0 bg-white border-b border-[var(--el-border-color)]">
+    <header class="shrink-0">
       <TopBar />
       <TopMenu />
       <TabsBar />
@@ -17,4 +17,3 @@ import KeepAliveView from '../../components/view/KeepAliveView.vue';
     </main>
   </div>
 </template>
-

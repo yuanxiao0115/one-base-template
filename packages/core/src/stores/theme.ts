@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { mix } from '../utils/color';
+import { readFromStorages, removeByPrefixes, safeSetToStorage } from '../utils/storage';
 
 const THEME_KEY = 'ob_theme';
 
@@ -43,7 +44,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
   function init(options: ThemeOptions) {
     themes.value = options.themes;
 
-    const saved = localStorage.getItem(THEME_KEY);
+    const saved = readFromStorages(THEME_KEY, ['local', 'session']);
     const initial = saved && themes.value[saved] ? saved : options.defaultTheme;
     setTheme(initial);
   }
@@ -55,7 +56,14 @@ export const useThemeStore = defineStore('ob-theme', () => {
     }
 
     themeKey.value = key;
-    localStorage.setItem(THEME_KEY, key);
+    safeSetToStorage(THEME_KEY, key, {
+      primary: 'local',
+      fallback: 'session',
+      onPrimaryQuotaExceeded: () => {
+        // 菜单缓存可重新拉取，优先清理避免主题切换失败
+        removeByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+      }
+    });
 
     const primary = themes.value[key].primary;
     applyElementPlusPrimary(primary);

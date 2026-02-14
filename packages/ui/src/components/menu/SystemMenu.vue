@@ -16,7 +16,7 @@ function onSelect(index: string) {
 </script>
 
 <template>
-  <div v-if="systems.length > 1" class="bg-white border-b border-[var(--el-border-color)] px-2">
+  <div v-if="systems.length > 1" class="ob-system-menu px-4">
     <el-menu
       class="border-0"
       mode="horizontal"
@@ -33,3 +33,30 @@ function onSelect(index: string) {
     </el-menu>
   </div>
 </template>
+
+<style scoped>
+.ob-system-menu {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid var(--el-border-color);
+}
+
+:deep(.ob-system-menu .el-menu) {
+  background: transparent !important;
+}
+
+:deep(.ob-system-menu .el-menu-item) {
+  height: 32px;
+  line-height: 32px;
+  margin-right: 8px;
+  border-radius: 2px;
+  color: var(--el-text-color-primary);
+}
+
+:deep(.ob-system-menu .el-menu-item.is-active) {
+  background: var(--el-color-primary-light-9) !important;
+  color: var(--el-color-primary) !important;
+}
+</style>

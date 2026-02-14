@@ -8,11 +8,12 @@ import type { CoreOptions } from '@one-base-template/core';
  * - 这里只约定最小主题能力：primary 主色
  */
 export const appThemeOptions: CoreOptions['theme'] = {
-  defaultTheme: 'blue',
+  defaultTheme: 'sczfw',
   themes: {
+    // 对齐老项目（sczfw）主色：#0f79e9
+    sczfw: { primary: '#0f79e9' },
     blue: { primary: '#1677ff' },
     green: { primary: '#16a34a' },
     orange: { primary: '#f97316' }
   }
 };
-

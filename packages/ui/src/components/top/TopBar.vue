@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore, useLayoutStore, useMenuStore, useSystemStore, useTabsStore } from '@one-base-template/core';
 import ThemeSwitcher from '../theme/ThemeSwitcher.vue';
+import headerBgUrl from '../../assets/app-header-bg.png';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -15,6 +16,11 @@ const userName = computed(() => authStore.user?.name ?? '未登录');
 // top-side 布局会在顶栏下方渲染 SystemMenu（横向系统切换），此处不重复展示下拉切换
 const showSystemSwitcher = computed(() => systemStore.systems.length > 1 && layoutStore.mode !== 'top-side');
 const currentSystemName = computed(() => systemStore.currentSystemName);
+const title = computed(() => `${currentSystemName.value} | 后台管理`);
+
+const headerStyle = computed(() => ({
+  backgroundImage: `url(${headerBgUrl})`
+}));
 
 async function onLogout() {
   await authStore.logout();
@@ -42,15 +48,19 @@ async function onSwitchSystem(systemCode: string) {
 </script>
 
 <template>
-  <div class="h-14 px-4 flex items-center justify-between bg-white border-b border-[var(--el-border-color)]">
-    <div class="flex items-center gap-2 min-w-0">
-      <div class="font-medium shrink-0">后台管理</div>
+  <div class="ob-topbar" :style="headerStyle">
+    <div class="ob-topbar__left">
+      <p class="ob-topbar__title" :title="title">
+        {{ title }}
+      </p>
+
       <el-dropdown
         v-if="showSystemSwitcher"
+        class="ob-topbar__system"
         @command="onSwitchSystem"
       >
-        <span class="cursor-pointer select-none text-[var(--el-text-color-regular)] hover:text-[var(--el-color-primary)] truncate">
-          {{ currentSystemName }}
+        <span class="ob-topbar__system-trigger" :title="currentSystemName">
+          切换系统：{{ currentSystemName }}
         </span>
         <template #dropdown>
           <el-dropdown-menu>
@@ -64,18 +74,12 @@ async function onSwitchSystem(systemCode: string) {
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <div
-        v-else
-        class="text-sm text-[var(--el-text-color-regular)] truncate"
-        :title="currentSystemName"
-      >
-        {{ currentSystemName }}
-      </div>
     </div>
-    <div class="flex items-center gap-3">
-      <ThemeSwitcher />
-      <el-dropdown>
-        <span class="cursor-pointer select-none">
+
+    <div class="ob-topbar__right">
+      <ThemeSwitcher class="ob-topbar__theme" />
+      <el-dropdown class="ob-topbar__user">
+        <span class="ob-topbar__user-trigger" :title="userName">
           {{ userName }}
         </span>
         <template #dropdown>
@@ -87,3 +91,93 @@ async function onSwitchSystem(systemCode: string) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.ob-topbar {
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgb(255 255 255 / 92%);
+  background: var(--el-color-primary);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.ob-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.ob-topbar__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ob-topbar__system-trigger {
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgb(255 255 255 / 14%);
+  border: 1px solid rgb(255 255 255 / 22%);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.ob-topbar__system-trigger:hover {
+  background: rgb(255 255 255 / 18%);
+  border-color: rgb(255 255 255 / 28%);
+}
+
+.ob-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ob-topbar__user-trigger {
+  cursor: pointer;
+  user-select: none;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  transition: background-color 150ms ease;
+}
+
+.ob-topbar__user-trigger:hover {
+  background: rgb(255 255 255 / 18%);
+}
+
+/* 顶栏里，Element Plus 表单控件默认是白底，放在蓝色背景上会突兀，这里做轻量“玻璃态”处理。 */
+.ob-topbar :deep(.el-input__wrapper) {
+  background: rgb(255 255 255 / 14%);
+  box-shadow: none;
+  border: 1px solid rgb(255 255 255 / 22%);
+}
+
+.ob-topbar :deep(.el-input__inner) {
+  color: #fff;
+}
+
+.ob-topbar :deep(.el-select__placeholder) {
+  color: rgb(255 255 255 / 70%);
+}
+
+.ob-topbar :deep(.el-select__caret) {
+  color: rgb(255 255 255 / 85%);
+}
+</style>

@@ -68,19 +68,14 @@ async function onSelectSystem(systemCode: string) {
 
 <template>
   <div class="h-screen w-screen flex flex-col bg-[var(--el-bg-color-page)]">
+    <!-- 顶栏：全宽 -->
     <header class="shrink-0">
       <TopBar />
-      <SystemMenu
-        :systems="systems"
-        :active="activeSystemCode"
-        @select="onSelectSystem"
-      />
-      <TabsBar />
     </header>
 
     <div class="flex-1 min-h-0 flex">
       <aside
-        class="w-64 shrink-0 border-r border-[var(--el-border-color)] bg-white flex flex-col"
+        class="ob-sider w-64 shrink-0 border-r border-[var(--el-border-color)] bg-white flex flex-col"
         :class="layoutStore.siderCollapsed ? 'w-16' : 'w-64'"
       >
         <div class="h-12 shrink-0 flex items-center px-4 border-b border-[var(--el-border-color)]">
@@ -104,9 +99,20 @@ async function onSelectSystem(systemCode: string) {
         </div>
       </aside>
 
-      <main class="flex-1 min-w-0 overflow-auto p-4">
-        <KeepAliveView />
-      </main>
+      <div class="flex-1 min-w-0 flex flex-col">
+        <header class="shrink-0">
+          <SystemMenu
+            :systems="systems"
+            :active="activeSystemCode"
+            @select="onSelectSystem"
+          />
+          <TabsBar />
+        </header>
+
+        <main class="flex-1 min-h-0 min-w-0 overflow-auto p-4">
+          <KeepAliveView />
+        </main>
+      </div>
     </div>
   </div>
 </template>

@@ -57,7 +57,7 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
   <el-scrollbar class="h-full">
     <el-menu
       :key="`${activePath}:${collapsed}`"
-      class="border-0"
+      class="ob-sider-menu border-0"
       :default-active="activePath"
       :default-openeds="openeds"
       :collapse="collapsed"
@@ -73,3 +73,46 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
     </el-menu>
   </el-scrollbar>
 </template>
+
+<style scoped>
+/* 侧边菜单：对齐 sczfw 的“轻高亮 + 50px 行高” */
+:deep(.ob-sider-menu) {
+  background: transparent !important;
+  border: none;
+}
+
+:deep(.ob-sider-menu .el-menu-item),
+:deep(.ob-sider-menu .el-sub-menu__title) {
+  height: 50px;
+  line-height: 50px;
+  background: transparent !important;
+}
+
+:deep(.ob-sider-menu .el-menu-item:hover),
+:deep(.ob-sider-menu .el-sub-menu__title:hover) {
+  color: var(--el-color-primary) !important;
+}
+
+:deep(.ob-sider-menu .el-sub-menu.is-active > .el-sub-menu__title) {
+  color: var(--el-color-primary) !important;
+}
+
+/* 激活叶子节点背景高亮（不改整体 hover 背景，避免“满屏蓝”） */
+:deep(.ob-sider-menu .el-menu-item.is-active) {
+  position: relative;
+  color: var(--el-color-primary) !important;
+}
+
+:deep(.ob-sider-menu .el-menu-item.is-active::before) {
+  position: absolute;
+  inset: 4px 8px;
+  border-radius: 3px;
+  background: var(--el-color-primary-light-9);
+  content: '';
+}
+
+:deep(.ob-sider-menu .el-menu-item.is-active > *) {
+  position: relative;
+  z-index: 1;
+}
+</style>

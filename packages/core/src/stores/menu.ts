@@ -4,10 +4,16 @@ import type { AppMenuItem, MenuMode } from '../adapter/types';
 import { getCoreOptions } from '../context';
 import { useSystemStore } from './system';
 import { isHttpUrl } from '../utils/url';
+import { byteLength, readFromStorages, removeByPrefixes, removeFromStorages, safeSetToStorage } from '../utils/storage';
 
 const MENU_TREE_LEGACY_STORAGE_KEY = 'ob_menu_tree';
 const MENU_TREE_STORAGE_KEY_PREFIX = 'ob_menu_tree:';
 const MENU_PATH_INDEX_STORAGE_KEY = 'ob_menu_path_index';
+
+// localStorage 空间有限，菜单树可能很大；超限时需要降级为“仅内存缓存/或 sessionStorage”。
+// 这里按单条 key 做上限控制，避免个别超大系统把整个站点 localStorage 挤爆。
+const MAX_MENU_TREE_STORAGE_BYTES = 1024 * 1024; // 1MB
+const MAX_PATH_INDEX_STORAGE_BYTES = 256 * 1024; // 256KB
 
 function buildMenuTreeKey(systemCode: string) {
   return `${MENU_TREE_STORAGE_KEY_PREFIX}${systemCode}`;
@@ -15,57 +21,57 @@ function buildMenuTreeKey(systemCode: string) {
 
 function readStoredMenuTree(systemCode: string): AppMenuItem[] | null {
   try {
-    const raw = localStorage.getItem(buildMenuTreeKey(systemCode));
+    const raw = readFromStorages(buildMenuTreeKey(systemCode), ['local', 'session']);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? (parsed as AppMenuItem[]) : null;
   } catch {
     // localStorage 不可用或 JSON 解析失败时，直接清理缓存，避免后续反复报错
-    try {
-      localStorage.removeItem(buildMenuTreeKey(systemCode));
-    } catch {
-      // ignore
-    }
+    removeFromStorages(buildMenuTreeKey(systemCode), ['local', 'session']);
     return null;
   }
 }
 
 function writeStoredMenuTree(systemCode: string, tree: AppMenuItem[]) {
-  try {
-    localStorage.setItem(buildMenuTreeKey(systemCode), JSON.stringify(tree));
-  } catch {
-    // ignore
+  const key = buildMenuTreeKey(systemCode);
+  const raw = JSON.stringify(tree);
+
+  // 预防超大值导致 localStorage 满额：超过上限则直接不落盘，并清理旧缓存腾空间。
+  if (byteLength(raw) > MAX_MENU_TREE_STORAGE_BYTES) {
+    removeFromStorages(key, ['local', 'session']);
+    return;
   }
+
+  safeSetToStorage(key, raw, {
+    primary: 'local',
+    fallback: 'session',
+    onPrimaryQuotaExceeded: () => {
+      // 清理所有菜单缓存（可再拉取），避免影响关键状态持久化（system/theme/layout）
+      removeByPrefixes([MENU_TREE_STORAGE_KEY_PREFIX, MENU_TREE_LEGACY_STORAGE_KEY, MENU_PATH_INDEX_STORAGE_KEY], 'local');
+    }
+  });
 }
 
 function readLegacyStoredMenuTree(): AppMenuItem[] | null {
   try {
-    const raw = localStorage.getItem(MENU_TREE_LEGACY_STORAGE_KEY);
+    const raw = readFromStorages(MENU_TREE_LEGACY_STORAGE_KEY, ['local', 'session']);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? (parsed as AppMenuItem[]) : null;
   } catch {
     // localStorage 不可用或 JSON 解析失败时，直接清理缓存，避免后续反复报错
-    try {
-      localStorage.removeItem(MENU_TREE_LEGACY_STORAGE_KEY);
-    } catch {
-      // ignore
-    }
+    removeFromStorages(MENU_TREE_LEGACY_STORAGE_KEY, ['local', 'session']);
     return null;
   }
 }
 
 function clearLegacyStoredMenuTree() {
-  try {
-    localStorage.removeItem(MENU_TREE_LEGACY_STORAGE_KEY);
-  } catch {
-    // ignore
-  }
+  removeFromStorages(MENU_TREE_LEGACY_STORAGE_KEY, ['local', 'session']);
 }
 
 function readStoredPathIndex(): Record<string, string> | null {
   try {
-    const raw = localStorage.getItem(MENU_PATH_INDEX_STORAGE_KEY);
+    const raw = readFromStorages(MENU_PATH_INDEX_STORAGE_KEY, ['local', 'session']);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== 'object') return null;
@@ -76,29 +82,29 @@ function readStoredPathIndex(): Record<string, string> | null {
     }
     return Object.keys(out).length ? out : null;
   } catch {
-    try {
-      localStorage.removeItem(MENU_PATH_INDEX_STORAGE_KEY);
-    } catch {
-      // ignore
-    }
+    removeFromStorages(MENU_PATH_INDEX_STORAGE_KEY, ['local', 'session']);
     return null;
   }
 }
 
 function writeStoredPathIndex(index: Record<string, string>) {
-  try {
-    localStorage.setItem(MENU_PATH_INDEX_STORAGE_KEY, JSON.stringify(index));
-  } catch {
-    // ignore
+  const raw = JSON.stringify(index);
+  if (byteLength(raw) > MAX_PATH_INDEX_STORAGE_BYTES) {
+    removeFromStorages(MENU_PATH_INDEX_STORAGE_KEY, ['local', 'session']);
+    return;
   }
+
+  safeSetToStorage(MENU_PATH_INDEX_STORAGE_KEY, raw, {
+    primary: 'local',
+    fallback: 'session',
+    onPrimaryQuotaExceeded: () => {
+      removeByPrefixes([MENU_TREE_STORAGE_KEY_PREFIX, MENU_TREE_LEGACY_STORAGE_KEY, MENU_PATH_INDEX_STORAGE_KEY], 'local');
+    }
+  });
 }
 
 function clearStoredPathIndex() {
-  try {
-    localStorage.removeItem(MENU_PATH_INDEX_STORAGE_KEY);
-  } catch {
-    // ignore
-  }
+  removeFromStorages(MENU_PATH_INDEX_STORAGE_KEY, ['local', 'session']);
 }
 
 function normalizeMenuTree(items: AppMenuItem[]): AppMenuItem[] {
@@ -347,16 +353,8 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
   function reset() {
     // 清理所有系统的菜单分片缓存（不依赖当前内存态，避免遗漏旧系统残留）
-    try {
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(MENU_TREE_STORAGE_KEY_PREFIX)) {
-          localStorage.removeItem(key);
-        }
-      }
-    } catch {
-      // ignore
-    }
+    removeByPrefixes([MENU_TREE_STORAGE_KEY_PREFIX], 'local');
+    removeByPrefixes([MENU_TREE_STORAGE_KEY_PREFIX], 'session');
 
     menuTrees.value = {};
     allowedPathsBySystem.value = {};
