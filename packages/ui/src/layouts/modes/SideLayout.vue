@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useLayoutStore } from '@one-base-template/core';
 
 import SidebarMenu from '../../components/menu/SidebarMenu.vue';
@@ -7,6 +9,11 @@ import TabsBar from '../../components/tabs/TabsBar.vue';
 import KeepAliveView from '../../components/view/KeepAliveView.vue';
 
 const layoutStore = useLayoutStore();
+const route = useRoute();
+
+const hideTabsBar = computed(() => Boolean(route.meta.hideTabsBar));
+const fullScreen = computed(() => Boolean(route.meta.fullScreen));
+const contentPaddingClass = computed(() => (fullScreen.value ? 'p-0' : 'p-4'));
 </script>
 
 <template>
@@ -37,9 +44,9 @@ const layoutStore = useLayoutStore();
     <div class="flex-1 min-w-0 flex flex-col">
       <header class="shrink-0">
         <TopBar />
-        <TabsBar />
+        <TabsBar v-if="!hideTabsBar" />
       </header>
-      <main class="flex-1 min-h-0 overflow-auto p-4">
+      <main class="flex-1 min-h-0 overflow-auto" :class="contentPaddingClass">
         <KeepAliveView />
       </main>
     </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import type { AppMenuItem } from '@one-base-template/core';
 import { useLayoutStore, useMenuStore, useSystemStore } from '@one-base-template/core';
 
@@ -11,9 +11,14 @@ import TabsBar from '../../components/tabs/TabsBar.vue';
 import KeepAliveView from '../../components/view/KeepAliveView.vue';
 
 const router = useRouter();
+const route = useRoute();
 const layoutStore = useLayoutStore();
 const menuStore = useMenuStore();
 const systemStore = useSystemStore();
+
+const hideTabsBar = computed(() => Boolean(route.meta.hideTabsBar));
+const fullScreen = computed(() => Boolean(route.meta.fullScreen));
+const contentPaddingClass = computed(() => (fullScreen.value ? 'p-0' : 'p-4'));
 
 function findFirstLeafPath(item: AppMenuItem): string | undefined {
   if (item.children?.length) {
@@ -75,7 +80,7 @@ async function onSelectSystem(systemCode: string) {
         :active="activeSystemCode"
         @select="onSelectSystem"
       />
-      <TabsBar />
+      <TabsBar v-if="!hideTabsBar" />
     </header>
 
     <div class="flex-1 min-h-0 flex">
@@ -104,7 +109,7 @@ async function onSelectSystem(systemCode: string) {
         </div>
       </aside>
 
-      <main class="flex-1 min-w-0 overflow-auto p-4">
+      <main class="flex-1 min-w-0 overflow-auto" :class="contentPaddingClass">
         <KeepAliveView />
       </main>
     </div>
