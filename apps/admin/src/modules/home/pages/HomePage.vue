@@ -24,7 +24,7 @@ defineOptions({
       title="提示"
       type="info"
       :closable="false"
-      description="你可以通过 VITE_MENU_MODE=static 切换为静态菜单模式。"
+      description="你可以通过 apps/admin/public/platform-config.json 的 menuMode=static 切换为静态菜单模式。"
     />
   </div>
 </template>

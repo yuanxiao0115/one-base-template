@@ -16,10 +16,16 @@
 - Adapter 会映射为 `AppMenuSystem[]`（`code/name/menus`）
 - core 会写入 `systemStore.systems`，菜单按系统分片缓存
 
-## 需要的 env（apps/admin）
+## 配置方式（apps/admin）
 
-- `VITE_BACKEND=sczfw`
-- `VITE_AUTH_MODE=token`（推荐）
-- `VITE_SCZFW_SYSTEM_PERMISSION_CODE=admin_server`（仅单系统退化场景需要）
-- `VITE_DEFAULT_SYSTEM_CODE` / `VITE_SYSTEM_HOME_MAP`（多系统推荐配置）
+构建期 `.env*` 仅保留：
 
+- `VITE_API_BASE_URL`
+- `VITE_USE_MOCK`（可选）
+- `VITE_SCZFW_SYSTEM_PERMISSION_CODE`（仅 dev mock 使用）
+
+运行时业务配置统一放在 `apps/admin/public/platform-config.json`：
+
+- `backend: "sczfw"`
+- `authMode: "token"`（推荐）
+- `defaultSystemCode` / `systemHomeMap`（多系统推荐配置）
