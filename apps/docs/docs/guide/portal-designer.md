@@ -12,12 +12,26 @@
 
 管理侧（挂在 `AdminLayout` 内，需要登录/菜单权限）：
 - `/portal`：父节点兜底，重定向到列表页
-- `/portal/templates`：门户列表（后端概念为 template）
+- `/portal/templates`：门户模板列表（表格版，后端概念为 template）
 - `/portal/designer?templateId=<id>`：门户配置 IDE（tab 树 + iframe 预览 + 新建页面）
 - `/portal/layout?tabId=<id>&templateId=<id>`：页面编辑器（拖拽布局 + 保存 + 预览）
 
 预览渲染（顶层路由，不挂 `AdminLayout`，允许匿名）：
 - `/portal/preview/:tabId?templateId=<id>`：渲染指定 tab 的 pageLayout（通常给 iframe / 新窗口使用）
+
+## 门户模板列表（表格版）
+
+入口：`/portal/templates`
+
+当前最小能力（不改后端接口）：
+- 搜索：门户名称关键字（`searchKey`）
+- 筛选：发布状态（全部/草稿/已发布）
+- 分页：`currentPage/pageSize`
+- 行内操作：
+  - `配置`：进入 `/portal/designer?templateId=<id>`
+  - `预览`：打开 `/portal/preview/:tabId?templateId=<id>`
+  - `发布/取消发布`：调用 `template.publish`
+  - `删除`：调用 `template.delete`（带确认弹窗）
 
 ## 新建页面（按老项目裁剪后的逻辑）
 
