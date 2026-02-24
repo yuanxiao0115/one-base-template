@@ -53,7 +53,8 @@ export const portalApi = {
         params: { id: params.id }
       }),
 
-    hideToggle: (params: { id: string; hide?: number }) =>
+    // 老项目语义：隐藏/显示某个页面（tab）在模板中的可见性
+    hideToggle: (params: { id: string; tabId: string; isHide: number }) =>
       getHttp().get<BizResponse<unknown>>('/cmict/portal/template/hide', { params }),
 
     delete: (data: { id: string }) =>
@@ -87,4 +88,3 @@ export const portalApi = {
       getHttp().get<BizResponse<PortalTab>>('/cmict/portal/public/portal/tab/detail', { params })
   }
 };
-
