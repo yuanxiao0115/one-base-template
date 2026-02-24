@@ -45,6 +45,28 @@ UI 行为：
 
 守卫逻辑会以 `menuKey = to.meta.activePath ?? to.path` 做系统识别与权限校验。
 
+## 本地维护路由（未进菜单）与 meta.skipMenuAuth
+
+有些页面可能由前端先行维护（或开发期联调临时页），暂时**不会出现在后端菜单**里。
+
+默认策略下：`allowedPaths` 来自菜单树，不在集合内的路由会被拦截到 `403`。
+
+如果你希望“**仍需要登录**，但不依赖菜单权限即可访问”，可以在路由上增加：
+
+```ts
+{
+  path: '/local/page',
+  component: () => import('./LocalPage.vue'),
+  meta: {
+    skipMenuAuth: true
+  }
+}
+```
+
+注意：
+- `skipMenuAuth` 只会跳过“菜单 allowedPaths 校验”，不会跳过登录校验（仍会被重定向到 `/login`）。
+- 该能力会放宽前端权限控制，应谨慎使用；**能用 `activePath` 归属到已有菜单时，优先用 `activePath`**。
+
 ## 菜单 icon：class / url / minio id
 
 后端的 `menu.icon` 可能是：
@@ -56,4 +78,3 @@ UI 行为：
 - UI：`packages/ui/src/components/menu/MenuIcon.vue`
 - core：`packages/core/src/stores/assets.ts`（IndexedDB 持久化 blob，刷新不重复拉取）
 - adapter：实现 `assets.fetchImageBlob({ id })`
-

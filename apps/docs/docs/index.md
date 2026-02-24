@@ -19,7 +19,7 @@ features:
   - title: Core/UI 解耦
     details: core 只提供逻辑与契约，ui 只做壳与交互，apps 只做组装与样式。
   - title: 静态路由 + 动态菜单
-    details: 路由始终静态声明；菜单树决定 allowedPaths，非菜单路由用 meta.activePath 归属权限。
+    details: 路由始终静态声明；菜单树决定 allowedPaths，非菜单路由用 meta.activePath 归属权限，本地维护路由可用 meta.skipMenuAuth。
   - title: 多系统菜单
     details: 支持一个项目内多个系统（permissionCode），顶部切系统，侧边栏展示当前系统菜单。
   - title: 菜单 icon(minio id) 持久化缓存
@@ -35,4 +35,3 @@ features:
 ## 文档与代码同步
 
 本仓库要求：**功能更新后，文档也要同步更新**（见“开发规范与维护”）。
-
