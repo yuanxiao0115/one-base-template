@@ -36,11 +36,11 @@ export type PortalTab = {
   // 页签类型：1=导航组，2=空白页（可编辑），3=链接（老项目定义）
   tabType?: number;
   tabUrl?: string;
-  tabUrlOpenMode?: number;
-  tabUrlSsoType?: number;
+  tabUrlOpenMode?: number | null;
+  tabUrlSsoType?: number | null;
   tabIcon?: string;
-  tabOrder?: number;
-  order?: number;
+  tabOrder?: number | null;
+  order?: number | null;
   parentId?: string | number;
   sort?: number;
   isHide?: number;

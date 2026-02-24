@@ -193,7 +193,7 @@ async function previewPage() {
 
 function onBack() {
   if (templateId.value) {
-    router.push({ path: '/portal/designer', query: { templateId: templateId.value } });
+    router.push({ path: '/portal/designer', query: { templateId: templateId.value, tabId: tabId.value } });
     return;
   }
   router.push('/portal/templates');
