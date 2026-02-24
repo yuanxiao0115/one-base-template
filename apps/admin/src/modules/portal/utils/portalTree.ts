@@ -1,5 +1,11 @@
 import type { PortalTab } from '../types';
 
+function normalizeIdLike(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return String(value);
+  return '';
+}
+
 export function walkTabs(tabs: PortalTab[] | undefined, visitor: (tab: PortalTab) => void) {
   if (!Array.isArray(tabs)) return;
   for (const tab of tabs) {
@@ -32,3 +38,15 @@ export function containsTabId(tabs: PortalTab[] | undefined, tabId: string): boo
   return found;
 }
 
+export function calcNextSort(tabs: PortalTab[] | undefined, parentId: PortalTab['parentId']): number {
+  const parentKey = normalizeIdLike(parentId) || '0';
+  let maxSort = 0;
+  walkTabs(tabs, (t) => {
+    const key = normalizeIdLike(t.parentId) || '0';
+    if (key !== parentKey) return;
+    const raw = t.sort ?? t.tabOrder ?? t.order ?? 0;
+    const val = Number(raw);
+    if (Number.isFinite(val) && val > maxSort) maxSort = val;
+  });
+  return maxSort + 1;
+}
