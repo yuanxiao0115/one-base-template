@@ -28,7 +28,9 @@ export default [
       title: '门户模板',
       keepAlive: true,
       // 不要求后端改菜单：用老路径做权限归属（menuStore.allowedPaths 里通常是 /portal/setting）
-      activePath: '/portal/setting'
+      activePath: '/portal/setting',
+      // 门户模块在部分环境尚未接入菜单/权限时，允许“登录即可访问”（用于本地维护页/开发期联调）
+      skipMenuAuth: true
     }
   },
   {
@@ -39,7 +41,8 @@ export default [
       title: '门户配置',
       fullScreen: true,
       hideTabsBar: true,
-      activePath: '/portal/setting'
+      activePath: '/portal/setting',
+      skipMenuAuth: true
     }
   },
   {
@@ -50,7 +53,8 @@ export default [
       title: '页面编辑',
       fullScreen: true,
       hideTabsBar: true,
-      activePath: '/portal/setting'
+      activePath: '/portal/setting',
+      skipMenuAuth: true
     }
   }
 ] satisfies RouteRecordRaw[];
