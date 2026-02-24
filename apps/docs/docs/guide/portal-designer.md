@@ -21,7 +21,7 @@
 
 ## 新建页面（按老项目裁剪后的逻辑）
 
-> 仅保留“新建空白页(tabType=2)”并直接进入编辑器；不做“页面模板/历史模板/存为模板”。
+> 仅保留“直接新建页面并编辑”的流程；不做“页面模板/历史模板/存为模板”。
 
 入口：`/portal/designer?templateId=<id>`
 
@@ -35,19 +35,31 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 
 ### 2) 新建空白页并直接进入编辑
 
-你可以从两个入口新建空白页：
-- 顶部按钮：`新建空白页`（创建根页面）
+你可以从两个入口新建页面：
+- 顶部按钮：`新建页面`（创建根节点）
 - 树节点右侧：`新建` → `新建同级 / 新建子级`（子级仅允许导航组 tabType=1）
 
 创建步骤：
 1. 弹出对话框输入 `页面名称(tabName)`
-2. 调用 `POST /cmict/portal/tab/add` 创建 tab（默认 `tabType=2`，`pageLayout={"component":[]}`）
-3. 创建成功后 **直接跳转** `/portal/layout?templateId=<id>&tabId=<newTabId>` 进入拖拽编辑器
+2. 选择类型（与老项目枚举保持一致）：
+   - `tabType=1`：导航组
+   - `tabType=2`：空白页（可拖拽编辑）
+   - `tabType=3`：链接（需填写地址/打开方式/单点方式）
+3. 调用 `POST /cmict/portal/tab/add` 创建 tab
+4. 若创建的是空白页（`tabType=2`），创建成功后 **直接跳转** `/portal/layout?templateId=<id>&tabId=<newTabId>` 进入拖拽编辑器
+5. 若创建的是导航组/链接，则停留在 designer 并刷新页面树
 
 兼容性兜底（无需后端改动）：
 - 若某些环境 `tab.add` 后没有自动挂到 `template.tabList/tabIds`，前端会：
   - 复拉一次 `template.detail` 确认是否已挂载
   - 若未挂载则把新 tabId 追加到 `template.tabIds` 并 `template.update`，再复拉确认
+
+### 3) 页面管理：属性/隐藏/删除
+
+在树节点右侧的 `更多` 菜单中，提供以下操作：
+- `属性设置`：调用 `GET /cmict/portal/tab/detail` 拉取详情，提交时调用 `PUT /cmict/portal/tab/update`
+- `隐藏页面/显示页面`：调用 `GET /cmict/portal/template/hide?id=<templateId>&tabId=<tabId>&isHide=0|1`
+- `删除页面`：调用 `DELETE /cmict/portal/tab/delete`（会弹确认）
 
 ## pageLayout JSON 结构
 
