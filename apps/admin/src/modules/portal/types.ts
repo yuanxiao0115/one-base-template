@@ -21,8 +21,9 @@ export type PortalTemplate = {
   sort?: number;
   isOpen?: number;
   coverPicture?: string;
+  details?: string;
   tabIds?: string[];
-  tabList?: unknown[];
+  tabList?: PortalTab[];
   whiteDTOS?: unknown[];
   whiteList?: unknown;
   [k: string]: unknown;
@@ -32,8 +33,20 @@ export type PortalTab = {
   id?: string;
   templateId?: string;
   tabName?: string;
+  // 页签类型：1=导航组，2=空白页（可编辑），3=链接（老项目定义）
+  tabType?: number;
+  tabUrl?: string;
+  tabUrlOpenMode?: number;
+  tabUrlSsoType?: number;
+  tabIcon?: string;
+  tabOrder?: number;
+  order?: number;
+  parentId?: string | number;
   sort?: number;
+  isHide?: number;
   pageLayout?: string;
+  remark?: string;
+  cmptInsts?: unknown[];
+  children?: PortalTab[];
   [k: string]: unknown;
 };
-
