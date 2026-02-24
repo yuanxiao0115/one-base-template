@@ -22,6 +22,9 @@ const emit = defineEmits<{
   (e: 'edit', tabId: string): void;
   (e: 'create-sibling', node: PortalTab): void;
   (e: 'create-child', node: PortalTab): void;
+  (e: 'attribute', node: PortalTab): void;
+  (e: 'toggle-hide', node: PortalTab): void;
+  (e: 'delete', node: PortalTab): void;
 }>();
 
 function mapTabs(tabs: PortalTab[] | undefined): PortalTabWithUi[] {
@@ -67,6 +70,12 @@ function onCommand(command: string, data: PortalTab) {
   if (command === 'sibling') emit('create-sibling', data);
   if (command === 'child') emit('create-child', data);
 }
+
+function onMoreCommand(command: string, data: PortalTab) {
+  if (command === 'attribute') emit('attribute', data);
+  if (command === 'toggleHide') emit('toggle-hide', data);
+  if (command === 'delete') emit('delete', data);
+}
 </script>
 
 <template>
@@ -97,6 +106,17 @@ function onCommand(command: string, data: PortalTab) {
                 <el-dropdown-menu>
                   <el-dropdown-item command="sibling">新建同级</el-dropdown-item>
                   <el-dropdown-item v-if="data.tabType === 1" command="child">新建子级</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+
+            <el-dropdown trigger="click" @command="(cmd: string) => onMoreCommand(cmd, data)">
+              <el-button link size="small">更多</el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="attribute">属性设置</el-dropdown-item>
+                  <el-dropdown-item command="toggleHide">{{ data.isHide === 1 ? '显示页面' : '隐藏页面' }}</el-dropdown-item>
+                  <el-dropdown-item command="delete">删除页面</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -164,4 +184,3 @@ function onCommand(command: string, data: PortalTab) {
   white-space: nowrap;
 }
 </style>
-
