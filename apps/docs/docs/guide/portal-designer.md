@@ -13,11 +13,41 @@
 管理侧（挂在 `AdminLayout` 内，需要登录/菜单权限）：
 - `/portal`：父节点兜底，重定向到列表页
 - `/portal/templates`：门户列表（后端概念为 template）
-- `/portal/designer?templateId=<id>`：门户配置 IDE（后续补齐 tab 树 + iframe 预览）
+- `/portal/designer?templateId=<id>`：门户配置 IDE（tab 树 + iframe 预览 + 新建页面）
 - `/portal/layout?tabId=<id>&templateId=<id>`：页面编辑器（拖拽布局 + 保存 + 预览）
 
 预览渲染（顶层路由，不挂 `AdminLayout`，允许匿名）：
-- `/portal/preview/:tabId?templateId=<id>`：渲染指定 tab 的 pageLayout
+- `/portal/preview/:tabId?templateId=<id>`：渲染指定 tab 的 pageLayout（通常给 iframe / 新窗口使用）
+
+## 新建页面（按老项目裁剪后的逻辑）
+
+> 仅保留“新建空白页(tabType=2)”并直接进入编辑器；不做“页面模板/历史模板/存为模板”。
+
+入口：`/portal/designer?templateId=<id>`
+
+### 1) 页面树导航（tabList）
+
+Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（树结构）。
+
+- `tabType=1`：导航组（不可选中预览，但可以作为“新建子级”的父节点）
+- `tabType=2`：空白页（可预览/可编辑）
+- `tabType=3`：链接（当前 Designer 不做配置入口，后续如需要再补）
+
+### 2) 新建空白页并直接进入编辑
+
+你可以从两个入口新建空白页：
+- 顶部按钮：`新建空白页`（创建根页面）
+- 树节点右侧：`新建` → `新建同级 / 新建子级`（子级仅允许导航组 tabType=1）
+
+创建步骤：
+1. 弹出对话框输入 `页面名称(tabName)`
+2. 调用 `POST /cmict/portal/tab/add` 创建 tab（默认 `tabType=2`，`pageLayout={"component":[]}`）
+3. 创建成功后 **直接跳转** `/portal/layout?templateId=<id>&tabId=<newTabId>` 进入拖拽编辑器
+
+兼容性兜底（无需后端改动）：
+- 若某些环境 `tab.add` 后没有自动挂到 `template.tabList/tabIds`，前端会：
+  - 复拉一次 `template.detail` 确认是否已挂载
+  - 若未挂载则把新 tabId 追加到 `template.tabIds` 并 `template.update`，再复拉确认
 
 ## pageLayout JSON 结构
 
@@ -93,4 +123,3 @@ apps/admin/src/modules/portal/materials/<group>/<material>/
 ```
 
 并在 `materials-registry.ts` 中注册到对应分类（并提供 icon、默认 config）。
-
