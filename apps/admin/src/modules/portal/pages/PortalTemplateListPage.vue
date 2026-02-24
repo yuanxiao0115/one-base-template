@@ -6,6 +6,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { portalApi } from '../api/portal';
 import type { BizResponse, PageResult, PortalTemplate } from '../types';
 import { findFirstPageTabId } from '../utils/portalTree';
+import PortalTemplateCreateDialog from '../components/template/PortalTemplateCreateDialog.vue';
 
 defineOptions({ name: 'PortalTemplateList' });
 
@@ -21,6 +22,9 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 const rows = ref<PortalTemplate[]>([]);
+
+const createVisible = ref(false);
+const creating = ref(false);
 
 function normalizeBizOk(res: BizResLike | null | undefined): boolean {
   const code = res?.code;
@@ -47,6 +51,25 @@ function getPublishStatusText(row: PortalTemplate): string {
   if (val === 1) return '已发布';
   if (val === 0) return '草稿';
   return '未知';
+}
+
+function normalizeIdLike(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return String(value);
+  return '';
+}
+
+function extractTemplateId(value: unknown): string {
+  // 尽量兼容不同环境：可能返回 string/number，或 { id } / { templateId }
+  const direct = normalizeIdLike(value);
+  if (direct) return direct;
+
+  if (value && typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    return normalizeIdLike(obj.id) || normalizeIdLike(obj.templateId) || '';
+  }
+
+  return '';
 }
 
 async function queryList(page = currentPage.value) {
@@ -88,6 +111,51 @@ function onReset() {
   searchKey.value = '';
   publishStatus.value = -1;
   queryList(1).catch(() => {});
+}
+
+function openCreate() {
+  createVisible.value = true;
+}
+
+async function onCreateTemplate(payload: { templateName: string; description: string; templateType: number; isOpen: number }) {
+  if (creating.value) return;
+
+  creating.value = true;
+  try {
+    const res = await portalApi.template.add({
+      templateName: payload.templateName,
+      description: payload.description || '',
+      // 对齐老项目的必填字段，避免后端校验失败
+      templateType: payload.templateType,
+      isOpen: payload.isOpen,
+      // 这些字段在部分环境可能存在默认值，显式传递更稳妥（后端可忽略）
+      widthSize: 1280,
+      widthType: 1,
+      autoWidthSize: 100,
+    });
+
+    if (!normalizeBizOk(res)) {
+      ElMessage.error(res?.message || '创建失败');
+      return;
+    }
+
+    const newId = extractTemplateId((res as BizResponse<unknown> | null)?.data);
+    ElMessage.success('创建成功');
+    createVisible.value = false;
+
+    // 创建后默认进入配置（符合老项目“创建即配置”的常用操作路径）
+    if (newId) {
+      router.push({ path: '/portal/designer', query: { templateId: newId } }).catch(() => {});
+      return;
+    }
+
+    await queryList(1);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : '创建失败';
+    ElMessage.error(msg);
+  } finally {
+    creating.value = false;
+  }
 }
 
 function goDesigner(row: PortalTemplate) {
@@ -168,35 +236,59 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-3">
-    <el-card>
+  <div class="space-y-3 portal-template-list">
+    <el-card shadow="never" class="toolbar-card">
       <template #header>
-        <div class="font-medium">门户模板</div>
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="title">门户模板</div>
+            <div class="sub">创建、配置并发布门户模板</div>
+          </div>
+          <div class="toolbar-right">
+            <el-button :loading="loading" @click="queryList(1)">刷新</el-button>
+            <el-button type="primary" @click="openCreate">新增门户</el-button>
+          </div>
+        </div>
       </template>
 
-      <div class="flex flex-wrap gap-2 items-center">
-        <el-input
-          v-model.trim="searchKey"
-          class="w-[260px]"
-          placeholder="输入门户名称"
-          clearable
-          @keydown.enter="onSearch"
-          @clear="onSearch"
-        />
+      <div class="filters">
+        <div class="filter-item">
+          <div class="label">门户名称</div>
+          <el-input
+            v-model.trim="searchKey"
+            placeholder="输入门户名称"
+            clearable
+            @keydown.enter="onSearch"
+            @clear="onSearch"
+          />
+        </div>
 
-        <el-select v-model="publishStatus" class="w-[140px]" placeholder="发布状态">
-          <el-option :value="-1" label="全部" />
-          <el-option :value="0" label="草稿" />
-          <el-option :value="1" label="已发布" />
-        </el-select>
+        <div class="filter-item small">
+          <div class="label">发布状态</div>
+          <el-select v-model="publishStatus" placeholder="全部">
+            <el-option :value="-1" label="全部" />
+            <el-option :value="0" label="草稿" />
+            <el-option :value="1" label="已发布" />
+          </el-select>
+        </div>
 
-        <el-button type="primary" @click="onSearch">查询</el-button>
-        <el-button @click="onReset">重置</el-button>
+        <div class="filter-actions">
+          <el-button type="primary" @click="onSearch">查询</el-button>
+          <el-button @click="onReset">重置</el-button>
+        </div>
       </div>
     </el-card>
 
-    <el-card>
-      <el-table v-loading="loading" :data="rows" row-key="id" style="width: 100%">
+    <el-card shadow="never" class="table-card">
+      <el-table v-loading="loading" :data="rows" row-key="id" stripe style="width: 100%">
+        <template #empty>
+          <div class="table-empty">
+            <el-empty description="暂无门户模板" :image-size="90">
+              <el-button type="primary" @click="openCreate">新增门户</el-button>
+            </el-empty>
+          </div>
+        </template>
+
         <el-table-column prop="templateName" label="门户名称" min-width="220" />
         <el-table-column label="描述" min-width="280">
           <template #default="{ row }">
@@ -235,5 +327,92 @@ onMounted(() => {
         />
       </div>
     </el-card>
+
+    <PortalTemplateCreateDialog
+      v-model="createVisible"
+      :loading="creating"
+      @submit="onCreateTemplate"
+    />
   </div>
 </template>
+
+<style scoped>
+.toolbar-card {
+  border-radius: 12px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.toolbar-left {
+  min-width: 0;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--el-text-color-primary);
+}
+
+.sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.filter-item {
+  width: 260px;
+}
+
+.filter-item.small {
+  width: 160px;
+}
+
+.label {
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+
+.filter-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex: none;
+}
+
+.table-card {
+  border-radius: 12px;
+}
+
+.portal-template-list :deep(.el-card__header) {
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  background: linear-gradient(180deg, var(--el-bg-color) 0%, var(--el-bg-color-overlay) 100%);
+}
+
+.portal-template-list :deep(.el-table__row) {
+  transition: background-color 160ms ease;
+}
+
+.table-empty {
+  padding: 36px 0 24px;
+}
+</style>

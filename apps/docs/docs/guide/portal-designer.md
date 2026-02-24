@@ -24,6 +24,7 @@
 入口：`/portal/templates`
 
 当前最小能力（不改后端接口）：
+- 新增：点击右上角 `新增门户` → 填写门户名称/模板布局/门户类型/描述 → 创建成功后进入 `/portal/designer?templateId=<id>`
 - 搜索：门户名称关键字（`searchKey`）
 - 筛选：发布状态（全部/草稿/已发布）
 - 分页：`currentPage/pageSize`
@@ -32,6 +33,10 @@
   - `预览`：打开 `/portal/preview/:tabId?templateId=<id>`
   - `发布/取消发布`：调用 `template.publish`
   - `删除`：调用 `template.delete`（带确认弹窗）
+
+新增门户模板字段说明（对齐老项目，避免部分环境后端校验失败）：
+- `templateType`：模板布局（0=左侧导航、1=顶部导航、2=全屏左导航），默认 0
+- `isOpen`：门户类型（0=普通门户、1=匿名门户），默认 0
 
 ## 新建页面（按老项目裁剪后的逻辑）
 
