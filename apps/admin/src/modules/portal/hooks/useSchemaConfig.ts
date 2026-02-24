@@ -21,7 +21,7 @@ export interface SchemaConfigOptions {
 /**
  * 返回值接口
  */
-export interface SchemaConfigResult<T extends Record<string, unknown> = Record<string, unknown>> {
+export interface SchemaConfigResult<T extends object = Record<string, unknown>> {
   sectionData: T;
   contentData: Ref<Record<string, unknown>>;
   updateSchema: () => void;
@@ -39,7 +39,7 @@ function toPlainObject(value: unknown): SchemaObject {
  *
  * 说明：该实现来自老项目，已去除 console.log，避免编辑时刷屏。
  */
-export function useSchemaConfig<T extends Record<string, unknown> = Record<string, unknown>>(
+export function useSchemaConfig<T extends object = Record<string, unknown>>(
   options: SchemaConfigOptions
 ): SchemaConfigResult<T> {
   const { name, sections, schema, onChange } = options;
