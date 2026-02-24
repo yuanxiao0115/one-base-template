@@ -1,17 +1,27 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useSystemStore, useTabsStore } from '@one-base-template/core';
+import { useTagStoreHook } from '@one/tag';
 
-const tabsStore = useTabsStore();
-const systemStore = useSystemStore();
+const tagStore = useTagStoreHook();
 
-const viewKeyPrefix = computed(() => (systemStore.currentSystemCode ? systemStore.currentSystemCode : 'default'));
+const cacheNames = computed(() => {
+  const names = new Set<string>();
+
+  for (const tag of tagStore.multiTags) {
+    if (!tag.meta?.keepAlive) continue;
+
+    const name = typeof tag.name === 'string' && tag.name ? tag.name : '';
+    if (name) names.add(name);
+  }
+
+  return Array.from(names);
+});
 </script>
 
 <template>
   <router-view v-slot="{ Component, route }">
-    <keep-alive :include="tabsStore.cacheNames">
-      <component :is="Component" :key="`${viewKeyPrefix}:${route.fullPath}`" />
+    <keep-alive :include="cacheNames">
+      <component :is="Component" :key="route.fullPath" />
     </keep-alive>
   </router-view>
 </template>

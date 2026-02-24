@@ -388,7 +388,9 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url))
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        // 子路径样式显式别名，避免某些环境下 package exports 子路径解析失败
+        '@one/tag/style': fileURLToPath(new URL('../../packages/tag/src/styles/global.scss', import.meta.url))
       }
     },
     server: {

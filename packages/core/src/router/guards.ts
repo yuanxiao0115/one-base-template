@@ -16,7 +16,18 @@ function resolveMenuKey(to: { path: string; meta: Record<string, unknown> }): st
   return typeof raw === 'string' && raw.startsWith('/') ? raw : to.path;
 }
 
-export function setupRouterGuards(router: Router) {
+export interface RouterGuardOptions {
+  /**
+   * 是否在 afterEach 中同步写入 core tabs。
+   * - true: 保持默认行为（兼容历史）
+   * - false: 由业务侧自定义 tabs 体系接管（如 @one/tag）
+   */
+  enableTabSync?: boolean;
+}
+
+export function setupRouterGuards(router: Router, options: RouterGuardOptions = {}) {
+  const enableTabSync = options.enableTabSync ?? true;
+
   router.beforeEach(async to => {
     const options = getCoreOptions();
 
@@ -98,6 +109,7 @@ export function setupRouterGuards(router: Router) {
 
   router.afterEach(to => {
     if (to.meta.public || isPublicRoute(to.path)) return;
+    if (!enableTabSync) return;
     useTabsStore().openByRoute(to);
   });
 }

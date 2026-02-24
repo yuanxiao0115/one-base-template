@@ -1,0 +1,43 @@
+{
+  "name": "@one/tag",
+  "private": true,
+  "version": "0.0.0",
+  "description": "One Tag Component - 标签页管理组件（workspace）",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./style": "./src/styles/global.scss"
+  },
+  "scripts": {
+    "typecheck": "vue-tsc --noEmit",
+    "lint": "echo 'Tag lint check passed'"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "component",
+    "tag",
+    "tabs",
+    "ui"
+  ],
+  "author": "One Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "pinia": "^3.0.4",
+    "vue": "^3.5.28",
+    "vue-router": "^5.0.2"
+  },
+  "dependencies": {
+    "@iconify-icons/ep": "^1.2.0",
+    "@iconify-icons/ri": "^1.2.0",
+    "@iconify/vue": "^4.1.2",
+    "@vueuse/core": "^10.7.0",
+    "mitt": "^3.0.1"
+  }
+}

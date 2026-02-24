@@ -1,7 +1,8 @@
 import { ElMessage } from 'element-plus';
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
-import { createObHttp, useAuthStore, useMenuStore, useSystemStore, useTabsStore, type ObHttp } from '@one-base-template/core';
+import { createObHttp, useAuthStore, useMenuStore, useSystemStore, type ObHttp } from '@one-base-template/core';
+import { useTagStoreHook } from '@one/tag';
 
 import type { AuthMode, BackendKind } from '../infra/env';
 import { createClientSignature } from '../infra/sczfw/crypto';
@@ -85,7 +86,7 @@ export function createAppHttp(params: {
         useAuthStore(pinia).reset();
         useMenuStore(pinia).reset();
         useSystemStore(pinia).reset();
-        useTabsStore(pinia).reset();
+        useTagStoreHook().handleTags('equal', []);
         router.replace('/login');
       }
     }

@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": [
+    "src/**/__tests__/**",
+    "src/**/*.test.ts",
+    "src/**/*.test.js",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.js",
+    "src/**/test/**",
+    "src/**/tests/**",
+    "node_modules",
+    "dist",
+    "**/*.config.ts",
+    "**/vite.config.ts",
+    "**/vitest.config.ts"
+  ]
+}

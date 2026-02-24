@@ -1,5 +1,7 @@
 import { createApp } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
+import OneTag from '@one/tag';
+import '@one/tag/style';
 
 import App from '../App.vue';
 import { routes } from '../router';
@@ -23,6 +25,30 @@ export function bootstrapAdminApp() {
 
   const router = createAppRouter();
   app.use(router);
+  app.use(OneTag, {
+    pinia,
+    router,
+    homePath: '/home/index',
+    homeTitle: '首页',
+    storageType: 'session',
+    storageKey: 'ob_tags',
+    ignoredRoutes: [
+      { path: '/login' },
+      { path: '/sso' },
+      { path: '/403' },
+      { path: '/404' },
+      { path: '/' },
+      { pathIncludes: '/redirect' },
+      { pathIncludes: '/error' },
+      {
+        test: route => {
+          if (!route || typeof route !== 'object') return false;
+          const meta = (route as { meta?: Record<string, unknown> }).meta;
+          return Boolean(meta?.hiddenTab || meta?.noTag);
+        }
+      }
+    ]
+  });
 
   const http = createAppHttp({
     backend: appEnv.backend,
@@ -51,11 +77,12 @@ export function bootstrapAdminApp() {
     menuMode: appEnv.menuMode,
     routes,
     layoutMode: appEnv.layoutMode,
+    systemSwitchStyle: appEnv.systemSwitchStyle,
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap
   });
 
-  setupRouterGuards(router);
+  setupRouterGuards(router, { enableTabSync: false });
 
   return { app, router, pinia };
 }

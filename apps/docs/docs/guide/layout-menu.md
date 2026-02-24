@@ -2,14 +2,15 @@
 
 ## 布局模式
 
-布局由 `packages/core` 的 layout store 驱动，app 通过 env 注入默认值：
+布局由 `packages/core` 的 layout store 驱动，app 在启动时从 `platform-config.json` 注入默认值：
 
-- `side`：左侧菜单（可折叠）
+- `side`：顶部栏 + 左侧菜单（可折叠）
 - `top`：顶部横向菜单
-- `top-side`：顶部系统切换 + 左侧展示当前系统菜单
+- `top-side`：顶部栏菜单式系统切换 + 左侧展示当前系统菜单
 
 配置项：
-- `apps/admin`：`VITE_LAYOUT_MODE=side|top|top-side`
+- `apps/admin/public/platform-config.json`：`layoutMode=side|top|top-side`
+- `apps/admin/public/platform-config.json`：`systemSwitchStyle=dropdown|menu`（仅 `side` 生效；`top-side` 固定为 `menu`）
 
 ## 多系统菜单（permissionCode）
 
@@ -20,9 +21,24 @@
 - 系统 name：优先用根节点 `title`，无则兜底 `resourceName/permissionCode`
 
 UI 行为：
-- 顶部系统切换：展示 `systemStore.systems`
+- 顶部系统切换：支持 `dropdown`（下拉）与 `menu`（顶栏菜单）两种样式
 - 左侧菜单：展示 `menuStore.menus`（当前系统菜单树）
-- 切系统后跳系统首页：`systemStore.resolveHomePath(systemCode)`（受 `VITE_SYSTEM_HOME_MAP` 影响）
+- 切系统后跳系统首页：`systemStore.resolveHomePath(systemCode)`（受 `platform-config.json` 中 `systemHomeMap` 影响）
+
+## 标签栏（Tabs）
+
+- 组件：`packages/ui/src/components/tabs/TabsBar.vue`（UI 壳）+ `packages/tag/src/index.vue`（交互核心）
+- 当前实现基于 `@one/tag`（workspace 包），并在 admin 启动时通过插件安装：
+  - `app.use(OneTag, { pinia, router, ... })`
+  - `packages/core/src/router/guards.ts` 对 admin 以 `enableTabSync=false` 关闭 core tabs 自动同步，避免双写冲突
+- 保持的行为约定：
+  - 点击切换、关闭当前、关闭左/右/其他/全部
+  - 滚轮横向滚动标签区
+  - KeepAlive include 按标签 `meta.keepAlive + route.name` 推导
+  - 标签状态按 `storageKey=ob_tags` 写入 `sessionStorage`（全局共享，不按 systemCode 分桶）
+- 隐藏规则：
+  - `meta.hiddenTab=true` 或 `meta.noTag=true` 不进入标签栏
+  - admin 默认忽略 `/login`、`/sso`、`/403`、`/404`、`/`、`/redirect*`、`/error*`
 
 ## 非菜单路由（详情/编辑）与 meta.activePath
 

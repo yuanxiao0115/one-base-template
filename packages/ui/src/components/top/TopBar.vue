@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore, useLayoutStore, useMenuStore, useSystemStore, useTabsStore } from '@one-base-template/core';
+import { useAuthStore, useLayoutStore, useMenuStore, useSystemStore, type AppMenuItem } from '@one-base-template/core';
+import { useTagStoreHook } from '@one/tag';
 import ThemeSwitcher from '../theme/ThemeSwitcher.vue';
 import headerBgUrl from '../../assets/app-header-bg.png';
 
@@ -10,11 +11,19 @@ const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
 const menuStore = useMenuStore();
 const systemStore = useSystemStore();
-const tabsStore = useTabsStore();
+const tagStore = useTagStoreHook();
 
 const userName = computed(() => authStore.user?.name ?? '未登录');
-// top-side 布局会在顶栏下方渲染 SystemMenu（横向系统切换），此处不重复展示下拉切换
-const showSystemSwitcher = computed(() => systemStore.systems.length > 1 && layoutStore.mode !== 'top-side');
+const currentSystemCode = computed(() => systemStore.currentSystemCode);
+const systems = computed(() => systemStore.systems);
+const showSystemSwitcher = computed(() => systems.value.length > 1);
+const systemSwitchStyle = computed(() => {
+  // top-side 固定使用菜单式系统切换，保证“上方系统 + 左侧当前系统菜单”的结构一致性。
+  if (layoutStore.mode === 'top-side') return 'menu';
+  return layoutStore.systemSwitchStyle;
+});
+const showSystemSwitcherDropdown = computed(() => showSystemSwitcher.value && systemSwitchStyle.value === 'dropdown');
+const showSystemSwitcherMenu = computed(() => showSystemSwitcher.value && systemSwitchStyle.value === 'menu');
 const currentSystemName = computed(() => systemStore.currentSystemName);
 const title = computed(() => `${currentSystemName.value} | 后台管理`);
 
@@ -26,8 +35,29 @@ async function onLogout() {
   await authStore.logout();
   menuStore.reset();
   systemStore.reset();
-  tabsStore.reset();
+  tagStore.handleTags('equal', []);
   router.replace('/login');
+}
+
+function findFirstLeafPath(item: AppMenuItem): string | undefined {
+  if (item.children?.length) {
+    for (const child of item.children) {
+      const leaf = findFirstLeafPath(child);
+      if (leaf) return leaf;
+    }
+    return undefined;
+  }
+
+  if (!item.external && item.path) return item.path;
+  return undefined;
+}
+
+function findFirstLeafPathFromList(list: AppMenuItem[]): string | undefined {
+  for (const item of list) {
+    const leaf = findFirstLeafPath(item);
+    if (leaf) return leaf;
+  }
+  return undefined;
 }
 
 async function onSwitchSystem(systemCode: string) {
@@ -40,7 +70,12 @@ async function onSwitchSystem(systemCode: string) {
     await menuStore.loadMenus();
   }
 
-  const home = systemStore.resolveHomePath(systemCode);
+  let home = systemStore.resolveHomePath(systemCode);
+  if (!home || !menuStore.isAllowed(home)) {
+    const firstLeaf = findFirstLeafPathFromList(menuStore.menus);
+    if (firstLeaf) home = firstLeaf;
+  }
+
   if (home) {
     await router.replace(home);
   }
@@ -55,7 +90,7 @@ async function onSwitchSystem(systemCode: string) {
       </p>
 
       <el-dropdown
-        v-if="showSystemSwitcher"
+        v-if="showSystemSwitcherDropdown"
         class="ob-topbar__system"
         @command="onSwitchSystem"
       >
@@ -74,6 +109,24 @@ async function onSwitchSystem(systemCode: string) {
           </el-dropdown-menu>
         </template>
       </el-dropdown>
+
+      <nav
+        v-if="showSystemSwitcherMenu"
+        class="ob-topbar__system-menu"
+        aria-label="系统切换菜单"
+      >
+        <button
+          v-for="sys in systems"
+          :key="sys.code"
+          type="button"
+          class="ob-topbar__system-menu-item"
+          :class="{ 'is-active': currentSystemCode === sys.code }"
+          :title="sys.name"
+          @click="onSwitchSystem(sys.code)"
+        >
+          {{ sys.name }}
+        </button>
+      </nav>
     </div>
 
     <div class="ob-topbar__right">
@@ -146,6 +199,39 @@ async function onSwitchSystem(systemCode: string) {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.ob-topbar__system-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.ob-topbar__system-menu-item {
+  cursor: pointer;
+  border: 1px solid rgb(255 255 255 / 25%);
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
+}
+
+.ob-topbar__system-menu-item:hover {
+  background: rgb(255 255 255 / 18%);
+  border-color: rgb(255 255 255 / 32%);
+}
+
+.ob-topbar__system-menu-item.is-active {
+  background: #fff;
+  color: var(--el-color-primary);
+  border-color: #fff;
 }
 
 .ob-topbar__user-trigger {

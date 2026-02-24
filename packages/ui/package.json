@@ -14,7 +14,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@one-base-template/core": "workspace:*"
+    "@one-base-template/core": "workspace:*",
+    "@one/tag": "workspace:*"
   },
   "peerDependencies": {
     "element-plus": "^2.13.2",

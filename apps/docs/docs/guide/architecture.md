@@ -10,14 +10,26 @@ packages/
   core/                  # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等（禁止耦合 UI）
   ui/                    # UI 壳：Layout/Sidebar/Topbar/Tabs/KeepAlive 等（依赖 core）
   adapters/              # Adapter 示例：对接后端接口/字段映射
+  tag/                   # 标签栏能力包（@one/tag，路由驱动 + 右键菜单 + 持久化）
 ```
 
 ## admin 的启动分层
 
 为避免启动链路分散导致不可控，`apps/admin` 将启动逻辑集中在：
 
+- `apps/admin/src/config/platform-config.ts`：加载并校验运行时配置（`public/platform-config.json`）
+- `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `appEnv`
 - `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫
-- `apps/admin/src/infra/env.ts`：集中解析 env（业务模块不允许直接读 `import.meta.env`）
+- `packages/tag`：提供标签栏插件，admin 在 bootstrap 阶段安装并接管 tabs 交互链路
+
+启动顺序：
+
+1. `main.ts` 先调用 `loadPlatformConfig()`
+2. 配置加载成功后动态导入 `bootstrap`
+3. `bootstrap` 内安装 `@one/tag`（`app.use(OneTag, { pinia, router, ... })`）
+4. 注册 core 路由守卫（admin 侧 `enableTabSync=false`，避免与 `@one/tag` 双写）
+5. `router.isReady()` 后 mount
+6. 配置加载失败时，应用硬失败并显示错误页（不进入业务路由）
 
 ## 边界规则（必须遵守）
 

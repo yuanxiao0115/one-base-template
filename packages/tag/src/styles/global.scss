@@ -1,0 +1,4 @@
+/* Tag 组件全局样式 - 不使用scoped，确保CSS变量在全局生效 */
+
+/* 引入CSS变量定义 - 放在最前面确保优先级 */
+@use './variables.scss';
