@@ -1,8 +1,16 @@
-import type { LayoutMode } from '@one-base-template/core';
+import type { LayoutMode, SystemSwitchStyle } from '@one-base-template/core';
+import { getPlatformConfig } from '../config/platform-config';
 
 export type BackendKind = 'default' | 'sczfw';
 export type AuthMode = 'cookie' | 'token' | 'mixed';
 export type MenuMode = 'remote' | 'static';
+
+export type BuildEnv = {
+  isProd: boolean;
+  apiBaseUrl?: string;
+  useMock: boolean;
+  sczfwSystemPermissionCode?: string;
+};
 
 export type AppEnv = {
   isProd: boolean;
@@ -13,6 +21,7 @@ export type AppEnv = {
   idTokenKey: string;
   menuMode: MenuMode;
   layoutMode: LayoutMode;
+  systemSwitchStyle: SystemSwitchStyle;
   sczfwHeaders?: Record<string, string>;
   clientSignatureSecret?: string;
   clientSignatureClientId?: string;
@@ -25,45 +34,20 @@ function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
 }
 
-export function resolveBackendKind(): BackendKind {
-  const raw = import.meta.env.VITE_BACKEND as unknown;
-  if (raw === 'sczfw' || raw === 'default') return raw;
-
-  // 默认策略：配置了真实后端地址 -> 使用 sczfw 适配器；否则保持模板默认（mock + /api）
-  const apiBaseUrl = resolveApiBaseUrl();
-  return isNonEmptyString(apiBaseUrl) ? 'sczfw' : 'default';
-}
-
-export function resolveAuthMode(backend: BackendKind): AuthMode {
-  const raw = import.meta.env.VITE_AUTH_MODE as unknown;
-  if (raw === 'cookie' || raw === 'token' || raw === 'mixed') return raw;
-  return backend === 'sczfw' ? 'token' : 'cookie';
-}
-
-export function resolveTokenKey(backend: BackendKind): string {
-  const raw = import.meta.env.VITE_TOKEN_KEY as unknown;
-  if (isNonEmptyString(raw)) return raw;
-  // 兼容老项目：默认 token 存储键名为 token
-  return backend === 'sczfw' ? 'token' : 'ob_token';
-}
-
-export function resolveIdTokenKey(): string {
-  const raw = import.meta.env.VITE_ID_TOKEN_KEY as unknown;
-  return isNonEmptyString(raw) ? raw : 'idToken';
-}
-
-export function resolveSczfwHeaders(backend: BackendKind): Record<string, string> | undefined {
+export function resolveSczfwHeaders(params: {
+  backend: BackendKind;
+  authorizationType: string;
+  appsource: string;
+  appcode: string;
+}): Record<string, string> | undefined {
+  const { backend, authorizationType, appsource, appcode } = params;
   if (backend !== 'sczfw') return undefined;
 
-  const authorizationType = import.meta.env.VITE_AUTHORIZATION_TYPE as unknown;
-  const appsource = import.meta.env.VITE_APPSOURCE as unknown;
-  const appcode = import.meta.env.VITE_APPCODE as unknown;
-
-  // sczfw 老项目请求头约定（可用 env 覆盖）
+  // sczfw 老项目请求头约定（由 platform-config.json 提供）。
   return {
-    'Authorization-Type': isNonEmptyString(authorizationType) ? authorizationType : 'ADMIN',
-    Appsource: isNonEmptyString(appsource) ? appsource : 'frame',
-    Appcode: isNonEmptyString(appcode) ? appcode : 'od'
+    'Authorization-Type': authorizationType,
+    Appsource: appsource,
+    Appcode: appcode
   };
 }
 
@@ -72,81 +56,79 @@ export function resolveApiBaseUrl(): string | undefined {
   return isNonEmptyString(raw) ? raw : undefined;
 }
 
-export function resolveClientSignatureSecret(): string | undefined {
-  const raw = import.meta.env.VITE_CLIENT_SIGNATURE_SECRET as unknown;
-  return isNonEmptyString(raw) ? raw : undefined;
-}
-
-export function resolveClientSignatureClientId(): string | undefined {
-  const raw = import.meta.env.VITE_CLIENT_SIGNATURE_CLIENT_ID as unknown;
-  return isNonEmptyString(raw) ? raw : undefined;
-}
-
 export function resolveSczfwSystemPermissionCode(): string | undefined {
   const raw = import.meta.env.VITE_SCZFW_SYSTEM_PERMISSION_CODE as unknown;
   return isNonEmptyString(raw) ? raw : undefined;
 }
 
-export function resolveMenuMode(): MenuMode {
-  const raw = import.meta.env.VITE_MENU_MODE as unknown;
-  return raw === 'static' || raw === 'remote' ? raw : 'remote';
+export function resolveUseMock(): boolean {
+  const raw = import.meta.env.VITE_USE_MOCK as unknown;
+  return raw === 'true';
 }
 
-export function resolveLayoutMode(raw: unknown): LayoutMode {
-  return raw === 'top' || raw === 'top-side' || raw === 'side' ? raw : 'side';
-}
-
-export function parseSystemHomeMap(raw: unknown): Record<string, string> {
-  if (typeof raw !== 'string' || !raw) return {};
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== 'object') return {};
-    const out: Record<string, string> = {};
-    for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
-      if (typeof v === 'string' && v.startsWith('/')) out[k] = v;
-    }
-    return out;
-  } catch {
-    return {};
-  }
-}
-
-export function resolveSystemHomeMap(): Record<string, string> {
-  return parseSystemHomeMap(import.meta.env.VITE_SYSTEM_HOME_MAP);
-}
-
-export function resolveDefaultSystemCode(backend: BackendKind): string | undefined {
-  const raw = import.meta.env.VITE_DEFAULT_SYSTEM_CODE as unknown;
-  if (isNonEmptyString(raw)) return raw;
+export function resolveDefaultSystemCode(params: {
+  backend: BackendKind;
+  defaultSystemCode?: string;
+}): string | undefined {
+  const { backend, defaultSystemCode } = params;
+  if (isNonEmptyString(defaultSystemCode)) return defaultSystemCode;
   if (backend !== 'sczfw') return undefined;
-  return resolveSczfwSystemPermissionCode();
+  // 与旧实现保持一致：sczfw 默认系统为 admin_server
+  return 'admin_server';
 }
 
-export function resolveAppEnv(): AppEnv {
+export function resolveBuildEnv(): BuildEnv {
   const isProd = import.meta.env.PROD;
   const apiBaseUrl = resolveApiBaseUrl();
-  const backend = resolveBackendKind();
-  const authMode = resolveAuthMode(backend);
-  const tokenKey = resolveTokenKey(backend);
-  const idTokenKey = resolveIdTokenKey();
-  const menuMode = resolveMenuMode();
-  const layoutMode = resolveLayoutMode(import.meta.env.VITE_LAYOUT_MODE);
-  const sczfwHeaders = resolveSczfwHeaders(backend);
-  const clientSignatureSecret = resolveClientSignatureSecret();
-  const clientSignatureClientId = resolveClientSignatureClientId();
+  const useMock = resolveUseMock();
   const sczfwSystemPermissionCode = resolveSczfwSystemPermissionCode();
-  const defaultSystemCode = resolveDefaultSystemCode(backend);
-  const systemHomeMap = resolveSystemHomeMap();
 
   return {
     isProd,
     apiBaseUrl,
+    useMock,
+    sczfwSystemPermissionCode
+  };
+}
+
+export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
+  const { buildEnv } = params;
+  const runtime = getPlatformConfig();
+
+  const backend = runtime.backend;
+  const authMode = runtime.authMode;
+  const tokenKey = runtime.tokenKey;
+  const idTokenKey = runtime.idTokenKey;
+  const menuMode = runtime.menuMode;
+  const layoutMode = runtime.layoutMode as LayoutMode;
+  const systemSwitchStyle = runtime.systemSwitchStyle as SystemSwitchStyle;
+  const sczfwHeaders = resolveSczfwHeaders({
+    backend,
+    authorizationType: runtime.authorizationType,
+    appsource: runtime.appsource,
+    appcode: runtime.appcode
+  });
+  const clientSignatureSecret = runtime.clientSignatureSecret;
+  const clientSignatureClientId = runtime.clientSignatureClientId;
+  const defaultSystemCode = resolveDefaultSystemCode({
+    backend,
+    defaultSystemCode: runtime.defaultSystemCode
+  });
+  const systemHomeMap = runtime.systemHomeMap;
+
+  // 菜单根 permissionCode 改由 runtime defaultSystemCode 兜底，避免继续依赖业务 env。
+  const sczfwSystemPermissionCode = defaultSystemCode;
+
+  return {
+    isProd: buildEnv.isProd,
+    apiBaseUrl: buildEnv.apiBaseUrl,
     backend,
     authMode,
     tokenKey,
     idTokenKey,
     menuMode,
     layoutMode,
+    systemSwitchStyle,
     sczfwHeaders,
     clientSignatureSecret,
     clientSignatureClientId,
@@ -156,5 +138,8 @@ export function resolveAppEnv(): AppEnv {
   };
 }
 
-// 入口启动与页面逻辑都可能用到 env 解析结果，集中在一个模块里避免重复实现。
-export const appEnv: AppEnv = resolveAppEnv();
+// 构建期 env 仅保留 Vite dev/proxy/mock 相关值；业务运行时配置统一来自 platform-config.json。
+export const buildEnv: BuildEnv = resolveBuildEnv();
+
+// 入口启动与页面逻辑都可能用到 env 聚合结果，集中在一个模块里避免重复实现。
+export const appEnv: AppEnv = resolveAppEnv({ buildEnv });

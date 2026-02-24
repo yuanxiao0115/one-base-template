@@ -1,47 +1,73 @@
-# 环境变量（apps/admin）
+# 配置模型（apps/admin）
 
-建议在 `apps/admin` 下创建 `.env.development` / `.env.local`，并按需覆盖 `.env.example`。
+从 2026-02-24 开始，`apps/admin` 采用“双层配置”：
 
-## 在代码里如何读取
+- **构建期配置**（`.env*`）：只保留 Vite dev/proxy/mock 必需项
+- **运行时配置**（`public/platform-config.json`）：业务行为配置（backend/auth/menu/layout/system 等）
 
-为避免 `import.meta.env` 在不同模块散落导致不一致，本仓库约定：
+## 1) 构建期配置（`.env*`）
 
-- **禁止**在业务模块直接使用 `import.meta.env`
-- 统一通过 `apps/admin/src/infra/env.ts` 导出的 `appEnv` 读取（ESLint 会强制校验）
+示例见：`apps/admin/.env.example`
 
-## 后端切换
+当前保留最小集合：
 
-- `VITE_BACKEND=default|sczfw`
-  - `default`：模板默认后端（`/api/*`）
-  - `sczfw`：对接 sczfw（`/cmict/*`，以 token 模式为主）
+- `VITE_API_BASE_URL`
+  - Vite dev server 的 `/api`、`/cmict` 代理目标
+  - 生产构建时也会作为 http baseURL 的来源
+- `VITE_USE_MOCK`
+  - 仅影响 dev middleware mock 是否强制开启
+- `VITE_SCZFW_SYSTEM_PERMISSION_CODE`
+  - 仅影响 dev mock 返回菜单时的系统根 code
 
-## 鉴权模式
+## 2) 运行时配置（`platform-config.json`）
 
-- `VITE_AUTH_MODE=cookie|token|mixed`
-  - `cookie`：Cookie(HttpOnly) + `withCredentials`
-  - `token`：每次请求携带 token（通过 `VITE_TOKEN_KEY` 从 localStorage 读取）
-  - `mixed`：同时支持 cookie + token
-- `VITE_TOKEN_KEY=...`
-  - token 模式下使用的 localStorage key
+文件路径：`apps/admin/public/platform-config.json`
 
-## 菜单模式
+示例：
 
-- `VITE_MENU_MODE=remote|static`
-  - `remote`：菜单从后端获取（Adapter `menu.fetchMenuTree/fetchMenuSystems`）
-  - `static`：从静态路由 `meta.title` 生成菜单树（适合简单项目）
+```json
+{
+  "backend": "sczfw",
+  "authMode": "token",
+  "tokenKey": "token",
+  "idTokenKey": "idToken",
+  "menuMode": "remote",
+  "layoutMode": "side",
+  "systemSwitchStyle": "dropdown",
+  "authorizationType": "ADMIN",
+  "appsource": "frame",
+  "appcode": "od",
+  "clientSignatureClientId": "1",
+  "clientSignatureSecret": "fc54f9655dc04da486663f1055978ba8",
+  "defaultSystemCode": "admin_server",
+  "systemHomeMap": {
+    "admin_server": "/home/index",
+    "b_system": "/b/home"
+  }
+}
+```
 
-## 布局模式
+字段说明：
 
-- `VITE_LAYOUT_MODE=side|top|top-side`
-  - `side`：左侧菜单布局
-  - `top`：顶部横向菜单
-  - `top-side`：顶部系统切换 + 左侧系统菜单
+- `backend`: `default | sczfw`
+- `authMode`: `cookie | token | mixed`
+- `tokenKey` / `idTokenKey`: token 存储键
+- `menuMode`: `remote | static`
+- `layoutMode`: `side | top | top-side`
+- `systemSwitchStyle`: `dropdown | menu`（`side` 模式下生效，`top-side` 固定为 `menu`）
+- `authorizationType` / `appsource` / `appcode`: sczfw 请求头约定
+- `clientSignatureClientId` / `clientSignatureSecret`: sczfw 签名参数
+- `defaultSystemCode`: 默认系统 code（用于多系统初始化）
+- `systemHomeMap`: 系统首页映射（`{ [systemCode]: "/path" }`）
 
-## sczfw 多系统配置
+## 3) 启动顺序与失败策略
 
-- `VITE_SCZFW_SYSTEM_PERMISSION_CODE=admin_server`
-  - sczfw adapter 单系统退化模式下，取 `/cmict/admin/permission/my-tree` 指定根的 children
-- `VITE_DEFAULT_SYSTEM_CODE=...`
-  - 多系统场景下的默认系统 code（优先级高于 `VITE_SCZFW_SYSTEM_PERMISSION_CODE`）
-- `VITE_SYSTEM_HOME_MAP='{\"admin_server\":\"/home/index\",\"b_system\":\"/b/home\"}'`
-  - 每个系统固定首页路径（JSON 字符串）
+- `src/main.ts` 启动时先加载 `platform-config.json`
+- 校验失败或加载失败时，应用**硬失败**（不进入业务路由），页面展示错误信息
+- 只有配置加载成功后，才会进入 `bootstrapAdminApp()`
+
+## 4) 代码约束
+
+- 业务模块仍然**禁止**直接使用 `import.meta.env`
+- 统一通过 `apps/admin/src/infra/env.ts` 导出的 `appEnv` 读取配置
+- 运行时配置统一通过 `apps/admin/src/config/platform-config.ts` 加载与校验

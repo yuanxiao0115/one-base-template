@@ -1,6 +1,6 @@
 import type { App } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
-import { createCore, createStaticMenusFromRoutes, type BackendAdapter, type LayoutMode, type MenuMode } from '@one-base-template/core';
+import { createCore, createStaticMenusFromRoutes, type BackendAdapter, type LayoutMode, type MenuMode, type SystemSwitchStyle } from '@one-base-template/core';
 
 import { appSsoOptions, appThemeOptions, createSystemsOptions } from '../config';
 
@@ -11,11 +11,12 @@ export function installCore(
     menuMode: MenuMode;
     routes: RouteRecordRaw[];
     layoutMode: LayoutMode;
+    systemSwitchStyle: SystemSwitchStyle;
     defaultSystemCode?: string;
     systemHomeMap: Record<string, string>;
   }
 ) {
-  const { adapter, menuMode, routes, layoutMode, defaultSystemCode, systemHomeMap } = params;
+  const { adapter, menuMode, routes, layoutMode, systemSwitchStyle, defaultSystemCode, systemHomeMap } = params;
 
   const staticMenus =
     menuMode === 'static'
@@ -31,6 +32,7 @@ export function installCore(
       theme: appThemeOptions,
       layout: {
         defaultMode: layoutMode,
+        systemSwitchStyle,
         persist: true
       },
       systems: createSystemsOptions({
