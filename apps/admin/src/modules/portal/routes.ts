@@ -33,28 +33,4 @@ export default [
       skipMenuAuth: true
     }
   },
-  {
-    path: 'portal/designer',
-    name: 'PortalDesigner',
-    component: () => import('./pages/PortalTemplateSettingPage.vue'),
-    meta: {
-      title: '门户配置',
-      fullScreen: true,
-      hideTabsBar: true,
-      activePath: '/portal/setting',
-      skipMenuAuth: true
-    }
-  },
-  {
-    path: 'portal/layout',
-    name: 'PortalPageEditor',
-    component: () => import('./pages/PortalPageEditPage.vue'),
-    meta: {
-      title: '页面编辑',
-      fullScreen: true,
-      hideTabsBar: true,
-      activePath: '/portal/setting',
-      skipMenuAuth: true
-    }
-  }
 ] satisfies RouteRecordRaw[];
