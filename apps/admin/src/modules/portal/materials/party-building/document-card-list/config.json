@@ -1,0 +1,28 @@
+{
+  "index": {
+    "name": "pb-document-card-list-index"
+  },
+  "content": {
+    "name": "pb-document-card-list-content",
+    "title": {
+      "title": "文件专栏卡片",
+      "titleStyle": "simple",
+      "showMore": false,
+      "moreLink": "/frontPortal/cms/list"
+    },
+    "dataSource": {
+      "categoryId": "",
+      "maxDisplayCount": 6,
+      "cardWidth": 130,
+      "cardGap": 56,
+      "titleFontSize": 14,
+      "titleFontWeight": 700,
+      "titleColor": "#B7724D",
+      "titleMaxChars": 10,
+      "items": []
+    }
+  },
+  "style": {
+    "name": "pb-document-card-list-style"
+  }
+}

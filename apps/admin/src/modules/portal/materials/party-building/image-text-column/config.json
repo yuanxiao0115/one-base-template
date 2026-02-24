@@ -1,0 +1,54 @@
+{
+  "index": {
+    "name": "pb-image-text-column-index"
+  },
+  "content": {
+    "name": "pb-image-text-column-content",
+    "image": {
+      "imageUrl": "",
+      "imageWidth": 160,
+      "imageHeight": 220,
+      "imageBorderRadius": 0,
+      "imagePosition": "left",
+      "imageRepeat": "no-repeat",
+      "imageSize": "cover",
+      "imageBgPosition": "center",
+      "showMore": true,
+      "moreText": "更多>",
+      "moreLink": "/frontPortal/cms/list",
+      "moreTextColor": "#ffffff",
+      "moreFontSize": 14,
+      "moreBgColor": "transparent",
+      "morePaddingX": 8,
+      "morePaddingY": 4,
+      "moreBorderRadius": 0,
+      "moreAlign": "right",
+      "moreOffsetX": 12,
+      "moreOffsetY": 12
+    },
+    "dataSource": {
+      "categoryId": "",
+      "maxDisplayCount": 10,
+      "showDot": true,
+      "items": []
+    }
+  },
+  "style": {
+    "name": "pb-image-text-column-style",
+    "list": {
+      "titleColor": "#333333",
+      "titleFontSize": 16,
+      "titleFontWeight": "500",
+      "titleHoverColor": "#2B6DE5",
+      "dateColor": "#909399",
+      "dateFontSize": 14,
+      "dotColor": "#2B6DE5",
+      "dotSize": 6,
+      "dotGap": 8,
+      "rowDividerColor": "#EEF0F3",
+      "rowDividerStyle": "dashed",
+      "rowDividerWidth": 0,
+      "rowPaddingY": 8
+    }
+  }
+}

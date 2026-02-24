@@ -29,6 +29,8 @@ export function setupRouterGuards(router: Router) {
       return true;
     }
 
+    const skipMenuAuth = (to.meta as Record<string, unknown>).skipMenuAuth === true;
+
     const authStore = useAuthStore();
     const authed = await authStore.ensureAuthed();
     if (!authed) {
@@ -80,6 +82,11 @@ export function setupRouterGuards(router: Router) {
 
     // 菜单树决定可访问路由：不在 allowedPaths 的一律 403（详情页以 menuKey=activePath 判定）
     if (!menuStore.isAllowed(menuKey)) {
+      // 某些“本地维护但暂未接入菜单”的页面，允许在已登录的前提下跳过菜单权限校验
+      // 注意：这会放宽前端路由层面的权限控制，应谨慎使用（优先用 activePath 归属到某个菜单入口）。
+      if (skipMenuAuth) {
+        return true;
+      }
       return {
         path: '/403',
         query: { from: to.fullPath }

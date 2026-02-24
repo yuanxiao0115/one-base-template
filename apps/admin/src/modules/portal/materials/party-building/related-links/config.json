@@ -1,0 +1,82 @@
+{
+  "index": {
+    "name": "pb-related-links-index"
+  },
+  "content": {
+    "name": "pb-related-links-content",
+    "title": {
+      "title": "相关链接",
+      "titleStyle": "simple",
+      "showMore": false,
+      "moreLink": ""
+    },
+    "links": {
+      "links": [
+        {
+          "id": "1",
+          "title": "链接一",
+          "url": "https://example.com/1",
+          "icon": ""
+        },
+        {
+          "id": "2",
+          "title": "链接二",
+          "url": "https://example.com/2",
+          "icon": ""
+        }
+      ]
+    }
+  },
+  "style": {
+    "name": "pb-related-links-style",
+    "title": {
+      "titleColor": "#BE0009",
+      "titleFontSize": 16,
+      "titleFontWeight": "bold",
+      "titleAlign": "left",
+      "titleBgColor": "transparent",
+      "lineThickness": 2,
+      "borderColor": "#BE0009",
+      "linkColor": "#BE0009",
+      "linkFontSize": 14,
+      "titlePaddingTop": 0,
+      "titlePaddingRight": 0,
+      "titlePaddingBottom": 0,
+      "titlePaddingLeft": 0
+    },
+    "links": {
+      "backgroundColor": "#f5f7fa",
+      "textColor": "#303133",
+      "linkColor": "#409eff",
+      "hoverColor": "#66b1ff",
+      "borderRadius": 4,
+      "padding": 16,
+      "itemSpacing": 10,
+      "showIcons": true
+    },
+    "container": {
+      "textColor": "#333333",
+      "borderRadius": 4,
+      "containerPaddingTop": 24,
+      "containerPaddingRight": 24,
+      "containerPaddingBottom": 24,
+      "containerPaddingLeft": 24,
+      "boxShadow": "none",
+      "containerBgColor": "transparent",
+      "containerBgOpacity": 1,
+      "containerBorderRadius": 0,
+      "containerShadowPreset": "none",
+      "containerBorderWidth": 0,
+      "containerBorderStyle": "solid",
+      "containerBorderColor": "#eaeaea",
+      "containerBoxShadow": "none",
+      "contentBgColor": "transparent",
+      "contentBgOpacity": 1,
+      "contentBorderRadius": 0,
+      "contentPaddingTop": 24,
+      "contentPaddingRight": 24,
+      "contentPaddingBottom": 24,
+      "contentPaddingLeft": 24
+    }
+  }
+}

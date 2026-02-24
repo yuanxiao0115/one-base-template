@@ -1,28 +1,11 @@
 @import "tailwindcss";
 
-@config "../../tailwind.config.ts";
-@source "../../index.html";
-@source "../**/*.{vue,ts,tsx}";
+/* Tailwind v4 的自动内容扫描在 monorepo/workspace 场景下可能漏掉 packages/ui 里的 class。
+ * 这里显式声明额外的扫描源，避免布局类（如 flex-col、w-64 等）未生成导致页面结构错乱。 */
 @source "../../../../packages/ui/src/**/*.{vue,ts,tsx}";
-
-:root {
-  /* 对齐 sczfw 的浅灰页面底色 */
-  --el-bg-color-page: #f8f8f8;
-}
 
 html,
 body,
 #app {
   height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", Arial, sans-serif;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizelegibility;
-  background: var(--el-bg-color-page);
-  color: var(--el-text-color-primary);
 }

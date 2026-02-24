@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import type { AppMenuItem } from '@one-base-template/core';
 import { useLayoutStore, useMenuStore, useSystemStore } from '@one-base-template/core';
 
@@ -11,9 +11,14 @@ import TabsBar from '../../components/tabs/TabsBar.vue';
 import KeepAliveView from '../../components/view/KeepAliveView.vue';
 
 const router = useRouter();
+const route = useRoute();
 const layoutStore = useLayoutStore();
 const menuStore = useMenuStore();
 const systemStore = useSystemStore();
+
+const hideTabsBar = computed(() => Boolean(route.meta.hideTabsBar));
+const fullScreen = computed(() => Boolean(route.meta.fullScreen));
+const contentPaddingClass = computed(() => (fullScreen.value ? 'p-0' : 'p-4'));
 
 function findFirstLeafPath(item: AppMenuItem): string | undefined {
   if (item.children?.length) {
@@ -68,14 +73,19 @@ async function onSelectSystem(systemCode: string) {
 
 <template>
   <div class="h-screen w-screen flex flex-col bg-[var(--el-bg-color-page)]">
-    <!-- 顶栏：全宽 -->
     <header class="shrink-0">
       <TopBar />
+      <SystemMenu
+        :systems="systems"
+        :active="activeSystemCode"
+        @select="onSelectSystem"
+      />
+      <TabsBar v-if="!hideTabsBar" />
     </header>
 
     <div class="flex-1 min-h-0 flex">
       <aside
-        class="ob-sider w-64 shrink-0 border-r border-[var(--el-border-color)] bg-white flex flex-col"
+        class="w-64 shrink-0 border-r border-[var(--el-border-color)] bg-white flex flex-col"
         :class="layoutStore.siderCollapsed ? 'w-16' : 'w-64'"
       >
         <div class="h-12 shrink-0 flex items-center px-4 border-b border-[var(--el-border-color)]">
@@ -99,20 +109,9 @@ async function onSelectSystem(systemCode: string) {
         </div>
       </aside>
 
-      <div class="flex-1 min-w-0 flex flex-col">
-        <header class="shrink-0">
-          <SystemMenu
-            :systems="systems"
-            :active="activeSystemCode"
-            @select="onSelectSystem"
-          />
-          <TabsBar />
-        </header>
-
-        <main class="flex-1 min-h-0 min-w-0 overflow-auto p-4">
-          <KeepAliveView />
-        </main>
-      </div>
+      <main class="flex-1 min-w-0 overflow-auto" :class="contentPaddingClass">
+        <KeepAliveView />
+      </main>
     </div>
   </div>
 </template>

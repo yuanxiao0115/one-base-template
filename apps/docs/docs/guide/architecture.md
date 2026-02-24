@@ -39,4 +39,6 @@ packages/
 - 菜单：
   - `remote`：后端返回“可见菜单树”
   - `static`：从静态路由生成
-- 权限：**菜单树出现过的 path 集合 = allowedPaths**；不在集合的路由统一拦截到 `403`。
+- 权限（默认）：**菜单树出现过的 path 集合 = allowedPaths**；不在集合的路由统一拦截到 `403`。
+  - 详情/编辑等“非菜单路由”用 `meta.activePath` 归属到某个菜单入口
+  - 若页面是“本地维护但暂未接入菜单”，可用 `meta.skipMenuAuth=true`（仍需登录）
