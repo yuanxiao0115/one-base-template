@@ -12,11 +12,12 @@ export function installCore(
     routes: RouteRecordRaw[];
     layoutMode: LayoutMode;
     systemSwitchStyle: SystemSwitchStyle;
+    storageNamespace: string;
     defaultSystemCode?: string;
     systemHomeMap: Record<string, string>;
   }
 ) {
-  const { adapter, menuMode, routes, layoutMode, systemSwitchStyle, defaultSystemCode, systemHomeMap } = params;
+  const { adapter, menuMode, routes, layoutMode, systemSwitchStyle, storageNamespace, defaultSystemCode, systemHomeMap } = params;
 
   const staticMenus =
     menuMode === 'static'
@@ -29,7 +30,10 @@ export function installCore(
       menuMode,
       staticMenus,
       sso: appSsoOptions,
-      theme: appThemeOptions,
+      theme: {
+        ...appThemeOptions,
+        storageNamespace
+      },
       layout: {
         defaultMode: layoutMode,
         systemSwitchStyle,

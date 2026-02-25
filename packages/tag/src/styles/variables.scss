@@ -1,53 +1,52 @@
 /* Tag 组件 CSS 变量定义 - 全局变量 */
 :root {
   /* ===== 基础颜色 ===== */
-  --tag-text-color: #333333;
-  --tag-bg-color: #f8f8f8;
-  --tag-primary-color: #0f79e9;
-  --tag-container-bg: #ffffff;
+  --tag-text-color: var(--one-text-color-regular, #333333);
+  --tag-bg-color: var(--one-bg-color-page, #f8f8f8);
+  --tag-container-bg: var(--one-fill-color-blank, #ffffff);
 
-  /* ===== 激活状态 ===== */
-  --tag-active-bg-color: #e7f1fc;
-  --tag-active-text-color: #0f79e9;
+  /* ===== 激活状态（统一跟随 one 主题变量） ===== */
+  --tag-active-bg-color: var(--one-color-primary-light-1, #e7f1fc);
+  --tag-active-text-color: var(--one-color-primary, #0f79e9);
 
   /* ===== 悬停状态 ===== */
-  --tag-hover-color: #0f79e9;
-  --tag-hover-bg-color: #ecf5ff;
+  --tag-hover-color: var(--one-color-primary, #0f79e9);
+  --tag-hover-bg-color: var(--one-color-primary-light-1, #ecf5ff);
 
   /* ===== 关闭按钮 ===== */
-  --tag-close-color: #333333;
-  --tag-close-hover-color: #0f79e9;
+  --tag-close-color: var(--one-text-color-regular, #333333);
+  --tag-close-hover-color: var(--one-color-primary, #0f79e9);
 
   /* ===== 箭头导航 ===== */
-  --tag-arrow-color: #333333;
+  --tag-arrow-color: var(--one-text-color-regular, #333333);
 
   /* ===== 边框和阴影 ===== */
-  --tag-border-color: #d9d9d9;
-  --tag-border-color-light: #e4e7ed;
+  --tag-border-color: var(--one-border-color, #d9d9d9);
+  --tag-border-color-light: var(--one-border-color-light, #e4e7ed);
   --tag-border-width: 0px;
   --tag-border-style: solid;
   --tag-shadow-color: rgba(0, 0, 0, 0.12);
   --tag-shadow-light: rgba(0, 0, 0, 0.3);
-  --tag-container-border: 1px solid #d9d9d9;
+  --tag-container-border: 1px solid var(--one-border-color, #d9d9d9);
 
   /* ===== 禁用状态 ===== */
-  --tag-disabled-color: #c0c4cc;
-  --tag-disabled-bg-color: #f5f7fa;
+  --tag-disabled-color: var(--one-text-color-disabled, #c0c4cc);
+  --tag-disabled-bg-color: var(--one-disabled-bg-color, #f5f7fa);
 
   /* ===== 菜单相关 ===== */
-  --tag-menu-bg-color: #ffffff;
-  --tag-menu-text-color: #606266;
-  --tag-menu-hover-bg-color: #ecf5ff;
-  --tag-menu-hover-text-color: #0f79e9;
-  --tag-menu-border-color: #cccccc;
+  --tag-menu-bg-color: var(--one-bg-color-overlay, #ffffff);
+  --tag-menu-text-color: var(--one-text-color-regular, #606266);
+  --tag-menu-hover-bg-color: var(--one-color-primary-light-1, #ecf5ff);
+  --tag-menu-hover-text-color: var(--one-color-primary, #0f79e9);
+  --tag-menu-border-color: var(--one-border-color, #cccccc);
   --tag-menu-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
 
   /* ===== 下拉菜单相关 ===== */
-  --tag-dropdown-bg-color: #ffffff;
-  --tag-dropdown-border-color: #e4e7ed;
+  --tag-dropdown-bg-color: var(--one-bg-color-overlay, #ffffff);
+  --tag-dropdown-border-color: var(--one-border-color-light, #e4e7ed);
   --tag-dropdown-shadow: 0px 0px 12px rgba(0, 0, 0, 0.12);
-  --tag-dropdown-item-hover-bg: #ecf5ff;
-  --tag-dropdown-item-hover-color: #0f79e9;
+  --tag-dropdown-item-hover-bg: var(--one-color-primary-light-1, #ecf5ff);
+  --tag-dropdown-item-hover-color: var(--one-color-primary, #0f79e9);
 
   /* ===== 尺寸相关 ===== */
   --tag-border-radius: 4px;

@@ -168,13 +168,22 @@ export const useMenuStore = defineStore('ob-menu', () => {
     const code = currentSystemCode.value;
     return Boolean(code && loadedSystemFlags.value[code]);
   });
+  const remoteSynced = ref(false);
 
   const allowedPathSet = computed(() => new Set(allowedPaths.value));
 
   function setMenusForSystem(systemCode: string, nextMenus: AppMenuItem[], persist = true) {
     const normalized = normalizeMenuTree(nextMenus);
     menuTrees.value[systemCode] = normalized;
-    if (persist) writeStoredMenuTree(systemCode, normalized);
+    if (persist) {
+      // 仅当系统下存在可用菜单时才落盘。
+      // 空菜单系统（例如 children=[]）不写本地缓存，也不保留旧缓存。
+      if (normalized.length > 0) {
+        writeStoredMenuTree(systemCode, normalized);
+      } else {
+        removeFromStorages(buildMenuTreeKey(systemCode), ['local', 'session']);
+      }
+    }
 
     const set = new Set<string>();
     collectAllowedPaths(normalized, set);
@@ -288,6 +297,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
       }
       setMenusForSystem(code, options.staticMenus, true);
       rebuildPathIndexFromTrees();
+      remoteSynced.value = true;
       return;
     }
 
@@ -300,7 +310,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
           name: typeof s.name === 'string' && s.name ? s.name : typeof s.code === 'string' ? s.code : '',
           menus: Array.isArray(s.menus) ? s.menus : []
         }))
-        .filter(s => s.code);
+        .filter(s => s.code && s.menus.length > 0);
 
       const nextCodes = new Set(normalizedSystems.map(s => s.code));
       // 清理已被移除的系统菜单缓存，避免 pathIndex / 菜单切换误命中旧系统
@@ -333,6 +343,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
         setMenusForSystem(sys.code, sys.menus, true);
       }
       rebuildPathIndexFromTrees();
+      remoteSynced.value = true;
       return;
     }
 
@@ -349,6 +360,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
     }
     setMenusForSystem(code, tree, true);
     rebuildPathIndexFromTrees();
+    remoteSynced.value = true;
   }
 
   function reset() {
@@ -362,6 +374,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
     pathIndex.value = {};
     clearStoredPathIndex();
+    remoteSynced.value = false;
 
     // 兼容：顺手清理旧 key
     clearLegacyStoredMenuTree();
@@ -382,6 +395,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
   return {
     menus,
     loaded,
+    remoteSynced,
     allowedPaths,
     loadMenus,
     reset,

@@ -1,4 +1,3 @@
-import type { LayoutMode, SystemSwitchStyle } from '@one-base-template/core';
 import { getPlatformConfig } from '../config/platform-config';
 
 export type BackendKind = 'default' | 'sczfw';
@@ -20,11 +19,10 @@ export type AppEnv = {
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
-  layoutMode: LayoutMode;
-  systemSwitchStyle: SystemSwitchStyle;
   sczfwHeaders?: Record<string, string>;
   clientSignatureSecret?: string;
   clientSignatureClientId?: string;
+  storageNamespace: string;
   sczfwSystemPermissionCode?: string;
   defaultSystemCode?: string;
   systemHomeMap: Record<string, string>;
@@ -100,8 +98,6 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   const tokenKey = runtime.tokenKey;
   const idTokenKey = runtime.idTokenKey;
   const menuMode = runtime.menuMode;
-  const layoutMode = runtime.layoutMode as LayoutMode;
-  const systemSwitchStyle = runtime.systemSwitchStyle as SystemSwitchStyle;
   const sczfwHeaders = resolveSczfwHeaders({
     backend,
     authorizationType: runtime.authorizationType,
@@ -110,6 +106,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   });
   const clientSignatureSecret = runtime.clientSignatureSecret;
   const clientSignatureClientId = runtime.clientSignatureClientId;
+  const storageNamespace = runtime.storageNamespace || runtime.appcode;
   const defaultSystemCode = resolveDefaultSystemCode({
     backend,
     defaultSystemCode: runtime.defaultSystemCode
@@ -127,11 +124,10 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     tokenKey,
     idTokenKey,
     menuMode,
-    layoutMode,
-    systemSwitchStyle,
     sczfwHeaders,
     clientSignatureSecret,
     clientSignatureClientId,
+    storageNamespace,
     sczfwSystemPermissionCode,
     defaultSystemCode,
     systemHomeMap

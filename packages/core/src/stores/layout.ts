@@ -6,9 +6,8 @@ import { readFromStorages, removeByPrefixes, safeSetToStorage } from '../utils/s
  * 布局模式：
  * - side: 传统左侧菜单
  * - top: 顶部横向菜单
- * - top-side: 顶部“系统”切换，左侧展示当前系统菜单
  */
-export type LayoutMode = 'side' | 'top' | 'top-side';
+export type LayoutMode = 'side' | 'top';
 export type SystemSwitchStyle = 'dropdown' | 'menu';
 
 export interface LayoutOptions {
@@ -16,16 +15,14 @@ export interface LayoutOptions {
   defaultMode?: LayoutMode;
   /** 顶栏系统切换样式 */
   systemSwitchStyle?: SystemSwitchStyle;
-  /** 是否持久化到 localStorage（默认 true） */
+  /** 是否持久化到 localStorage（默认 true，仅持久化 siderCollapsed） */
   persist?: boolean;
 }
 
 const STORAGE_KEY = 'ob_layout';
 
 type StoredLayout = {
-  mode?: LayoutMode;
   siderCollapsed?: boolean;
-  systemSwitchStyle?: SystemSwitchStyle;
 };
 
 function readStoredLayout(): StoredLayout {
@@ -52,14 +49,6 @@ function writeStoredLayout(next: StoredLayout) {
   });
 }
 
-function normalizeLayoutMode(raw: unknown): LayoutMode | undefined {
-  return raw === 'side' || raw === 'top' || raw === 'top-side' ? raw : undefined;
-}
-
-function normalizeSystemSwitchStyle(raw: unknown): SystemSwitchStyle | undefined {
-  return raw === 'dropdown' || raw === 'menu' ? raw : undefined;
-}
-
 export const useLayoutStore = defineStore('ob-layout', () => {
   const mode = ref<LayoutMode>('side');
   const siderCollapsed = ref(false);
@@ -71,9 +60,7 @@ export const useLayoutStore = defineStore('ob-layout', () => {
   function persist() {
     if (!persistEnabled.value) return;
     writeStoredLayout({
-      mode: mode.value,
-      siderCollapsed: siderCollapsed.value,
-      systemSwitchStyle: systemSwitchStyle.value
+      siderCollapsed: siderCollapsed.value
     });
   }
 
@@ -82,17 +69,17 @@ export const useLayoutStore = defineStore('ob-layout', () => {
     const fallbackMode: LayoutMode = options.defaultMode ?? 'side';
     const fallbackSwitchStyle: SystemSwitchStyle = options.systemSwitchStyle ?? 'dropdown';
 
+    // mode / systemSwitchStyle 由应用代码注入，始终以代码配置为准，不从 storage 读取。
+    mode.value = fallbackMode;
+    systemSwitchStyle.value = fallbackSwitchStyle;
+
     if (!persistEnabled.value) {
-      mode.value = fallbackMode;
       siderCollapsed.value = false;
-      systemSwitchStyle.value = fallbackSwitchStyle;
       return;
     }
 
     const saved = readStoredLayout();
-    mode.value = normalizeLayoutMode(saved.mode) ?? fallbackMode;
     siderCollapsed.value = saved.siderCollapsed ?? false;
-    systemSwitchStyle.value = normalizeSystemSwitchStyle(saved.systemSwitchStyle) ?? fallbackSwitchStyle;
   }
 
   function setMode(next: LayoutMode) {

@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
+import { OneUiPlugin } from '@one-base-template/ui';
 import OneTag from '@one/tag';
 import '@one/tag/style';
 
@@ -9,6 +10,7 @@ import { setupRouterGuards } from '@one-base-template/core';
 
 import { setObHttpClient } from '../infra/http';
 import { appEnv } from '../infra/env';
+import { appLayoutMode, appSystemSwitchStyle } from '../config';
 
 import { createAppRouter } from './router';
 import { createAppHttp } from './http';
@@ -20,6 +22,8 @@ export function bootstrapAdminApp() {
 
   const pinia = createPinia();
   app.use(pinia);
+  // 全局注册 @one-base-template/ui 组件（如 ObThemeSwitcher），避免页面里重复手动 import。
+  app.use(OneUiPlugin, { prefix: 'Ob' });
   // 允许在路由守卫 / http hooks 等“组件外”场景安全使用 store
   setActivePinia(pinia);
 
@@ -76,8 +80,9 @@ export function bootstrapAdminApp() {
     adapter,
     menuMode: appEnv.menuMode,
     routes,
-    layoutMode: appEnv.layoutMode,
-    systemSwitchStyle: appEnv.systemSwitchStyle,
+    layoutMode: appLayoutMode,
+    systemSwitchStyle: appSystemSwitchStyle,
+    storageNamespace: appEnv.storageNamespace,
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap
   });

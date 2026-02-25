@@ -62,8 +62,9 @@ function setupTag(pinia: Pinia, router: Router, config: TagConfig) {
     // 启用自动标签管理
     enableAutoTags(router)
 
-    // 配置完成日志（开发环境可见）
-    if (import.meta.env.DEV) {
+    // 通过类型断言读取 DEV，避免跨包 typecheck 时对 ImportMeta.env 的硬依赖。
+    const isDev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true
+    if (isDev) {
       console.log('[OneTag] 自动配置完成')
     }
   } catch (error) {

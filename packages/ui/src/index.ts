@@ -4,3 +4,7 @@ export { default as TopBar } from './components/top/TopBar.vue';
 export { default as TabsBar } from './components/tabs/TabsBar.vue';
 export { default as ThemeSwitcher } from './components/theme/ThemeSwitcher.vue';
 export { default as KeepAliveView } from './components/view/KeepAliveView.vue';
+export { default as ForbiddenPage } from './pages/error/ForbiddenPage.vue';
+export { default as NotFoundPage } from './pages/error/NotFoundPage.vue';
+export { OneUiPlugin, registerOneUiComponents, type OneUiPluginOptions, type OneUiComponentName } from './plugin';
+export { default } from './plugin';

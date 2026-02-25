@@ -18,6 +18,15 @@ export default [
         }
       },
       {
+        path: '/gongshi/member',
+        name: '/gongshi/member',
+        component: () => import('./pages/DemoPageA.vue'),
+        meta: {
+          title: '页面 A',
+          keepAlive: true
+        }
+      },
+      {
         path: 'page-b',
         name: 'DemoPageB',
         component: () => import('./pages/DemoPageB.vue'),

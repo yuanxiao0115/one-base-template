@@ -1,19 +1,40 @@
-import type { CoreOptions } from '@one-base-template/core';
+import { ONE_BUILTIN_THEMES, type CoreOptions, type ThemePrimaryScale } from '@one-base-template/core';
+
+const ADMIN_PURPLE_SCALE: ThemePrimaryScale = {
+  light1: '#F3EBFF',
+  light2: '#E1CCFF',
+  light3: '#CFAAFF',
+  light4: '#B887FF',
+  light5: '#9F65FF',
+  light6: '#8745F2',
+  light7: '#7A3EE0',
+  light8: '#6933C7',
+  light9: '#592AAE'
+};
 
 /**
  * 应用主题配置。
  *
  * 说明：
- * - 业务项目可直接替换/扩展本文件（新增主题、调整主色等）
- * - 这里只约定最小主题能力：primary 主色
+ * - 主题能力下沉到 core：这里仅做项目注册
+ * - 支持“内置主题 + 自定义主色（互斥）”
+ * - 自定义主色仅影响 primary 色阶，状态色保持固定
  */
 export const appThemeOptions: CoreOptions['theme'] = {
-  defaultTheme: 'sczfw',
+  defaultTheme: 'blue',
+  allowCustomPrimary: true,
   themes: {
-    // 对齐老项目（sczfw）主色：#0f79e9
-    sczfw: { primary: '#0f79e9' },
-    blue: { primary: '#1677ff' },
-    green: { primary: '#16a34a' },
-    orange: { primary: '#f97316' }
+    ...ONE_BUILTIN_THEMES,
+    // 管理橙（admin 项目自定义主题）
+    adminOrange: {
+      name: '管理橙',
+      primary: '#FF7D00'
+    },
+    // 管理紫（admin 自定义固定色阶，不走预设和动态主色计算）
+    adminPurple: {
+      name: '管理紫',
+      primary: '#7A3EE0',
+      primaryScale: { ...ADMIN_PURPLE_SCALE }
+    }
   }
 };

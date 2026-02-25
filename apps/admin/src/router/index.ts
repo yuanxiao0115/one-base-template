@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { AdminLayout } from '@one-base-template/ui';
+import { AdminLayout, ForbiddenPage, NotFoundPage } from '@one-base-template/ui';
 
 import { appEnv } from '../infra/env';
 
@@ -164,18 +164,22 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/403',
     name: 'Forbidden',
-    component: () => import('../pages/error/ForbiddenPage.vue'),
+    component: ForbiddenPage,
     meta: { public: true, hiddenTab: true }
   },
   {
     path: '/404',
     name: 'NotFound',
-    component: () => import('../pages/error/NotFoundPage.vue'),
+    component: NotFoundPage,
     meta: { public: true, hiddenTab: true }
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/404',
+    // 404 跳转使用 push（replace=false），保留上一页历史，便于在 404 页执行“返回上一页”。
+    redirect: () => ({
+      path: '/404',
+      replace: false
+    }),
     meta: { public: true, hiddenTab: true }
   }
 ];

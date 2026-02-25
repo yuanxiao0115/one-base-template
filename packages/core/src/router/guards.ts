@@ -57,6 +57,12 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     const menuStore = useMenuStore();
     const systemStore = useSystemStore();
 
+    // remote 菜单模式下，即使命中本地缓存也要在当前会话至少同步一次远端菜单，
+    // 避免系统列表/菜单结构长期停留在历史缓存（例如新增系统后看不到）。
+    if (options.menuMode === 'remote' && !menuStore.remoteSynced) {
+      await menuStore.loadMenus();
+    }
+
     // 详情/编辑等“非菜单路由”通过 meta.activePath 归属到某个菜单入口：
     // - 归属系统：用 activePath 反查 systemCode
     // - 权限校验：以 activePath 为准（只要有菜单权限即可访问详情页）

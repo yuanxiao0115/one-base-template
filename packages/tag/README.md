@@ -270,11 +270,10 @@ export default {
 支持通过CSS变量进行完全的主题定制：
 
 ```css
-/* 自定义主题色 */
+/* 主色统一由 one 设计 token 控制 */
 :root {
-  --tag-primary-color: #409eff;
-  --tag-active-bg-color: #ecf5ff;
-  --tag-active-text-color: #409eff;
+  --one-color-primary: #409eff;
+  --one-color-primary-light-1: #ecf5ff;
 }
 
 /* 暗色主题 */
@@ -282,8 +281,8 @@ export default {
   --tag-text-color: #e5eaf3;
   --tag-bg-color: #363e4f;
   --tag-container-bg: #1d2129;
-  --tag-active-bg-color: #409eff;
-  --tag-active-text-color: #ffffff;
+  --one-color-primary: #409eff;
+  --one-color-primary-light-1: #2a4f78;
 }
 ```
 

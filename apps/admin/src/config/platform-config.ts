@@ -1,5 +1,3 @@
-import type { LayoutMode, SystemSwitchStyle } from '@one-base-template/core';
-
 type BackendKind = 'default' | 'sczfw';
 type AuthMode = 'cookie' | 'token' | 'mixed';
 type MenuMode = 'remote' | 'static';
@@ -10,13 +8,12 @@ export type PlatformRuntimeConfig = {
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
-  layoutMode: LayoutMode;
-  systemSwitchStyle: SystemSwitchStyle;
   authorizationType: string;
   appsource: string;
   appcode: string;
   clientSignatureSecret?: string;
   clientSignatureClientId?: string;
+  storageNamespace?: string;
   defaultSystemCode?: string;
   systemHomeMap: Record<string, string>;
 };
@@ -60,19 +57,6 @@ function expectOptionalString(raw: Record<string, unknown>, key: string, errors:
   return undefined;
 }
 
-function expectOptionalEnum<T extends string>(
-  raw: Record<string, unknown>,
-  key: string,
-  candidates: readonly T[],
-  errors: string[]
-): T | undefined {
-  const value = raw[key];
-  if (value == null || value === '') return undefined;
-  if (candidates.includes(value as T)) return value as T;
-  errors.push(`"${key}" 必须是 ${candidates.join('/')} 之一`);
-  return undefined;
-}
-
 function expectSystemHomeMap(
   raw: Record<string, unknown>,
   key: string,
@@ -111,13 +95,12 @@ function parsePlatformRuntimeConfig(input: unknown): PlatformRuntimeConfig {
   const tokenKey = expectString(input, 'tokenKey', errors);
   const idTokenKey = expectString(input, 'idTokenKey', errors);
   const menuMode = expectEnum(input, 'menuMode', ['remote', 'static'], errors);
-  const layoutMode = expectEnum(input, 'layoutMode', ['side', 'top', 'top-side'], errors);
-  const systemSwitchStyle = expectOptionalEnum(input, 'systemSwitchStyle', ['dropdown', 'menu'], errors) ?? 'dropdown';
   const authorizationType = expectString(input, 'authorizationType', errors);
   const appsource = expectString(input, 'appsource', errors);
   const appcode = expectString(input, 'appcode', errors);
   const clientSignatureSecret = expectOptionalString(input, 'clientSignatureSecret', errors);
   const clientSignatureClientId = expectOptionalString(input, 'clientSignatureClientId', errors);
+  const storageNamespace = expectOptionalString(input, 'storageNamespace', errors);
   const defaultSystemCode = expectOptionalString(input, 'defaultSystemCode', errors);
   const systemHomeMap = expectSystemHomeMap(input, 'systemHomeMap', errors);
 
@@ -131,13 +114,12 @@ function parsePlatformRuntimeConfig(input: unknown): PlatformRuntimeConfig {
     tokenKey: tokenKey!,
     idTokenKey: idTokenKey!,
     menuMode: menuMode!,
-    layoutMode: layoutMode!,
-    systemSwitchStyle,
     authorizationType: authorizationType!,
     appsource: appsource!,
     appcode: appcode!,
     clientSignatureSecret,
     clientSignatureClientId,
+    storageNamespace,
     defaultSystemCode,
     systemHomeMap: systemHomeMap!
   };

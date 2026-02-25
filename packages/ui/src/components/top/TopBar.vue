@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore, useLayoutStore, useMenuStore, useSystemStore, type AppMenuItem } from '@one-base-template/core';
 import { useTagStoreHook } from '@one/tag';
 import ThemeSwitcher from '../theme/ThemeSwitcher.vue';
-import headerBgUrl from '../../assets/app-header-bg.png';
+import headerBgUrl from '../../assets/app-header-bg.webp';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -17,15 +17,12 @@ const userName = computed(() => authStore.user?.name ?? '未登录');
 const currentSystemCode = computed(() => systemStore.currentSystemCode);
 const systems = computed(() => systemStore.systems);
 const showSystemSwitcher = computed(() => systems.value.length > 1);
-const systemSwitchStyle = computed(() => {
-  // top-side 固定使用菜单式系统切换，保证“上方系统 + 左侧当前系统菜单”的结构一致性。
-  if (layoutStore.mode === 'top-side') return 'menu';
-  return layoutStore.systemSwitchStyle;
-});
+const systemSwitchStyle = computed(() => layoutStore.systemSwitchStyle);
 const showSystemSwitcherDropdown = computed(() => showSystemSwitcher.value && systemSwitchStyle.value === 'dropdown');
 const showSystemSwitcherMenu = computed(() => showSystemSwitcher.value && systemSwitchStyle.value === 'menu');
 const currentSystemName = computed(() => systemStore.currentSystemName);
 const title = computed(() => `${currentSystemName.value} | 后台管理`);
+const themeDialogVisible = ref(false);
 
 const headerStyle = computed(() => ({
   backgroundImage: `url(${headerBgUrl})`
@@ -80,6 +77,14 @@ async function onSwitchSystem(systemCode: string) {
     await router.replace(home);
   }
 }
+
+function onSelectSystemMenu(systemCode: string) {
+  void onSwitchSystem(systemCode);
+}
+
+function openThemeDialog() {
+  themeDialogVisible.value = true;
+}
 </script>
 
 <template>
@@ -110,39 +115,55 @@ async function onSwitchSystem(systemCode: string) {
         </template>
       </el-dropdown>
 
-      <nav
+      <el-menu
         v-if="showSystemSwitcherMenu"
         class="ob-topbar__system-menu"
+        mode="horizontal"
+        :ellipsis="true"
+        :default-active="currentSystemCode"
         aria-label="系统切换菜单"
+        @select="onSelectSystemMenu"
       >
-        <button
+        <el-menu-item
           v-for="sys in systems"
           :key="sys.code"
-          type="button"
+          :index="sys.code"
           class="ob-topbar__system-menu-item"
-          :class="{ 'is-active': currentSystemCode === sys.code }"
           :title="sys.name"
-          @click="onSwitchSystem(sys.code)"
         >
           {{ sys.name }}
-        </button>
-      </nav>
+        </el-menu-item>
+      </el-menu>
     </div>
 
     <div class="ob-topbar__right">
-      <ThemeSwitcher class="ob-topbar__theme" />
       <el-dropdown class="ob-topbar__user">
         <span class="ob-topbar__user-trigger" :title="userName">
           {{ userName }}
         </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item @click="onLogout">退出登录</el-dropdown-item>
+            <el-dropdown-item @click="openThemeDialog">主题设置</el-dropdown-item>
+            <el-dropdown-item divided @click="onLogout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
     </div>
   </div>
+
+  <el-dialog
+    v-model="themeDialogVisible"
+    class="ob-theme-dialog"
+    width="560px"
+    title="主题外观设置"
+    append-to-body
+    destroy-on-close
+  >
+    <div class="ob-theme-dialog__desc">
+      内置主题与自定义主色互斥，切换后会自动持久化到当前项目命名空间。
+    </div>
+    <ThemeSwitcher />
+  </el-dialog>
 </template>
 
 <style scoped>
@@ -162,12 +183,14 @@ async function onSwitchSystem(systemCode: string) {
 .ob-topbar__left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  flex: 1;
   min-width: 0;
 }
 
 .ob-topbar__title {
   margin: 0;
+  padding-right: 14px;
   font-size: 20px;
   font-weight: 500;
   color: #fff;
@@ -202,36 +225,55 @@ async function onSwitchSystem(systemCode: string) {
 }
 
 .ob-topbar__system-menu {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-x: auto;
+  min-width: 0;
+  flex: 1;
+  max-width: 58%;
+  border-bottom: 0;
+  background: transparent;
+  --el-menu-bg-color: transparent;
+  --el-menu-text-color: rgb(255 255 255 / 94%);
+  --el-menu-active-color: #fff;
+  --el-menu-hover-bg-color: rgb(255 255 255 / 12%);
+  --el-menu-item-font-size: 14px;
+  --el-menu-horizontal-height: 64px;
 }
 
 .ob-topbar__system-menu-item {
-  cursor: pointer;
-  border: 1px solid rgb(255 255 255 / 25%);
-  background: rgb(255 255 255 / 12%);
-  color: #fff;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   white-space: nowrap;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    transform 150ms ease;
 }
 
-.ob-topbar__system-menu-item:hover {
-  background: rgb(255 255 255 / 18%);
-  border-color: rgb(255 255 255 / 32%);
+.ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal) {
+  border-bottom: 0;
 }
 
-.ob-topbar__system-menu-item.is-active {
-  background: #fff;
-  color: var(--el-color-primary);
-  border-color: #fff;
+.ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal > .el-menu-item),
+.ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal > .el-sub-menu .el-sub-menu__title) {
+  height: 64px;
+  line-height: 64px;
+  border-bottom: 0;
+  padding: 0 28px;
+  transition: background-color 180ms ease;
+}
+
+.ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal > .el-menu-item:hover),
+.ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal > .el-sub-menu .el-sub-menu__title:hover) {
+  background: rgb(255 255 255 / 12%);
+}
+
+.ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal > .el-menu-item.is-active) {
+  background: var(--one-color-primary-light-9, var(--el-color-primary-dark-2));
+  color: #fff;
+  border-bottom: 0;
+}
+
+.ob-topbar :deep(.ob-topbar__system-menu .el-sub-menu.is-in-menu-bar > .el-sub-menu__title) {
+  color: rgb(255 255 255 / 94%);
+}
+
+.ob-topbar :deep(.ob-topbar__system-menu .el-sub-menu.is-in-menu-bar .el-sub-menu__icon-arrow) {
+  color: rgb(255 255 255 / 84%);
 }
 
 .ob-topbar__user-trigger {
@@ -265,5 +307,27 @@ async function onSwitchSystem(systemCode: string) {
 
 .ob-topbar :deep(.el-select__caret) {
   color: rgb(255 255 255 / 85%);
+}
+
+:deep(.ob-theme-dialog .el-dialog) {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+:deep(.ob-theme-dialog .el-dialog__header) {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--one-border-color-light, #e4e7ed);
+}
+
+:deep(.ob-theme-dialog .el-dialog__body) {
+  padding: 18px 20px 20px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 96%) 0%, rgb(250 252 255 / 96%) 100%);
+}
+
+.ob-theme-dialog__desc {
+  margin-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--one-text-color-secondary, #666666);
 }
 </style>
