@@ -12,12 +12,27 @@ export function installCore(
     routes: RouteRecordRaw[];
     layoutMode: LayoutMode;
     systemSwitchStyle: SystemSwitchStyle;
+    topbarHeight: string | number;
+    sidebarWidth: string | number;
+    sidebarCollapsedWidth: string | number;
     storageNamespace: string;
     defaultSystemCode?: string;
     systemHomeMap: Record<string, string>;
   }
 ) {
-  const { adapter, menuMode, routes, layoutMode, systemSwitchStyle, storageNamespace, defaultSystemCode, systemHomeMap } = params;
+  const {
+    adapter,
+    menuMode,
+    routes,
+    layoutMode,
+    systemSwitchStyle,
+    topbarHeight,
+    sidebarWidth,
+    sidebarCollapsedWidth,
+    storageNamespace,
+    defaultSystemCode,
+    systemHomeMap
+  } = params;
 
   const staticMenus =
     menuMode === 'static'
@@ -37,6 +52,9 @@ export function installCore(
       layout: {
         defaultMode: layoutMode,
         systemSwitchStyle,
+        topbarHeight,
+        sidebarWidth,
+        sidebarCollapsedWidth,
         persist: true
       },
       systems: createSystemsOptions({

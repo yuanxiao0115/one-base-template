@@ -10,7 +10,7 @@ import { setupRouterGuards } from '@one-base-template/core';
 
 import { setObHttpClient } from '../infra/http';
 import { appEnv } from '../infra/env';
-import { appLayoutMode, appSystemSwitchStyle } from '../config';
+import { appLayoutMode, appSystemSwitchStyle, appTopbarHeight, appSidebarWidth, appSidebarCollapsedWidth } from '../config';
 
 import { createAppRouter } from './router';
 import { createAppHttp } from './http';
@@ -82,6 +82,9 @@ export function bootstrapAdminApp() {
     routes,
     layoutMode: appLayoutMode,
     systemSwitchStyle: appSystemSwitchStyle,
+    topbarHeight: appTopbarHeight,
+    sidebarWidth: appSidebarWidth,
+    sidebarCollapsedWidth: appSidebarCollapsedWidth,
     storageNamespace: appEnv.storageNamespace,
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap

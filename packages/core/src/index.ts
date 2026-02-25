@@ -30,7 +30,15 @@ export { apiWrapper, type ObApiWrapperResult } from './http/apiWrapper';
 
 export { useAuthStore } from './stores/auth';
 export { useAssetStore } from './stores/assets';
-export { useLayoutStore, type LayoutMode, type LayoutOptions, type SystemSwitchStyle } from './stores/layout';
+export {
+  useLayoutStore,
+  DEFAULT_LAYOUT_TOPBAR_HEIGHT,
+  DEFAULT_LAYOUT_SIDEBAR_WIDTH,
+  DEFAULT_LAYOUT_SIDEBAR_COLLAPSED_WIDTH,
+  type LayoutMode,
+  type LayoutOptions,
+  type SystemSwitchStyle
+} from './stores/layout';
 export { useMenuStore } from './stores/menu';
 export { useSystemStore, type SystemOptions, type AppSystemInfo } from './stores/system';
 export { useTabsStore } from './stores/tabs';

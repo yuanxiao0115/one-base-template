@@ -160,6 +160,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@iconify/vue':
+        specifier: ^4.3.0
+        version: 4.3.0(vue@3.5.28(typescript@5.9.3))
       '@one-base-template/core':
         specifier: workspace:*
         version: link:../core

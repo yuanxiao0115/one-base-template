@@ -69,50 +69,75 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
         v-for="item in menus"
         :key="item.path"
         :item="item"
+        :collapsed="collapsed"
       />
     </el-menu>
   </el-scrollbar>
 </template>
 
 <style scoped>
-/* 侧边菜单：对齐 sczfw 的“轻高亮 + 50px 行高” */
+/* 侧边菜单：按设计稿统一三级导航的默认/悬浮/激活状态 */
 :deep(.ob-sider-menu) {
+  --el-menu-item-height: 48px;
   background: transparent !important;
   border: none;
 }
 
 :deep(.ob-sider-menu .el-menu-item),
 :deep(.ob-sider-menu .el-sub-menu__title) {
-  height: 50px;
-  line-height: 50px;
+  height: 48px;
+  line-height: 48px;
+  font-weight: 400;
+  color: var(--one-text-color-regular, #333333);
   background: transparent !important;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
 }
 
-:deep(.ob-sider-menu .el-menu-item:hover),
+:deep(.ob-sider-menu .el-sub-menu__icon-arrow) {
+  color: var(--one-text-color-secondary, #666666);
+}
+
+:deep(.ob-sider-menu:not(.el-menu--collapse) .el-menu-item),
+:deep(.ob-sider-menu:not(.el-menu--collapse) .el-sub-menu__title) {
+  padding: 0 16px !important;
+}
+
+:deep(.ob-sider-menu:not(.el-menu--collapse) .el-menu .el-menu-item),
+:deep(.ob-sider-menu:not(.el-menu--collapse) .el-menu .el-sub-menu__title) {
+  padding-left: 40px !important;
+}
+
+:deep(.ob-sider-menu:not(.el-menu--collapse) .el-menu .el-menu .el-menu-item),
+:deep(.ob-sider-menu:not(.el-menu--collapse) .el-menu .el-menu .el-sub-menu__title) {
+  padding-left: 56px !important;
+}
+
+:deep(.ob-sider-menu .el-menu-item:not(.is-active):hover),
 :deep(.ob-sider-menu .el-sub-menu__title:hover) {
-  color: var(--el-color-primary) !important;
+  color: var(--one-color-primary-light-7, var(--el-color-primary)) !important;
+  background: var(--one-color-primary-light-1, var(--el-color-primary-light-9)) !important;
 }
 
 :deep(.ob-sider-menu .el-sub-menu.is-active > .el-sub-menu__title) {
-  color: var(--el-color-primary) !important;
+  color: var(--one-color-primary-light-7, var(--el-color-primary)) !important;
+  background: var(--one-color-primary-light-1, var(--el-color-primary-light-9)) !important;
 }
 
-/* 激活叶子节点背景高亮（不改整体 hover 背景，避免“满屏蓝”） */
+/* 激活项背景铺满整行，符合侧栏选中态视觉规范 */
 :deep(.ob-sider-menu .el-menu-item.is-active) {
-  position: relative;
-  color: var(--el-color-primary) !important;
+  color: var(--one-color-primary-light-7, var(--el-color-primary)) !important;
+  background: var(--one-color-primary-light-1, var(--el-color-primary-light-9)) !important;
 }
 
-:deep(.ob-sider-menu .el-menu-item.is-active::before) {
-  position: absolute;
-  inset: 4px 8px;
-  border-radius: 3px;
-  background: var(--el-color-primary-light-9);
-  content: '';
+:deep(.ob-sider-menu .el-sub-menu.is-active > .el-sub-menu__title .el-sub-menu__icon-arrow) {
+  color: var(--one-color-primary-light-7, var(--el-color-primary)) !important;
 }
 
-:deep(.ob-sider-menu .el-menu-item.is-active > *) {
-  position: relative;
-  z-index: 1;
+:deep(.ob-sider-menu .el-menu-item.is-disabled),
+:deep(.ob-sider-menu .el-sub-menu.is-disabled > .el-sub-menu__title) {
+  color: var(--one-text-color-disabled, #999999) !important;
+  background: transparent !important;
 }
 </style>

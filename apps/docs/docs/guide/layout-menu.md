@@ -10,6 +10,20 @@
 配置项：
 - `apps/admin/src/config/layout.ts`：`appLayoutMode=side|top`
 - `apps/admin/src/config/layout.ts`：`appSystemSwitchStyle=dropdown|menu`（决定系统切换使用下拉或菜单样式）
+- `apps/admin/src/config/layout.ts`：`appTopbarHeight`（`ob-topbar` 高度，默认 `64px`）
+- `apps/admin/src/config/layout.ts`：`appSidebarWidth`（左侧菜单展开宽度，默认 `256px`）
+- `apps/admin/src/config/layout.ts`：`appSidebarCollapsedWidth`（左侧菜单折叠宽度，默认 `64px`）
+
+示例：
+
+```ts
+// apps/admin/src/config/layout.ts
+export const appLayoutMode = 'side';
+export const appSystemSwitchStyle = 'menu';
+export const appTopbarHeight = '64px';
+export const appSidebarWidth = '256px';
+export const appSidebarCollapsedWidth = '64px';
+```
 
 ## 多系统菜单（permissionCode）
 
@@ -23,6 +37,11 @@ UI 行为：
 - 顶部系统切换：支持 `dropdown`（下拉）与 `menu`（顶栏菜单）两种样式
 - `menu` 样式使用 `el-menu(mode=horizontal)`，激活态背景 `#0955df`，字号 `14px`，并开启 `ellipsis` 以便宽度不足时自动折叠
 - 左侧菜单：展示 `menuStore.menus`（当前系统菜单树）
+- 左侧折叠按钮：固定在侧栏底部，使用 Iconify 图标（`ri:menu-fold-line` / `ri:menu-unfold-line`）
+- 菜单文案：超长时单行省略，hover 自动显示 tooltip 全文
+- 菜单状态（按设计稿）：默认 `--one-text-color-regular`；hover 与选中使用 `--one-color-primary-light-7` + `--one-color-primary-light-1`；禁用态使用 `--one-text-color-disabled`
+- 菜单层级统一：一级/二级组/子菜单项高度均为 `48px`，默认字重 `400`
+- 三级缩进：一级 `16px`、二级 `40px`、三级 `56px`（仅展开态生效）
 - 切系统后跳系统首页：`systemStore.resolveHomePath(systemCode)`（受 `platform-config.json` 中 `systemHomeMap` 影响）
 - 空系统过滤：若某系统映射后 `menus.length===0`（例如后端 `children=[]`），则不展示该系统名，也不写该系统菜单缓存
 - 本地缓存策略：只要系统 `menus.length>0`（即使是纯叶子列表）就会写入该系统缓存；空系统会清理对应缓存 key

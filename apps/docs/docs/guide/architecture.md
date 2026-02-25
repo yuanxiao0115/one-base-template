@@ -18,7 +18,7 @@ packages/
 为避免启动链路分散导致不可控，`apps/admin` 将启动逻辑集中在：
 
 - `apps/admin/src/config/platform-config.ts`：加载并校验运行时配置（`public/platform-config.json`）
-- `apps/admin/src/config/layout.ts`：管理端布局代码配置（`layoutMode/systemSwitchStyle`）
+- `apps/admin/src/config/layout.ts`：管理端布局代码配置（`layoutMode/systemSwitchStyle/topbarHeight/sidebarWidth/sidebarCollapsedWidth`）
 - `apps/admin/src/config/theme.ts`：主题注册入口（复用 core 内置主题 + 项目自定义主题）
 - `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `appEnv`
 - `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫

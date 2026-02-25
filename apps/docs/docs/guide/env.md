@@ -60,7 +60,7 @@
 
 布局说明：
 - `layoutMode` 与 `systemSwitchStyle` 不再由 `platform-config.json` 提供
-- 请在 `apps/admin/src/config/layout.ts` 中通过代码配置布局与系统切换样式
+- 请在 `apps/admin/src/config/layout.ts` 中通过代码配置布局与系统切换样式（含 `topbarHeight` / `sidebarWidth` / `sidebarCollapsedWidth`）
 
 ## 3) 启动顺序与失败策略
 

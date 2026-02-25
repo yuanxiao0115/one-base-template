@@ -23,9 +23,11 @@ const showSystemSwitcherMenu = computed(() => showSystemSwitcher.value && system
 const currentSystemName = computed(() => systemStore.currentSystemName);
 const title = computed(() => `${currentSystemName.value} | 后台管理`);
 const themeDialogVisible = ref(false);
+const topbarHeight = computed(() => layoutStore.topbarHeight);
 
 const headerStyle = computed(() => ({
-  backgroundImage: `url(${headerBgUrl})`
+  backgroundImage: `url(${headerBgUrl})`,
+  '--ob-topbar-height': topbarHeight.value
 }));
 
 async function onLogout() {
@@ -168,7 +170,7 @@ function openThemeDialog() {
 
 <style scoped>
 .ob-topbar {
-  height: 64px;
+  height: var(--ob-topbar-height, 64px);
   padding: 0 24px;
   display: flex;
   align-items: center;
@@ -235,7 +237,7 @@ function openThemeDialog() {
   --el-menu-active-color: #fff;
   --el-menu-hover-bg-color: rgb(255 255 255 / 12%);
   --el-menu-item-font-size: 14px;
-  --el-menu-horizontal-height: 64px;
+  --el-menu-horizontal-height: var(--ob-topbar-height, 64px);
 }
 
 .ob-topbar__system-menu-item {
@@ -250,8 +252,8 @@ function openThemeDialog() {
 
 .ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal > .el-menu-item),
 .ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal > .el-sub-menu .el-sub-menu__title) {
-  height: 64px;
-  line-height: 64px;
+  height: var(--ob-topbar-height, 64px);
+  line-height: var(--ob-topbar-height, 64px);
   border-bottom: 0;
   padding: 0 28px;
   transition: background-color 180ms ease;
