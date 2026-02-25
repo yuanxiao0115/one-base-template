@@ -71,6 +71,14 @@ const BASE_STATIC_TOKENS: OneTokenMap = {
   '--one-font-size-large': '16px',
   '--one-font-size-base': '14px',
   '--one-font-size-small': '12px',
+  // 字体策略：macOS 优先苹方，Windows 优先微软雅黑，思源黑体作为兜底。
+  '--one-font-family-macos':
+    '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif',
+  '--one-font-family-windows':
+    '"Microsoft YaHei", "Source Han Sans SC", "PingFang SC", "Noto Sans SC", "Segoe UI", "Helvetica Neue", Arial, sans-serif',
+  '--one-font-family-fallback':
+    '"Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif',
+  '--one-font-family-base': 'var(--one-font-family-macos)',
 
   '--one-border-radius-base': '4px',
   '--one-border-radius-small': '2px',

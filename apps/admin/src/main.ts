@@ -3,6 +3,24 @@ import './styles/index.css';
 
 import { loadPlatformConfig } from './config/platform-config';
 
+type RuntimeOs = 'macos' | 'windows' | 'other';
+
+function detectRuntimeOs(): RuntimeOs {
+  if (typeof navigator === 'undefined') return 'other';
+
+  const platformSignature = `${navigator.platform} ${navigator.userAgent}`.toLowerCase();
+  if (platformSignature.includes('mac')) return 'macos';
+  if (platformSignature.includes('win')) return 'windows';
+  return 'other';
+}
+
+function applyRuntimeOsMarker() {
+  if (typeof document === 'undefined') return;
+
+  // 写入根节点数据标记，配合全局 CSS 进行字体栈切换。
+  document.documentElement.dataset.oneOs = detectRuntimeOs();
+}
+
 function buildErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
   return '未知错误';
@@ -66,4 +84,5 @@ async function bootstrap() {
   }
 }
 
+applyRuntimeOsMarker();
 void bootstrap();

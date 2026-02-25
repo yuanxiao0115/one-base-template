@@ -236,6 +236,30 @@ themeStore.resetCustomPrimary();      // 回到 preset
 
 ---
 
+## 字体策略（按系统切换）
+
+本仓库已内置跨系统字体栈，并统一纳入 `--one-*` token 体系：
+
+- token 定义：`packages/core/src/theme/one/theme-tokens.ts`
+  - `--one-font-family-macos`：macOS 优先（苹方优先，包含微软雅黑与思源黑体兜底）
+  - `--one-font-family-windows`：Windows 优先（微软雅黑优先，包含思源黑体兜底）
+  - `--one-font-family-fallback`：其他系统兜底（思源黑体优先）
+  - `--one-font-family-base`：默认引用 macOS 栈，可被运行时覆盖
+- Element Plus 桥接：`packages/core/src/theme/one/apply-theme.ts`
+  - `--el-font-family` 统一映射到 `var(--one-font-family-base)`
+- admin 运行时系统识别：`apps/admin/src/main.ts`
+  - 启动时在根节点写入 `data-one-os=macos|windows|other`
+- admin 样式切换：`apps/admin/src/styles/index.css`
+  - 通过 `:root[data-one-os='windows'|'other']` 覆盖 `--one-font-family-base`
+
+这样做可以保证：
+
+1. **主题 token 与字体策略一致收口在 core**，避免业务侧重复维护字体常量。
+2. **UI 壳与 Element Plus 使用同一字体入口**，减少组件间字体不一致。
+3. **Windows/macOS 在同一套代码下自动切栈**，并保留思源黑体作为跨端备用。
+
+---
+
 ## 持久化结构
 
 ```json

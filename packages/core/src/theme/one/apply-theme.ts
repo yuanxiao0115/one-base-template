@@ -70,6 +70,8 @@ function buildElementLinkBridgeTokens(tokens: OneTokenMap): OneTokenMap {
 
 function buildElementTextBorderFillBridgeTokens(tokens: OneTokenMap): OneTokenMap {
   return {
+    // Element Plus 全局字体统一走 one token，便于按系统切换字体栈。
+    '--el-font-family': 'var(--one-font-family-base)',
     '--el-text-color-primary': getToken(tokens, '--one-text-color-primary'),
     '--el-text-color-regular': getToken(tokens, '--one-text-color-regular'),
     '--el-text-color-secondary': getToken(tokens, '--one-text-color-secondary'),

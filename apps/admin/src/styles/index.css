@@ -4,10 +4,19 @@
  * 这里显式声明额外的扫描源，避免布局类（如 flex-col、w-64 等）未生成导致页面结构错乱。 */
 @source "../../../../packages/ui/src/**/*.{vue,ts,tsx}";
 
+:root[data-one-os='windows'] {
+  --one-font-family-base: var(--one-font-family-windows);
+}
+
+:root[data-one-os='other'] {
+  --one-font-family-base: var(--one-font-family-fallback);
+}
+
 html,
 body,
 #app {
   height: 100%;
+  font-family: var(--one-font-family-base);
 }
 
 /* Link 按钮跟随 one link token，不影响普通按钮。 */
