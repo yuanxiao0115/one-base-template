@@ -2,15 +2,14 @@
 
 ## 布局模式
 
-布局由 `packages/core` 的 layout store 驱动，app 在启动时从 `platform-config.json` 注入默认值：
+布局由 `packages/core` 的 layout store 驱动，app 在启动时从 `apps/admin/src/config/layout.ts` 注入默认值：
 
 - `side`：顶部栏 + 左侧菜单（可折叠）
 - `top`：顶部横向菜单
-- `top-side`：顶部栏菜单式系统切换 + 左侧展示当前系统菜单
 
 配置项：
-- `apps/admin/public/platform-config.json`：`layoutMode=side|top|top-side`
-- `apps/admin/public/platform-config.json`：`systemSwitchStyle=dropdown|menu`（仅 `side` 生效；`top-side` 固定为 `menu`）
+- `apps/admin/src/config/layout.ts`：`appLayoutMode=side|top`
+- `apps/admin/src/config/layout.ts`：`appSystemSwitchStyle=dropdown|menu`（决定系统切换使用下拉或菜单样式）
 
 ## 多系统菜单（permissionCode）
 
@@ -22,8 +21,11 @@
 
 UI 行为：
 - 顶部系统切换：支持 `dropdown`（下拉）与 `menu`（顶栏菜单）两种样式
+- `menu` 样式使用 `el-menu(mode=horizontal)`，激活态背景 `#0955df`，字号 `14px`，并开启 `ellipsis` 以便宽度不足时自动折叠
 - 左侧菜单：展示 `menuStore.menus`（当前系统菜单树）
 - 切系统后跳系统首页：`systemStore.resolveHomePath(systemCode)`（受 `platform-config.json` 中 `systemHomeMap` 影响）
+- 空系统过滤：若某系统映射后 `menus.length===0`（例如后端 `children=[]`），则不展示该系统名，也不写该系统菜单缓存
+- 本地缓存策略：只要系统 `menus.length>0`（即使是纯叶子列表）就会写入该系统缓存；空系统会清理对应缓存 key
 
 ## 标签栏（Tabs）
 

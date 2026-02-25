@@ -3,7 +3,7 @@
 从 2026-02-24 开始，`apps/admin` 采用“双层配置”：
 
 - **构建期配置**（`.env*`）：只保留 Vite dev/proxy/mock 必需项
-- **运行时配置**（`public/platform-config.json`）：业务行为配置（backend/auth/menu/layout/system 等）
+- **运行时配置**（`public/platform-config.json`）：业务行为配置（backend/auth/menu/system 等）
 
 ## 1) 构建期配置（`.env*`）
 
@@ -32,11 +32,10 @@
   "tokenKey": "token",
   "idTokenKey": "idToken",
   "menuMode": "remote",
-  "layoutMode": "side",
-  "systemSwitchStyle": "dropdown",
   "authorizationType": "ADMIN",
   "appsource": "frame",
   "appcode": "od",
+  "storageNamespace": "one-base-template-admin",
   "clientSignatureClientId": "1",
   "clientSignatureSecret": "fc54f9655dc04da486663f1055978ba8",
   "defaultSystemCode": "admin_server",
@@ -53,12 +52,15 @@
 - `authMode`: `cookie | token | mixed`
 - `tokenKey` / `idTokenKey`: token 存储键
 - `menuMode`: `remote | static`
-- `layoutMode`: `side | top | top-side`
-- `systemSwitchStyle`: `dropdown | menu`（`side` 模式下生效，`top-side` 固定为 `menu`）
 - `authorizationType` / `appsource` / `appcode`: sczfw 请求头约定
+- `storageNamespace`（可选）: 前端持久化命名空间（主题等状态隔离）；未配置时回退为 `appcode`
 - `clientSignatureClientId` / `clientSignatureSecret`: sczfw 签名参数
 - `defaultSystemCode`: 默认系统 code（用于多系统初始化）
 - `systemHomeMap`: 系统首页映射（`{ [systemCode]: "/path" }`）
+
+布局说明：
+- `layoutMode` 与 `systemSwitchStyle` 不再由 `platform-config.json` 提供
+- 请在 `apps/admin/src/config/layout.ts` 中通过代码配置布局与系统切换样式
 
 ## 3) 启动顺序与失败策略
 

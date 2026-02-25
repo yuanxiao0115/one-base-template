@@ -22,6 +22,8 @@ features:
     details: 路由始终静态声明；菜单树决定 allowedPaths，非菜单路由用 meta.activePath 归属权限，本地维护路由可用 meta.skipMenuAuth。
   - title: 多系统菜单
     details: 支持一个项目内多个系统（permissionCode），顶部切系统，侧边栏展示当前系统菜单。
+  - title: 主题引擎下沉 Core
+    details: 主题 token 由 core 统一生成与挂载（base/runtime 双 style tag），admin 仅做主题注册与组装。
   - title: 菜单 icon(minio id) 持久化缓存
     details: minio 资源 id -> Blob -> objectURL，写入 IndexedDB，刷新不重复拉取。
 ---
