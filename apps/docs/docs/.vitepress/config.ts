@@ -16,6 +16,7 @@ export default defineConfig({
       { text: '架构', link: '/guide/architecture' },
       { text: '主题系统', link: '/guide/theme-system' },
       { text: '布局与菜单', link: '/guide/layout-menu' },
+      { text: 'Iconfont', link: '/guide/iconfont' },
       { text: '门户设计器', link: '/guide/portal-designer' },
       { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' },
       { text: '开发规范', link: '/guide/development' }
@@ -35,6 +36,7 @@ export default defineConfig({
             { text: '目录结构与边界', link: '/guide/architecture' },
             { text: '主题系统', link: '/guide/theme-system' },
             { text: '布局与菜单', link: '/guide/layout-menu' },
+            { text: 'Iconfont 集成', link: '/guide/iconfont' },
             { text: '门户设计器（PC）', link: '/guide/portal-designer' },
             { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
           ]

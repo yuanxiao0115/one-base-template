@@ -107,7 +107,7 @@ UI 行为：
 ## 菜单 icon：class / url / minio id
 
 后端的 `menu.icon` 可能是：
-- iconfont class（如 `i-icon-xxx` / `icon-xxx`）
+- iconfont class（如 `i-icon-xxx` / `icon-xxx` / `dj-icon-xxx` / `iconfont-od icon-xxx`）
 - url（http/https/data/blob）
 - minio 资源 id（需要额外请求拿图片）
 
@@ -115,3 +115,8 @@ UI 行为：
 - UI：`packages/ui/src/components/menu/MenuIcon.vue`
 - core：`packages/core/src/stores/assets.ts`（IndexedDB 持久化 blob，刷新不重复拉取）
 - adapter：实现 `assets.fetchImageBlob({ id })`
+
+补充：
+- `dj-icon-*` 会自动叠加 `dj-icons` 基类，避免与 CP 的 `icon-*` 冲突。
+- legacy OD 菜单图标（如 `icon-huishouzhan`）会自动补齐 `iconfont-od` 基类。
+- 图标组件化用法与三套字体 demo 预览见：`/guide/iconfont`。
