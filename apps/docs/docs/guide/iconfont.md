@@ -34,7 +34,7 @@
 
 ### CP Icons
 
-[新窗口打开 CP Demo](/fonts/cp-icons/demo_index.html)
+<a href="/fonts/cp-icons/demo_index.html" target="_blank" rel="noreferrer">新窗口打开 CP Demo</a>
 
 <iframe
   src="/fonts/cp-icons/demo_index.html"
@@ -44,7 +44,7 @@
 
 ### DJ Icons
 
-[新窗口打开 DJ Demo](/fonts/dj-icons/demo_index.html)
+<a href="/fonts/dj-icons/demo_index.html" target="_blank" rel="noreferrer">新窗口打开 DJ Demo</a>
 
 <iframe
   src="/fonts/dj-icons/demo_index.html"
@@ -54,7 +54,7 @@
 
 ### OM Icons
 
-[新窗口打开 OM Demo](/fonts/om-icons/demo_index.html)
+<a href="/fonts/om-icons/demo_index.html" target="_blank" rel="noreferrer">新窗口打开 OM Demo</a>
 
 <iframe
   src="/fonts/om-icons/demo_index.html"
@@ -64,7 +64,7 @@
 
 ### Legacy OD Icons（菜单兼容）
 
-[新窗口打开 OD Demo](/fonts/od-icons/demo_index.html)
+<a href="/fonts/od-icons/demo_index.html" target="_blank" rel="noreferrer">新窗口打开 OD Demo</a>
 
 <iframe
   src="/fonts/od-icons/demo_index.html"
