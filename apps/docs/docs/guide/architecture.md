@@ -11,6 +11,7 @@ packages/
   ui/                    # UI 壳：Layout/Sidebar/Topbar/Tabs/KeepAlive/错误页 等（依赖 core）
   adapters/              # Adapter 示例：对接后端接口/字段映射
   tag/                   # 标签栏能力包（@one/tag，路由驱动 + 右键菜单 + 持久化）
+  utils/                 # 通用工具包（数组/树/日期/格式化/storage/加密/Vue hooks 等）
 ```
 
 ## admin 的启动分层

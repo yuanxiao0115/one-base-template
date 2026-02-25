@@ -64,6 +64,17 @@ export default [
     }
   },
   {
+    // utils 为历史能力迁移包，当前阶段先保证功能可用，类型/风格规则后续分模块收敛。
+    files: ['packages/utils/src/**/*.{ts,tsx,vue}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-control-regex': 'off',
+      'prefer-const': 'off'
+    }
+  },
+  {
     // 约束：环境变量解析必须集中到 apps/admin/src/infra/env.ts，避免散落 import.meta.env 产生不一致
     files: ['apps/admin/src/**/*.{ts,tsx,vue}'],
     ignores: ['apps/admin/src/infra/env.ts'],

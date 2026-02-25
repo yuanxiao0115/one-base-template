@@ -1,0 +1,36 @@
+{
+  "name": "@one-base-template/utils",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.18",
+    "gm-crypto": "^0.1.12",
+    "js-cookie": "^3.0.5",
+    "sm-crypto": "^0.3.13"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.28"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^24.3.3",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^20.0.10",
+    "vitest": "^3.2.4"
+  }
+}
