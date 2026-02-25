@@ -3,7 +3,7 @@ import type { BackendAdapter, MenuMode, AppMenuItem } from './adapter/types';
 import { setCoreOptions } from './context';
 import { useLayoutStore, type LayoutOptions } from './stores/layout';
 import { useSystemStore, type SystemOptions } from './stores/system';
-import { useThemeStore } from './stores/theme';
+import { useThemeStore, type ThemeOptions } from './stores/theme';
 
 export interface CoreOptions {
   adapter: BackendAdapter;
@@ -22,10 +22,7 @@ export interface CoreOptions {
       | { type: 'oauth'; codeParam?: string; stateParam?: string; redirectUri?: string }
     >;
   };
-  theme: {
-    defaultTheme: string;
-    themes: Record<string, { primary: string }>;
-  };
+  theme: ThemeOptions;
   /**
    * UI 布局配置（由 UI 包读取 core store，不引入具体 UI 依赖）
    */

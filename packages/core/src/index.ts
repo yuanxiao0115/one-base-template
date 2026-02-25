@@ -34,7 +34,25 @@ export { useLayoutStore, type LayoutMode, type LayoutOptions, type SystemSwitchS
 export { useMenuStore } from './stores/menu';
 export { useSystemStore, type SystemOptions, type AppSystemInfo } from './stores/system';
 export { useTabsStore } from './stores/tabs';
-export { useThemeStore } from './stores/theme';
+export {
+  useThemeStore,
+  type ThemeMode,
+  type ThemeSemanticColors,
+  type ThemePrimaryScale,
+  type ThemeDefinition,
+  type ThemeApplyPayload,
+  type ThemeOptions
+} from './stores/theme';
+export {
+  ONE_BUILTIN_THEMES,
+  applyOneTheme,
+  buildOneTokens,
+  buildOneStaticTokens,
+  buildOneRuntimeTokens,
+  buildPrimaryScale,
+  resolveThemePresetKey
+} from './theme/one';
+export type { ThemePresetKey, OneTokenMap, PrimaryScale } from './theme/one';
 
 export { setupRouterGuards, type RouterGuardOptions } from './router/guards';
 export { handleSsoCallbackFromLocation } from './router/sso';
