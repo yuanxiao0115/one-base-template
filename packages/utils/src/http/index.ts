@@ -80,24 +80,47 @@ export function createRequest(
   config: RequestConfig = {},
   interceptors: RequestInterceptor = {}
 ) {
-  // 这里返回一个请求实例的工厂函数
-  // 具体实现需要根据使用的HTTP库（如axios）来完成
-  return {
-    get: (url: string, options?: any) => {
-      // GET请求实现
-    },
-    post: (url: string, data?: any, options?: any) => {
-      // POST请求实现
-    },
-    put: (url: string, data?: any, options?: any) => {
-      // PUT请求实现
-    },
-    delete: (url: string, options?: any) => {
-      // DELETE请求实现
-    },
-    request: (method: RequestMethods, url: string, options?: any) => {
-      // 通用请求实现
+  const baseConfig = { ...config }
+
+  const runRequestInterceptor = (requestConfig: any) => {
+    try {
+      return interceptors.request ? interceptors.request(requestConfig) : requestConfig
+    } catch (error) {
+      if (interceptors.requestError) {
+        return interceptors.requestError(error)
+      }
+      throw error
     }
+  }
+
+  const runResponseErrorInterceptor = (error: unknown) => {
+    if (interceptors.responseError) {
+      throw interceptors.responseError(error)
+    }
+    throw error
+  }
+
+  const request = (method: RequestMethods, url: string, options: any = {}) => {
+    const mergedConfig = runRequestInterceptor({
+      ...baseConfig,
+      ...options,
+      method,
+      url
+    })
+
+    // 当前 utils 只迁移了统一接口定义，具体请求执行需业务侧按项目基座（如 axios）二次封装。
+    void mergedConfig
+    runResponseErrorInterceptor(
+      new Error('[http] createRequest 当前为适配占位实现，请在业务侧注入具体请求库。')
+    )
+  }
+
+  return {
+    get: (url: string, options?: any) => request('GET', url, options),
+    post: (url: string, data?: any, options?: any) => request('POST', url, { ...options, data }),
+    put: (url: string, data?: any, options?: any) => request('PUT', url, { ...options, data }),
+    delete: (url: string, options?: any) => request('DELETE', url, options),
+    request
   }
 }
 

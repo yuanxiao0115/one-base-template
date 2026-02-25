@@ -57,7 +57,7 @@ export function parseUrlParams(url: string): Record<string, string> {
     urlObj.searchParams.forEach((value, key) => {
       params[key] = decodeURIComponent(value)
     })
-  } catch (error) {
+  } catch {
     // 如果URL格式不正确，尝试从查询字符串解析
     const queryString = url.includes('?') ? url.split('?')[1] : ''
     if (queryString) {
@@ -92,7 +92,7 @@ export function removeUrlParam(url: string, key: string): string {
     const urlObj = new URL(url)
     urlObj.searchParams.delete(key)
     return urlObj.toString()
-  } catch (error) {
+  } catch {
     // 降级处理
     const [baseUrl, queryString] = url.split('?')
     if (!queryString) return url

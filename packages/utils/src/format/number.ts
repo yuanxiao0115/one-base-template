@@ -31,7 +31,7 @@ export function formatNumber(
   const number = Number(num)
   if (isNaN(number)) return '0'
 
-  let result = decimals !== undefined ? number.toFixed(decimals) : number.toString()
+  const result = decimals !== undefined ? number.toFixed(decimals) : number.toString()
 
   // 添加千分位分隔符
   const parts = result.split('.')

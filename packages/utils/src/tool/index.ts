@@ -160,7 +160,7 @@ export function checkBlobFile(response: any): Promise<{ json: boolean; data?: an
         } else {
           resolve({ json: false })
         }
-      } catch (err) {
+      } catch {
         // 解析成对象失败，说明是正常的文件流
         resolve({ json: false })
       }

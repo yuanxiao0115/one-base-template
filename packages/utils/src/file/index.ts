@@ -449,7 +449,7 @@ export function getLinkUrl(url: string, baseUrl?: string): string {
     else if (typeof process !== 'undefined' && process.env) {
       envFileUrl = process.env.VITE_APP_FILE_URL || ''
     }
-  } catch (e) {
+  } catch {
     // 忽略环境变量获取错误
   }
 
