@@ -1,3 +1,7 @@
+---
+outline: [2]
+---
+
 # Utils API 速查
 
 > 本页提供 `@one-base-template/utils` 的模块级快速索引，方便在业务开发中按需检索。  

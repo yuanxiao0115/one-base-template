@@ -1,8 +1,13 @@
+---
+outline: [2]
+---
+
 # Utils 工具包
 
 `@one-base-template/utils` 用于承载跨应用复用的通用工具函数，能力迁移自历史项目 `one-admin-monorepo/packages/utils`。
 
 > 想快速按模块查 API：请直接看 [Utils API 速查](/guide/utils-api)。
+> 如果你只想“拷贝可用代码”，优先看下方「快速开始」与「在 admin 中使用」。
 
 ## 包定位
 

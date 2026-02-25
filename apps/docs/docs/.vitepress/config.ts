@@ -12,41 +12,57 @@ export default defineConfig({
 
   themeConfig: {
     nav: [
-      { text: '快速开始', link: '/guide/quick-start' },
-      { text: '架构', link: '/guide/architecture' },
-      { text: '主题系统', link: '/guide/theme-system' },
-      { text: '布局与菜单', link: '/guide/layout-menu' },
-      { text: 'Iconfont', link: '/guide/iconfont' },
-      { text: 'Utils', link: '/guide/utils' },
-      { text: 'Utils API', link: '/guide/utils-api' },
-      { text: '门户设计器', link: '/guide/portal-designer' },
-      { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' },
-      { text: '开发规范', link: '/guide/development' }
+      { text: '文档总览', link: '/guide/' },
+      {
+        text: '核心指南',
+        items: [
+          { text: '目录结构与边界', link: '/guide/architecture' },
+          { text: '主题系统', link: '/guide/theme-system' },
+          { text: '布局与菜单', link: '/guide/layout-menu' },
+          { text: 'Iconfont 集成', link: '/guide/iconfont' },
+          { text: 'Utils 工具包', link: '/guide/utils' },
+          { text: 'Utils API 速查', link: '/guide/utils-api' }
+        ]
+      },
+      {
+        text: '能力扩展',
+        items: [
+          { text: '门户设计器（PC）', link: '/guide/portal-designer' },
+          { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
+        ]
+      },
+      { text: '开发协作', link: '/guide/development' }
     ],
     sidebar: {
       '/guide/': [
         {
-          text: '开始',
+          text: '开始使用',
           items: [
+            { text: '文档总览', link: '/guide/' },
             { text: '快速开始', link: '/guide/quick-start' },
             { text: '环境变量', link: '/guide/env' }
           ]
         },
         {
-          text: '核心',
+          text: '核心能力',
           items: [
             { text: '目录结构与边界', link: '/guide/architecture' },
             { text: '主题系统', link: '/guide/theme-system' },
             { text: '布局与菜单', link: '/guide/layout-menu' },
             { text: 'Iconfont 集成', link: '/guide/iconfont' },
-            { text: 'Utils 工具包', link: '/guide/utils' },
-            { text: 'Utils API 速查', link: '/guide/utils-api' },
+            { text: 'Utils 工具包（总览）', link: '/guide/utils' },
+            { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
+          ]
+        },
+        {
+          text: '扩展能力',
+          items: [
             { text: '门户设计器（PC）', link: '/guide/portal-designer' },
             { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
           ]
         },
         {
-          text: '协作',
+          text: '协作规范',
           items: [{ text: '开发规范与维护', link: '/guide/development' }]
         }
       ]
