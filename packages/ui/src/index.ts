@@ -1,5 +1,6 @@
 import 'vxe-pc-ui/lib/style.css';
 import 'vxe-table/lib/style.css';
+import './styles/vxe-theme.css';
 import './styles/iconfont.css';
 
 export { default as AdminLayout } from './layouts/AdminLayout.vue';

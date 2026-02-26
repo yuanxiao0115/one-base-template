@@ -115,5 +115,8 @@ packages/
 - **登录日志类迁移样板视觉需对齐老项目参考图：`OneTableBar` 默认“搜索框 + 筛选图标按钮”，`ObVxeTable` 默认浅灰表头与“分页左总数右操作”排布，避免出现明显样式漂移**
 - **分页布局必须满足“分页器固定底部 + 表格主体独立滚动”：禁用把 Table 与 Pager 放在同一外层滚动容器中滚动的实现**
 - **使用 `OneTableBar + ObVxeTable` 的业务页应优先包裹 `PageContainer`（建议 `overflow=\"hidden\"`），统一高度链路，避免双滚动与分页器漂移**
-- **`ObVxeTable` 默认视觉基线固定为：表头 `#F8F8F8`、行背景 `#fff`、行高 `56px`、行分割线 `1px rgba(25, 31, 37, 0.08)`、无左右边框；迁移页如无特别需求不得偏离**
+- **`ObVxeTable` 颜色相关样式必须复用主题 token（`--one-*` / `--el-*`），禁止在组件内再维护一套硬编码色值体系；迁移页如无特别需求不得偏离**
+- **VXE 主题变量统一在 `packages/ui/src/styles/vxe-theme.css` 管理（并通过 `packages/ui/src/index.ts` 引入），禁止在 `ObVxeTable` 组件内重复定义 `--vxe-ui-*` 主题变量**
 - **`ObVxeTable` 必须默认铺满 `one-table-bar__content` 可用宽度（避免右侧留白带），并保持纵向滚动条为窄轨道轻量样式，禁止出现粗重滚动条视觉**
+- **`ObVxeTable` 在未触发横向滚动时必须自动折叠 fixed 左右包裹层（`not--scroll-x` 场景），严禁出现固定列占位导致的右侧空白区域**
+- **`ObVxeTable` 最后一行（`vxe-body--row:last-child`）默认不绘制 `border-bottom`，避免表体与分页分隔线双线叠加**

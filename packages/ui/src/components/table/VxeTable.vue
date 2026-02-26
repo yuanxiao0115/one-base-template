@@ -527,6 +527,8 @@ defineExpose({
         :header-align="headerAlign || alignWhole"
         :row-config="rowConfig"
         :tree-config="treeConfig"
+        :scroll-y="scrollYConfig"
+        :scroll-x="scrollXConfig"
         :scrollbar-config="defaultScrollbarConfig"
         v-bind="passthroughAttrs"
         @checkbox-change="collectSelection"
@@ -549,22 +551,6 @@ defineExpose({
   height: 100%;
   min-height: 0;
   background: var(--el-bg-color);
-  --ob-vxe-table-row-split-color: rgba(25, 31, 37, 0.08);
-  --vxe-ui-table-border-color: var(--ob-vxe-table-row-split-color);
-  --vxe-ui-table-row-height-default: 56px;
-  --vxe-ui-table-row-height-medium: 56px;
-  --vxe-ui-table-row-height-small: 56px;
-  --vxe-ui-table-row-height-mini: 56px;
-  --vxe-ui-table-header-background-color: #F8F8F8;
-  --vxe-ui-table-row-current-background-color: #fff;
-  --vxe-ui-table-row-hover-current-background-color: #fff;
-  --vxe-ui-table-row-radio-checked-background-color: #fff;
-  --vxe-ui-table-row-hover-radio-checked-background-color: #fff;
-  --vxe-ui-table-row-checkbox-checked-background-color: #fff;
-  --vxe-ui-table-row-hover-checkbox-checked-background-color: #fff;
-  --vxe-ui-table-row-hover-background-color: #fff;
-  --vxe-ui-table-row-striped-background-color: #fff;
-  --vxe-ui-table-row-hover-striped-background-color: #fff;
 }
 
 .ob-vxe-table__main {
@@ -576,6 +562,9 @@ defineExpose({
 
 .ob-vxe-table__pager {
   flex-shrink: 0;
+  padding-top: 8px;
+  background: var(--vxe-ui-layout-background-color);
+  border-top: 1px solid var(--vxe-ui-table-border-color);
 }
 
 .ob-vxe-table :deep(.vxe-grid) {
@@ -623,11 +612,6 @@ defineExpose({
   min-height: 0;
 }
 
-/* .ob-vxe-table :deep(.vxe-grid--table-wrapper) {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-} */
 
 .ob-vxe-table :deep(.vxe-grid--table-wrapper .vxe-table) {
   height: 100%;
@@ -642,6 +626,11 @@ defineExpose({
   border-right: 0;
 }
 
+.ob-vxe-table :deep(.vxe-table--render-default.not--scroll-x .vxe-table--fixed-left-wrapper),
+.ob-vxe-table :deep(.vxe-table--render-default.not--scroll-x .vxe-table--fixed-right-wrapper) {
+  display: none;
+}
+
 .ob-vxe-table :deep(.vxe-table--header-wrapper table),
 .ob-vxe-table :deep(.vxe-table--body-wrapper table) {
   min-width: 100%;
@@ -649,7 +638,7 @@ defineExpose({
 }
 
 .ob-vxe-table :deep(.vxe-header--column) {
-  background: #F8F8F8;
+  background: var(--vxe-ui-table-header-background-color);
   color: var(--el-text-color-primary);
   font-weight: 600;
 }
@@ -668,10 +657,17 @@ defineExpose({
   border-right: 0;
 }
 
+.ob-vxe-table :deep(.vxe-table--render-default .vxe-header--column) {
+  border-bottom: 1px solid var(--vxe-ui-table-border-color);
+}
 
 .ob-vxe-table :deep(.vxe-body--column) {
-  background: #fff;
-  border-bottom: 1px solid var(--ob-vxe-table-row-split-color);
+  background: var(--vxe-ui-layout-background-color);
+  border-bottom: 1px solid var(--vxe-ui-table-border-color);
+}
+
+.ob-vxe-table :deep(.vxe-body--row:last-child .vxe-body--column) {
+  border-bottom: 0;
 }
 
 .ob-vxe-table__pager :deep(.vxe-pager) {
@@ -690,14 +686,14 @@ defineExpose({
   color: var(--el-text-color-regular);
 }
 
-/* .ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-wrapper) {
+.ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-wrapper) {
   width: 10px;
 }
 
 .ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle) {
   width: 10px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(25, 31, 37, 0.28) transparent;
+  scrollbar-color: var(--ob-vxe-scrollbar-thumb-color) transparent;
 }
 
 .ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle::-webkit-scrollbar) {
@@ -711,12 +707,12 @@ defineExpose({
 .ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle::-webkit-scrollbar-thumb) {
   border: 2px solid transparent;
   border-radius: 999px;
-  background: rgba(25, 31, 37, 0.2);
+  background: var(--ob-vxe-scrollbar-thumb-color);
   background-clip: content-box;
 }
 
 .ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle::-webkit-scrollbar-thumb:hover) {
-  background: rgba(25, 31, 37, 0.3);
+  background: var(--ob-vxe-scrollbar-thumb-hover-color);
   background-clip: content-box;
-} */
+}
 </style>

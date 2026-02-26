@@ -16,7 +16,9 @@
 >
 > 当前实现为“**分页器与表格主体拆分渲染**”：`VxeGrid` 只负责表体，`VxePager` 独立在底部区域渲染，避免同层滚动导致分页器漂移。
 >
-> 表格视觉基线（默认内置）：表头背景 `#F8F8F8`、行背景 `#fff`、行高 `56px`、行分割线 `1px rgba(25, 31, 37, 0.08)`、不绘制左右边框。
+> 表格视觉基线（默认内置）：**颜色全部走主题 token**（如 `--one-table-header-bg`、`--one-table-header-border-bottom-color`、`--el-bg-color-overlay`），不在组件内重复维护独立色值；行高 `56px`，不绘制左右边框，最后一行不绘制底部边框。
+>
+> VXE 主题变量统一在 `packages/ui/src/styles/vxe-theme.css` 维护，并在 `packages/ui/src/index.ts` 于 `vxe-table/lib/style.css` 之后引入。业务页如需主题化，请优先扩展该文件，而不是在 `ObVxeTable` 内局部覆盖 `--vxe-ui-*`。
 >
 > 宽度策略：表格会默认以 `min-width: 100%` 撑满可用宽度（列总宽不足时自动铺满，不留右侧空白带）。
 >
