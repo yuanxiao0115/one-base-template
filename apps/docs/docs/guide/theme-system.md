@@ -151,13 +151,13 @@ blueTheme: {
 
 ### 1) 用户侧：ThemeSwitcher 组件
 
-- 组件：`packages/ui/src/components/theme/ThemeSwitcher.vue`
-- 入口：顶部栏用户头像下拉菜单 -> “主题设置”弹窗
+- 面板组件：`packages/ui/src/components/theme/ThemeSwitcher.vue`
+- 抽屉容器：`packages/ui/src/components/theme/PersonalizationDrawer.vue`
+- 入口：顶部栏用户头像下拉菜单 -> “个性设置”侧边抽屉
 - 能力：
-  - 切换 `preset/custom`
-  - 选择内置主题 + 业务注册主题
-  - 自定义主色
-  - 恢复预设
+  - 主题风格卡片切换（内置主题 + 业务注册主题）
+  - 主色微调（临时活动配色，可恢复预设）
+  - 灰色模式开关（用于默哀日/纪念日等场景）
 
 > `ThemeSwitcher` 内部主题列表标签读取 `theme.name`，因此开发者只要在注册时填 `name` 即可自动展示。
 
@@ -182,6 +182,7 @@ themeStore.setTheme('adminOrange');   // 切内置/注册主题
 themeStore.setThemeMode('custom');    // 切到自定义模式
 themeStore.setCustomPrimary('#FF7D00');
 themeStore.resetCustomPrimary();      // 回到 preset
+themeStore.setGrayscale(true);        // 开启全局灰色模式
 ```
 
 ---
@@ -203,6 +204,12 @@ themeStore.resetCustomPrimary();      // 回到 preset
 - 反馈状态色（`success/warning/error/info/link`）固定，不随主题变化
 - 其中 `link` 固定 7 阶：
   - `#E7F1FC #C3DDF9 #9FC9F6 #7BB5F2 #5491EB #0F79E9 #0B61E2`
+
+### 4) 灰色模式（grayscale）
+
+- 开关状态由 `themeStore.grayscale` 维护并持久化
+- 默认应用器会在 `html` 上写入 `data-one-grayscale=\"on\"`，并应用 `filter: grayscale(1)`
+- 关闭后自动移除属性并恢复彩色
 
 ---
 
@@ -264,10 +271,11 @@ themeStore.resetCustomPrimary();      // 回到 preset
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "mode": "preset",
   "presetKey": "blue",
-  "customPrimary": null
+  "customPrimary": null,
+  "grayscale": false
 }
 ```
 
@@ -282,6 +290,7 @@ themeStore.resetCustomPrimary();      // 回到 preset
    - `custom` 模式优先使用 `customPrimary`
    - `preset` 模式下若存在 `primaryScale`，优先固定色阶
    - 否则按预设/primary 规则生成
+5. **灰色模式误开后“颜色都不对”**：先检查 `html` 是否存在 `data-one-grayscale=\"on\"`。
 
 ## 调试指南（推荐）
 

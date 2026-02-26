@@ -4,7 +4,7 @@ import { applyOneTheme } from '../theme/one/apply-theme';
 import { readFromStorages, removeByPrefixes, safeSetToStorage } from '../utils/storage';
 
 const THEME_KEY = 'ob_theme';
-const THEME_STATE_VERSION = 1;
+const THEME_STATE_VERSION = 2;
 
 export type ThemeMode = 'preset' | 'custom';
 
@@ -46,6 +46,7 @@ export interface ThemeApplyPayload {
   mode: ThemeMode;
   presetKey: string;
   customPrimary: string | null;
+  grayscale: boolean;
   primary: string;
   semantic: Required<ThemeSemanticColors>;
   theme: ThemeDefinition;
@@ -66,6 +67,7 @@ type StoredThemeState = {
   mode: ThemeMode;
   presetKey: string;
   customPrimary: string | null;
+  grayscale: boolean;
 };
 
 const DEFAULT_SEMANTIC: Required<ThemeSemanticColors> = {
@@ -113,6 +115,7 @@ function readStoredThemeState(storageKey: string): StoredThemeState | null {
     const mode = data.mode === 'custom' ? 'custom' : data.mode === 'preset' ? 'preset' : null;
     const presetKey = typeof data.presetKey === 'string' ? data.presetKey : null;
     const customPrimary = normalizeOptionalHexColor(data.customPrimary);
+    const grayscale = data.grayscale === true;
 
     if (!mode || !presetKey) return null;
 
@@ -120,7 +123,8 @@ function readStoredThemeState(storageKey: string): StoredThemeState | null {
       version: typeof data.version === 'number' ? data.version : 0,
       mode,
       presetKey,
-      customPrimary
+      customPrimary,
+      grayscale
     };
   } catch {
     return null;
@@ -162,6 +166,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
   const themeKey = ref<string>('');
   const themeMode = ref<ThemeMode>('preset');
   const customPrimary = ref<string | null>(null);
+  const grayscale = ref(false);
   const allowCustomPrimary = ref(true);
   const storageKey = ref<string>(THEME_KEY);
   const lastPersistedState = ref<string>('');
@@ -193,6 +198,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
       mode: themeMode.value,
       presetKey: themeKey.value,
       customPrimary: customPrimary.value,
+      grayscale: grayscale.value,
       primary,
       semantic,
       theme,
@@ -206,7 +212,8 @@ export const useThemeStore = defineStore('ob-theme', () => {
       version: THEME_STATE_VERSION,
       mode: themeMode.value,
       presetKey: themeKey.value,
-      customPrimary: customPrimary.value
+      customPrimary: customPrimary.value,
+      grayscale: grayscale.value
     };
     const serialized = JSON.stringify(nextState);
     if (serialized === lastPersistedState.value) return;
@@ -236,18 +243,21 @@ export const useThemeStore = defineStore('ob-theme', () => {
 
     themeMode.value = canUseCustom ? 'custom' : 'preset';
     customPrimary.value = canUseCustom ? storedCustom : null;
+    grayscale.value = stored?.grayscale === true;
 
     const currentState: StoredThemeState = {
       version: THEME_STATE_VERSION,
       mode: themeMode.value,
       presetKey: themeKey.value,
-      customPrimary: customPrimary.value
+      customPrimary: customPrimary.value,
+      grayscale: grayscale.value
     };
     const matchesStored = stored
       ? stored.version === THEME_STATE_VERSION &&
         stored.mode === currentState.mode &&
         stored.presetKey === currentState.presetKey &&
-        stored.customPrimary === currentState.customPrimary
+        stored.customPrimary === currentState.customPrimary &&
+        stored.grayscale === currentState.grayscale
       : false;
     lastPersistedState.value = matchesStored ? JSON.stringify(currentState) : '';
 
@@ -302,11 +312,18 @@ export const useThemeStore = defineStore('ob-theme', () => {
     syncTheme();
   }
 
+  function setGrayscale(enabled: boolean) {
+    if (grayscale.value === enabled) return;
+    grayscale.value = enabled;
+    syncTheme();
+  }
+
   return {
     themes,
     themeKey,
     themeMode,
     customPrimary,
+    grayscale,
     allowCustomPrimary,
     currentTheme,
     currentPrimary,
@@ -315,6 +332,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
     setTheme,
     setThemeMode,
     setCustomPrimary,
-    resetCustomPrimary
+    resetCustomPrimary,
+    setGrayscale
   };
 });

@@ -51,8 +51,12 @@ export type {
   UseDrawerOptions,
   UseDrawerReturn,
   UseTableOptions,
+  UseTableConfig,
   UseTableReturn,
   PaginationConfig,
+  UseTableStandardResponse,
+  UseTableCacheInfo,
+  CacheInvalidationStrategy,
   DialogMode,
   DrawerMode,
 } from './hooks'

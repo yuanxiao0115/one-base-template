@@ -45,6 +45,28 @@ export default [
           // Demo 图标页不依赖后端菜单，已登录后允许跳过菜单权限校验，避免直接访问 403。
           skipMenuAuth: true
         }
+      },
+      {
+        path: 'login-log-vxe',
+        name: 'DemoLoginLogMigration',
+        component: () => import('./pages/DemoLoginLogMigrationPage.vue'),
+        meta: {
+          title: '登录日志迁移',
+          keepAlive: true,
+          // 迁移样板页用于演示 puretable -> VXE 兼容能力，不依赖后端菜单。
+          skipMenuAuth: true
+        }
+      },
+      {
+        path: 'page-container',
+        name: 'DemoPageContainer',
+        component: () => import('./pages/DemoPageContainer.vue'),
+        meta: {
+          title: '容器 Demo',
+          keepAlive: true,
+          // Demo 容器页用于能力演示，不依赖后端菜单。
+          skipMenuAuth: true
+        }
       }
     ]
   }

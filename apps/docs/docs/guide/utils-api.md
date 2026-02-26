@@ -77,6 +77,33 @@ import {
 | `vue`（直接导出） | `withInstall` / `createPlugin` / `createValidator` / `createReactiveState` / `createEmitter` | 组件安装、插件封装、状态与事件工具 |
 | `hooks` | `useLoading` / `useDialog` / `useDrawer` / `useTable` | 页面级 loading、弹窗、抽屉与表格逻辑复用 |
 
+### useTable（新旧双模式）
+
+`useTable` 返回值同时覆盖历史字段与新字段，迁移期可按需渐进使用。
+
+#### 兼容旧字段（常用）
+
+- `dataList`、`loading`、`pagination`
+- `onSearch`、`resetForm`
+- `handleSelectionChange`、`onSelectionCancel`
+- `handleSizeChange`、`handleCurrentChange`
+- `selectedList`、`selectedNum`
+- `onDelete`、`deleteRow`、`batchDelete`
+
+#### 新增能力字段（推荐）
+
+- 请求：`fetchData`、`getData`、`getDataDebounced`、`cancelDebouncedSearch`
+- 刷新策略：`refreshCreate`、`refreshUpdate`、`refreshRemove`、`refreshData`、`refreshSoft`
+- 缓存：`cacheInfo`、`clearCache`、`clearExpiredCache`
+- 状态：`error`、`searchParams`、`clearData`、`cancelRequest`
+
+#### 新模式配置关键项
+
+- `core.paginationKey`：主分页字段（如 `current/size`）
+- `core.paginationAlias`：分页别名（如 `page/currentPage/pageSize`）
+- `transform.responseAdapter`：统一后端响应结构
+- `performance.enableCache` / `cacheTime` / `debounceTime`
+
 ### 其他扩展
 
 | 模块 | 常用 API | 用途 |

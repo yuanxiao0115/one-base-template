@@ -22,8 +22,12 @@ export { useDrawer, DrawerMode, type UseDrawerOptions, type UseDrawerReturn } fr
 export {
   useTable,
   type UseTableOptions,
+  type UseTableConfig,
   type UseTableReturn,
   type PaginationConfig,
+  type UseTableStandardResponse,
+  type UseTableCacheInfo,
+  type CacheInvalidationStrategy,
 } from './useTable'
 
 // 重新导入用于默认导出

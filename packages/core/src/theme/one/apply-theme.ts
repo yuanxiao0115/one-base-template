@@ -1,5 +1,5 @@
 import type { ThemeApplyPayload } from '../../stores/theme';
-import { applyRootVarsToStyleElement } from './style-host';
+import { applyRootVarsToStyleElement, ensureThemeStyleElement } from './style-host';
 import {
   buildOneRuntimeTokens,
   buildOneStaticTokens,
@@ -10,6 +10,10 @@ import {
 
 const ONE_THEME_BASE_STYLE_ID = 'one-theme-base';
 const ONE_THEME_RUNTIME_STYLE_ID = 'one-theme-runtime';
+const ONE_THEME_EFFECT_STYLE_ID = 'one-theme-effect';
+const ONE_THEME_GRAYSCALE_ATTR = 'data-one-grayscale';
+const ONE_THEME_GRAYSCALE_ATTR_VALUE = 'on';
+const ONE_THEME_GRAYSCALE_CSS = `html[${ONE_THEME_GRAYSCALE_ATTR}="${ONE_THEME_GRAYSCALE_ATTR_VALUE}"] {\n  filter: grayscale(1);\n}\n`;
 
 type ElementFeedbackType = 'success' | 'warning' | 'danger' | 'error' | 'info';
 type OneFeedbackType = 'success' | 'warning' | 'error' | 'info';
@@ -136,6 +140,24 @@ function resolveOnePrimaryOverride(payload: ThemeApplyPayload): string | null {
   return null;
 }
 
+function applyGrayscaleMode(enabled: boolean) {
+  if (typeof document === 'undefined') return;
+
+  const root = document.documentElement;
+  if (enabled) {
+    root.setAttribute(ONE_THEME_GRAYSCALE_ATTR, ONE_THEME_GRAYSCALE_ATTR_VALUE);
+  } else {
+    root.removeAttribute(ONE_THEME_GRAYSCALE_ATTR);
+  }
+
+  const styleElement = ensureThemeStyleElement(ONE_THEME_EFFECT_STYLE_ID);
+  if (!styleElement) return;
+
+  if (styleElement.textContent !== ONE_THEME_GRAYSCALE_CSS) {
+    styleElement.textContent = ONE_THEME_GRAYSCALE_CSS;
+  }
+}
+
 export function applyOneTheme(payload: ThemeApplyPayload) {
   if (typeof document === 'undefined') return;
 
@@ -160,4 +182,5 @@ export function applyOneTheme(payload: ThemeApplyPayload) {
     ...runtimeTokens,
     ...elementBridgeTokens
   });
+  applyGrayscaleMode(payload.grayscale);
 }

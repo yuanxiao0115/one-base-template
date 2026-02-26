@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore, useLayoutStore, useMenuStore, useSystemStore, type AppMenuItem } from '@one-base-template/core';
 import { useTagStoreHook } from '@one/tag';
-import ThemeSwitcher from '../theme/ThemeSwitcher.vue';
+import PersonalizationDrawer from '../theme/PersonalizationDrawer.vue';
 import headerBgUrl from '../../assets/app-header-bg.webp';
 
 const router = useRouter();
@@ -22,7 +22,7 @@ const showSystemSwitcherDropdown = computed(() => showSystemSwitcher.value && sy
 const showSystemSwitcherMenu = computed(() => showSystemSwitcher.value && systemSwitchStyle.value === 'menu');
 const currentSystemName = computed(() => systemStore.currentSystemName);
 const title = computed(() => `${currentSystemName.value} | 后台管理`);
-const themeDialogVisible = ref(false);
+const personalizationDrawerVisible = ref(false);
 const topbarHeight = computed(() => layoutStore.topbarHeight);
 
 const headerStyle = computed(() => ({
@@ -85,7 +85,7 @@ function onSelectSystemMenu(systemCode: string) {
 }
 
 function openThemeDialog() {
-  themeDialogVisible.value = true;
+  personalizationDrawerVisible.value = true;
 }
 </script>
 
@@ -145,7 +145,7 @@ function openThemeDialog() {
         </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item @click="openThemeDialog">主题设置</el-dropdown-item>
+            <el-dropdown-item @click="openThemeDialog">个性设置</el-dropdown-item>
             <el-dropdown-item divided @click="onLogout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -153,19 +153,7 @@ function openThemeDialog() {
     </div>
   </div>
 
-  <el-dialog
-    v-model="themeDialogVisible"
-    class="ob-theme-dialog"
-    width="560px"
-    title="主题外观设置"
-    append-to-body
-    destroy-on-close
-  >
-    <div class="ob-theme-dialog__desc">
-      内置主题与自定义主色互斥，切换后会自动持久化到当前项目命名空间。
-    </div>
-    <ThemeSwitcher />
-  </el-dialog>
+  <PersonalizationDrawer v-model="personalizationDrawerVisible" />
 </template>
 
 <style scoped>
@@ -309,27 +297,5 @@ function openThemeDialog() {
 
 .ob-topbar :deep(.el-select__caret) {
   color: rgb(255 255 255 / 85%);
-}
-
-:deep(.ob-theme-dialog .el-dialog) {
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-:deep(.ob-theme-dialog .el-dialog__header) {
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid var(--one-border-color-light, #e4e7ed);
-}
-
-:deep(.ob-theme-dialog .el-dialog__body) {
-  padding: 18px 20px 20px;
-  background: linear-gradient(180deg, rgb(255 255 255 / 96%) 0%, rgb(250 252 255 / 96%) 100%);
-}
-
-.ob-theme-dialog__desc {
-  margin-bottom: 14px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--one-text-color-secondary, #666666);
 }
 </style>

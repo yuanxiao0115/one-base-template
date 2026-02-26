@@ -19,6 +19,7 @@ export default defineConfig({
           { text: '目录结构与边界', link: '/guide/architecture' },
           { text: '主题系统', link: '/guide/theme-system' },
           { text: '布局与菜单', link: '/guide/layout-menu' },
+          { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
           { text: 'Iconfont 集成', link: '/guide/iconfont' },
           { text: 'Utils 工具包', link: '/guide/utils' },
           { text: 'Utils API 速查', link: '/guide/utils-api' }
@@ -49,6 +50,7 @@ export default defineConfig({
             { text: '目录结构与边界', link: '/guide/architecture' },
             { text: '主题系统', link: '/guide/theme-system' },
             { text: '布局与菜单', link: '/guide/layout-menu' },
+            { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
             { text: 'Iconfont 集成', link: '/guide/iconfont' },
             { text: 'Utils 工具包（总览）', link: '/guide/utils' },
             { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }

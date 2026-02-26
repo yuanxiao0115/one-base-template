@@ -25,6 +25,88 @@ export const appSidebarWidth = '256px';
 export const appSidebarCollapsedWidth = '64px';
 ```
 
+## 页面容器（PageContainer）
+
+当业务页面需要“**撑满可用区域** + **内容超高后内部滚动**”时，推荐直接使用 `@one-base-template/ui` 提供的 `PageContainer`：
+
+- 组件位置：`packages/ui/src/components/container/PageContainer.vue`
+- 插件全局组件名：`ObPageContainer`（默认 `OneUiPlugin` 前缀为 `Ob`）
+- 命名导出：`import { PageContainer } from '@one-base-template/ui'`
+
+能力约定：
+
+- 根容器固定 `height: 100%` + `min-height: 0`，可贴合父级剩余高度。
+- 默认插槽位于内部滚动区，内容超出时由组件自身滚动（`overflow: auto`）。
+- 支持 `header` / `footer` 插槽，头尾固定，主体滚动。
+
+可用 props：
+
+- `padding?: string`：滚动内容区内边距，默认 `0`
+- `overflow?: 'auto' | 'scroll' | 'hidden'`：滚动策略，默认 `auto`
+
+示例：
+
+```vue
+<script setup lang="ts">
+defineOptions({ name: 'UserListPage' });
+</script>
+
+<template>
+  <ObPageContainer padding="16px">
+    <template #header>
+      <el-card class="mb-4">筛选条件</el-card>
+    </template>
+
+    <el-card v-for="item in 30" :key="item" class="mb-4">
+      第 {{ item }} 行业务内容
+    </el-card>
+  </ObPageContainer>
+</template>
+```
+
+使用提示：
+
+- 该组件依赖“父容器可计算高度”，在本模板默认布局（`SideLayout`/`TopLayout`）下可直接使用。
+- 若页面开启 `meta.fullScreen=true`，可结合 `ObPageContainer` 管理页面内部滚动，避免整页滚动串联。
+- 管理端已提供可访问示例页：`/demo/page-container`（路由名 `DemoPageContainer`）。
+
+## 表格布局组合（OneTableBar + ObVxeTable）
+
+为了降低旧 puretable 页面迁移成本，模板提供了 **OneTableBar + ObVxeTable** 组合：
+
+- `OneTableBar`：保留旧工具条交互（快捷搜索、抽屉筛选、已选条、按钮区）。
+- `ObVxeTable`：承接表格渲染与分页，多数旧列定义可直接复用。
+- `useTable`：继续支持旧调用方式，同时可按需切换到新版缓存/防抖/刷新策略。
+
+推荐用法（与旧页面结构基本一致）：
+
+```vue
+<ObPageContainer padding="0">
+  <OneTableBar
+    title="登录日志"
+    :columns="columns"
+    :keyword="searchForm.nickName"
+    @search="tableSearch"
+  >
+    <template #default="{ size, dynamicColumns }">
+      <ObVxeTable
+        ref="tableRef"
+        :size="size"
+        :data="dataList"
+        :columns="dynamicColumns"
+        :pagination="pagination"
+        @page-size-change="handleSizeChange"
+        @page-current-change="handleCurrentChange"
+      />
+    </template>
+  </OneTableBar>
+</ObPageContainer>
+```
+
+视觉默认值已对齐旧 puretable 登录日志风格：工具条默认筛选图标按钮、表头浅灰、分页左总数右操作；表格内容超高时仅主体滚动，分页器固定在底部（表体与分页拆分渲染）。默认视觉基线为：表头 `#F8F8F8`、行背景 `#fff`、行高 `56px`、行分割线 `1px rgba(25, 31, 37, 0.08)`、无左右边框；表格默认 `min-width: 100%` 铺满内容区并使用窄轨道纵向滚动条样式。
+
+完整迁移清单与映射关系请查看：[VXE 表格迁移](/guide/table-vxe-migration)。
+
 ## 多系统菜单（permissionCode）
 
 适配 sczfw 时，`/cmict/admin/permission/my-tree` 可能一次返回多个根节点（每个根代表一个系统）。

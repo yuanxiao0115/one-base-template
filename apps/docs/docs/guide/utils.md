@@ -85,6 +85,50 @@ console.log(state.count) // 0
 | Vue 能力 | `vue` / `hooks` | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading/useDialog/useDrawer/useTable` |
 | 其他扩展 | `http` / `micro-app` / `pinyin` / `validation` / `tool` | 请求封装、微应用数据桥接、拼音与校验等 |
 
+## useTable 双模式（迁移重点）
+
+`hooks.useTable` 已升级为 **新旧双模式**：
+
+- 旧模式：继续兼容历史 `searchApi/searchForm/paginationFlag` 写法，适合 puretable 业务页平滑迁移。
+- 新模式：支持 `core/transform/performance/hooks` 结构，提供缓存、防抖、统一响应适配与多种刷新策略。
+
+### 旧模式示例（兼容）
+
+```ts
+import useTable from '@/hooks/table'
+
+const table = useTable(
+  {
+    searchApi: loginLogApi.list,
+    searchForm,
+    paginationFlag: true
+  },
+  tableRef
+)
+```
+
+### 新模式示例（推荐）
+
+```ts
+import { useTable } from '@one-base-template/utils'
+
+const table = useTable({
+  core: {
+    apiFn: loginLogApi.list,
+    apiParams: { status: 1 },
+    paginationKey: { current: 'current', size: 'size' },
+    paginationAlias: {
+      current: ['page', 'currentPage'],
+      size: ['pageSize']
+    }
+  },
+  performance: {
+    enableCache: true,
+    debounceTime: 300
+  }
+})
+```
+
 ## 在 admin 中使用
 
 - 页面内直接从 `@one-base-template/utils` 导入即可，无需额外注册插件。

@@ -218,6 +218,119 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
               return ok(res);
             }
 
+            // 登录日志：客户端枚举
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/login-record/client-type/enum')) {
+              return ok(res, [
+                { key: 'pc', value: 'PC 端' },
+                { key: 'mobile', value: '移动端' },
+                { key: 'mini', value: '小程序' },
+                { key: 'pad', value: '平板端' }
+              ]);
+            }
+
+            const loginTypeLabelMap: Record<string, string> = {
+              pc: 'PC 端',
+              mobile: '移动端',
+              mini: '小程序',
+              pad: '平板端'
+            };
+
+            const buildLoginRecord = (index: number) => {
+              const typeKeys = Object.keys(loginTypeLabelMap);
+              const clientType = typeKeys[index % typeKeys.length] || 'pc';
+              const id = String(index + 1);
+              const dayOffset = index % 15;
+              const hour = String((index * 3) % 24).padStart(2, '0');
+              const minute = String((index * 7) % 60).padStart(2, '0');
+
+              return {
+                id,
+                userAccount: `demo_user_${id.padStart(3, '0')}`,
+                nickName: `测试用户${id}`,
+                clientType,
+                clientTypeLabel: loginTypeLabelMap[clientType] || 'PC 端',
+                clientIp: `192.168.${index % 10}.${(index % 200) + 20}`,
+                location: `上海市浦东新区${(index % 12) + 1}号楼`,
+                browserName: ['Chrome', 'Edge', 'Safari', 'Firefox'][index % 4],
+                browserVersion: `120.${index % 20}.0`,
+                clientOS: ['Windows 11', 'macOS', 'Android', 'iOS'][index % 4],
+                createTime: `2026-02-${String(Math.max(1, 25 - dayOffset)).padStart(2, '0')} ${hour}:${minute}:00`
+              };
+            };
+
+            // 登录日志：分页
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/login-record/page')) {
+              const u = new URL(url, 'http://localhost');
+              const nickName = (u.searchParams.get('nickName') || '').trim();
+              const clientType = (u.searchParams.get('clientType') || '').trim();
+              const startTime = (u.searchParams.get('startTime') || '').trim();
+              const endTime = (u.searchParams.get('endTime') || '').trim();
+
+              const currentPage = Number(
+                u.searchParams.get('currentPage') ||
+                  u.searchParams.get('current') ||
+                  u.searchParams.get('page') ||
+                  1
+              );
+              const pageSize = Number(
+                u.searchParams.get('pageSize') || u.searchParams.get('size') || 10
+              );
+
+              let records = Array.from({ length: 186 }, (_, index) => buildLoginRecord(index));
+
+              if (nickName) {
+                records = records.filter((item) => item.nickName.includes(nickName));
+              }
+
+              if (clientType) {
+                records = records.filter((item) => item.clientType === clientType);
+              }
+
+              if (startTime) {
+                records = records.filter((item) => item.createTime.slice(0, 10) >= startTime);
+              }
+
+              if (endTime) {
+                records = records.filter((item) => item.createTime.slice(0, 10) <= endTime);
+              }
+
+              const safeCurrentPage = Number.isFinite(currentPage) && currentPage > 0 ? currentPage : 1;
+              const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 10;
+              const total = records.length;
+              const start = (safeCurrentPage - 1) * safePageSize;
+              const pageRecords = records.slice(start, start + safePageSize);
+
+              return ok(res, {
+                records: pageRecords,
+                total,
+                currentPage: safeCurrentPage,
+                pageSize: safePageSize
+              });
+            }
+
+            // 登录日志：详情
+            if (req.method === 'GET' && url.startsWith('/cmict/auth/login-record/detail')) {
+              const u = new URL(url, 'http://localhost');
+              const id = u.searchParams.get('id') || '1';
+              const parsed = Number(id);
+
+              if (!Number.isFinite(parsed) || parsed <= 0) {
+                return fail(res, 400, '参数错误');
+              }
+
+              return ok(res, buildLoginRecord(parsed - 1));
+            }
+
+            // 登录日志：删除
+            if (req.method === 'POST' && url.startsWith('/cmict/auth/login-record/delete')) {
+              const body = await readJsonBody(req);
+              const idList = Array.isArray(body.idList) ? body.idList : [];
+              if (idList.length === 0) {
+                return fail(res, 400, '请选择待删除记录');
+              }
+              return ok(res, null);
+            }
+
             // 菜单树（my-tree）
             if (req.method === 'GET' && url.startsWith('/cmict/admin/permission/my-tree')) {
               // 注意：保持与 sczfwAdapter 的解析规则一致（permissionCode 可配置）

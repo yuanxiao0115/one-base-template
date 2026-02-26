@@ -1,40 +1,34 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { useThemeStore, type ThemeMode } from '@one-base-template/core';
+import { useThemeStore } from '@one-base-template/core';
 
 const themeStore = useThemeStore();
 
-const options = computed(() =>
+const themeCards = computed(() =>
   Object.entries(themeStore.themes).map(([key, theme]) => ({
     key,
     label: theme.name?.trim() || key.toUpperCase(),
     primary: theme.primary
   }))
 );
-const customPrimaryValue = computed(() => themeStore.customPrimary ?? themeStore.currentPrimary);
 
-function runSafely(action: () => void) {
+const customPrimaryValue = computed(() => themeStore.customPrimary ?? themeStore.currentPrimary);
+const isCustomMode = computed(() => themeStore.themeMode === 'custom');
+
+function runSafely(action: () => void, fallbackMessage = '个性设置更新失败') {
   try {
     action();
   } catch (error) {
-    const message = error instanceof Error ? error.message : '主题切换失败';
+    const message = error instanceof Error ? error.message : fallbackMessage;
     ElMessage.error(message);
   }
 }
 
-function onPresetChange(value: unknown) {
-  if (!value) return;
+function onSelectTheme(themeKey: string) {
   runSafely(() => {
-    themeStore.setTheme(String(value));
+    themeStore.setTheme(themeKey);
     themeStore.setThemeMode('preset');
-  });
-}
-
-function onModeChange(value: string | number | boolean | undefined) {
-  if (value == null) return;
-  runSafely(() => {
-    themeStore.setThemeMode(String(value) as ThemeMode);
   });
 }
 
@@ -50,211 +44,440 @@ function onResetCustom() {
     themeStore.resetCustomPrimary();
   });
 }
+
+function onGrayscaleChange(value: string | number | boolean) {
+  runSafely(() => {
+    themeStore.setGrayscale(Boolean(value));
+  });
+}
 </script>
 
 <template>
-  <div class="ob-theme-panel">
-    <section class="ob-theme-panel__section">
-      <div class="ob-theme-panel__section-head">
-        <h4>模式选择</h4>
-        <p>内置主题与自定义主色互斥</p>
+  <div class="ob-personalize">
+    <section class="ob-personalize__section">
+      <div class="ob-personalize__section-head">
+        <span class="ob-personalize__section-mark" aria-hidden="true" />
+        <div class="ob-personalize__section-title">
+          <h4>主题切换</h4>
+          <p>统一研发框架默认风格为移动蓝，请根据实际使用场景选择所需主题。</p>
+        </div>
       </div>
 
-      <el-radio-group
-        :model-value="themeStore.themeMode"
-        size="default"
-        class="ob-theme-panel__mode"
-        @change="onModeChange"
-      >
-        <el-radio-button label="preset">内置主题</el-radio-button>
-        <el-radio-button label="custom" :disabled="!themeStore.allowCustomPrimary">自定义主色</el-radio-button>
-      </el-radio-group>
-    </section>
-
-    <section v-if="themeStore.themeMode === 'preset'" class="ob-theme-panel__section">
-      <div class="ob-theme-panel__section-head">
-        <h4>内置主题</h4>
-        <p>点击卡片立即生效并持久化</p>
-      </div>
-
-      <div class="ob-theme-panel__preset-grid">
+      <div class="ob-theme-grid">
         <button
-          v-for="option in options"
-          :key="option.key"
+          v-for="item in themeCards"
+          :key="item.key"
           type="button"
-          class="ob-theme-panel__preset"
-          :class="{ 'is-active': themeStore.themeKey === option.key }"
-          @click="onPresetChange(option.key)"
+          class="ob-theme-card"
+          :class="{ 'is-active': themeStore.themeMode === 'preset' && themeStore.themeKey === item.key }"
+          :aria-label="`切换到 ${item.label}`"
+          :aria-pressed="themeStore.themeMode === 'preset' && themeStore.themeKey === item.key"
+          @click="onSelectTheme(item.key)"
         >
-          <span class="ob-theme-panel__preset-dot" :style="{ background: option.primary }" />
-          <span class="ob-theme-panel__preset-name">{{ option.label }}</span>
-          <span class="ob-theme-panel__preset-hex">{{ option.primary }}</span>
+          <div class="ob-theme-card__preview">
+            <div class="ob-theme-card__preview-top" :style="{ background: item.primary }" />
+            <div class="ob-theme-card__preview-body">
+              <div class="ob-theme-card__preview-nav" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <span />
+              </div>
+              <div class="ob-theme-card__preview-content">默认皮肤</div>
+            </div>
+          </div>
+
+          <span class="ob-theme-card__option">
+            <span class="ob-theme-card__radio" :class="{ 'is-active': themeStore.themeMode === 'preset' && themeStore.themeKey === item.key }">
+              <span class="ob-theme-card__radio-dot" />
+            </span>
+            <span class="ob-theme-card__name">{{ item.label }}</span>
+          </span>
         </button>
       </div>
     </section>
 
-    <section v-else class="ob-theme-panel__section">
-      <div class="ob-theme-panel__section-head">
-        <h4>自定义主色</h4>
-        <p>只覆盖 primary 色阶，语义色保留预设</p>
+    <section v-if="themeStore.allowCustomPrimary" class="ob-personalize__section">
+      <div class="ob-personalize__section-head">
+        <span class="ob-personalize__section-mark" aria-hidden="true" />
+        <div class="ob-personalize__section-title">
+          <h4>主色微调</h4>
+          <p>用于活动临时换色，支持一键恢复到当前预设主题。</p>
+        </div>
       </div>
 
-      <div class="ob-theme-panel__custom">
+      <div class="ob-custom-panel">
+        <div class="ob-custom-panel__meta">
+          <span class="ob-custom-panel__swatch" :style="{ background: customPrimaryValue }" aria-hidden="true" />
+          <div>
+            <small>当前主色</small>
+            <code>{{ customPrimaryValue }}</code>
+          </div>
+        </div>
+
         <el-color-picker
           :model-value="customPrimaryValue"
           :show-alpha="false"
-          class="ob-theme-panel__picker"
+          class="ob-custom-panel__picker"
           @change="onCustomColorChange"
         />
 
-        <div class="ob-theme-panel__custom-value">
-          <span>当前主色</span>
-          <code>{{ customPrimaryValue }}</code>
+        <el-button class="ob-custom-panel__reset" text @click="onResetCustom">
+          {{ isCustomMode ? '恢复预设' : '保持预设' }}
+        </el-button>
+      </div>
+    </section>
+
+    <section class="ob-personalize__section">
+      <div class="ob-personalize__section-head">
+        <span class="ob-personalize__section-mark" aria-hidden="true" />
+        <div class="ob-personalize__section-title">
+          <h4>界面显示</h4>
+          <p>适用于默哀日、纪念日等全站置灰场景。</p>
+        </div>
+      </div>
+
+      <div class="ob-display-row">
+        <div class="ob-display-preview" aria-hidden="true">
+          <div class="ob-display-preview__top" />
+          <div class="ob-display-preview__body">
+            <div class="ob-display-preview__aside">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <div class="ob-display-preview__content">灰色模式</div>
+          </div>
         </div>
 
-        <el-button class="ob-theme-panel__reset" @click="onResetCustom">
-          恢复预设
-        </el-button>
+        <div class="ob-display-switch">
+          <span class="ob-display-switch__label">灰色模式</span>
+          <el-switch
+            :model-value="themeStore.grayscale"
+            inline-prompt
+            active-text="开"
+            inactive-text="关"
+            @change="onGrayscaleChange"
+          />
+        </div>
       </div>
     </section>
   </div>
 </template>
 
 <style scoped>
-.ob-theme-panel {
+.ob-personalize {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
 }
 
-.ob-theme-panel__section {
-  border: 1px solid var(--one-border-color-light, #e4e7ed);
-  border-radius: 12px;
-  background: #fff;
-  padding: 14px;
+.ob-personalize__section {
+  padding: 0;
 }
 
-.ob-theme-panel__section-head {
-  margin-bottom: 12px;
-}
-
-.ob-theme-panel__section-head h4 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--one-text-color-primary, #112129);
-}
-
-.ob-theme-panel__section-head p {
-  margin: 5px 0 0;
-  font-size: 12px;
-  color: var(--one-text-color-secondary, #666666);
-}
-
-.ob-theme-panel__mode {
-  width: 100%;
-}
-
-.ob-theme-panel__mode :deep(.el-radio-button) {
-  flex: 1;
-}
-
-.ob-theme-panel__mode :deep(.el-radio-button__inner) {
-  width: 100%;
-}
-
-.ob-theme-panel__preset-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.ob-theme-panel__preset {
-  cursor: pointer;
-  border: 1px solid var(--one-border-color-light, #e4e7ed);
-  border-radius: 10px;
-  background: #fff;
-  padding: 10px 12px;
-  text-align: left;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.ob-theme-panel__preset:hover {
-  border-color: var(--el-color-primary);
-  box-shadow: 0 6px 14px rgb(15 121 233 / 14%);
-  transform: translateY(-1px);
-}
-
-.ob-theme-panel__preset.is-active {
-  border-color: var(--el-color-primary);
-  box-shadow: 0 0 0 1px rgb(15 121 233 / 20%);
-  background: var(--one-color-primary-light-1, #e7f1fc);
-}
-
-.ob-theme-panel__preset-dot {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  margin-bottom: 8px;
-}
-
-.ob-theme-panel__preset-name {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--one-text-color-primary, #112129);
-}
-
-.ob-theme-panel__preset-hex {
-  display: block;
-  margin-top: 3px;
-  font-size: 12px;
-  color: var(--one-text-color-secondary, #666666);
-}
-
-.ob-theme-panel__custom {
+.ob-personalize__section-head {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-.ob-theme-panel__picker {
-  flex-shrink: 0;
+.ob-personalize__section-mark {
+  width: 3px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--el-color-primary);
 }
 
-.ob-theme-panel__custom-value {
-  display: inline-flex;
+.ob-personalize__section-title {
+  display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.ob-theme-panel__custom-value span {
-  font-size: 12px;
-  color: var(--one-text-color-secondary, #666666);
-}
-
-.ob-theme-panel__custom-value code {
-  font-size: 13px;
+.ob-personalize__section-title h4 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
   color: var(--one-text-color-primary, #112129);
-  font-weight: 600;
 }
 
-.ob-theme-panel__reset {
+.ob-personalize__section-title p {
+  margin: 0;
+  max-width: 66ch;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--one-text-color-secondary, #667085);
+}
+
+.ob-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(164px, 164px));
+  justify-content: start;
+  column-gap: 16px;
+  row-gap: 16px;
+}
+
+.ob-theme-card {
+  border: 1px solid rgb(223 229 238 / 96%);
+  border-radius: 12px;
+  background: #fff;
+  padding: 8px 7px 10px;
+  width: 164px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ob-theme-card:hover {
+  border-color: rgb(15 121 233 / 36%);
+  box-shadow: 0 8px 18px -16px rgb(15 121 233 / 56%);
+  transform: translateY(-1px);
+}
+
+.ob-theme-card__preview {
+  width: 150px;
+  height: 90px;
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgb(228 231 237 / 85%);
+  background: #f7f8fa;
+  transition: border-color 200ms ease;
+}
+
+.ob-theme-card:hover .ob-theme-card__preview {
+  border-color: rgb(161 172 186 / 90%);
+}
+
+.ob-theme-card.is-active {
+  border-color: rgb(15 121 233 / 80%);
+  box-shadow: 0 0 0 2px rgb(15 121 233 / 14%);
+}
+
+.ob-theme-card__preview-top {
+  height: 16px;
+}
+
+.ob-theme-card__preview-body {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  height: calc(100% - 16px);
+}
+
+.ob-theme-card__preview-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 6px;
+  background: rgb(255 255 255 / 82%);
+}
+
+.ob-theme-card__preview-nav span {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(227 231 236 / 90%);
+}
+
+.ob-theme-card__preview-content {
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  color: rgb(141 147 157 / 90%);
+  letter-spacing: 0.06em;
+}
+
+.ob-theme-card__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+}
+
+.ob-theme-card__radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid rgb(198 204 214);
+  display: grid;
+  place-items: center;
+  transition: border-color 180ms ease;
+}
+
+.ob-theme-card__radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.ob-theme-card__radio.is-active {
+  border-color: var(--el-color-primary);
+}
+
+.ob-theme-card__radio.is-active .ob-theme-card__radio-dot {
+  background: var(--el-color-primary);
+}
+
+.ob-theme-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--one-text-color-primary, #112129);
+}
+
+.ob-custom-panel {
+  border: 1px solid rgb(224 229 238 / 95%);
+  border-radius: 10px;
+  background: rgb(248 250 252 / 72%);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ob-custom-panel__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.ob-custom-panel__swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgb(15 23 42 / 10%);
+  flex-shrink: 0;
+}
+
+.ob-custom-panel__meta small {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+  color: var(--one-text-color-secondary, #667085);
+}
+
+.ob-custom-panel__meta code {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--one-text-color-primary, #112129);
+}
+
+.ob-custom-panel__picker {
+  flex-shrink: 0;
+}
+
+.ob-custom-panel__reset {
   margin-left: auto;
 }
 
-@media (width <= 640px) {
-  .ob-theme-panel__preset-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.ob-display-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ob-display-preview {
+  width: 150px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgb(210 215 224 / 95%);
+  background: #f2f3f5;
+}
+
+.ob-display-preview__top {
+  height: 16px;
+  background: linear-gradient(90deg, #c8ccd2 0%, #dbdee4 100%);
+}
+
+.ob-display-preview__body {
+  height: calc(100% - 16px);
+  display: grid;
+  grid-template-columns: 42px 1fr;
+}
+
+.ob-display-preview__aside {
+  padding: 7px 6px;
+  background: rgb(255 255 255 / 74%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ob-display-preview__aside span {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(219 222 228 / 92%);
+}
+
+.ob-display-preview__content {
+  display: grid;
+  place-items: center;
+  color: rgb(151 156 165 / 95%);
+  font-size: 16px;
+  letter-spacing: 0.06em;
+}
+
+.ob-display-switch {
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ob-display-switch__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--one-text-color-primary, #112129);
+}
+
+@media (width <= 900px) {
+  .ob-theme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(164px, 164px));
   }
 
-  .ob-theme-panel__reset {
+  .ob-display-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ob-display-switch {
+    width: 100%;
+  }
+
+  .ob-custom-panel__reset {
     margin-left: 0;
+  }
+}
+
+@media (width <= 640px) {
+  .ob-personalize {
+    gap: 16px;
+  }
+
+  .ob-theme-card__preview-content,
+  .ob-display-preview__content {
+    font-size: 14px;
+  }
+
+  .ob-theme-card__name,
+  .ob-display-switch__label {
+    font-size: 13px;
   }
 }
 </style>

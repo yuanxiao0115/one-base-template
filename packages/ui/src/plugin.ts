@@ -6,6 +6,9 @@ import TabsBar from './components/tabs/TabsBar.vue';
 import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
 import KeepAliveView from './components/view/KeepAliveView.vue';
 import FontIcon from './components/icon/FontIcon.vue';
+import PageContainer from './components/container/PageContainer.vue';
+import OneTableBar from './components/table/OneTableBar.vue';
+import VxeTable from './components/table/VxeTable.vue';
 
 const UI_COMPONENTS = {
   AdminLayout,
@@ -14,7 +17,10 @@ const UI_COMPONENTS = {
   TabsBar,
   ThemeSwitcher,
   KeepAliveView,
-  FontIcon
+  FontIcon,
+  PageContainer,
+  OneTableBar,
+  VxeTable
 } as const;
 
 export type OneUiComponentName = keyof typeof UI_COMPONENTS;

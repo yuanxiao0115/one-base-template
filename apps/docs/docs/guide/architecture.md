@@ -53,7 +53,11 @@ packages/
   - 仅注册项目主题（例如 `adminOrange` / `adminPurple`），不再维护 token 引擎
   - 推荐仅注册 `name/primary/primaryScale`，语义色扩展位由 core 自定义应用器按需消费
 - `packages/ui/src/components/theme/ThemeSwitcher.vue`
-  - 提供用户切换入口（内置主题 / 自定义主色 / 恢复预设）
+  - 个性设置内容面板（主题风格切换 / 主色微调 / 灰色模式）
+- `packages/ui/src/components/theme/PersonalizationDrawer.vue`
+  - 个性设置抽屉容器（承载标题/说明/关闭交互，与 TopBar 解耦，内部使用不对外导出）
+- `packages/ui/src/components/container/PageContainer.vue`
+  - 提供“撑满父容器 + 内部滚动区”的页面容器壳，供业务页面快速复用
 - `packages/ui/src/pages/error/*`
   - 维护通用错误页（403/404），admin 路由直接复用，避免多应用重复实现
 
