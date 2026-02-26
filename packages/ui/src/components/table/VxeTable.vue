@@ -657,10 +657,6 @@ defineExpose({
   border-right: 0;
 }
 
-.ob-vxe-table :deep(.vxe-table--render-default .vxe-header--column) {
-  border-bottom: 1px solid var(--vxe-ui-table-border-color);
-}
-
 .ob-vxe-table :deep(.vxe-body--column) {
   background: var(--vxe-ui-layout-background-color);
   border-bottom: 1px solid var(--vxe-ui-table-border-color);

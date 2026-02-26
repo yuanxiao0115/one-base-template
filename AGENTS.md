@@ -120,3 +120,5 @@ packages/
 - **`ObVxeTable` 必须默认铺满 `one-table-bar__content` 可用宽度（避免右侧留白带），并保持纵向滚动条为窄轨道轻量样式，禁止出现粗重滚动条视觉**
 - **`ObVxeTable` 在未触发横向滚动时必须自动折叠 fixed 左右包裹层（`not--scroll-x` 场景），严禁出现固定列占位导致的右侧空白区域**
 - **`ObVxeTable` 最后一行（`vxe-body--row:last-child`）默认不绘制 `border-bottom`，避免表体与分页分隔线双线叠加**
+- **`OneTableBar` 快捷搜索输入框遵循扁平化样式：宽 `360px`、高 `32px`、右间距 `8px`、无圆角、无阴影（筛选按钮同高度扁平风格）**
+- **`OneTableBar` 工具条顶部间距固定 `8px`，并默认去掉 `one-table-bar-title` 分割线（维持扁平化页面头部）**
