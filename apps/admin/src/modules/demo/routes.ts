@@ -29,10 +29,12 @@ export default [
       {
         path: '/system/org',
         name: '/system/orgMenu',
-        component: () => import('./pages/DemoPageA.vue'),
+        component: () => import('./pages/DemoOrgManagementMigrationPage.vue'),
         meta: {
-          title: '页面 A',
-          keepAlive: true
+          title: '组织管理迁移',
+          keepAlive: true,
+          // 组织管理迁移样板用于演示树形表格，不依赖后端菜单。
+          skipMenuAuth: true
         }
       },
       {
@@ -54,6 +56,17 @@ export default [
           title: '登录日志迁移',
           keepAlive: true,
           // 迁移样板页用于演示 puretable -> VXE 兼容能力，不依赖后端菜单。
+          skipMenuAuth: true
+        }
+      },
+      {
+        path: 'org-management-vxe',
+        name: 'DemoOrgManagementMigration',
+        component: () => import('./pages/DemoOrgManagementMigrationPage.vue'),
+        meta: {
+          title: '组织管理迁移',
+          keepAlive: true,
+          // 树形组织管理迁移样板用于演示 puretable -> VXE treeConfig 兼容能力。
           skipMenuAuth: true
         }
       },

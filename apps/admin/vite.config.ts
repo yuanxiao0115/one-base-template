@@ -78,6 +78,201 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
   // token 模式（sczfw）mock：用 Authorization 头携带 token
   const tokenSessions = new Map<string, { user: { id: string; nickName: string; permissionCodes: string[]; roleCodes: string[] } }>();
 
+  type OrgMockNode = {
+    id: string;
+    parentId: string;
+    orgName: string;
+    briefName: string;
+    sort: number;
+    orgCategory: string;
+    orgLevelName: string;
+    institutionalType: string;
+    uscc: string;
+    createTime: string;
+    orgType: number;
+    isExternal: boolean;
+  };
+
+  const orgNodes = new Map<string, OrgMockNode>();
+
+  const seedOrgNodes: OrgMockNode[] = [
+    {
+      id: 'org-1000',
+      parentId: '0',
+      orgName: '数字中国研究院',
+      briefName: '研究院',
+      sort: 10,
+      orgCategory: '1',
+      orgLevelName: '一级',
+      institutionalType: '1',
+      uscc: '91310100MA1K000001',
+      createTime: '2026-02-10 09:00:00',
+      orgType: 1,
+      isExternal: false
+    },
+    {
+      id: 'org-1100',
+      parentId: 'org-1000',
+      orgName: '数字底座中心',
+      briefName: '底座中心',
+      sort: 10,
+      orgCategory: '2',
+      orgLevelName: '二级',
+      institutionalType: '2',
+      uscc: '91310100MA1K000002',
+      createTime: '2026-02-10 09:10:00',
+      orgType: 2,
+      isExternal: false
+    },
+    {
+      id: 'org-1200',
+      parentId: 'org-1000',
+      orgName: '业务应用中心',
+      briefName: '应用中心',
+      sort: 20,
+      orgCategory: '2',
+      orgLevelName: '二级',
+      institutionalType: '2',
+      uscc: '91310100MA1K000003',
+      createTime: '2026-02-10 09:20:00',
+      orgType: 2,
+      isExternal: false
+    },
+    {
+      id: 'org-1110',
+      parentId: 'org-1100',
+      orgName: '平台研发室',
+      briefName: '研发室',
+      sort: 10,
+      orgCategory: '3',
+      orgLevelName: '三级',
+      institutionalType: '3',
+      uscc: '91310100MA1K000004',
+      createTime: '2026-02-11 10:00:00',
+      orgType: 2,
+      isExternal: false
+    },
+    {
+      id: 'org-1120',
+      parentId: 'org-1100',
+      orgName: '基础设施室',
+      briefName: '基础设施',
+      sort: 20,
+      orgCategory: '3',
+      orgLevelName: '三级',
+      institutionalType: '3',
+      uscc: '91310100MA1K000005',
+      createTime: '2026-02-11 10:15:00',
+      orgType: 2,
+      isExternal: false
+    },
+    {
+      id: 'org-1210',
+      parentId: 'org-1200',
+      orgName: '政务协同室',
+      briefName: '协同室',
+      sort: 10,
+      orgCategory: '3',
+      orgLevelName: '三级',
+      institutionalType: '3',
+      uscc: '91310100MA1K000006',
+      createTime: '2026-02-11 10:30:00',
+      orgType: 2,
+      isExternal: false
+    },
+    {
+      id: 'org-1220',
+      parentId: 'org-1200',
+      orgName: '数据运营室',
+      briefName: '数据运营',
+      sort: 20,
+      orgCategory: '3',
+      orgLevelName: '三级',
+      institutionalType: '3',
+      uscc: '91310100MA1K000007',
+      createTime: '2026-02-11 10:40:00',
+      orgType: 2,
+      isExternal: true
+    },
+    {
+      id: 'org-2000',
+      parentId: '0',
+      orgName: '信息化建设中心',
+      briefName: '建设中心',
+      sort: 20,
+      orgCategory: '1',
+      orgLevelName: '一级',
+      institutionalType: '1',
+      uscc: '91310100MA1K000008',
+      createTime: '2026-02-12 09:00:00',
+      orgType: 1,
+      isExternal: false
+    },
+    {
+      id: 'org-2100',
+      parentId: 'org-2000',
+      orgName: '项目管理部',
+      briefName: '项目管理',
+      sort: 10,
+      orgCategory: '2',
+      orgLevelName: '二级',
+      institutionalType: '2',
+      uscc: '91310100MA1K000009',
+      createTime: '2026-02-12 09:10:00',
+      orgType: 2,
+      isExternal: false
+    },
+    {
+      id: 'org-2200',
+      parentId: 'org-2000',
+      orgName: '质量保障部',
+      briefName: '质量保障',
+      sort: 20,
+      orgCategory: '2',
+      orgLevelName: '二级',
+      institutionalType: '2',
+      uscc: '91310100MA1K000010',
+      createTime: '2026-02-12 09:20:00',
+      orgType: 2,
+      isExternal: false
+    }
+  ];
+
+  for (const item of seedOrgNodes) {
+    orgNodes.set(item.id, item);
+  }
+
+  function hasOrgChildren(parentId: string) {
+    for (const item of orgNodes.values()) {
+      if (item.parentId === parentId) return true;
+    }
+    return false;
+  }
+
+  function toOrgRow(item: OrgMockNode) {
+    return {
+      ...item,
+      hasChildren: hasOrgChildren(item.id)
+    };
+  }
+
+  function listOrgChildren(parentId: string) {
+    return Array.from(orgNodes.values())
+      .filter((item) => item.parentId === parentId)
+      .sort((a, b) => a.sort - b.sort)
+      .map((item) => toOrgRow(item));
+  }
+
+  function formatDateTime(date: Date) {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mi = String(date.getMinutes()).padStart(2, '0');
+    const ss = String(date.getSeconds()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+  }
+
   function createSession(userName: string) {
     const sid = crypto.randomUUID();
     sessions.set(sid, {
@@ -331,6 +526,138 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
               return ok(res, null);
             }
 
+            // 组织管理：树查询（懒加载）
+            if (req.method === 'GET' && url.startsWith('/cmict/admin/org/children')) {
+              const u = new URL(url, 'http://localhost');
+              const parentId = (u.searchParams.get('parentId') || '0').trim() || '0';
+              return ok(res, listOrgChildren(parentId));
+            }
+
+            // 组织管理：关键字搜索（返回扁平结果）
+            if (req.method === 'GET' && url.startsWith('/cmict/admin/org/search')) {
+              const u = new URL(url, 'http://localhost');
+              const keyword = (u.searchParams.get('orgName') || '').trim();
+              const list = Array.from(orgNodes.values())
+                .filter((item) =>
+                  !keyword || item.orgName.includes(keyword) || item.briefName.includes(keyword)
+                )
+                .sort((a, b) => a.sort - b.sort)
+                .map((item) => toOrgRow(item));
+
+              return ok(res, list);
+            }
+
+            // 组织管理：新增
+            if (req.method === 'POST' && url.startsWith('/cmict/admin/org/add')) {
+              const body = await readJsonBody(req);
+              const payload = (body.data && typeof body.data === 'object' ? body.data : body) as JsonObject;
+              const orgName = typeof payload.orgName === 'string' ? payload.orgName.trim() : '';
+              const parentId = typeof payload.parentId === 'string' && payload.parentId ? payload.parentId : '0';
+
+              if (!orgName) {
+                return fail(res, 400, '组织名称不能为空');
+              }
+              if (parentId !== '0' && !orgNodes.has(parentId)) {
+                return fail(res, 400, '上级组织不存在');
+              }
+
+              const nextId = `org-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+              const parent = orgNodes.get(parentId);
+              const nextNode: OrgMockNode = {
+                id: nextId,
+                parentId,
+                orgName,
+                briefName: typeof payload.briefName === 'string' && payload.briefName ? payload.briefName : orgName,
+                sort: Number(payload.sort || 10),
+                orgCategory:
+                  typeof payload.orgCategory === 'string' && payload.orgCategory ? payload.orgCategory : '2',
+                orgLevelName:
+                  typeof payload.orgLevelName === 'string' && payload.orgLevelName
+                    ? payload.orgLevelName
+                    : parent
+                      ? '三级'
+                      : '一级',
+                institutionalType:
+                  typeof payload.institutionalType === 'string' && payload.institutionalType
+                    ? payload.institutionalType
+                    : parent
+                      ? '3'
+                      : '1',
+                uscc:
+                  typeof payload.uscc === 'string' && payload.uscc
+                    ? payload.uscc
+                    : `91310100MA${Date.now().toString().slice(-8)}`,
+                createTime: formatDateTime(new Date()),
+                orgType: Number(payload.orgType || (parent ? 2 : 1)),
+                isExternal: Boolean(payload.isExternal)
+              };
+
+              orgNodes.set(nextId, nextNode);
+              return ok(res, toOrgRow(nextNode));
+            }
+
+            // 组织管理：编辑
+            if (req.method === 'POST' && url.startsWith('/cmict/admin/org/update')) {
+              const body = await readJsonBody(req);
+              const payload = (body.data && typeof body.data === 'object' ? body.data : body) as JsonObject;
+              const id = typeof payload.id === 'string' ? payload.id : '';
+
+              if (!id || !orgNodes.has(id)) {
+                return fail(res, 400, '组织不存在');
+              }
+
+              const current = orgNodes.get(id) as OrgMockNode;
+              const nextNode: OrgMockNode = {
+                ...current,
+                orgName:
+                  typeof payload.orgName === 'string' && payload.orgName.trim()
+                    ? payload.orgName.trim()
+                    : current.orgName,
+                briefName:
+                  typeof payload.briefName === 'string' && payload.briefName.trim()
+                    ? payload.briefName.trim()
+                    : current.briefName,
+                sort: Number(payload.sort || current.sort),
+                orgCategory:
+                  typeof payload.orgCategory === 'string' && payload.orgCategory
+                    ? payload.orgCategory
+                    : current.orgCategory,
+                orgLevelName:
+                  typeof payload.orgLevelName === 'string' && payload.orgLevelName
+                    ? payload.orgLevelName
+                    : current.orgLevelName,
+                institutionalType:
+                  typeof payload.institutionalType === 'string' && payload.institutionalType
+                    ? payload.institutionalType
+                    : current.institutionalType,
+                uscc:
+                  typeof payload.uscc === 'string' && payload.uscc ? payload.uscc : current.uscc,
+                orgType: Number(payload.orgType || current.orgType),
+                isExternal:
+                  typeof payload.isExternal === 'boolean' ? payload.isExternal : current.isExternal
+              };
+
+              orgNodes.set(id, nextNode);
+              return ok(res, toOrgRow(nextNode));
+            }
+
+            // 组织管理：删除
+            if (req.method === 'POST' && url.startsWith('/cmict/admin/org/delete')) {
+              const body = await readJsonBody(req);
+              const payload = (body.data && typeof body.data === 'object' ? body.data : body) as JsonObject;
+              const id = typeof payload.id === 'string' ? payload.id : '';
+
+              if (!id || !orgNodes.has(id)) {
+                return fail(res, 400, '组织不存在');
+              }
+              if (hasOrgChildren(id)) {
+                return fail(res, 400, '请先删除下级组织后再删除当前组织');
+              }
+
+              orgNodes.delete(id);
+              return ok(res, null);
+            }
+
             // 菜单树（my-tree）
             if (req.method === 'GET' && url.startsWith('/cmict/admin/permission/my-tree')) {
               // 注意：保持与 sczfwAdapter 的解析规则一致（permissionCode 可配置）
@@ -347,7 +674,9 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
                       hidden: 0,
                       children: [
                         { url: '/demo/page-a', resourceName: '页面 A', resourceType: 1, hidden: 0, routeCache: 1 },
-                        { url: '/demo/page-b', resourceName: '页面 B', resourceType: 1, hidden: 0, routeCache: 1 }
+                        { url: '/demo/page-b', resourceName: '页面 B', resourceType: 1, hidden: 0, routeCache: 1 },
+                        { url: '/demo/login-log-vxe', resourceName: '登录日志迁移', resourceType: 1, hidden: 0, routeCache: 1 },
+                        { url: '/demo/org-management-vxe', resourceName: '组织管理迁移', resourceType: 1, hidden: 0, routeCache: 1 }
                       ]
                     },
                     {
@@ -427,7 +756,9 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
                 order: 20,
                 children: [
                   { path: '/demo/page-a', title: '页面 A', order: 1, keepAlive: true },
-                  { path: '/demo/page-b', title: '页面 B', order: 2, keepAlive: true }
+                  { path: '/demo/page-b', title: '页面 B', order: 2, keepAlive: true },
+                  { path: '/demo/login-log-vxe', title: '登录日志迁移', order: 3, keepAlive: true },
+                  { path: '/demo/org-management-vxe', title: '组织管理迁移', order: 4, keepAlive: true }
                 ]
               },
               { path: 'https://example.com', title: '外链示例', order: 30, external: true }

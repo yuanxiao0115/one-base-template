@@ -23,6 +23,8 @@
 > 宽度策略：表格会默认以 `min-width: 100%` 撑满可用宽度（列总宽不足时自动铺满，不留右侧空白带）。
 >
 > 滚动条策略：纵向滚动条使用窄轨道样式（默认 `8~10px` 视觉宽度），避免粗滚动条破坏整体视觉。
+>
+> 树形策略：`ObVxeTable` 支持 `treeConfig` 透传，可直接迁移组织管理类「树表 + 懒加载」页面。
 
 ## 组件与 Hook 对应关系
 
@@ -57,6 +59,33 @@
 - 当传入 `size='small'` 且未手动指定 `paginationSmall` 时，分页自动切小尺寸
 
 推荐先只传核心参数：`data`、`columns`、`pagination`、`loading`，其余按需覆盖。
+
+## 树形表格迁移（组织管理）
+
+组织管理等树形页建议使用：
+
+- `pagination=false`（树形通常不分页）
+- `treeConfig.lazy=true`
+- `treeConfig.hasChildField='hasChildren'`
+- `treeConfig.childrenField='children'`
+- `treeConfig.loadMethod`（异步加载下级节点）
+
+示例（简化）：
+
+```vue
+<ObVxeTable
+  :data="dataList"
+  :columns="columns"
+  :pagination="false"
+  row-key="id"
+  :tree-config="{
+    lazy: true,
+    hasChildField: 'hasChildren',
+    childrenField: 'children',
+    loadMethod: loadTreeChildren
+  }"
+/>
+```
 
 ## 列定义兼容
 
@@ -144,13 +173,18 @@ const table = useTable({
 
 ## 已落地样板页
 
-- 页面：`/demo/login-log-vxe`
-- 路由名：`DemoLoginLogMigration`
-- 容器结构：`PageContainer + OneTableBar + ObVxeTable`
-- 代码位置：
-  - `apps/admin/src/modules/demo/pages/DemoLoginLogMigrationPage.vue`
-  - `apps/admin/src/modules/demo/login-log/columns.tsx`
-  - `apps/admin/src/modules/demo/login-log/api.ts`
+- 页面 1：`/demo/login-log-vxe`（分页表格）
+  - 路由名：`DemoLoginLogMigration`
+  - 代码位置：
+    - `apps/admin/src/modules/demo/pages/DemoLoginLogMigrationPage.vue`
+    - `apps/admin/src/modules/demo/login-log/columns.tsx`
+    - `apps/admin/src/modules/demo/login-log/api.ts`
+- 页面 2：`/demo/org-management-vxe`（树形组织管理）
+  - 路由名：`DemoOrgManagementMigration`
+  - 代码位置：
+    - `apps/admin/src/modules/demo/pages/DemoOrgManagementMigrationPage.vue`
+    - `apps/admin/src/modules/demo/org-management/columns.tsx`
+    - `apps/admin/src/modules/demo/org-management/api.ts`
 
 ## 常见迁移问题
 
