@@ -107,6 +107,8 @@ defineOptions({ name: 'UserListPage' });
 
 树形页面（如组织管理）可在 `ObVxeTable` 上直接传 `treeConfig`（`lazy + loadMethod + hasChildField`），样板页参考：`/demo/org-management-vxe`。
 
+菜单权限迁移页支持“树模式 + 条件筛选列表模式”切换，样板页参考：`/demo/menu-management-vxe`（兼容 `/system/permission` 访问路径）。
+
 完整迁移清单与映射关系请查看：[VXE 表格迁移](/guide/table-vxe-migration)。
 
 ## 多系统菜单（permissionCode）

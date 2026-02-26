@@ -38,6 +38,17 @@ export default [
         }
       },
       {
+        path: '/system/permission',
+        name: '/system/permissionMenu',
+        component: () => import('./pages/DemoMenuManagementMigrationPage.vue'),
+        meta: {
+          title: '权限管理迁移',
+          keepAlive: true,
+          // 权限管理迁移样板用于演示树/列表切换，不依赖后端菜单。
+          skipMenuAuth: true
+        }
+      },
+      {
         path: 'page-b',
         name: 'DemoPageB',
         component: () => import('./pages/DemoPageB.vue'),
@@ -67,6 +78,17 @@ export default [
           title: '组织管理迁移',
           keepAlive: true,
           // 树形组织管理迁移样板用于演示 puretable -> VXE treeConfig 兼容能力。
+          skipMenuAuth: true
+        }
+      },
+      {
+        path: 'menu-management-vxe',
+        name: 'DemoMenuManagementMigration',
+        component: () => import('./pages/DemoMenuManagementMigrationPage.vue'),
+        meta: {
+          title: '权限管理迁移',
+          keepAlive: true,
+          // 菜单权限迁移样板用于演示 puretable -> VXE 树/列表双模式能力。
           skipMenuAuth: true
         }
       },

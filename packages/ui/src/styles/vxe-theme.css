@@ -82,6 +82,15 @@
   --vxe-ui-table-row-height-small: 56px;
   --vxe-ui-table-row-height-mini: 56px;
 
-  --ob-vxe-scrollbar-thumb-color: var(--one-text-color-placeholder);
-  --ob-vxe-scrollbar-thumb-hover-color: var(--one-text-color-secondary);
+  --vxe-ui-table-fixed-left-scrolling-box-shadow: 10px 0 14px -10px var(--vxe-ui-table-fixed-scrolling-box-shadow-color);
+  --vxe-ui-table-fixed-right-scrolling-box-shadow: -10px 0 14px -10px var(--vxe-ui-table-fixed-scrolling-box-shadow-color);
+
+  --ob-vxe-scrollbar-size: 10px;
+  --ob-vxe-scrollbar-hit-size: 14px;
+  --ob-vxe-scrollbar-gap: 2px;
+  --ob-vxe-scrollbar-radius: 999px;
+  --ob-vxe-scrollbar-track-color: transparent;
+  --ob-vxe-scrollbar-thumb-color: var(--one-fill-color-dark);
+  --ob-vxe-scrollbar-thumb-hover-color: var(--one-text-color-placeholder);
+  --ob-vxe-scrollbar-thumb-active-color: var(--one-text-color-secondary);
 }

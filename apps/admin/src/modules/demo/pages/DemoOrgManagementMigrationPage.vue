@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
+import { useAuthStore } from '@one-base-template/core'
 import { OneTableBar } from '@/components/OneTableBar'
 import { PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
 import type { TableColumnList } from '@one-base-template/ui'
@@ -19,6 +20,11 @@ defineOptions({
   name: 'DemoOrgManagementMigrationPage'
 })
 
+type AuthUserWithCompanyId = {
+  companyId?: string | number | null
+}
+
+const authStore = useAuthStore()
 const tableRef = ref<unknown>(null)
 const loading = ref(false)
 const dataList = ref<OrgRecord[]>([])
@@ -32,6 +38,20 @@ const treeChildrenCache = new Map<string, OrgRecord[]>()
 
 const inSearchMode = computed(() => Boolean(searchForm.orgName.trim()))
 const tableColumns = computed<TableColumnList>(() => orgColumns)
+const rootParentId = computed(() => {
+  const user = authStore.user as AuthUserWithCompanyId | null
+  const companyId = user?.companyId
+
+  if (typeof companyId === 'number' && Number.isFinite(companyId)) {
+    return String(companyId)
+  }
+
+  if (typeof companyId === 'string' && companyId.trim()) {
+    return companyId.trim()
+  }
+
+  return '0'
+})
 
 const treeConfig = computed<Record<string, unknown> | undefined>(() => {
   if (inSearchMode.value) return undefined
@@ -54,9 +74,10 @@ async function fetchRootRows() {
   loading.value = true
 
   try {
+    const parentId = rootParentId.value
     const response = inSearchMode.value
-      ? await orgDemoApi.searchOrgList({ orgName: searchForm.orgName })
-      : await orgDemoApi.getOrgTree({ parentId: '0' })
+      ? await orgDemoApi.searchOrgList({ parentId, orgName: searchForm.orgName })
+      : await orgDemoApi.getOrgTree({ parentId })
 
     if (response.code === 200) {
       dataList.value = Array.isArray(response.data) ? response.data : []
@@ -150,7 +171,7 @@ async function handleCreateRoot() {
     if (typeof promptResult === 'string') return
 
     await createOrg({
-      parentId: '0',
+      parentId: rootParentId.value,
       orgName: promptResult.value.trim()
     })
   } catch (error) {

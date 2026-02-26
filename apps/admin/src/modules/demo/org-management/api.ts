@@ -28,6 +28,7 @@ export interface OrgTreeParams {
 }
 
 export interface OrgSearchParams {
+  parentId?: string
   orgName?: string
 }
 
@@ -93,6 +94,7 @@ export const orgDemoApi = {
   searchOrgList: (params: OrgSearchParams) =>
     getHttp().get<BizResponse<OrgRecord[]>>('/cmict/admin/org/search', {
       params: {
+        parentId: params.parentId || '0',
         orgName: normalizeKeyword(params.orgName)
       }
     }),

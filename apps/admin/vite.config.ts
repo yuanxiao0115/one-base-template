@@ -70,13 +70,16 @@ function setCookie(res: ServerResponse, cookie: string) {
 
 function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugin {
   // 简易内存会话：仅用于开发演示
-  const sessions = new Map<string, { user: { id: string; name: string } }>();
+  const sessions = new Map<string, { user: { id: string; name: string; companyId: string } }>();
   const cookieName = 'ob_session';
 
   const sczfwSystemPermissionCode = options?.sczfwSystemPermissionCode ?? 'admin_server';
 
   // token 模式（sczfw）mock：用 Authorization 头携带 token
-  const tokenSessions = new Map<string, { user: { id: string; nickName: string; permissionCodes: string[]; roleCodes: string[] } }>();
+  const tokenSessions = new Map<
+    string,
+    { user: { id: string; nickName: string; permissionCodes: string[]; roleCodes: string[]; companyId: string } }
+  >();
 
   type OrgMockNode = {
     id: string;
@@ -263,6 +266,221 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
       .map((item) => toOrgRow(item));
   }
 
+  function isOrgInParentScope(item: OrgMockNode, parentId: string) {
+    if (parentId === '0') return true;
+
+    let currentParentId = item.parentId;
+    while (currentParentId && currentParentId !== '0') {
+      if (currentParentId === parentId) return true;
+      const parent = orgNodes.get(currentParentId);
+      if (!parent) return false;
+      currentParentId = parent.parentId;
+    }
+
+    return false;
+  }
+
+  type PermissionMockNode = {
+    id: string;
+    parentId: string;
+    resourceType: number;
+    resourceName: string;
+    permissionCode: string;
+    icon: string;
+    image: string;
+    url: string;
+    openMode: number;
+    redirect: string;
+    routeCache: number;
+    sort: number;
+    hidden: number;
+    component: string;
+    remark: string;
+  };
+
+  const permissionTypeEnum = [
+    { key: '1', value: '菜单' },
+    { key: '2', value: '页面' },
+    { key: '3', value: '按钮' }
+  ];
+  const permissionTypeLabelMap = new Map(permissionTypeEnum.map((item) => [item.key, item.value]));
+  const permissionNodes = new Map<string, PermissionMockNode>();
+  const seedPermissionNodes: PermissionMockNode[] = [
+    {
+      id: 'perm-1000',
+      parentId: '0',
+      resourceType: 1,
+      resourceName: '系统管理',
+      permissionCode: 'system:root',
+      icon: 'i-icon-menu',
+      image: '',
+      url: '/system',
+      openMode: 0,
+      redirect: '',
+      routeCache: 0,
+      sort: 10,
+      hidden: 0,
+      component: '',
+      remark: '系统管理根节点'
+    },
+    {
+      id: 'perm-1100',
+      parentId: 'perm-1000',
+      resourceType: 1,
+      resourceName: '菜单管理',
+      permissionCode: 'system:permission:list',
+      icon: 'i-icon-menu',
+      image: '',
+      url: '/system/permission',
+      openMode: 0,
+      redirect: '',
+      routeCache: 1,
+      sort: 10,
+      hidden: 0,
+      component: 'demo/pages/DemoMenuManagementMigrationPage',
+      remark: '菜单管理迁移页'
+    },
+    {
+      id: 'perm-1110',
+      parentId: 'perm-1100',
+      resourceType: 3,
+      resourceName: '新增权限',
+      permissionCode: 'system:permission:add',
+      icon: '',
+      image: '',
+      url: '',
+      openMode: 0,
+      redirect: '',
+      routeCache: 0,
+      sort: 10,
+      hidden: 0,
+      component: '',
+      remark: ''
+    },
+    {
+      id: 'perm-1120',
+      parentId: 'perm-1100',
+      resourceType: 3,
+      resourceName: '编辑权限',
+      permissionCode: 'system:permission:update',
+      icon: '',
+      image: '',
+      url: '',
+      openMode: 0,
+      redirect: '',
+      routeCache: 0,
+      sort: 20,
+      hidden: 0,
+      component: '',
+      remark: ''
+    },
+    {
+      id: 'perm-1130',
+      parentId: 'perm-1100',
+      resourceType: 3,
+      resourceName: '删除权限',
+      permissionCode: 'system:permission:delete',
+      icon: '',
+      image: '',
+      url: '',
+      openMode: 0,
+      redirect: '',
+      routeCache: 0,
+      sort: 30,
+      hidden: 0,
+      component: '',
+      remark: ''
+    },
+    {
+      id: 'perm-1200',
+      parentId: 'perm-1000',
+      resourceType: 1,
+      resourceName: '组织管理',
+      permissionCode: 'system:org:list',
+      icon: 'i-icon-zuzhijiagou',
+      image: '',
+      url: '/system/org',
+      openMode: 0,
+      redirect: '',
+      routeCache: 1,
+      sort: 20,
+      hidden: 0,
+      component: 'demo/pages/DemoOrgManagementMigrationPage',
+      remark: '组织管理迁移页'
+    }
+  ];
+
+  for (const item of seedPermissionNodes) {
+    permissionNodes.set(item.id, item);
+  }
+
+  function listPermissionChildren(parentId: string) {
+    return Array.from(permissionNodes.values())
+      .filter((item) => item.parentId === parentId)
+      .sort((a, b) => a.sort - b.sort);
+  }
+
+  function toPermissionRow(item: PermissionMockNode) {
+    return {
+      ...item,
+      resourceTypeText: permissionTypeLabelMap.get(String(item.resourceType)) || '未知'
+    };
+  }
+
+  function buildPermissionTree(parentId = '0') {
+    return listPermissionChildren(parentId).map((item) => {
+      const children = buildPermissionTree(item.id);
+      return {
+        ...toPermissionRow(item),
+        children
+      };
+    });
+  }
+
+  function flattenPermissionTree(tree: Array<Record<string, unknown>>) {
+    const output: Array<Record<string, unknown>> = [];
+
+    function walk(nodes: Array<Record<string, unknown>>) {
+      nodes.forEach((node) => {
+        const { children, ...rest } = node;
+        output.push(rest);
+        if (Array.isArray(children) && children.length > 0) {
+          walk(children as Array<Record<string, unknown>>);
+        }
+      });
+    }
+
+    walk(tree);
+    return output;
+  }
+
+  function listPermissionByFilter(params: { resourceName?: string; resourceType?: string }) {
+    const keyword = (params.resourceName || '').trim();
+    const resourceType = (params.resourceType || '').trim();
+
+    return flattenPermissionTree(buildPermissionTree())
+      .filter((item) => {
+        const row = item as PermissionMockNode & { resourceTypeText?: string };
+        const hitKeyword =
+          !keyword ||
+          row.resourceName.includes(keyword) ||
+          row.permissionCode.includes(keyword) ||
+          row.url.includes(keyword);
+        const hitType = !resourceType || String(row.resourceType) === resourceType;
+        return hitKeyword && hitType;
+      })
+      .sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
+  }
+
+  function collectPermissionDescendantIds(id: string, ids: Set<string>) {
+    if (!permissionNodes.has(id) || ids.has(id)) return;
+
+    ids.add(id);
+    listPermissionChildren(id).forEach((child) => {
+      collectPermissionDescendantIds(child.id, ids);
+    });
+  }
+
   function formatDateTime(date: Date) {
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -278,7 +496,8 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
     sessions.set(sid, {
       user: {
         id: sid,
-        name: userName
+        name: userName,
+        companyId: 'org-1000'
       }
     });
     return sid;
@@ -291,7 +510,8 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
         id: token,
         nickName: userName,
         permissionCodes: [sczfwSystemPermissionCode],
-        roleCodes: ['admin']
+        roleCodes: ['admin'],
+        companyId: 'org-1000'
       }
     });
     return token;
@@ -536,8 +756,15 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
             // 组织管理：关键字搜索（返回扁平结果）
             if (req.method === 'GET' && url.startsWith('/cmict/admin/org/search')) {
               const u = new URL(url, 'http://localhost');
+              const parentId = (u.searchParams.get('parentId') || '0').trim() || '0';
               const keyword = (u.searchParams.get('orgName') || '').trim();
+
+              if (parentId !== '0' && !orgNodes.has(parentId)) {
+                return ok(res, []);
+              }
+
               const list = Array.from(orgNodes.values())
+                .filter((item) => isOrgInParentScope(item, parentId))
                 .filter((item) =>
                   !keyword || item.orgName.includes(keyword) || item.briefName.includes(keyword)
                 )
@@ -658,6 +885,151 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
               return ok(res, null);
             }
 
+            // 权限管理：资源类型枚举
+            if (req.method === 'GET' && url.startsWith('/cmict/admin/permission/resource-type/enum')) {
+              return ok(res, permissionTypeEnum);
+            }
+
+            // 权限管理：树结构
+            if (req.method === 'GET' && url.startsWith('/cmict/admin/permission/tree')) {
+              return ok(res, buildPermissionTree());
+            }
+
+            // 权限管理：列表查询（筛选模式）
+            if (req.method === 'GET' && url.startsWith('/cmict/admin/permission/list')) {
+              const u = new URL(url, 'http://localhost');
+              const resourceName = (u.searchParams.get('resourceName') || '').trim();
+              const resourceType = (u.searchParams.get('resourceType') || '').trim();
+              return ok(res, listPermissionByFilter({ resourceName, resourceType }));
+            }
+
+            // 权限管理：新增
+            if (req.method === 'POST' && url.startsWith('/cmict/admin/permission/add')) {
+              const body = await readJsonBody(req);
+              const payload = (body.data && typeof body.data === 'object' ? body.data : body) as JsonObject;
+              const resourceName = typeof payload.resourceName === 'string' ? payload.resourceName.trim() : '';
+              const rawParentId = typeof payload.parentId === 'string' && payload.parentId ? payload.parentId : '0';
+              const parentId = rawParentId !== '0' && !permissionNodes.has(rawParentId) ? '0' : rawParentId;
+
+              if (!resourceName) {
+                return fail(res, 400, '权限名称不能为空');
+              }
+
+              const id = `perm-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+              const resourceType = Number(payload.resourceType || 1);
+              const nextNode: PermissionMockNode = {
+                id,
+                parentId,
+                resourceType,
+                resourceName,
+                permissionCode:
+                  typeof payload.permissionCode === 'string' && payload.permissionCode.trim()
+                    ? payload.permissionCode.trim()
+                    : `permission:${id}`,
+                icon: typeof payload.icon === 'string' ? payload.icon : '',
+                image: typeof payload.image === 'string' ? payload.image : '',
+                url: typeof payload.url === 'string' ? payload.url : '',
+                openMode: Number(payload.openMode || 0),
+                redirect: typeof payload.redirect === 'string' ? payload.redirect : '',
+                routeCache: Number(payload.routeCache || 0),
+                sort: Number(payload.sort || 10),
+                hidden: Number(payload.hidden || 0),
+                component: typeof payload.component === 'string' ? payload.component : '',
+                remark: typeof payload.remark === 'string' ? payload.remark : ''
+              };
+
+              permissionNodes.set(id, nextNode);
+              return ok(res, toPermissionRow(nextNode));
+            }
+
+            // 权限管理：更新
+            if (req.method === 'POST' && url.startsWith('/cmict/admin/permission/update')) {
+              const body = await readJsonBody(req);
+              const payload = (body.data && typeof body.data === 'object' ? body.data : body) as JsonObject;
+              const id = typeof payload.id === 'string' ? payload.id : '';
+
+              if (!id || !permissionNodes.has(id)) {
+                return fail(res, 400, '权限不存在');
+              }
+
+              const current = permissionNodes.get(id) as PermissionMockNode;
+              const candidateParentId =
+                typeof payload.parentId === 'string' && payload.parentId ? payload.parentId : current.parentId;
+              const parentId = candidateParentId || '0';
+
+              if (parentId !== '0' && !permissionNodes.has(parentId)) {
+                return fail(res, 400, '上级权限不存在');
+              }
+
+              const forbiddenIds = new Set<string>();
+              collectPermissionDescendantIds(id, forbiddenIds);
+              if (forbiddenIds.has(parentId)) {
+                return fail(res, 400, '上级权限不能选择当前节点或其下级节点');
+              }
+
+              const nextNode: PermissionMockNode = {
+                ...current,
+                parentId,
+                resourceType: Number(payload.resourceType ?? current.resourceType),
+                resourceName:
+                  typeof payload.resourceName === 'string' && payload.resourceName.trim()
+                    ? payload.resourceName.trim()
+                    : current.resourceName,
+                permissionCode:
+                  typeof payload.permissionCode === 'string' && payload.permissionCode.trim()
+                    ? payload.permissionCode.trim()
+                    : current.permissionCode,
+                icon:
+                  typeof payload.icon === 'string' ? payload.icon : current.icon,
+                image:
+                  typeof payload.image === 'string' ? payload.image : current.image,
+                url:
+                  typeof payload.url === 'string' ? payload.url : current.url,
+                openMode: Number(payload.openMode ?? current.openMode),
+                redirect:
+                  typeof payload.redirect === 'string' ? payload.redirect : current.redirect,
+                routeCache: Number(payload.routeCache ?? current.routeCache),
+                sort: Number(payload.sort ?? current.sort),
+                hidden: Number(payload.hidden ?? current.hidden),
+                component:
+                  typeof payload.component === 'string' ? payload.component : current.component,
+                remark:
+                  typeof payload.remark === 'string' ? payload.remark : current.remark
+              };
+
+              permissionNodes.set(id, nextNode);
+              return ok(res, toPermissionRow(nextNode));
+            }
+
+            // 权限管理：删除（级联删除）
+            if (req.method === 'POST' && url.startsWith('/cmict/admin/permission/delete')) {
+              const body = await readJsonBody(req);
+              const payload = (body.data && typeof body.data === 'object' ? body.data : body) as JsonObject;
+
+              const idList = Array.isArray(payload.idList)
+                ? payload.idList
+                    .map((item) => (typeof item === 'string' ? item : ''))
+                    .filter((item) => Boolean(item))
+                : typeof payload.idList === 'string' && payload.idList
+                  ? [payload.idList]
+                  : [];
+
+              if (idList.length === 0) {
+                return fail(res, 400, '请选择待删除权限');
+              }
+
+              const removeIds = new Set<string>();
+              idList.forEach((id) => {
+                collectPermissionDescendantIds(id, removeIds);
+              });
+
+              removeIds.forEach((id) => {
+                permissionNodes.delete(id);
+              });
+
+              return ok(res, null);
+            }
+
             // 菜单树（my-tree）
             if (req.method === 'GET' && url.startsWith('/cmict/admin/permission/my-tree')) {
               // 注意：保持与 sczfwAdapter 的解析规则一致（permissionCode 可配置）
@@ -676,7 +1048,8 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
                         { url: '/demo/page-a', resourceName: '页面 A', resourceType: 1, hidden: 0, routeCache: 1 },
                         { url: '/demo/page-b', resourceName: '页面 B', resourceType: 1, hidden: 0, routeCache: 1 },
                         { url: '/demo/login-log-vxe', resourceName: '登录日志迁移', resourceType: 1, hidden: 0, routeCache: 1 },
-                        { url: '/demo/org-management-vxe', resourceName: '组织管理迁移', resourceType: 1, hidden: 0, routeCache: 1 }
+                        { url: '/demo/org-management-vxe', resourceName: '组织管理迁移', resourceType: 1, hidden: 0, routeCache: 1 },
+                        { url: '/demo/menu-management-vxe', resourceName: '权限管理迁移', resourceType: 1, hidden: 0, routeCache: 1 }
                       ]
                     },
                     {
@@ -690,7 +1063,8 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
                         { url: '/portal/designer', resourceName: '门户配置', resourceType: 1, hidden: 1, routeCache: 0 },
                         { url: '/portal/layout', resourceName: '页面编辑', resourceType: 1, hidden: 1, routeCache: 0 }
                       ]
-                    }
+                    },
+                    { url: '/system/permission', resourceName: '权限管理迁移', resourceType: 1, hidden: 0, routeCache: 1 }
                   ]
                 },
                 {
@@ -758,9 +1132,11 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
                   { path: '/demo/page-a', title: '页面 A', order: 1, keepAlive: true },
                   { path: '/demo/page-b', title: '页面 B', order: 2, keepAlive: true },
                   { path: '/demo/login-log-vxe', title: '登录日志迁移', order: 3, keepAlive: true },
-                  { path: '/demo/org-management-vxe', title: '组织管理迁移', order: 4, keepAlive: true }
+                  { path: '/demo/org-management-vxe', title: '组织管理迁移', order: 4, keepAlive: true },
+                  { path: '/demo/menu-management-vxe', title: '权限管理迁移', order: 5, keepAlive: true }
                 ]
               },
+              { path: '/system/permission', title: '权限管理迁移', order: 25, keepAlive: true },
               { path: 'https://example.com', title: '外链示例', order: 30, external: true }
             ]);
           }

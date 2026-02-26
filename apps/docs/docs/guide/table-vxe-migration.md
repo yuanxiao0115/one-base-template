@@ -65,10 +65,18 @@
 组织管理等树形页建议使用：
 
 - `pagination=false`（树形通常不分页）
+- 根节点查询 `parentId` 优先取登录用户 `companyId`（无值回退 `0`）
+- 关键字搜索同样透传 `parentId`，保证“按所属公司范围”搜索，避免跨树污染结果
 - `treeConfig.lazy=true`
 - `treeConfig.hasChildField='hasChildren'`
 - `treeConfig.childrenField='children'`
 - `treeConfig.loadMethod`（异步加载下级节点）
+
+菜单权限类页面（树 + 条件筛选切列表）可沿用同一套底座策略：
+
+- 无筛选条件：拉取权限树并开启 `treeConfig`
+- 有筛选条件：切换到列表接口并关闭 `treeConfig`
+- 操作列建议保留“新建子级/平级 + 编辑 + 查看 + 删除”交互，便于复用老业务逻辑
 
 示例（简化）：
 
@@ -185,6 +193,12 @@ const table = useTable({
     - `apps/admin/src/modules/demo/pages/DemoOrgManagementMigrationPage.vue`
     - `apps/admin/src/modules/demo/org-management/columns.tsx`
     - `apps/admin/src/modules/demo/org-management/api.ts`
+- 页面 3：`/demo/menu-management-vxe`（权限管理迁移）
+  - 路由名：`DemoMenuManagementMigration`
+  - 代码位置：
+    - `apps/admin/src/modules/demo/pages/DemoMenuManagementMigrationPage.vue`
+    - `apps/admin/src/modules/demo/menu-management/columns.ts`
+    - `apps/admin/src/modules/demo/menu-management/api.ts`
 
 ## 常见迁移问题
 

@@ -356,39 +356,12 @@ const resolvedGridHeight = computed<number | string | undefined>(() => {
     return gridHeight.value;
   }
 
-  // 启用分页时默认撑满容器，让分页区固定在底部
-  if (normalizedPagination.value) {
-    return '100%';
-  }
-
-  return gridHeight.value;
+  // 默认撑满容器高度，让表体在容器内独立滚动（无分页树表同样生效）
+  return '100%';
 });
 
-const scrollYConfig = computed<Record<string, unknown> | undefined>(() => {
-  if (!props.virtualConfig) return undefined;
-  const enabled = props.virtualConfig.enabled ?? Boolean(props.virtualConfig.y);
-  if (!enabled) return undefined;
-  return {
-    enabled: true,
-    ...(props.virtualConfig.y || {})
-  };
-});
 
-const scrollXConfig = computed<Record<string, unknown> | undefined>(() => {
-  if (!props.virtualConfig) return undefined;
-  const enabled = props.virtualConfig.enabled ?? Boolean(props.virtualConfig.x);
-  if (!enabled) return undefined;
-  return {
-    enabled: true,
-    ...(props.virtualConfig.x || {})
-  };
-});
 
-const defaultScrollbarConfig = computed<Record<string, unknown>>(() => ({
-  width: 10,
-  x: { visible: true },
-  y: { visible: false }
-}));
 
 function collectSelection() {
   const table = gridRef.value;
@@ -527,9 +500,9 @@ defineExpose({
         :header-align="headerAlign || alignWhole"
         :row-config="rowConfig"
         :tree-config="treeConfig"
-        :scroll-y="scrollYConfig"
-        :scroll-x="scrollXConfig"
-        :scrollbar-config="defaultScrollbarConfig"
+        :scrollbar-config="{
+          x:{visible:'auto'}
+        }"
         v-bind="passthroughAttrs"
         @checkbox-change="collectSelection"
         @checkbox-all="collectSelection"
@@ -626,15 +599,24 @@ defineExpose({
   border-right: 0;
 }
 
-.ob-vxe-table :deep(.vxe-table--render-default.not--scroll-x .vxe-table--fixed-left-wrapper),
-.ob-vxe-table :deep(.vxe-table--render-default.not--scroll-x .vxe-table--fixed-right-wrapper) {
-  display: none;
-}
 
 .ob-vxe-table :deep(.vxe-table--header-wrapper table),
 .ob-vxe-table :deep(.vxe-table--body-wrapper table) {
   min-width: 100%;
   table-layout: var(--ob-vxe-table-layout, fixed);
+}
+
+.ob-vxe-table :deep(.vxe-table--render-default) {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+
+.ob-vxe-table :deep(.vxe-table--viewport-wrapper),
+.ob-vxe-table :deep(.vxe-table--main-wrapper),
+.ob-vxe-table :deep(.vxe-table--body-wrapper),
+.ob-vxe-table :deep(.vxe-table--body-inner-wrapper) {
+  min-width: 0;
 }
 
 .ob-vxe-table :deep(.vxe-header--column) {
@@ -666,6 +648,143 @@ defineExpose({
   border-bottom: 0;
 }
 
+/* 虚拟滚动条：默认隐藏，鼠标悬浮表格时显示 */
+.ob-vxe-table :deep(.vxe-table--scroll-x-virtual) {
+  height: var(--ob-vxe-scrollbar-hit-size);
+  pointer-events: none;
+  visibility: hidden !important;
+  opacity: 0;
+  background: transparent !important;
+  background-image: none !important;
+  transition: opacity 0.16s ease;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-y-virtual) {
+  width: var(--ob-vxe-scrollbar-hit-size);
+  pointer-events: none;
+  visibility: hidden !important;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.ob-vxe-table :deep(.vxe-table:hover .vxe-table--scroll-x-virtual),
+.ob-vxe-table :deep(.vxe-table:hover .vxe-table--scroll-y-virtual) {
+  pointer-events: auto;
+  visibility: visible !important;
+  opacity: 1;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-wrapper),
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle) {
+  height: var(--ob-vxe-scrollbar-hit-size);
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-y-wrapper),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle) {
+  width: var(--ob-vxe-scrollbar-hit-size);
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle) {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-wrapper),
+.ob-vxe-table :deep(.vxe-table--scroll-y-wrapper),
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle),
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle-appearance),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle-appearance) {
+  border: 0 !important;
+  background-image: none !important;
+  background: transparent !important;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle::-webkit-scrollbar) {
+  height: var(--ob-vxe-scrollbar-hit-size);
+  background: transparent;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle::-webkit-scrollbar) {
+  width: var(--ob-vxe-scrollbar-hit-size);
+  background: transparent;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle::-webkit-scrollbar-track),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle::-webkit-scrollbar-track) {
+  border-radius: var(--ob-vxe-scrollbar-radius);
+  background: var(--ob-vxe-scrollbar-track-color);
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle::-webkit-scrollbar-thumb),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle::-webkit-scrollbar-thumb) {
+  border: var(--ob-vxe-scrollbar-gap) solid transparent;
+  border-radius: var(--ob-vxe-scrollbar-radius);
+  background-clip: padding-box;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.ob-vxe-table :deep(.vxe-table:hover .vxe-table--scroll-x-handle),
+.ob-vxe-table :deep(.vxe-table:hover .vxe-table--scroll-y-handle) {
+  scrollbar-color: var(--ob-vxe-scrollbar-thumb-color) transparent;
+}
+
+.ob-vxe-table :deep(.vxe-table:hover .vxe-table--scroll-x-handle::-webkit-scrollbar-thumb),
+.ob-vxe-table :deep(.vxe-table:hover .vxe-table--scroll-y-handle::-webkit-scrollbar-thumb) {
+  background-color: var(--ob-vxe-scrollbar-thumb-color);
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle:hover),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle:hover) {
+  scrollbar-color: var(--ob-vxe-scrollbar-thumb-hover-color) transparent;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle:hover::-webkit-scrollbar-thumb),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle:hover::-webkit-scrollbar-thumb) {
+  background-color: var(--ob-vxe-scrollbar-thumb-hover-color);
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle:active::-webkit-scrollbar-thumb),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle:active::-webkit-scrollbar-thumb) {
+  background-color: var(--ob-vxe-scrollbar-thumb-active-color);
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-left-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-x-right-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-y-top-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-y-bottom-corner) {
+  display: none !important;
+  border: 0 !important;
+  background-image: none !important;
+  background: transparent;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-left-corner::before),
+.ob-vxe-table :deep(.vxe-table--scroll-x-right-corner::before),
+.ob-vxe-table :deep(.vxe-table--scroll-y-top-corner::before),
+.ob-vxe-table :deep(.vxe-table--scroll-y-bottom-corner::before) {
+  display: none;
+}
+
+.ob-vxe-table :deep(.vxe-table--render-default .vxe-table--scroll-x-handle-appearance),
+.ob-vxe-table :deep(.vxe-table--render-default .vxe-table--scroll-y-handle-appearance) {
+  border: 0 !important;
+  background-image: none !important;
+}
+
+.ob-vxe-table :deep(.vxe-table--render-default[class*='border--'] .vxe-table--scroll-x-handle-appearance),
+.ob-vxe-table :deep(.vxe-table--render-default[class*='border--'] .vxe-table--scroll-y-handle-appearance) {
+  border: 0 !important;
+  background-image: none !important;
+}
+
+.ob-vxe-table :deep(.vxe-table--render-default .vxe-table--fixed-left-wrapper),
+.ob-vxe-table :deep(.vxe-table--render-default .vxe-table--fixed-right-wrapper) {
+  transition: box-shadow 0.24s ease;
+}
+
 .ob-vxe-table__pager :deep(.vxe-pager) {
   position: relative;
   justify-content: flex-end;
@@ -680,35 +799,5 @@ defineExpose({
   margin: 0;
   transform: translateY(-50%);
   color: var(--el-text-color-regular);
-}
-
-.ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-wrapper) {
-  width: 10px;
-}
-
-.ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle) {
-  width: 10px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--ob-vxe-scrollbar-thumb-color) transparent;
-}
-
-.ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle::-webkit-scrollbar) {
-  width: 10px;
-}
-
-.ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle::-webkit-scrollbar-track) {
-  background: transparent;
-}
-
-.ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle::-webkit-scrollbar-thumb) {
-  border: 2px solid transparent;
-  border-radius: 999px;
-  background: var(--ob-vxe-scrollbar-thumb-color);
-  background-clip: content-box;
-}
-
-.ob-vxe-table :deep(.vxe-table .vxe-table--scroll-y-handle::-webkit-scrollbar-thumb:hover) {
-  background: var(--ob-vxe-scrollbar-thumb-hover-color);
-  background-clip: content-box;
 }
 </style>
