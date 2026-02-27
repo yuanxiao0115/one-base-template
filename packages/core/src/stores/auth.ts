@@ -3,31 +3,31 @@ import { computed, ref } from 'vue';
 import type { AppUser, LoginPayload } from '../adapter/types';
 import { getCoreOptions } from '../context';
 import { removeByPrefixes, safeSetToStorage } from '../utils/storage';
-import { readWithLegacyFallback, removeByScopedPrefixes, removeScopedAndLegacy, resolveNamespacedKey } from '../storage/namespace';
+import { getWithLegacy, clearByPrefixes, removeWithLegacy, getNamespacedKey } from '../storage/namespace';
 
 const AUTH_USER_STORAGE_BASE_KEY = 'ob_auth_user';
 
 function readStoredUser(): AppUser | null {
-  const hit = readWithLegacyFallback(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
+  const hit = getWithLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
   if (!hit?.value) return null;
 
   try {
     return JSON.parse(hit.value) as AppUser;
   } catch {
     // localStorage 不可用或 JSON 解析失败时，直接清理缓存，避免后续反复报错
-    removeScopedAndLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
+    removeWithLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
     return null;
   }
 }
 
 function writeStoredUser(user: AppUser) {
-  const key = resolveNamespacedKey(AUTH_USER_STORAGE_BASE_KEY);
+  const key = getNamespacedKey(AUTH_USER_STORAGE_BASE_KEY);
   safeSetToStorage(key, JSON.stringify(user), {
     primary: 'local',
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
       // 用户态优先级高于菜单缓存，localStorage 满额时先清菜单分片缓存腾挪空间。
-      removeByScopedPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+      clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
     }
   });
 
@@ -39,7 +39,7 @@ function writeStoredUser(user: AppUser) {
 }
 
 function clearStoredUser() {
-  removeScopedAndLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
+  removeWithLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
 }
 
 export const useAuthStore = defineStore('ob-auth', () => {

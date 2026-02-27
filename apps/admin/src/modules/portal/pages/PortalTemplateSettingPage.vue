@@ -113,7 +113,7 @@ async function loadTemplate(preferTabId?: string) {
   }
 }
 
-async function ensureTabLinkedToTemplate(tabId: string) {
+async function linkTabToTemplate(tabId: string) {
   await loadTemplate(tabId);
   if (containsTabId(getTabs(), tabId)) return;
 
@@ -240,7 +240,7 @@ async function onSubmitAttr(payload: {
         return;
       }
 
-      await ensureTabLinkedToTemplate(newTabId);
+      await linkTabToTemplate(newTabId);
 
       if (payload.tabType === 2) {
         router.push({

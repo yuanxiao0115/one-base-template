@@ -41,7 +41,7 @@ packages/
 
 - `createCore({ storageNamespace })` 可为 core 状态存储增加命名空间前缀（例如 `one-base-template-admin:*`）。
 - core 的 auth/system/menu/layout/tabs/assets 均遵循同一命名空间规则，并在读取阶段兼容历史未命名空间 key，便于渐进迁移。
-- admin 根路由不再直接读取 `ob_*` 内部 key；统一通过 `resolveInitialPathFromStorage()` 解析首次落点，保持“代码配置首页优先，菜单叶子兜底”的行为一致。
+- admin 根路由不再直接读取 `ob_*` 内部 key；统一通过 `getInitialPath()` 解析首次落点，保持“代码配置首页优先，菜单叶子兜底”的行为一致。
 
 ## 主题架构分层
 

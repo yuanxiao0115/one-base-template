@@ -3,7 +3,7 @@ export type AuthMode = 'cookie' | 'token' | 'mixed';
 export type MenuMode = 'remote' | 'static';
 export type EnabledModulesSetting = '*' | string[];
 
-export type PlatformRuntimeConfig = {
+export type RuntimeConfig = {
   backend: BackendKind;
   authMode: AuthMode;
   tokenKey: string;
@@ -107,7 +107,7 @@ function expectSystemHomeMap(
   return out;
 }
 
-export function parsePlatformRuntimeConfig(input: unknown): PlatformRuntimeConfig {
+export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   if (!isRecord(input)) {
     throw new Error('[platform-config] 配置文件格式错误：根节点必须是 JSON 对象');
   }

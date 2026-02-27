@@ -220,7 +220,7 @@ UI 行为：
 
 ## 首次进入路由兜底
 
-- 根路由重定向统一调用 `@one-base-template/core` 的 `resolveInitialPathFromStorage()`，不在 admin 内直接读取 `ob_system_current` / `ob_menu_tree:*`。
+- 根路由重定向统一调用 `@one-base-template/core` 的 `getInitialPath()`，不在 admin 内直接读取 `ob_system_current` / `ob_menu_tree:*`。
 - 决策顺序：
   1. 命中 `systemHomeMap[当前系统]`
   2. 未命中时尝试当前系统菜单缓存中的“首个可访问叶子路由”

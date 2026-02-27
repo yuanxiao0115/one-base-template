@@ -92,7 +92,7 @@ export function bootstrapAdminApp() {
 
   setupRouterGuards(router, {
     onNavigationStart: () => {
-      http.cancelRoutePendingRequests();
+      http.cancelRouteRequests();
     }
   });
 

@@ -35,7 +35,7 @@ const accentCountValue = computed(() => {
   return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
 });
 
-const createParallelogramStripe = (color: string) => {
+const createStripe = (color: string) => {
   const height = heightValue.value;
   const width = widthValue.value;
   const skew = skewValue.value;
@@ -54,14 +54,14 @@ const wrapperStyle = computed(() => ({
 const baseStyle = computed(() => ({
   height: `${heightValue.value}px`,
   width: `calc(100% + ${tileWidthValue.value}px)`,
-  backgroundImage: createParallelogramStripe(props.baseColor || '#E2E7F0'),
+  backgroundImage: createStripe(props.baseColor || '#E2E7F0'),
   backgroundPosition: 'right center'
 }));
 
 const accentStyle = computed(() => ({
   height: `${heightValue.value}px`,
   width: `${tileWidthValue.value * accentCountValue.value}px`,
-  backgroundImage: createParallelogramStripe(props.accentColor || '#2B6DE5'),
+  backgroundImage: createStripe(props.accentColor || '#2B6DE5'),
   backgroundPosition: 'left center'
 }));
 

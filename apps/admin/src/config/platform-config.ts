@@ -1,10 +1,10 @@
-import { parsePlatformRuntimeConfig, type PlatformRuntimeConfig } from '@one-base-template/core';
+import { parseRuntimeConfig, type RuntimeConfig } from '@one-base-template/core';
 
 const CONFIG_URL = `${import.meta.env.BASE_URL}platform-config.json`;
 
-let cachedConfig: PlatformRuntimeConfig | null = null;
+let cachedConfig: RuntimeConfig | null = null;
 
-export async function loadPlatformConfig(): Promise<PlatformRuntimeConfig> {
+export async function loadPlatformConfig(): Promise<RuntimeConfig> {
   if (cachedConfig) return cachedConfig;
 
   const response = await fetch(CONFIG_URL, {
@@ -22,11 +22,11 @@ export async function loadPlatformConfig(): Promise<PlatformRuntimeConfig> {
     throw new Error(`[platform-config] 解析 JSON 失败：${message}`);
   }
 
-  cachedConfig = parsePlatformRuntimeConfig(json);
+  cachedConfig = parseRuntimeConfig(json);
   return cachedConfig;
 }
 
-export function getPlatformConfig(): PlatformRuntimeConfig {
+export function getPlatformConfig(): RuntimeConfig {
   if (!cachedConfig) {
     throw new Error('[platform-config] 尚未加载，请先调用 loadPlatformConfig()');
   }

@@ -60,7 +60,7 @@ function getComponentConfig(item: PortalLayoutItem) {
   return item.component?.cmptConfig || {};
 }
 
-function mergeLayoutWithComponents(next: LayoutUpdateItem[]): PortalLayoutItem[] {
+function mergeLayoutItems(next: LayoutUpdateItem[]): PortalLayoutItem[] {
   const prevMap = new Map(pageLayoutStore.layoutItems.map((i) => [i.i, i]));
 
   return next.map((raw) => {
@@ -76,7 +76,7 @@ function mergeLayoutWithComponents(next: LayoutUpdateItem[]): PortalLayoutItem[]
 }
 
 function handleLayoutUpdated(nextLayout: LayoutUpdateItem[]) {
-  pageLayoutStore.updateLayoutItems(mergeLayoutWithComponents(nextLayout));
+  pageLayoutStore.updateLayoutItems(mergeLayoutItems(nextLayout));
 }
 
 function handleGridContainerClick() {

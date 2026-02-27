@@ -19,22 +19,22 @@ export function getCoreStorageNamespace(explicitNamespace?: string): string | un
   return normalizeNamespace(options?.theme?.storageNamespace);
 }
 
-export function resolveNamespacedKey(baseKey: string, explicitNamespace?: string): string {
+export function getNamespacedKey(baseKey: string, explicitNamespace?: string): string {
   const namespace = getCoreStorageNamespace(explicitNamespace);
   return namespace ? `${namespace}:${baseKey}` : baseKey;
 }
 
-export function resolveNamespacedPrefix(basePrefix: string, explicitNamespace?: string): string {
+export function getNamespacedPrefix(basePrefix: string, explicitNamespace?: string): string {
   const namespace = getCoreStorageNamespace(explicitNamespace);
   return namespace ? `${namespace}:${basePrefix}` : basePrefix;
 }
 
-export function readWithLegacyFallback(
+export function getWithLegacy(
   baseKey: string,
   kinds: StorageKind[] = ['local', 'session'],
   explicitNamespace?: string
 ): { key: string; value: string } | null {
-  const scopedKey = resolveNamespacedKey(baseKey, explicitNamespace);
+  const scopedKey = getNamespacedKey(baseKey, explicitNamespace);
 
   if (scopedKey !== baseKey) {
     const scopedValue = readFromStorages(scopedKey, kinds);
@@ -55,24 +55,24 @@ export function readWithLegacyFallback(
   };
 }
 
-export function removeScopedAndLegacy(
+export function removeWithLegacy(
   baseKey: string,
   kinds: StorageKind[] = ['local', 'session'],
   explicitNamespace?: string
 ) {
-  const scopedKey = resolveNamespacedKey(baseKey, explicitNamespace);
+  const scopedKey = getNamespacedKey(baseKey, explicitNamespace);
   removeFromStorages(scopedKey, kinds);
   if (scopedKey !== baseKey) {
     removeFromStorages(baseKey, kinds);
   }
 }
 
-export function removeByScopedPrefixes(
+export function clearByPrefixes(
   basePrefixes: string[],
   kind: StorageKind = 'local',
   explicitNamespace?: string
 ): number {
-  const scopedPrefixes = basePrefixes.map(prefix => resolveNamespacedPrefix(prefix, explicitNamespace));
+  const scopedPrefixes = basePrefixes.map(prefix => getNamespacedPrefix(prefix, explicitNamespace));
   const allPrefixes = Array.from(new Set([...basePrefixes, ...scopedPrefixes]));
   return removeByPrefixes(allPrefixes, kind);
 }

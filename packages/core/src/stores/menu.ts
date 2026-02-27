@@ -6,11 +6,11 @@ import { useSystemStore } from './system';
 import { isHttpUrl } from '../utils/url';
 import { byteLength, readFromStorages, removeFromStorages, safeSetToStorage } from '../utils/storage';
 import {
-  readWithLegacyFallback,
-  removeByScopedPrefixes,
-  removeScopedAndLegacy,
-  resolveNamespacedKey,
-  resolveNamespacedPrefix
+  getWithLegacy,
+  clearByPrefixes,
+  removeWithLegacy,
+  getNamespacedKey,
+  getNamespacedPrefix
 } from '../storage/namespace';
 
 const MENU_TREE_LEGACY_STORAGE_BASE_KEY = 'ob_menu_tree';
@@ -23,7 +23,7 @@ const MAX_MENU_TREE_STORAGE_BYTES = 1024 * 1024; // 1MB
 const MAX_PATH_INDEX_STORAGE_BYTES = 256 * 1024; // 256KB
 
 function buildMenuTreeKey(systemCode: string) {
-  return `${resolveNamespacedPrefix(MENU_TREE_STORAGE_BASE_PREFIX)}${systemCode}`;
+  return `${getNamespacedPrefix(MENU_TREE_STORAGE_BASE_PREFIX)}${systemCode}`;
 }
 
 function buildLegacyMenuTreeKey(systemCode: string) {
@@ -39,7 +39,7 @@ function clearStoredMenuTree(systemCode: string) {
   }
 }
 
-function readStoredMenuTree(systemCode: string): AppMenuItem[] | null {
+function getStoredMenuTree(systemCode: string): AppMenuItem[] | null {
   const scopedKey = buildMenuTreeKey(systemCode);
   const legacyKey = buildLegacyMenuTreeKey(systemCode);
 
@@ -71,7 +71,7 @@ function writeStoredMenuTree(systemCode: string, tree: AppMenuItem[]) {
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
       // 清理所有菜单缓存（可再拉取），避免影响关键状态持久化（system/theme/layout）
-      removeByScopedPrefixes(
+      clearByPrefixes(
         [MENU_TREE_STORAGE_BASE_PREFIX, MENU_TREE_LEGACY_STORAGE_BASE_KEY, MENU_PATH_INDEX_STORAGE_BASE_KEY],
         'local'
       );
@@ -85,25 +85,25 @@ function writeStoredMenuTree(systemCode: string, tree: AppMenuItem[]) {
 
 function readLegacyStoredMenuTree(): AppMenuItem[] | null {
   try {
-    const hit = readWithLegacyFallback(MENU_TREE_LEGACY_STORAGE_BASE_KEY, ['local', 'session']);
+    const hit = getWithLegacy(MENU_TREE_LEGACY_STORAGE_BASE_KEY, ['local', 'session']);
     if (!hit?.value) return null;
 
     const parsed = JSON.parse(hit.value) as unknown;
     return Array.isArray(parsed) ? (parsed as AppMenuItem[]) : null;
   } catch {
     // localStorage 不可用或 JSON 解析失败时，直接清理缓存，避免后续反复报错
-    removeScopedAndLegacy(MENU_TREE_LEGACY_STORAGE_BASE_KEY, ['local', 'session']);
+    removeWithLegacy(MENU_TREE_LEGACY_STORAGE_BASE_KEY, ['local', 'session']);
     return null;
   }
 }
 
-function clearLegacyStoredMenuTree() {
-  removeScopedAndLegacy(MENU_TREE_LEGACY_STORAGE_BASE_KEY, ['local', 'session']);
+function clearLegacyMenuTree() {
+  removeWithLegacy(MENU_TREE_LEGACY_STORAGE_BASE_KEY, ['local', 'session']);
 }
 
 function readStoredPathIndex(): Record<string, string> | null {
   try {
-    const hit = readWithLegacyFallback(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
+    const hit = getWithLegacy(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
     if (!hit?.value) return null;
 
     const parsed = JSON.parse(hit.value) as unknown;
@@ -115,16 +115,16 @@ function readStoredPathIndex(): Record<string, string> | null {
     }
     return Object.keys(out).length ? out : null;
   } catch {
-    removeScopedAndLegacy(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
+    removeWithLegacy(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
     return null;
   }
 }
 
 function writeStoredPathIndex(index: Record<string, string>) {
-  const key = resolveNamespacedKey(MENU_PATH_INDEX_STORAGE_BASE_KEY);
+  const key = getNamespacedKey(MENU_PATH_INDEX_STORAGE_BASE_KEY);
   const raw = JSON.stringify(index);
   if (byteLength(raw) > MAX_PATH_INDEX_STORAGE_BYTES) {
-    removeScopedAndLegacy(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
+    removeWithLegacy(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
     return;
   }
 
@@ -132,7 +132,7 @@ function writeStoredPathIndex(index: Record<string, string>) {
     primary: 'local',
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
-      removeByScopedPrefixes(
+      clearByPrefixes(
         [MENU_TREE_STORAGE_BASE_PREFIX, MENU_TREE_LEGACY_STORAGE_BASE_KEY, MENU_PATH_INDEX_STORAGE_BASE_KEY],
         'local'
       );
@@ -145,7 +145,7 @@ function writeStoredPathIndex(index: Record<string, string>) {
 }
 
 function clearStoredPathIndex() {
-  removeScopedAndLegacy(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
+  removeWithLegacy(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
 }
 
 function normalizeMenuTree(items: AppMenuItem[]): AppMenuItem[] {
@@ -240,7 +240,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
     loadedSystemFlags.value[systemCode] = true;
   }
 
-  function rebuildPathIndexFromTrees() {
+  function buildPathIndex() {
     const next: Record<string, string> = {};
     const codes = Object.keys(menuTrees.value).sort();
     for (const code of codes) {
@@ -267,7 +267,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
   let hydratedAny = false;
   for (const code of candidateSystemCodes) {
-    const storedTree = readStoredMenuTree(code);
+    const storedTree = getStoredMenuTree(code);
     if (storedTree?.length) {
       setMenusForSystem(code, storedTree, false);
       hydratedAny = true;
@@ -282,11 +282,11 @@ export const useMenuStore = defineStore('ob-menu', () => {
       setMenusForSystem(fallbackCode, legacyTree, true);
       hydratedAny = true;
     }
-    clearLegacyStoredMenuTree();
+    clearLegacyMenuTree();
   }
 
   if (hydratedAny) {
-    rebuildPathIndexFromTrees();
+    buildPathIndex();
   }
 
   function resolveSystemCodeByPath(path: string): string | undefined {
@@ -338,7 +338,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
         systemStore.setCurrentSystem(code);
       }
       setMenusForSystem(code, options.staticMenus, true);
-      rebuildPathIndexFromTrees();
+      buildPathIndex();
       remoteSynced.value = true;
       return;
     }
@@ -355,7 +355,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
         .filter(s => s.code && s.menus.length > 0);
 
       const nextCodes = new Set(normalizedSystems.map(s => s.code));
-      const scopedPrefix = resolveNamespacedPrefix(MENU_TREE_STORAGE_BASE_PREFIX);
+      const scopedPrefix = getNamespacedPrefix(MENU_TREE_STORAGE_BASE_PREFIX);
       const legacyPrefix = MENU_TREE_STORAGE_BASE_PREFIX;
       // 清理已被移除的系统菜单缓存，避免 pathIndex / 菜单切换误命中旧系统
       try {
@@ -395,7 +395,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
       for (const sys of normalizedSystems) {
         setMenusForSystem(sys.code, sys.menus, true);
       }
-      rebuildPathIndexFromTrees();
+      buildPathIndex();
       remoteSynced.value = true;
       return;
     }
@@ -412,7 +412,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
       systemStore.setCurrentSystem(code);
     }
     setMenusForSystem(code, tree, true);
-    rebuildPathIndexFromTrees();
+    buildPathIndex();
     remoteSynced.value = true;
   }
 
@@ -432,8 +432,8 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
   function reset() {
     // 清理所有系统的菜单分片缓存（不依赖当前内存态，避免遗漏旧系统残留）
-    removeByScopedPrefixes([MENU_TREE_STORAGE_BASE_PREFIX], 'local');
-    removeByScopedPrefixes([MENU_TREE_STORAGE_BASE_PREFIX], 'session');
+    clearByPrefixes([MENU_TREE_STORAGE_BASE_PREFIX], 'local');
+    clearByPrefixes([MENU_TREE_STORAGE_BASE_PREFIX], 'session');
 
     menuTrees.value = {};
     allowedPathsBySystem.value = {};
@@ -445,7 +445,7 @@ export const useMenuStore = defineStore('ob-menu', () => {
     loadMenusPromise = null;
 
     // 兼容：顺手清理旧 key
-    clearLegacyStoredMenuTree();
+    clearLegacyMenuTree();
   }
 
   function isAllowed(path: string): boolean {

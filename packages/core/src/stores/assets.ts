@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getCoreOptions } from '../context';
-import { resolveNamespacedKey } from '../storage/namespace';
+import { getNamespacedKey } from '../storage/namespace';
 
 type GetImageUrlOptions = {
   /** 强制从后端重新拉取（同时覆盖本地持久化缓存） */
@@ -20,7 +20,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-async function tryReadBizErrorMessageFromBlob(blob: Blob): Promise<string | undefined> {
+async function readBizErrorFromBlob(blob: Blob): Promise<string | undefined> {
   if (blob.size <= 0) return undefined;
   if (blob.size > MAX_JSON_PROBE_SIZE) return undefined;
 
@@ -54,7 +54,7 @@ async function tryReadBizErrorMessageFromBlob(blob: Blob): Promise<string | unde
 }
 
 function resolveDbName() {
-  return resolveNamespacedKey(DB_NAME_BASE);
+  return getNamespacedKey(DB_NAME_BASE);
 }
 
 function openDb(): Promise<IDBDatabase | null> {
@@ -122,7 +122,7 @@ export const useAssetStore = defineStore('ob-assets', () => {
   const urlCache = new Map<string, string>();
   const pending = new Map<string, Promise<string | undefined>>();
 
-  async function fetchImageBlobFromAdapter(id: string): Promise<Blob | undefined> {
+  async function fetchImageBlob(id: string): Promise<Blob | undefined> {
     const adapter = getCoreOptions().adapter;
     const api = adapter.assets?.fetchImageBlob;
     if (!api) return undefined;
@@ -149,7 +149,7 @@ export const useAssetStore = defineStore('ob-assets', () => {
         if (!options.forceRefresh) {
           const cachedBlob = await idbGetBlob(key);
           if (cachedBlob instanceof Blob) {
-            const bizError = await tryReadBizErrorMessageFromBlob(cachedBlob);
+            const bizError = await readBizErrorFromBlob(cachedBlob);
             if (!bizError) {
               const url = URL.createObjectURL(cachedBlob);
               urlCache.set(key, url);
@@ -158,10 +158,10 @@ export const useAssetStore = defineStore('ob-assets', () => {
           }
         }
 
-        const fresh = await fetchImageBlobFromAdapter(key);
+        const fresh = await fetchImageBlob(key);
         if (!fresh) return undefined;
 
-        const bizError = await tryReadBizErrorMessageFromBlob(fresh);
+        const bizError = await readBizErrorFromBlob(fresh);
         if (bizError) {
           throw new Error(bizError);
         }

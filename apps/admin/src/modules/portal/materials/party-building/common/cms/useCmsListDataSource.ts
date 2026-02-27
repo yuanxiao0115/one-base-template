@@ -32,7 +32,7 @@ export const useCmsListDataSource = <T extends CmsListItem>(
   const columnsLoading = ref<boolean>(false);
   const articlesLoading = ref<boolean>(false);
 
-  const updateModelWithDynamicData = (items: CmsListItem[]) => {
+  const updateModelData = (items: CmsListItem[]) => {
     if (!modelValue.value) return;
     modelValue.value.items = items as T[];
   };
@@ -60,7 +60,7 @@ export const useCmsListDataSource = <T extends CmsListItem>(
       if (res.code === 200) {
         const records = (res.data.records || []) as CmsListItem[];
         articles.value = records;
-        updateModelWithDynamicData(records);
+        updateModelData(records);
       }
     } catch (error) {
       console.error('获取文章列表失败', error);

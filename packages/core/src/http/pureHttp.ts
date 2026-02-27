@@ -6,9 +6,9 @@ import type { CreateObHttpOptions, ObBizCode, ObHttpError, ObHttpRequestConfig, 
 export interface ObHttp {
   axios: AxiosInstance;
   /** 取消“可随路由切换中断”的在途请求，返回本次取消数量 */
-  cancelRoutePendingRequests(reason?: string): number;
+  cancelRouteRequests(reason?: string): number;
   /** 在途请求总数（用于调试观测） */
-  getPendingRequestCount(): number;
+  getPendingCount(): number;
 
   request<T = unknown>(
     method: RequestMethods,
@@ -72,7 +72,7 @@ function getHeader(headers: unknown, key: string): string | undefined {
   return typeof direct === 'string' ? direct : undefined;
 }
 
-function parseContentDispositionFileName(headerValue: string | undefined): string | undefined {
+function getFileNameFromHeader(headerValue: string | undefined): string | undefined {
   if (!headerValue) return undefined;
 
   // RFC5987: filename*=UTF-8''xxxx
@@ -102,7 +102,7 @@ function parseContentDispositionFileName(headerValue: string | undefined): strin
   return undefined;
 }
 
-function defaultDownloadFileName(url: string, fallback: string): string {
+function getDefaultFileName(url: string, fallback: string): string {
   try {
     const u = new URL(url, window.location.origin);
     const last = u.pathname.split('/').filter(Boolean).pop();
@@ -124,7 +124,7 @@ function defaultAutoDownload(blob: Blob, fileName: string) {
   URL.revokeObjectURL(url);
 }
 
-async function tryParseBlobJson(
+async function parseBlobJson(
   blob: Blob,
   response: AxiosResponse,
   options: { maxJsonProbeSize: number }
@@ -271,7 +271,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
 
       // 下载：Blob 可能实际是 JSON 错误，需要先探测
       if (config.$isDownload && data instanceof Blob) {
-        const parsed = await tryParseBlobJson(data, response, {
+        const parsed = await parseBlobJson(data, response, {
           maxJsonProbeSize: download.maxJsonProbeSize
         });
 
@@ -280,8 +280,8 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
         } else if (download.autoDownload) {
           const fileName =
             config.$downloadFileName ||
-            parseContentDispositionFileName(getHeader(response.headers, 'content-disposition')) ||
-            defaultDownloadFileName(config.url || '', download.defaultFileName);
+            getFileNameFromHeader(getHeader(response.headers, 'content-disposition')) ||
+            getDefaultFileName(config.url || '', download.defaultFileName);
 
           if (hooks.onAutoDownload) {
             hooks.onAutoDownload({ blob: data, fileName, config, response });
@@ -341,7 +341,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
 
   const http: ObHttp = {
     axios: instance,
-    cancelRoutePendingRequests(reason = 'route-change'): number {
+    cancelRouteRequests(reason = 'route-change'): number {
       let count = 0;
       for (const request of pendingRequests.values()) {
         if (!request.cancelOnRouteChange) continue;
@@ -352,7 +352,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
       }
       return count;
     },
-    getPendingRequestCount(): number {
+    getPendingCount(): number {
       return pendingRequests.size;
     },
     request<T = unknown>(

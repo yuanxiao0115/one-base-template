@@ -1,7 +1,7 @@
 import { readFromStorages } from '../utils/storage';
-import { readWithLegacyFallback, resolveNamespacedPrefix } from '../storage/namespace';
+import { getWithLegacy, getNamespacedPrefix } from '../storage/namespace';
 
-export interface ResolveInitialPathOptions {
+export interface GetInitialPathOptions {
   defaultSystemCode?: string;
   systemHomeMap?: Record<string, string>;
   fallbackHome?: string;
@@ -22,13 +22,13 @@ function isHttpUrl(path: string): boolean {
   return /^https?:\/\//i.test(path);
 }
 
-function readStoredCurrentSystemCode(storageNamespace?: string): string {
-  const hit = readWithLegacyFallback('ob_system_current', ['local', 'session'], storageNamespace);
+function getStoredSystemCode(storageNamespace?: string): string {
+  const hit = getWithLegacy('ob_system_current', ['local', 'session'], storageNamespace);
   return isNonEmptyString(hit?.value) ? hit.value : '';
 }
 
-function readStoredMenuTree(systemCode: string, storageNamespace?: string): unknown[] | null {
-  const scopedPrefix = resolveNamespacedPrefix('ob_menu_tree:', storageNamespace);
+function getStoredMenuTree(systemCode: string, storageNamespace?: string): unknown[] | null {
+  const scopedPrefix = getNamespacedPrefix('ob_menu_tree:', storageNamespace);
   const scopedKey = `${scopedPrefix}${systemCode}`;
   const legacyKey = `ob_menu_tree:${systemCode}`;
 
@@ -46,7 +46,7 @@ function readStoredMenuTree(systemCode: string, storageNamespace?: string): unkn
   }
 }
 
-function findFirstLeafPathFromStoredTree(list: unknown[]): string | undefined {
+function getFirstLeafPath(list: unknown[]): string | undefined {
   const walk = (items: unknown[]): string | undefined => {
     for (const item of items) {
       if (!item || typeof item !== 'object') continue;
@@ -73,10 +73,10 @@ function findFirstLeafPathFromStoredTree(list: unknown[]): string | undefined {
   return walk(list);
 }
 
-export function resolveInitialPathFromStorage(options: ResolveInitialPathOptions = {}): string {
+export function getInitialPath(options: GetInitialPathOptions = {}): string {
   const fallbackHome = options.fallbackHome && options.fallbackHome.startsWith('/') ? options.fallbackHome : '/home/index';
 
-  const currentSystemCode = readStoredCurrentSystemCode(options.storageNamespace);
+  const currentSystemCode = getStoredSystemCode(options.storageNamespace);
   const code = currentSystemCode || options.defaultSystemCode || '';
 
   const mapped = code ? options.systemHomeMap?.[code] : undefined;
@@ -85,9 +85,9 @@ export function resolveInitialPathFromStorage(options: ResolveInitialPathOptions
   }
 
   if (code) {
-    const cachedTree = readStoredMenuTree(code, options.storageNamespace);
+    const cachedTree = getStoredMenuTree(code, options.storageNamespace);
     if (cachedTree?.length) {
-      const leaf = findFirstLeafPathFromStoredTree(cachedTree);
+      const leaf = getFirstLeafPath(cachedTree);
       if (leaf) return leaf;
     }
   }

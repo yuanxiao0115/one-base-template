@@ -62,8 +62,8 @@ await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } })
 
 此外，`ObHttp` 实例还提供：
 
-- `cancelRoutePendingRequests(reason?)`：取消当前“可随路由切换中断”的在途请求
-- `getPendingRequestCount()`：获取在途请求数量（调试观测用）
+- `cancelRouteRequests(reason?)`：取消当前“可随路由切换中断”的在途请求
+- `getPendingCount()`：获取在途请求数量（调试观测用）
 
 ### 2.3 业务码（Biz）约定与可扩展点
 
@@ -115,7 +115,7 @@ declare module '@one-base-template/core' {
 
 首次进入路由兜底（根路由重定向）建议使用：
 
-- `resolveInitialPathFromStorage({ defaultSystemCode, systemHomeMap, storageNamespace, fallbackHome })`
+- `getInitialPath({ defaultSystemCode, systemHomeMap, storageNamespace, fallbackHome })`
 
 决策顺序：
 1) 命中 `systemHomeMap[当前系统]`
@@ -135,8 +135,8 @@ declare module '@one-base-template/core' {
 
 为降低 admin/其他消费者重复维护配置校验逻辑的成本，core 提供：
 
-- `parsePlatformRuntimeConfig(input)`：解析并校验运行时配置对象
-- `PlatformRuntimeConfig`：配置类型定义（含 `backend/authMode/menuMode/systemHomeMap` 等）
+- `parseRuntimeConfig(input)`：解析并校验运行时配置对象
+- `RuntimeConfig`：配置类型定义（含 `backend/authMode/menuMode/systemHomeMap` 等）
 
 安全口径约定：
 

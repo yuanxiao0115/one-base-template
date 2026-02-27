@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { removeFromStorages, safeSetToStorage } from '../utils/storage';
-import { readWithLegacyFallback, removeByScopedPrefixes, removeScopedAndLegacy, resolveNamespacedKey } from '../storage/namespace';
+import { getWithLegacy, clearByPrefixes, removeWithLegacy, getNamespacedKey } from '../storage/namespace';
 
 export interface AppSystemInfo {
   code: string;
@@ -33,12 +33,12 @@ function isNonEmptyString(v: unknown): v is string {
 }
 
 function readStoredCurrent(): string | null {
-  const hit = readWithLegacyFallback(SYSTEM_CURRENT_STORAGE_BASE_KEY, ['local', 'session']);
+  const hit = getWithLegacy(SYSTEM_CURRENT_STORAGE_BASE_KEY, ['local', 'session']);
   return isNonEmptyString(hit?.value) ? hit.value : null;
 }
 
 function writeStoredCurrent(code: string) {
-  const key = resolveNamespacedKey(SYSTEM_CURRENT_STORAGE_BASE_KEY);
+  const key = getNamespacedKey(SYSTEM_CURRENT_STORAGE_BASE_KEY);
 
   // 降级策略：
   // - 优先 localStorage（跨 Tab/浏览器刷新）
@@ -49,7 +49,7 @@ function writeStoredCurrent(code: string) {
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
       // 菜单树缓存体积最大，且可重新拉取，优先清理为关键状态让路
-      removeByScopedPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+      clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
     }
   });
 
@@ -59,12 +59,12 @@ function writeStoredCurrent(code: string) {
 }
 
 function clearStoredCurrent() {
-  removeScopedAndLegacy(SYSTEM_CURRENT_STORAGE_BASE_KEY, ['local', 'session']);
+  removeWithLegacy(SYSTEM_CURRENT_STORAGE_BASE_KEY, ['local', 'session']);
 }
 
 function readStoredSystems(): AppSystemInfo[] | null {
   try {
-    const hit = readWithLegacyFallback(SYSTEM_LIST_STORAGE_BASE_KEY, ['local', 'session']);
+    const hit = getWithLegacy(SYSTEM_LIST_STORAGE_BASE_KEY, ['local', 'session']);
     if (!hit?.value) return null;
 
     const parsed = JSON.parse(hit.value) as unknown;
@@ -84,19 +84,19 @@ function readStoredSystems(): AppSystemInfo[] | null {
     return list.length ? list : null;
   } catch {
     // localStorage 不可用或 JSON 解析失败时，直接清理缓存，避免后续反复报错
-    removeScopedAndLegacy(SYSTEM_LIST_STORAGE_BASE_KEY, ['local', 'session']);
+    removeWithLegacy(SYSTEM_LIST_STORAGE_BASE_KEY, ['local', 'session']);
     return null;
   }
 }
 
 function writeStoredSystems(list: AppSystemInfo[]) {
-  const key = resolveNamespacedKey(SYSTEM_LIST_STORAGE_BASE_KEY);
+  const key = getNamespacedKey(SYSTEM_LIST_STORAGE_BASE_KEY);
 
   safeSetToStorage(key, JSON.stringify(list), {
     primary: 'local',
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
-      removeByScopedPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+      clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
     }
   });
 
@@ -106,7 +106,7 @@ function writeStoredSystems(list: AppSystemInfo[]) {
 }
 
 function clearStoredSystems() {
-  removeScopedAndLegacy(SYSTEM_LIST_STORAGE_BASE_KEY, ['local', 'session']);
+  removeWithLegacy(SYSTEM_LIST_STORAGE_BASE_KEY, ['local', 'session']);
 }
 
 export const useSystemStore = defineStore('ob-system', () => {

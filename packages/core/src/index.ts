@@ -1,7 +1,7 @@
 export { createCore, type CoreOptions } from './createCore';
 export {
-  parsePlatformRuntimeConfig,
-  type PlatformRuntimeConfig,
+  parseRuntimeConfig,
+  type RuntimeConfig,
   type BackendKind,
   type AuthMode,
   type MenuMode as PlatformMenuMode,
@@ -71,14 +71,14 @@ export type { ThemePresetKey, OneTokenMap, PrimaryScale } from './theme/one';
 
 export { setupRouterGuards, type RouterGuardOptions } from './router/guards';
 export { handleSsoCallback } from './router/sso';
-export { resolveInitialPathFromStorage, type ResolveInitialPathOptions } from './router/initial-path';
+export { getInitialPath, type GetInitialPathOptions } from './router/initial-path';
 export {
   getCoreStorageNamespace,
-  resolveNamespacedKey,
-  resolveNamespacedPrefix,
-  readWithLegacyFallback,
-  removeScopedAndLegacy,
-  removeByScopedPrefixes
+  getNamespacedKey,
+  getNamespacedPrefix,
+  getWithLegacy,
+  removeWithLegacy,
+  clearByPrefixes
 } from './storage/namespace';
 
 export { createStaticMenusFromRoutes, type CreateStaticMenusOptions } from './menu/fromRoutes';

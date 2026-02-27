@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { removeFromStorages, safeSetToStorage } from '../utils/storage';
-import { readWithLegacyFallback, removeByScopedPrefixes, resolveNamespacedKey } from '../storage/namespace';
+import { getWithLegacy, clearByPrefixes, getNamespacedKey } from '../storage/namespace';
 
 /**
  * 布局模式：
@@ -36,7 +36,7 @@ type StoredLayout = {
 };
 
 function readStoredLayout(): StoredLayout {
-  const hit = readWithLegacyFallback(STORAGE_BASE_KEY, ['local', 'session']);
+  const hit = getWithLegacy(STORAGE_BASE_KEY, ['local', 'session']);
   if (!hit?.value) return {};
 
   try {
@@ -49,14 +49,14 @@ function readStoredLayout(): StoredLayout {
 }
 
 function writeStoredLayout(next: StoredLayout) {
-  const key = resolveNamespacedKey(STORAGE_BASE_KEY);
+  const key = getNamespacedKey(STORAGE_BASE_KEY);
 
   safeSetToStorage(key, JSON.stringify(next), {
     primary: 'local',
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
       // 菜单缓存可重新拉取，优先清理避免影响布局/主题等关键状态的持久化
-      removeByScopedPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+      clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
     }
   });
 

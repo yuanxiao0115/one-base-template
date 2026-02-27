@@ -124,7 +124,7 @@ const dynamicListItems = ref<ListItem[]>([]);
 const dataLoading = ref(false);
 const dataError = ref<string | null>(null);
 // 请求去重：记录当前正在请求的 categoryId
-const currentRequestingCategoryId = ref<string | null>(null);
+const loadingCategoryId = ref<string | null>(null);
 // 当前活动的轮播图索引
 const activeIndex = ref(0);
 
@@ -138,18 +138,18 @@ const loadDataByCategory = async (categoryId: string) => {
   if (!categoryId) {
     dynamicCarouselItems.value = [];
     dynamicListItems.value = [];
-    currentRequestingCategoryId.value = null;
+    loadingCategoryId.value = null;
     return;
   }
 
   // 请求去重：如果正在请求相同的 categoryId，则跳过
-  if (dataLoading.value && currentRequestingCategoryId.value === categoryId) {
+  if (dataLoading.value && loadingCategoryId.value === categoryId) {
     return;
   }
 
   dataLoading.value = true;
   dataError.value = null;
-  currentRequestingCategoryId.value = categoryId;
+  loadingCategoryId.value = categoryId;
 
   try {
     // 并行获取轮播图和列表数据
@@ -192,7 +192,7 @@ const loadDataByCategory = async (categoryId: string) => {
     dynamicListItems.value = [];
   } finally {
     dataLoading.value = false;
-    currentRequestingCategoryId.value = null;
+    loadingCategoryId.value = null;
   }
 };
 
@@ -263,7 +263,7 @@ watch(
       // 如果 categoryId 被清空，清空数据
       dynamicCarouselItems.value = [];
       dynamicListItems.value = [];
-      currentRequestingCategoryId.value = null;
+      loadingCategoryId.value = null;
     }
   },
   { immediate: true }

@@ -92,7 +92,7 @@ function normalizeHexColor(raw: string): string | null {
   return null;
 }
 
-function normalizeOptionalHexColor(raw: unknown): string | null {
+function toHexColor(raw: unknown): string | null {
   if (typeof raw !== 'string') return null;
   return normalizeHexColor(raw);
 }
@@ -114,7 +114,7 @@ function readStoredThemeState(storageKey: string): StoredThemeState | null {
     const data = parsed as Partial<StoredThemeState>;
     const mode = data.mode === 'custom' ? 'custom' : data.mode === 'preset' ? 'preset' : null;
     const presetKey = typeof data.presetKey === 'string' ? data.presetKey : null;
-    const customPrimary = normalizeOptionalHexColor(data.customPrimary);
+    const customPrimary = toHexColor(data.customPrimary);
     const grayscale = data.grayscale === true;
 
     if (!mode || !presetKey) return null;
@@ -144,10 +144,10 @@ function writeStoredThemeState(storageKey: string, state: StoredThemeState) {
 
 function resolveSemantic(theme: ThemeDefinition): Required<ThemeSemanticColors> {
   return {
-    success: normalizeOptionalHexColor(theme.semantic?.success) ?? DEFAULT_SEMANTIC.success,
-    warning: normalizeOptionalHexColor(theme.semantic?.warning) ?? DEFAULT_SEMANTIC.warning,
-    error: normalizeOptionalHexColor(theme.semantic?.error) ?? DEFAULT_SEMANTIC.error,
-    info: normalizeOptionalHexColor(theme.semantic?.info) ?? DEFAULT_SEMANTIC.info
+    success: toHexColor(theme.semantic?.success) ?? DEFAULT_SEMANTIC.success,
+    warning: toHexColor(theme.semantic?.warning) ?? DEFAULT_SEMANTIC.warning,
+    error: toHexColor(theme.semantic?.error) ?? DEFAULT_SEMANTIC.error,
+    info: toHexColor(theme.semantic?.info) ?? DEFAULT_SEMANTIC.info
   };
 }
 
@@ -177,7 +177,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
   const currentSemantic = computed(() => resolveSemantic(currentTheme.value ?? { primary: '#409EFF' }));
   const currentPrimary = computed(() => {
     if (themeMode.value === 'custom' && customPrimary.value) return customPrimary.value;
-    return normalizeOptionalHexColor(currentTheme.value?.primary) ?? '#409EFF';
+    return toHexColor(currentTheme.value?.primary) ?? '#409EFF';
   });
 
   function applyCurrentTheme() {
@@ -186,7 +186,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
       throw new Error(`[theme] 未定义主题: ${themeKey.value}`);
     }
 
-    const presetPrimary = normalizeOptionalHexColor(theme.primary);
+    const presetPrimary = toHexColor(theme.primary);
     if (!presetPrimary) {
       throw new Error(`[theme] 主题主色非法: ${theme.primary}`);
     }
@@ -238,7 +238,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
 
     themeKey.value = stored?.presetKey && themes.value[stored.presetKey] ? stored.presetKey : fallbackPreset;
 
-    const storedCustom = normalizeOptionalHexColor(stored?.customPrimary);
+    const storedCustom = toHexColor(stored?.customPrimary);
     const canUseCustom = allowCustomPrimary.value && stored?.mode === 'custom' && Boolean(storedCustom);
 
     themeMode.value = canUseCustom ? 'custom' : 'preset';
@@ -280,7 +280,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
     }
 
     if (mode === 'custom' && !customPrimary.value) {
-      const presetPrimary = normalizeOptionalHexColor(currentTheme.value?.primary);
+      const presetPrimary = toHexColor(currentTheme.value?.primary);
       if (!presetPrimary) {
         throw new Error('[theme] 当前预设主题主色无效，无法进入自定义模式');
       }

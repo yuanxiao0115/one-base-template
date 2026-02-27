@@ -1,12 +1,12 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { resolveInitialPathFromStorage } from '@one-base-template/core';
+import { getInitialPath } from '@one-base-template/core';
 import { AdminLayout, ForbiddenPage, NotFoundPage } from '@one-base-template/ui';
 
 import { appEnv } from '../infra/env';
 import { getEnabledModules } from './registry';
 
 function getRootRedirect(): string {
-  return resolveInitialPathFromStorage({
+  return getInitialPath({
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
     storageNamespace: appEnv.storageNamespace,

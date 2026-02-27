@@ -54,9 +54,9 @@ Expected: 通过（作为改造前基线）
 **Step 2: 实现 namespace 工具（统一 key/前缀/DB 名）**
 
 - 在 core 内提供：
-  - `resolveNamespacedKey(baseKey, namespace)`
-  - `resolveNamespacedPrefix(basePrefix, namespace)`
-  - `readWithLegacyFallback()`（先读 namespace，再读旧 key）
+  - `getNamespacedKey(baseKey, namespace)`
+  - `getNamespacedPrefix(basePrefix, namespace)`
+  - `getWithLegacy()`（先读 namespace，再读旧 key）
 
 **Step 3: 逐个 store 收口并保留兼容读取**
 

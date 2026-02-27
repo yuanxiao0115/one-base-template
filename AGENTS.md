@@ -125,3 +125,4 @@ packages/
 - **组织管理树形迁移必须对齐老项目 `parentId` 逻辑：根查询/搜索均透传 `companyId`（无值回退 `0`），禁止固定写死 `parentId='0'`**
 - **`apps/admin/src/styles/index.css` 禁止再通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/main.ts` 里显式导入 `styles/element-plus/*.css`，避免 PostCSS 路径解析 ENOENT**
 - **命名必须“短、清楚、通用”：优先使用 `get/list/build/create/update/remove` 等常见词，避免过度抽象或过长命名（如 `resolve/assemble/orchestrate` 连续叠加）**
+- **方法命名优先“动词 + 名词”结构（例如 `getInitialPath`、`parseRuntimeConfig`、`clearByPrefixes`），避免语义不明缩写与链式长词**
