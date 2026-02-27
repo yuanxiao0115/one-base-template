@@ -34,6 +34,7 @@ const whitelist = JSON.parse(raw);
 - `list`
 - `find`
 - `load`
+- `login`
 - `create`
 - `add`
 - `update`
@@ -52,6 +53,14 @@ const whitelist = JSON.parse(raw);
 - `start`
 - `stop`
 - `fetch`
+- `warn`
+
+### 断言/判断方法（允许前缀）
+
+- `is`
+- `has`
+- `can`
+- `should`
 
 ### store action（Pinia）
 
@@ -100,3 +109,19 @@ const whitelist = JSON.parse(raw);
 2. 若同语义存在多个词，按优先级选短词：`get > fetch`、`remove > delete`（业务层）。
 3. 未命中时回退到 `get`（查询）或 `update`（修改）。
 4. 事件函数强制 `on` 前缀，composable 强制 `use` 前缀。
+
+## 自动校验（仓库内）
+
+根目录可执行：
+
+```bash
+pnpm check:naming
+```
+
+默认校验范围：
+
+- `apps/admin/src/router`
+- `apps/admin/src/shared/services`
+- `apps/admin/src/modules/**/module.ts`
+- `apps/admin/src/modules/**/api/*.ts`
+- `apps/admin/src/modules/**/services/*.ts`

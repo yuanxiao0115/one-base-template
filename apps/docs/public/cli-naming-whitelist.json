@@ -6,6 +6,7 @@
     "list",
     "find",
     "load",
+    "login",
     "create",
     "add",
     "update",
@@ -23,7 +24,8 @@
     "close",
     "start",
     "stop",
-    "fetch"
+    "fetch",
+    "warn"
   ],
   "storeActionVerbs": [
     "set",
@@ -43,6 +45,12 @@
   ],
   "eventHandlerPrefix": "on",
   "composablePrefix": "use",
+  "predicateVerbs": [
+    "is",
+    "has",
+    "can",
+    "should"
+  ],
   "discouragedVerbs": [
     "assemble",
     "orchestrate",
@@ -56,5 +64,12 @@
     "methodPattern": "verb + noun",
     "preferShortNames": true,
     "allowHandleOnlyForEvents": true
+  },
+  "checkTargets": {
+    "router": "apps/admin/src/router",
+    "sharedServices": "apps/admin/src/shared/services",
+    "moduleApi": "apps/admin/src/modules/**/api",
+    "moduleServices": "apps/admin/src/modules/**/services",
+    "moduleEntry": "apps/admin/src/modules/**/module.ts"
   }
 }

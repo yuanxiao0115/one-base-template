@@ -29,6 +29,7 @@ withDefaults(
     date: '',
     showDot: false,
     titleTag: 'div',
+    href: '',
     target: '_blank'
   }
 );

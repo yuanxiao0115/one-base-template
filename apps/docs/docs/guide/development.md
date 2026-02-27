@@ -8,6 +8,7 @@
 pnpm typecheck
 pnpm lint
 pnpm build
+pnpm check:naming
 ```
 
 ## 文档必须随功能演进同步更新
@@ -31,6 +32,17 @@ pnpm -C apps/docs dev
 ```bash
 pnpm -C apps/docs build
 ```
+
+## 命名规范校验
+
+为保证“动词 + 名词”的通用命名约束，仓库提供命名白名单检查脚本：
+
+```bash
+pnpm check:naming
+```
+
+白名单来源：`apps/docs/public/cli-naming-whitelist.json`  
+规则说明：`/guide/naming-whitelist`
 
 ## admin 启动与 env 约束
 

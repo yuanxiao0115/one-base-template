@@ -13,7 +13,8 @@
     "dev:turbo": "turbo run dev",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "check:naming": "node ./scripts/check-naming.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

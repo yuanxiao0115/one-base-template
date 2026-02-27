@@ -112,7 +112,6 @@ interface ListItem {
 const props = defineProps({
   schema: {
     type: Object,
-    required: true,
     default: () => ({})
   }
 });

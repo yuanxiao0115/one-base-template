@@ -24,6 +24,7 @@ const props = withDefaults(
     text: '',
     showDot: false,
     tag: 'div',
+    href: '',
     target: '_blank'
   }
 );
