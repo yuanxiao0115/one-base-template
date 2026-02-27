@@ -1,4 +1,4 @@
-import type { AdminModuleManifest } from '@/router/module-system/types';
+import type { AdminModuleManifest } from '@/router/types';
 import layoutRoutes from './routes/layout';
 
 const homeModule: AdminModuleManifest = {

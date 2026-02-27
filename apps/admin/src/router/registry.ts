@@ -5,7 +5,7 @@ type RouteModule = {
   module?: AdminModuleManifest;
 };
 
-const modules = import.meta.glob('../../modules/**/module.ts', {
+const modules = import.meta.glob('../modules/**/module.ts', {
   eager: true
 }) as Record<string, RouteModule>;
 

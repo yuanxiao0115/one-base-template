@@ -84,7 +84,7 @@ pnpm build
 
 - 路由全量静态声明在模块内：`apps/admin/src/modules/**/routes/*.ts`
 - 模块唯一入口：`apps/admin/src/modules/**/module.ts`（Manifest）
-- 路由统一由 `apps/admin/src/router/module-system/assemble-routes.ts` 组装
+- 路由统一由 `apps/admin/src/router/assemble-routes.ts` 组装
 - 支持运行时白名单切割：`platform-config.json` 的 `enabledModules`
 
 ## 动态菜单 + 静态路由（核心规则）

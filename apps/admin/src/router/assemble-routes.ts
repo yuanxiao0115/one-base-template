@@ -2,7 +2,7 @@ import type { RouteRecordRaw } from 'vue-router';
 import { getInitialPath } from '@one-base-template/core';
 import { AdminLayout, ForbiddenPage, NotFoundPage } from '@one-base-template/ui';
 
-import { appEnv } from '../../infra/env';
+import { appEnv } from '../infra/env';
 import { getEnabledModules } from './registry';
 
 function getRootRedirect(): string {
@@ -30,13 +30,13 @@ export function getAppRoutes(): RouteRecordRaw[] {
     {
       path: '/login',
       name: 'Login',
-      component: () => import('../../pages/login/LoginPage.vue'),
+      component: () => import('../pages/login/LoginPage.vue'),
       meta: { public: true, hiddenTab: true }
     },
     {
       path: '/sso',
       name: 'Sso',
-      component: () => import('../../pages/sso/SsoCallbackPage.vue'),
+      component: () => import('../pages/sso/SsoCallbackPage.vue'),
       meta: { public: true, hiddenTab: true }
     },
     {
