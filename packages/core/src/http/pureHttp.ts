@@ -5,6 +5,10 @@ import type { CreateObHttpOptions, ObBizCode, ObHttpError, ObHttpRequestConfig, 
 
 export interface ObHttp {
   axios: AxiosInstance;
+  /** 取消“可随路由切换中断”的在途请求，返回本次取消数量 */
+  cancelRoutePendingRequests(reason?: string): number;
+  /** 在途请求总数（用于调试观测） */
+  getPendingRequestCount(): number;
 
   request<T = unknown>(
     method: RequestMethods,
@@ -202,8 +206,28 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     defaultFileName: options.download?.defaultFileName ?? 'download'
   };
 
+  type PendingRequest = {
+    controller: AbortController | null;
+    cancelOnRouteChange: boolean;
+  };
+
+  const pendingRequests = new Map<number, PendingRequest>();
+  let requestIdSeed = 0;
+
   async function requestInternal<T>(config: ObHttpRequestConfig): Promise<T> {
     hooks.onRequestStart?.(config);
+
+    const requestId = ++requestIdSeed;
+    const cancelOnRouteChange = config.$cancelOnRouteChange ?? true;
+    // 仅在业务未显式传 signal 时挂接内部 AbortController，方便统一做路由切换取消。
+    const controller = !config.signal ? new AbortController() : null;
+    if (controller) {
+      config.signal = controller.signal;
+    }
+    pendingRequests.set(requestId, {
+      controller,
+      cancelOnRouteChange
+    });
 
     // token / cookie 混合模式：根据配置决定是否附加 Authorization
     if (authMode === 'token' || authMode === 'mixed') {
@@ -292,22 +316,45 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
       return data as T;
     } catch (error: unknown) {
       const obError = error as ObHttpError;
-      obError.isCancelRequest = Axios.isCancel(obError);
+      const canceled =
+        Axios.isCancel(obError) ||
+        obError.code === 'ERR_CANCELED' ||
+        obError.name === 'CanceledError' ||
+        obError.name === 'AbortError';
+      obError.isCancelRequest = canceled;
 
       const status = obError.response?.status;
       if (status === 401) {
         hooks.onUnauthorized?.({ by: 'http-status', code: 401 });
       }
 
-      hooks.onNetworkError?.(obError);
+      // 主动取消属于预期行为，不应该走全局网络报错提示。
+      if (!canceled) {
+        hooks.onNetworkError?.(obError);
+      }
       throw obError;
     } finally {
+      pendingRequests.delete(requestId);
       hooks.onRequestEnd?.(config);
     }
   }
 
   const http: ObHttp = {
     axios: instance,
+    cancelRoutePendingRequests(reason = 'route-change'): number {
+      let count = 0;
+      for (const request of pendingRequests.values()) {
+        if (!request.cancelOnRouteChange) continue;
+        if (!request.controller) continue;
+        if (request.controller.signal.aborted) continue;
+        request.controller.abort(reason);
+        count += 1;
+      }
+      return count;
+    },
+    getPendingRequestCount(): number {
+      return pendingRequests.size;
+    },
     request<T = unknown>(
       method: RequestMethods,
       url: string,

@@ -26,7 +26,7 @@ type FeedbackScale = {
   light7: string;
 };
 
-type FeedbackKey = 'success' | 'warning' | 'error' | 'info' | 'link';
+type FeedbackKey = 'success' | 'warning' | 'error' | 'info';
 type PaletteKey = 'red' | 'blue' | 'green' | 'yellow' | 'gray';
 
 type ThemePresetTokens = {
@@ -99,9 +99,19 @@ const BASE_STATIC_TOKENS: OneTokenMap = {
   '--one-disabled-bg-color': 'var(--one-bg-color-1)',
   '--one-disabled-text-color': 'var(--one-text-color-placeholder)',
   '--one-disabled-border-color': '#D8D8D8',
-  '--one-button-disabled-text-color': 'var(--one-text-color-regular)',
+  '--one-button-disabled-text-color': 'var(--one-text-color-placeholder)',
   '--one-button-disabled-bg-color': 'var(--one-bg-color-1)',
   '--one-button-disabled-border-color': '#DCDCDC',
+
+  // link 色阶由静态 token 提供，不参与 feedback 状态集合。
+  '--one-color-link': '#0F79E9',
+  '--one-color-link-light-1': '#E7F1FC',
+  '--one-color-link-light-2': '#C3DDF9',
+  '--one-color-link-light-3': '#9FC9F6',
+  '--one-color-link-light-4': '#7BB5F2',
+  '--one-color-link-light-5': '#5491EB',
+  '--one-color-link-light-6': '#0F79E9',
+  '--one-color-link-light-7': '#0B61E2',
 
   '--one-mask-color': 'rgba(51, 51, 51, 0.6)',
   '--one-mask-color-extra-light': 'rgba(0, 0, 0, 0.3)',
@@ -188,16 +198,6 @@ const PRESET_TOKENS: ThemePresetTokens = {
       light5: '#B1B3B8',
       light6: '#909399',
       light7: '#73767A'
-    },
-    // link 归类为反馈状态色的一部分，采用固定七阶，不随主题切换变化。
-    link: {
-      light1: '#E7F1FC',
-      light2: '#C3DDF9',
-      light3: '#9FC9F6',
-      light4: '#7BB5F2',
-      light5: '#5491EB',
-      light6: '#0F79E9',
-      light7: '#0B61E2'
     }
   }
 };

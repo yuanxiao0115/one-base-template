@@ -98,7 +98,7 @@ One 主题不再把 token 写到 `html.style`，而是写入 `head` 下的两个
 - `tokenPresetKey?: 'blue' | 'red'`：命中 core 内置预设时使用固定主色链路
 - `primaryScale?: { light1..light9 }`：业务自定义完整九阶主色链路
 - `semantic?: { success/warning/error/info }`：语义状态色扩展位（One 默认应用器当前不消费）
-- `link`：链接状态色链路由 core 统一维护（固定 7 阶），不在 `semantic` 字段内单独配置
+- `link`：链接色链路由 core 静态 token 统一维护（固定 7 阶），不在 `semantic` 字段内配置
 
 ### 注册方式 A：只给主色（动态计算九阶）
 
@@ -199,11 +199,10 @@ themeStore.setGrayscale(true);        // 开启全局灰色模式
 - `custom` 仅覆盖主色链路（`--one-color-primary-light-1..9`）
 - 与 `preset` 互斥，切回预设可恢复
 
-### 3) 反馈状态色规则（含 link，固定）
+### 3) 反馈状态色规则（固定）
 
-- 反馈状态色（`success/warning/error/info/link`）固定，不随主题变化
-- 其中 `link` 固定 7 阶：
-  - `#E7F1FC #C3DDF9 #9FC9F6 #7BB5F2 #5491EB #0F79E9 #0B61E2`
+- 反馈状态色（`success/warning/error/info`）固定，不随主题变化
+- `link` 不再归入 feedback 状态集合，改为 core 静态 token 维护（固定 7 阶）
 
 ### 4) 灰色模式（grayscale）
 
@@ -267,6 +266,58 @@ themeStore.setGrayscale(true);        // 开启全局灰色模式
 
 ---
 
+## 二次确认弹窗规范（Admin）
+
+为统一删除/高风险操作的确认体验，admin 侧新增了统一二次确认入口：
+
+- 逻辑封装：`apps/admin/src/infra/confirm.ts`
+- 样式落点：`apps/admin/src/styles/element-plus/message-box-overrides.css`（类名：`.ob-secondary-confirm`）
+
+视觉规范：
+
+- 弹窗宽高：`480px`（最小高 `138px`）
+- 背景色：`#FFFFFF`
+- 标题与状态 icon：同一行；标题 `16px/24px`，icon `24px`，两者间距 `10px`
+- 标题：`16px`，`#333333`
+- 内容：`14px`，`#666666`
+- 按钮：`60px × 32px`
+- 阴影：
+  - `0px 6px 30px 5px rgba(0, 0, 0, 0.05)`
+  - `0px 16px 24px 2px rgba(0, 0, 0, 0.04)`
+  - `0px 8px 10px -5px rgba(0, 0, 0, 0.08)`
+
+使用方式（推荐）：
+
+```ts
+import { confirm } from '@/infra/confirm'
+
+await confirm.warn('确定要删除该记录吗？', '删除确认')
+await confirm.success('操作即将生效，是否继续？', '成功信息')
+await confirm.error('该操作无法撤销，是否继续？', '失败信息')
+```
+
+说明：
+
+- 默认 `type: 'warning'`，并提供“确定 / 取消”按钮与右上角关闭入口
+- 仅二次确认弹窗挂载该样式类，不影响 `ElMessageBox.prompt` 等输入类弹窗
+- 提供三色快捷命名：`confirm.warn` / `confirm.success` / `confirm.error`
+- 可在 admin 演示页访问：`/demo/confirm`
+
+---
+
+## 按钮规范（Element Plus 覆盖）
+
+按钮规范已拆分到独立章节：**[组件样式（按钮）](/guide/button-styles)**。
+
+这里保留最小链路说明：
+
+- 主题 token：`packages/core/src/theme/one/theme-tokens.ts`
+- Element 变量桥接：`packages/core/src/theme/one/apply-theme.ts`
+- admin 覆盖：`apps/admin/src/styles/element-plus/button-overrides.css`
+- admin 演示页：`/demo/button-style`
+
+---
+
 ## 持久化结构
 
 ```json
@@ -299,7 +350,8 @@ themeStore.setGrayscale(true);        // 开启全局灰色模式
    - 存在 `style#one-theme-runtime`
 2. 切换主题前后对比变量：
    - `--one-color-primary-light-*` 应变化
-   - `--one-color-success/warning/error/info/link*` 应保持不变
+   - `--one-color-success/warning/error/info*` 应保持不变
+   - `--one-color-link*` 由静态 token 提供，切换主题时应保持不变
 3. 检查 UI 联动：
    - TopBar 系统菜单激活态跟随 `--one-color-primary-light-9`
    - Link 按钮颜色跟随 `--one-color-link*`

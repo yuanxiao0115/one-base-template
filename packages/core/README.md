@@ -1,6 +1,6 @@
 # @one-base-template/core
 
-本包是脚手架的“纯逻辑核心”，目标是让 `apps/*` 与 `packages/ui` 都能在不耦合具体后端字段、也不依赖 UI 库的前提下复用鉴权/菜单/SSO/主题/tabs/http 等能力。
+本包是脚手架的“纯逻辑核心”，目标是让 `apps/*` 与 `packages/ui` 都能在不耦合具体后端字段、也不依赖 UI 库的前提下复用鉴权/菜单/SSO/主题/http 等能力。
 
 ## 1. 适配器（Adapter）契约
 
@@ -56,8 +56,14 @@ await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } })
 - `$noErrorAlert?: boolean`：业务码错误时不触发 `onBizError`
 - `$rawResponse?: boolean`：返回原始 `AxiosResponse`
 - `$throwOnBizError?: boolean`：业务码失败时强制抛异常（默认不抛，贴近旧项目习惯）
+- `$cancelOnRouteChange?: boolean`：路由切换时是否自动取消该请求（默认 `true`）
 - `$isAuth?: boolean` + `token?: string`：token/mixed 模式下，允许单次请求显式传 token
 - `beforeRequestCallback / beforeResponseCallback`：单次请求回调（优先级高于全局）
+
+此外，`ObHttp` 实例还提供：
+
+- `cancelRoutePendingRequests(reason?)`：取消当前“可随路由切换中断”的在途请求
+- `getPendingRequestCount()`：获取在途请求数量（调试观测用）
 
 ### 2.3 业务码（Biz）约定与可扩展点
 
@@ -100,3 +106,39 @@ declare module '@one-base-template/core' {
   - `static`：菜单树从静态路由 `meta.title` 生成（适合简单项目）
 
 注意：本脚手架约定“路由始终静态声明”，菜单只影响**显示与访问控制**，不会做动态 addRoute。
+
+## 4. 存储命名空间与首次路由能力
+
+- `createCore({ storageNamespace })`：为 core 内建状态缓存增加命名空间前缀，避免多应用同域 key 冲突。
+- 已纳入命名空间规则的存储：auth/system/menu/layout/assets。
+- 兼容策略：读取阶段自动回退 legacy key（无命名空间），支持平滑升级。
+
+首次进入路由兜底（根路由重定向）建议使用：
+
+- `resolveInitialPathFromStorage({ defaultSystemCode, systemHomeMap, storageNamespace, fallbackHome })`
+
+决策顺序：
+1) 命中 `systemHomeMap[当前系统]`
+2) 未命中时尝试菜单缓存的首个可访问叶子路径
+3) 全部未命中回退 `fallbackHome`
+
+## 5. 通用鉴权收口函数
+
+为减少应用层重复的“登录后拉取用户与菜单”样板代码，core 提供：
+
+- `finalizeAuthSession({ shouldFetchMe })`
+  - `shouldFetchMe=true`：适合 token 直登/SSO 落 token 后
+  - `shouldFetchMe=false`：适合已执行 `authStore.login()` 的场景
+- `safeRedirect(raw, fallback)`：统一站内 redirect 安全校验
+
+## 6. 运行时配置 Schema（platform-config）
+
+为降低 admin/其他消费者重复维护配置校验逻辑的成本，core 提供：
+
+- `parsePlatformRuntimeConfig(input)`：解析并校验运行时配置对象
+- `PlatformRuntimeConfig`：配置类型定义（含 `backend/authMode/menuMode/systemHomeMap` 等）
+
+安全口径约定：
+
+- sczfw 签名字段统一命名为 `clientSignatureSalt`（公开盐值）
+- 若仍传 `clientSignatureSecret`，解析阶段会直接报错并提示改名

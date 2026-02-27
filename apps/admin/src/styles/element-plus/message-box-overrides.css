@@ -1,0 +1,92 @@
+/* 二次确认弹窗：统一贴近设计稿（480x138、紧凑按钮、标题/内容字号）。 */
+.el-message-box.ob-secondary-confirm {
+  --el-messagebox-width: 480px;
+  --el-messagebox-title-color: #333333;
+  --el-messagebox-content-color: #666666;
+  --el-messagebox-font-size: 16px;
+  --el-messagebox-content-font-size: 14px;
+  width: var(--el-messagebox-width);
+  max-width: calc(100vw - 32px);
+  min-height: 138px;
+  padding: 20px 24px 16px;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  box-shadow:
+    0px 6px 30px 5px rgba(0, 0, 0, 0.05),
+    0px 16px 24px 2px rgba(0, 0, 0, 0.04),
+    0px 8px 10px -5px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__header {
+  padding: 0 40px 8px 58px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__header.show-close {
+  padding-right: 40px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__title {
+  color: #333333;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__headerbtn {
+  top: 14px;
+  right: 14px;
+  width: 24px;
+  height: 24px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__headerbtn .el-message-box__close {
+  color: #666666;
+  font-size: 20px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__headerbtn:focus .el-message-box__close,
+.el-message-box.ob-secondary-confirm .el-message-box__headerbtn:hover .el-message-box__close {
+  color: #333333;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__content {
+  padding: 0 0 0 58px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__container {
+  display: block;
+  min-height: 36px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__status {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  margin: 0;
+  font-size: 24px;
+  line-height: 24px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__message p {
+  color: #666666;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__btns {
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+}
+
+.el-message-box.ob-secondary-confirm .el-message-box__btns .el-button {
+  width: 60px;
+  min-width: 60px;
+  height: 32px;
+  margin-left: 0;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 14px;
+}

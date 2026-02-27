@@ -27,18 +27,18 @@ export function base64Encode(value: string): string {
 
 /**
  * 生成老项目同款的 Client-Signature：
- * `${b64(clientId)}.${b64(timestamp)}.${b64(sm3(clientId + timestamp + secret))}`
+ * `${b64(clientId)}.${b64(timestamp)}.${b64(sm3(clientId + timestamp + salt))}`
+ * 说明：salt 只是公开签名盐值，不具备前端 secret 语义。
  */
 export function createClientSignature(params?: {
   clientId?: string;
   timestamp?: number;
-  secret?: string;
+  salt?: string;
 }): string {
   const clientId = params?.clientId ?? '1';
   const timestamp = params?.timestamp ?? Date.now();
-  const secret = params?.secret ?? 'fc54f9655dc04da486663f1055978ba8';
+  const salt = params?.salt ?? 'fc54f9655dc04da486663f1055978ba8';
 
-  const digest = sm3DigestHex(`${clientId}${timestamp}${secret}`);
+  const digest = sm3DigestHex(`${clientId}${timestamp}${salt}`);
   return `${base64Encode(clientId)}.${base64Encode(String(timestamp))}.${base64Encode(digest)}`;
 }
-

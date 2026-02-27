@@ -32,6 +32,8 @@ export interface ObHttpRequestConfig extends AxiosRequestConfig {
   $rawResponse?: boolean;
   /** 强制业务码错误抛异常（默认不抛，保持旧项目习惯） */
   $throwOnBizError?: boolean;
+  /** 路由切换时是否自动取消该请求（默认 true） */
+  $cancelOnRouteChange?: boolean;
 
   /** $isAuth=true 时使用的 token */
   token?: string;

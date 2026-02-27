@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { portalApi } from '../api/portal';
+import { portalService } from '../services/portal-service';
 import { useMaterials } from '../materials/useMaterials';
 import type { PortalLayoutItem } from '../stores/pageLayout';
 
@@ -92,8 +92,8 @@ async function loadTabLayout(id: string) {
 
   try {
     // 优先匿名接口；失败再兜底鉴权接口（用户可能已登录）
-    const resPublic = await portalApi.tabPublic.detail({ id });
-    const res = normalizeBizOk(resPublic) ? resPublic : await portalApi.tab.detail({ id });
+    const resPublic = await portalService.tabPublic.detail({ id });
+    const res = normalizeBizOk(resPublic) ? resPublic : await portalService.tab.detail({ id });
 
     if (!normalizeBizOk(res)) {
       errorMessage.value = res?.message || '加载失败';

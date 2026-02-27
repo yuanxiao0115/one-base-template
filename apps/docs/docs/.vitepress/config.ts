@@ -17,7 +17,9 @@ export default defineConfig({
         text: '核心指南',
         items: [
           { text: '目录结构与边界', link: '/guide/architecture' },
+          { text: '模块系统与切割', link: '/guide/module-system' },
           { text: '主题系统', link: '/guide/theme-system' },
+          { text: '组件样式（按钮）', link: '/guide/button-styles' },
           { text: '布局与菜单', link: '/guide/layout-menu' },
           { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
           { text: 'Iconfont 集成', link: '/guide/iconfont' },
@@ -48,7 +50,9 @@ export default defineConfig({
           text: '核心能力',
           items: [
             { text: '目录结构与边界', link: '/guide/architecture' },
+            { text: '模块系统与切割', link: '/guide/module-system' },
             { text: '主题系统', link: '/guide/theme-system' },
+            { text: '组件样式（按钮）', link: '/guide/button-styles' },
             { text: '布局与菜单', link: '/guide/layout-menu' },
             { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
             { text: 'Iconfont 集成', link: '/guide/iconfont' },

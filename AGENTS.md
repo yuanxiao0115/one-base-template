@@ -105,7 +105,7 @@ packages/
 - **仅内部使用的 UI 组件禁止在 `packages/ui/src/index.ts` 与 `packages/ui/src/plugin.ts` 对外导出/注册（避免暴露无维护承诺的内部实现）**
 - **顶部系统菜单激活态颜色必须跟随主题 token（禁止写死固定色值）**
 - **主题能力优先下沉到 `packages/core`：admin 侧只做项目主题注册与组装，不重复维护 token 引擎/默认映射逻辑**
-- **`link` 归类为反馈状态色体系，文档与实现中按“状态色规则”统一描述与维护（当前固定色阶）**
+- **`link` 不归类为 core feedback 状态集合；保留固定色阶静态 token，仅用于 Element `link` 语义与链接场景展示**
 - **涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面，保持路由与交互行为一致**
 - **布局尺寸（TopBar 高度/侧栏展开宽度/侧栏折叠宽度）统一在 `apps/admin/src/config/layout.ts` 配置，不在 UI 内硬编码**
 - **涉及表格迁移样板页（如登录日志）时，页面主体必须结合 `PageContainer` 承载，保持“页面容器 + OneTableBar + ObVxeTable”结构一致**
@@ -123,3 +123,5 @@ packages/
 - **`OneTableBar` 快捷搜索输入框遵循扁平化样式：宽 `360px`、高 `32px`、右间距 `8px`、无圆角、无阴影（筛选按钮同高度扁平风格）**
 - **`OneTableBar` 工具条顶部间距固定 `8px`，并默认去掉 `one-table-bar-title` 分割线（维持扁平化页面头部）**
 - **组织管理树形迁移必须对齐老项目 `parentId` 逻辑：根查询/搜索均透传 `companyId`（无值回退 `0`），禁止固定写死 `parentId='0'`**
+- **`apps/admin/src/styles/index.css` 禁止再通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/main.ts` 里显式导入 `styles/element-plus/*.css`，避免 PostCSS 路径解析 ENOENT**
+- **命名必须“短、清楚、通用”：优先使用 `get/list/build/create/update/remove` 等常见词，避免过度抽象或过长命名（如 `resolve/assemble/orchestrate` 连续叠加）**

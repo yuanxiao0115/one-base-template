@@ -39,6 +39,11 @@ pnpm -C apps/docs build
 - 环境变量：业务模块禁止直接读 `import.meta.env`，统一通过 `apps/admin/src/infra/env.ts` 的 `appEnv` 读取
 - 启动安装：`createApp/createPinia/createRouter` 以及 `app.use/app.component/...` 只能在 `apps/admin/src/bootstrap/` 中进行
 
+模块化阶段新增两条约束：
+
+- 模块边界：`apps/admin/src/modules/**/*` 禁止直接 import `@/modules/*`（公共能力上移到 `shared/core/ui`）
+- API 边界：页面/组件/store 禁止直接 import `@/infra/http`，必须经由 `services/*` 或 `shared/api/*`
+
 ## Tailwind v4（Monorepo）注意事项
 
 本仓库的 `apps/admin` 使用 Tailwind CSS v4（通过 `@tailwindcss/postcss` 编译）。

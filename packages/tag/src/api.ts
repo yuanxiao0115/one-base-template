@@ -76,7 +76,7 @@ function initializeTagStorage(): void {
  *
  * 使用示例：
  * ```ts
- * import { useTagAPI, setConfig } from '@one/tag'
+ * import { useTagAPI, setConfig } from '@one-base-template/tag'
  *
  * // 配置标签页
  * setConfig({

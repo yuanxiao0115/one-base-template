@@ -1,5 +1,5 @@
 {
-  "name": "@one/tag",
+  "name": "@one-base-template/tag",
   "private": true,
   "version": "0.0.0",
   "description": "One Tag Component - 标签页管理组件（workspace）",

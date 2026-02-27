@@ -3,11 +3,11 @@ import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 
-import { useAuthStore, useMenuStore, type LoginPayload } from '@one-base-template/core';
-import { getObHttpClient } from '@/infra/http';
+import { finalizeAuthSession, safeRedirect, useAuthStore, type LoginPayload } from '@one-base-template/core';
 import { appEnv } from '@/infra/env';
 import VerifySlide from '@/components/verifition-plus/VerifySlide.vue';
 import { sm4EncryptBase64 } from '@/infra/sczfw/crypto';
+import { getLoginPageConfig } from '@/shared/services/auth-remote-service';
 
 defineOptions({
   name: 'LoginPage'
@@ -29,7 +29,6 @@ const router = useRouter();
 const route = useRoute();
 
 const authStore = useAuthStore();
-const menuStore = useMenuStore();
 
 const backend = appEnv.backend;
 const tokenKey = appEnv.tokenKey;
@@ -46,18 +45,11 @@ const form = reactive({
 const loginInfoConfig = ref<LoginPageConfig | null>(null);
 const backgroundImage = ref('');
 
-function normalizeRedirect(raw: unknown, fallback: string): string {
-  if (typeof raw !== 'string' || !raw) return fallback;
-  if (!raw.startsWith('/')) return fallback;
-  if (raw.startsWith('//')) return fallback;
-  return raw;
-}
-
 function getRedirectTarget() {
   // 兼容老项目常用 query：redirectUrl
   const raw = route.query.redirect ?? route.query.redirectUrl;
   const fallback = backend === 'sczfw' ? '/home/index' : '/';
-  return normalizeRedirect(raw, fallback);
+  return safeRedirect(raw, fallback);
 }
 
 const rules: FormRules = {
@@ -78,10 +70,7 @@ const rules: FormRules = {
 };
 
 async function loadLoginPageConfig() {
-  const http = getObHttpClient();
-  const res = await http.get<BizResponse<LoginPageConfig>>('/cmict/portal/getLoginPage', {
-    $noErrorAlert: true
-  });
+  const res = (await getLoginPageConfig()) as BizResponse<LoginPageConfig>;
 
   if (!res || res.code !== 200) return;
 
@@ -96,8 +85,7 @@ async function loadLoginPageConfig() {
 async function handleDirectTokenLogin(token: string) {
   localStorage.setItem(tokenKey, token);
   try {
-    await authStore.fetchMe();
-    await menuStore.loadMenus();
+    await finalizeAuthSession({ shouldFetchMe: true });
     await router.replace(getRedirectTarget());
   } catch (e: unknown) {
     const message = e instanceof Error && e.message ? e.message : '登录失败';
@@ -110,7 +98,7 @@ async function doDefaultLogin() {
   loading.value = true;
   try {
     await authStore.login({ username: form.username, password: form.password });
-    await menuStore.loadMenus();
+    await finalizeAuthSession({ shouldFetchMe: false });
     await router.replace(getRedirectTarget());
   } catch (e: unknown) {
     const message = e instanceof Error && e.message ? e.message : '登录失败';
@@ -132,7 +120,7 @@ async function doSczfwLogin(captcha: { captcha: string; captchaKey: string }) {
     };
 
     await authStore.login(payload);
-    await menuStore.loadMenus();
+    await finalizeAuthSession({ shouldFetchMe: false });
     await router.replace(getRedirectTarget());
   } catch (e: unknown) {
     const message = e instanceof Error && e.message ? e.message : '登录失败';

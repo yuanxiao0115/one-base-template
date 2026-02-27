@@ -1,4 +1,4 @@
-# @one/tag 更新日志
+# @one-base-template/tag 更新日志
 
 ## v2.1.0 (2025-07-19)
 
@@ -86,7 +86,7 @@
 
 ### Patch Changes
 
-- Initial release of @one/tag component - 标签页管理组件
+- Initial release of @one-base-template/tag component - 标签页管理组件
 
   - 完整的标签页管理功能
   - 支持标签页的创建、关闭、刷新操作

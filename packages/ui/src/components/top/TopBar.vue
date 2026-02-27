@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore, useLayoutStore, useMenuStore, useSystemStore, type AppMenuItem } from '@one-base-template/core';
-import { useTagStoreHook } from '@one/tag';
+import { useTagStoreHook } from '@one-base-template/tag';
 import PersonalizationDrawer from '../theme/PersonalizationDrawer.vue';
 import headerBgUrl from '../../assets/app-header-bg.webp';
 
@@ -65,7 +65,7 @@ async function onSwitchSystem(systemCode: string) {
   systemStore.setCurrentSystem(systemCode);
 
   // 切系统后确保当前系统菜单已加载（fetchMenuSystems 模式通常一次性拉全量，这里主要兜底缓存不全/系统列表变更）
-  if (!menuStore.loaded) {
+  if (!menuStore.loaded && !menuStore.remoteSynced) {
     await menuStore.loadMenus();
   }
 

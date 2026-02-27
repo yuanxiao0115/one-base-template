@@ -1,4 +1,5 @@
-import { getObHttpClient } from '@/infra/http';
+import { getAppHttpClient } from '@/shared/api/http-client';
+import { portalEndpoints } from './endpoints';
 
 type BizResponse<T> = {
   code?: unknown;
@@ -8,7 +9,7 @@ type BizResponse<T> = {
 };
 
 function getHttp() {
-  return getObHttpClient();
+  return getAppHttpClient();
 }
 
 /**
@@ -20,18 +21,17 @@ function getHttp() {
  */
 export const cmsApi = {
   // 获取栏目分类树
-  getCategoryTree: () => getHttp().get<BizResponse<unknown>>('/cmict/cms/cmsCategory/tree'),
+  getCategoryTree: () => getHttp().get<BizResponse<unknown>>(portalEndpoints.cms.categoryTree),
 
   // 用户端根据栏目分类获取文章列表
   getUserArticlesByCategory: (category: string, params?: { pageSize?: number; currentPage?: number }) =>
-    getHttp().get<BizResponse<unknown>>(`/cmict/cms/cmsUser/category/${category}/article/list`, {
-      params: { pageSize: params?.pageSize ?? 20, currentPage: params?.currentPage ?? 1 },
+    getHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userArticleListPrefix}/${category}/article/list`, {
+      params: { pageSize: params?.pageSize ?? 20, currentPage: params?.currentPage ?? 1 }
     }),
 
   // 用户端根据栏目分类获取轮播图列表（固定 pageSize=20,currentPage=1）
   getUserCarouselsByCategory: (category: string) =>
-    getHttp().get<BizResponse<unknown>>(`/cmict/cms/cmsUser/category/${category}/carousel/list`, {
-      params: { pageSize: 20, currentPage: 1 },
-    }),
+    getHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userCarouselListPrefix}/${category}/carousel/list`, {
+      params: { pageSize: 20, currentPage: 1 }
+    })
 };
-

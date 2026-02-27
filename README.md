@@ -53,25 +53,20 @@ pnpm -C apps/docs build
 pnpm build
 ```
 
-## 环境变量（apps/admin）
+## 配置模型（apps/admin）
 
-建议在 `apps/admin` 下创建 `.env.development` / `.env.local`：
+`apps/admin` 采用“双层配置”：
 
-- `VITE_BACKEND=default|sczfw`
-  - `default`：模板默认后端（`/api/*`，可配合 dev mock）
-  - `sczfw`：对接 sczfw（`/cmict/*`，token 模式为主）
-- `VITE_AUTH_MODE=cookie|token|mixed`
-  - `cookie`：默认模式（Cookie HttpOnly + withCredentials）
-  - `token`：每次请求都带 token（通过 `VITE_TOKEN_KEY` 从 localStorage 读取）
-  - `mixed`：同时支持 cookie + token（按需使用 `$isAuth/token` 或全局 getToken）
-- `VITE_TOKEN_KEY=ob_token`
-  - token 模式下使用的 localStorage key（默认 `ob_token`）
-- `VITE_MENU_MODE=remote|static`
-  - `remote`：菜单从后端获取（通过 Adapter `menu.fetchMenuTree()`）
-  - `static`：菜单从静态路由的 `meta.title` 生成（适合简单项目，无需单独写菜单配置）
-- `VITE_SCZFW_SYSTEM_PERMISSION_CODE=admin_server`
-  - 仅 sczfw Adapter 使用：`/cmict/admin/permission/my-tree` 的根节点 `permissionCode`
-  - 不同系统可配置为不同值（默认 `admin_server`）
+- 构建期（`.env*`）：只保留 `VITE_API_BASE_URL` / `VITE_USE_MOCK` 等 dev/proxy 相关项
+- 运行时（`apps/admin/public/platform-config.json`）：backend/auth/menu/system/module 等业务配置
+
+`platform-config.json` 关键字段：
+
+- `backend`: `default | sczfw`
+- `authMode`: `cookie | token | mixed`
+- `menuMode`: `remote | static`
+- `enabledModules`: `"*"` 或 `string[]`（模块白名单）
+- `defaultSystemCode` / `systemHomeMap`: 多系统默认与首页映射
 - `VITE_API_BASE_URL=https://your-backend.example.com`
   - 开发环境：存在时会启用 Vite 代理 `/api -> VITE_API_BASE_URL`，并默认关闭 mock
   - 生产环境：如需跨域直连，可作为 Axios `baseURL`（默认仍推荐同源 `/api`）
@@ -87,8 +82,10 @@ pnpm build
 
 ## 路由与模块切割
 
-- 路由全量静态声明：`/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/**/routes.ts`
-- 删除某个 `modules/<name>` 目录即可移除对应功能（做到“可切割”）
+- 路由全量静态声明在模块内：`apps/admin/src/modules/**/routes/*.ts`
+- 模块唯一入口：`apps/admin/src/modules/**/module.ts`（Manifest）
+- 路由统一由 `apps/admin/src/module-system/assemble-routes.ts` 组装
+- 支持运行时白名单切割：`platform-config.json` 的 `enabledModules`
 
 ## 动态菜单 + 静态路由（核心规则）
 

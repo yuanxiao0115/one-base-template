@@ -41,6 +41,7 @@ export function installCore(
 
   app.use(
     createCore({
+      storageNamespace,
       adapter,
       menuMode,
       staticMenus,

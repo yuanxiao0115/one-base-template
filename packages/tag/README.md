@@ -1,4 +1,4 @@
-# @one/tag
+# @one-base-template/tag
 
 Vue 3 标签页管理组件，支持自动标签管理、右键菜单、持久化存储等功能。
 
@@ -18,7 +18,7 @@ Vue 3 标签页管理组件，支持自动标签管理、右键菜单、持久�
 
 ```bash
 # 从私服安装
-pnpm add @one/tag --registry=http://package.onecode.cmict.cloud/repository/npm-hosted/
+pnpm add @one-base-template/tag --registry=http://package.onecode.cmict.cloud/repository/npm-hosted/
 ```
 
 ## 🚀 快速开始
@@ -29,8 +29,8 @@ pnpm add @one/tag --registry=http://package.onecode.cmict.cloud/repository/npm-h
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter } from 'vue-router'
-import OneTag from '@one/tag'
-import '@one/tag/style'
+import OneTag from '@one-base-template/tag'
+import '@one-base-template/tag/style'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -74,7 +74,7 @@ app.mount('#app')
 核心 API，提供 30+ 个标签页管理功能：
 
 ```typescript
-import { useTagAPI } from '@one/tag'
+import { useTagAPI } from '@one-base-template/tag'
 
 const tagAPI = useTagAPI()
 
@@ -116,7 +116,7 @@ interface OneTagOptions {
 ### 常量
 
 ```typescript
-import { HomeConfig } from '@one/tag'
+import { HomeConfig } from '@one-base-template/tag'
 
 HomeConfig.PATH // 获取首页路径
 HomeConfig.TITLE // 获取首页标题
@@ -155,7 +155,7 @@ dist/
 pnpm add vue@^3.3.0 vue-router@^4.0.0 pinia@^2.1.0
 
 # 安装标签组件
-pnpm add @one/tag --registry=http://package.onecode.cmict.cloud/repository/npm-hosted/
+pnpm add @one-base-template/tag --registry=http://package.onecode.cmict.cloud/repository/npm-hosted/
 ```
 
 ### 2. 基础设置
@@ -165,8 +165,8 @@ pnpm add @one/tag --registry=http://package.onecode.cmict.cloud/repository/npm-h
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import OneTag from '@one/tag'
-import '@one/tag/style' // 重要：引入样式文件
+import OneTag from '@one-base-template/tag'
+import '@one-base-template/tag/style' // 重要：引入样式文件
 
 import App from './App.vue'
 
@@ -237,7 +237,7 @@ app.mount('#app')
 
 ```typescript
 // 在任意组件中使用 API
-import { useTagAPI } from '@one/tag'
+import { useTagAPI } from '@one-base-template/tag'
 
 export default {
   setup() {
@@ -291,7 +291,7 @@ export default {
 ## ⚠️ 注意事项
 
 1. **依赖顺序**: 必须先安装 `pinia` 和 `router`，再安装 `OneTag`
-2. **样式引入**: 记得引入 `@one/tag/style` 样式文件
+2. **样式引入**: 记得引入 `@one-base-template/tag/style` 样式文件
 3. **版本要求**: Vue 3.3+, Vue Router 4.5+, Pinia 2.1+
 4. **无Element Plus依赖**: v2.0+ 版本已移除Element Plus依赖，使用自定义组件
 5. **TypeScript支持**: 包含完整的类型定义，支持智能提示

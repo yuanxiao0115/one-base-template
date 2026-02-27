@@ -1,4 +1,12 @@
 export { createCore, type CoreOptions } from './createCore';
+export {
+  parsePlatformRuntimeConfig,
+  type PlatformRuntimeConfig,
+  type BackendKind,
+  type AuthMode,
+  type MenuMode as PlatformMenuMode,
+  type EnabledModulesSetting
+} from './config/platform-config';
 export type {
   BackendAdapter,
   AssetAdapter,
@@ -41,7 +49,6 @@ export {
 } from './stores/layout';
 export { useMenuStore } from './stores/menu';
 export { useSystemStore, type SystemOptions, type AppSystemInfo } from './stores/system';
-export { useTabsStore } from './stores/tabs';
 export {
   useThemeStore,
   type ThemeMode,
@@ -63,6 +70,16 @@ export {
 export type { ThemePresetKey, OneTokenMap, PrimaryScale } from './theme/one';
 
 export { setupRouterGuards, type RouterGuardOptions } from './router/guards';
-export { handleSsoCallbackFromLocation } from './router/sso';
+export { handleSsoCallback } from './router/sso';
+export { resolveInitialPathFromStorage, type ResolveInitialPathOptions } from './router/initial-path';
+export {
+  getCoreStorageNamespace,
+  resolveNamespacedKey,
+  resolveNamespacedPrefix,
+  readWithLegacyFallback,
+  removeScopedAndLegacy,
+  removeByScopedPrefixes
+} from './storage/namespace';
 
 export { createStaticMenusFromRoutes, type CreateStaticMenusOptions } from './menu/fromRoutes';
+export { finalizeAuthSession, safeRedirect, type FinalizeAuthSessionOptions } from './auth/flow';

@@ -13,8 +13,8 @@
   "dependencies": {
     "@one-base-template/adapters": "workspace:*",
     "@one-base-template/core": "workspace:*",
+    "@one-base-template/tag": "workspace:*",
     "@one-base-template/ui": "workspace:*",
-    "@one/tag": "workspace:*",
     "element-plus": "^2.13.2",
     "gm-crypto": "^0.1.12",
     "grid-layout-plus": "^1.1.1",

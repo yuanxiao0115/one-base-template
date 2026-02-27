@@ -1,0 +1,135 @@
+:root {
+  --ob-button-size-large: 40px;
+  --ob-button-size-default: 32px;
+  --ob-button-size-small: 24px;
+  --ob-button-icon-gap-large: 8px;
+  --ob-button-icon-gap-default: 6px;
+  --ob-button-icon-gap-small: 4px;
+}
+
+/* 按钮统一覆盖：尺寸基线 -> 禁用态收口 -> 变体扩展。 */
+.el-button,
+.el-button--primary,
+.el-button--success,
+.el-button--warning,
+.el-button--info,
+.el-button--danger {
+  --el-button-disabled-text-color: var(--one-button-disabled-text-color);
+  --el-button-disabled-bg-color: var(--one-button-disabled-bg-color);
+  --el-button-disabled-border-color: var(--one-button-disabled-border-color);
+}
+
+.el-button {
+  height: var(--ob-button-size-default);
+  padding: 8px 15px;
+}
+
+.el-button--large {
+  height: var(--ob-button-size-large);
+  padding: 12px 19px;
+}
+
+.el-button--small {
+  height: var(--ob-button-size-small);
+  padding: 5px 11px;
+}
+
+.el-button [class*='el-icon'] + span {
+  margin-left: var(--ob-button-icon-gap-default);
+}
+
+.el-button--large [class*='el-icon'] + span {
+  margin-left: var(--ob-button-icon-gap-large);
+}
+
+.el-button--small [class*='el-icon'] + span {
+  margin-left: var(--ob-button-icon-gap-small);
+}
+
+.el-button.is-circle {
+  width: var(--ob-button-size-default);
+}
+
+.el-button--large.is-circle {
+  width: var(--ob-button-size-large);
+}
+
+.el-button--small.is-circle {
+  width: var(--ob-button-size-small);
+}
+
+/* 实体按钮禁用态：同一变体下跨 type 统一。 */
+.el-button.is-disabled,
+.el-button.is-disabled:hover,
+.el-button.is-disabled:focus,
+.el-button.is-disabled:active {
+  color: var(--el-button-disabled-text-color);
+  background-color: var(--el-button-disabled-bg-color);
+  border-color: var(--el-button-disabled-border-color);
+}
+
+/* 描边/虚线禁用态：统一边框与文字，背景保持浅底。 */
+.el-button.is-plain.is-disabled,
+.el-button.is-plain.is-disabled:hover,
+.el-button.is-plain.is-disabled:focus,
+.el-button.is-plain.is-disabled:active,
+.el-button.ob-button--dashed.is-disabled,
+.el-button.ob-button--dashed.is-disabled:hover,
+.el-button.ob-button--dashed.is-disabled:focus,
+.el-button.ob-button--dashed.is-disabled:active {
+  color: var(--el-button-disabled-text-color);
+  background-color: var(--el-button-disabled-bg-color);
+  border-color: var(--el-button-disabled-border-color);
+}
+
+/* text/link 禁用态：仅文字置灰，保持透明底，避免偏离设计稿。 */
+.el-button.is-text.is-disabled,
+.el-button.is-text.is-disabled:hover,
+.el-button.is-text.is-disabled:focus,
+.el-button.is-text.is-disabled:active,
+.el-button.is-link.is-disabled,
+.el-button.is-link.is-disabled:hover,
+.el-button.is-link.is-disabled:focus,
+.el-button.is-link.is-disabled:active,
+.el-button--primary.is-link.is-disabled,
+.el-button--primary.is-link.is-disabled:hover,
+.el-button--primary.is-link.is-disabled:focus,
+.el-button--primary.is-link.is-disabled:active,
+.el-button--success.is-link.is-disabled,
+.el-button--success.is-link.is-disabled:hover,
+.el-button--success.is-link.is-disabled:focus,
+.el-button--success.is-link.is-disabled:active,
+.el-button--warning.is-link.is-disabled,
+.el-button--warning.is-link.is-disabled:hover,
+.el-button--warning.is-link.is-disabled:focus,
+.el-button--warning.is-link.is-disabled:active,
+.el-button--info.is-link.is-disabled,
+.el-button--info.is-link.is-disabled:hover,
+.el-button--info.is-link.is-disabled:focus,
+.el-button--info.is-link.is-disabled:active,
+.el-button--danger.is-link.is-disabled,
+.el-button--danger.is-link.is-disabled:hover,
+.el-button--danger.is-link.is-disabled:focus,
+.el-button--danger.is-link.is-disabled:active {
+  color: var(--el-button-disabled-text-color);
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+/* 语义类：虚线按钮（各 type 可复用）。 */
+.el-button.ob-button--dashed {
+  border-style: dashed;
+}
+
+/* 语义类：仅网址场景下划线，避免污染全局 link。 */
+.el-button.ob-link-underline {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Link 按钮跟随 one link token，不影响普通按钮。 */
+.el-button.is-link {
+  --el-button-text-color: var(--one-color-link);
+  --el-button-hover-link-text-color: var(--one-color-link-light-5);
+  --el-button-active-color: var(--one-color-link-light-7);
+}

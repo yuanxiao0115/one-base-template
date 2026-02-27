@@ -113,7 +113,8 @@ export function createSczfwAdapter(
 
         const res = await http.post<BizResponse<SczfwLoginResult>>('/cmict/auth/login', {
           data: body,
-          $throwOnBizError: true
+          $throwOnBizError: true,
+          $cancelOnRouteChange: false
         });
 
         const token = res.data?.authToken ?? res.data?.token;
@@ -124,13 +125,19 @@ export function createSczfwAdapter(
       },
       async logout() {
         try {
-          await http.get('/cmict/auth/logout', { $throwOnBizError: false });
+          await http.get('/cmict/auth/logout', {
+            $throwOnBizError: false,
+            $cancelOnRouteChange: false
+          });
         } finally {
           localStorage.removeItem(tokenKey);
         }
       },
       async fetchMe(): Promise<AppUser> {
-        const res = await http.get<BizResponse<SczfwMe>>('/cmict/auth/token/verify', { $throwOnBizError: true });
+        const res = await http.get<BizResponse<SczfwMe>>('/cmict/auth/token/verify', {
+          $throwOnBizError: true,
+          $cancelOnRouteChange: false
+        });
         const me = res.data ?? {};
 
         const id = isNonEmptyString(me.id) ? me.id : 'unknown';
@@ -148,7 +155,8 @@ export function createSczfwAdapter(
     menu: {
       async fetchMenuTree(): Promise<AppMenuItem[]> {
         const res = await http.get<BizResponse<SczfwMenuRoot[]>>('/cmict/admin/permission/my-tree', {
-          $throwOnBizError: true
+          $throwOnBizError: true,
+          $cancelOnRouteChange: false
         });
 
         const list = Array.isArray(res.data) ? res.data : [];
@@ -158,7 +166,8 @@ export function createSczfwAdapter(
       },
       async fetchMenuSystems(): Promise<AppMenuSystem[]> {
         const res = await http.get<BizResponse<SczfwMenuRoot[]>>('/cmict/admin/permission/my-tree', {
-          $throwOnBizError: true
+          $throwOnBizError: true,
+          $cancelOnRouteChange: false
         });
 
         const roots = Array.isArray(res.data) ? res.data : [];
@@ -183,7 +192,8 @@ export function createSczfwAdapter(
       async exchangeTicket(payload: { ticket: string; serviceUrl?: string }) {
         const res = await http.get<BizResponse<{ authToken?: string }>>('/cmict/auth/ticket/sso', {
           params: payload,
-          $throwOnBizError: true
+          $throwOnBizError: true,
+          $cancelOnRouteChange: false
         });
 
         const token = res.data?.authToken;

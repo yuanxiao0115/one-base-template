@@ -1,4 +1,4 @@
-import { getObHttpClient } from '@/infra/http'
+import { getAppHttpClient } from '@/shared/api/http-client'
 
 export interface BizResponse<T> {
   code: number
@@ -76,7 +76,7 @@ export const orgTypeLabelMap = Object.fromEntries(
 ) as Record<string, string>
 
 function getHttp() {
-  return getObHttpClient()
+  return getAppHttpClient()
 }
 
 function normalizeKeyword(keyword: string | undefined) {

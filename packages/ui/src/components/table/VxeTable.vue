@@ -128,12 +128,68 @@ const passthroughAttrs = computed(() => {
     'adaptive',
     'adaptiveConfig',
     'treeConfig',
-    'virtualConfig'
+    'virtualConfig',
+    'scrollbarConfig'
   ]);
 
   return Object.fromEntries(
     Object.entries(attrs).filter(([key]) => !blockedKeys.has(key))
   );
+});
+
+const scrollYConfig = computed<Record<string, unknown> | undefined>(() => {
+  if (!props.virtualConfig) return undefined;
+  const enabled = props.virtualConfig.enabled ?? Boolean(props.virtualConfig.y);
+  if (!enabled) return undefined;
+
+  return {
+    enabled: true,
+    ...(props.virtualConfig.y || {})
+  };
+});
+
+const scrollXConfig = computed<Record<string, unknown> | undefined>(() => {
+  if (!props.virtualConfig) return undefined;
+  const enabled = props.virtualConfig.enabled ?? Boolean(props.virtualConfig.x);
+  if (!enabled) return undefined;
+
+  return {
+    enabled: true,
+    ...(props.virtualConfig.x || {})
+  };
+});
+
+const resolvedScrollbarConfig = computed<Record<string, unknown>>(() => {
+  const defaultConfig = {
+    x: { visible: 'auto' },
+    y: { visible: 'auto' }
+  };
+
+  const attrsRecord = attrs as Record<string, unknown>;
+  const userConfig = attrsRecord.scrollbarConfig as
+    | {
+        x?: Record<string, unknown>;
+        y?: Record<string, unknown>;
+        [key: string]: unknown;
+      }
+    | undefined;
+
+  if (!userConfig || typeof userConfig !== 'object') {
+    return defaultConfig;
+  }
+
+  return {
+    ...defaultConfig,
+    ...userConfig,
+    x: {
+      ...defaultConfig.x,
+      ...(userConfig.x || {})
+    },
+    y: {
+      ...defaultConfig.y,
+      ...(userConfig.y || {})
+    }
+  };
 });
 
 function resolveColumnField(prop: TableColumn['prop'], index: number): string | undefined {
@@ -500,9 +556,9 @@ defineExpose({
         :header-align="headerAlign || alignWhole"
         :row-config="rowConfig"
         :tree-config="treeConfig"
-        :scrollbar-config="{
-          x:{visible:'auto'}
-        }"
+        :scroll-y="scrollYConfig"
+        :scroll-x="scrollXConfig"
+        :scrollbar-config="resolvedScrollbarConfig"
         v-bind="passthroughAttrs"
         @checkbox-change="collectSelection"
         @checkbox-all="collectSelection"
@@ -649,22 +705,27 @@ defineExpose({
 }
 
 /* 虚拟滚动条：默认隐藏，鼠标悬浮表格时显示 */
-.ob-vxe-table :deep(.vxe-table--scroll-x-virtual) {
-  height: var(--ob-vxe-scrollbar-hit-size);
+.ob-vxe-table :deep(.vxe-table--scroll-x-virtual),
+.ob-vxe-table :deep(.vxe-table--scroll-y-virtual) {
   pointer-events: none;
   visibility: hidden !important;
   opacity: 0;
+  border: 0 !important;
   background: transparent !important;
   background-image: none !important;
   transition: opacity 0.16s ease;
 }
 
-.ob-vxe-table :deep(.vxe-table--scroll-y-virtual) {
+.ob-vxe-table :deep(.vxe-table--scroll-x-virtual),
+.ob-vxe-table :deep(.vxe-table--scroll-x-wrapper),
+.ob-vxe-table :deep(.vxe-table--scroll-x-handle) {
+  height: var(--ob-vxe-scrollbar-hit-size);
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-y-virtual),
+.ob-vxe-table :deep(.vxe-table--scroll-y-wrapper),
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle) {
   width: var(--ob-vxe-scrollbar-hit-size);
-  pointer-events: none;
-  visibility: hidden !important;
-  opacity: 0;
-  transition: opacity 0.16s ease;
 }
 
 .ob-vxe-table :deep(.vxe-table:hover .vxe-table--scroll-x-virtual),
@@ -672,16 +733,6 @@ defineExpose({
   pointer-events: auto;
   visibility: visible !important;
   opacity: 1;
-}
-
-.ob-vxe-table :deep(.vxe-table--scroll-x-wrapper),
-.ob-vxe-table :deep(.vxe-table--scroll-x-handle) {
-  height: var(--ob-vxe-scrollbar-hit-size);
-}
-
-.ob-vxe-table :deep(.vxe-table--scroll-y-wrapper),
-.ob-vxe-table :deep(.vxe-table--scroll-y-handle) {
-  width: var(--ob-vxe-scrollbar-hit-size);
 }
 
 .ob-vxe-table :deep(.vxe-table--scroll-x-handle),
@@ -695,10 +746,29 @@ defineExpose({
 .ob-vxe-table :deep(.vxe-table--scroll-x-handle),
 .ob-vxe-table :deep(.vxe-table--scroll-y-handle),
 .ob-vxe-table :deep(.vxe-table--scroll-x-handle-appearance),
-.ob-vxe-table :deep(.vxe-table--scroll-y-handle-appearance) {
+.ob-vxe-table :deep(.vxe-table--scroll-y-handle-appearance),
+.ob-vxe-table :deep(.vxe-table--scroll-x-left-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-x-right-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-y-top-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-y-bottom-corner) {
   border: 0 !important;
+  box-shadow: none !important;
   background-image: none !important;
   background: transparent !important;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-left-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-x-right-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-y-top-corner),
+.ob-vxe-table :deep(.vxe-table--scroll-y-bottom-corner) {
+  display: none !important;
+}
+
+.ob-vxe-table :deep(.vxe-table--scroll-x-left-corner::before),
+.ob-vxe-table :deep(.vxe-table--scroll-x-right-corner::before),
+.ob-vxe-table :deep(.vxe-table--scroll-y-top-corner::before),
+.ob-vxe-table :deep(.vxe-table--scroll-y-bottom-corner::before) {
+  display: none !important;
 }
 
 .ob-vxe-table :deep(.vxe-table--scroll-x-handle::-webkit-scrollbar) {
@@ -749,35 +819,6 @@ defineExpose({
 .ob-vxe-table :deep(.vxe-table--scroll-x-handle:active::-webkit-scrollbar-thumb),
 .ob-vxe-table :deep(.vxe-table--scroll-y-handle:active::-webkit-scrollbar-thumb) {
   background-color: var(--ob-vxe-scrollbar-thumb-active-color);
-}
-
-.ob-vxe-table :deep(.vxe-table--scroll-x-left-corner),
-.ob-vxe-table :deep(.vxe-table--scroll-x-right-corner),
-.ob-vxe-table :deep(.vxe-table--scroll-y-top-corner),
-.ob-vxe-table :deep(.vxe-table--scroll-y-bottom-corner) {
-  display: none !important;
-  border: 0 !important;
-  background-image: none !important;
-  background: transparent;
-}
-
-.ob-vxe-table :deep(.vxe-table--scroll-x-left-corner::before),
-.ob-vxe-table :deep(.vxe-table--scroll-x-right-corner::before),
-.ob-vxe-table :deep(.vxe-table--scroll-y-top-corner::before),
-.ob-vxe-table :deep(.vxe-table--scroll-y-bottom-corner::before) {
-  display: none;
-}
-
-.ob-vxe-table :deep(.vxe-table--render-default .vxe-table--scroll-x-handle-appearance),
-.ob-vxe-table :deep(.vxe-table--render-default .vxe-table--scroll-y-handle-appearance) {
-  border: 0 !important;
-  background-image: none !important;
-}
-
-.ob-vxe-table :deep(.vxe-table--render-default[class*='border--'] .vxe-table--scroll-x-handle-appearance),
-.ob-vxe-table :deep(.vxe-table--render-default[class*='border--'] .vxe-table--scroll-y-handle-appearance) {
-  border: 0 !important;
-  background-image: none !important;
 }
 
 .ob-vxe-table :deep(.vxe-table--render-default .vxe-table--fixed-left-wrapper),

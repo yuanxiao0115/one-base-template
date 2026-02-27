@@ -32,12 +32,13 @@
   "tokenKey": "token",
   "idTokenKey": "idToken",
   "menuMode": "remote",
+  "enabledModules": "*",
   "authorizationType": "ADMIN",
   "appsource": "frame",
   "appcode": "od",
   "storageNamespace": "one-base-template-admin",
   "clientSignatureClientId": "1",
-  "clientSignatureSecret": "fc54f9655dc04da486663f1055978ba8",
+  "clientSignatureSalt": "fc54f9655dc04da486663f1055978ba8",
   "defaultSystemCode": "admin_server",
   "systemHomeMap": {
     "admin_server": "/home/index",
@@ -52,9 +53,10 @@
 - `authMode`: `cookie | token | mixed`
 - `tokenKey` / `idTokenKey`: token 存储键
 - `menuMode`: `remote | static`
+- `enabledModules`: `"*"` 或 `string[]`（模块白名单；例如 `["home","portal"]`）
 - `authorizationType` / `appsource` / `appcode`: sczfw 请求头约定
 - `storageNamespace`（可选）: 前端持久化命名空间（主题等状态隔离）；未配置时回退为 `appcode`
-- `clientSignatureClientId` / `clientSignatureSecret`: sczfw 签名参数
+- `clientSignatureClientId` / `clientSignatureSalt`: sczfw 签名参数（公开盐值，非前端 secret）
 - `defaultSystemCode`: 默认系统 code（用于多系统初始化）
 - `systemHomeMap`: 系统首页映射（`{ [systemCode]: "/path" }`）
 
@@ -72,4 +74,4 @@
 
 - 业务模块仍然**禁止**直接使用 `import.meta.env`
 - 统一通过 `apps/admin/src/infra/env.ts` 导出的 `appEnv` 读取配置
-- 运行时配置统一通过 `apps/admin/src/config/platform-config.ts` 加载与校验
+- 运行时配置统一通过 `apps/admin/src/config/platform-config.ts` 加载，schema 校验规则位于 `packages/core/src/config/platform-config.ts`

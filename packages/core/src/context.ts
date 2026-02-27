@@ -12,3 +12,7 @@ export function getCoreOptions(): CoreOptions {
   }
   return coreOptions;
 }
+
+export function tryGetCoreOptions(): CoreOptions | null {
+  return coreOptions;
+}

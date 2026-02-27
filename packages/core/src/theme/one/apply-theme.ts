@@ -100,7 +100,12 @@ function buildElementTextBorderFillBridgeTokens(tokens: OneTokenMap): OneTokenMa
     '--el-bg-color': getToken(tokens, '--one-bg-color'),
     '--el-bg-color-page': getToken(tokens, '--one-bg-color-page'),
     '--el-bg-color-overlay': getToken(tokens, '--one-bg-color-overlay'),
-    '--el-mask-color': getToken(tokens, '--one-mask-color')
+    '--el-mask-color': getToken(tokens, '--one-mask-color'),
+
+    // 按钮禁用态统一走 one token，避免不同 type 各自覆盖导致视觉不一致。
+    '--el-button-disabled-text-color': getToken(tokens, '--one-button-disabled-text-color'),
+    '--el-button-disabled-bg-color': getToken(tokens, '--one-button-disabled-bg-color'),
+    '--el-button-disabled-border-color': getToken(tokens, '--one-button-disabled-border-color')
   };
 }
 

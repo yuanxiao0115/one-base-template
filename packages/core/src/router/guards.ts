@@ -1,9 +1,8 @@
-import type { Router } from 'vue-router';
+import type { RouteLocationNormalized, Router } from 'vue-router';
 import { getCoreOptions } from '../context';
 import { useAuthStore } from '../stores/auth';
 import { useMenuStore } from '../stores/menu';
 import { useSystemStore } from '../stores/system';
-import { useTabsStore } from '../stores/tabs';
 
 const PUBLIC_PATHS = new Set<string>(['/login', '/sso', '/403', '/404']);
 
@@ -18,21 +17,20 @@ function resolveMenuKey(to: { path: string; meta: Record<string, unknown> }): st
 
 export interface RouterGuardOptions {
   /**
-   * 是否在 afterEach 中同步写入 core tabs。
-   * - true: 保持默认行为（兼容历史）
-   * - false: 由业务侧自定义 tabs 体系接管（如 @one/tag）
+   * 每次导航开始前触发（位于鉴权/菜单守卫之前）。
+   * 典型场景：中断上一页在途请求，保证路由切换响应优先级。
    */
-  enableTabSync?: boolean;
+  onNavigationStart?: (ctx: { to: RouteLocationNormalized; from: RouteLocationNormalized }) => void | Promise<void>;
 }
 
 export function setupRouterGuards(router: Router, options: RouterGuardOptions = {}) {
-  const enableTabSync = options.enableTabSync ?? true;
+  router.beforeEach(async (to, from) => {
+    await options.onNavigationStart?.({ to, from });
 
-  router.beforeEach(async to => {
-    const options = getCoreOptions();
+    const coreOptions = getCoreOptions();
 
     // SSO 回调路由默认视为公开
-    if (options.sso.enabled && to.path === options.sso.routePath) {
+    if (coreOptions.sso.enabled && to.path === coreOptions.sso.routePath) {
       return true;
     }
 
@@ -45,9 +43,6 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     const authStore = useAuthStore();
     const authed = await authStore.ensureAuthed();
     if (!authed) {
-      // 关键要求：退出/换用户后，不能保留旧用户的标签页。
-      // 这里处理“鉴权失效 -> 跳转登录”的场景（例如 Cookie 过期），避免登录后复活旧 tabs。
-      useTabsStore().reset();
       return {
         path: '/login',
         query: { redirect: to.fullPath }
@@ -56,11 +51,20 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
 
     const menuStore = useMenuStore();
     const systemStore = useSystemStore();
+    const isRemoteMenuMode = coreOptions.menuMode === 'remote';
 
     // remote 菜单模式下，即使命中本地缓存也要在当前会话至少同步一次远端菜单，
     // 避免系统列表/菜单结构长期停留在历史缓存（例如新增系统后看不到）。
-    if (options.menuMode === 'remote' && !menuStore.remoteSynced) {
-      await menuStore.loadMenus();
+    if (isRemoteMenuMode && !menuStore.remoteSynced) {
+      if (menuStore.loaded) {
+        // 已有缓存时采用“先放行，后同步”，避免首跳被远端慢接口明显阻塞。
+        void menuStore.loadMenus().catch(() => {
+          // 同步失败由全局 http hooks 统一处理（如 401 跳登录），这里避免未捕获告警。
+        });
+      } else {
+        // 无缓存时仍需阻塞拉取，确保首次鉴权边界可靠。
+        await menuStore.loadMenus();
+      }
     }
 
     // 详情/编辑等“非菜单路由”通过 meta.activePath 归属到某个菜单入口：
@@ -77,7 +81,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     }
 
     // 若当前系统菜单未加载，先加载（remote 模式通常一次拉取所有系统菜单）
-    if (!menuStore.loaded) {
+    if (!menuStore.loaded && !(isRemoteMenuMode && menuStore.remoteSynced)) {
       await menuStore.loadMenus();
     }
 
@@ -92,7 +96,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     if (resolvedSystem && resolvedSystem !== systemStore.currentSystemCode) {
       systemStore.setCurrentSystem(resolvedSystem);
       // 如果切到的新系统尚未加载（极少发生：缓存不全/系统列表变化），兜底再拉一次
-      if (!menuStore.loaded) {
+      if (!menuStore.loaded && !(isRemoteMenuMode && menuStore.remoteSynced)) {
         await menuStore.loadMenus();
       }
     }
@@ -111,11 +115,5 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     }
 
     return true;
-  });
-
-  router.afterEach(to => {
-    if (to.meta.public || isPublicRoute(to.path)) return;
-    if (!enableTabSync) return;
-    useTabsStore().openByRoute(to);
   });
 }

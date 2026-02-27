@@ -18,10 +18,3 @@ body,
   height: 100%;
   font-family: var(--one-font-family-base);
 }
-
-/* Link 按钮跟随 one link token，不影响普通按钮。 */
-.el-button.is-link {
-  --el-button-text-color: var(--one-color-link);
-  --el-button-hover-link-text-color: var(--one-color-link-light-5);
-  --el-button-active-color: var(--one-color-link-light-7);
-}

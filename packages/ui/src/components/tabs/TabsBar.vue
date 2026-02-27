@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TagComponent } from '@one/tag';
+import { TagComponent } from '@one-base-template/tag';
 </script>
 
 <template>
@@ -7,5 +7,3 @@ import { TagComponent } from '@one/tag';
     <TagComponent class="ob-tag-component" />
   </div>
 </template>
-
-

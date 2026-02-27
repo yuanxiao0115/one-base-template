@@ -4,6 +4,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useAuthStore } from '@one-base-template/core'
 import { OneTableBar } from '@/components/OneTableBar'
+import { confirm } from '@/infra/confirm'
 import { PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
 import type { TableColumnList } from '@one-base-template/ui'
 import { orgColumns } from '../org-management/columns'
@@ -238,14 +239,9 @@ async function handleEdit(row: OrgRecord) {
 
 async function handleDelete(row: OrgRecord) {
   try {
-    await ElMessageBox.confirm(
+    await confirm.warn(
       `确认删除组织「${row.orgName}」吗？若存在下级组织将禁止删除。`,
-      '删除确认',
-      {
-        type: 'warning',
-        confirmButtonText: '确认',
-        cancelButtonText: '取消'
-      }
+      '删除确认'
     )
 
     const response = await orgDemoApi.deleteOrg({ id: row.id })

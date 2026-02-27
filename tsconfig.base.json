@@ -22,7 +22,7 @@
       "@one-base-template/ui": ["packages/ui/src/index.ts"],
       "@one-base-template/adapters": ["packages/adapters/src/index.ts"],
       "@one-base-template/utils": ["packages/utils/src/index.ts"],
-      "@one/tag": ["packages/tag/src/index.ts"]
+      "@one-base-template/tag": ["packages/tag/src/index.ts"]
     }
   }
 }

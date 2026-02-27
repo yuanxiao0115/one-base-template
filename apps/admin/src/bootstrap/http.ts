@@ -2,7 +2,7 @@ import { ElMessage } from 'element-plus';
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
 import { createObHttp, useAuthStore, useMenuStore, useSystemStore, type ObHttp } from '@one-base-template/core';
-import { useTagStoreHook } from '@one/tag';
+import { useTagStoreHook } from '@one-base-template/tag';
 
 import type { AuthMode, BackendKind } from '../infra/env';
 import { createClientSignature } from '../infra/sczfw/crypto';
@@ -15,7 +15,7 @@ export function createAppHttp(params: {
   tokenKey: string;
   idTokenKey: string;
   sczfwHeaders?: Record<string, string>;
-  clientSignatureSecret?: string;
+  clientSignatureSalt?: string;
   clientSignatureClientId?: string;
   pinia: Pinia;
   router: Router;
@@ -28,7 +28,7 @@ export function createAppHttp(params: {
     tokenKey,
     idTokenKey,
     sczfwHeaders,
-    clientSignatureSecret,
+    clientSignatureSalt,
     clientSignatureClientId,
     pinia,
     router
@@ -56,7 +56,7 @@ export function createAppHttp(params: {
       backend === 'sczfw'
         ? config => {
             const signature = createClientSignature({
-              secret: clientSignatureSecret,
+              salt: clientSignatureSalt,
               clientId: clientSignatureClientId
             });
 

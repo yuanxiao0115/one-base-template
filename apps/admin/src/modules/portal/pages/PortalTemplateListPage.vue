@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
+import { confirm } from '@/infra/confirm';
 
-import { portalApi } from '../api/portal';
+import { portalService } from '../services/portal-service';
 import type { BizResponse, PageResult, PortalTemplate } from '../types';
 import { findFirstPageTabId } from '../utils/portalTree';
 import PortalTemplateCreateDialog from '../components/template/PortalTemplateCreateDialog.vue';
@@ -77,7 +78,7 @@ async function queryList(page = currentPage.value) {
   try {
     currentPage.value = page;
 
-    const res = await portalApi.template.list({
+    const res = await portalService.template.list({
       currentPage: currentPage.value,
       pageSize: pageSize.value,
       searchKey: searchKey.value || undefined,
@@ -122,7 +123,7 @@ async function onCreateTemplate(payload: { templateName: string; description: st
 
   creating.value = true;
   try {
-    const res = await portalApi.template.add({
+    const res = await portalService.template.add({
       templateName: payload.templateName,
       description: payload.description || '',
       // 对齐老项目的必填字段，避免后端校验失败
@@ -169,7 +170,7 @@ async function openPreview(row: PortalTemplate) {
   if (!id) return;
 
   try {
-    const res = await portalApi.template.detail({ id });
+    const res = await portalService.template.detail({ id });
     if (!normalizeBizOk(res)) {
       ElMessage.error(res?.message || '获取模板详情失败');
       return;
@@ -197,7 +198,7 @@ async function togglePublish(row: PortalTemplate) {
   const nextStatus = isPublished(row) ? 0 : 1;
   const text = nextStatus === 1 ? '发布' : '取消发布';
 
-  const res = await portalApi.template.publish({ id, status: nextStatus });
+  const res = await portalService.template.publish({ id, status: nextStatus });
   if (!normalizeBizOk(res)) {
     ElMessage.error(res?.message || `${text}失败`);
     return;
@@ -212,12 +213,12 @@ async function deleteTemplate(row: PortalTemplate) {
   if (!id) return;
 
   try {
-    await ElMessageBox.confirm('确定要删除该门户模板吗？', '删除确认', { type: 'warning' });
+    await confirm.warn('确定要删除该门户模板吗？', '删除确认');
   } catch {
     return;
   }
 
-  const res = await portalApi.template.delete({ id });
+  const res = await portalService.template.delete({ id });
   if (!normalizeBizOk(res)) {
     ElMessage.error(res?.message || '删除失败');
     return;

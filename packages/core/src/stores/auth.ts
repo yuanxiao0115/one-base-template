@@ -2,39 +2,44 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import type { AppUser, LoginPayload } from '../adapter/types';
 import { getCoreOptions } from '../context';
+import { removeByPrefixes, safeSetToStorage } from '../utils/storage';
+import { readWithLegacyFallback, removeByScopedPrefixes, removeScopedAndLegacy, resolveNamespacedKey } from '../storage/namespace';
 
-const AUTH_USER_STORAGE_KEY = 'ob_auth_user';
+const AUTH_USER_STORAGE_BASE_KEY = 'ob_auth_user';
 
 function readStoredUser(): AppUser | null {
+  const hit = readWithLegacyFallback(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
+  if (!hit?.value) return null;
+
   try {
-    const raw = localStorage.getItem(AUTH_USER_STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as AppUser;
+    return JSON.parse(hit.value) as AppUser;
   } catch {
     // localStorage 不可用或 JSON 解析失败时，直接清理缓存，避免后续反复报错
-    try {
-      localStorage.removeItem(AUTH_USER_STORAGE_KEY);
-    } catch {
-      // ignore
-    }
+    removeScopedAndLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
     return null;
   }
 }
 
 function writeStoredUser(user: AppUser) {
-  try {
-    localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
-  } catch {
-    // ignore
+  const key = resolveNamespacedKey(AUTH_USER_STORAGE_BASE_KEY);
+  safeSetToStorage(key, JSON.stringify(user), {
+    primary: 'local',
+    fallback: 'session',
+    onPrimaryQuotaExceeded: () => {
+      // 用户态优先级高于菜单缓存，localStorage 满额时先清菜单分片缓存腾挪空间。
+      removeByScopedPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+    }
+  });
+
+  // 向命名空间迁移时清理旧 key，避免读优先级导致状态抖动。
+  if (key !== AUTH_USER_STORAGE_BASE_KEY) {
+    removeByPrefixes([AUTH_USER_STORAGE_BASE_KEY], 'local');
+    removeByPrefixes([AUTH_USER_STORAGE_BASE_KEY], 'session');
   }
 }
 
 function clearStoredUser() {
-  try {
-    localStorage.removeItem(AUTH_USER_STORAGE_KEY);
-  } catch {
-    // ignore
-  }
+  removeScopedAndLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
 }
 
 export const useAuthStore = defineStore('ob-auth', () => {

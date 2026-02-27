@@ -6,6 +6,12 @@ import { useSystemStore, type SystemOptions } from './stores/system';
 import { useThemeStore, type ThemeOptions } from './stores/theme';
 
 export interface CoreOptions {
+  /**
+   * core 全局存储命名空间。
+   * - 推荐在多应用同域部署时配置，避免 localStorage/sessionStorage key 冲突
+   * - 未配置时保持历史 key（向后兼容）
+   */
+  storageNamespace?: string;
   adapter: BackendAdapter;
   menuMode: MenuMode;
   /**

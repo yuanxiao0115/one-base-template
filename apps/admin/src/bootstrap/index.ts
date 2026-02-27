@@ -1,8 +1,8 @@
 import { createApp } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { OneUiPlugin } from '@one-base-template/ui';
-import OneTag from '@one/tag';
-import '@one/tag/style';
+import OneTag from '@one-base-template/tag';
+import '@one-base-template/tag/style';
 
 import App from '../App.vue';
 import { routes } from '../router';
@@ -62,7 +62,7 @@ export function bootstrapAdminApp() {
     tokenKey: appEnv.tokenKey,
     idTokenKey: appEnv.idTokenKey,
     sczfwHeaders: appEnv.sczfwHeaders,
-    clientSignatureSecret: appEnv.clientSignatureSecret,
+    clientSignatureSalt: appEnv.clientSignatureSalt,
     clientSignatureClientId: appEnv.clientSignatureClientId,
     pinia,
     router
@@ -90,7 +90,11 @@ export function bootstrapAdminApp() {
     systemHomeMap: appEnv.systemHomeMap
   });
 
-  setupRouterGuards(router, { enableTabSync: false });
+  setupRouterGuards(router, {
+    onNavigationStart: () => {
+      http.cancelRoutePendingRequests();
+    }
+  });
 
   return { app, router, pinia };
 }

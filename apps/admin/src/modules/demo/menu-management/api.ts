@@ -1,4 +1,4 @@
-import { getObHttpClient } from '@/infra/http'
+import { getAppHttpClient } from '@/shared/api/http-client'
 
 export interface BizResponse<T> {
   code: number
@@ -55,7 +55,7 @@ export interface PermissionSavePayload {
 }
 
 function getHttp() {
-  return getObHttpClient()
+  return getAppHttpClient()
 }
 
 function normalizeText(value: string | undefined) {

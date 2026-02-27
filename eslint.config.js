@@ -14,7 +14,8 @@ export default [
       '**/node_modules/**',
       '**/.turbo/**',
       '**/.vite/**',
-      '**/.vitepress/cache/**'
+      '**/.vitepress/cache/**',
+      '**/public/fonts/**/iconfont.js'
     ]
   },
   {
@@ -70,6 +71,46 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       'no-control-regex': 'off'
+    }
+  },
+  {
+    // 约束：模块间默认禁止直接互相 import，公共能力需上移到 shared/core/ui
+    files: ['apps/admin/src/modules/**/*.{ts,tsx,vue}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/modules/*'],
+              message: '禁止模块间直接依赖，请通过 shared/core/ui 暴露公共能力。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    // 约束：页面/组件/store 禁止直接依赖 infra/http，必须经过模块 API 或 shared API 封装
+    files: [
+      'apps/admin/src/pages/**/*.{ts,tsx,vue}',
+      'apps/admin/src/components/**/*.{ts,tsx,vue}',
+      'apps/admin/src/modules/**/pages/**/*.{ts,tsx,vue}',
+      'apps/admin/src/modules/**/components/**/*.{ts,tsx,vue}',
+      'apps/admin/src/modules/**/stores/**/*.{ts,tsx,vue}'
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@/infra/http',
+              message: '禁止在页面/组件/store 直接引用 infra/http，请改用 service 或 shared/api。'
+            }
+          ]
+        }
+      ]
     }
   },
   {

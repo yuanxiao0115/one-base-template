@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
+import { confirm } from '@/infra/confirm';
 
-import { portalApi } from '../api/portal';
+import { portalService } from '../services/portal-service';
 import type { BizResponse, PortalTemplate, PortalTab } from '../types';
 import { calcNextSort, containsTabId, findFirstPageTabId } from '../utils/portalTree';
 
@@ -88,7 +89,7 @@ async function loadTemplate(preferTabId?: string) {
 
   loading.value = true;
   try {
-    const res = await portalApi.template.detail({ id: templateId.value });
+    const res = await portalService.template.detail({ id: templateId.value });
     if (!normalizeBizOk(res)) {
       ElMessage.error(res?.message || '加载门户失败');
       templateInfo.value = null;
@@ -123,7 +124,7 @@ async function ensureTabLinkedToTemplate(tabId: string) {
   if (!nextIds.includes(tabId)) nextIds.push(tabId);
   tpl.tabIds = nextIds;
 
-  const res = await portalApi.template.update(tpl);
+  const res = await portalService.template.update(tpl);
   if (!normalizeBizOk(res)) {
     ElMessage.error(res?.message || '关联页面到模板失败');
     return;
@@ -167,7 +168,7 @@ async function openAttribute(node: PortalTab) {
 
   attrLoading.value = true;
   try {
-    const res = await portalApi.tab.detail({ id });
+    const res = await portalService.tab.detail({ id });
     if (!normalizeBizOk(res)) {
       ElMessage.error(res?.message || '加载页面详情失败');
       return;
@@ -227,7 +228,7 @@ async function onSubmitAttr(payload: {
         data.cmptInsts = [];
       }
 
-      const res = await portalApi.tab.add(data);
+      const res = await portalService.tab.add(data);
       if (!normalizeBizOk(res)) {
         ElMessage.error(res?.message || '新建失败');
         return;
@@ -274,7 +275,7 @@ async function onSubmitAttr(payload: {
       updateData.tabUrlSsoType = payload.tabUrlSsoType ?? 1;
     }
 
-    const res = await portalApi.tab.update(updateData);
+    const res = await portalService.tab.update(updateData);
     if (!normalizeBizOk(res)) {
       ElMessage.error(res?.message || '保存失败');
       return;
@@ -297,12 +298,12 @@ async function toggleHide(node: PortalTab) {
   const text = next === 1 ? '隐藏' : '显示';
 
   try {
-    await ElMessageBox.confirm(`确定要${text}该页面吗？`, '操作确认', { type: 'warning' });
+    await confirm.warn(`确定要${text}该页面吗？`, '操作确认');
   } catch {
     return;
   }
 
-  const res = await portalApi.template.hideToggle({ id: templateId.value, tabId, isHide: next });
+  const res = await portalService.template.hideToggle({ id: templateId.value, tabId, isHide: next });
   if (!normalizeBizOk(res)) {
     ElMessage.error(res?.message || `${text}失败`);
     return;
@@ -318,12 +319,12 @@ async function deleteTab(node: PortalTab) {
   if (!tabId) return;
 
   try {
-    await ElMessageBox.confirm('确定要删除该页面吗？', '删除确认', { type: 'warning' });
+    await confirm.warn('确定要删除该页面吗？', '删除确认');
   } catch {
     return;
   }
 
-  const res = await portalApi.tab.delete({ id: tabId });
+  const res = await portalService.tab.delete({ id: tabId });
   if (!normalizeBizOk(res)) {
     ElMessage.error(res?.message || '删除失败');
     return;

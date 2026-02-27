@@ -132,17 +132,28 @@ UI 行为：
 - 空系统过滤：若某系统映射后 `menus.length===0`（例如后端 `children=[]`），则不展示该系统名，也不写该系统菜单缓存
 - 本地缓存策略：只要系统 `menus.length>0`（即使是纯叶子列表）就会写入该系统缓存；空系统会清理对应缓存 key
 
+### 远端菜单拉取时机（remote）
+
+- 接口：`/cmict/admin/permission/my-tree`
+- 会话内策略：`remoteSynced=false` 才会触发远端同步；`true` 后普通跳转不重复请求
+- 缓存优先：若本地已有当前系统菜单缓存（`menuStore.loaded=true`），守卫会先放行并后台同步一次远端，减少首跳阻塞体感
+- 无缓存兜底：若当前系统菜单未加载，守卫仍会阻塞等待 `my-tree` 返回，确保首次权限边界可靠
+- 普通路由跳转：若已同步过（`remoteSynced=true`），不会在每次跳转重复请求
+- 并发防重：`menuStore.loadMenus()` 内部复用同一个 in-flight Promise，避免同一时刻重复打接口
+- 当前系统菜单未命中且已完成本会话同步时，守卫会直接走权限判定（403/放行），不再反复请求
+- 导航优先：admin 启动时会在每次路由切换前取消“可取消”的在途页面请求（默认可取消），避免慢请求占用连接导致跳转卡顿；鉴权/菜单/SSO 这类关键请求会显式标记为不可取消
+
 ## 标签栏（Tabs）
 
-- 组件：`packages/ui/src/components/tabs/TabsBar.vue`（UI 壳）+ `packages/tag/src/index.vue`（交互核心）
-- 当前实现基于 `@one/tag`（workspace 包），并在 admin 启动时通过插件安装：
-  - `app.use(OneTag, { pinia, router, ... })`
-  - `packages/core/src/router/guards.ts` 对 admin 以 `enableTabSync=false` 关闭 core tabs 自动同步，避免双写冲突
+- 组件：`packages/ui/src/components/tabs/TabsBar.vue`（UI 壳）+ `packages/core/src/stores/tabs.ts`（状态源）
+- 当前实现统一使用 core tabs：
+  - admin 启动后由 core 路由守卫在 `afterEach` 自动同步标签页
+  - TabsBar 只负责渲染与交互，不再依赖外部 tag 插件
 - 保持的行为约定：
   - 点击切换、关闭当前、关闭左/右/其他/全部
   - 滚轮横向滚动标签区
-  - KeepAlive include 按标签 `meta.keepAlive + route.name` 推导
-  - 标签状态按 `storageKey=ob_tags` 写入 `sessionStorage`（全局共享，不按 systemCode 分桶）
+  - KeepAlive include 按 `meta.keepAlive + route.name` 推导
+  - 标签状态按 `ob_tabs_state:<systemCode>` 写入 `sessionStorage`（按系统分桶）
 - 隐藏规则：
   - `meta.hiddenTab=true` 或 `meta.noTag=true` 不进入标签栏
   - admin 默认忽略 `/login`、`/sso`、`/403`、`/404`、`/`、`/redirect*`、`/error*`
@@ -206,3 +217,12 @@ UI 行为：
 - `dj-icon-*` 会自动叠加 `dj-icons` 基类，避免与 CP 的 `icon-*` 冲突。
 - legacy OD 菜单图标（如 `icon-huishouzhan`）会自动补齐 `iconfont-od` 基类。
 - 图标组件化用法与三套字体 demo 预览见：`/guide/iconfont`。
+
+## 首次进入路由兜底
+
+- 根路由重定向统一调用 `@one-base-template/core` 的 `resolveInitialPathFromStorage()`，不在 admin 内直接读取 `ob_system_current` / `ob_menu_tree:*`。
+- 决策顺序：
+  1. 命中 `systemHomeMap[当前系统]`
+  2. 未命中时尝试当前系统菜单缓存中的“首个可访问叶子路由”
+  3. 都未命中时回落到 `fallbackHome`（默认 `/home/index`）
+- 该能力支持 `storageNamespace`，并自动兼容历史无命名空间缓存 key，便于模板升级时平滑迁移。

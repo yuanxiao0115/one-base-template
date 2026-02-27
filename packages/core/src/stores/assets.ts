@@ -1,19 +1,20 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getCoreOptions } from '../context';
+import { resolveNamespacedKey } from '../storage/namespace';
 
 type GetImageUrlOptions = {
   /** 强制从后端重新拉取（同时覆盖本地持久化缓存） */
   forceRefresh?: boolean;
 };
 
-const DB_NAME = 'ob_asset_cache';
+const DB_NAME_BASE = 'ob_asset_cache';
 const DB_VERSION = 1;
 const STORE_NAME = 'images';
 
 const MAX_JSON_PROBE_SIZE = 1024 * 1024;
 
-let dbPromise: Promise<IDBDatabase | null> | null = null;
+const dbPromiseCache = new Map<string, Promise<IDBDatabase | null>>();
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -52,13 +53,19 @@ async function tryReadBizErrorMessageFromBlob(blob: Blob): Promise<string | unde
   }
 }
 
-function openDb(): Promise<IDBDatabase | null> {
-  if (dbPromise) return dbPromise;
+function resolveDbName() {
+  return resolveNamespacedKey(DB_NAME_BASE);
+}
 
-  dbPromise = new Promise(resolve => {
+function openDb(): Promise<IDBDatabase | null> {
+  const dbName = resolveDbName();
+  const cached = dbPromiseCache.get(dbName);
+  if (cached) return cached;
+
+  const promise = new Promise<IDBDatabase | null>(resolve => {
     if (typeof indexedDB === 'undefined') return resolve(null);
 
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    const req = indexedDB.open(dbName, DB_VERSION);
 
     req.onupgradeneeded = () => {
       const db = req.result;
@@ -71,7 +78,8 @@ function openDb(): Promise<IDBDatabase | null> {
     req.onerror = () => resolve(null);
   });
 
-  return dbPromise;
+  dbPromiseCache.set(dbName, promise);
+  return promise;
 }
 
 async function idbGetBlob(key: string): Promise<Blob | undefined> {

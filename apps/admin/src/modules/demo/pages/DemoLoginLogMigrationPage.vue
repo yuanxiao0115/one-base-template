@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { OneTableBar } from '@/components/OneTableBar'
 import { useTable } from '@/hooks/table'
+import { confirm } from '@/infra/confirm'
 import { PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
 import type { TablePagination } from '@one-base-template/ui'
 import { columns } from '../login-log/columns'
@@ -12,7 +13,7 @@ defineOptions({
   name: 'DemoLoginLogMigrationPage'
 })
 
-const tableRef = ref<any>()
+const tableRef = ref<unknown>(null)
 const searchRef = ref()
 
 const clientTypeList = ref<ClientTypeOption[]>([])
@@ -103,15 +104,7 @@ async function handleOperate(row: LoginLogRecord) {
 
 async function handleDelete(row: LoginLogRecord) {
   try {
-    await ElMessageBox.confirm(
-      `是否确认删除登录账号为 ${row.userAccount} 的这条数据？`,
-      '删除确认',
-      {
-        type: 'warning',
-        confirmButtonText: '确认',
-        cancelButtonText: '取消'
-      }
-    )
+    await confirm.warn(`是否确认删除登录账号为 ${row.userAccount} 的这条数据？`, '删除确认')
 
     const response = await loginLogApi.delete({ idList: [row.id] })
     if (response.code === 200) {

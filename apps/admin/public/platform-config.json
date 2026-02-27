@@ -9,10 +9,11 @@
   "appcode": "od",
   "storageNamespace": "one-base-template-admin",
   "clientSignatureClientId": "1",
-  "clientSignatureSecret": "fc54f9655dc04da486663f1055978ba8",
+  "clientSignatureSalt": "fc54f9655dc04da486663f1055978ba8",
   "defaultSystemCode": "admin_server",
   "systemHomeMap": {
     "admin_server": "/home/index",
     "b_system": "/b/home"
-  }
+  },
+  "enabledModules": "*"
 }

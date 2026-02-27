@@ -1,4 +1,4 @@
-import { getObHttpClient } from '@/infra/http'
+import { getAppHttpClient } from '@/shared/api/http-client'
 
 export interface BizResponse<T> {
   code: number
@@ -33,10 +33,10 @@ export interface ClientTypeOption {
 }
 
 function getHttp() {
-  return getObHttpClient()
+  return getAppHttpClient()
 }
 
-function normalizeListParams(params: Record<string, any>) {
+function normalizeListParams(params: Record<string, unknown>) {
   const next = { ...params }
 
   if (Array.isArray(next.time) && next.time.length === 2) {
@@ -57,7 +57,7 @@ function normalizeListParams(params: Record<string, any>) {
 }
 
 export const loginLogApi = {
-  list: (params: Record<string, any>) =>
+  list: (params: Record<string, unknown>) =>
     getHttp().get<BizResponse<LoginLogListResult>>('/cmict/auth/login-record/page', {
       params: normalizeListParams(params)
     }),

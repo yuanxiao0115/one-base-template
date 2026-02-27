@@ -16,7 +16,7 @@ function normalizeRedirect(raw: string | null): string {
   }
 }
 
-export async function handleSsoCallbackFromLocation(): Promise<{ redirect: string }> {
+export async function handleSsoCallback(): Promise<{ redirect: string }> {
   const options = getCoreOptions();
   if (!options.sso.enabled) {
     return { redirect: '/login' };
@@ -31,6 +31,7 @@ export async function handleSsoCallbackFromLocation(): Promise<{ redirect: strin
 
   let matched = false;
 
+  // 约定按策略列表顺序匹配，命中即停止，避免多种参数同时存在时出现重复 exchange。
   for (const strategy of options.sso.strategies) {
     if (strategy.type === 'token') {
       const token = strategy.paramNames.map(k => sp.get(k)).find(v => !!v);

@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 
-import { portalApi } from '../api/portal';
+import { portalService } from '../services/portal-service';
 import { useMaterials } from '../materials/useMaterials';
 import { usePortalPageLayoutStore, type PortalLayoutItem } from '../stores/pageLayout';
 
@@ -98,7 +98,7 @@ async function loadTabDetail(id: string) {
 
   loading.value = true;
   try {
-    const res = await portalApi.tab.detail({ id });
+    const res = await portalService.tab.detail({ id });
     if (!normalizeBizOk(res)) {
       ElMessage.error(res?.message || '加载页面失败');
       pageLayoutStore.reset();
@@ -145,7 +145,7 @@ async function savePage() {
       component: pageLayoutStore.layoutItems,
     };
 
-    const res = await portalApi.tab.update({
+    const res = await portalService.tab.update({
       id: tabId.value,
       tabName: tabName.value || '页面',
       pageLayout: JSON.stringify(pageLayout),

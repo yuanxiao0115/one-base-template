@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useTagStoreHook } from '@one/tag';
+import { useTagStoreHook } from '@one-base-template/tag';
 
 const tagStore = useTagStoreHook();
 

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { OneTableBar } from '@/components/OneTableBar'
 import { useTable } from '@/hooks/table'
+import { confirm } from '@/infra/confirm'
 import { PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
 import type { TableColumnList } from '@one-base-template/ui'
 import { menuColumns } from '../menu-management/columns'
@@ -275,14 +276,9 @@ function handleCreateCommand(command: string, row: MenuPermissionRecord) {
 
 async function handleDelete(row: MenuPermissionRecord) {
   try {
-    await ElMessageBox.confirm(
+    await confirm.warn(
       `是否确认删除权限「${row.resourceName}」？若存在下级权限会一并删除。`,
-      '删除确认',
-      {
-        type: 'warning',
-        confirmButtonText: '确认',
-        cancelButtonText: '取消'
-      }
+      '删除确认'
     )
 
     const response = await menuPermissionApi.deletePermission(row.id)

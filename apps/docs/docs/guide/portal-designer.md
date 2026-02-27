@@ -19,7 +19,7 @@
 预览渲染（顶层路由，不挂 `AdminLayout`，允许匿名）：
 - `/portal/preview/:tabId?templateId=<id>`：渲染指定 tab 的 pageLayout（通常给 iframe / 新窗口使用）
 
-标签栏约定（与 `@one/tag` 规则一致）：
+标签栏约定（基于 core tabs 规则）：
 - `/portal/designer`、`/portal/layout`、`/portal/preview` 均通过 `meta.hiddenTab=true` 处理为“不进入顶部标签栏”
 - 这样可保持门户编辑/预览页为全屏工作区，不与常规业务页签混排
 

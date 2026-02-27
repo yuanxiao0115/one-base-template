@@ -2,9 +2,15 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { handleSsoCallbackFromLocation, useAuthStore, useMenuStore } from '@one-base-template/core';
-import { getObHttpClient } from '@/infra/http';
+import { finalizeAuthSession, handleSsoCallback, safeRedirect } from '@one-base-template/core';
 import { appEnv } from '@/infra/env';
+import {
+  loginByDesktop,
+  loginByExternal,
+  loginByTicket,
+  loginByYdbg,
+  loginByZhxt
+} from '@/shared/services/auth-remote-service';
 
 defineOptions({
   name: 'SsoCallbackPage'
@@ -36,56 +42,27 @@ const backend = appEnv.backend;
 const tokenKey = appEnv.tokenKey;
 const idTokenKey = appEnv.idTokenKey;
 
-function normalizeRedirect(raw: string | null): string {
-  if (!raw) return '/home/index';
-  try {
-    const decoded = decodeURIComponent(raw);
-    if (!decoded.startsWith('/')) return '/home/index';
-    if (decoded.startsWith('//')) return '/home/index';
-    return decoded;
-  } catch {
-    if (!raw.startsWith('/')) return '/home/index';
-    if (raw.startsWith('//')) return '/home/index';
-    return raw;
-  }
-}
-
 function safeMessage(e: unknown, fallback: string) {
   return e instanceof Error && e.message ? e.message : fallback;
 }
 
 async function setTokenAndBootstrap(token: string, redirect: string) {
   localStorage.setItem(tokenKey, token);
-
-  const authStore = useAuthStore();
-  await authStore.fetchMe();
-
-  const menuStore = useMenuStore();
-  await menuStore.loadMenus();
+  await finalizeAuthSession({ shouldFetchMe: true });
 
   loginStatus.value = 'success';
   await router.replace(redirect);
 }
 
 async function handleZhxt(token: string, redirect: string) {
-  const http = getObHttpClient();
-  const res = await http.get<BizResponse<TokenResult>>('/cmict/auth/external/zhxt/sso', {
-    params: { 'zhxt-token': token },
-    $isAuth: true,
-    $throwOnBizError: true
-  });
+  const res = (await loginByZhxt(token)) as BizResponse<TokenResult>;
   const authToken = res.data?.authToken;
   if (!authToken) throw new Error(res.message || '智慧协同单点登录失败');
   await setTokenAndBootstrap(authToken, redirect);
 }
 
 async function handleYdbg(token: string, redirect: string) {
-  const http = getObHttpClient();
-  const res = await http.get<BizResponse<TokenResult>>('/cmict/auth/external/ydbg/sso', {
-    params: { 'ydbg-token': token, appType: 2 },
-    $isAuth: true,
-    $throwOnBizError: true
-  });
+  const res = (await loginByYdbg(token)) as BizResponse<TokenResult>;
   const authToken = res.data?.authToken;
   if (!authToken) throw new Error(res.message || '移动办公单点登录失败');
   await setTokenAndBootstrap(authToken, redirect);
@@ -95,12 +72,7 @@ async function handleTicket(ticket: string, redirectUrlRaw: string | null, redir
   // 老项目行为：serviceUrl = redirectUrl ? `${origin}/${redirectUrl}` : 当前完整 URL
   const serviceUrl = redirectUrlRaw ? `${window.location.origin}/${redirectUrlRaw}` : window.location.href;
 
-  const http = getObHttpClient();
-  const res = await http.get<BizResponse<TokenResult>>('/cmict/auth/ticket/sso', {
-    params: { ticket, serviceUrl },
-    $isAuth: true,
-    $throwOnBizError: true
-  });
+  const res = (await loginByTicket({ ticket, serviceUrl })) as BizResponse<TokenResult>;
 
   const authToken = res.data?.authToken;
   if (!authToken) throw new Error(res.message || '票据验证失败');
@@ -112,21 +84,17 @@ async function handleTypeToken(token: string, redirect: string) {
 }
 
 async function handleExternalSso(params: { from: 'portal' | 'om'; token: string; redirect: string }) {
-  const http = getObHttpClient();
-  const res = await http.get<BizResponse<TokenResult>>(`/cmict/auth/external/${params.from}/sso`, {
-    params: { token: params.token },
-    $isAuth: true,
-    $throwOnBizError: true
-  });
+  const res = (await loginByExternal({
+    from: params.from,
+    token: params.token
+  })) as BizResponse<TokenResult>;
 
   const authToken = res.data?.token ?? res.data?.authToken;
   if (!authToken) throw new Error(res.message || 'SSO 登录失败');
   localStorage.setItem(tokenKey, authToken);
 
   // 兼容老项目：额外换取 idToken（用于后续桌面统一认证场景）
-  const ssoRes = await http.post<BizResponse<IdTokenResult>>('/cmict/uaa/unity-desktop/sso-login', {
-    $noErrorAlert: true
-  });
+  const ssoRes = (await loginByDesktop()) as BizResponse<IdTokenResult>;
   const idToken = ssoRes.data?.idToken;
   if (idToken) {
     localStorage.setItem(idTokenKey, idToken);
@@ -142,7 +110,7 @@ onMounted(async () => {
 
   try {
     if (backend !== 'sczfw') {
-      const { redirect } = await handleSsoCallbackFromLocation();
+      const { redirect } = await handleSsoCallback();
       await router.replace(redirect);
       loginStatus.value = 'success';
       return;
@@ -159,7 +127,7 @@ onMounted(async () => {
     const sourceCode = sp.get('sourceCode');
 
     const redirectUrlRaw = sp.get('redirectUrl') ?? sp.get('redirect');
-    const redirect = normalizeRedirect(redirectUrlRaw);
+    const redirect = safeRedirect(redirectUrlRaw, '/home/index');
 
     if (sourceCode === 'zhxt' && token) {
       await handleZhxt(token, redirect);

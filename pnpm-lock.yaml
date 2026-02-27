@@ -41,12 +41,12 @@ importers:
       '@one-base-template/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@one-base-template/tag':
+        specifier: workspace:*
+        version: link:../../packages/tag
       '@one-base-template/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@one/tag':
-        specifier: workspace:*
-        version: link:../../packages/tag
       element-plus:
         specifier: ^2.13.2
         version: 2.13.2(vue@3.5.28(typescript@5.9.3))
@@ -166,7 +166,7 @@ importers:
       '@one-base-template/core':
         specifier: workspace:*
         version: link:../core
-      '@one/tag':
+      '@one-base-template/tag':
         specifier: workspace:*
         version: link:../tag
       element-plus:

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { readFromStorages, removeByPrefixes, safeSetToStorage } from '../utils/storage';
+import { removeFromStorages, safeSetToStorage } from '../utils/storage';
+import { readWithLegacyFallback, removeByScopedPrefixes, resolveNamespacedKey } from '../storage/namespace';
 
 /**
  * 布局模式：
@@ -25,7 +26,7 @@ export interface LayoutOptions {
   persist?: boolean;
 }
 
-const STORAGE_KEY = 'ob_layout';
+const STORAGE_BASE_KEY = 'ob_layout';
 export const DEFAULT_LAYOUT_TOPBAR_HEIGHT = '64px';
 export const DEFAULT_LAYOUT_SIDEBAR_WIDTH = '256px';
 export const DEFAULT_LAYOUT_SIDEBAR_COLLAPSED_WIDTH = '64px';
@@ -35,11 +36,11 @@ type StoredLayout = {
 };
 
 function readStoredLayout(): StoredLayout {
-  const raw = readFromStorages(STORAGE_KEY, ['local', 'session']);
-  if (!raw) return {};
+  const hit = readWithLegacyFallback(STORAGE_BASE_KEY, ['local', 'session']);
+  if (!hit?.value) return {};
 
   try {
-    const parsed = JSON.parse(raw) as unknown;
+    const parsed = JSON.parse(hit.value) as unknown;
     if (!parsed || typeof parsed !== 'object') return {};
     return parsed as StoredLayout;
   } catch {
@@ -48,14 +49,20 @@ function readStoredLayout(): StoredLayout {
 }
 
 function writeStoredLayout(next: StoredLayout) {
-  safeSetToStorage(STORAGE_KEY, JSON.stringify(next), {
+  const key = resolveNamespacedKey(STORAGE_BASE_KEY);
+
+  safeSetToStorage(key, JSON.stringify(next), {
     primary: 'local',
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
       // 菜单缓存可重新拉取，优先清理避免影响布局/主题等关键状态的持久化
-      removeByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
+      removeByScopedPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
     }
   });
+
+  if (key !== STORAGE_BASE_KEY) {
+    removeFromStorages(STORAGE_BASE_KEY, ['local', 'session']);
+  }
 }
 
 export const useLayoutStore = defineStore('ob-layout', () => {

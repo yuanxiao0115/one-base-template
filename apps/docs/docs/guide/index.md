@@ -26,9 +26,17 @@ outline: false
     <h3>目录结构与边界</h3>
     <p>理解 apps / packages 分层与边界约束。</p>
   </a>
+  <a class="guide-card" href="/guide/module-system">
+    <h3>模块系统与切割</h3>
+    <p>了解 module.ts Manifest、enabledModules 与 CLI 裁剪契约。</p>
+  </a>
   <a class="guide-card" href="/guide/theme-system">
     <h3>主题系统</h3>
     <p>掌握主题 token、切换机制与扩展方式。</p>
+  </a>
+  <a class="guide-card" href="/guide/button-styles">
+    <h3>组件样式（按钮）</h3>
+    <p>查看按钮支持样式、尺寸规范与禁用态统一用法。</p>
   </a>
   <a class="guide-card" href="/guide/layout-menu">
     <h3>布局与菜单</h3>

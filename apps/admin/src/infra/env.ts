@@ -1,8 +1,14 @@
 import { getPlatformConfig } from '../config/platform-config';
+import type {
+  AuthMode as PlatformAuthMode,
+  BackendKind as PlatformBackendKind,
+  PlatformMenuMode,
+  EnabledModulesSetting
+} from '@one-base-template/core';
 
-export type BackendKind = 'default' | 'sczfw';
-export type AuthMode = 'cookie' | 'token' | 'mixed';
-export type MenuMode = 'remote' | 'static';
+export type BackendKind = PlatformBackendKind;
+export type AuthMode = PlatformAuthMode;
+export type MenuMode = PlatformMenuMode;
 
 export type BuildEnv = {
   isProd: boolean;
@@ -19,8 +25,9 @@ export type AppEnv = {
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
+  enabledModules: EnabledModulesSetting;
   sczfwHeaders?: Record<string, string>;
-  clientSignatureSecret?: string;
+  clientSignatureSalt?: string;
   clientSignatureClientId?: string;
   storageNamespace: string;
   sczfwSystemPermissionCode?: string;
@@ -98,13 +105,14 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   const tokenKey = runtime.tokenKey;
   const idTokenKey = runtime.idTokenKey;
   const menuMode = runtime.menuMode;
+  const enabledModules = runtime.enabledModules;
   const sczfwHeaders = resolveSczfwHeaders({
     backend,
     authorizationType: runtime.authorizationType,
     appsource: runtime.appsource,
     appcode: runtime.appcode
   });
-  const clientSignatureSecret = runtime.clientSignatureSecret;
+  const clientSignatureSalt = runtime.clientSignatureSalt;
   const clientSignatureClientId = runtime.clientSignatureClientId;
   const storageNamespace = runtime.storageNamespace || runtime.appcode;
   const defaultSystemCode = resolveDefaultSystemCode({
@@ -124,8 +132,9 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     tokenKey,
     idTokenKey,
     menuMode,
+    enabledModules,
     sczfwHeaders,
-    clientSignatureSecret,
+    clientSignatureSalt,
     clientSignatureClientId,
     storageNamespace,
     sczfwSystemPermissionCode,

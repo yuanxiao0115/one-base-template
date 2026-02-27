@@ -10,7 +10,6 @@ packages/
   core/                  # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等（禁止耦合 UI）
   ui/                    # UI 壳：Layout/Sidebar/Topbar/Tabs/KeepAlive/错误页 等（依赖 core）
   adapters/              # Adapter 示例：对接后端接口/字段映射
-  tag/                   # 标签栏能力包（@one/tag，路由驱动 + 右键菜单 + 持久化）
   utils/                 # 通用工具包（数组/树/日期/格式化/storage/加密/Vue hooks 等）
 ```
 
@@ -19,21 +18,30 @@ packages/
 为避免启动链路分散导致不可控，`apps/admin` 将启动逻辑集中在：
 
 - `apps/admin/src/config/platform-config.ts`：加载并校验运行时配置（`public/platform-config.json`）
+- `packages/core/src/config/platform-config.ts`：运行时配置 schema 与校验规则（可复用）
 - `apps/admin/src/config/layout.ts`：管理端布局代码配置（`layoutMode/systemSwitchStyle/topbarHeight/sidebarWidth/sidebarCollapsedWidth`）
 - `apps/admin/src/config/theme.ts`：主题注册入口（复用 core 内置主题 + 项目自定义主题）
 - `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `appEnv`
+- `apps/admin/src/module-system/*`：模块 Manifest 扫描、白名单过滤与路由组装
 - `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫
-- `packages/tag`：提供标签栏插件，admin 在 bootstrap 阶段安装并接管 tabs 交互链路
+- `packages/core/src/storage/namespace.ts`：统一存储命名空间规则（读取兼容旧 key）
+- `packages/core/src/router/initial-path.ts`：统一根路由首次跳转决策（系统首页映射 + 菜单叶子兜底）
 
 启动顺序：
 
 1. `main.ts` 先调用 `loadPlatformConfig()`
 2. 配置加载成功后动态导入 `bootstrap`
 3. `bootstrap` 内安装 `@one-base-template/ui` 插件（`app.use(OneUiPlugin, { prefix: 'Ob' })`，自动注册全局组件）
-4. `bootstrap` 内安装 `@one/tag`（`app.use(OneTag, { pinia, router, ... })`）
-5. 注册 core 路由守卫（admin 侧 `enableTabSync=false`，避免与 `@one/tag` 双写）
+4. 路由由 `module-system` 基于 `modules/**/module.ts` 组装（支持 `enabledModules` 白名单）
+5. 注册 core 路由守卫（默认启用 core tabs 同步）
 6. `router.isReady()` 后 mount
 7. 配置加载失败时，应用硬失败并显示错误页（不进入业务路由）
+
+## 存储命名空间与首次路由
+
+- `createCore({ storageNamespace })` 可为 core 状态存储增加命名空间前缀（例如 `one-base-template-admin:*`）。
+- core 的 auth/system/menu/layout/tabs/assets 均遵循同一命名空间规则，并在读取阶段兼容历史未命名空间 key，便于渐进迁移。
+- admin 根路由不再直接读取 `ob_*` 内部 key；统一通过 `resolveInitialPathFromStorage()` 解析首次落点，保持“代码配置首页优先，菜单叶子兜底”的行为一致。
 
 ## 主题架构分层
 
@@ -74,10 +82,21 @@ packages/
   - 只做组装与页面样式。
   - 对接不同后端时优先替换 `packages/adapters` 或应用侧注入 adapter。
 
+## 模块 Manifest 与切割
+
+- 模块唯一入口：`apps/admin/src/modules/<module-id>/module.ts`
+- 路由分组：
+  - `routes/layout.ts`：挂在 `AdminLayout` 下
+  - `routes/standalone.ts`：顶层全屏/匿名路由（可选）
+- 运行时白名单：`platform-config.json` 的 `enabledModules`
+  - `"*"`：启用全部模块
+  - `string[]`：只启用指定模块
+- API 约束：页面只能调 `services/*`，模块 HTTP 请求收敛在 `api/client.ts`
+
 ## 静态路由 + 动态菜单
 
 核心约定：
-- 路由：始终静态声明（`apps/admin/src/modules/**/routes.ts`）。
+- 路由：始终静态声明（模块内 `routes/*.ts`），由 `module.ts` 统一导出给路由组装器。
 - 菜单：
   - `remote`：后端返回“可见菜单树”
   - `static`：从静态路由生成
