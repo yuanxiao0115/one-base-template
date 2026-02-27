@@ -32,7 +32,7 @@ apps/admin/src/modules/<module-id>/
 
 ## 2) 路由组装规则
 
-- 统一入口：`apps/admin/src/module-system/assemble-routes.ts`
+- 统一入口：`apps/admin/src/router/module-system/assemble-routes.ts`
 - 扫描来源：`apps/admin/src/modules/**/module.ts`
 - 全局固定路由仅保留：`/login`、`/sso`、`/403`、`/404`、404 兜底
 - 业务路由一律来自模块 Manifest
