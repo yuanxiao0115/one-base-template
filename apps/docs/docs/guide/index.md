@@ -30,6 +30,10 @@ outline: false
     <h3>模块系统与切割</h3>
     <p>了解 module.ts Manifest、enabledModules 与 CLI 裁剪契约。</p>
   </a>
+  <a class="guide-card" href="/guide/naming-whitelist">
+    <h3>命名白名单（CLI）</h3>
+    <p>统一动词+名词命名，给代码生成器提供稳定规则。</p>
+  </a>
   <a class="guide-card" href="/guide/theme-system">
     <h3>主题系统</h3>
     <p>掌握主题 token、切换机制与扩展方式。</p>

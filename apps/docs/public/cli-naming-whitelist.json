@@ -1,0 +1,60 @@
+{
+  "version": "1",
+  "updatedAt": "2026-02-27",
+  "methodVerbs": [
+    "get",
+    "list",
+    "find",
+    "load",
+    "create",
+    "add",
+    "update",
+    "remove",
+    "clear",
+    "save",
+    "reset",
+    "parse",
+    "build",
+    "map",
+    "to",
+    "set",
+    "sync",
+    "open",
+    "close",
+    "start",
+    "stop",
+    "fetch"
+  ],
+  "storeActionVerbs": [
+    "set",
+    "update",
+    "reset",
+    "clear",
+    "load"
+  ],
+  "apiClientVerbs": [
+    "get",
+    "list",
+    "create",
+    "add",
+    "update",
+    "remove",
+    "delete"
+  ],
+  "eventHandlerPrefix": "on",
+  "composablePrefix": "use",
+  "discouragedVerbs": [
+    "assemble",
+    "orchestrate",
+    "resolve",
+    "process",
+    "execute",
+    "perform",
+    "manage"
+  ],
+  "rules": {
+    "methodPattern": "verb + noun",
+    "preferShortNames": true,
+    "allowHandleOnlyForEvents": true
+  }
+}

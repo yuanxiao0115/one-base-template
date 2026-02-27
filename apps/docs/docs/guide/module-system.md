@@ -99,3 +99,10 @@ CLI 生成器可按以下步骤裁剪：
    - `pnpm -w build`
 
 通过该契约，可以稳定支持 `--modules home,portal,...` 的脚手架生成策略。
+
+## 7) 命名规则复用（生成器推荐）
+
+为减少生成代码与现有代码命名风格偏差，建议 CLI 同时读取命名白名单：
+
+- 文档说明：`/guide/naming-whitelist`
+- 机器可读文件：`apps/docs/public/cli-naming-whitelist.json`
