@@ -94,6 +94,7 @@ packages/
 - 新增/修改功能后：**必须同步更新文档站点** `apps/docs`（VitePress），确保 `pnpm -C apps/docs build` 可通过且内容与代码一致
 - 当前阶段尽量减少分支数量：默认在当前工作分支开发；完成后合并回 `main` 分支，并删除临时分支/工作区（如无特殊需求不再创建多个分支）
 - **Git 提交信息必须使用中文**（commit message 禁止英文）
+- **未收到“现在提交”的明确指令前，默认不执行 `git commit`；需要提交时先展示拟提交文件清单，并按模块拆分提交**
 - **开发阶段默认不做历史配置兼容**；除非用户明确要求，否则按当前方案直接收敛实现
 - **Layout 模式与系统切换样式使用代码配置**（`apps/admin/src/config/layout.ts`），不通过运行时 `platform-config.json` 让用户改
 - **TopBar 主题设置入口必须放在用户头像下拉菜单内，并通过弹窗承载独立主题配置组件**
@@ -107,6 +108,7 @@ packages/
 - **侧栏菜单仅叶子菜单项保留激活高亮，菜单组（`el-sub-menu`）禁止出现激活态底色/主色文字，避免父子同时高亮**
 - **主题能力优先下沉到 `packages/core`：admin 侧只做项目主题注册与组装，不重复维护 token 引擎/默认映射逻辑**
 - **`link` 不归类为 core feedback 状态集合；保留固定色阶静态 token，仅用于 Element `link` 语义与链接场景展示**
+- **`el-button` 的 `link + danger` 组合不得覆盖 hover/active 颜色，需保留 Element 默认 danger 交互态色值**
 - **涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面，保持路由与交互行为一致**
 - **布局尺寸（TopBar 高度/侧栏展开宽度/侧栏折叠宽度）统一在 `apps/admin/src/config/layout.ts` 配置，不在 UI 内硬编码**
 - **涉及表格迁移样板页（如登录日志）时，页面主体必须结合 `PageContainer` 承载，保持“页面容器 + OneTableBar + ObVxeTable”结构一致**
@@ -128,3 +130,11 @@ packages/
 - **`apps/admin/src/styles/index.css` 禁止再通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/main.ts` 里显式导入 `styles/element-plus/*.css`，避免 PostCSS 路径解析 ENOENT**
 - **命名必须“短、清楚、通用”：优先使用 `get/list/build/create/update/remove` 等常见词，避免过度抽象或过长命名（如 `resolve/assemble/orchestrate` 连续叠加）**
 - **方法命名优先“动词 + 名词”结构（例如 `getInitialPath`、`parseRuntimeConfig`、`clearByPrefixes`），避免语义不明缩写与链式长词**
+- **`ObCrudContainer` 在未传 `container` 时必须读取全局配置默认值；若 props 传入 `container`，以 props 为最高优先级**
+- **`useTable` 必须支持“全局默认 + 页面局部覆盖”的分页参数键与响应结构适配（局部优先），以兼容不同项目后端字段差异**
+- **UserManagement（职位/用户/组织）迁移默认直连真实后端接口，禁止在 `apps/admin/vite.config.ts` 新增对应 mock 分支；仅在用户明确要求 mock 时例外**
+- **`PageContainer` 外层禁止再包无业务意义的占位 `div`；优先使用片段根节点保持结构扁平**
+- **CRUD 页面默认使用 `useCrudContainer` 的内置错误提示，不再为每个页面重复编写同构 `onError`**
+- **管理页脚本体超过单屏后，优先拆分“新增/编辑表单组件”和“高级搜索组件”，页面只保留编排逻辑**
+- **`UserManagement` 模块采用“一个功能一个文件夹（feature-first）”组织方式；`routes` 统一在模块根目录集中维护所有页面路由**
+- **CRUD 通用容器必须保留 `footer` 插槽，并支持“纯容器模式”（仅通过 `v-model` 管理 `visible`，不强制 form 与默认确认/取消按钮）**

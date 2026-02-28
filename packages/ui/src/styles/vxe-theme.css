@@ -57,7 +57,7 @@
   --vxe-ui-input-placeholder-color: var(--one-text-color-placeholder);
   --vxe-ui-input-disabled-background-color: var(--one-fill-color-light);
 
-  --vxe-ui-loading-background-color: var(--el-mask-color);
+  /* --vxe-ui-loading-background-color: var(--el-mask-color); */
 
   --vxe-ui-table-header-background-color: var(--one-table-header-bg);
   --vxe-ui-table-column-to-row-background-color: var(--one-table-header-bg);

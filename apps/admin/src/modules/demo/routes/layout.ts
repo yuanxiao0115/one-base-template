@@ -26,17 +26,17 @@ export default [
           keepAlive: true
         }
       },
-      {
-        path: '/system/org',
-        name: '/system/orgMenu',
-        component: () => import('../pages/DemoOrgManagementMigrationPage.vue'),
-        meta: {
-          title: '组织管理迁移',
-          keepAlive: true,
-          // 组织管理迁移样板用于演示树形表格，不依赖后端菜单。
-          skipMenuAuth: true
-        }
-      },
+      // {
+      //   path: '/system/org',
+      //   name: '/system/orgMenu',
+      //   component: () => import('../pages/DemoOrgManagementMigrationPage.vue'),
+      //   meta: {
+      //     title: '组织管理迁移',
+      //     keepAlive: true,
+      //     // 组织管理迁移样板用于演示树形表格，不依赖后端菜单。
+      //     skipMenuAuth: true
+      //   }
+      // },
       {
         path: '/system/permission',
         name: '/system/permissionMenu',
