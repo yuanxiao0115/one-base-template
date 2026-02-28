@@ -109,6 +109,9 @@ async function loadTreeChildren(params: { row: OrgRecord }) {
   }
 
   const rows = Array.isArray(response.data) ? response.data : []
+  if (!rows.length) {
+    params.row.hasChildren = false
+  }
   treeChildrenCache.set(parentId, rows)
   return rows
 }

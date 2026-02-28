@@ -83,13 +83,27 @@ function normalizeKeyword(keyword: string | undefined) {
   return (keyword || '').trim()
 }
 
+function fillTreeFlag(rows: OrgRecord[] | undefined) {
+  if (!Array.isArray(rows)) return []
+
+  return rows.map((row) => ({
+    ...row,
+    hasChildren: typeof row.hasChildren === 'boolean' ? row.hasChildren : true
+  }))
+}
+
 export const orgDemoApi = {
   getOrgTree: (params: OrgTreeParams) =>
-    getHttp().get<BizResponse<OrgRecord[]>>('/cmict/admin/org/children', {
-      params: {
-        parentId: params.parentId || '0'
-      }
-    }),
+    getHttp()
+      .get<BizResponse<OrgRecord[]>>('/cmict/admin/org/children', {
+        params: {
+          parentId: params.parentId || '0'
+        }
+      })
+      .then((response) => ({
+        ...response,
+        data: fillTreeFlag(response.data)
+      })),
 
   searchOrgList: (params: OrgSearchParams) =>
     getHttp().get<BizResponse<OrgRecord[]>>('/cmict/admin/org/search', {

@@ -71,6 +71,7 @@
 - `treeConfig.hasChildField='hasChildren'`
 - `treeConfig.childrenField='children'`
 - `treeConfig.loadMethod`（异步加载下级节点）
+- 若 `/children` 接口未返回 `hasChildren`，在模块 API 统一补 `hasChildren: true`；`loadMethod` 返回空数组时回写 `row.hasChildren = false`
 
 菜单权限类页面（树 + 条件筛选切列表）可沿用同一套底座策略：
 
