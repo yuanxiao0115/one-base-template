@@ -120,9 +120,10 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
   background: var(--one-color-primary-light-1, var(--el-color-primary-light-9)) !important;
 }
 
+/* 菜单组不做激活高亮，避免父级与叶子同时高亮造成视觉噪音 */
 :deep(.ob-sider-menu .el-sub-menu.is-active > .el-sub-menu__title) {
-  color: var(--one-color-primary-light-7, var(--el-color-primary)) !important;
-  background: var(--one-color-primary-light-1, var(--el-color-primary-light-9)) !important;
+  color: var(--one-text-color-regular, #333333) !important;
+  background: transparent !important;
 }
 
 /* 激活项背景铺满整行，符合侧栏选中态视觉规范 */
@@ -132,7 +133,7 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
 }
 
 :deep(.ob-sider-menu .el-sub-menu.is-active > .el-sub-menu__title .el-sub-menu__icon-arrow) {
-  color: var(--one-color-primary-light-7, var(--el-color-primary)) !important;
+  color: var(--one-text-color-secondary, #666666) !important;
 }
 
 :deep(.ob-sider-menu .el-menu-item.is-disabled),
