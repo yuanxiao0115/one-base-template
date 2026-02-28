@@ -9,13 +9,12 @@
 ```text
 apps/admin/src/modules/<module-id>/
   module.ts
-  routes/
-    layout.ts
-    standalone.ts   # 可选
+  routes.ts
+  <feature-a>/
+  <feature-b>/
   api/
   services/
   stores/
-  pages/
   components/
   compat/
 ```
@@ -25,7 +24,7 @@ apps/admin/src/modules/<module-id>/
 - `id`: 模块标识（如 `portal`）
 - `version`: 当前固定为 `'1'`
 - `enabledByDefault`: 是否默认启用
-- `routes.layout`: 挂载到 `AdminLayout` 下的路由
+- `routes.layout`: 挂载到 `AdminLayout` 下的路由（推荐来自 `routes.ts`）
 - `routes.standalone`（可选）: 顶层路由（全屏/匿名等）
 - `apiNamespace`: API 命名空间
 - `compat`（可选）: 历史路径/字段兼容描述
@@ -126,3 +125,47 @@ CLI 生成器可按以下步骤裁剪：
 
 - 文档说明：`/guide/naming-whitelist`
 - 机器可读文件：`apps/docs/public/cli-naming-whitelist.json`
+
+## 8) UserManagement 模块示例（职位管理）
+
+为了给后续 `user / org` 迁移打样，仓库新增了统一目录：
+
+```text
+apps/admin/src/modules/UserManagement/
+  module.ts
+  routes.ts
+  position/page.vue
+  position/api.ts
+  position/form.ts
+  position/components/*
+```
+
+关键点：
+
+- 路由集中：模块根仅保留一个 `routes.ts`
+- 功能目录：`position/` 下内聚 `page + api + form + components`
+- 路由入口：`/system/position`
+- 页面结构：`PageContainer + OneTableBar + ObVxeTable`
+- 弹窗形态：`ObCrudContainer + useCrudContainer`（业务只关心表单与接口）
+- 接口对齐老项目：直接调用 `/cmict/admin/sys-post/page|add|update|delete|unique/check` 真实后端接口
+
+最小路由声明示例：
+
+```ts
+// apps/admin/src/modules/UserManagement/routes.ts
+import type { RouteRecordRaw } from 'vue-router'
+
+export default [
+  {
+    path: '/system/position',
+    name: 'SystemPositionManagement',
+    component: () => import('./position/page.vue'),
+    meta: {
+      title: '职位管理',
+      keepAlive: true
+    }
+  }
+] satisfies RouteRecordRaw[]
+```
+
+后续迁移 `user/org` 时，建议继续沿用同一目录与页面骨架，保持“模块可切割 + CRUD 容器可复用”的一致性。

@@ -72,6 +72,33 @@ pnpm doctor
 - 模块边界：`apps/admin/src/modules/**/*` 禁止直接 import `@/modules/*`（公共能力上移到 `shared/core/ui`）
 - API 边界：页面/组件/store 禁止直接 import `@/infra/http`，必须经由 `services/*` 或 `shared/api/*`
 
+## 全局消息工具（兼容老项目 message.ts）
+
+admin 已引入消息工具：`apps/admin/src/utils/message.ts`，并在启动时全局注册：
+
+- `bootstrap` 注册入口：`apps/admin/src/bootstrap/index.ts`
+- Options API 全局属性：
+  - `$obMessage`
+  - `$closeAllMessage`
+- `<script setup>` 可直接使用（Auto Import）：
+  - `message`
+  - `closeAllMessage`
+  - `obConfirm`
+
+示例：
+
+```ts
+message.success('保存成功')
+message('删除失败，请稍后重试', { type: 'error' })
+closeAllMessage()
+```
+
+迁移建议：
+
+- 新代码优先使用 `message` / `closeAllMessage`，减少直接散落 `ElMessage` 调用。
+- `type` 语义与旧项目保持一致，适合直接平移历史页面消息逻辑。
+- `obConfirm` 已全局可用，`<script setup>` 中不再手动 `import { obConfirm } from '@/infra/confirm'`。
+
 ## Tailwind v4（Monorepo）注意事项
 
 本仓库的 `apps/admin` 使用 Tailwind CSS v4（通过 `@tailwindcss/postcss` 编译）。

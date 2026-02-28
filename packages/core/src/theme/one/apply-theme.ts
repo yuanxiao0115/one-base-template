@@ -83,6 +83,8 @@ function buildElementTextBorderFillBridgeTokens(tokens: OneTokenMap): OneTokenMa
     '--el-text-color-disabled': getToken(tokens, '--one-text-color-disabled'),
 
     '--el-border-color': getToken(tokens, '--one-border-color'),
+    // 表单类组件（Input/Select/DatePicker 等）悬浮边框统一跟随主题主色。
+    '--el-border-color-hover': getToken(tokens, '--one-color-primary'),
     '--el-border-color-light': getToken(tokens, '--one-border-color-light'),
     '--el-border-color-lighter': getToken(tokens, '--one-border-color-lighter'),
     '--el-border-color-extra-light': getToken(tokens, '--one-border-color-extra-light'),

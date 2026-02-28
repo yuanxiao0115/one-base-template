@@ -243,12 +243,12 @@ function onClear() {
 }
 
 .one-table-bar__keyword :deep(.el-input__wrapper:hover) {
-  border-color: var(--el-border-color);
+  border-color: var(--el-border-color-hover);
   box-shadow: none;
 }
 
 .one-table-bar__keyword :deep(.el-input__wrapper.is-focus) {
-  border-color: var(--el-border-color);
+  border-color: var(--el-color-primary);
   box-shadow: none;
 }
 

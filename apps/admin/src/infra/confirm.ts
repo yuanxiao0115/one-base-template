@@ -47,7 +47,7 @@ function openSecondaryConfirmWithTone(
   })
 }
 
-export const confirm = {
+export const obConfirm = {
   warn(message: ElMessageBoxOptions['message'], title: ElMessageBoxOptions['title'] = DEFAULT_TITLES.warning, options: ElMessageBoxOptions = {}) {
     return openSecondaryConfirmWithTone(message, 'warning', title, options)
   },
@@ -63,4 +63,7 @@ export const confirm = {
   }
 }
 
-export const openSecondaryConfirm = confirm.warn
+// 兼容历史页面：逐步从 confirm 迁移到 obConfirm
+export const confirm = obConfirm
+
+export const openSecondaryConfirm = obConfirm.warn

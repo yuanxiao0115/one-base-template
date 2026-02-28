@@ -227,6 +227,7 @@ themeStore.setGrayscale(true);        // 开启全局灰色模式
 - 职责：
   - 将 token 分层写入 `#one-theme-base` 与 `#one-theme-runtime`
   - 同步映射到 `--el-*`
+  - 统一表单 hover 边框变量（`--el-border-color-hover -> --one-color-primary`）
   - 处理 link 变量桥接（`--el-link-*`）
 
 ### 3) Store 接入层

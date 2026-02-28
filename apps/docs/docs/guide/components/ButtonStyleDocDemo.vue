@@ -184,6 +184,9 @@ function normalizeSize(value: ButtonSizeValue) {
 
 .button-doc-demo :deep(.el-button.is-link) {
   --el-button-text-color: var(--doc-link-color);
+}
+
+.button-doc-demo :deep(.el-button.is-link:not(.el-button--danger)) {
   --el-button-hover-link-text-color: var(--doc-link-color-hover);
   --el-button-active-color: var(--doc-link-color-active);
 }

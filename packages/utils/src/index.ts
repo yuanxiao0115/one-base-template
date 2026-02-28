@@ -25,6 +25,7 @@ export * as tool from './tool'
 // 框架集成模块
 export * from './vue'
 export * as hooks from './hooks'
+export { useCrudContainer, setUseTableDefaults, getUseTableDefaults } from './hooks'
 
 // 兼容性模块（保留原有工具）
 export * from './auth'
@@ -46,19 +47,29 @@ export type { Point } from './math'
 export type {
   UseLoadingOptions,
   UseLoadingReturn,
-  UseDialogOptions,
-  UseDialogReturn,
-  UseDrawerOptions,
-  UseDrawerReturn,
+  CrudBeforeOpenContext,
+  CrudContainerType,
+  CrudErrorContext,
+  CrudFormLike,
+  CrudLoadDetailContext,
+  CrudMapDetailToFormContext,
+  CrudMode,
+  CrudOpenCreateOptions,
+  CrudOpenRowOptions,
+  CrudSubmitContext,
+  CrudSuccessContext,
+  UseCrudContainerOptions,
+  UseCrudContainerReturn,
   UseTableOptions,
   UseTableConfig,
   UseTableReturn,
   PaginationConfig,
+  UseTablePaginationKey,
+  UseTablePaginationAlias,
+  UseTableDefaults,
   UseTableStandardResponse,
   UseTableCacheInfo,
-  CacheInvalidationStrategy,
-  DialogMode,
-  DrawerMode,
+  CacheInvalidationStrategy
 } from './hooks'
 
 // 版本信息

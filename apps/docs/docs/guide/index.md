@@ -46,6 +46,14 @@ outline: false
     <h3>布局与菜单</h3>
     <p>布局模式、菜单权限与路由协同说明。</p>
   </a>
+  <a class="guide-card" href="/guide/crud-container">
+    <h3>CRUD 容器与 Hook</h3>
+    <p>统一新增/编辑/详情容器能力，支持 dialog/drawer 与纯容器模式。</p>
+  </a>
+  <a class="guide-card" href="/guide/crud-module-best-practice">
+    <h3>CRUD 模块最佳实践</h3>
+    <p>基于 Position 模块沉淀目录结构、编排方式与 API/表单约定。</p>
+  </a>
   <a class="guide-card" href="/guide/iconfont">
     <h3>Iconfont 集成</h3>
     <p>图标库接入、预览方式与兼容用法。</p>

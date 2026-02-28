@@ -22,6 +22,31 @@ export interface PaginationConfig {
   small?: boolean
 }
 
+export interface UseTablePaginationKey {
+  current?: string
+  size?: string
+}
+
+export interface UseTablePaginationAlias {
+  current?: string[]
+  size?: string[]
+}
+
+export interface UseTableDefaults {
+  /**
+   * 全局默认分页主键（适用于 legacy 与 modern 两种模式）。
+   */
+  paginationKey?: UseTablePaginationKey
+  /**
+   * 全局默认分页别名，用于兼容后端参数字段差异。
+   */
+  paginationAlias?: UseTablePaginationAlias
+  /**
+   * 全局默认响应适配器，用于统一解析 records/total 结构。
+   */
+  responseAdapter?: (response: any) => UseTableStandardResponse
+}
+
 export type CacheInvalidationStrategy = 'clear_all' | 'clear_current' | 'clear_pagination' | 'keep_all'
 
 export interface UseTableStandardResponse<T = any> {
@@ -43,7 +68,19 @@ export interface UseTableOptions {
   /** 删除 API */
   deleteApi?: (payload: any) => Promise<any>
   /** 批量删除 API */
-  batchDeleteApi?: (ids: (string | number)[]) => Promise<any>
+  batchDeleteApi?: (payload: any) => Promise<any>
+  /** 分页主键（legacy 模式） */
+  paginationKey?: UseTablePaginationKey
+  /** 分页别名（legacy 模式） */
+  paginationAlias?: UseTablePaginationAlias
+  /** 响应结构适配器（legacy 模式） */
+  responseAdapter?: (response: any) => UseTableStandardResponse
+  /** 单删请求参数构造器 */
+  deletePayloadBuilder?: (input: any) => any
+  /** 批删请求参数构造器 */
+  batchDeletePayloadBuilder?: (ids: (string | number)[], rows: any[]) => any
+  /** 删除主键字段（用于从 row 提取 id） */
+  deleteIdKey?: string
   /** 是否分页 */
   paginationFlag?: boolean
   /** 分页配置 */
@@ -73,17 +110,9 @@ export interface UseTableConfig {
     /** 是否分页 */
     paginationFlag?: boolean
     /** 分页字段映射（主键） */
-    paginationKey?: {
-      /** 当前页字段名，默认 current */
-      current?: string
-      /** 每页条数字段名，默认 size */
-      size?: string
-    }
+    paginationKey?: UseTablePaginationKey
     /** 分页字段别名映射（附加写入，兼容后端差异） */
-    paginationAlias?: {
-      current?: string[]
-      size?: string[]
-    }
+    paginationAlias?: UseTablePaginationAlias
     /** 初始分页 */
     pagination?: Partial<PaginationConfig>
   }
@@ -156,7 +185,7 @@ export interface UseTableReturn {
   onSelectionCancel: (tableRef?: any) => void
 
   /** 删除相关 */
-  deleteRow: (id: string | number) => Promise<void>
+  deleteRow: (input: any) => Promise<void>
   batchDelete: (ids?: (string | number)[]) => Promise<void>
   /** 旧 API 兼容：单条删除 */
   onDelete: (payload: any) => Promise<void>
@@ -217,7 +246,10 @@ interface UseTableInternalConfig {
   onCacheHit?: (rows: any[], response: UseTableStandardResponse) => void
   resetFormCallback?: () => void | Promise<void>
   deleteApi?: (payload: any) => Promise<any>
-  batchDeleteApi?: (ids: (string | number)[]) => Promise<any>
+  batchDeleteApi?: (payload: any) => Promise<any>
+  deletePayloadBuilder: (input: any) => any
+  batchDeletePayloadBuilder: (ids: (string | number)[], rows: any[]) => any
+  deleteIdKey: string
   onDeleteSuccess?: () => void
   onDeleteError?: (error: any) => void
   onLegacySearchSuccess?: (data: any) => void
@@ -227,6 +259,48 @@ interface UseTableInternalConfig {
 
 const DEFAULT_CURRENT_ALIASES = ['current', 'page', 'currentPage']
 const DEFAULT_SIZE_ALIASES = ['size', 'pageSize']
+
+const tableDefaultsState: UseTableDefaults = {}
+
+function cloneArray(value?: string[]): string[] | undefined {
+  return Array.isArray(value) ? [...value] : undefined
+}
+
+export function setUseTableDefaults(defaults: UseTableDefaults = {}): void {
+  tableDefaultsState.paginationKey = defaults.paginationKey
+    ? {
+        current: defaults.paginationKey.current,
+        size: defaults.paginationKey.size
+      }
+    : undefined
+
+  tableDefaultsState.paginationAlias = defaults.paginationAlias
+    ? {
+        current: cloneArray(defaults.paginationAlias.current),
+        size: cloneArray(defaults.paginationAlias.size)
+      }
+    : undefined
+
+  tableDefaultsState.responseAdapter = defaults.responseAdapter
+}
+
+export function getUseTableDefaults(): Readonly<UseTableDefaults> {
+  return {
+    paginationKey: tableDefaultsState.paginationKey
+      ? {
+          current: tableDefaultsState.paginationKey.current,
+          size: tableDefaultsState.paginationKey.size
+        }
+      : undefined,
+    paginationAlias: tableDefaultsState.paginationAlias
+      ? {
+          current: cloneArray(tableDefaultsState.paginationAlias.current),
+          size: cloneArray(tableDefaultsState.paginationAlias.size)
+        }
+      : undefined,
+    responseAdapter: tableDefaultsState.responseAdapter
+  }
+}
 
 function uniqueStrings(items: string[]): string[] {
   return Array.from(new Set(items.filter((item) => Boolean(item && item.trim()))))
@@ -289,6 +363,14 @@ function toRawRecord(value: unknown): Record<string, any> {
   return value as Record<string, any>
 }
 
+function defaultDeletePayloadBuilder(input: any): any {
+  return input
+}
+
+function defaultBatchDeletePayloadBuilder(ids: (string | number)[]): (string | number)[] {
+  return ids
+}
+
 function defaultResponseAdapter(response: any): UseTableStandardResponse {
   if (Array.isArray(response)) {
     return {
@@ -331,6 +413,22 @@ function isModernConfig(options: UseTableOptions | UseTableConfig): options is U
 }
 
 function normalizeLegacyOptions(options: UseTableOptions): UseTableInternalConfig {
+  const defaults = getUseTableDefaults()
+  const currentKey = options.paginationKey?.current || defaults.paginationKey?.current || 'page'
+  const sizeKey = options.paginationKey?.size || defaults.paginationKey?.size || 'size'
+  const currentAliases = uniqueStrings([
+    currentKey,
+    ...(options.paginationAlias?.current || []),
+    ...(defaults.paginationAlias?.current || []),
+    ...DEFAULT_CURRENT_ALIASES
+  ])
+  const sizeAliases = uniqueStrings([
+    sizeKey,
+    ...(options.paginationAlias?.size || []),
+    ...(defaults.paginationAlias?.size || []),
+    ...DEFAULT_SIZE_ALIASES
+  ])
+
   return {
     mode: 'legacy',
     apiFn: options.searchApi,
@@ -338,12 +436,12 @@ function normalizeLegacyOptions(options: UseTableOptions): UseTableInternalConfi
     excludeParams: [],
     immediate: options.autoLoad !== false,
     paginationFlag: options.paginationFlag !== false,
-    responseAdapter: defaultResponseAdapter,
+    responseAdapter: options.responseAdapter || defaults.responseAdapter || defaultResponseAdapter,
     dataTransformer: undefined,
-    requestCurrentKey: 'page',
-    requestSizeKey: 'size',
-    currentAliases: uniqueStrings([...DEFAULT_CURRENT_ALIASES, 'page']),
-    sizeAliases: uniqueStrings([...DEFAULT_SIZE_ALIASES, 'size']),
+    requestCurrentKey: currentKey,
+    requestSizeKey: sizeKey,
+    currentAliases,
+    sizeAliases,
     enableCache: false,
     cacheTime: 5 * 60 * 1000,
     debounceTime: 200,
@@ -354,6 +452,9 @@ function normalizeLegacyOptions(options: UseTableOptions): UseTableInternalConfi
     resetFormCallback: undefined,
     deleteApi: options.deleteApi,
     batchDeleteApi: options.batchDeleteApi,
+    deletePayloadBuilder: options.deletePayloadBuilder || defaultDeletePayloadBuilder,
+    batchDeletePayloadBuilder: options.batchDeletePayloadBuilder || defaultBatchDeletePayloadBuilder,
+    deleteIdKey: options.deleteIdKey || 'id',
     onDeleteSuccess: options.onDeleteSuccess,
     onDeleteError: options.onDeleteError,
     onLegacySearchSuccess: options.onSearchSuccess,
@@ -363,18 +464,21 @@ function normalizeLegacyOptions(options: UseTableOptions): UseTableInternalConfi
 }
 
 function normalizeModernConfig(config: UseTableConfig): UseTableInternalConfig {
-  const currentKey = config.core.paginationKey?.current || 'current'
-  const sizeKey = config.core.paginationKey?.size || 'size'
+  const defaults = getUseTableDefaults()
+  const currentKey = config.core.paginationKey?.current || defaults.paginationKey?.current || 'current'
+  const sizeKey = config.core.paginationKey?.size || defaults.paginationKey?.size || 'size'
 
   const currentAliases = uniqueStrings([
     currentKey,
     ...(config.core.paginationAlias?.current || []),
+    ...(defaults.paginationAlias?.current || []),
     ...DEFAULT_CURRENT_ALIASES
   ])
 
   const sizeAliases = uniqueStrings([
     sizeKey,
     ...(config.core.paginationAlias?.size || []),
+    ...(defaults.paginationAlias?.size || []),
     ...DEFAULT_SIZE_ALIASES
   ])
 
@@ -385,7 +489,7 @@ function normalizeModernConfig(config: UseTableConfig): UseTableInternalConfig {
     excludeParams: config.core.excludeParams || [],
     immediate: config.core.immediate !== false,
     paginationFlag: config.core.paginationFlag !== false,
-    responseAdapter: config.transform?.responseAdapter || defaultResponseAdapter,
+    responseAdapter: config.transform?.responseAdapter || defaults.responseAdapter || defaultResponseAdapter,
     dataTransformer: config.transform?.dataTransformer,
     requestCurrentKey: currentKey,
     requestSizeKey: sizeKey,
@@ -401,6 +505,9 @@ function normalizeModernConfig(config: UseTableConfig): UseTableInternalConfig {
     resetFormCallback: config.hooks?.resetFormCallback,
     deleteApi: undefined,
     batchDeleteApi: undefined,
+    deletePayloadBuilder: defaultDeletePayloadBuilder,
+    batchDeletePayloadBuilder: defaultBatchDeletePayloadBuilder,
+    deleteIdKey: 'id',
     onDeleteSuccess: undefined,
     onDeleteError: undefined,
     onLegacySearchSuccess: undefined,
@@ -841,6 +948,45 @@ export function useTable(options: UseTableOptions | UseTableConfig, tableRef?: R
     }
   }
 
+  function isDeleteSuccess(response: any): boolean {
+    const raw = toRawRecord(response)
+    const code = raw.code
+    return code == null || Number(code) === 200 || raw.success === true
+  }
+
+  function getDeleteId(input: any): string | number | undefined {
+    if (typeof input === 'string' || typeof input === 'number') {
+      return input
+    }
+
+    if (!input || typeof input !== 'object') {
+      return undefined
+    }
+
+    const value = toRawRecord(input)[config.deleteIdKey]
+    if (typeof value === 'string' || typeof value === 'number') {
+      return value
+    }
+
+    return undefined
+  }
+
+  function getSelectedIds(rows: any[]): (string | number)[] {
+    return rows
+      .map((row) => getDeleteId(row))
+      .filter((id): id is string | number => typeof id === 'string' || typeof id === 'number')
+  }
+
+  function buildDeletePayload(input: any): any {
+    const payload = config.deletePayloadBuilder(input)
+    return payload === undefined ? input : payload
+  }
+
+  function buildBatchDeletePayload(ids: (string | number)[], rows: any[]): any {
+    const payload = config.batchDeletePayloadBuilder(ids, rows)
+    return payload === undefined ? ids : payload
+  }
+
   async function refreshSoft(): Promise<void> {
     clearCache('clear_current')
     await onSearch(false)
@@ -866,28 +1012,40 @@ export function useTable(options: UseTableOptions | UseTableConfig, tableRef?: R
   }
 
   async function refreshRemove(): Promise<void> {
-    const currentPage = pagination.currentPage
+    const originPage = pagination.currentPage
 
     clearCache('clear_pagination')
     await onSearch(false)
 
-    if (pagination.currentPage > 1 && dataList.value.length === 0) {
-      pagination.currentPage = Math.max(1, currentPage - 1)
+    const pageSize = Number(pagination.pageSize) > 0 ? Number(pagination.pageSize) : 10
+    const total = Math.max(0, Number(pagination.total) || 0)
+    const lastPage = Math.max(1, Math.ceil(total / pageSize))
+
+    if (pagination.currentPage > lastPage) {
+      pagination.currentPage = lastPage
+      syncPaginationToSearchParams()
+      await onSearch(false)
+    }
+
+    let fallbackGuard = Math.max(1, originPage)
+    while (pagination.currentPage > 1 && dataList.value.length === 0 && fallbackGuard > 0) {
+      fallbackGuard -= 1
+      pagination.currentPage = Math.max(1, pagination.currentPage - 1)
       syncPaginationToSearchParams()
       await onSearch(false)
     }
   }
 
-  async function deleteRow(id: string | number): Promise<void> {
+  async function deleteRow(input: any): Promise<void> {
     if (!config.deleteApi) {
       console.warn('deleteApi 未配置')
       return
     }
 
     try {
-      const response = await config.deleteApi(id)
-      const code = toRawRecord(response).code
-      const success = code == null || Number(code) === 200 || toRawRecord(response).success === true
+      const payload = buildDeletePayload(input)
+      const response = await config.deleteApi(payload)
+      const success = isDeleteSuccess(response)
 
       if (!success) {
         throw new Error(toRawRecord(response).message || '删除失败')
@@ -905,16 +1063,8 @@ export function useTable(options: UseTableOptions | UseTableConfig, tableRef?: R
   }
 
   async function batchDelete(ids?: (string | number)[]): Promise<void> {
-    if (!config.batchDeleteApi) {
-      console.warn('batchDeleteApi 未配置')
-      return
-    }
-
-    const deleteIds =
-      ids ||
-      selectedList.value
-        .map((item) => toRawRecord(item).id)
-        .filter((id): id is string | number => typeof id === 'string' || typeof id === 'number')
+    const selectedRows = selectedList.value
+    const deleteIds = ids || getSelectedIds(selectedRows)
 
     if (deleteIds.length === 0) {
       console.warn('没有可删除的数据')
@@ -922,12 +1072,28 @@ export function useTable(options: UseTableOptions | UseTableConfig, tableRef?: R
     }
 
     try {
-      const response = await config.batchDeleteApi(deleteIds)
-      const code = toRawRecord(response).code
-      const success = code == null || Number(code) === 200 || toRawRecord(response).success === true
+      if (config.batchDeleteApi) {
+        const payload = buildBatchDeletePayload(deleteIds, selectedRows)
+        const response = await config.batchDeleteApi(payload)
+        const success = isDeleteSuccess(response)
 
-      if (!success) {
-        throw new Error(toRawRecord(response).message || '批量删除失败')
+        if (!success) {
+          throw new Error(toRawRecord(response).message || '批量删除失败')
+        }
+      } else if (config.deleteApi) {
+        for (const id of deleteIds) {
+          const row = selectedRows.find((item) => getDeleteId(item) === id)
+          const payload = buildDeletePayload(row || id)
+          const response = await config.deleteApi(payload)
+          const success = isDeleteSuccess(response)
+
+          if (!success) {
+            throw new Error(toRawRecord(response).message || '批量删除失败')
+          }
+        }
+      } else {
+        console.warn('deleteApi/batchDeleteApi 均未配置')
+        return
       }
 
       config.onDeleteSuccess?.()

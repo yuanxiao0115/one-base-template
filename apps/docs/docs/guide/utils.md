@@ -82,8 +82,10 @@ console.log(state.count) // 0
 | 格式化 | `format` / `date` / `url` | 金额与敏感信息脱敏、日期格式化、URL 参数处理 |
 | 浏览器能力 | `file` / `storage` / `auth` / `base64` | 下载、local/session 封装、cookie/token 辅助、编解码 |
 | 安全能力 | `crypto` / `sm3` / `sm4` | 常见加解密与国密摘要/对称加密 |
-| Vue 能力 | `vue` / `hooks` | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading/useDialog/useDrawer/useTable` |
+| Vue 能力 | `vue` / `hooks` | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading/useCrudContainer/useTable` |
 | 其他扩展 | `http` / `micro-app` / `pinyin` / `validation` / `tool` | 请求封装、微应用数据桥接、拼音与校验等 |
+
+> CRUD 容器完整用法（含 dialog/drawer、表单提交流程、纯容器模式）：见 [CRUD 容器与 Hook](/guide/crud-container)。
 
 ## useTable 双模式（迁移重点）
 
@@ -128,6 +130,15 @@ const table = useTable({
   }
 })
 ```
+
+### admin 默认预设（可直接改）
+
+当前 admin 已在以下文件预置 `useTable` 全局默认配置：
+
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/config/ui.ts`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/index.ts`
+
+你可以在 `appTableDefaults` 中修改分页参数键与响应适配器；页面局部配置依然可以覆盖全局默认。
 
 ## 在 admin 中使用
 
