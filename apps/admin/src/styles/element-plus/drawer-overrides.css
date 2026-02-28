@@ -1,0 +1,55 @@
+/* 统一覆盖 Element Drawer 壳层样式：
+ * - CRUD 抽屉（ObCrudContainer）
+ * - 高级筛选抽屉（OneTableBar）
+ */
+
+.el-drawer.ob-crud-container--drawer,
+.el-drawer.one-drawer {
+  --el-dialog-bg-color: #ffffff;
+  --el-drawer-bg-color: var(--el-dialog-bg-color);
+}
+
+.el-drawer.ob-crud-container--drawer .el-drawer__header,
+.el-drawer.one-drawer .el-drawer__header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  height: 48px;
+  margin: 0;
+  padding: 15px 16px;
+  border-bottom: 1px solid #e5e6eb;
+  background: var(--el-dialog-bg-color, #ffffff);
+}
+
+.el-drawer.ob-crud-container--drawer .el-drawer__title,
+.el-drawer.one-drawer .el-drawer__title {
+  margin: 0;
+  color: #1d2129;
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.el-drawer.ob-crud-container--drawer .el-drawer__body,
+.el-drawer.one-drawer .el-drawer__body {
+  box-sizing: border-box;
+  display: flex;
+  min-height: 0;
+  padding: 24px 20px;
+  background: var(--el-dialog-bg-color, #ffffff);
+  overflow: auto;
+}
+
+.el-drawer.ob-crud-container--drawer .el-drawer__footer,
+.el-drawer.one-drawer .el-drawer__footer {
+  box-sizing: border-box;
+  display: flex;
+  height: 64px;
+  align-items: center;
+  margin: 0;
+  padding: 0 16px;
+  border-top: 1px solid #e5e6eb;
+  background: var(--el-dialog-bg-color, #ffffff);
+}

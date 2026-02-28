@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, type Ref } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { OneTableBar } from '@/components/OneTableBar'
 import { useTable } from '@/hooks/table'
 import { confirm } from '@/infra/confirm'
-import { PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
+import {
+  CrudContainer as ObCrudContainer,
+  PageContainer,
+  VxeTable as ObVxeTable,
+  useCrudContainer,
+  type CrudFormLike,
+  type CrudErrorContext
+} from '@one-base-template/ui'
 import type { TableColumnList } from '@one-base-template/ui'
 import { menuColumns } from '../menu-management/columns'
 import {
   menuPermissionApi,
+  type BizResponse,
   type MenuPermissionRecord,
   type PermissionSavePayload,
   type PermissionTypeOption
@@ -48,6 +56,7 @@ type MenuPermissionForm = {
 const tableRef = ref<unknown>(null)
 const searchRef = ref<FormInstance>()
 const editFormRef = ref<FormInstance>()
+const createParentId = ref('0')
 
 const searchForm = reactive({
   resourceName: '',
@@ -56,10 +65,6 @@ const searchForm = reactive({
 
 const resourceTypeOptions = ref<PermissionTypeOption[]>([])
 const parentOptions = ref<ParentOption[]>([])
-
-const dialogVisible = ref(false)
-const dialogMode = ref<DialogMode>('add')
-const submitting = ref(false)
 
 const defaultFormState: MenuPermissionForm = {
   parentId: '0',
@@ -77,8 +82,6 @@ const defaultFormState: MenuPermissionForm = {
   component: '',
   remark: ''
 }
-
-const editForm = reactive<MenuPermissionForm>({ ...defaultFormState })
 
 const formRules: FormRules<MenuPermissionForm> = {
   parentId: [{ required: true, message: '请选择上级权限', trigger: 'change' }],
@@ -98,13 +101,6 @@ const tableTreeConfig = computed<Record<string, unknown> | undefined>(() => {
   }
 })
 
-const isViewMode = computed(() => dialogMode.value === 'view')
-const dialogTitle = computed(() => {
-  if (dialogMode.value === 'add') return '新增权限'
-  if (dialogMode.value === 'edit') return '编辑权限'
-  return '查看权限'
-})
-
 const tableOpt = reactive({
   searchApi: async () => {
     if (inTreeMode.value) {
@@ -122,13 +118,66 @@ const tableOpt = reactive({
 
 const { loading, dataList, onSearch, resetForm } = useTable(tableOpt, tableRef)
 
-function normalizeFormState() {
-  Object.assign(editForm, { ...defaultFormState })
-  editForm.id = undefined
-}
+const crud = useCrudContainer<
+  MenuPermissionForm,
+  MenuPermissionRecord,
+  MenuPermissionRecord,
+  PermissionSavePayload,
+  BizResponse<MenuPermissionRecord>
+>({
+  entityName: '权限',
+  container: 'dialog',
+  createForm: () => ({ ...defaultFormState }),
+  formRef: editFormRef as unknown as Ref<CrudFormLike | undefined>,
+  async beforeOpen({ mode, row, form }) {
+    await loadResourceTypeOptions()
 
-function fillFormState(row: MenuPermissionRecord) {
-  Object.assign(editForm, {
+    if (mode === 'create') {
+      await loadParentOptions()
+      form.parentId = createParentId.value || '0'
+      return
+    }
+
+    if (!row) {
+      await loadParentOptions()
+      return
+    }
+
+    await loadParentOptions(row.id)
+  },
+  loadDetail: async ({ row }) => row,
+  mapDetailToForm: ({ detail }) => toFormState(detail),
+  beforeSubmit: ({ form }) => toPayload(form),
+  submit: async ({ mode, payload }) => {
+    const response =
+      mode === 'create'
+        ? await menuPermissionApi.addPermission(payload)
+        : await menuPermissionApi.editPermission(payload)
+
+    if (response.code !== 200) {
+      throw new Error(response.message || '保存失败')
+    }
+
+    return response
+  },
+  onSuccess: async ({ mode }) => {
+    ElMessage.success(mode === 'create' ? '新增成功' : '更新成功')
+    await onSearch(false)
+  },
+  onError: (error, context) => {
+    handleCrudError(error, context)
+  }
+})
+
+const crudVisible = crud.visible
+const crudMode = crud.mode
+const crudTitle = crud.title
+const crudReadonly = crud.readonly
+const crudSubmitting = crud.submitting
+const crudForm = crud.form
+
+function toFormState(row: MenuPermissionRecord): MenuPermissionForm {
+  return {
     id: row.id,
     parentId: row.parentId || '0',
     resourceType: Number(row.resourceType || 1),
@@ -144,7 +193,7 @@ function fillFormState(row: MenuPermissionRecord) {
     hidden: Number(row.hidden || 0),
     component: row.component || '',
     remark: row.remark || ''
-  })
+  }
 }
 
 function appendParentOptions(
@@ -209,23 +258,33 @@ async function loadParentOptions(disabledId?: string) {
   parentOptions.value = options
 }
 
-function toPayload(): PermissionSavePayload {
+async function loadResourceTypeOptions() {
+  const response = await menuPermissionApi.getResourceTypeEnum()
+  if (response.code === 200 && Array.isArray(response.data)) {
+    resourceTypeOptions.value = response.data
+    return
+  }
+
+  resourceTypeOptions.value = []
+}
+
+function toPayload(form: MenuPermissionForm): PermissionSavePayload {
   return {
-    id: editForm.id,
-    parentId: editForm.parentId || '0',
-    resourceType: Number(editForm.resourceType || 1),
-    resourceName: editForm.resourceName.trim(),
-    permissionCode: editForm.permissionCode.trim(),
-    icon: editForm.icon.trim(),
-    image: editForm.image.trim(),
-    url: editForm.url.trim(),
-    openMode: Number(editForm.openMode || 0),
-    redirect: editForm.redirect.trim(),
-    routeCache: Number(editForm.routeCache || 0),
-    sort: Number(editForm.sort || 10),
-    hidden: Number(editForm.hidden || 0),
-    component: editForm.component.trim(),
-    remark: editForm.remark.trim()
+    id: form.id,
+    parentId: form.parentId || '0',
+    resourceType: Number(form.resourceType || 1),
+    resourceName: form.resourceName.trim(),
+    permissionCode: form.permissionCode.trim(),
+    icon: form.icon.trim(),
+    image: form.image.trim(),
+    url: form.url.trim(),
+    openMode: Number(form.openMode || 0),
+    redirect: form.redirect.trim(),
+    routeCache: Number(form.routeCache || 0),
+    sort: Number(form.sort || 10),
+    hidden: Number(form.hidden || 0),
+    component: form.component.trim(),
+    remark: form.remark.trim()
   }
 }
 
@@ -243,30 +302,17 @@ function onResetSearch() {
 }
 
 async function openCreateDialog(parentId: string = '0') {
-  dialogMode.value = 'add'
-  normalizeFormState()
-  editForm.parentId = parentId
-
-  try {
-    await loadParentOptions()
-    dialogVisible.value = true
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '打开新增弹窗失败'
-    ElMessage.error(message)
-  }
+  createParentId.value = parentId
+  await crud.openCreate()
 }
 
 async function openEditDialog(mode: Extract<DialogMode, 'edit' | 'view'>, row: MenuPermissionRecord) {
-  dialogMode.value = mode
-  fillFormState(row)
-
-  try {
-    await loadParentOptions(row.id)
-    dialogVisible.value = true
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '打开弹窗失败'
-    ElMessage.error(message)
+  if (mode === 'edit') {
+    await crud.openEdit(row)
+    return
   }
+
+  await crud.openDetail(row)
 }
 
 function handleCreateCommand(command: string, row: MenuPermissionRecord) {
@@ -295,48 +341,32 @@ async function handleDelete(row: MenuPermissionRecord) {
   }
 }
 
-async function onSubmitDialog() {
-  if (isViewMode.value) {
-    dialogVisible.value = false
-    return
-  }
-
+async function onConfirmCrud() {
   try {
-    const valid = await editFormRef.value?.validate()
-    if (!valid) return
-
-    submitting.value = true
-    const payload = toPayload()
-    const response =
-      dialogMode.value === 'add'
-        ? await menuPermissionApi.addPermission(payload)
-        : await menuPermissionApi.editPermission(payload)
-
-    if (response.code !== 200) {
-      throw new Error(response.message || '保存失败')
-    }
-
-    ElMessage.success(dialogMode.value === 'add' ? '新增成功' : '更新成功')
-    dialogVisible.value = false
-    await onSearch(false)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '保存失败'
-    ElMessage.error(message)
-  } finally {
-    submitting.value = false
+    await crud.confirm()
   }
+  catch {
+    // 错误消息由 onError 统一处理，避免重复提示。
+  }
+}
+
+function handleCrudError(error: unknown, context: CrudErrorContext<MenuPermissionRecord>) {
+  const fallbackMessage =
+    context.stage === 'beforeOpen'
+      ? '打开弹窗失败'
+      : context.stage === 'loadDetail'
+        ? '加载详情失败'
+        : '保存失败'
+
+  const message = error instanceof Error ? error.message : fallbackMessage
+  ElMessage.error(message)
 }
 
 onMounted(async () => {
   try {
-    const response = await menuPermissionApi.getResourceTypeEnum()
-    if (response.code === 200 && Array.isArray(response.data)) {
-      resourceTypeOptions.value = response.data
-      return
-    }
-
-    resourceTypeOptions.value = []
-  } catch {
+    await loadResourceTypeOptions()
+  }
+  catch {
     resourceTypeOptions.value = []
   }
 })
@@ -377,7 +407,7 @@ onMounted(async () => {
               <div class="demo-menu-management-page__actions">
                 <el-dropdown
                   v-if="Number(row.resourceType) !== 3"
-                  @command="command => handleCreateCommand(String(command), row)"
+                  @command="(command) => handleCreateCommand(String(command), row)"
                 >
                   <el-button link type="primary" :size="size">新建</el-button>
                   <template #dropdown>
@@ -413,12 +443,25 @@ onMounted(async () => {
       </OneTableBar>
     </PageContainer>
 
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="760" destroy-on-close>
-      <el-form ref="editFormRef" :model="editForm" :rules="formRules" label-width="96px" :disabled="isViewMode">
+    <ObCrudContainer
+      v-model="crudVisible"
+      container="drawer"
+      :mode="crudMode"
+      :title="crudTitle"
+      :loading="crudSubmitting"
+      :show-cancel-button="!crudReadonly"
+      :confirm-text="'保存'"
+      :drawer-size="760"
+      :drawer-columns="2"
+      @confirm="onConfirmCrud"
+      @cancel="crud.close"
+      @close="crud.close"
+    >
+      <el-form ref="editFormRef" :model="crudForm" :rules="formRules" label-width="96px" :disabled="crudReadonly">
         <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="上级权限" prop="parentId">
-              <el-select v-model="editForm.parentId" class="w-full" placeholder="请选择上级权限">
+              <el-select v-model="crudForm.parentId" class="w-full" placeholder="请选择上级权限">
                 <el-option
                   v-for="item in parentOptions"
                   :key="item.value"
@@ -432,7 +475,7 @@ onMounted(async () => {
 
           <el-col :span="12">
             <el-form-item label="权限类型" prop="resourceType">
-              <el-select v-model="editForm.resourceType" class="w-full" placeholder="请选择权限类型">
+              <el-select v-model="crudForm.resourceType" class="w-full" placeholder="请选择权限类型">
                 <el-option
                   v-for="item in resourceTypeOptions"
                   :key="item.key"
@@ -445,49 +488,49 @@ onMounted(async () => {
 
           <el-col :span="12">
             <el-form-item label="权限名称" prop="resourceName">
-              <el-input v-model.trim="editForm.resourceName" maxlength="30" show-word-limit placeholder="请输入权限名称" />
+              <el-input v-model.trim="crudForm.resourceName" maxlength="30" show-word-limit placeholder="请输入权限名称" />
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="权限标识" prop="permissionCode">
-              <el-input v-model.trim="editForm.permissionCode" placeholder="例如：system:permission:list" />
+              <el-input v-model.trim="crudForm.permissionCode" placeholder="例如：system:permission:list" />
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="访问路径" prop="url">
-              <el-input v-model.trim="editForm.url" placeholder="例如：/system/permission" />
+              <el-input v-model.trim="crudForm.url" placeholder="例如：/system/permission" />
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="组件路径" prop="component">
-              <el-input v-model.trim="editForm.component" placeholder="例如：system/permission/index" />
+              <el-input v-model.trim="crudForm.component" placeholder="例如：system/permission/index" />
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="图标" prop="icon">
-              <el-input v-model.trim="editForm.icon" placeholder="例如：i-icon-menu" />
+              <el-input v-model.trim="crudForm.icon" placeholder="例如：i-icon-menu" />
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="跳转地址" prop="redirect">
-              <el-input v-model.trim="editForm.redirect" placeholder="可选" />
+              <el-input v-model.trim="crudForm.redirect" placeholder="可选" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
             <el-form-item label="排序" prop="sort">
-              <el-input-number v-model="editForm.sort" class="w-full" :min="0" :max="9999" />
+              <el-input-number v-model="crudForm.sort" class="w-full" :min="0" :max="9999" />
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
             <el-form-item label="状态" prop="hidden">
-              <el-select v-model="editForm.hidden" class="w-full">
+              <el-select v-model="crudForm.hidden" class="w-full">
                 <el-option label="显示" :value="0" />
                 <el-option label="隐藏" :value="1" />
               </el-select>
@@ -496,7 +539,7 @@ onMounted(async () => {
 
           <el-col :span="8">
             <el-form-item label="缓存路由" prop="routeCache">
-              <el-select v-model="editForm.routeCache" class="w-full">
+              <el-select v-model="crudForm.routeCache" class="w-full">
                 <el-option label="否" :value="0" />
                 <el-option label="是" :value="1" />
               </el-select>
@@ -505,7 +548,7 @@ onMounted(async () => {
 
           <el-col :span="12">
             <el-form-item label="打开方式" prop="openMode">
-              <el-select v-model="editForm.openMode" class="w-full">
+              <el-select v-model="crudForm.openMode" class="w-full">
                 <el-option label="内部" :value="0" />
                 <el-option label="外部" :value="1" />
               </el-select>
@@ -514,14 +557,14 @@ onMounted(async () => {
 
           <el-col :span="12">
             <el-form-item label="图片地址" prop="image">
-              <el-input v-model.trim="editForm.image" placeholder="可选" />
+              <el-input v-model.trim="crudForm.image" placeholder="可选" />
             </el-form-item>
           </el-col>
 
           <el-col :span="24">
             <el-form-item label="备注" prop="remark">
               <el-input
-                v-model.trim="editForm.remark"
+                v-model.trim="crudForm.remark"
                 type="textarea"
                 :rows="3"
                 maxlength="200"
@@ -532,16 +575,7 @@ onMounted(async () => {
           </el-col>
         </el-row>
       </el-form>
-
-      <template #footer>
-        <div class="demo-menu-management-page__dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="submitting" @click="onSubmitDialog">
-            {{ isViewMode ? '我知道了' : '保存' }}
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    </ObCrudContainer>
   </div>
 </template>
 
@@ -566,11 +600,5 @@ onMounted(async () => {
 
 .demo-menu-management-page__drawer {
   width: 100%;
-}
-
-.demo-menu-management-page__dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
 }
 </style>
