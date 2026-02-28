@@ -187,3 +187,20 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - 删除接口入参不是 `id`，需定制 `deletePayloadBuilder`
 
 如果不满足上述条件，**默认按 Position 模板收敛实现**，可最大化减少页面差异与维护成本。
+
+## 10. 组织管理完整迁移补充（UserManagement/org）
+
+当你迁移的是“树形 + 多弹窗协作”的复杂 CRUD（例如组织管理），建议在 Position 模板基础上补齐以下能力：
+
+- **树表模式切换**：无关键字时走懒加载树表；有关键字时走扁平搜索列表（`search` 接口）。
+- **懒加载缓存**：按 `parentId` 做节点缓存，并设置过期时间（例如 5 分钟），减少重复请求。
+- **组织表单约束**：`parentId` 支持树选择，编辑时禁选自身与子孙节点，避免形成环。
+- **名称唯一性**：在提交前与字段 blur 双重校验（`/org/unique/check`），保证交互及时与提交安全。
+- **能力分层弹窗**：主编辑用 `ObCrudContainer`；组织管理员与等级管理拆成独立组件，页面只保留编排逻辑。
+
+参考实现（本仓库）：
+
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/page.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgEditForm.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgLevelManageDialog.vue`

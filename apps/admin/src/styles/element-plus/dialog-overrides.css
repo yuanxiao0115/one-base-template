@@ -1,0 +1,70 @@
+/* 全局覆盖 Element Dialog 样式：
+ * - 头部/底部对齐 Drawer 的视觉与尺寸规范
+ * - 弹窗背景统一白色
+ */
+
+/* 使用更高优先级选择器，避免被异步加载的 Element 样式覆盖。 */
+.el-overlay .el-dialog,
+.el-overlay-dialog .el-dialog {
+  --el-dialog-bg-color: #ffffff !important;
+  --el-bg-color: #ffffff !important;
+  --el-bg-color-overlay: #ffffff !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  padding: 0 !important;
+}
+
+.el-overlay .el-dialog .el-dialog__header,
+.el-overlay-dialog .el-dialog .el-dialog__header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  height: 48px;
+  margin: 0;
+  padding: 15px 16px;
+  border-bottom: 1px solid #e5e6eb;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+.el-overlay .el-dialog .el-dialog__title,
+.el-overlay-dialog .el-dialog .el-dialog__title {
+  margin: 0;
+  color: #1d2129;
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.el-overlay .el-dialog .el-dialog__headerbtn,
+.el-overlay-dialog .el-dialog .el-dialog__headerbtn {
+  top: 0;
+  right: 0;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+}
+
+.el-overlay .el-dialog .el-dialog__body,
+.el-overlay-dialog .el-dialog .el-dialog__body {
+  box-sizing: border-box;
+  padding: 24px 20px;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+.el-overlay .el-dialog .el-dialog__footer,
+.el-overlay-dialog .el-dialog .el-dialog__footer {
+  box-sizing: border-box;
+  display: flex;
+  height: 64px;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 0 16px;
+  border-top: 1px solid #e5e6eb;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
