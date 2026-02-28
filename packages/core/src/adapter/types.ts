@@ -11,6 +11,25 @@ export interface AppUser {
   avatarUrl?: string;
   roles?: string[];
   permissions?: string[];
+  /**
+   * 兼容老项目 userInfo 字段：
+   * - 新代码优先用 name/avatarUrl/roles/permissions
+   * - 旧页面可继续读取 nickName/avatar/roleCodes/permissionCodes
+   */
+  nickName?: string;
+  avatar?: string;
+  roleCodes?: string[];
+  permissionCodes?: string[];
+  userAccount?: string;
+  isSuperAdmin?: number;
+  tenantId?: string | number;
+  tenantName?: string;
+  companyId?: string | number;
+  parentCompanyId?: string | number;
+  mail?: string;
+  phone?: string;
+  orgCodes?: unknown[];
+  orgPathNames?: unknown[];
 }
 
 export interface AppMenuItem {

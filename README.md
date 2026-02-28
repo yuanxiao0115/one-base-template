@@ -86,7 +86,7 @@ pnpm build
 
 为了对齐部分老项目“刷新后保留状态”的习惯，core 会把以下信息写入 localStorage：
 
-- `ob_auth_user`：当前用户信息（`auth.fetchMe()` 成功后写入；登出/重置时清理）
+- `ob_auth_user`：当前用户信息（`auth.fetchMe()` 成功后写入；登出/重置时清理，兼容保留 `nickName/roleCodes/permissionCodes/companyId/tenantId` 等老字段）
 - `ob_menu_tree`：菜单树（`menu.loadMenus()` 成功后写入；重置时清理）
 
 ## 路由与模块切割

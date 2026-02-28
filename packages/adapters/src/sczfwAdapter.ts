@@ -27,9 +27,19 @@ type SczfwLoginResult = {
 type SczfwMe = {
   id?: string;
   nickName?: string;
+  userAccount?: string;
   avatar?: string;
   roleCodes?: string[];
   permissionCodes?: string[];
+  isSuperAdmin?: number;
+  tenantId?: string | number;
+  tenantName?: string;
+  companyId?: string | number;
+  parentCompanyId?: string | number;
+  mail?: string;
+  phone?: string;
+  orgCodes?: unknown[];
+  orgPathNames?: unknown[];
   [k: string]: unknown;
 };
 
@@ -54,6 +64,18 @@ type SczfwMenuRoot = {
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
+}
+
+function normalizeStringList(input: unknown): string[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const out = input.map(v => (typeof v === 'string' ? v.trim() : '')).filter(Boolean);
+  return out.length ? out : undefined;
+}
+
+function readIdLike(input: unknown): string | number | undefined {
+  if (typeof input === 'number' && Number.isFinite(input)) return input;
+  if (typeof input === 'string' && input.trim()) return input.trim();
+  return undefined;
 }
 
 function readSystemName(root: SczfwMenuRoot): string {
@@ -142,13 +164,30 @@ export function createSczfwAdapter(
 
         const id = isNonEmptyString(me.id) ? me.id : 'unknown';
         const name = isNonEmptyString(me.nickName) ? me.nickName : '未命名用户';
+        const roleCodes = normalizeStringList(me.roleCodes);
+        const permissionCodes = normalizeStringList(me.permissionCodes);
+        const avatar = isNonEmptyString(me.avatar) ? me.avatar : undefined;
 
         return {
           id,
           name,
-          avatarUrl: isNonEmptyString(me.avatar) ? me.avatar : undefined,
-          roles: Array.isArray(me.roleCodes) ? me.roleCodes.filter(isNonEmptyString) : undefined,
-          permissions: Array.isArray(me.permissionCodes) ? me.permissionCodes.filter(isNonEmptyString) : undefined
+          nickName: name,
+          userAccount: isNonEmptyString(me.userAccount) ? me.userAccount : undefined,
+          avatarUrl: avatar,
+          avatar,
+          roles: roleCodes,
+          roleCodes,
+          permissions: permissionCodes,
+          permissionCodes,
+          isSuperAdmin: typeof me.isSuperAdmin === 'number' ? me.isSuperAdmin : undefined,
+          tenantId: readIdLike(me.tenantId),
+          tenantName: isNonEmptyString(me.tenantName) ? me.tenantName : undefined,
+          companyId: readIdLike(me.companyId),
+          parentCompanyId: readIdLike(me.parentCompanyId),
+          mail: isNonEmptyString(me.mail) ? me.mail : undefined,
+          phone: isNonEmptyString(me.phone) ? me.phone : undefined,
+          orgCodes: Array.isArray(me.orgCodes) ? me.orgCodes : undefined,
+          orgPathNames: Array.isArray(me.orgPathNames) ? me.orgPathNames : undefined
         };
       }
     },
