@@ -7,8 +7,12 @@ import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
 import KeepAliveView from './components/view/KeepAliveView.vue';
 import FontIcon from './components/icon/FontIcon.vue';
 import PageContainer from './components/container/PageContainer.vue';
+import CrudContainer from './components/container/CrudContainer.vue';
+import ActionButtons from './components/table/ActionButtons.vue';
 import OneTableBar from './components/table/OneTableBar.vue';
 import VxeTable from './components/table/VxeTable.vue';
+import { setUseTableDefaults, type UseTableDefaults } from '../../utils/src/hooks/useTable';
+import { ONE_UI_GLOBAL_CONFIG_KEY, createOneUiGlobalConfig, type CrudContainerGlobalConfig } from './config';
 
 const UI_COMPONENTS = {
   AdminLayout,
@@ -19,6 +23,8 @@ const UI_COMPONENTS = {
   KeepAliveView,
   FontIcon,
   PageContainer,
+  CrudContainer,
+  ActionButtons,
   OneTableBar,
   VxeTable
 } as const;
@@ -38,6 +44,14 @@ export interface OneUiPluginOptions {
    * 仅注册指定组件；未提供时默认全部注册。
    */
   include?: Partial<Record<OneUiComponentName, boolean>>;
+  /**
+   * 全局 CRUD 容器配置（如默认 dialog/drawer）。
+   */
+  crudContainer?: CrudContainerGlobalConfig;
+  /**
+   * 全局 useTable 默认配置（分页参数、响应适配器等）。
+   */
+  table?: UseTableDefaults;
 }
 
 function shouldRegister(options: OneUiPluginOptions, name: OneUiComponentName): boolean {
@@ -67,6 +81,17 @@ export function registerOneUiComponents(app: App, options: OneUiPluginOptions = 
 
 export const OneUiPlugin = {
   install(app: App, options?: OneUiPluginOptions) {
+    app.provide(
+      ONE_UI_GLOBAL_CONFIG_KEY,
+      createOneUiGlobalConfig({
+        crudContainer: options?.crudContainer
+      })
+    );
+
+    if (options?.table) {
+      setUseTableDefaults(options.table);
+    }
+
     registerOneUiComponents(app, options);
   }
 };

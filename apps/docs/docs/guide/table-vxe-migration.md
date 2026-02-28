@@ -86,6 +86,27 @@
 - 有筛选条件：切换到列表接口并关闭 `treeConfig`
 - 操作列建议保留“新建子级/平级 + 编辑 + 查看 + 删除”交互，便于复用老业务逻辑
 
+## 操作按钮容器（ObActionButtons）
+
+为减少业务页手动处理“删除置右 + 超出折叠”的样板逻辑，`@one-base-template/ui` 提供 `ObActionButtons`：
+
+- 默认最多直出 `4` 个按钮；
+- 超过 `4` 个时：直出 `3` 个按钮，并在最右侧自动追加“更多”下拉；
+- 会自动把“删除（danger/文案含删除）”按钮放到直出区域最右侧；
+- 用法保持零负担：业务页只需把所有按钮放在一个插槽里。
+
+```vue
+<template #operation="{ row }">
+  <ObActionButtons>
+    <el-button link type="primary" @click="onView(row)">查看</el-button>
+    <el-button link type="primary" @click="onEdit(row)">编辑</el-button>
+    <el-button link type="primary" @click="onDisable(row)">停用</el-button>
+    <el-button link type="primary" @click="onGrant(row)">授权</el-button>
+    <el-button link type="danger" @click="onDelete(row)">删除</el-button>
+  </ObActionButtons>
+</template>
+```
+
 示例（简化）：
 
 ```vue

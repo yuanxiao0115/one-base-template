@@ -214,7 +214,21 @@ function resolveColumnType(type?: TableColumn['type']): string | undefined {
   return undefined;
 }
 
-function resolveColumnOverflow(column: TableColumn): boolean | string | undefined {
+function isOperationColumn(column: TableColumn, index: number): boolean {
+  const field = resolveColumnField(column.prop, index) || '';
+  const slotName = column.slot || '';
+  const label = column.label || '';
+  const candidateSet = new Set(['operation', 'action', 'actions']);
+
+  if (candidateSet.has(field)) return true;
+  if (candidateSet.has(slotName)) return true;
+  return label.includes('操作');
+}
+
+function resolveColumnOverflow(column: TableColumn, index: number): boolean | string | undefined {
+  // 操作列包含按钮/下拉，启用 tooltip 会影响点击和下拉交互，默认关闭。
+  if (isOperationColumn(column, index)) return undefined;
+
   const showOverflow = column.showOverflowTooltip ?? props.showOverflowTooltip;
   return showOverflow ? ('tooltip' as const) : undefined;
 }
@@ -305,7 +319,7 @@ function convertColumns(columns: TableColumnList): Record<string, unknown>[] {
     mappedColumn.title = column.label;
     mappedColumn.field = resolveColumnField(column.prop, index);
     mappedColumn.type = type;
-    mappedColumn.showOverflow = resolveColumnOverflow(column);
+    mappedColumn.showOverflow = resolveColumnOverflow(column, index);
     mappedColumn.align = column.align ?? props.alignWhole;
     mappedColumn.headerAlign = column.headerAlign ?? props.headerAlign ?? props.alignWhole;
     mappedColumn.visible = !resolveColumnHidden(column);
@@ -559,6 +573,7 @@ defineExpose({
         :scroll-y="scrollYConfig"
         :scroll-x="scrollXConfig"
         :scrollbar-config="resolvedScrollbarConfig"
+        :loading-config="{icon: 'vxe-icon-indicator roll', text: '正在拼命加载中...'}"
         v-bind="passthroughAttrs"
         @checkbox-change="collectSelection"
         @checkbox-all="collectSelection"

@@ -5,7 +5,7 @@ import { Plus } from '@element-plus/icons-vue'
 import { useAuthStore } from '@one-base-template/core'
 import { OneTableBar } from '@/components/OneTableBar'
 import { confirm } from '@/infra/confirm'
-import { PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
+import { ActionButtons as ObActionButtons, PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
 import type { TableColumnList } from '@one-base-template/ui'
 import { orgColumns } from '../org-management/columns'
 import {
@@ -310,12 +310,12 @@ onMounted(() => {
             </template>
 
             <template #operation="{ row }">
-              <div class="demo-org-management-page__actions">
+              <ObActionButtons>
                 <el-button link type="primary" :size="size" @click="handleView(row)">查看</el-button>
                 <el-button link type="primary" :size="size" @click="handleEdit(row)">编辑</el-button>
                 <el-button link type="primary" :size="size" @click="handleCreateChild(row)">新增下级</el-button>
                 <el-button link type="danger" :size="size" @click="handleDelete(row)">删除</el-button>
-              </div>
+              </ObActionButtons>
             </template>
           </ObVxeTable>
         </template>
@@ -352,9 +352,4 @@ onMounted(() => {
   gap: 6px;
 }
 
-.demo-org-management-page__actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
 </style>

@@ -1196,7 +1196,28 @@ export default defineConfig(({ mode }) => {
     plugins: [
       vue(),
       AutoImport({
-        imports: ['vue', 'vue-router', 'pinia'],
+        imports: [
+          'vue',
+          'vue-router',
+          'pinia',
+          {
+            '@/hooks/table': ['useTable']
+          },
+          {
+            '@/infra/confirm': ['obConfirm']
+          },
+          {
+            '@/utils/message': ['message', 'closeAllMessage']
+          },
+          {
+            '@one-base-template/ui': ['useCrudContainer']
+          },
+          {
+            from: '@one-base-template/ui',
+            imports: ['CrudErrorContext', 'CrudFormLike', 'TablePagination'],
+            type: true
+          }
+        ],
         dts: 'src/auto-imports.d.ts',
         resolvers: [ElementPlusResolver()]
       }),
@@ -1212,6 +1233,10 @@ export default defineConfig(({ mode }) => {
         // 子路径样式显式别名，避免某些环境下 package exports 子路径解析失败
         '@one-base-template/tag/style': fileURLToPath(new URL('../../packages/tag/src/styles/global.scss', import.meta.url))
       }
+    },
+    optimizeDeps: {
+      // workspace 包频繁迭代时，避免 Vite 预构建缓存导致导出项不一致（如新增组件导出后 dev 仍读旧缓存）
+      exclude: ['@one-base-template/ui']
     },
     server: {
       // 允许访问 monorepo 根目录，便于直接引用 packages/* 源码
