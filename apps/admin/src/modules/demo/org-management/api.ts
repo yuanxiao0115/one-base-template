@@ -23,6 +23,26 @@ export interface OrgRecord {
   children?: OrgRecord[]
 }
 
+interface OrgRawRecord {
+  id?: string | number | null
+  parentId?: string | number | null
+  orgName?: string | null
+  briefName?: string | null
+  sort?: number | string | null
+  orgCategory?: number | string | null
+  orgLevelName?: string | null
+  institutionalType?: number | string | null
+  uscc?: string | null
+  createTime?: string | null
+  orgType?: number | string | null
+  isExternal?: boolean | null
+  hasChildren?: boolean | null
+  isLeaf?: boolean | null
+  leaf?: boolean | null
+  noLazyChildren?: boolean | null
+  children?: OrgRawRecord[] | null
+}
+
 export interface OrgTreeParams {
   parentId?: string
 }
@@ -83,13 +103,54 @@ function normalizeKeyword(keyword: string | undefined) {
   return (keyword || '').trim()
 }
 
-function fillTreeFlag(rows: OrgRecord[] | undefined) {
+function toStringValue(value: unknown) {
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  if (typeof value === 'string') return value
+  return ''
+}
+
+function toNumberValue(value: unknown) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  return 0
+}
+
+function getHasChildren(row: OrgRawRecord, children: OrgRecord[]) {
+  if (typeof row.hasChildren === 'boolean') return row.hasChildren
+  if (children.length > 0) return true
+  if (row.isLeaf === true || row.leaf === true || row.noLazyChildren === true) return false
+  if (row.isLeaf === false || row.leaf === false) return true
+  return true
+}
+
+function toOrgRow(row: OrgRawRecord): OrgRecord {
+  const children = Array.isArray(row.children) ? row.children.map((item) => toOrgRow(item)) : undefined
+
+  return {
+    id: toStringValue(row.id),
+    parentId: toStringValue(row.parentId),
+    orgName: toStringValue(row.orgName),
+    briefName: toStringValue(row.briefName),
+    sort: toNumberValue(row.sort),
+    orgCategory: toStringValue(row.orgCategory),
+    orgLevelName: toStringValue(row.orgLevelName),
+    institutionalType: toStringValue(row.institutionalType),
+    uscc: toStringValue(row.uscc),
+    createTime: toStringValue(row.createTime),
+    orgType: toNumberValue(row.orgType),
+    isExternal: Boolean(row.isExternal),
+    hasChildren: getHasChildren(row, children || []),
+    children
+  }
+}
+
+export function toOrgRows(rows: unknown): OrgRecord[] {
   if (!Array.isArray(rows)) return []
 
-  return rows.map((row) => ({
-    ...row,
-    hasChildren: typeof row.hasChildren === 'boolean' ? row.hasChildren : true
-  }))
+  return rows.map((row) => toOrgRow((row || {}) as OrgRawRecord))
 }
 
 export const orgDemoApi = {
@@ -102,16 +163,21 @@ export const orgDemoApi = {
       })
       .then((response) => ({
         ...response,
-        data: fillTreeFlag(response.data)
+        data: toOrgRows(response.data)
       })),
 
   searchOrgList: (params: OrgSearchParams) =>
-    getHttp().get<BizResponse<OrgRecord[]>>('/cmict/admin/org/search', {
-      params: {
-        parentId: params.parentId || '0',
-        orgName: normalizeKeyword(params.orgName)
-      }
-    }),
+    getHttp()
+      .get<BizResponse<OrgRecord[]>>('/cmict/admin/org/search', {
+        params: {
+          parentId: params.parentId || '0',
+          orgName: normalizeKeyword(params.orgName)
+        }
+      })
+      .then((response) => ({
+        ...response,
+        data: toOrgRows(response.data)
+      })),
 
   addOrg: (data: OrgSavePayload) =>
     getHttp().post<BizResponse<OrgRecord>>('/cmict/admin/org/add', { data }),

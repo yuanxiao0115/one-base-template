@@ -123,6 +123,7 @@ packages/
 - **`OneTableBar` 快捷搜索输入框遵循扁平化样式：宽 `360px`、高 `32px`、右间距 `8px`、无圆角、无阴影（筛选按钮同高度扁平风格）**
 - **`OneTableBar` 工具条顶部间距固定 `8px`，并默认去掉 `one-table-bar-title` 分割线（维持扁平化页面头部）**
 - **组织管理树形迁移必须对齐老项目 `parentId` 逻辑：根查询/搜索均透传 `companyId`（无值回退 `0`），禁止固定写死 `parentId='0'`**
+- **树形表从 Element 迁移到 `ObVxeTable` 时必须显式给树展示列配置 `treeNode: true`；仅配置 `treeConfig` 不足以显示展开图标**
 - **`apps/admin/src/styles/index.css` 禁止再通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/main.ts` 里显式导入 `styles/element-plus/*.css`，避免 PostCSS 路径解析 ENOENT**
 - **命名必须“短、清楚、通用”：优先使用 `get/list/build/create/update/remove` 等常见词，避免过度抽象或过长命名（如 `resolve/assemble/orchestrate` 连续叠加）**
 - **方法命名优先“动词 + 名词”结构（例如 `getInitialPath`、`parseRuntimeConfig`、`clearByPrefixes`），避免语义不明缩写与链式长词**

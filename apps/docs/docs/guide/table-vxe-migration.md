@@ -71,7 +71,14 @@
 - `treeConfig.hasChildField='hasChildren'`
 - `treeConfig.childrenField='children'`
 - `treeConfig.loadMethod`（异步加载下级节点）
+- `treeNode=true` 必须加在“树展示列”（通常第一列），否则 VXE 不会渲染展开图标
 - 若 `/children` 接口未返回 `hasChildren`，在模块 API 统一补 `hasChildren: true`；`loadMethod` 返回空数组时回写 `row.hasChildren = false`
+
+与 Element Table 的关键差异：
+
+- Element：`lazy + load + tree-props` 后，默认首列就能显示树图标
+- VXE：除 `treeConfig` 外，还要在列上显式声明 `treeNode: true`
+- 建议在 API 层做一次转换（如 `toOrgRows`），把 `id/parentId/hasChildren/children` 统一成树表标准字段
 
 菜单权限类页面（树 + 条件筛选切列表）可沿用同一套底座策略：
 
