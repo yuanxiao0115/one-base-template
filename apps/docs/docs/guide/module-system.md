@@ -30,6 +30,26 @@ apps/admin/src/modules/<module-id>/
 - `apiNamespace`: API 命名空间
 - `compat`（可选）: 历史路径/字段兼容描述
 
+### 快速创建模块（推荐）
+
+可使用脚手架命令生成标准骨架：
+
+```bash
+pnpm new:module <module-id>
+```
+
+示例：
+
+```bash
+pnpm new:module user-center --title 用户中心
+```
+
+支持参数：
+
+- `--title`：默认页面标题
+- `--route`：路由前缀（默认与 `module-id` 相同）
+- `--dry-run`：仅预览要创建的文件，不落盘
+
 ## 2) 路由组装规则
 
 - 统一入口：`apps/admin/src/router/assemble-routes.ts`

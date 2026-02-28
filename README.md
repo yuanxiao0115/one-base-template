@@ -18,6 +18,15 @@ packages/adapters     # Adapter 示例（含 dev mock）
 ```bash
 pnpm install
 pnpm dev
+pnpm doctor
+```
+
+常用开发命令：
+
+```bash
+pnpm new:module <module-id>
+pnpm check:naming
+pnpm verify
 ```
 
 ## 文档站点（VitePress）

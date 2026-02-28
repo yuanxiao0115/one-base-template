@@ -11,10 +11,13 @@
   "scripts": {
     "dev": "pnpm -C apps/admin dev",
     "dev:turbo": "turbo run dev",
+    "new:module": "node ./scripts/new-module.mjs",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
-    "check:naming": "node ./scripts/check-naming.mjs"
+    "check:naming": "node ./scripts/check-naming.mjs",
+    "verify": "pnpm typecheck && pnpm lint && pnpm check:naming && pnpm build && pnpm -C apps/docs build",
+    "doctor": "node ./scripts/doctor.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

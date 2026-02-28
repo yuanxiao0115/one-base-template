@@ -9,6 +9,8 @@ pnpm typecheck
 pnpm lint
 pnpm build
 pnpm check:naming
+pnpm verify
+pnpm doctor
 ```
 
 ## 文档必须随功能演进同步更新
@@ -43,6 +45,20 @@ pnpm check:naming
 
 白名单来源：`apps/docs/public/cli-naming-whitelist.json`  
 规则说明：`/guide/naming-whitelist`
+
+## 一键验证与环境自检
+
+- 一键验证（本地提测前推荐）：
+
+```bash
+pnpm verify
+```
+
+- 环境自检（新成员首次拉仓后推荐）：
+
+```bash
+pnpm doctor
+```
 
 ## admin 启动与 env 约束
 
