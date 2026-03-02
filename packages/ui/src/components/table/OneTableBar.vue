@@ -313,6 +313,7 @@ function onClear() {
 }
 
 .one-table-bar__drawer-footer {
+  width: 100%;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -321,7 +322,26 @@ function onClear() {
 .one-table-bar__drawer {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   gap: 12px;
+  overflow-x: hidden;
+}
+
+.one-table-bar__drawer :deep(.el-form),
+.one-table-bar__drawer :deep(.el-form-item),
+.one-table-bar__drawer :deep(.el-form-item__content),
+.one-table-bar__drawer :deep(.el-input),
+.one-table-bar__drawer :deep(.el-select),
+.one-table-bar__drawer :deep(.el-date-editor) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.one-table-bar__drawer :deep(.el-date-editor .el-range-input) {
+  min-width: 0;
 }
 
 .one-table-bar :deep(.el-form-item) {

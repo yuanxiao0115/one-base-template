@@ -8,9 +8,11 @@ import KeepAliveView from './components/view/KeepAliveView.vue';
 import FontIcon from './components/icon/FontIcon.vue';
 import PageContainer from './components/container/PageContainer.vue';
 import CrudContainer from './components/container/CrudContainer.vue';
+import Tree from './components/tree/Tree.vue';
 import ActionButtons from './components/table/ActionButtons.vue';
 import OneTableBar from './components/table/OneTableBar.vue';
 import VxeTable from './components/table/VxeTable.vue';
+import ImportUpload from './components/upload/ImportUpload.vue';
 import { setUseTableDefaults, type UseTableDefaults } from '../../utils/src/hooks/useTable';
 import { ONE_UI_GLOBAL_CONFIG_KEY, createOneUiGlobalConfig, type CrudContainerGlobalConfig } from './config';
 
@@ -24,9 +26,11 @@ const UI_COMPONENTS = {
   FontIcon,
   PageContainer,
   CrudContainer,
+  Tree,
   ActionButtons,
   OneTableBar,
-  VxeTable
+  VxeTable,
+  ImportUpload
 } as const;
 
 export type OneUiComponentName = keyof typeof UI_COMPONENTS;

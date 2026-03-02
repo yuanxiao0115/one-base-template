@@ -12,9 +12,11 @@ export { default as KeepAliveView } from './components/view/KeepAliveView.vue';
 export { default as FontIcon } from './components/icon/FontIcon.vue';
 export { default as PageContainer } from './components/container/PageContainer.vue';
 export { default as CrudContainer } from './components/container/CrudContainer.vue';
+export { default as Tree } from './components/tree/Tree.vue';
 export { default as ActionButtons } from './components/table/ActionButtons.vue';
 export { default as OneTableBar } from './components/table/OneTableBar.vue';
 export { default as VxeTable } from './components/table/VxeTable.vue';
+export { default as ImportUpload } from './components/upload/ImportUpload.vue';
 export type {
   AdaptiveConfig,
   TableAlign,

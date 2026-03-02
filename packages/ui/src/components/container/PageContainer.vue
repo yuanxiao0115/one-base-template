@@ -10,16 +10,19 @@ type PageContainerOverflow = 'auto' | 'scroll' | 'hidden';
 interface PageContainerProps {
   padding?: string;
   overflow?: PageContainerOverflow;
+  leftWidth?: string;
 }
 
 const props = withDefaults(defineProps<PageContainerProps>(), {
   padding: '0',
-  overflow: 'auto'
+  overflow: 'auto',
+  leftWidth: '216px'
 });
 
 const containerStyle = computed(() => ({
   '--ob-page-container-padding': props.padding,
-  '--ob-page-container-overflow': props.overflow
+  '--ob-page-container-overflow': props.overflow,
+  '--ob-page-container-left-width': props.leftWidth
 }));
 </script>
 
@@ -30,7 +33,13 @@ const containerStyle = computed(() => ({
     </header>
 
     <div class="ob-page-container__body">
-      <slot />
+      <aside v-if="$slots.left" class="ob-page-container__left">
+        <slot name="left" />
+      </aside>
+
+      <div class="ob-page-container__main">
+        <slot />
+      </div>
     </div>
 
     <footer v-if="$slots.footer" class="ob-page-container__footer">
@@ -56,6 +65,22 @@ const containerStyle = computed(() => ({
 
 .ob-page-container__body {
   flex: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ob-page-container__left {
+  flex-shrink: 0;
+  width: var(--ob-page-container-left-width);
+  min-width: 0;
+  min-height: 0;
+}
+
+.ob-page-container__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   min-height: 0;
   padding: var(--ob-page-container-padding);
