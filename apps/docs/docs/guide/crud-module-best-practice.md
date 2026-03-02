@@ -255,6 +255,7 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - **日期入参兜底过滤**：`startDate/endDate` 仅在存在有效值时透传给 `userApi.page`，避免把空字符串传给后端导致报错。
 - **复杂表单分层**：主表单拆成 `UserEditForm`（用户信息）、`UserAccountForm`（修改账号）、`UserBindAccountForm`（关联账号），页面只保留编排和事件路由。
 - **确认交互统一封装**：UserManagement 模块不直接调用 `ElMessageBox`，统一使用 `obConfirm`（包含输入型删除确认）。
+- **非删除确认收敛**：启停、重置密码、表单内行移除等确认交互，优先复用 `modules/UserManagement/shared/confirm.ts`，避免在各页面重复写取消判定。
 - **操作列统一收敛**：使用 `ObActionButtons` 后不再叠加手写 `el-dropdown`，更多操作交给组件内置折叠能力。
 - **复杂逻辑下沉 actions.ts**：除标准 CRUD 外（批量启停、重置密码、导入映射、命名确认删除等）统一抽离到 `actions.ts`，页面脚本只做编排。
 - **批量操作统一入口**：启用/停用、重置密码、删除二次确认全部收敛到页面脚本函数，保持提示文案和异常处理一致。
