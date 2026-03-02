@@ -20,20 +20,6 @@ export const APP_GUARD_PUBLIC_ROUTE_PATHS = [
   APP_NOT_FOUND_ROUTE_PATH
 ] as const
 
-export const APP_SKIP_MENU_AUTH_ROUTE_NAMES = [
-  '/system/permissionMenu',
-  'DemoPageB',
-  'DemoLoginLogMigration',
-  'DemoOrgManagementMigration',
-  'DemoMenuManagementMigration',
-  'DemoPageContainer',
-  'DemoConfirm',
-  'DemoButtonStyle',
-  'PortalTemplateList',
-  'PortalDesigner',
-  'PortalPageEditor'
-] as const
-
 export const APP_RESERVED_ROUTE_PATHS = new Set<string>([
   ...APP_PUBLIC_ROUTE_PATHS,
   APP_NOT_FOUND_CATCHALL_PATH

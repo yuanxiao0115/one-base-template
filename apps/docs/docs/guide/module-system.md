@@ -34,7 +34,7 @@ apps/admin/src/modules/<module-id>/
 
 - `core`：主链路模块，可按需 `enabledByDefault=true`
 - `optional`：实验/迁移模块；注册器会把 `enabledByDefault` 自动收敛为 `false`
-- 若路由声明 `meta.skipMenuAuth=true`，需保证 `route.name` 已加入应用侧守卫白名单，否则不会放行
+- 若路由声明 `meta.skipMenuAuth=true`，必须提供稳定 `route.name`；应用启动时会从已装配路由自动收集白名单，未命名路由不会放行
 
 ### 快速创建模块（推荐）
 

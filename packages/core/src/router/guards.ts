@@ -44,7 +44,7 @@ export interface RouterGuardOptions {
   /**
    * `meta.skipMenuAuth=true` 的路由白名单（按 route.name）。
    * 未配置时保持兼容：允许所有 skipMenuAuth。
-   * 配置后将启用严格模式：不在白名单内的 skipMenuAuth 路由不会放行。
+   * 只要显式传入（包括空数组）就启用严格模式：不在白名单内的 skipMenuAuth 路由不会放行。
    */
   allowedSkipMenuAuthRouteNames?: string[];
 }
@@ -53,8 +53,9 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
   const publicRoutePaths = new Set<string>(options.publicRoutePaths ?? [...DEFAULT_PUBLIC_PATHS]);
   const loginRoutePath = options.loginRoutePath ?? DEFAULT_LOGIN_PATH;
   const forbiddenRoutePath = options.forbiddenRoutePath ?? DEFAULT_FORBIDDEN_PATH;
+  const hasSkipMenuAuthAllowList = Array.isArray(options.allowedSkipMenuAuthRouteNames);
   const allowedSkipMenuAuthRouteNames = new Set(options.allowedSkipMenuAuthRouteNames ?? []);
-  const strictSkipMenuAuth = allowedSkipMenuAuthRouteNames.size > 0;
+  const strictSkipMenuAuth = hasSkipMenuAuthAllowList;
 
   router.beforeEach(async (to, from) => {
     await options.onNavigationStart?.({ to, from });

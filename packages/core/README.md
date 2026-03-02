@@ -102,7 +102,7 @@ declare module '@one-base-template/core' {
 
 - `setupRouterGuards(router, options?)`：默认实现“未登录跳转登录页 + 菜单 allowedPaths 控制访问”
   - 可注入 `publicRoutePaths/loginRoutePath/forbiddenRoutePath`，避免路由常量多处硬编码
-  - 可配置 `allowedSkipMenuAuthRouteNames`，对白名单外的 `skipMenuAuth` 路由执行拒绝并告警
+  - 可配置 `allowedSkipMenuAuthRouteNames`，对白名单外的 `skipMenuAuth` 路由执行拒绝并告警（显式传入空数组也会启用严格模式）
 - `menuMode=remote|static`
   - `remote`：菜单树来自 adapter（后端）
   - `static`：菜单树从静态路由 `meta.title` 生成（适合简单项目）
