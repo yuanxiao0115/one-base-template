@@ -1,4 +1,5 @@
 import { getAppHttpClient } from '@/shared/api/http-client'
+import { toNumberValue, toStringValue } from '@/shared/api/normalize'
 
 export interface BizResponse<T> {
   code: number
@@ -101,21 +102,6 @@ function getHttp() {
 
 function normalizeKeyword(keyword: string | undefined) {
   return (keyword || '').trim()
-}
-
-function toStringValue(value: unknown) {
-  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
-  if (typeof value === 'string') return value
-  return ''
-}
-
-function toNumberValue(value: unknown) {
-  if (typeof value === 'number' && Number.isFinite(value)) return value
-  if (typeof value === 'string' && value.trim()) {
-    const parsed = Number(value)
-    if (Number.isFinite(parsed)) return parsed
-  }
-  return 0
 }
 
 function getHasChildren(row: OrgRawRecord, children: OrgRecord[]) {

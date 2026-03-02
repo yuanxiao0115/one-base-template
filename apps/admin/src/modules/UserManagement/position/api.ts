@@ -55,9 +55,9 @@ export const positionApi = {
   updatePost: (data: PositionSavePayload) =>
     getHttpClient().post<BizResponse<PositionRecord>>('/cmict/admin/sys-post/update', { data }),
 
-  removePost: (id: string) =>
+  removePost: (data: { id: string }) =>
     getHttpClient().post<BizResponse<null>>('/cmict/admin/sys-post/delete', {
-      data: { id }
+      data
     }),
 
   checkUnique: (params: PositionUniqueParams) =>

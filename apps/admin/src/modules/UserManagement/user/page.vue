@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { Download, Lock, Plus, Rank, Unlock, Upload } from '@element-plus/icons-vue'
-import Sortable from 'sortablejs'
+import type Sortable from 'sortablejs'
 import { sm4EncryptBase64 } from '@/infra/sczfw/crypto'
 import {
   ImportUpload as ObImportUpload,
@@ -63,6 +63,10 @@ type BindFormExpose = CrudFormLike & {
   setSelectedUsers?: (users: UserBindOption[]) => void
 }
 
+type SortableCtor = {
+  create: (element: HTMLElement, options?: Record<string, unknown>) => Sortable
+}
+
 const tableRef = ref<unknown>(null)
 const searchRef = ref<{ resetFields?: () => void }>()
 const editFormRef = ref<CrudFormLike>()
@@ -95,20 +99,104 @@ const canDragSort = computed(() => Boolean(searchForm.orgId))
 const tableColumns = computed(() => buildUserColumns(canDragSort.value))
 
 const tableOpt = reactive({
-  searchApi: (params: Record<string, unknown>) => userApi.page(buildUserListParams(params)),
-  searchForm,
-  paginationFlag: true,
-  deleteApi: (payload: { id: string }) => userApi.remove(payload),
-  deletePayloadBuilder: (input: string | number | UserListRecord) => {
-    if (typeof input === 'string' || typeof input === 'number') {
-      return { id: String(input) }
-    }
-    return { id: input.id }
+  query: {
+    api: (params: Record<string, unknown>) => userApi.page(buildUserListParams(params)),
+    params: searchForm,
+    pagination: true
   },
-  onDeleteSuccess: () => {},
-  onDeleteError: (error: unknown) => {
-    const errorMessage = error instanceof Error ? error.message : '删除用户失败'
-    message.error(errorMessage)
+  remove: {
+    api: (payload: { id: string }) => userApi.remove(payload),
+    deleteConfirm: {
+      nameKey: 'nickName',
+      requireInput: true,
+      title: '删除确认',
+      message: '此操作不可逆，会删除即时消息相关记录，请输入确认删除的姓名「{name}」',
+      inputPlaceholder: '请输入确认删除的姓名',
+      confirmButtonText: '确认删除'
+    },
+    onSuccess: () => {
+      message.success('删除用户成功')
+    },
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : '删除用户失败'
+      message.error(errorMessage)
+    }
+  }
+})
+
+const crudPage = useCrudPage<UserForm, UserListRecord, UserDetailData, UserSavePayload>({
+  table: tableOpt,
+  tableRef,
+  editor: {
+    entity: {
+      name: '用户'
+    },
+    form: {
+      create: () => createDefaultUserForm(),
+      ref: editFormRef
+    },
+    detail: {
+      async beforeOpen({ mode, form }) {
+        await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()])
+
+        if (mode === 'create') {
+          form.userOrgs = [
+            {
+              orgId: searchForm.orgId || '',
+              orgRankType: null,
+              ownSort: 1,
+              sort: 1,
+              status: 1,
+              postVos: [{ postId: '', sort: 1, status: 1 }]
+            }
+          ]
+        }
+      },
+      async load({ row }) {
+        const response = await userApi.detail({ id: row.id })
+        if (response.code !== 200) {
+          throw new Error(response.message || '加载用户详情失败')
+        }
+        return response.data
+      },
+      mapToForm: ({ detail }) => toUserForm(detail)
+    },
+    save: {
+      buildPayload: async ({ form }) => {
+        const payload = toUserPayload(form)
+
+        const uniqueResponse = await userApi.checkUnique({
+          userId: payload.id,
+          userAccount: payload.userAccount,
+          phone: payload.phone,
+          mail: payload.mail
+        })
+
+        if (uniqueResponse.code !== 200) {
+          throw new Error(uniqueResponse.message || '用户唯一性校验失败')
+        }
+
+        if (!uniqueResponse.data) {
+          throw new Error('登录账号、手机号或邮箱已存在')
+        }
+
+        return payload
+      },
+      request: async ({ mode, payload }) => {
+        const response = mode === 'create'
+          ? await userApi.add(payload)
+          : await userApi.update(payload)
+
+        if (response.code !== 200) {
+          throw new Error(response.message || '保存用户失败')
+        }
+
+        return response
+      },
+      onSuccess: async ({ mode }) => {
+        message.success(mode === 'create' ? '新增用户成功' : '更新用户成功')
+      }
+    }
   }
 })
 
@@ -118,81 +206,18 @@ const {
   pagination,
   selectedList,
   onSearch,
-  deleteRow,
   resetForm,
   handleSelectionChange,
   handleSizeChange,
   handleCurrentChange
-} = useTable(tableOpt, tableRef)
+} = crudPage.table
+
+const crud = crudPage.editor
+const { remove } = crudPage.actions
 
 const tablePagination = computed(() => ({
   ...pagination
 }))
-
-const crud = useCrudContainer<UserForm, UserListRecord, UserDetailData, UserSavePayload>({
-  entityName: '用户',
-  createForm: () => createDefaultUserForm(),
-  formRef: editFormRef,
-  async beforeOpen({ mode, form }) {
-    await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()])
-
-    if (mode === 'create') {
-      form.userOrgs = [
-        {
-          orgId: searchForm.orgId || '',
-          orgRankType: null,
-          ownSort: 1,
-          sort: 1,
-          status: 1,
-          postVos: [{ postId: '', sort: 1, status: 1 }]
-        }
-      ]
-    }
-  },
-  async loadDetail({ row }) {
-    const response = await userApi.detail({ id: row.id })
-    if (response.code !== 200) {
-      throw new Error(response.message || '加载用户详情失败')
-    }
-    return response.data
-  },
-  mapDetailToForm: ({ detail }) => toUserForm(detail),
-  beforeSubmit: async ({ form }) => {
-    const payload = toUserPayload(form)
-
-    const uniqueResponse = await userApi.checkUnique({
-      userId: payload.id,
-      userAccount: payload.userAccount,
-      phone: payload.phone,
-      mail: payload.mail
-    })
-
-    if (uniqueResponse.code !== 200) {
-      throw new Error(uniqueResponse.message || '用户唯一性校验失败')
-    }
-
-    if (!uniqueResponse.data) {
-      throw new Error('登录账号、手机号或邮箱已存在')
-    }
-
-    return payload
-  },
-  submit: async ({ mode, payload }) => {
-    const response = mode === 'create'
-      ? await userApi.add(payload)
-      : await userApi.update(payload)
-
-    if (response.code !== 200) {
-      throw new Error(response.message || '保存用户失败')
-    }
-
-    return response
-  },
-  onSuccess: async ({ mode }) => {
-    message.success(mode === 'create' ? '新增用户成功' : '更新用户成功')
-    await onSearch(false)
-  }
-})
 
 const crudVisible = crud.visible
 const crudMode = crud.mode
@@ -215,11 +240,9 @@ const bindForm = reactive<UserBindForm>({
   userIds: []
 })
 
-const deleteDialogVisible = ref(false)
-const deleteConfirmName = ref('')
-const deletingRow = ref<UserListRecord | null>(null)
-
+const sortableCtor = ref<SortableCtor | null>(null)
 const sortableInstance = ref<Sortable | null>(null)
+let sortableInitToken = 0
 
 const userTypeLabelMap = createUserTypeLabelMap(userTypeOptions)
 
@@ -311,30 +334,8 @@ function getUserTypeLabel(value: number): string {
   return resolveUserTypeLabel(value, userTypeLabelMap)
 }
 
-function openDeleteDialog(row: UserListRecord) {
-  deletingRow.value = row
-  deleteConfirmName.value = ''
-  deleteDialogVisible.value = true
-}
-
-async function confirmDelete() {
-  const row = deletingRow.value
-  if (!row) return
-
-  if (deleteConfirmName.value.trim() !== row.nickName) {
-    message.warning(`输入姓名与待删除用户不一致，请输入“${row.nickName}”后重试`)
-    return
-  }
-
-  try {
-    await deleteRow(row)
-    message.success('删除用户成功')
-    deleteDialogVisible.value = false
-    deletingRow.value = null
-    await onSearch(false)
-  } catch {
-    // 统一错误提示由 useTable.onDeleteError 处理
-  }
+async function handleDelete(row: UserListRecord) {
+  await remove(row)
 }
 
 async function handleSingleStatus(row: UserListRecord) {
@@ -574,6 +575,15 @@ function destroySortable() {
   sortableInstance.value = null
 }
 
+async function ensureSortableCtor() {
+  if (sortableCtor.value) return sortableCtor.value
+  const imported = await import('sortablejs')
+  const importedRecord = imported as unknown as Record<string, unknown>
+  const ctor = (importedRecord.default || importedRecord) as SortableCtor
+  sortableCtor.value = ctor
+  return ctor
+}
+
 async function handleSortEnd(event: SortableEndEvent) {
   if (!canDragSort.value) return
 
@@ -605,24 +615,29 @@ async function handleSortEnd(event: SortableEndEvent) {
   }
 }
 
-function initSortable() {
+async function initSortable() {
+  const currentToken = ++sortableInitToken
   if (!canDragSort.value || !Array.isArray(dataList.value) || dataList.value.length === 0) {
     destroySortable()
     return
   }
 
-  nextTick(() => {
-    const tbody = getTableBodyElement()
-    if (!tbody) return
+  await nextTick()
+  if (currentToken !== sortableInitToken) return
 
-    destroySortable()
-    sortableInstance.value = Sortable.create(
-      tbody as HTMLElement,
-      buildSortableOptions((event: unknown) => {
-        void handleSortEnd(event as SortableEndEvent)
-      })
-    )
-  })
+  const tbody = getTableBodyElement()
+  if (!tbody) return
+
+  const SortableCtor = await ensureSortableCtor()
+  if (currentToken !== sortableInitToken) return
+
+  destroySortable()
+  sortableInstance.value = SortableCtor.create(
+    tbody as HTMLElement,
+    buildSortableOptions((event: unknown) => {
+      void handleSortEnd(event as SortableEndEvent)
+    })
+  )
 }
 
 watch(
@@ -633,7 +648,7 @@ watch(
     () => pagination.pageSize
   ],
   () => {
-    initSortable()
+    void initSortable()
   }
 )
 
@@ -649,6 +664,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  sortableInitToken += 1
   destroySortable()
 })
 </script>
@@ -742,7 +758,7 @@ onBeforeUnmount(() => {
                 <el-button v-if="Number(row.userType) === 1" link type="primary" :size="actionSize" @click="openBindDialog(row)">
                   关联账号
                 </el-button>
-                <el-button link type="danger" :size="actionSize" @click="openDeleteDialog(row)">删除</el-button>
+                <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
               </ObActionButtons>
             </div>
           </template>
@@ -819,25 +835,6 @@ onBeforeUnmount(() => {
       :fetch-users="fetchBindUsers"
     />
   </ObCrudContainer>
-
-  <el-dialog
-    v-model="deleteDialogVisible"
-    title="删除确认"
-    width="600"
-  >
-    <div class="user-management-page__delete-tip">
-      此操作不可逆，会删除即时消息相关记录，请输入确认删除的姓名。
-    </div>
-    <el-input
-      v-model.trim="deleteConfirmName"
-      placeholder="请输入确认删除的姓名"
-    />
-
-    <template #footer>
-      <el-button @click="deleteDialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="confirmDelete">确定</el-button>
-    </template>
-  </el-dialog>
 </template>
 
 <style scoped>
@@ -873,10 +870,6 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-}
-
-.user-management-page__delete-tip {
-  margin-bottom: 20px;
 }
 
 .user-drag-handle {

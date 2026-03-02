@@ -24,9 +24,7 @@ import {
 } from './form'
 import {
   buildDictLabelMap,
-  confirmDeleteOrgByName,
-  getErrorMessage,
-  isConfirmCancelled
+  getErrorMessage
 } from './actions'
 
 defineOptions({
@@ -99,33 +97,105 @@ const treeConfig = computed<Record<string, unknown> | undefined>(() => {
 })
 
 const tableOpt = reactive({
-  searchApi: async () => {
-    const parentId = rootParentId.value
-    if (inSearchMode.value) {
-      return orgApi.searchOrgList({
-        parentId,
-        orgName: searchForm.orgName
-      })
-    }
+  query: {
+    api: async () => {
+      const parentId = rootParentId.value
+      if (inSearchMode.value) {
+        return orgApi.searchOrgList({
+          parentId,
+          orgName: searchForm.orgName
+        })
+      }
 
-    return orgApi.getOrgTree({ parentId })
+      return orgApi.getOrgTree({ parentId })
+    },
+    params: searchForm,
+    pagination: false
   },
-  searchForm,
-  paginationFlag: false,
-  deleteApi: (payload: { id: string }) => orgApi.deleteOrg(payload),
-  deletePayloadBuilder: (input: string | number | OrgRecord) => {
-    if (typeof input === 'string' || typeof input === 'number') {
-      return { id: String(input) }
+  remove: {
+    api: (payload: { id: string }) => orgApi.deleteOrg(payload),
+    deleteConfirm: {
+      nameKey: 'orgName',
+      requireInput: true,
+      title: '删除确认',
+      message: '此操作不可逆，请输入组织名称「{name}」确认删除',
+      inputPlaceholder: '请输入组织名称',
+      confirmButtonText: '确认删除'
+    },
+    onSuccess: () => {
+      message.success('删除组织成功')
+      invalidateDeletedRowCache()
+    },
+    onError: (error: unknown) => {
+      deletingRow.value = null
+      const errorMessage = error instanceof Error ? error.message : '删除组织失败'
+      message.error(errorMessage)
     }
-    return { id: input.id }
-  },
-  onDeleteSuccess: () => {
-    message.success('删除组织成功')
-    void refreshAfterDelete()
-  },
-  onDeleteError: (error: unknown) => {
-    const errorMessage = error instanceof Error ? error.message : '删除组织失败'
-    message.error(errorMessage)
+  }
+})
+
+const crudPage = useCrudPage<OrgForm, OrgRecord, OrgRecord, OrgSavePayload>({
+  table: tableOpt,
+  tableRef,
+  editor: {
+    entity: {
+      name: '组织'
+    },
+    form: {
+      create: () => ({
+        ...defaultOrgForm,
+        parentId: rootParentId.value
+      }),
+      ref: editFormRef
+    },
+    detail: {
+      async beforeOpen({ mode, row, form }) {
+        await Promise.all([loadDictOptions(), loadOrgLevelOptions()])
+        await loadOrgTreeOptions(mode === 'create' ? undefined : row?.id)
+
+        if (mode === 'create') {
+          form.parentId = createParentId.value || rootParentId.value
+        }
+      },
+      load: async ({ row }) => row,
+      mapToForm: ({ detail }) => toOrgForm(detail)
+    },
+    save: {
+      buildPayload: async ({ form }) => {
+        const payload = toOrgPayload(form, rootParentId.value)
+
+        const uniqueResponse = await orgApi.checkUnique({
+          orgName: payload.orgName,
+          parentId: payload.parentId,
+          orgId: payload.id
+        })
+
+        if (uniqueResponse.code !== 200) {
+          throw new Error(uniqueResponse.message || '组织名称校验失败')
+        }
+
+        if (!uniqueResponse.data) {
+          throw new Error('已存在相同组织名称')
+        }
+
+        return payload
+      },
+      request: async ({ mode, payload }) => {
+        const response = mode === 'create'
+          ? await orgApi.addOrg(payload)
+          : await orgApi.updateOrg(payload)
+
+        if (response.code !== 200) {
+          throw new Error(response.message || '保存组织失败')
+        }
+
+        return response
+      },
+      onSuccess: async ({ mode }) => {
+        message.success(mode === 'create' ? '新增组织成功' : '更新组织成功')
+        clearTreeCache()
+      }
+    }
   }
 })
 
@@ -133,62 +203,11 @@ const {
   loading,
   dataList,
   onSearch,
-  deleteRow,
   resetForm
-} = useTable(tableOpt, tableRef)
+} = crudPage.table
 
-const crud = useCrudContainer<OrgForm, OrgRecord, OrgRecord, OrgSavePayload>({
-  entityName: '组织',
-  createForm: () => ({
-    ...defaultOrgForm,
-    parentId: rootParentId.value
-  }),
-  formRef: editFormRef,
-  async beforeOpen({ mode, row, form }) {
-    await Promise.all([loadDictOptions(), loadOrgLevelOptions()])
-    await loadOrgTreeOptions(mode === 'create' ? undefined : row?.id)
-
-    if (mode === 'create') {
-      form.parentId = createParentId.value || rootParentId.value
-    }
-  },
-  loadDetail: async ({ row }) => row,
-  mapDetailToForm: ({ detail }) => toOrgForm(detail),
-  beforeSubmit: async ({ form }) => {
-    const payload = toOrgPayload(form, rootParentId.value)
-
-    const uniqueResponse = await orgApi.checkUnique({
-      orgName: payload.orgName,
-      parentId: payload.parentId,
-      orgId: payload.id
-    })
-
-    if (uniqueResponse.code !== 200) {
-      throw new Error(uniqueResponse.message || '组织名称校验失败')
-    }
-
-    if (!uniqueResponse.data) {
-      throw new Error('已存在相同组织名称')
-    }
-
-    return payload
-  },
-  submit: async ({ mode, payload }) => {
-    const response = mode === 'create'
-      ? await orgApi.addOrg(payload)
-      : await orgApi.updateOrg(payload)
-
-    if (response.code !== 200) {
-      throw new Error(response.message || '保存组织失败')
-    }
-
-    return response
-  },
-  onSuccess: async ({ mode }) => {
-    message.success(mode === 'create' ? '新增组织成功' : '更新组织成功')
-    await refreshTable()
-  }
-})
+const crud = crudPage.editor
+const { remove } = crudPage.actions
 
 const crudVisible = crud.visible
 const crudMode = crud.mode
@@ -232,18 +251,17 @@ async function refreshTable() {
   await onSearch(false)
 }
 
-async function refreshAfterDelete() {
+function invalidateDeletedRowCache() {
   const row = deletingRow.value
   deletingRow.value = null
 
   if (!row || inSearchMode.value) {
-    await refreshTable()
+    clearTreeCache()
     return
   }
 
   treeChildrenCache.delete(String(row.id || ''))
   treeChildrenCache.delete(String(row.parentId || ''))
-  await onSearch(false)
 }
 
 function sortRows(rows: OrgRecord[]): OrgRecord[] {
@@ -415,14 +433,10 @@ async function openCreateChild(row: OrgRecord) {
 }
 
 async function handleDelete(row: OrgRecord) {
-  try {
-    await confirmDeleteOrgByName(row.orgName)
-
-    deletingRow.value = row
-    await deleteRow(row)
-  } catch (error) {
+  deletingRow.value = row
+  await remove(row)
+  if (deletingRow.value?.id === row.id) {
     deletingRow.value = null
-    if (isConfirmCancelled(error)) return
   }
 }
 

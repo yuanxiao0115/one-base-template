@@ -19,7 +19,7 @@ export const orgColumns: TableColumnList = [
     label: '排序',
     prop: 'sort',
     width: 90,
-    align: 'center'
+    align: 'right'
   },
   {
     label: '组织类型',
@@ -55,6 +55,7 @@ export const orgColumns: TableColumnList = [
     label: '操作',
     fixed: 'right',
     width: 280,
+    align: 'right',
     slot: 'operation'
   }
 ];

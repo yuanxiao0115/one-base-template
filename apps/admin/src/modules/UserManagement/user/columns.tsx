@@ -46,21 +46,21 @@ export function buildUserColumns(enableDragSort: boolean): TableColumnList {
       label: '性别',
       prop: 'gender',
       width: 90,
-      align: 'center',
+      align: 'left',
       slot: 'gender'
     },
     {
       label: '状态',
       prop: 'isEnable',
       width: 110,
-      align: 'center',
+      align: 'left',
       slot: 'status'
     },
     {
       label: '用户类型',
       prop: 'userType',
       minWidth: 120,
-      align: 'center',
+      align: 'left',
       slot: 'userType'
     },
     {
@@ -79,6 +79,7 @@ export function buildUserColumns(enableDragSort: boolean): TableColumnList {
       label: '操作',
       fixed: 'right',
       width: 260,
+      align: 'right',
       slot: 'operation'
     }
   )

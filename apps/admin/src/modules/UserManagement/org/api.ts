@@ -1,4 +1,5 @@
 import { getHttpClient, trimText } from '@/shared/api/utils';
+import { extractList, toNullableNumber, toNumberValue, toStringValue } from '@/shared/api/normalize';
 
 export interface BizResponse<T> {
   code: number;
@@ -211,42 +212,6 @@ export interface OrgLevelSavePayload {
   remark?: string;
 }
 
-function toStringValue(value: unknown): string {
-  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
-  if (typeof value === 'string') return value;
-  return '';
-}
-
-function toNumberValue(value: unknown): number {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string' && value.trim()) {
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) return parsed;
-  }
-  return 0;
-}
-
-function toNullableNumber(value: unknown): number | null {
-  if (value === null || value === undefined || value === '') return null;
-  const parsed = toNumberValue(value);
-  if (!Number.isFinite(parsed)) return null;
-  return parsed;
-}
-
-function extractList(data: unknown): unknown[] {
-  if (Array.isArray(data)) return data;
-  if (!data || typeof data !== 'object') return [];
-
-  const record = data as Record<string, unknown>;
-  const candidates = [record.records, record.list, record.rows, record.items, record.levelList];
-
-  for (const candidate of candidates) {
-    if (Array.isArray(candidate)) return candidate;
-  }
-
-  return [];
-}
-
 function getHasChildren(row: OrgRawRecord, children: OrgRecord[]): boolean {
   if (typeof row.hasChildren === 'boolean') return row.hasChildren;
   if (children.length > 0) return true;
@@ -296,7 +261,7 @@ function toDictItems(rows: unknown): DictItem[] {
 }
 
 function toOrgLevelItems(rows: unknown): OrgLevelItem[] {
-  return extractList(rows).map((row) => {
+  return extractList(rows, ['records', 'list', 'rows', 'items', 'levelList']).map((row) => {
     const raw = (row || {}) as OrgLevelRawItem;
     return {
       id: toStringValue(raw.id),

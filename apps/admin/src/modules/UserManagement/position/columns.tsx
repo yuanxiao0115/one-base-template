@@ -19,7 +19,8 @@ export const positionColumns: TableColumnList = [
   {
     label: '排序',
     prop: 'sort',
-    minWidth: 120
+    minWidth: 120,
+    align: 'right'
   },
   {
     label: '创建时间',
@@ -30,6 +31,7 @@ export const positionColumns: TableColumnList = [
     label: '操作',
     fixed: 'right',
     width: 180,
+    align: 'right',
     slot: 'operation'
   }
 ];

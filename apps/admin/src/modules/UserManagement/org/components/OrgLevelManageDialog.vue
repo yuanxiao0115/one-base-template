@@ -40,7 +40,7 @@ const tableColumns: TableColumnList = [
     label: '级别',
     prop: 'orgLevel',
     width: 140,
-    align: 'center'
+    align: 'right'
   },
   {
     label: '备注',
@@ -52,13 +52,16 @@ const tableColumns: TableColumnList = [
     label: '操作',
     slot: 'operation',
     fixed: 'right',
+    align: 'right',
     width: 180
   }
 ]
 
 const tableOpt = reactive({
-  searchApi: orgApi.getOrgLevelList,
-  paginationFlag: false
+  query: {
+    api: orgApi.getOrgLevelList,
+    pagination: false
+  }
 })
 
 const { loading, dataList, onSearch } = useTable(tableOpt, tableRef)
@@ -74,39 +77,47 @@ const levelFormRules: FormRules<OrgLevelForm> = {
   orgLevel: [{ required: true, message: '请输入级别', trigger: 'blur', type: 'number' }]
 }
 
-const levelCrud = useCrudContainer<OrgLevelForm, OrgLevelItem, OrgLevelItem, OrgLevelSavePayload>({
-  entityName: '组织等级',
-  container: 'dialog',
-  createForm: () => ({ ...defaultLevelForm }),
-  formRef,
-  loadDetail: async ({ row }) => row,
-  mapDetailToForm: ({ detail }) => ({
-    id: detail.id,
-    orgLevelName: detail.orgLevelName || '',
-    orgLevel: Number(detail.orgLevel || 1),
-    remark: detail.remark || ''
-  }),
-  beforeSubmit: ({ form }) => ({
-    id: form.id,
-    orgLevelName: (form.orgLevelName || '').trim(),
-    orgLevel: Number(form.orgLevel || 0),
-    remark: (form.remark || '').trim()
-  }),
-  submit: async ({ mode, payload }) => {
-    const response = mode === 'create'
-      ? await orgApi.addOrgLevel(payload)
-      : await orgApi.updateOrgLevel(payload)
-
-    if (response.code !== 200) {
-      throw new Error(response.message || '保存等级失败')
-    }
-
-    return response
+const levelCrud = useEntityEditor<OrgLevelForm, OrgLevelItem, OrgLevelItem, OrgLevelSavePayload>({
+  entity: {
+    name: '组织等级',
+    container: 'dialog'
   },
-  onSuccess: async ({ mode }) => {
-    message.success(mode === 'create' ? '新增等级成功' : '更新等级成功')
-    await onSearch(false)
-    emit('updated')
+  form: {
+    create: () => ({ ...defaultLevelForm }),
+    ref: formRef
+  },
+  detail: {
+    load: async ({ row }) => row,
+    mapToForm: ({ detail }) => ({
+      id: detail.id,
+      orgLevelName: detail.orgLevelName || '',
+      orgLevel: Number(detail.orgLevel || 1),
+      remark: detail.remark || ''
+    })
+  },
+  save: {
+    buildPayload: ({ form }) => ({
+      id: form.id,
+      orgLevelName: (form.orgLevelName || '').trim(),
+      orgLevel: Number(form.orgLevel || 0),
+      remark: (form.remark || '').trim()
+    }),
+    request: async ({ mode, payload }) => {
+      const response = mode === 'create'
+        ? await orgApi.addOrgLevel(payload)
+        : await orgApi.updateOrgLevel(payload)
+
+      if (response.code !== 200) {
+        throw new Error(response.message || '保存等级失败')
+      }
+
+      return response
+    },
+    onSuccess: async ({ mode }) => {
+      message.success(mode === 'create' ? '新增等级成功' : '更新等级成功')
+      await onSearch(false)
+      emit('updated')
+    }
   }
 })
 

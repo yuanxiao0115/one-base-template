@@ -15,7 +15,6 @@ import {
   toPositionPayload,
   type PositionForm
 } from './form'
-import { confirmDeletePosition, isConfirmCancelled } from './actions'
 
 defineOptions({
   name: 'PositionManagementPage'
@@ -30,62 +29,78 @@ const searchForm = reactive({
 })
 
 const tableOpt = {
-  searchApi: positionApi.page,
-  searchForm,
-  paginationFlag: true,
-  deleteApi: positionApi.removePost,
-  deletePayloadBuilder: (input: string | number | PositionRecord) => {
-    if (typeof input === 'string' || typeof input === 'number') {
-      return { id: input }
+  query: {
+    api: positionApi.page,
+    params: searchForm,
+    pagination: true
+  },
+  remove: {
+    api: positionApi.removePost,
+    deleteConfirm: {
+      nameKey: 'postName',
+      title: '删除确认',
+      message: '是否确认删除职位「{name}」？'
+    },
+    onSuccess: () => {
+      message.success('删除职位成功')
+    },
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : '删除职位失败'
+      message.error(errorMessage)
     }
-    return { id: input.id }
-  },
-  onDeleteSuccess: () => {
-    message.success('删除职位成功')
-  },
-  onDeleteError: (error: unknown) => {
-    const errorMessage = error instanceof Error ? error.message : '删除职位失败'
-    message.error(errorMessage)
   }
 }
+
+const crudPage = useCrudPage<PositionForm, PositionRecord>({
+  table: tableOpt,
+  tableRef,
+  editor: {
+    entity: {
+      name: '职位'
+    },
+    form: {
+      create: () => ({ ...defaultPositionForm }),
+      ref: editFormRef
+    },
+    detail: {
+      load: async ({ row }) => row,
+      mapToForm: ({ detail }) => toPositionForm(detail)
+    },
+    save: {
+      buildPayload: ({ form }) => toPositionPayload(form),
+      request: async ({ mode, payload }) => {
+        const response = mode === 'create'
+          ? await positionApi.addPost(payload)
+          : await positionApi.updatePost(payload)
+
+        if (response.code !== 200) {
+          throw new Error(response.message || '保存职位失败')
+        }
+        return response
+      },
+      onSuccess: async ({ mode }) => {
+        message.success(mode === 'create' ? '新增职位成功' : '更新职位成功')
+      }
+    }
+  }
+})
 
 const {
   loading,
   dataList,
   pagination,
   onSearch,
-  deleteRow,
   resetForm,
   handleSizeChange,
   handleCurrentChange
-} = useTable(tableOpt, tableRef)
+} = crudPage.table
+
+const crud = crudPage.editor
+const { remove } = crudPage.actions
 
 const tablePagination = computed(() => ({
   ...pagination
 }))
-
-const crud = useCrudContainer<PositionForm, PositionRecord>({
-  entityName: '职位',
-  createForm: () => ({ ...defaultPositionForm }),
-  formRef: editFormRef,
-  loadDetail: async ({ row }) => row,
-  mapDetailToForm: ({ detail }) => toPositionForm(detail),
-  beforeSubmit: ({ form }) => toPositionPayload(form),
-  submit: async ({ mode, payload }) => {
-    const response = mode === 'create'
-      ? await positionApi.addPost(payload)
-      : await positionApi.updatePost(payload)
-
-    if (response.code !== 200) {
-      throw new Error(response.message || '保存职位失败')
-    }
-    return response
-  },
-  onSuccess: async ({ mode }) => {
-    message.success(mode === 'create' ? '新增职位成功' : '更新职位成功')
-    await onSearch(false)
-  }
-})
 
 const crudVisible = crud.visible
 const crudMode = crud.mode
@@ -104,13 +119,7 @@ function onResetSearch() {
 }
 
 async function handleDelete(row: PositionRecord) {
-  try {
-    await confirmDeletePosition(row.postName)
-    await deleteRow(row)
-  }
-  catch (error) {
-    if (isConfirmCancelled(error)) return
-  }
+  await remove(row)
 }
 </script>
 
