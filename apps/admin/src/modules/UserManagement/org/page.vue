@@ -26,6 +26,12 @@ import {
   buildDictLabelMap,
   getErrorMessage
 } from './actions'
+import {
+  assertUniqueCheck,
+  shouldCheckOrgUnique,
+  toOrgUniqueSnapshot,
+  type OrgUniqueSnapshot
+} from '../shared/unique'
 
 defineOptions({
   name: 'OrgManagementPage'
@@ -60,6 +66,7 @@ const orgTreeOptions = ref<OrgTreeOption[]>([])
 const orgCategoryOptions = ref<DictItem[]>([])
 const institutionalTypeOptions = ref<DictItem[]>([])
 const orgLevelOptions = ref<OrgLevelItem[]>([])
+const orgUniqueSnapshot = ref<OrgUniqueSnapshot | null>(null)
 
 const orgManagerVisible = ref(false)
 const orgManagerTarget = ref<OrgRecord | null>(null)
@@ -155,28 +162,36 @@ const crudPage = useCrudPage<OrgForm, OrgRecord, OrgRecord, OrgSavePayload>({
         await loadOrgTreeOptions(mode === 'create' ? undefined : row?.id)
 
         if (mode === 'create') {
+          orgUniqueSnapshot.value = null
           form.parentId = createParentId.value || rootParentId.value
         }
       },
       load: async ({ row }) => row,
-      mapToForm: ({ detail }) => toOrgForm(detail)
+      mapToForm: ({ detail }) => {
+        const mapped = toOrgForm(detail)
+        orgUniqueSnapshot.value = toOrgUniqueSnapshot(mapped)
+        return mapped
+      }
     },
     save: {
       buildPayload: async ({ form }) => {
         const payload = toOrgPayload(form, rootParentId.value)
-
-        const uniqueResponse = await orgApi.checkUnique({
+        const currentUnique = toOrgUniqueSnapshot({
           orgName: payload.orgName,
-          parentId: payload.parentId,
-          orgId: payload.id
+          parentId: payload.parentId
         })
 
-        if (uniqueResponse.code !== 200) {
-          throw new Error(uniqueResponse.message || '组织名称校验失败')
-        }
+        if (shouldCheckOrgUnique(currentUnique, orgUniqueSnapshot.value)) {
+          const uniqueResponse = await orgApi.checkUnique({
+            orgName: payload.orgName,
+            parentId: payload.parentId,
+            orgId: payload.id
+          })
 
-        if (!uniqueResponse.data) {
-          throw new Error('已存在相同组织名称')
+          const isUnique = assertUniqueCheck(uniqueResponse, '组织名称校验失败')
+          if (!isUnique) {
+            throw new Error('已存在相同组织名称')
+          }
         }
 
         return payload
@@ -442,17 +457,22 @@ async function handleDelete(row: OrgRecord) {
 }
 
 async function checkOrgNameUnique(params: { orgName: string; parentId?: string; orgId?: string }) {
-  const response = await orgApi.checkUnique({
+  const parentId = params.parentId || rootParentId.value
+  const currentUnique = toOrgUniqueSnapshot({
     orgName: params.orgName,
-    parentId: params.parentId || rootParentId.value,
-    orgId: params.orgId
+    parentId
   })
 
-  if (response.code !== 200) {
-    throw new Error(response.message || '组织名称校验失败')
+  if (params.orgId && !shouldCheckOrgUnique(currentUnique, orgUniqueSnapshot.value)) {
+    return true
   }
 
-  return Boolean(response.data)
+  const response = await orgApi.checkUnique({
+    orgName: params.orgName,
+    parentId,
+    orgId: params.orgId
+  })
+  return assertUniqueCheck(response, '组织名称校验失败')
 }
 
 function openManagerDialog(row: OrgRecord) {

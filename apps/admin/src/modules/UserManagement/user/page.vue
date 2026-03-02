@@ -41,6 +41,12 @@ import {
   mapCorporateUsersToBindOptions,
   resolveUserTypeLabel
 } from './actions'
+import {
+  assertUniqueCheck,
+  shouldCheckUserUnique,
+  toUserUniqueSnapshot,
+  type UserUniqueSnapshot
+} from '../shared/unique'
 import buildUserListParams from './utils/buildUserListParams'
 import {
   buildAdjustOrgSortPayload,
@@ -75,6 +81,7 @@ const bindFormRef = ref<BindFormExpose>()
 const treeRef = ref<{
   setCurrentKey?: (key?: string | null) => void
 }>()
+const userUniqueSnapshot = ref<UserUniqueSnapshot | null>(null)
 
 const orgTreeData = ref<OrgTreeNode[]>([])
 const positionOptions = ref<PositionItem[]>([])
@@ -141,6 +148,7 @@ const crudPage = useCrudPage<UserForm, UserListRecord, UserDetailData, UserSaveP
         await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()])
 
         if (mode === 'create') {
+          userUniqueSnapshot.value = null
           form.userOrgs = [
             {
               orgId: searchForm.orgId || '',
@@ -160,25 +168,29 @@ const crudPage = useCrudPage<UserForm, UserListRecord, UserDetailData, UserSaveP
         }
         return response.data
       },
-      mapToForm: ({ detail }) => toUserForm(detail)
+      mapToForm: ({ detail }) => {
+        const mapped = toUserForm(detail)
+        userUniqueSnapshot.value = toUserUniqueSnapshot(mapped)
+        return mapped
+      }
     },
     save: {
       buildPayload: async ({ form }) => {
         const payload = toUserPayload(form)
+        const currentUnique = toUserUniqueSnapshot(payload)
 
-        const uniqueResponse = await userApi.checkUnique({
-          userId: payload.id,
-          userAccount: payload.userAccount,
-          phone: payload.phone,
-          mail: payload.mail
-        })
+        if (shouldCheckUserUnique(currentUnique, userUniqueSnapshot.value)) {
+          const uniqueResponse = await userApi.checkUnique({
+            userId: payload.id,
+            userAccount: payload.userAccount,
+            phone: payload.phone,
+            mail: payload.mail
+          })
 
-        if (uniqueResponse.code !== 200) {
-          throw new Error(uniqueResponse.message || '用户唯一性校验失败')
-        }
-
-        if (!uniqueResponse.data) {
-          throw new Error('登录账号、手机号或邮箱已存在')
+          const isUnique = assertUniqueCheck(uniqueResponse, '用户唯一性校验失败')
+          if (!isUnique) {
+            throw new Error('登录账号、手机号或邮箱已存在')
+          }
         }
 
         return payload
@@ -289,12 +301,29 @@ async function checkFieldUnique(params: {
   phone?: string
   mail?: string
 }) {
-  const response = await userApi.checkUnique(params)
-  if (response.code !== 200) {
-    throw new Error(response.message || '字段唯一性校验失败')
+  const payload: {
+    userId?: string
+    userAccount?: string
+    phone?: string
+    mail?: string
+  } = {
+    userId: params.userId
   }
 
-  return Boolean(response.data)
+  if (params.userAccount !== undefined) {
+    payload.userAccount = toUserUniqueSnapshot({ userAccount: params.userAccount }).userAccount
+  }
+
+  if (params.phone !== undefined) {
+    payload.phone = toUserUniqueSnapshot({ phone: params.phone }).phone
+  }
+
+  if (params.mail !== undefined) {
+    payload.mail = toUserUniqueSnapshot({ mail: params.mail }).mail
+  }
+
+  const response = await userApi.checkUnique(payload)
+  return assertUniqueCheck(response, '字段唯一性校验失败')
 }
 
 async function uploadAvatar(file: File, userId: string): Promise<boolean> {

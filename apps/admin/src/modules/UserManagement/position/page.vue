@@ -15,6 +15,12 @@ import {
   toPositionPayload,
   type PositionForm
 } from './form'
+import {
+  assertUniqueCheck,
+  shouldCheckPositionUnique,
+  toPositionUniqueSnapshot,
+  type PositionUniqueSnapshot
+} from '../shared/unique'
 
 defineOptions({
   name: 'PositionManagementPage'
@@ -23,6 +29,7 @@ defineOptions({
 const tableRef = ref<unknown>(null)
 const searchRef = ref<{ resetFields?: () => void }>()
 const editFormRef = ref()
+const positionUniqueSnapshot = ref<PositionUniqueSnapshot | null>(null)
 
 const searchForm = reactive({
   postName: ''
@@ -63,11 +70,36 @@ const crudPage = useCrudPage<PositionForm, PositionRecord>({
       ref: editFormRef
     },
     detail: {
+      beforeOpen: async ({ mode }) => {
+        if (mode === 'create') {
+          positionUniqueSnapshot.value = null
+        }
+      },
       load: async ({ row }) => row,
-      mapToForm: ({ detail }) => toPositionForm(detail)
+      mapToForm: ({ detail }) => {
+        const mapped = toPositionForm(detail)
+        positionUniqueSnapshot.value = toPositionUniqueSnapshot(mapped)
+        return mapped
+      }
     },
     save: {
-      buildPayload: ({ form }) => toPositionPayload(form),
+      buildPayload: async ({ form }) => {
+        const payload = toPositionPayload(form)
+        const currentUnique = toPositionUniqueSnapshot(payload)
+
+        if (shouldCheckPositionUnique(currentUnique, positionUniqueSnapshot.value)) {
+          const response = await positionApi.checkUnique({
+            id: payload.id,
+            postName: payload.postName
+          })
+          const isUnique = assertUniqueCheck(response, '职位名称校验失败')
+          if (!isUnique) {
+            throw new Error('已存在相同职位名称')
+          }
+        }
+
+        return payload
+      },
       request: async ({ mode, payload }) => {
         const response = mode === 'create'
           ? await positionApi.addPost(payload)

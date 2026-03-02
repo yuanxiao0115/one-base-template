@@ -29,6 +29,11 @@ const formRules = computed<FormRules<UserAccountForm>>(() => ({
           return
         }
 
+        if (account === String(model.value.userAccount || '').trim()) {
+          callback()
+          return
+        }
+
         void props.checkUserAccountUnique({
           userId: model.value.userId,
           userAccount: account
