@@ -278,6 +278,7 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - **布尔归一化统一**：接口映射不要直接 `Boolean(raw)`，统一走 `toBooleanValue`，避免 `'0'` 被误判为 `true`。
 - **弹窗初始化防竞态**：`modelValue + orgId` 双条件弹窗统一单 watch，并增加初始化令牌，避免重复请求与旧请求回写。
 - **首屏查询单触发**：`useTable.query.immediate` 与 `onMounted onSearch` 二选一，避免首屏双请求与闪烁。
+- **唯一性校验收敛**：保存前仅在关键字段变更时触发唯一性请求（新增必校验，编辑按差异校验），并统一错误断言逻辑。
 
 对应实现可参考：
 
@@ -286,3 +287,5 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/page.vue`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/page.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/page.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/shared/unique.ts`
