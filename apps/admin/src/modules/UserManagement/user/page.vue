@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { Download, Lock, Plus, Rank, Unlock, Upload } from '@element-plus/icons-vue'
-import type Sortable from 'sortablejs'
 import { sm4EncryptBase64 } from '@/infra/sczfw/crypto'
 import {
   ImportUpload as ObImportUpload,
@@ -33,11 +32,8 @@ import {
 } from './form'
 import { userTypeOptions } from './const'
 import {
-  confirmResetUserPassword,
-  confirmUserStatusAction,
   createUserTypeLabelMap,
   downloadUserImportTemplate,
-  isConfirmCancelled,
   mapCorporateUsersToBindOptions,
   resolveUserTypeLabel
 } from './actions'
@@ -49,28 +45,18 @@ import {
 } from '../shared/unique'
 import buildUserListParams from './utils/buildUserListParams'
 import {
-  buildAdjustOrgSortPayload,
-  buildSortableOptions,
-  dragHandleClass,
-  moveArrayItem
+  dragHandleClass
 } from './utils/dragSort'
+import { useUserStatusActions } from './composables/useUserStatusActions'
+import { useUserDragSort } from './composables/useUserDragSort'
 
 defineOptions({
   name: 'UserManagementPage'
 })
 
-type SortableEndEvent = {
-  oldIndex?: number
-  newIndex?: number
-}
-
 type BindFormExpose = CrudFormLike & {
   loadOptions?: (keyword?: string) => Promise<void>
   setSelectedUsers?: (users: UserBindOption[]) => void
-}
-
-type SortableCtor = {
-  create: (element: HTMLElement, options?: Record<string, unknown>) => Sortable
 }
 
 const tableRef = ref<unknown>(null)
@@ -253,11 +239,8 @@ const bindForm = reactive<UserBindForm>({
   userIds: []
 })
 
-const sortableCtor = ref<SortableCtor | null>(null)
-const sortableInstance = ref<Sortable | null>(null)
-let sortableInitToken = 0
-
 const userTypeLabelMap = createUserTypeLabelMap(userTypeOptions)
+const currentOrgId = computed(() => searchForm.orgId)
 
 function sortOrgTree(nodes: OrgTreeNode[]): OrgTreeNode[] {
   return [...nodes]
@@ -368,80 +351,14 @@ async function handleDelete(row: UserListRecord) {
   await remove(row)
 }
 
-async function handleSingleStatus(row: UserListRecord) {
-  const nextStatus = !row.isEnable
-  const actionLabel = nextStatus ? '启用' : '停用'
-
-  try {
-    await confirmUserStatusAction(actionLabel, row.nickName)
-
-    const response = await userApi.updateStatus({
-      isEnable: nextStatus,
-      ids: [row.id]
-    })
-
-    if (response.code !== 200) {
-      throw new Error(response.message || `${actionLabel}用户失败`)
-    }
-
-    message.success(`${actionLabel}成功`)
-    await onSearch(false)
-  } catch (error) {
-    if (isConfirmCancelled(error)) return
-    const errorMessage = error instanceof Error ? error.message : `${actionLabel}用户失败`
-    message.error(errorMessage)
-  }
-}
-
-async function handleBatchStatus(isEnable: boolean) {
-  const rows = selectedList.value || []
-  if (rows.length === 0) {
-    message.warning('请先选择用户')
-    return
-  }
-
-  const actionLabel = isEnable ? '启用' : '停用'
-  const userNames = rows.map((item) => item.nickName).join('、')
-
-  try {
-    await confirmUserStatusAction(actionLabel, userNames)
-
-    const ids = rows.map((item) => item.id)
-    const response = await userApi.updateStatus({
-      isEnable,
-      ids
-    })
-
-    if (response.code !== 200) {
-      throw new Error(response.message || `${actionLabel}用户失败`)
-    }
-
-    message.success(`${actionLabel}成功`)
-    await onSearch(false)
-  } catch (error) {
-    if (isConfirmCancelled(error)) return
-    const errorMessage = error instanceof Error ? error.message : `${actionLabel}用户失败`
-    message.error(errorMessage)
-  }
-}
-
-async function handleResetPassword(row: UserListRecord) {
-  try {
-    await confirmResetUserPassword(row.nickName)
-
-    const response = await userApi.resetPwd({ id: row.id })
-    if (response.code !== 200) {
-      throw new Error(response.message || '重置密码失败')
-    }
-
-    message.success('重置密码成功')
-    await onSearch(false)
-  } catch (error) {
-    if (isConfirmCancelled(error)) return
-    const errorMessage = error instanceof Error ? error.message : '重置密码失败'
-    message.error(errorMessage)
-  }
-}
+const {
+  handleSingleStatus,
+  handleBatchStatus,
+  handleResetPassword
+} = useUserStatusActions({
+  selectedList,
+  onSearch
+})
 
 function resetAccountForm() {
   Object.assign(accountForm, defaultUserAccountForm)
@@ -590,97 +507,14 @@ async function handleImportUploaded() {
   await onSearch(false)
 }
 
-function getTableBodyElement() {
-  const tableEl = (tableRef.value as { $el?: HTMLElement } | null)?.$el
-  if (!tableEl) return null
-
-  return (
-    tableEl.querySelector('.vxe-table--body-wrapper tbody') ||
-    tableEl.querySelector('.vxe-table--main-body tbody')
-  )
-}
-
-function destroySortable() {
-  sortableInstance.value?.destroy()
-  sortableInstance.value = null
-}
-
-async function ensureSortableCtor() {
-  if (sortableCtor.value) return sortableCtor.value
-  const imported = await import('sortablejs')
-  const importedRecord = imported as unknown as Record<string, unknown>
-  const ctor = (importedRecord.default || importedRecord) as SortableCtor
-  sortableCtor.value = ctor
-  return ctor
-}
-
-async function handleSortEnd(event: SortableEndEvent) {
-  if (!canDragSort.value) return
-
-  const { oldIndex, newIndex } = event
-  if (oldIndex == null || newIndex == null || oldIndex === newIndex) return
-
-  const rows = dataList.value || []
-  const currentRow = rows[oldIndex]
-  if (!currentRow) return
-
-  dataList.value = moveArrayItem(rows, oldIndex, newIndex)
-
-  const payload = buildAdjustOrgSortPayload({
-    orgId: searchForm.orgId,
-    rowId: currentRow.id,
-    newIndex,
-    pagination
-  })
-
-  if (!payload) return
-
-  try {
-    const response = await userApi.adjustOrgSort(payload)
-    if (response.code !== 200) {
-      throw new Error(response.message || '用户排序更新失败')
-    }
-  } catch {
-    await onSearch(false)
-  }
-}
-
-async function initSortable() {
-  const currentToken = ++sortableInitToken
-  if (!canDragSort.value || !Array.isArray(dataList.value) || dataList.value.length === 0) {
-    destroySortable()
-    return
-  }
-
-  await nextTick()
-  if (currentToken !== sortableInitToken) return
-
-  const tbody = getTableBodyElement()
-  if (!tbody) return
-
-  const SortableCtor = await ensureSortableCtor()
-  if (currentToken !== sortableInitToken) return
-
-  destroySortable()
-  sortableInstance.value = SortableCtor.create(
-    tbody as HTMLElement,
-    buildSortableOptions((event: unknown) => {
-      void handleSortEnd(event as SortableEndEvent)
-    })
-  )
-}
-
-watch(
-  [
-    canDragSort,
-    dataList,
-    () => pagination.currentPage,
-    () => pagination.pageSize
-  ],
-  () => {
-    void initSortable()
-  }
-)
+useUserDragSort({
+  tableRef,
+  canDragSort,
+  dataList,
+  orgId: currentOrgId,
+  pagination,
+  onSearch
+})
 
 onMounted(async () => {
   try {
@@ -691,11 +525,6 @@ onMounted(async () => {
   }
 
   await onSearch(false)
-})
-
-onBeforeUnmount(() => {
-  sortableInitToken += 1
-  destroySortable()
 })
 </script>
 

@@ -7,6 +7,7 @@ import OrgSearchForm from './components/OrgSearchForm.vue'
 import OrgEditForm from './components/OrgEditForm.vue'
 import OrgManagerDialog from './components/OrgManagerDialog.vue'
 import OrgLevelManageDialog from './components/OrgLevelManageDialog.vue'
+import { useOrgTreeQuery } from './composables/useOrgTreeQuery'
 import {
   orgApi,
   type DictItem,
@@ -52,15 +53,6 @@ const searchForm = reactive({
 })
 
 const createParentId = ref('0')
-const CACHE_EXPIRE_TIME = 5 * 60 * 1000
-
-type TreeCacheEntry = {
-  data: OrgRecord[]
-  timestamp: number
-}
-
-const treeChildrenCache = new Map<string, TreeCacheEntry>()
-const deletingRow = ref<OrgRecord | null>(null)
 
 const orgTreeOptions = ref<OrgTreeOption[]>([])
 const orgCategoryOptions = ref<DictItem[]>([])
@@ -88,19 +80,6 @@ const rootParentId = computed(() => {
   }
 
   return '0'
-})
-
-const treeConfig = computed<Record<string, unknown> | undefined>(() => {
-  if (inSearchMode.value) return undefined
-
-  return {
-    lazy: true,
-    trigger: 'cell',
-    reserve: true,
-    hasChildField: 'hasChildren',
-    childrenField: 'children',
-    loadMethod: loadTreeChildren
-  }
 })
 
 const tableOpt = reactive({
@@ -135,7 +114,7 @@ const tableOpt = reactive({
       invalidateDeletedRowCache()
     },
     onError: (error: unknown) => {
-      deletingRow.value = null
+      clearDeletingRow()
       const errorMessage = error instanceof Error ? error.message : '删除组织失败'
       message.error(errorMessage)
     }
@@ -234,51 +213,37 @@ const crudForm = crud.form
 
 const orgCategoryLabelMap = computed(() => buildDictLabelMap(orgCategoryOptions.value))
 const institutionalTypeLabelMap = computed(() => buildDictLabelMap(institutionalTypeOptions.value))
+const {
+  clearTreeCache,
+  loadTreeChildren,
+  refreshTable,
+  markDeletingRow,
+  clearDeletingRow,
+  clearDeletingRowIfMatched,
+  invalidateDeletedRowCache,
+  tableSearch,
+  onKeywordUpdate,
+  onResetSearch
+} = useOrgTreeQuery({
+  inSearchMode,
+  searchForm,
+  searchRef,
+  onSearch,
+  resetForm
+})
 
-function clearTreeCache() {
-  treeChildrenCache.clear()
-}
+const treeConfig = computed<Record<string, unknown> | undefined>(() => {
+  if (inSearchMode.value) return undefined
 
-function isCacheExpired(cache: TreeCacheEntry): boolean {
-  return Date.now() - cache.timestamp > CACHE_EXPIRE_TIME
-}
-
-function getCacheRows(parentId: string): OrgRecord[] | null {
-  const cache = treeChildrenCache.get(parentId)
-  if (!cache) return null
-
-  if (isCacheExpired(cache)) {
-    treeChildrenCache.delete(parentId)
-    return null
+  return {
+    lazy: true,
+    trigger: 'cell',
+    reserve: true,
+    hasChildField: 'hasChildren',
+    childrenField: 'children',
+    loadMethod: loadTreeChildren
   }
-
-  return cache.data
-}
-
-function saveCacheRows(parentId: string, rows: OrgRecord[]) {
-  treeChildrenCache.set(parentId, {
-    data: rows,
-    timestamp: Date.now()
-  })
-}
-
-async function refreshTable() {
-  clearTreeCache()
-  await onSearch(false)
-}
-
-function invalidateDeletedRowCache() {
-  const row = deletingRow.value
-  deletingRow.value = null
-
-  if (!row || inSearchMode.value) {
-    clearTreeCache()
-    return
-  }
-
-  treeChildrenCache.delete(String(row.id || ''))
-  treeChildrenCache.delete(String(row.parentId || ''))
-}
+})
 
 function sortRows(rows: OrgRecord[]): OrgRecord[] {
   return [...rows].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
@@ -395,49 +360,6 @@ async function loadOrgLevelOptions() {
   orgLevelOptions.value = Array.isArray(response.data) ? response.data : []
 }
 
-async function loadTreeChildren(params: { row: OrgRecord }) {
-  if (inSearchMode.value) return []
-
-  const parentId = String(params.row.id)
-  const cacheRows = getCacheRows(parentId)
-  if (cacheRows) {
-    return cacheRows
-  }
-
-  try {
-    const response = await orgApi.getOrgTree({ parentId })
-    if (response.code !== 200) {
-      throw new Error(response.message || '加载下级组织失败')
-    }
-
-    const rows = Array.isArray(response.data) ? response.data : []
-    if (!rows.length) {
-      params.row.hasChildren = false
-    }
-
-    saveCacheRows(parentId, rows)
-    return rows
-  } catch (error) {
-    message.error(getErrorMessage(error, '加载下级组织失败'))
-    return []
-  }
-}
-
-function tableSearch(keyword: string) {
-  searchForm.orgName = keyword
-  clearTreeCache()
-  void onSearch()
-}
-
-function onKeywordUpdate(keyword: string) {
-  searchForm.orgName = keyword
-}
-
-function onResetSearch() {
-  clearTreeCache()
-  resetForm(searchRef, 'orgName')
-}
-
 async function openCreateRoot() {
   createParentId.value = rootParentId.value
   await crud.openCreate()
@@ -449,11 +371,9 @@ async function openCreateChild(row: OrgRecord) {
 }
 
 async function handleDelete(row: OrgRecord) {
-  deletingRow.value = row
+  markDeletingRow(row)
   await remove(row)
-  if (deletingRow.value?.id === row.id) {
-    deletingRow.value = null
-  }
+  clearDeletingRowIfMatched(row)
 }
 
 async function checkOrgNameUnique(params: { orgName: string; parentId?: string; orgId?: string }) {
