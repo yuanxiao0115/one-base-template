@@ -102,7 +102,8 @@ const tableOpt = reactive({
   query: {
     api: (params: Record<string, unknown>) => userApi.page(buildUserListParams(params)),
     params: searchForm,
-    pagination: true
+    pagination: true,
+    immediate: false
   },
   remove: {
     api: (payload: { id: string }) => userApi.remove(payload),

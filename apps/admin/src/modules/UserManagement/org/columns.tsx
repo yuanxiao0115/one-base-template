@@ -48,8 +48,7 @@ export const orgColumns: TableColumnList = [
   {
     label: '创建时间',
     prop: 'createTime',
-    minWidth: 180,
-    sortable: 'custom'
+    minWidth: 180
   },
   {
     label: '操作',

@@ -110,7 +110,8 @@ const tableOpt = reactive({
       return orgApi.getOrgTree({ parentId })
     },
     params: searchForm,
-    pagination: false
+    pagination: false,
+    immediate: false
   },
   remove: {
     api: (payload: { id: string }) => orgApi.deleteOrg(payload),

@@ -1,5 +1,5 @@
 import { getHttpClient, trimText } from '@/shared/api/utils';
-import { extractList, toNullableNumber, toNumberValue, toStringValue } from '@/shared/api/normalize';
+import { extractList, toBooleanValue, toNullableNumber, toNumberValue, toStringValue } from '@/shared/api/normalize';
 
 export interface BizResponse<T> {
   code: number;
@@ -239,7 +239,7 @@ function toOrgRow(row: OrgRawRecord): OrgRecord {
     uscc: toStringValue(row.uscc),
     createTime: toStringValue(row.createTime),
     orgType: toNumberValue(row.orgType),
-    isExternal: Boolean(row.isExternal),
+    isExternal: toBooleanValue(row.isExternal),
     remark: toStringValue(row.remark),
     hasChildren: getHasChildren(row, children || []),
     children

@@ -49,6 +49,7 @@ const nodeChildrenMap = new Map<string, OrgContactNode[]>();
 
 const selectedUsers = ref<SelectedUser[]>([]);
 const originalManagers = ref<OrgManagerRecord[]>([]);
+const initDialogToken = ref(0);
 
 function isOrgNode(node: OrgContactNode): node is OrgContactOrgNode {
   return node.nodeType === 'org';
@@ -164,6 +165,8 @@ async function loadRootNodes() {
 }
 
 async function initDialog() {
+  const currentToken = ++initDialogToken.value;
+
   if (!props.orgId) {
     message.warning('缺少组织信息，无法设置管理员');
     return;
@@ -173,11 +176,16 @@ async function initDialog() {
   loading.value = true;
   try {
     await loadOrgManagers();
+    if (currentToken !== initDialogToken.value) return;
+
     await loadRootNodes();
   } catch (error) {
+    if (currentToken !== initDialogToken.value) return;
     message.error(getErrorMessage(error, '初始化组织管理员失败'));
   } finally {
-    loading.value = false;
+    if (currentToken === initDialogToken.value) {
+      loading.value = false;
+    }
   }
 }
 
@@ -291,27 +299,30 @@ async function handleSubmit() {
   }
 
   const userIds = Array.from(new Set(selectedUsers.value.map((item) => item.userId).filter(Boolean)));
-  if (userIds.length === 0) {
-    message.warning('请选择人员');
+  const selectedSet = new Set(userIds);
+  const removeIds = originalManagers.value
+    .filter((item) => !selectedSet.has(item.userId))
+    .map((item) => item.id)
+    .filter(Boolean);
+
+  if (userIds.length === 0 && removeIds.length === 0) {
+    message.info('组织管理员未发生变化');
+    visible.value = false;
     return;
   }
 
   saving.value = true;
   try {
-    const saveResponse = await orgApi.addOrgManager({
-      orgId: props.orgId,
-      userId: userIds
-    });
+    if (userIds.length > 0) {
+      const saveResponse = await orgApi.addOrgManager({
+        orgId: props.orgId,
+        userId: userIds
+      });
 
-    if (saveResponse.code !== 200) {
-      throw new Error(saveResponse.message || '设置组织管理员失败');
+      if (saveResponse.code !== 200) {
+        throw new Error(saveResponse.message || '设置组织管理员失败');
+      }
     }
-
-    const selectedSet = new Set(userIds);
-    const removeIds = originalManagers.value
-      .filter((item) => !selectedSet.has(item.userId))
-      .map((item) => item.id)
-      .filter(Boolean);
 
     if (removeIds.length > 0) {
       const removeResponse = await orgApi.delOrgManager({ id: removeIds.join(',') });
@@ -331,9 +342,10 @@ async function handleSubmit() {
 }
 
 watch(
-  () => props.modelValue,
-  (value) => {
-    if (!value) {
+  () => [props.modelValue, props.orgId] as const,
+  ([visibleValue]) => {
+    if (!visibleValue) {
+      initDialogToken.value += 1;
       resetState();
       return;
     }
@@ -341,14 +353,6 @@ watch(
     void initDialog();
   },
   { immediate: true }
-);
-
-watch(
-  () => props.orgId,
-  () => {
-    if (!props.modelValue) return;
-    void initDialog();
-  }
 );
 </script>
 

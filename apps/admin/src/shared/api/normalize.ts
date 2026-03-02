@@ -33,8 +33,19 @@ export function toBooleanValue(value: unknown, fallback = false): boolean {
 
 export function toNullableNumber(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null
-  const parsed = toNumberValue(value)
-  return Number.isFinite(parsed) ? parsed : null
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null
+  }
+
+  if (typeof value === 'string') {
+    const text = value.trim()
+    if (!text) return null
+    const parsed = Number(text)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+
+  return null
 }
 
 export function extractList(data: unknown, keys: ListKey[] = ['records', 'list', 'rows', 'items']): unknown[] {
