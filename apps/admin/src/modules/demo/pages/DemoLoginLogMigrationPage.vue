@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { OneTableBar } from '@/components/OneTableBar'
-import { useTable } from '@/hooks/table'
+import { useTable } from '@one-base-template/core'
 import { confirm } from '@/infra/confirm'
 import { PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
 import type { TablePagination } from '@one-base-template/ui'
@@ -31,9 +31,11 @@ const searchForm = reactive({
 })
 
 const tableOpt = reactive({
-  searchApi: loginLogApi.list,
-  searchForm,
-  paginationFlag: true
+  query: {
+    api: loginLogApi.list,
+    params: searchForm,
+    pagination: true
+  }
 })
 
 const {

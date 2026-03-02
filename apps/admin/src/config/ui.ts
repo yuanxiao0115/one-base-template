@@ -1,5 +1,5 @@
 import type { CrudContainerType } from '@one-base-template/ui';
-import type { UseTableDefaults, UseTableStandardResponse } from '@/hooks/table';
+import type { UseTableDefaults, UseTableStandardResponse } from '@one-base-template/core';
 
 function toRecord(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};

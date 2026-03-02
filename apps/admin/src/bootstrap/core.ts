@@ -1,6 +1,7 @@
 import type { App } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { createCore, createStaticMenusFromRoutes, type BackendAdapter, type LayoutMode, type MenuMode, type SystemSwitchStyle } from '@one-base-template/core';
+import { obConfirm } from '@/infra/confirm';
 
 import { appSsoOptions, appThemeOptions, createSystemsOptions } from '../config';
 
@@ -61,7 +62,13 @@ export function installCore(
       systems: createSystemsOptions({
         defaultCode: defaultSystemCode,
         homeMap: systemHomeMap
-      })
+      }),
+      hooks: {
+        tableConfirmAdapter: {
+          warn: (message, title, options) => obConfirm.warn(message, title, options),
+          prompt: (message, title, options) => obConfirm.prompt(message, title, options)
+        }
+      }
     })
   );
 }

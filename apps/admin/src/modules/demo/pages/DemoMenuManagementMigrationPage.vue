@@ -3,13 +3,12 @@ import { computed, onMounted, reactive, ref, type Ref } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { OneTableBar } from '@/components/OneTableBar'
-import { useTable } from '@/hooks/table'
+import { useCrudPage } from '@one-base-template/core'
 import { confirm } from '@/infra/confirm'
 import {
   CrudContainer as ObCrudContainer,
   PageContainer,
   VxeTable as ObVxeTable,
-  useCrudContainer,
   type CrudFormLike,
   type CrudErrorContext
 } from '@one-base-template/ui'
@@ -102,72 +101,86 @@ const tableTreeConfig = computed<Record<string, unknown> | undefined>(() => {
 })
 
 const tableOpt = reactive({
-  searchApi: async () => {
-    if (inTreeMode.value) {
-      return menuPermissionApi.getPermissionTree()
-    }
+  query: {
+    api: async () => {
+      if (inTreeMode.value) {
+        return menuPermissionApi.getPermissionTree()
+      }
 
-    return menuPermissionApi.getPermissionList({
-      resourceName: searchForm.resourceName,
-      resourceType: searchForm.resourceType
-    })
-  },
-  searchForm,
-  paginationFlag: false
+      return menuPermissionApi.getPermissionList({
+        resourceName: searchForm.resourceName,
+        resourceType: searchForm.resourceType
+      })
+    },
+    params: searchForm,
+    pagination: false
+  }
 })
 
-const { loading, dataList, onSearch, resetForm } = useTable(tableOpt, tableRef)
-
-const crud = useCrudContainer<
+const crudPage = useCrudPage<
   MenuPermissionForm,
   MenuPermissionRecord,
   MenuPermissionRecord,
   PermissionSavePayload,
   BizResponse<MenuPermissionRecord>
 >({
-  entityName: '权限',
-  container: 'dialog',
-  createForm: () => ({ ...defaultFormState }),
-  formRef: editFormRef as unknown as Ref<CrudFormLike | undefined>,
-  async beforeOpen({ mode, row, form }) {
-    await loadResourceTypeOptions()
+  table: tableOpt,
+  tableRef,
+  editor: {
+    entity: {
+      name: '权限',
+      container: 'dialog'
+    },
+    form: {
+      create: () => ({ ...defaultFormState }),
+      ref: editFormRef as unknown as Ref<CrudFormLike | undefined>
+    },
+    detail: {
+      async beforeOpen({ mode, row, form }) {
+        await loadResourceTypeOptions()
 
-    if (mode === 'create') {
-      await loadParentOptions()
-      form.parentId = createParentId.value || '0'
-      return
+        if (mode === 'create') {
+          await loadParentOptions()
+          form.parentId = createParentId.value || '0'
+          return
+        }
+
+        if (!row) {
+          await loadParentOptions()
+          return
+        }
+
+        await loadParentOptions(row.id)
+      },
+      load: async ({ row }) => row,
+      mapToForm: ({ detail }) => toFormState(detail)
+    },
+    save: {
+      buildPayload: ({ form }) => toPayload(form),
+      request: async ({ mode, payload }) => {
+        const response =
+          mode === 'create'
+            ? await menuPermissionApi.addPermission(payload)
+            : await menuPermissionApi.editPermission(payload)
+
+        if (response.code !== 200) {
+          throw new Error(response.message || '保存失败')
+        }
+
+        return response
+      },
+      onSuccess: async ({ mode }) => {
+        ElMessage.success(mode === 'create' ? '新增成功' : '更新成功')
+      }
+    },
+    onError: (error, context) => {
+      handleCrudError(error, context)
     }
-
-    if (!row) {
-      await loadParentOptions()
-      return
-    }
-
-    await loadParentOptions(row.id)
-  },
-  loadDetail: async ({ row }) => row,
-  mapDetailToForm: ({ detail }) => toFormState(detail),
-  beforeSubmit: ({ form }) => toPayload(form),
-  submit: async ({ mode, payload }) => {
-    const response =
-      mode === 'create'
-        ? await menuPermissionApi.addPermission(payload)
-        : await menuPermissionApi.editPermission(payload)
-
-    if (response.code !== 200) {
-      throw new Error(response.message || '保存失败')
-    }
-
-    return response
-  },
-  onSuccess: async ({ mode }) => {
-    ElMessage.success(mode === 'create' ? '新增成功' : '更新成功')
-    await onSearch(false)
-  },
-  onError: (error, context) => {
-    handleCrudError(error, context)
   }
 })
+
+const { loading, dataList, onSearch, resetForm } = crudPage.table
+const crud = crudPage.editor
 
 const crudVisible = crud.visible
 const crudMode = crud.mode

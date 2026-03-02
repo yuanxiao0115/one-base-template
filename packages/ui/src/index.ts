@@ -33,20 +33,25 @@ export { default as ForbiddenPage } from './pages/error/ForbiddenPage.vue';
 export { default as NotFoundPage } from './pages/error/NotFoundPage.vue';
 export type { CrudContainerGlobalConfig, OneUiGlobalConfig } from './config';
 export {
-  useCrudContainer,
+  useEntityEditor,
   type CrudBeforeOpenContext,
+  type CrudBuildPayloadContext,
   type CrudContainerType,
+  type CrudDetailOptions,
+  type CrudEntityOptions,
   type CrudErrorContext,
+  type CrudFormOptions,
   type CrudFormLike,
   type CrudLoadDetailContext,
   type CrudMapDetailToFormContext,
   type CrudMode,
   type CrudOpenCreateOptions,
   type CrudOpenRowOptions,
-  type CrudSubmitContext,
-  type CrudSuccessContext,
-  type UseCrudContainerOptions,
-  type UseCrudContainerReturn
-} from './hooks/useCrudContainer';
+  type CrudSaveOptions,
+  type CrudSaveContext,
+  type CrudSaveSuccessContext,
+  type UseEntityEditorOptions,
+  type UseEntityEditorReturn
+} from './hooks/useEntityEditor';
 export { OneUiPlugin, registerOneUiComponents, type OneUiPluginOptions, type OneUiComponentName } from './plugin';
 export { default } from './plugin';

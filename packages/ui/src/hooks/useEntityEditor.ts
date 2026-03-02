@@ -1,20 +1,25 @@
 import { ElMessage } from 'element-plus'
-import { useCrudContainer as useCrudContainerCore } from '../../../utils/src/hooks/useCrudContainer'
+import { useEntityEditor as useEntityEditorCore } from '@one-base-template/core'
 import type {
   CrudBeforeOpenContext,
+  CrudBuildPayloadContext,
   CrudContainerType,
+  CrudDetailOptions,
+  CrudEntityOptions,
   CrudErrorContext,
+  CrudFormOptions,
   CrudFormLike,
   CrudLoadDetailContext,
   CrudMapDetailToFormContext,
   CrudMode,
   CrudOpenCreateOptions,
   CrudOpenRowOptions,
-  CrudSubmitContext,
-  CrudSuccessContext,
-  UseCrudContainerOptions,
-  UseCrudContainerReturn
-} from '../../../utils/src/hooks/useCrudContainer'
+  CrudSaveOptions,
+  CrudSaveContext,
+  CrudSaveSuccessContext,
+  UseEntityEditorOptions,
+  UseEntityEditorReturn
+} from '@one-base-template/core'
 
 function getDefaultErrorMessage(entityName: string, context: CrudErrorContext<unknown>): string {
   if (context.stage === 'beforeOpen') return `打开${entityName}弹窗失败`
@@ -22,19 +27,19 @@ function getDefaultErrorMessage(entityName: string, context: CrudErrorContext<un
   return `保存${entityName}失败`
 }
 
-export function useCrudContainer<
+export function useEntityEditor<
   TForm extends Record<string, unknown>,
   TRow = Record<string, unknown>,
   TDetail = TRow,
   TPayload = TForm,
   TResult = unknown
 >(
-  options: UseCrudContainerOptions<TForm, TRow, TDetail, TPayload, TResult>
-): UseCrudContainerReturn<TForm, TRow, TDetail, TResult> {
+  options: UseEntityEditorOptions<TForm, TRow, TDetail, TPayload, TResult>
+): UseEntityEditorReturn<TForm, TRow, TDetail, TResult> {
   const customOnError = options.onError
   const shouldRethrow = Boolean(customOnError)
 
-  const crud = useCrudContainerCore<TForm, TRow, TDetail, TPayload, TResult>({
+  const crud = useEntityEditorCore<TForm, TRow, TDetail, TPayload, TResult>({
     ...options,
     onError: (error, context) => {
       if (customOnError) {
@@ -42,7 +47,7 @@ export function useCrudContainer<
         return
       }
 
-      const fallbackMessage = getDefaultErrorMessage(options.entityName, context as CrudErrorContext<unknown>)
+      const fallbackMessage = getDefaultErrorMessage(options.entity.name, context as CrudErrorContext<unknown>)
       const message = error instanceof Error ? error.message : fallbackMessage
       ElMessage.error(message)
     }
@@ -69,15 +74,20 @@ export function useCrudContainer<
 export type {
   CrudBeforeOpenContext,
   CrudContainerType,
+  CrudDetailOptions,
+  CrudEntityOptions,
   CrudErrorContext,
+  CrudFormOptions,
   CrudFormLike,
   CrudLoadDetailContext,
   CrudMapDetailToFormContext,
   CrudMode,
   CrudOpenCreateOptions,
   CrudOpenRowOptions,
-  CrudSubmitContext,
-  CrudSuccessContext,
-  UseCrudContainerOptions,
-  UseCrudContainerReturn
+  CrudSaveOptions,
+  CrudSaveContext,
+  CrudSaveSuccessContext,
+  CrudBuildPayloadContext,
+  UseEntityEditorOptions,
+  UseEntityEditorReturn
 }

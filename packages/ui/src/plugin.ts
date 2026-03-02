@@ -13,7 +13,7 @@ import ActionButtons from './components/table/ActionButtons.vue';
 import OneTableBar from './components/table/OneTableBar.vue';
 import VxeTable from './components/table/VxeTable.vue';
 import ImportUpload from './components/upload/ImportUpload.vue';
-import { setUseTableDefaults, type UseTableDefaults } from '../../utils/src/hooks/useTable';
+import { setUseTableDefaults, type UseTableDefaults } from '@one-base-template/core';
 import { ONE_UI_GLOBAL_CONFIG_KEY, createOneUiGlobalConfig, type CrudContainerGlobalConfig } from './config';
 
 const UI_COMPONENTS = {

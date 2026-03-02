@@ -1201,7 +1201,7 @@ export default defineConfig(({ mode }) => {
           'vue-router',
           'pinia',
           {
-            '@/hooks/table': ['useTable']
+            '@one-base-template/core': ['useTable', 'useCrudPage']
           },
           {
             '@/infra/confirm': ['obConfirm']
@@ -1210,11 +1210,16 @@ export default defineConfig(({ mode }) => {
             '@/utils/message': ['message', 'closeAllMessage']
           },
           {
-            '@one-base-template/ui': ['useCrudContainer']
+            '@one-base-template/ui': ['useEntityEditor']
+          },
+          {
+            from: '@one-base-template/core',
+            imports: ['CrudErrorContext', 'CrudFormLike'],
+            type: true
           },
           {
             from: '@one-base-template/ui',
-            imports: ['CrudErrorContext', 'CrudFormLike', 'TablePagination'],
+            imports: ['TablePagination'],
             type: true
           }
         ],
