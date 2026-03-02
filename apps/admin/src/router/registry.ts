@@ -1,4 +1,5 @@
-import type { AdminModuleManifest, EnabledModulesSetting } from './types';
+import type { AdminModuleManifest, EnabledModulesSetting, ModuleTier } from './types';
+import { createAppLogger } from '@/shared/logger';
 
 type RouteModule = {
   default?: AdminModuleManifest;
@@ -9,8 +10,11 @@ const modules = import.meta.glob('../modules/**/module.ts', {
   eager: true
 }) as Record<string, RouteModule>;
 
+const logger = createAppLogger('router/modules');
+let cachedAllModules: AdminModuleManifest[] | null = null;
+
 function warn(message: string) {
-  console.warn(`[router/modules] ${message}`);
+  logger.warn(message);
 }
 
 function isValidManifest(input: unknown): input is AdminModuleManifest {
@@ -18,10 +22,33 @@ function isValidManifest(input: unknown): input is AdminModuleManifest {
   const value = input as AdminModuleManifest;
   if (!value.id || typeof value.id !== 'string') return false;
   if (value.version !== '1') return false;
+  if (typeof value.enabledByDefault !== 'boolean') return false;
+  if (value.moduleTier && value.moduleTier !== 'core' && value.moduleTier !== 'optional') return false;
   return Array.isArray(value.routes?.layout);
 }
 
+function resolveModuleTier(moduleTier: AdminModuleManifest['moduleTier']): ModuleTier {
+  if (moduleTier === 'optional') return 'optional';
+  return 'core';
+}
+
+function normalizeManifest(manifest: AdminModuleManifest, path: string): AdminModuleManifest {
+  const moduleTier = resolveModuleTier(manifest.moduleTier);
+
+  if (moduleTier === 'optional' && manifest.enabledByDefault) {
+    warn(`optional 模块不应 enabledByDefault=true，已自动收敛为 false：${manifest.id}（${path}）`);
+  }
+
+  return {
+    ...manifest,
+    moduleTier,
+    enabledByDefault: moduleTier === 'optional' ? false : manifest.enabledByDefault
+  };
+}
+
 function getAllModules(): AdminModuleManifest[] {
+  if (cachedAllModules) return cachedAllModules;
+
   const byId = new Map<string, AdminModuleManifest>();
 
   for (const [path, mod] of Object.entries(modules)) {
@@ -31,17 +58,20 @@ function getAllModules(): AdminModuleManifest[] {
       continue;
     }
 
-    if (byId.has(candidate.id)) {
-      warn(`检测到重复模块 id：${candidate.id}（忽略：${path}）`);
+    const normalized = normalizeManifest(candidate, path);
+
+    if (byId.has(normalized.id)) {
+      warn(`检测到重复模块 id：${normalized.id}（忽略：${path}）`);
       continue;
     }
 
-    byId.set(candidate.id, candidate);
+    byId.set(normalized.id, normalized);
   }
 
   const out = [...byId.values()];
   // 模块注册按 id 排序，确保路由组装顺序稳定（便于 CLI 与测试复现）
   out.sort((a, b) => a.id.localeCompare(b.id));
+  cachedAllModules = out;
   return out;
 }
 
@@ -80,4 +110,10 @@ export function getEnabledModules(enabledModules: EnabledModulesSetting): AdminM
 
 export function getModuleIds(): string[] {
   return getAllModules().map((item) => item.id);
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    cachedAllModules = null;
+  });
 }

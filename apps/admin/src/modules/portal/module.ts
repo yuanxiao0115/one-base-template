@@ -5,7 +5,8 @@ import standaloneRoutes from './routes/standalone';
 const portalModule: AdminModuleManifest = {
   id: 'portal',
   version: '1',
-  enabledByDefault: true,
+  moduleTier: 'optional',
+  enabledByDefault: false,
   apiNamespace: 'portal',
   routes: {
     layout: layoutRoutes,

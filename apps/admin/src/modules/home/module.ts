@@ -4,6 +4,7 @@ import layoutRoutes from './routes/layout';
 const homeModule: AdminModuleManifest = {
   id: 'home',
   version: '1',
+  moduleTier: 'core',
   enabledByDefault: true,
   apiNamespace: 'home',
   routes: {

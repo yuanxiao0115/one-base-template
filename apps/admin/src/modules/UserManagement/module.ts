@@ -4,6 +4,7 @@ import layoutRoutes from './routes';
 const userManagementModule: AdminModuleManifest = {
   id: 'user-management',
   version: '1',
+  moduleTier: 'core',
   enabledByDefault: true,
   apiNamespace: 'user-management',
   routes: {
