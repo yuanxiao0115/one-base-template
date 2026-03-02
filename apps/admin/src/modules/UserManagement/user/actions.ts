@@ -1,4 +1,5 @@
 import type { CorporateUserRecord } from './api'
+import { confirmWarn, isConfirmCancelled } from '../shared/confirm'
 
 type UserTypeOption = {
   value: number
@@ -12,16 +13,14 @@ export type UserBindOption = {
   phone: string
 }
 
-export function isConfirmCancelled(error: unknown): boolean {
-  return error === 'cancel' || error === 'close'
-}
+export { isConfirmCancelled }
 
 export async function confirmUserStatusAction(actionLabel: '启用' | '停用', userNames: string) {
-  await obConfirm.warn(`您确认要${actionLabel}用户 ${userNames} 吗？`, '确认')
+  await confirmWarn(`您确认要${actionLabel}用户 ${userNames} 吗？`, '确认')
 }
 
 export async function confirmResetUserPassword(userName: string) {
-  await obConfirm.warn(`您确认要重置用户 ${userName} 的密码吗？`, '确认')
+  await confirmWarn(`您确认要重置用户 ${userName} 的密码吗？`, '确认')
 }
 
 export function createUserTypeLabelMap(options: ReadonlyArray<UserTypeOption>): Record<number, string> {

@@ -16,6 +16,7 @@ import {
   type UserForm
 } from '../form'
 import { genderOptions, orgRankTypeOptions, userTypeOptions } from '../const'
+import { tryConfirmWarn } from '../../shared/confirm'
 
 const props = defineProps<{
   mode: 'create' | 'edit' | 'detail'
@@ -175,12 +176,9 @@ async function removeOrg(index: number) {
     return
   }
 
-  try {
-    await obConfirm.warn('是否删除此部门配置？', '提示')
-    model.value.userOrgs.splice(index, 1)
-  } catch {
-    // 用户取消无需处理
-  }
+  const confirmed = await tryConfirmWarn('是否删除此部门配置？', '提示')
+  if (!confirmed) return
+  model.value.userOrgs.splice(index, 1)
 }
 
 function addPost(orgIndex: number) {
@@ -208,12 +206,9 @@ async function removePost(orgIndex: number, postIndex: number) {
     return
   }
 
-  try {
-    await obConfirm.warn('是否删除此职位配置？', '提示')
-    posts.splice(postIndex, 1)
-  } catch {
-    // 用户取消无需处理
-  }
+  const confirmed = await tryConfirmWarn('是否删除此职位配置？', '提示')
+  if (!confirmed) return
+  posts.splice(postIndex, 1)
 }
 
 const beforeUploadAvatar: UploadProps['beforeUpload'] = async (file) => {
