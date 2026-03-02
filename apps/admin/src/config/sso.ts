@@ -1,4 +1,5 @@
 import type { CoreOptions } from '@one-base-template/core';
+import { APP_SSO_ROUTE_PATH } from '@/router/constants';
 
 /**
  * SSO 配置（回调路由固定为 /sso）。
@@ -9,11 +10,10 @@ import type { CoreOptions } from '@one-base-template/core';
  */
 export const appSsoOptions: CoreOptions['sso'] = {
   enabled: true,
-  routePath: '/sso',
+  routePath: APP_SSO_ROUTE_PATH,
   strategies: [
     { type: 'token', paramNames: ['token', 'access_token'], exchange: 'adapter' },
     { type: 'ticket', paramNames: ['ticket'], serviceUrlParam: 'serviceUrl' },
     { type: 'oauth', codeParam: 'code', stateParam: 'state', redirectUri: undefined }
   ]
 };
-

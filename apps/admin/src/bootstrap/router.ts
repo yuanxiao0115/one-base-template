@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { routes } from '../router';
+import type { RouteRecordRaw } from 'vue-router';
+import { appEnv } from '../infra/env';
 
-export function createAppRouter() {
+export function createAppRouter(routes: RouteRecordRaw[]) {
   return createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(appEnv.baseUrl),
     routes,
     strict: true
   });
 }
-

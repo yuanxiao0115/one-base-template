@@ -5,6 +5,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 
 import { finalizeAuthSession, safeRedirect, useAuthStore, type LoginPayload } from '@one-base-template/core';
 import { appEnv } from '@/infra/env';
+import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 import VerifySlide from '@/components/verifition-plus/VerifySlide.vue';
 import { sm4EncryptBase64 } from '@/infra/sczfw/crypto';
 import { getLoginPageConfig } from '@/shared/services/auth-remote-service';
@@ -48,7 +49,7 @@ const backgroundImage = ref('');
 function getRedirectTarget() {
   // 兼容老项目常用 query：redirectUrl
   const raw = route.query.redirect ?? route.query.redirectUrl;
-  const fallback = backend === 'sczfw' ? '/home/index' : '/';
+  const fallback = backend === 'sczfw' ? DEFAULT_FALLBACK_HOME : '/';
   return safeRedirect(raw, fallback);
 }
 

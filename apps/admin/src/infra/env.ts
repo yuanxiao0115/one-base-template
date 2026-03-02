@@ -12,6 +12,7 @@ export type MenuMode = PlatformMenuMode;
 
 export type BuildEnv = {
   isProd: boolean;
+  baseUrl: string;
   apiBaseUrl?: string;
   useMock: boolean;
   sczfwSystemPermissionCode?: string;
@@ -19,6 +20,7 @@ export type BuildEnv = {
 
 export type AppEnv = {
   isProd: boolean;
+  baseUrl: string;
   apiBaseUrl?: string;
   backend: BackendKind;
   authMode: AuthMode;
@@ -84,12 +86,14 @@ export function resolveDefaultSystemCode(params: {
 
 export function resolveBuildEnv(): BuildEnv {
   const isProd = import.meta.env.PROD;
+  const baseUrl = import.meta.env.BASE_URL;
   const apiBaseUrl = resolveApiBaseUrl();
   const useMock = resolveUseMock();
   const sczfwSystemPermissionCode = resolveSczfwSystemPermissionCode();
 
   return {
     isProd,
+    baseUrl,
     apiBaseUrl,
     useMock,
     sczfwSystemPermissionCode
@@ -126,6 +130,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
 
   return {
     isProd: buildEnv.isProd,
+    baseUrl: buildEnv.baseUrl,
     apiBaseUrl: buildEnv.apiBaseUrl,
     backend,
     authMode,

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { finalizeAuthSession, handleSsoCallback, safeRedirect } from '@one-base-template/core';
 import { appEnv } from '@/infra/env';
+import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 import {
   loginByDesktop,
   loginByExternal,
@@ -127,7 +128,7 @@ onMounted(async () => {
     const sourceCode = sp.get('sourceCode');
 
     const redirectUrlRaw = sp.get('redirectUrl') ?? sp.get('redirect');
-    const redirect = safeRedirect(redirectUrlRaw, '/home/index');
+    const redirect = safeRedirect(redirectUrlRaw, DEFAULT_FALLBACK_HOME);
 
     if (sourceCode === 'zhxt' && token) {
       await handleZhxt(token, redirect);
