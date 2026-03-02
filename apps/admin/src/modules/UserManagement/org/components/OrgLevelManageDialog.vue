@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
-import {
-  CrudContainer as ObCrudContainer,
-  VxeTable as ObVxeTable,
-  ActionButtons as ObActionButtons,
-  type TableColumnList
-} from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui'
 import type { FormInstance, FormRules } from 'element-plus'
 import { orgApi, type OrgLevelItem, type OrgLevelSavePayload } from '../api'
 

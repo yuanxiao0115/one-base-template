@@ -60,6 +60,14 @@ export const obConfirm = {
   },
   error(message: ElMessageBoxOptions['message'], title: ElMessageBoxOptions['title'] = DEFAULT_TITLES.error, options: ElMessageBoxOptions = {}) {
     return openSecondaryConfirmWithTone(message, 'error', title, options)
+  },
+  prompt(message: ElMessageBoxOptions['message'], title: ElMessageBoxOptions['title'] = DEFAULT_TITLES.warning, options: ElMessageBoxOptions = {}) {
+    return ElMessageBox.prompt(message, title, {
+      ...DEFAULT_CONFIRM_OPTIONS,
+      ...options,
+      type: 'warning',
+      customClass: mergeSecondaryClass(options.customClass)
+    })
   }
 }
 

@@ -2,7 +2,7 @@ import type { CrudContainerType } from '@one-base-template/ui';
 import type { UseTableDefaults, UseTableStandardResponse } from '@/hooks/table';
 
 function toRecord(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== 'object') return {};
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return value as Record<string, unknown>;
 }
 
@@ -22,19 +22,55 @@ export function appTableResponseAdapter(response: unknown): UseTableStandardResp
   }
 
   const root = toRecord(response);
+  const dataRaw = root.data;
   const data = toRecord(root.data);
-  const result = toRecord(data.result);
+  const resultRaw = data.result;
+  const result = toRecord(resultRaw);
 
   const recordsCandidate =
-    data.records ?? data.list ?? data.rows ?? data.items ?? result.records ?? result.list ?? result.rows ?? result.items;
+    data.records ??
+    data.list ??
+    data.rows ??
+    data.items ??
+    result.records ??
+    result.list ??
+    result.rows ??
+    result.items ??
+    root.records ??
+    root.list ??
+    root.rows ??
+    root.items;
 
   const records = Array.isArray(recordsCandidate)
     ? recordsCandidate
+    : Array.isArray(dataRaw)
+      ? dataRaw
+      : Array.isArray(resultRaw)
+        ? resultRaw
     : [];
 
-  const totalCandidate = data.totalCount ?? data.total ?? data.count ?? result.totalCount ?? result.total ?? result.count ?? records.length;
-  const currentCandidate = data.currentPage ?? data.current ?? data.page ?? result.currentPage ?? result.current ?? result.page;
-  const pageSizeCandidate = data.pageSize ?? data.size ?? result.pageSize ?? result.size;
+  const totalCandidate =
+    data.totalCount ??
+    data.total ??
+    data.count ??
+    result.totalCount ??
+    result.total ??
+    result.count ??
+    root.totalCount ??
+    root.total ??
+    root.count ??
+    records.length;
+  const currentCandidate =
+    data.currentPage ??
+    data.current ??
+    data.page ??
+    result.currentPage ??
+    result.current ??
+    result.page ??
+    root.currentPage ??
+    root.current ??
+    root.page;
+  const pageSizeCandidate = data.pageSize ?? data.size ?? result.pageSize ?? result.size ?? root.pageSize ?? root.size;
 
   return {
     records,

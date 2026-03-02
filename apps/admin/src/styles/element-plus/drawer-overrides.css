@@ -39,7 +39,8 @@
   min-height: 0;
   padding: 24px 20px;
   background: var(--el-dialog-bg-color, #ffffff);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .el-drawer.ob-crud-container--drawer .el-drawer__footer,
@@ -52,4 +53,8 @@
   padding: 0 16px;
   border-top: 1px solid #e5e6eb;
   background: var(--el-dialog-bg-color, #ffffff);
+}
+
+.el-drawer.one-drawer .el-drawer__footer {
+  justify-content: flex-end;
 }

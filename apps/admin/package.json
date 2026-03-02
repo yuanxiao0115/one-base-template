@@ -19,11 +19,13 @@
     "gm-crypto": "^0.1.12",
     "grid-layout-plus": "^1.1.1",
     "pinia": "^3.0.4",
+    "sortablejs": "^1.15.7",
     "vue": "^3.5.28",
     "vue-router": "^5.0.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
+    "@types/sortablejs": "^1.15.9",
     "@vitejs/plugin-vue": "^6.0.4",
     "autoprefixer": "^10.0.0",
     "postcss": "^8.0.0",

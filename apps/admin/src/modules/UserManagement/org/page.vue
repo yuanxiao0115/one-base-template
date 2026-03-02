@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useAuthStore } from '@one-base-template/core'
-import {
-  CrudContainer as ObCrudContainer,
-  PageContainer,
-  VxeTable as ObVxeTable
-} from '@one-base-template/ui'
 import { orgColumns } from './columns'
 import OrgSearchForm from './components/OrgSearchForm.vue'
 import OrgEditForm from './components/OrgEditForm.vue'
@@ -28,6 +22,12 @@ import {
   type OrgForm,
   type OrgTreeOption
 } from './form'
+import {
+  buildDictLabelMap,
+  confirmDeleteOrgByName,
+  getErrorMessage,
+  isConfirmCancelled
+} from './actions'
 
 defineOptions({
   name: 'OrgManagementPage'
@@ -197,18 +197,8 @@ const crudReadonly = crud.readonly
 const crudSubmitting = crud.submitting
 const crudForm = crud.form
 
-const orgCategoryLabelMap = computed(() => buildLabelMap(orgCategoryOptions.value))
-const institutionalTypeLabelMap = computed(() => buildLabelMap(institutionalTypeOptions.value))
-
-function buildLabelMap(items: DictItem[]): Record<string, string> {
-  return Object.fromEntries(
-    (items || []).map((item) => [String(item.itemValue || ''), item.itemName || ''])
-  )
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback
-}
+const orgCategoryLabelMap = computed(() => buildDictLabelMap(orgCategoryOptions.value))
+const institutionalTypeLabelMap = computed(() => buildDictLabelMap(institutionalTypeOptions.value))
 
 function clearTreeCache() {
   treeChildrenCache.clear()
@@ -426,27 +416,13 @@ async function openCreateChild(row: OrgRecord) {
 
 async function handleDelete(row: OrgRecord) {
   try {
-    await ElMessageBox.prompt(
-      `此操作不可逆，请输入组织名称「${row.orgName}」确认删除`,
-      '删除确认',
-      {
-        inputPlaceholder: '请输入组织名称',
-        confirmButtonText: '确认删除',
-        cancelButtonText: '取消',
-        inputValidator: (value) => {
-          const text = (value || '').trim()
-          if (!text) return '请输入组织名称'
-          if (text !== row.orgName) return '输入的组织名称与目标不一致'
-          return true
-        }
-      }
-    )
+    await confirmDeleteOrgByName(row.orgName)
 
     deletingRow.value = row
     await deleteRow(row)
   } catch (error) {
     deletingRow.value = null
-    if (error === 'cancel' || error === 'close') return
+    if (isConfirmCancelled(error)) return
   }
 }
 
@@ -537,18 +513,13 @@ onMounted(async () => {
 
           <template #operation="{ row, size: actionSize }">
             <div class="org-management-page__actions">
-              <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)">查看</el-button>
-              <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)">编辑</el-button>
-              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
-              <el-dropdown placement="bottom-end">
-                <el-button link type="primary" :size="actionSize">...</el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item @click="openCreateChild(row)">新增下级组织</el-dropdown-item>
-                    <el-dropdown-item @click="openManagerDialog(row)">创建组织管理员</el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
+              <ObActionButtons>
+                <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)">查看</el-button>
+                <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)">编辑</el-button>
+                <el-button link type="primary" :size="actionSize" @click="openCreateChild(row)">新增下级组织</el-button>
+                <el-button link type="primary" :size="actionSize" @click="openManagerDialog(row)">创建组织管理员</el-button>
+                <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
+              </ObActionButtons>
             </div>
           </template>
         </ObVxeTable>

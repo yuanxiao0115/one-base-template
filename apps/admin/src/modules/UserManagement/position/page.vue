@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
-import { ActionButtons as ObActionButtons } from '@one-base-template/ui'
 import { positionColumns } from './columns'
 import PositionEditForm from './components/PositionEditForm.vue'
 import PositionSearchForm from './components/PositionSearchForm.vue'
@@ -16,6 +15,7 @@ import {
   toPositionPayload,
   type PositionForm
 } from './form'
+import { confirmDeletePosition, isConfirmCancelled } from './actions'
 
 defineOptions({
   name: 'PositionManagementPage'
@@ -105,11 +105,11 @@ function onResetSearch() {
 
 async function handleDelete(row: PositionRecord) {
   try {
-    await obConfirm.warn(`是否确认删除职位「${row.postName}」？`, '删除确认')
+    await confirmDeletePosition(row.postName)
     await deleteRow(row)
   }
   catch (error) {
-    if (error === 'cancel') return
+    if (isConfirmCancelled(error)) return
   }
 }
 </script>
