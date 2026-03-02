@@ -238,6 +238,7 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - **组织表单约束**：`parentId` 支持树选择，编辑时禁选自身与子孙节点，避免形成环。
 - **名称唯一性**：在提交前与字段 blur 双重校验（`/org/unique/check`），保证交互及时与提交安全。
 - **能力分层弹窗**：主编辑用 `ObCrudContainer`；组织管理员与等级管理拆成独立组件，页面只保留编排逻辑。
+- **删除确认统一链路**：组织等级管理等子弹窗删除操作，优先使用 `useTable.remove.deleteConfirm`，避免手写 `obConfirm + 删除 API` 分散实现。
 
 参考实现（本仓库）：
 
