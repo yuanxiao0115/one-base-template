@@ -96,6 +96,13 @@ pnpm new:module user-center --title 用户中心
 - `services/*.ts`：页面用例编排
 - `compat/*.ts`：历史字段映射（如 `whiteList -> whiteDTOS`）
 
+跨模块共享的“后端字段归一化”工具统一收敛到：
+
+- `apps/admin/src/shared/api/normalize.ts`
+
+包含 `toRecord`、`toStringValue`、`toNumberValue`、`toBooleanValue`、`toNullableNumber`、`extractList`。  
+当多个模块存在相同的接口容错映射逻辑时，优先复用该文件，避免在各模块 `api.ts` 内重复维护同构函数。
+
 ## 5) ESLint 边界约束
 
 当前已启用两条硬约束：
@@ -146,7 +153,7 @@ apps/admin/src/modules/UserManagement/
 - 功能目录：`position/` 下内聚 `page + api + form + components`
 - 路由入口：`/system/position`
 - 页面结构：`PageContainer + OneTableBar + ObVxeTable`
-- 弹窗形态：`ObCrudContainer + useCrudContainer`（业务只关心表单与接口）
+- 弹窗形态：`ObCrudContainer + useEntityEditor`（业务只关心表单与接口）
 - 接口对齐老项目：直接调用 `/cmict/admin/sys-post/page|add|update|delete|unique/check` 真实后端接口
 
 最小路由声明示例：

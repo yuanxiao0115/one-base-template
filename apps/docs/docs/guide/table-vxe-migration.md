@@ -33,7 +33,7 @@
 | 表格头工具条 | `ObOneTableBar` / `OneTableBar` | 保留旧 OneTableBar 的快捷搜索、抽屉筛选、已选条 |
 | 表格主体 | `ObVxeTable` / `VxeTable` | 对齐 pure-table 常用 props/events/expose |
 | 旧标签过渡 | `PureTableCompat`（admin 内） | 允许局部继续使用 `<PureTableCompat>` 过渡 |
-| 表格数据管理 | `useTable`（`@one-base-template/utils`） | 旧 API 不破坏 + 新 API 增量能力 |
+| 表格数据管理 | `useTable`（`@one-base-template/core`） | 旧 API 不破坏 + 新 API 增量能力 |
 
 ## 首期迁移策略
 
@@ -42,7 +42,7 @@
 1. `pure-table` -> `ObVxeTable`
 2. 页面外层统一使用 `PageContainer` 承载滚动与高度（`padding="0"`）
 3. 继续保留 `OneTableBar` 包裹布局
-4. 页面内继续调用 `@/hooks/table`（内部已兼容转发到新版 `useTable`）
+4. 页面内直接调用 `@one-base-template/core` 的 `useTable`（不再经过 admin 本地 wrapper）
 
 > 如果某页短期不能改标签，可临时使用 `apps/admin/src/components/table/PureTableCompat.vue` 过渡。
 
@@ -171,39 +171,29 @@ export const columns: TableColumnList = [
 
 用于兼容旧 `useTable` 中 `tableRef.value?.setAdaptive?.()` / `getTableRef().clearSelection()`。
 
-## useTable：新旧双模式
-
-### 旧模式（兼容）
+## useTable：分区配置
 
 ```ts
-import useTable from '@/hooks/table'
-
-const { dataList, pagination, onSearch, resetForm, handleSizeChange, handleCurrentChange } =
-  useTable({
-    searchApi: loginLogApi.list,
-    searchForm,
-    paginationFlag: true
-  }, tableRef)
-```
-
-### 新模式（推荐）
-
-```ts
-import { useTable } from '@one-base-template/utils'
+import { useTable } from '@one-base-template/core'
 
 const table = useTable({
-  core: {
-    apiFn: loginLogApi.list,
-    apiParams: { status: 1 },
+  query: {
+    api: loginLogApi.list,
+    params: searchForm,
+    pagination: true,
     paginationKey: { current: 'current', size: 'size' },
     paginationAlias: {
       current: ['page', 'currentPage'],
       size: ['pageSize']
-    }
-  },
-  performance: {
+    },
     enableCache: true,
     debounceTime: 300
+  },
+  remove: {
+    api: loginLogApi.remove,
+    idKey: 'id',
+    payloadKey: 'id',
+    onSuccess: () => message.success('删除成功')
   }
 })
 ```
@@ -256,7 +246,7 @@ const table = useTable({
 
 ```bash
 pnpm -C packages/ui typecheck
-pnpm -C packages/utils typecheck
+pnpm -C packages/core typecheck
 pnpm -C apps/admin typecheck
 pnpm -C apps/admin build
 pnpm -C apps/docs build

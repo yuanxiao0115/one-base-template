@@ -12,7 +12,7 @@ outline: [2]
 ### 1) 命名空间导入（推荐）
 
 ```ts
-import { array, tree, format, date, validation, hooks } from '@one-base-template/utils'
+import { array, tree, format, date, validation } from '@one-base-template/utils'
 ```
 
 ### 2) 直接导入（兼容导出）
@@ -75,123 +75,13 @@ import {
 | 模块 | 常用 API | 用途 |
 | --- | --- | --- |
 | `vue`（直接导出） | `withInstall` / `createPlugin` / `createValidator` / `createReactiveState` / `createEmitter` | 组件安装、插件封装、状态与事件工具 |
-| `hooks` | `useLoading` / `useCrudContainer` / `useTable` | 页面级 loading、CRUD 容器流程与表格逻辑复用 |
+| `hooks` | `useLoading` | 页面级 loading 状态复用 |
 
-> `useCrudContainer` 的完整示例请参考 [CRUD 容器与 Hook](/guide/crud-container)。
-
-### useTable（新旧双模式）
-
-`useTable` 返回值同时覆盖历史字段与新字段，迁移期可按需渐进使用。
-
-#### 兼容旧字段（常用）
-
-- `dataList`、`loading`、`pagination`
-- `onSearch`、`resetForm`
-- `handleSelectionChange`、`onSelectionCancel`
-- `handleSizeChange`、`handleCurrentChange`
-- `selectedList`、`selectedNum`
-- `onDelete`、`deleteRow`、`batchDelete`
-
-#### 新增能力字段（推荐）
-
-- 请求：`fetchData`、`getData`、`getDataDebounced`、`cancelDebouncedSearch`
-- 刷新策略：`refreshCreate`、`refreshUpdate`、`refreshRemove`、`refreshData`、`refreshSoft`
-- 缓存：`cacheInfo`、`clearCache`、`clearExpiredCache`
-- 状态：`error`、`searchParams`、`clearData`、`cancelRequest`
-
-#### 新模式配置关键项
-
-- `core.paginationKey`：主分页字段（如 `current/size`）
-- `core.paginationAlias`：分页别名（如 `page/currentPage/pageSize`）
-- `transform.responseAdapter`：统一后端响应结构
-- `performance.enableCache` / `cacheTime` / `debounceTime`
-
-#### 全局默认配置（跨项目复用）
-
-当项目默认分页字段或返回结构不一致时，可在应用启动时设置一次全局默认值：
-
-```ts
-import { setUseTableDefaults } from '@one-base-template/utils'
-
-setUseTableDefaults({
-  paginationKey: {
-    current: 'currentPage',
-    size: 'pageSize'
-  },
-  paginationAlias: {
-    current: ['pageNum'],
-    size: ['pageSizeNum']
-  },
-  responseAdapter: (response) => ({
-    records: response?.data?.list || [],
-    total: Number(response?.data?.totalCount || 0)
-  })
-})
-```
-
-> 业务页仍可通过 `useTable` 的局部配置覆盖全局默认值（局部优先）。
-
-如果你使用 `@one-base-template/ui` 插件，也可以在安装时统一配置：
-
-```ts
-app.use(OneUiPlugin, {
-  table: {
-    paginationKey: {
-      current: 'currentPage',
-      size: 'pageSize'
-    }
-  }
-})
-```
-
-`apps/admin` 已预设默认值，位置如下：
-
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/config/ui.ts`：
-  - `appTableDefaults.paginationKey`
-  - `appTableDefaults.paginationAlias`
-  - `appTableResponseAdapter`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/index.ts`：通过 `OneUiPlugin` 注入 `table: appTableDefaults`
-
-推荐修改顺序：
-
-1. 先改 `apps/admin/src/config/ui.ts` 的全局默认；
-2. 若仅个别页面特殊，再在该页面 `useTable({...})` 里传局部 `paginationKey/paginationAlias/responseAdapter` 覆盖。
-
-补充说明（组织管理等树表场景）：
-
-- 若后端返回 `code=200` 且 `data` 直接是数组（非分页对象），`appTableResponseAdapter` 也会自动识别为 `records`，避免页面出现“接口有数据但表格空白”。
-
-#### 删除能力统一（推荐）
-
-`useTable` 已内置单删/批删与删除后重载，页面层只保留确认交互：
-
-- `deleteApi(payload)`：单删接口
-- `batchDeleteApi(payload)`：批删接口（可选）
-- `deletePayloadBuilder(input)`：把 `id` 或 `row` 转为单删入参
-- `batchDeletePayloadBuilder(ids, rows)`：把批量选中数据转为批删入参
-- `deleteIdKey`：从 row 中提取主键（默认 `id`）
-
-```ts
-const {
-  deleteRow,
-  batchDelete,
-  onSearch
-} = useTable({
-  searchApi: positionApi.page,
-  deleteApi: positionApi.removePost,
-  batchDeleteApi: positionApi.batchRemovePost,
-  deletePayloadBuilder: (input) => ({ id: typeof input === 'object' ? input.id : input }),
-  batchDeletePayloadBuilder: (ids) => ({ ids })
-})
-```
-
-删除后分页回退策略：
-
-1. 先按当前页重查，拿到最新 `total`；
-2. 计算 `lastPage = ceil(total / pageSize)`；
-3. 若 `currentPage > lastPage`，直接跳 `lastPage` 再查；
-4. 若仍空且 `currentPage > 1`，继续向前回退直至有数据或到第 1 页；
-5. 全量删除后停在第 1 页空列表。
+> `useTable` / `useEntityEditor` / `useCrudPage` 已迁移到 `@one-base-template/core`（实现真源），`@one-base-template/ui` 仅保留 `useEntityEditor` 默认错误提示薄封装。
+>
+> 参考文档：
+> - [CRUD 容器与 Hook](/guide/crud-container)
+> - [VXE 表格迁移](/guide/table-vxe-migration)
 
 ### 其他扩展
 
@@ -246,7 +136,7 @@ const user = local.get('user')
 ```bash
 pnpm -C packages/utils typecheck
 pnpm -C packages/utils lint
-pnpm -C packages/utils test:run
+pnpm -C packages/core test:run
 pnpm -C apps/docs build
 ```
 

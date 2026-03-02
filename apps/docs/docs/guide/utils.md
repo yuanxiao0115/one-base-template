@@ -82,67 +82,18 @@ console.log(state.count) // 0
 | 格式化 | `format` / `date` / `url` | 金额与敏感信息脱敏、日期格式化、URL 参数处理 |
 | 浏览器能力 | `file` / `storage` / `auth` / `base64` | 下载、local/session 封装、cookie/token 辅助、编解码 |
 | 安全能力 | `crypto` / `sm3` / `sm4` | 常见加解密与国密摘要/对称加密 |
-| Vue 能力 | `vue` / `hooks` | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading/useCrudContainer/useTable` |
+| Vue 能力 | `vue` / `hooks` | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading` |
 | 其他扩展 | `http` / `micro-app` / `pinyin` / `validation` / `tool` | 请求封装、微应用数据桥接、拼音与校验等 |
 
-> CRUD 容器完整用法（含 dialog/drawer、表单提交流程、纯容器模式）：见 [CRUD 容器与 Hook](/guide/crud-container)。
-
-## useTable 双模式（迁移重点）
-
-`hooks.useTable` 已升级为 **新旧双模式**：
-
-- 旧模式：继续兼容历史 `searchApi/searchForm/paginationFlag` 写法，适合 puretable 业务页平滑迁移。
-- 新模式：支持 `core/transform/performance/hooks` 结构，提供缓存、防抖、统一响应适配与多种刷新策略。
-
-### 旧模式示例（兼容）
-
-```ts
-import useTable from '@/hooks/table'
-
-const table = useTable(
-  {
-    searchApi: loginLogApi.list,
-    searchForm,
-    paginationFlag: true
-  },
-  tableRef
-)
-```
-
-### 新模式示例（推荐）
-
-```ts
-import { useTable } from '@one-base-template/utils'
-
-const table = useTable({
-  core: {
-    apiFn: loginLogApi.list,
-    apiParams: { status: 1 },
-    paginationKey: { current: 'current', size: 'size' },
-    paginationAlias: {
-      current: ['page', 'currentPage'],
-      size: ['pageSize']
-    }
-  },
-  performance: {
-    enableCache: true,
-    debounceTime: 300
-  }
-})
-```
-
-### admin 默认预设（可直接改）
-
-当前 admin 已在以下文件预置 `useTable` 全局默认配置：
-
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/config/ui.ts`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/index.ts`
-
-你可以在 `appTableDefaults` 中修改分页参数键与响应适配器；页面局部配置依然可以覆盖全局默认。
+> CRUD Hook（`useTable/useEntityEditor/useCrudPage`）已迁移到 `@one-base-template/core`（真源）+ `@one-base-template/ui`（`useEntityEditor` 薄封装）。
+> 
+> 详见：
+> - [CRUD 容器与 Hook](/guide/crud-container)
+> - [VXE 表格迁移](/guide/table-vxe-migration)
 
 ## 在 admin 中使用
 
-- 页面内直接从 `@one-base-template/utils` 导入即可，无需额外注册插件。
+- 页面内直接从 `@one-base-template/utils` 导入通用工具即可，无需额外注册插件。
 - 推荐以命名空间调用（如 `array.unique`），可读性更高，也便于后续检索与替换。
 - 涉及 `localStorage/sessionStorage/window` 的 API 仅应在浏览器环境调用。
 
@@ -153,10 +104,7 @@ const table = useTable({
 ```bash
 pnpm -C packages/utils typecheck
 pnpm -C packages/utils lint
-pnpm -C packages/utils test:run
 ```
-
-> 说明：`packages/utils` 已接入 Vitest + happy-dom；Vue 工具模块采用行为断言（黑盒）测试，避免快照脆弱性。
 
 ## 迁移说明
 

@@ -8,16 +8,21 @@ import CrudContainerDrawerDocDemo from './components/CrudContainerDrawerDocDemo.
 
 # CRUD 容器与 Hook
 
-`ObCrudContainer + useCrudContainer` 用于统一新增/编辑/详情容器流程。
+`ObCrudContainer + useEntityEditor` 用于统一新增/编辑/详情容器流程。
 
 目标：让业务页面只关注**表单字段、接口调用、业务校验**，不再重复维护弹窗/抽屉状态机。
+
+实现归属说明：
+
+- `useEntityEditor` 真源在 `@one-base-template/core`
+- `@one-base-template/ui` 的 `useEntityEditor` 是薄封装（默认错误提示 + 保持页面调用习惯）
 
 ## 能力总览
 
 - 统一容器壳：`dialog / drawer` 二选一
 - drawer 支持布局切换：`drawerColumns=1|2`（默认 `1`）
 - 统一模式：`create / edit / detail`
-- 统一提交流程：`form.validate -> beforeSubmit -> submit -> onSuccess`
+- 统一提交流程：`form.validate -> save.buildPayload -> save.request -> save.onSuccess`
 - 支持前置加载：`beforeOpen`（字典、权限、默认值）
 - 支持纯容器模式：仅控制 `visible`，不强制绑定 form
 - 保留 `footer` 插槽：业务可完全接管按钮
@@ -61,7 +66,7 @@ import { ref, type Ref } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import {
   CrudContainer as ObCrudContainer,
-  useCrudContainer,
+  useEntityEditor,
   type CrudFormLike
 } from '@one-base-template/ui'
 
@@ -86,21 +91,24 @@ async function editUser(payload: UserForm) {
   return Promise.resolve({ code: 200, data: payload })
 }
 
-const crud = useCrudContainer<UserForm, { id: string; name: string; phone: string }>({
-  entityName: '用户',
-  container: 'dialog',
-  createForm: () => ({ name: '', phone: '' }),
-  formRef: formRef as unknown as Ref<CrudFormLike | undefined>,
-  beforeSubmit: ({ form }) => ({ ...form }),
-  submit: async ({ mode, payload }) => {
-    const response = mode === 'create' ? await addUser(payload) : await editUser(payload)
-    if (response.code !== 200) {
-      throw new Error('保存失败')
-    }
-    return response
+const crud = useEntityEditor<UserForm, { id: string; name: string; phone: string }>({
+  entity: { name: '用户', container: 'dialog' },
+  form: {
+    create: () => ({ name: '', phone: '' }),
+    ref: formRef as unknown as Ref<CrudFormLike | undefined>
   },
-  onSuccess: ({ mode }) => {
-    ElMessage.success(mode === 'create' ? '新增成功' : '更新成功')
+  save: {
+    buildPayload: ({ form }) => ({ ...form }),
+    request: async ({ mode, payload }) => {
+      const response = mode === 'create' ? await addUser(payload) : await editUser(payload)
+      if (response.code !== 200) {
+        throw new Error('保存失败')
+      }
+      return response
+    },
+    onSuccess: ({ mode }) => {
+      ElMessage.success(mode === 'create' ? '新增成功' : '更新成功')
+    }
   }
 })
 </script>
@@ -134,14 +142,17 @@ const crud = useCrudContainer<UserForm, { id: string; name: string; phone: strin
 
 ```vue
 <script setup lang="ts">
-import { CrudContainer as ObCrudContainer, useCrudContainer } from '@one-base-template/ui'
+import { CrudContainer as ObCrudContainer, useEntityEditor } from '@one-base-template/ui'
 
-const crud = useCrudContainer({
-  entityName: '组织',
-  container: 'drawer',
-  createForm: () => ({ orgName: '', sort: 10 }),
-  submit: async ({ payload }) => {
-    await Promise.resolve(payload)
+const crud = useEntityEditor({
+  entity: { name: '组织', container: 'drawer' },
+  form: {
+    create: () => ({ orgName: '', sort: 10 })
+  },
+  save: {
+    request: async ({ payload }) => {
+      await Promise.resolve(payload)
+    }
   }
 })
 </script>
@@ -229,25 +240,29 @@ const crud = useCrudContainer({
 ```ts
 const statusOptions = ref<Array<{ label: string; value: number }>>([])
 
-const crud = useCrudContainer({
-  entityName: '菜单',
-  createForm: () => ({ status: 1, name: '' }),
-  beforeOpen: async ({ mode, row, form }) => {
-    // 1) 字典前置加载
-    if (statusOptions.value.length === 0) {
-      const response = await menuApi.getStatusEnum()
-      statusOptions.value = response.data || []
-    }
+const crud = useEntityEditor({
+  entity: { name: '菜单' },
+  form: {
+    create: () => ({ status: 1, name: '' })
+  },
+  detail: {
+    beforeOpen: async ({ mode, row, form }) => {
+      // 1) 字典前置加载
+      if (statusOptions.value.length === 0) {
+        const response = await menuApi.getStatusEnum()
+        statusOptions.value = response.data || []
+      }
 
-    // 2) 新增场景补默认值
-    if (mode === 'create') {
-      form.status = 1
-      return
-    }
+      // 2) 新增场景补默认值
+      if (mode === 'create') {
+        form.status = 1
+        return
+      }
 
-    // 3) 编辑/详情可根据当前行预处理
-    if (row && row.status == null) {
-      form.status = 1
+      // 3) 编辑/详情可根据当前行预处理
+      if (row && row.status == null) {
+        form.status = 1
+      }
     }
   }
 })
@@ -256,13 +271,17 @@ const crud = useCrudContainer({
 ## 4. 表单关联、提交、重置行为说明
 
 ```ts
-const crud = useCrudContainer({
-  entityName: '权限',
-  createForm: () => ({ name: '', code: '' }),
-  resetOnCreateOpen: true,
-  resetOnClose: true,
-  submit: async ({ payload }) => {
-    await api.save(payload)
+const crud = useEntityEditor({
+  entity: { name: '权限' },
+  form: {
+    create: () => ({ name: '', code: '' }),
+    resetOnCreateOpen: true,
+    resetOnClose: true
+  },
+  save: {
+    request: async ({ payload }) => {
+      await api.save(payload)
+    }
   }
 })
 ```
@@ -280,14 +299,18 @@ const crud = useCrudContainer({
 ```ts
 const tableRef = ref<{ refresh?: () => void } | null>(null)
 
-const crud = useCrudContainer({
-  entityName: '用户',
-  createForm: () => ({ name: '' }),
-  submit: async ({ payload }) => {
-    await userApi.save(payload)
+const crud = useEntityEditor({
+  entity: { name: '用户' },
+  form: {
+    create: () => ({ name: '' })
   },
-  onSuccess: async () => {
-    await tableRef.value?.refresh?.()
+  save: {
+    request: async ({ payload }) => {
+      await userApi.save(payload)
+    },
+    onSuccess: async () => {
+      await tableRef.value?.refresh?.()
+    }
   }
 })
 ```
@@ -361,8 +384,8 @@ const visible = ref(false)
 ### 3) 编辑弹窗打开后为什么是空数据？
 
 - 检查 `openEdit(row)` 是否传入了 row
-- 若依赖接口详情，检查 `loadDetail` 是否返回了数据
-- 若有映射逻辑，检查 `mapDetailToForm` 是否正确回填字段
+- 若依赖接口详情，检查 `detail.load` 是否返回了数据
+- 若有映射逻辑，检查 `detail.mapToForm` 是否正确回填字段
 
 ### 4) beforeOpen 报错后还能打开吗？
 
@@ -370,7 +393,7 @@ const visible = ref(false)
 
 ### 5) 为什么页面里不写 `onError` 和 `try/catch` 也有错误提示？
 
-`@one-base-template/ui` 对 `useCrudContainer` 做了默认错误提示封装：
+`@one-base-template/ui` 对 `useEntityEditor` 做了默认错误提示封装：
 
 - 未传 `onError` 时，会按阶段给出默认文案（打开失败/详情失败/保存失败）
 - `@confirm` 可直接绑定 `crud.confirm`
@@ -385,6 +408,6 @@ const visible = ref(false)
 
 ## 迁移建议（旧写法 -> 新写法）
 
-- `useDialog/useDrawer`：统一替换为 `useCrudContainer`
+- `useDialog/useDrawer`：统一替换为 `useEntityEditor`
 - 手写 `visible/mode/title/submitting`：改为 Hook 托管
 - 页面弹窗底部重复按钮逻辑：优先用 `ObCrudContainer` 默认 footer，特殊场景再用 `#footer`

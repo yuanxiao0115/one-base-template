@@ -62,12 +62,17 @@ modules/<FeatureName>/<EntityName>/
 
 `PageContainer` + `OneTableBar` + `ObVxeTable` + `ObCrudContainer`
 
+Hook 来源建议：
+
+- `useTable / useCrudPage`：从 `@one-base-template/core` 使用（唯一实现源）
+- `useEntityEditor`：业务页直用 `useCrudPage` 即可；若单独使用，优先 `@one-base-template/ui`（含默认错误提示）
+
 ### 3.1 列表层
 
 `page.vue` 保持以下最小职责：
 
 1. 定义 `searchForm`（`reactive`）
-2. 定义 `tableOpt` 并调用 `useTable`
+2. 定义 `tableOpt`（`query/remove/hooks`）并调用 `useCrudPage`
 3. 绑定分页事件 `handleSizeChange / handleCurrentChange`
 4. 在 `operation` 插槽编排行操作（编辑/查看/删除）
 
@@ -75,40 +80,61 @@ modules/<FeatureName>/<EntityName>/
 
 遵循 Position 的删除链路：
 
-1. `obConfirm.warn(...)` 二次确认
-2. 调用 `deleteRow(row)`（由 `useTable` 托管）
+1. 在 `tableOpt.remove` 里配置 `deleteConfirm`（nameKey / requireInput）
+2. 行内只调用 `actions.remove(row)`（确认 + 删除由 hook 托管）
 3. 成功/失败统一 `message.success/error`
 
-建议保留 `deletePayloadBuilder`，避免页面反复写 `id` 提取逻辑。
-
-## 4. CRUD 状态机：统一使用 useCrudContainer
+## 4. CRUD 状态机：统一使用 useEntityEditor
 
 推荐最小配置（Position 同款）：
 
 ```ts
-const crud = useCrudContainer<FormModel, RowModel>({
-  entityName: '实体中文名',
-  createForm: () => ({ ...defaultForm }),
-  formRef: editFormRef,
-  loadDetail: async ({ row }) => row,
-  mapDetailToForm: ({ detail }) => toForm(detail),
-  beforeSubmit: ({ form }) => toPayload(form),
-  submit: async ({ mode, payload }) => {
-    const res = mode === 'create' ? await api.add(payload) : await api.update(payload)
-    if (res.code !== 200) throw new Error(res.message || '保存失败')
-    return res
+const crudPage = useCrudPage<FormModel, RowModel>({
+  table: {
+    query: {
+      api: api.page,
+      params: searchForm,
+      pagination: true
+    },
+    remove: {
+      api: api.remove,
+      deleteConfirm: {
+        nameKey: 'name'
+      }
+    }
   },
-  onSuccess: async ({ mode }) => {
-    message.success(mode === 'create' ? '新增成功' : '更新成功')
-    await onSearch(false)
+  editor: {
+    entity: { name: '实体中文名' },
+    form: {
+      create: () => ({ ...defaultForm }),
+      ref: editFormRef
+    },
+    detail: {
+      load: async ({ row }) => row,
+      mapToForm: ({ detail }) => toForm(detail)
+    },
+    save: {
+      buildPayload: ({ form }) => toPayload(form),
+      request: async ({ mode, payload }) => {
+        const res = mode === 'create' ? await api.add(payload) : await api.update(payload)
+        if (res.code !== 200) throw new Error(res.message || '保存失败')
+        return res
+      },
+      onSuccess: async ({ mode }) => {
+        message.success(mode === 'create' ? '新增成功' : '更新成功')
+      }
+    }
   }
 })
+
+const { table, editor, actions } = crudPage
 ```
 
 关键点：
 
-- `detail` 模式只读由 `crud.readonly` 统一控制
-- `crud.confirm()` 内部已串联校验 + 提交 + 关闭
+- `detail` 模式只读由 `editor.readonly` 统一控制
+- `editor.confirm()` 内部已串联校验 + 提交 + 关闭
+- `useCrudPage` 默认在保存成功后刷新当前页列表（可通过 `behavior.refreshAfterSave` 配置）
 - 如无特殊需求，优先使用默认错误提示；只有需要分阶段提示时再传 `onError`
 
 ## 5. 表单模型与组件约束
@@ -150,6 +176,20 @@ const crud = useCrudContainer<FormModel, RowModel>({
 - 自动保持删除按钮在直出区最右侧
 - 降低每页手写按钮排序逻辑成本
 
+### 6.3 删除流程编排（避免重复刷新）
+
+- `useTable.deleteRow` 内部已包含删除成功后的 `refreshRemove` 刷新策略（可通过 `remove.refreshAfterDelete='none'` 关闭）。
+- 页面层删除成功回调只处理提示/状态收尾（如关闭确认框、清理临时变量），**不要再额外 `onSearch(false)`**，避免重复请求。
+- 推荐直接在 `useTable` 配置删除参数，不再为常规单删额外封装流程：
+  - `remove.api`：删除接口
+  - `remove.idKey`：从行数据提取删除 id 的字段（默认 `id`）
+  - `remove.payloadKey`：删除接口参数 key（默认同 `idKey`）
+  - `remove.deleteConfirm`：删除确认配置（`nameKey` + `requireInput`）
+  - `remove.onSuccess/onError`：删除后的页面收尾
+- 推荐优先使用 `deleteConfirm` 完成“确认提示/输入确认”：
+  - 普通确认：`remove: { deleteConfirm: { nameKey: 'postName', message: '是否确认删除职位「{name}」？' } }`
+  - 输入确认：`remove: { deleteConfirm: { nameKey: 'orgName', requireInput: true, message: '此操作不可逆，请输入组织名称「{name}」确认删除' } }`
+
 ## 7. 命名与复用建议
 
 遵循项目既有命名约定（短、清楚、动词 + 名词）：
@@ -168,7 +208,7 @@ const crud = useCrudContainer<FormModel, RowModel>({
 1. 复制 Position 目录骨架（`api.ts + form.ts + columns.tsx + page.vue + components/*`）
 2. 替换实体字段与接口地址，优先改 `form.ts` 映射函数
 3. 接入路由（`routes.ts`）并设置 `meta.title/keepAlive`
-4. 在页面只保留编排：`useTable + useCrudContainer + slots`
+4. 在页面只保留编排：`useCrudPage + slots`
 5. 跑验证命令并补文档
 
 推荐验证命令：
@@ -185,7 +225,7 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 
 - 编辑表单字段明显超多，需 `drawerColumns=2` 或拆分子表单组件
 - 编辑前必须拉取字典/树数据，需在 `beforeOpen` 预加载
-- 删除接口入参不是 `id`，需定制 `deletePayloadBuilder`
+- 删除接口入参不是 `id`，需定制 `remove.buildPayload`
 
 如果不满足上述条件，**默认按 Position 模板收敛实现**，可最大化减少页面差异与维护成本。
 

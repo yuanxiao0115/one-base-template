@@ -135,10 +135,11 @@ packages/
 - **`useTable` 必须支持“全局默认 + 页面局部覆盖”的分页参数键与响应结构适配（局部优先），以兼容不同项目后端字段差异**
 - **UserManagement（职位/用户/组织）迁移默认直连真实后端接口，禁止在 `apps/admin/vite.config.ts` 新增对应 mock 分支；仅在用户明确要求 mock 时例外**
 - **`PageContainer` 外层禁止再包无业务意义的占位 `div`；优先使用片段根节点保持结构扁平**
-- **CRUD 页面默认使用 `useCrudContainer` 的内置错误提示，不再为每个页面重复编写同构 `onError`**
+- **CRUD 页面默认使用 `useEntityEditor` 的内置错误提示，不再为每个页面重复编写同构 `onError`**
 - **管理页脚本体超过单屏后，优先拆分“新增/编辑表单组件”和“高级搜索组件”，页面只保留编排逻辑**
 - **`UserManagement` 模块采用“一个功能一个文件夹（feature-first）”组织方式；`routes` 统一在模块根目录集中维护所有页面路由**
 - **CRUD 通用容器必须保留 `footer` 插槽，并支持“纯容器模式”（仅通过 `v-model` 管理 `visible`，不强制 form 与默认确认/取消按钮）**
+- **`useEntityEditor` 禁止再使用歧义命名 `submit` 作为保存入口；统一使用结构化配置 `entity/form/detail/save`，保存流程固定为 `save.buildPayload -> save.request -> save.onSuccess`，以避免与 `useTable` 查询语义混淆**
 - **UserManagement（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，确认交互统一通过 `obConfirm` 封装能力实现（含输入型确认）**
 - **业务页已使用 `ObActionButtons` 时，禁止再叠加手写 `el-dropdown` 操作列，更多操作统一交给 `ObActionButtons` 收敛**
 - **`ObActionButtons` 作为全局组件使用，UserManagement 页面默认不再手动 import 该组件**
