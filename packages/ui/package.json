@@ -10,6 +10,7 @@
     }
   },
   "scripts": {
+    "build": "pnpm typecheck",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint ."
   },

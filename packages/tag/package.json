@@ -15,8 +15,9 @@
     "./style": "./src/styles/global.scss"
   },
   "scripts": {
+    "build": "pnpm typecheck",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "echo 'Tag lint check passed'"
+    "lint": "eslint ."
   },
   "keywords": [
     "vue",

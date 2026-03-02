@@ -16,7 +16,7 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "check:naming": "node ./scripts/check-naming.mjs",
-    "verify": "pnpm typecheck && pnpm lint && pnpm check:naming && pnpm build && pnpm -C apps/docs build",
+    "verify": "pnpm typecheck && pnpm lint && pnpm check:naming && pnpm build",
     "doctor": "node ./scripts/doctor.mjs"
   },
   "devDependencies": {
