@@ -269,3 +269,20 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/form.ts`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/components/UserEditForm.vue`
 - `/Users/haoqiuzhi/code/one-base-template/packages/ui/src/components/upload/ImportUpload.vue`
+
+## 12. UserManagement 首批高优修复经验（2026-03）
+
+针对线上高频问题，建议优先落这 4 条“低侵入高收益”修复：
+
+- **共享归一化正确性优先**：`toNullableNumber` 必须保证“非法非空值 -> null”，禁止隐式回落到 `0` 污染业务字段。
+- **布尔归一化统一**：接口映射不要直接 `Boolean(raw)`，统一走 `toBooleanValue`，避免 `'0'` 被误判为 `true`。
+- **弹窗初始化防竞态**：`modelValue + orgId` 双条件弹窗统一单 watch，并增加初始化令牌，避免重复请求与旧请求回写。
+- **首屏查询单触发**：`useTable.query.immediate` 与 `onMounted onSearch` 二选一，避免首屏双请求与闪烁。
+
+对应实现可参考：
+
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/shared/api/normalize.ts`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/api.ts`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/page.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/page.vue`
