@@ -291,3 +291,14 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/page.vue`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/page.vue`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/shared/unique.ts`
+
+## 13. 文件长度建议（可维护性）
+
+为避免页面脚本持续膨胀，建议在 CRUD 模块默认遵循以下阈值：
+
+- `page.vue`（编排页）建议控制在 **500 行以内**；超过 **600 行** 时，优先把“业务动作、树查询、拖拽、弹窗状态机”拆到 `composables`。
+- `api.ts / form.ts / actions.ts / composables/*.ts` 建议控制在 **300 行以内**；超过 **400 行** 时按职责再拆一层（例如 `useXxxQuery`、`useXxxMutations`）。
+- 单个函数建议控制在 **80 行以内**；超过 **120 行** 时拆分子函数，保持“动词 + 名词”命名与单一职责。
+- 每次新增需求先判断“是新增流程还是扩展现有流程”：优先复用已有 `shared/*` 与 `composables/*`，避免把逻辑回填到 `page.vue`。
+
+这是一组“建议阈值”，不是硬性限制；但超过阈值时应在 PR/提交说明中标注原因与后续拆分计划。
