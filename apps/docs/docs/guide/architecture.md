@@ -50,7 +50,8 @@ packages/
   - 禁止占用保留 path/name（`/login`、`/sso`、`/403`、`/404`、通配 404 等）
   - 检测重复 path/name，后出现的冲突路由自动跳过并告警
   - 通配 404 改为 `replace: true`，避免非法地址回退产生历史栈污染
-- `bootstrap/index.ts` 的 `OneTag` 配置改为：
+- `bootstrap/index.ts` 收敛为启动编排层；插件安装与守卫安装拆分为 `bootstrap/plugins.ts` 与 `bootstrap/guards.ts`。
+- `bootstrap/plugins.ts` 的 `OneTag` 配置改为：
   - `homePath` 统一复用 `DEFAULT_FALLBACK_HOME`
   - `storageKey` 加 `storageNamespace` 前缀（`${storageNamespace}:ob_tags`），避免多应用同域冲突
 
@@ -123,4 +124,4 @@ packages/
 - 权限（默认）：**菜单树出现过的 path 集合 = allowedPaths**；不在集合的路由统一拦截到 `403`。
   - 详情/编辑等“非菜单路由”用 `meta.activePath` 归属到某个菜单入口
   - 若页面是“本地维护但暂未接入菜单”，可用 `meta.skipMenuAuth=true`（仍需登录）
-  - `skipMenuAuth` 需进入守卫白名单（按 `route.name`），否则不会放行并会输出告警
+  - 守卫白名单会基于“已装配路由 + `meta.skipMenuAuth` + `route.name`”自动推导；未命名路由不会被放行并会告警
