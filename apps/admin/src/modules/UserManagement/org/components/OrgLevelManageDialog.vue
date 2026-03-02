@@ -61,10 +61,25 @@ const tableOpt = reactive({
   query: {
     api: orgApi.getOrgLevelList,
     pagination: false
+  },
+  remove: {
+    api: (payload: { id: string }) => orgApi.deleteOrgLevel(payload),
+    deleteConfirm: {
+      nameKey: 'orgLevelName',
+      title: '删除确认',
+      message: '是否确认删除等级「{name}」？'
+    },
+    onSuccess: () => {
+      message.success('删除等级成功')
+      emit('updated')
+    },
+    onError: (error: unknown) => {
+      message.error(getErrorMessage(error, '删除等级失败'))
+    }
   }
 })
 
-const { loading, dataList, onSearch } = useTable(tableOpt, tableRef)
+const { loading, dataList, onSearch, deleteRow } = useTable(tableOpt, tableRef)
 
 const defaultLevelForm: OrgLevelForm = {
   orgLevel: 1,
@@ -133,21 +148,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 async function handleDelete(row: OrgLevelItem) {
-  try {
-    await obConfirm.warn(`是否确认删除等级「${row.orgLevelName}」？`, '删除确认')
-
-    const response = await orgApi.deleteOrgLevel({ id: row.id })
-    if (response.code !== 200) {
-      throw new Error(response.message || '删除等级失败')
-    }
-
-    message.success('删除等级成功')
-    await onSearch(false)
-    emit('updated')
-  } catch (error) {
-    if (error === 'cancel') return
-    message.error(getErrorMessage(error, '删除等级失败'))
-  }
+  await deleteRow(row)
 }
 
 watch(
