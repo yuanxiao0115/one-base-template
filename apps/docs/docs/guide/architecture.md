@@ -37,6 +37,23 @@ packages/
 6. `router.isReady()` 后 mount
 7. 配置加载失败时，应用硬失败并显示错误页（不进入业务路由）
 
+### 启动与路由收敛补充（2026-03）
+
+- `bootstrap/router.ts` 使用 `createWebHistory(appEnv.baseUrl)`，由 `infra/env.ts` 统一聚合 `BASE_URL`，避免子路径部署路由错位与读取来源分散。
+- `config/platform-config.ts` 增加了：
+  - **并发复用**（同一时刻只发一次配置请求）
+  - **超时控制**（默认 8s）
+  - **失败重试**（默认 1 次）
+  - **只读快照兜底（开关控制）**：开启 `VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK=true` 时，主配置加载失败可回退本地快照
+- `router/registry.ts` 为模块清单增加内存缓存，降低重复扫描开销；HMR 时自动失效重建。
+- `router/assemble-routes.ts` 在模块路由装配阶段增加冲突防护：
+  - 禁止占用保留 path/name（`/login`、`/sso`、`/403`、`/404`、通配 404 等）
+  - 检测重复 path/name，后出现的冲突路由自动跳过并告警
+  - 通配 404 改为 `replace: true`，避免非法地址回退产生历史栈污染
+- `bootstrap/index.ts` 的 `OneTag` 配置改为：
+  - `homePath` 统一复用 `DEFAULT_FALLBACK_HOME`
+  - `storageKey` 加 `storageNamespace` 前缀（`${storageNamespace}:ob_tags`），避免多应用同域冲突
+
 ## 存储命名空间与首次路由
 
 - `createCore({ storageNamespace })` 可为 core 状态存储增加命名空间前缀（例如 `one-base-template-admin:*`）。
@@ -85,12 +102,15 @@ packages/
 ## 模块 Manifest 与切割
 
 - 模块唯一入口：`apps/admin/src/modules/<module-id>/module.ts`
+- `module.ts` 建议显式声明 `moduleTier`（`core`/`optional`），用于表达主链路与非主链路模块边界
 - 路由分组：
   - `routes/layout.ts`：挂在 `AdminLayout` 下
   - `routes/standalone.ts`：顶层全屏/匿名路由（可选）
 - 运行时白名单：`platform-config.json` 的 `enabledModules`
   - `"*"`：启用全部模块
   - `string[]`：只启用指定模块
+  - 管理端生产配置建议使用 `string[]` 显式白名单，避免把实验/迁移模块一并装配进主链路
+  - 注册器会对 `optional` 模块执行默认禁用收敛，避免误配置导致主链路污染
 - API 约束：页面只能调 `services/*`，模块 HTTP 请求收敛在 `api/client.ts`
 
 ## 静态路由 + 动态菜单
@@ -103,3 +123,4 @@ packages/
 - 权限（默认）：**菜单树出现过的 path 集合 = allowedPaths**；不在集合的路由统一拦截到 `403`。
   - 详情/编辑等“非菜单路由”用 `meta.activePath` 归属到某个菜单入口
   - 若页面是“本地维护但暂未接入菜单”，可用 `meta.skipMenuAuth=true`（仍需登录）
+  - `skipMenuAuth` 需进入守卫白名单（按 `route.name`），否则不会放行并会输出告警

@@ -23,11 +23,18 @@ apps/admin/src/modules/<module-id>/
 
 - `id`: 模块标识（如 `portal`）
 - `version`: 当前固定为 `'1'`
+- `moduleTier`: 模块分层（`core`/`optional`）
 - `enabledByDefault`: 是否默认启用
 - `routes.layout`: 挂载到 `AdminLayout` 下的路由（推荐来自 `routes.ts`）
 - `routes.standalone`（可选）: 顶层路由（全屏/匿名等）
 - `apiNamespace`: API 命名空间
 - `compat`（可选）: 历史路径/字段兼容描述
+
+约束补充：
+
+- `core`：主链路模块，可按需 `enabledByDefault=true`
+- `optional`：实验/迁移模块；注册器会把 `enabledByDefault` 自动收敛为 `false`
+- 若路由声明 `meta.skipMenuAuth=true`，需保证 `route.name` 已加入应用侧守卫白名单，否则不会放行
 
 ### 快速创建模块（推荐）
 
@@ -67,20 +74,22 @@ pnpm new:module user-center --title 用户中心
 
 ```json
 {
-  "enabledModules": "*"
+  "enabledModules": ["home", "b", "user-management"]
 }
 ```
 
 支持两种形式：
 
 - `"*"`：启用全部已注册模块
-- `string[]`：白名单启用（如 `['home', 'portal']`）
+- `string[]`：白名单启用（如 `['home', 'b', 'user-management']`）
+- 管理端生产环境建议使用 `string[]`，避免把 demo/portal 等非主链路模块默认带入。
+- 代码层兜底：即使配置缺失或为空数组，`optional` 模块也不会被默认启用。
 
-示例（只保留首页与门户）：
+示例（临时全开所有模块）：
 
 ```json
 {
-  "enabledModules": ["home", "portal"]
+  "enabledModules": "*"
 }
 ```
 

@@ -5,7 +5,7 @@ import OneTag from '@one-base-template/tag';
 import '@one-base-template/tag/style';
 
 import App from '../App.vue';
-import { routes } from '../router';
+import { getRoutes } from '../router';
 import { setupRouterGuards } from '@one-base-template/core';
 
 import { setObHttpClient } from '../infra/http';
@@ -19,6 +19,16 @@ import {
   appTableDefaults,
   appTopbarHeight
 } from '../config';
+import { DEFAULT_FALLBACK_HOME } from '../config/systems';
+import {
+  APP_FORBIDDEN_ROUTE_PATH,
+  APP_GUARD_PUBLIC_ROUTE_PATHS,
+  APP_LOGIN_ROUTE_PATH,
+  APP_NOT_FOUND_ROUTE_PATH,
+  APP_ROOT_PATH,
+  APP_SKIP_MENU_AUTH_ROUTE_NAMES,
+  APP_SSO_ROUTE_PATH
+} from '../router/constants';
 
 import { createAppRouter } from './router';
 import { createAppHttp } from './http';
@@ -44,21 +54,22 @@ export function bootstrapAdminApp() {
   // 允许在路由守卫 / http hooks 等“组件外”场景安全使用 store
   setActivePinia(pinia);
 
-  const router = createAppRouter();
+  const routes = getRoutes();
+  const router = createAppRouter(routes);
   app.use(router);
   app.use(OneTag, {
     pinia,
     router,
-    homePath: '/home/index',
+    homePath: DEFAULT_FALLBACK_HOME,
     homeTitle: '首页',
     storageType: 'session',
-    storageKey: 'ob_tags',
+    storageKey: `${appEnv.storageNamespace}:ob_tags`,
     ignoredRoutes: [
-      { path: '/login' },
-      { path: '/sso' },
-      { path: '/403' },
-      { path: '/404' },
-      { path: '/' },
+      { path: APP_LOGIN_ROUTE_PATH },
+      { path: APP_SSO_ROUTE_PATH },
+      { path: APP_FORBIDDEN_ROUTE_PATH },
+      { path: APP_NOT_FOUND_ROUTE_PATH },
+      { path: APP_ROOT_PATH },
       { pathIncludes: '/redirect' },
       { pathIncludes: '/error' },
       {
@@ -108,6 +119,10 @@ export function bootstrapAdminApp() {
   });
 
   setupRouterGuards(router, {
+    publicRoutePaths: [...APP_GUARD_PUBLIC_ROUTE_PATHS],
+    loginRoutePath: APP_LOGIN_ROUTE_PATH,
+    forbiddenRoutePath: APP_FORBIDDEN_ROUTE_PATH,
+    allowedSkipMenuAuthRouteNames: [...APP_SKIP_MENU_AUTH_ROUTE_NAMES],
     onNavigationStart: () => {
       http.cancelRouteRequests();
     }

@@ -4,15 +4,23 @@ import { useAuthStore } from '../stores/auth';
 import { useMenuStore } from '../stores/menu';
 import { useSystemStore } from '../stores/system';
 
-const PUBLIC_PATHS = new Set<string>(['/login', '/sso', '/403', '/404']);
+const DEFAULT_PUBLIC_PATHS = ['/login', '/sso', '/403', '/404'] as const;
+const DEFAULT_LOGIN_PATH = '/login';
+const DEFAULT_FORBIDDEN_PATH = '/403';
 
-function isPublicRoute(path: string) {
-  return PUBLIC_PATHS.has(path);
+function isPublicRoute(path: string, publicPaths: Set<string>) {
+  return publicPaths.has(path);
 }
 
 function resolveMenuKey(to: { path: string; meta: Record<string, unknown> }): string {
   const raw = to.meta.activePath;
   return typeof raw === 'string' && raw.startsWith('/') ? raw : to.path;
+}
+
+function toRouteNameKey(name: RouteLocationNormalized['name']): string | null {
+  if (typeof name === 'string') return name;
+  if (typeof name === 'symbol') return name.toString();
+  return null;
 }
 
 export interface RouterGuardOptions {
@@ -21,9 +29,33 @@ export interface RouterGuardOptions {
    * 典型场景：中断上一页在途请求，保证路由切换响应优先级。
    */
   onNavigationStart?: (ctx: { to: RouteLocationNormalized; from: RouteLocationNormalized }) => void | Promise<void>;
+  /**
+   * 公开路由路径集合，命中后直接放行。
+   */
+  publicRoutePaths?: string[];
+  /**
+   * 未登录时跳转登录页路径。
+   */
+  loginRoutePath?: string;
+  /**
+   * 无菜单权限时跳转 403 页路径。
+   */
+  forbiddenRoutePath?: string;
+  /**
+   * `meta.skipMenuAuth=true` 的路由白名单（按 route.name）。
+   * 未配置时保持兼容：允许所有 skipMenuAuth。
+   * 配置后将启用严格模式：不在白名单内的 skipMenuAuth 路由不会放行。
+   */
+  allowedSkipMenuAuthRouteNames?: string[];
 }
 
 export function setupRouterGuards(router: Router, options: RouterGuardOptions = {}) {
+  const publicRoutePaths = new Set<string>(options.publicRoutePaths ?? [...DEFAULT_PUBLIC_PATHS]);
+  const loginRoutePath = options.loginRoutePath ?? DEFAULT_LOGIN_PATH;
+  const forbiddenRoutePath = options.forbiddenRoutePath ?? DEFAULT_FORBIDDEN_PATH;
+  const allowedSkipMenuAuthRouteNames = new Set(options.allowedSkipMenuAuthRouteNames ?? []);
+  const strictSkipMenuAuth = allowedSkipMenuAuthRouteNames.size > 0;
+
   router.beforeEach(async (to, from) => {
     await options.onNavigationStart?.({ to, from });
 
@@ -34,7 +66,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
       return true;
     }
 
-    if (to.meta.public || isPublicRoute(to.path)) {
+    if (to.meta.public || isPublicRoute(to.path, publicRoutePaths)) {
       return true;
     }
 
@@ -44,7 +76,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     const authed = await authStore.ensureAuthed();
     if (!authed) {
       return {
-        path: '/login',
+        path: loginRoutePath,
         query: { redirect: to.fullPath }
       };
     }
@@ -106,10 +138,33 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
       // 某些“本地维护但暂未接入菜单”的页面，允许在已登录的前提下跳过菜单权限校验
       // 注意：这会放宽前端路由层面的权限控制，应谨慎使用（优先用 activePath 归属到某个菜单入口）。
       if (skipMenuAuth) {
-        return true;
+        if (!strictSkipMenuAuth) {
+          return true;
+        }
+
+        const routeName = toRouteNameKey(to.name);
+        if (!routeName) {
+          console.warn(`[core/router/guards] skipMenuAuth 路由缺少 name：${to.path}`);
+          return {
+            path: forbiddenRoutePath,
+            query: { from: to.fullPath }
+          };
+        }
+
+        if (allowedSkipMenuAuthRouteNames.has(routeName)) {
+          return true;
+        }
+
+        console.warn(
+          `[core/router/guards] skipMenuAuth 路由未加入白名单：name=${routeName}, path=${to.path}`
+        );
+        return {
+          path: forbiddenRoutePath,
+          query: { from: to.fullPath }
+        };
       }
       return {
-        path: '/403',
+        path: forbiddenRoutePath,
         query: { from: to.fullPath }
       };
     }
