@@ -18,6 +18,9 @@
   - 仅影响 dev middleware mock 是否强制开启
 - `VITE_SCZFW_SYSTEM_PERMISSION_CODE`
   - 仅影响 dev mock 返回菜单时的系统根 code
+- `VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK`
+  - 启用启动容灾：当 `platform-config.json` 加载失败时，允许回退到浏览器本地只读快照
+  - 默认关闭，建议仅在灰度/特定部署场景按需开启
 
 ## 2) 运行时配置（`platform-config.json`）
 
@@ -67,7 +70,8 @@
 ## 3) 启动顺序与失败策略
 
 - `src/main.ts` 启动时先加载 `platform-config.json`
-- 校验失败或加载失败时，应用**硬失败**（不进入业务路由），页面展示错误信息
+- 校验失败或加载失败时，应用**硬失败**（不进入业务路由），页面展示分级错误信息（网络失败/格式失败/校验失败）
+- 若开启 `VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK=true`，会尝试读取本地只读快照作为兜底配置
 - 只有配置加载成功后，才会进入 `bootstrapAdminApp()`
 
 ## 4) 代码约束
