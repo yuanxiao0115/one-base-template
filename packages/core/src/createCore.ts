@@ -5,6 +5,15 @@ import { useLayoutStore, type LayoutOptions } from './stores/layout';
 import { useSystemStore, type SystemOptions } from './stores/system';
 import { useThemeStore, type ThemeOptions } from './stores/theme';
 
+export interface CoreTableConfirmAdapter {
+  warn: (message: string, title?: string, options?: Record<string, unknown>) => Promise<unknown>;
+  prompt: (message: string, title?: string, options?: Record<string, unknown>) => Promise<unknown>;
+}
+
+export interface CoreHookOptions {
+  tableConfirmAdapter?: CoreTableConfirmAdapter;
+}
+
 export interface CoreOptions {
   /**
    * core 全局存储命名空间。
@@ -37,6 +46,10 @@ export interface CoreOptions {
    * 多系统菜单配置（可选）。
    */
   systems?: SystemOptions;
+  /**
+   * Hook 运行时适配能力（例如删除确认弹窗适配器）。
+   */
+  hooks?: CoreHookOptions;
 }
 
 export function createCore(options: CoreOptions): { install(app: App): void } {

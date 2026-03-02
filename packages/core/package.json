@@ -11,10 +11,16 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "devDependencies": {
-    "@types/qs": "^6.14.0"
+    "@types/qs": "^6.14.0",
+    "@types/node": "^24.3.3",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^20.0.10",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "axios": "^1.0.0",

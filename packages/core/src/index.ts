@@ -1,4 +1,9 @@
-export { createCore, type CoreOptions } from './createCore';
+export {
+  createCore,
+  type CoreHookOptions,
+  type CoreOptions,
+  type CoreTableConfirmAdapter
+} from './createCore';
 export {
   parseRuntimeConfig,
   type RuntimeConfig,
@@ -83,3 +88,51 @@ export {
 
 export { createStaticMenusFromRoutes, type CreateStaticMenusOptions } from './menu/fromRoutes';
 export { finalizeAuthSession, safeRedirect, type FinalizeAuthSessionOptions } from './auth/flow';
+
+export {
+  useTable,
+  setUseTableDefaults,
+  getUseTableDefaults,
+  type UseTableOptions,
+  type UseTableQueryOptions,
+  type UseTableRemoveOptions,
+  type UseTableDeleteConfirmOptions,
+  type UseTableHooks,
+  type UseTableReturn,
+  type PaginationConfig,
+  type UseTablePaginationKey,
+  type UseTablePaginationAlias,
+  type UseTableDefaults,
+  type UseTableStandardResponse,
+  type UseTableCacheInfo,
+  type CacheInvalidationStrategy
+} from './hooks/useTable';
+export {
+  useEntityEditor,
+  type CrudBeforeOpenContext,
+  type CrudBuildPayloadContext,
+  type CrudContainerType,
+  type CrudDetailOptions,
+  type CrudEntityOptions,
+  type CrudErrorContext,
+  type CrudFormOptions,
+  type CrudFormLike,
+  type CrudLoadDetailContext,
+  type CrudMapDetailToFormContext,
+  type CrudMode,
+  type CrudOpenCreateOptions,
+  type CrudOpenRowOptions,
+  type CrudSaveOptions,
+  type CrudSaveContext,
+  type CrudSaveSuccessContext,
+  type UseEntityEditorOptions,
+  type UseEntityEditorReturn
+} from './hooks/useEntityEditor';
+export {
+  useCrudPage,
+  type CrudPageRefreshAfterDelete,
+  type CrudPageRefreshAfterSave,
+  type UseCrudPageBehavior,
+  type UseCrudPageOptions,
+  type UseCrudPageReturn
+} from './hooks/useCrudPage';
