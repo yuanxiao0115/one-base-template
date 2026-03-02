@@ -147,6 +147,13 @@ export const columns: TableColumnList = [
 ]
 ```
 
+### 列对齐规范（统一）
+
+- 表头：全部左对齐（`headerAlign: 'left'`）
+- 数量/金额等数值列：右对齐（`align: 'right'`）
+- 操作列：右对齐（通常同时 `fixed: 'right'`）
+- 其余常规列：左对齐（`align: 'left'`）
+
 ## 事件与暴露方法兼容
 
 `ObVxeTable` 已桥接以下旧事件：

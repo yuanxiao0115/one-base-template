@@ -157,6 +157,10 @@ app.use(OneUiPlugin, {
 1. 先改 `apps/admin/src/config/ui.ts` 的全局默认；
 2. 若仅个别页面特殊，再在该页面 `useTable({...})` 里传局部 `paginationKey/paginationAlias/responseAdapter` 覆盖。
 
+补充说明（组织管理等树表场景）：
+
+- 若后端返回 `code=200` 且 `data` 直接是数组（非分页对象），`appTableResponseAdapter` 也会自动识别为 `records`，避免页面出现“接口有数据但表格空白”。
+
 #### 删除能力统一（推荐）
 
 `useTable` 已内置单删/批删与删除后重载，页面层只保留确认交互：

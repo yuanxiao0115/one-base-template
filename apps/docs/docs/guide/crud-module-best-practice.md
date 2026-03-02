@@ -140,6 +140,7 @@ const crud = useCrudContainer<FormModel, RowModel>({
 - 列集中在 `columns.tsx`
 - `operation` 列固定在右侧，明确 `slot: 'operation'`
 - `minWidth` 优先于固定宽度，减少拥挤
+- 对齐规则统一：**表头全部左对齐**；数量/金额等数值列右对齐；操作列右对齐；其余常规列左对齐
 
 ### 6.2 行操作按钮
 
@@ -204,3 +205,27 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgEditForm.vue`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgLevelManageDialog.vue`
+
+## 11. 用户管理完整迁移补充（UserManagement/user）
+
+当你迁移的是“组织树 + 复杂表单 + 批量操作 + 导入”的场景（例如用户管理），建议在 Position 模板基础上补齐以下能力：
+
+- **树筛选 + 分页列表联动**：左侧组织树仅负责写入 `searchForm.orgId`，列表查询统一走 `buildUserListParams`，避免页面散落时间/布尔字段转换。
+- **日期入参兜底过滤**：`startDate/endDate` 仅在存在有效值时透传给 `userApi.page`，避免把空字符串传给后端导致报错。
+- **复杂表单分层**：主表单拆成 `UserEditForm`（用户信息）、`UserAccountForm`（修改账号）、`UserBindAccountForm`（关联账号），页面只保留编排和事件路由。
+- **确认交互统一封装**：UserManagement 模块不直接调用 `ElMessageBox`，统一使用 `obConfirm`（包含输入型删除确认）。
+- **操作列统一收敛**：使用 `ObActionButtons` 后不再叠加手写 `el-dropdown`，更多操作交给组件内置折叠能力。
+- **复杂逻辑下沉 actions.ts**：除标准 CRUD 外（批量启停、重置密码、导入映射、命名确认删除等）统一抽离到 `actions.ts`，页面脚本只做编排。
+- **批量操作统一入口**：启用/停用、重置密码、删除二次确认全部收敛到页面脚本函数，保持提示文案和异常处理一致。
+- **组织内拖拽排序**：仅在已选组织时启用拖拽，失败后强制重新查询回滚，避免“前端排序成功、后端失败”导致的数据错位。
+- **导入能力组件化**：将上传校验（数量/大小/类型）沉淀到 `ObImportUpload`，页面只负责模板下载和上传成功后的刷新动作。
+- **高级筛选抽屉宽度约束**：抽屉内容区默认限制 `width/max-width: 100%` 并关闭横向滚动；底部“重置/确定”按钮统一右对齐，避免布局漂移。
+- **左树右表标准布局**：优先使用 `PageContainer` 的 `#left` 插槽承载树，树组件统一使用 `ObTree`（仅叶子节点溢出时 tooltip）。
+
+参考实现（本仓库）：
+
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/page.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/api.ts`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/form.ts`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/components/UserEditForm.vue`
+- `/Users/haoqiuzhi/code/one-base-template/packages/ui/src/components/upload/ImportUpload.vue`

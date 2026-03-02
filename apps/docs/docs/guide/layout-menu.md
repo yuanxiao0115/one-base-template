@@ -37,12 +37,14 @@ export const appSidebarCollapsedWidth = '64px';
 
 - 根容器固定 `height: 100%` + `min-height: 0`，可贴合父级剩余高度。
 - 默认插槽位于内部滚动区，内容超出时由组件自身滚动（`overflow: auto`）。
+- 支持 `left` 插槽，可实现“左树右表”布局；左区固定宽度，右区保持自适应。
 - 支持 `header` / `footer` 插槽，头尾固定，主体滚动。
 
 可用 props：
 
 - `padding?: string`：滚动内容区内边距，默认 `0`
 - `overflow?: 'auto' | 'scroll' | 'hidden'`：滚动策略，默认 `auto`
+- `leftWidth?: string`：左侧插槽宽度（`#left` 生效时），默认 `216px`
 
 示例：
 
@@ -62,6 +64,25 @@ defineOptions({ name: 'UserListPage' });
     </el-card>
   </ObPageContainer>
 </template>
+```
+
+左树右表示例：
+
+```vue
+<ObPageContainer padding="0" overflow="hidden" left-width="216px">
+  <template #left>
+    <ObTree
+      :data="orgTreeData"
+      :tree-props="{ label: 'orgName', children: 'children' }"
+      highlight-current
+      @node-click="handleNodeClick"
+    />
+  </template>
+
+  <OneTableBar ...>
+    <!-- 右侧表格内容 -->
+  </OneTableBar>
+</ObPageContainer>
 ```
 
 使用提示：

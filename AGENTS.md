@@ -123,6 +123,7 @@ packages/
 - **`ObVxeTable` 必须默认铺满 `one-table-bar__content` 可用宽度（避免右侧留白带），并保持纵向滚动条为窄轨道轻量样式，禁止出现粗重滚动条视觉**
 - **`ObVxeTable` 在未触发横向滚动时必须自动折叠 fixed 左右包裹层（`not--scroll-x` 场景），严禁出现固定列占位导致的右侧空白区域**
 - **`ObVxeTable` 最后一行（`vxe-body--row:last-child`）默认不绘制 `border-bottom`，避免表体与分页分隔线双线叠加**
+- **表格对齐统一规范：表头一律左对齐；数量/金额等数值列右对齐；操作列右对齐；其余常规文本列左对齐**
 - **`OneTableBar` 快捷搜索输入框遵循扁平化样式：宽 `360px`、高 `32px`、右间距 `8px`、无圆角、无阴影（筛选按钮同高度扁平风格）**
 - **`OneTableBar` 工具条顶部间距固定 `8px`，并默认去掉 `one-table-bar-title` 分割线（维持扁平化页面头部）**
 - **组织管理树形迁移必须对齐老项目 `parentId` 逻辑：根查询/搜索均透传 `companyId`（无值回退 `0`），禁止固定写死 `parentId='0'`**
@@ -138,3 +139,9 @@ packages/
 - **管理页脚本体超过单屏后，优先拆分“新增/编辑表单组件”和“高级搜索组件”，页面只保留编排逻辑**
 - **`UserManagement` 模块采用“一个功能一个文件夹（feature-first）”组织方式；`routes` 统一在模块根目录集中维护所有页面路由**
 - **CRUD 通用容器必须保留 `footer` 插槽，并支持“纯容器模式”（仅通过 `v-model` 管理 `visible`，不强制 form 与默认确认/取消按钮）**
+- **UserManagement（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，确认交互统一通过 `obConfirm` 封装能力实现（含输入型确认）**
+- **业务页已使用 `ObActionButtons` 时，禁止再叠加手写 `el-dropdown` 操作列，更多操作统一交给 `ObActionButtons` 收敛**
+- **`ObActionButtons` 作为全局组件使用，UserManagement 页面默认不再手动 import 该组件**
+- **除标准增删改查外的复杂业务逻辑（状态批量处理、重置密码、导入映射、输入型删除确认等）统一下沉到模块 `actions.ts`**
+- **用户管理左侧组织树统一使用封装树组件 `ObTree`：仅叶子节点在文本溢出时显示 tooltip，未溢出不显示**
+- **`PageContainer` 需支持左侧插槽（`#left`）与 `leftWidth`，用于“左树右表”布局并保障分页器稳定可见**
