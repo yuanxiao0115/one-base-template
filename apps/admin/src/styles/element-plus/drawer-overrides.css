@@ -1,6 +1,6 @@
 /* 统一覆盖 Element Drawer 壳层样式：
  * - CRUD 抽屉（ObCrudContainer）
- * - 高级筛选抽屉（OneTableBar）
+ * - 高级筛选抽屉（TableBox）
  */
 
 .el-drawer.ob-crud-container--drawer,

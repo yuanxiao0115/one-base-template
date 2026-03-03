@@ -63,7 +63,7 @@ function onRoleMenuSelect(roleId: string) {
 </script>
 
 <template>
-  <PageContainer padding="0" overflow="hidden" left-width="248px">
+  <ObPageContainer padding="0" overflow="hidden" left-width="248px">
     <template #left>
       <section class="flex h-full min-h-0 flex-col">
         <div class="mb-2 flex items-center justify-between text-sm font-medium text-[var(--el-text-color-primary)]">
@@ -104,7 +104,7 @@ function onRoleMenuSelect(roleId: string) {
       </section>
     </template>
 
-    <OneTableBar
+    <ObTableBox
       :title="currentRoleName"
       :columns="tableColumns"
       placeholder="请输入用户名搜索"
@@ -140,8 +140,8 @@ function onRoleMenuSelect(roleId: string) {
           </template>
         </ObVxeTable>
       </template>
-    </OneTableBar>
-  </PageContainer>
+    </ObTableBox>
+  </ObPageContainer>
 
   <ObCrudContainer
     v-model="memberDialogVisible"

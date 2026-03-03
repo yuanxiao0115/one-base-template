@@ -88,7 +88,7 @@ const {
 </script>
 
 <template>
-  <PageContainer padding="0" overflow="hidden" left-width="216px">
+  <ObPageContainer padding="0" overflow="hidden" left-width="216px">
     <template #left>
       <div class="user-management-page__tree">
         <ObTree
@@ -102,7 +102,7 @@ const {
       </div>
     </template>
 
-    <OneTableBar
+    <ObTableBox
       title="用户管理"
       :columns="tableColumns"
       placeholder="请输入用户名查询"
@@ -186,8 +186,8 @@ const {
       <template #drawer>
         <UserSearchForm :ref="refs.searchRef" v-model="searchForm" />
       </template>
-    </OneTableBar>
-  </PageContainer>
+    </ObTableBox>
+  </ObPageContainer>
 
   <ObCrudContainer
     v-model="crudVisible"

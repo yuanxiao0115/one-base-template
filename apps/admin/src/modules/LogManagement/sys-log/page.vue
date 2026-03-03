@@ -38,8 +38,8 @@ const {
 </script>
 
 <template>
-  <PageContainer padding="0" overflow="hidden">
-    <OneTableBar
+  <ObPageContainer padding="0" overflow="hidden">
+    <ObTableBox
       title="操作日志"
       :columns="tableColumns"
       placeholder="请输入操作人账号"
@@ -78,8 +78,8 @@ const {
       <template #drawer>
         <SysLogSearchForm :ref="refs.searchRef" v-model="searchForm" />
       </template>
-    </OneTableBar>
-  </PageContainer>
+    </ObTableBox>
+  </ObPageContainer>
 
   <el-drawer v-model="detailVisible" title="日志详情" :size="760" append-to-body>
     <el-skeleton v-if="detailLoading" :rows="8" animated />

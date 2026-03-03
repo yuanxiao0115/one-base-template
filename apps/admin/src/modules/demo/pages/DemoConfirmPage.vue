@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { PageContainer } from '@one-base-template/ui'
 import { confirm, type ConfirmTone } from '@/infra/confirm'
 
 defineOptions({
@@ -92,7 +91,7 @@ async function openConfirm(item: ConfirmDemoItem) {
 
 <template>
   <div class="demo-confirm-page">
-    <PageContainer>
+    <ObPageContainer>
       <el-card shadow="never" class="demo-confirm-page__card">
         <template #header>
           <div class="demo-confirm-page__header">
@@ -113,7 +112,7 @@ async function openConfirm(item: ConfirmDemoItem) {
           </el-button>
         </div>
       </el-card>
-    </PageContainer>
+    </ObPageContainer>
   </div>
 </template>
 

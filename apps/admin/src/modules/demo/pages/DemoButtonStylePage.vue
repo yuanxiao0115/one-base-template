@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Link, Star } from '@element-plus/icons-vue'
-import { PageContainer } from '@one-base-template/ui'
 
 defineOptions({
   name: 'DemoButtonStylePage'
@@ -110,7 +109,7 @@ function getShowTypeLabel(type?: ButtonType) {
 </script>
 
 <template>
-  <PageContainer overflow="auto">
+  <ObPageContainer overflow="auto">
     <div class="ob-button-demo">
       <el-card shadow="never" class="ob-button-demo__card">
         <template #header>
@@ -281,7 +280,7 @@ function getShowTypeLabel(type?: ButtonType) {
         </section>
       </el-card>
     </div>
-  </PageContainer>
+  </ObPageContainer>
 </template>
 
 <style scoped>

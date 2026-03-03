@@ -52,8 +52,8 @@ const {
 </script>
 
 <template>
-  <PageContainer padding="0" overflow="hidden">
-    <OneTableBar
+  <ObPageContainer padding="0" overflow="hidden">
+    <ObTableBox
       title="角色管理"
       :columns="tableColumns"
       placeholder="请输入角色名称搜索"
@@ -92,8 +92,8 @@ const {
       <template #drawer>
         <RoleSearchForm :ref="refs.searchRef" v-model="searchForm" />
       </template>
-    </OneTableBar>
-  </PageContainer>
+    </ObTableBox>
+  </ObPageContainer>
 
   <ObCrudContainer
     v-model="crudVisible"

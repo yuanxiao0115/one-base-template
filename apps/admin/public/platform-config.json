@@ -15,5 +15,5 @@
     "admin_server": "/home/index",
     "b_system": "/b/home"
   },
-  "enabledModules": ["home", "b", "user-management", "log-management"]
+  "enabledModules": ["home", "b", "user-management", "log-management", "system-management"]
 }

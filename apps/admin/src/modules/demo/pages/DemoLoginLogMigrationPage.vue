@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { OneTableBar } from '@/components/OneTableBar'
 import { useTable } from '@one-base-template/core'
 import { confirm } from '@/infra/confirm'
-import { PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
+import { VxeTable as ObVxeTable } from '@one-base-template/ui'
 import type { TablePagination } from '@one-base-template/ui'
 import { columns } from '../login-log/columns'
 import { loginLogApi, type ClientTypeOption, type LoginLogRecord } from '../login-log/api'
@@ -138,8 +137,8 @@ onMounted(async () => {
 
 <template>
   <div class="demo-login-log-page">
-    <PageContainer padding="0" overflow="hidden">
-      <OneTableBar
+    <ObPageContainer padding="0" overflow="hidden">
+      <ObTableBox
         title="登录日志"
         :columns="columns"
         placeholder="请输入登录人姓名"
@@ -203,8 +202,8 @@ onMounted(async () => {
             </el-form-item>
           </el-form>
         </template>
-      </OneTableBar>
-    </PageContainer>
+      </ObTableBox>
+    </ObPageContainer>
 
     <el-drawer v-model="detailVisible" title="日志详情" :size="520" append-to-body>
       <el-skeleton v-if="detailLoading" :rows="6" animated />

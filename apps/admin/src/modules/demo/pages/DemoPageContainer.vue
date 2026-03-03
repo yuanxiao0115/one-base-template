@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { PageContainer } from '@one-base-template/ui';
 
 defineOptions({
   name: 'DemoPageContainer'
@@ -34,7 +33,7 @@ const filteredRecords = computed(() => {
 </script>
 
 <template>
-  <PageContainer :overflow="overflowMode" padding="16px">
+  <ObPageContainer :overflow="overflowMode" padding="16px">
     <template #header>
       <div class="ob-page-demo__header">
         <el-card shadow="never">
@@ -79,7 +78,7 @@ const filteredRecords = computed(() => {
         <el-tag size="small" type="info">容器滚动由 PageContainer 控制</el-tag>
       </div>
     </template>
-  </PageContainer>
+  </ObPageContainer>
 </template>
 
 <style scoped>

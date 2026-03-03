@@ -2,12 +2,10 @@
 import { computed, onMounted, reactive, ref, type Ref } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { OneTableBar } from '@/components/OneTableBar'
 import { useCrudPage } from '@one-base-template/core'
 import { confirm } from '@/infra/confirm'
 import {
   CrudContainer as ObCrudContainer,
-  PageContainer,
   VxeTable as ObVxeTable,
   type CrudFormLike,
   type CrudErrorContext
@@ -387,8 +385,8 @@ onMounted(async () => {
 
 <template>
   <div class="demo-menu-management-page">
-    <PageContainer padding="0" overflow="hidden">
-      <OneTableBar
+    <ObPageContainer padding="0" overflow="hidden">
+      <ObTableBox
         title="权限管理"
         :columns="tableColumns"
         placeholder="请输入权限名称搜索"
@@ -453,8 +451,8 @@ onMounted(async () => {
             </el-form-item>
           </el-form>
         </template>
-      </OneTableBar>
-    </PageContainer>
+      </ObTableBox>
+    </ObPageContainer>
 
     <ObCrudContainer
       v-model="crudVisible"

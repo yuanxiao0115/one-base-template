@@ -66,8 +66,8 @@ const {
 </script>
 
 <template>
-  <PageContainer padding="0" overflow="hidden">
-    <OneTableBar
+  <ObPageContainer padding="0" overflow="hidden">
+    <ObTableBox
       title="组织管理"
       :columns="tableColumns"
       placeholder="请输入组织名称搜索"
@@ -125,8 +125,8 @@ const {
       <template #drawer>
         <OrgSearchForm :ref="refs.searchRef" v-model="searchForm" />
       </template>
-    </OneTableBar>
-  </PageContainer>
+    </ObTableBox>
+  </ObPageContainer>
 
   <ObCrudContainer
     v-model="crudVisible"

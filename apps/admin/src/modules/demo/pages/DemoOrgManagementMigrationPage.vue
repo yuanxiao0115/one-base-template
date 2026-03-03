@@ -3,9 +3,8 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useAuthStore } from '@one-base-template/core'
-import { OneTableBar } from '@/components/OneTableBar'
 import { confirm } from '@/infra/confirm'
-import { ActionButtons as ObActionButtons, PageContainer, VxeTable as ObVxeTable } from '@one-base-template/ui'
+import { ActionButtons as ObActionButtons, VxeTable as ObVxeTable } from '@one-base-template/ui'
 import type { TableColumnList } from '@one-base-template/ui'
 import { orgColumns } from '../org-management/columns'
 import {
@@ -268,8 +267,8 @@ onMounted(() => {
 
 <template>
   <div class="demo-org-management-page">
-    <PageContainer padding="0" overflow="hidden">
-      <OneTableBar
+    <ObPageContainer padding="0" overflow="hidden">
+      <ObTableBox
         title="组织管理"
         :columns="tableColumns"
         placeholder="请输入组织名称搜索"
@@ -319,8 +318,8 @@ onMounted(() => {
             </template>
           </ObVxeTable>
         </template>
-      </OneTableBar>
-    </PageContainer>
+      </ObTableBox>
+    </ObPageContainer>
 
     <el-drawer v-model="detailVisible" title="组织详情" :size="520" append-to-body>
       <el-descriptions v-if="detailData" :column="1" border>

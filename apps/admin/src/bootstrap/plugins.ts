@@ -28,10 +28,10 @@ export function installAppShellPlugins(params: {
 }) {
   const { app, pinia, router } = params;
 
-  // 全局注册 @one-base-template/ui 组件，同时提供无前缀别名（如 PageContainer），减少页面重复 import。
+  // 全局注册 @one-base-template/ui 组件，仅使用 Ob 前缀组件名（如 ObPageContainer / ObTableBox）。
   app.use(OneUiPlugin, {
     prefix: 'Ob',
-    aliases: true,
+    aliases: false,
     crudContainer: {
       defaultContainer: appCrudContainerDefaultType
     },

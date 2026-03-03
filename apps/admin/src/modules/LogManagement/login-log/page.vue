@@ -39,8 +39,8 @@ const {
 </script>
 
 <template>
-  <PageContainer padding="0" overflow="hidden">
-    <OneTableBar
+  <ObPageContainer padding="0" overflow="hidden">
+    <ObTableBox
       title="登录日志"
       :columns="tableColumns"
       placeholder="请输入登录人姓名"
@@ -73,8 +73,8 @@ const {
       <template #drawer>
         <LoginLogSearchForm :ref="refs.searchRef" v-model="searchForm" :client-type-list="clientTypeList" />
       </template>
-    </OneTableBar>
-  </PageContainer>
+    </ObTableBox>
+  </ObPageContainer>
 
   <el-drawer v-model="detailVisible" title="日志详情" :size="520" append-to-body>
     <el-skeleton v-if="detailLoading" :rows="6" animated />
