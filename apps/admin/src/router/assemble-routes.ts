@@ -4,6 +4,7 @@ import { AdminLayout, ForbiddenPage, NotFoundPage } from '@one-base-template/ui'
 import { DEFAULT_FALLBACK_HOME } from '../config/systems';
 import { createAppLogger } from '@/shared/logger';
 import type { AppRouteAssemblyResult } from './types';
+import { getSkipMenuAuthRouteName, isSkipMenuAuthRoute, toRouteNameKey } from './skip-menu-auth';
 
 import { appEnv } from '../infra/env';
 import { getEnabledModules } from './registry';
@@ -30,28 +31,17 @@ type RouteCollectContext = {
 
 const logger = createAppLogger('router/assemble');
 
-function normalizePath(path: string): string {
+function getNormalizedPath(path: string): string {
   if (!path) return APP_ROOT_PATH;
   const withLeadingSlash = path.startsWith('/') ? path : `/${path}`;
   return withLeadingSlash.replace(/\/{2,}/g, '/');
 }
 
-function joinRoutePath(parentPath: string, currentPath: string): string {
-  if (!currentPath) return normalizePath(parentPath || APP_ROOT_PATH);
-  if (currentPath.startsWith('/')) return normalizePath(currentPath);
-  if (!parentPath || parentPath === APP_ROOT_PATH) return normalizePath(currentPath);
-  return normalizePath(`${parentPath}/${currentPath}`);
-}
-
-function toRouteNameKey(name: RouteRecordRaw['name']): string | null {
-  if (typeof name === 'string') return name;
-  if (typeof name === 'symbol') return name.toString();
-  return null;
-}
-
-function isSkipMenuAuthRoute(route: RouteRecordRaw): boolean {
-  const meta = route.meta as Record<string, unknown> | undefined;
-  return meta?.skipMenuAuth === true;
+function buildRoutePath(parentPath: string, currentPath: string): string {
+  if (!currentPath) return getNormalizedPath(parentPath || APP_ROOT_PATH);
+  if (currentPath.startsWith('/')) return getNormalizedPath(currentPath);
+  if (!parentPath || parentPath === APP_ROOT_PATH) return getNormalizedPath(currentPath);
+  return getNormalizedPath(`${parentPath}/${currentPath}`);
 }
 
 function shouldSkipRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean {
@@ -83,11 +73,11 @@ function shouldSkipRoute(route: RouteRecordRaw, fullPath: string, context: Route
   return false;
 }
 
-function collectModuleRoutes(routes: RouteRecordRaw[], context: RouteCollectContext): RouteRecordRaw[] {
+function buildModuleRoutes(routes: RouteRecordRaw[], context: RouteCollectContext): RouteRecordRaw[] {
   const out: RouteRecordRaw[] = [];
 
   for (const route of routes) {
-    const fullPath = joinRoutePath(context.parentPath, route.path);
+    const fullPath = buildRoutePath(context.parentPath, route.path);
     if (shouldSkipRoute(route, fullPath, context)) {
       continue;
     }
@@ -98,17 +88,17 @@ function collectModuleRoutes(routes: RouteRecordRaw[], context: RouteCollectCont
       context.usedNames.add(nameKey);
     }
 
-    if (isSkipMenuAuthRoute(route)) {
-      if (!nameKey) {
-        logger.warn(`skipMenuAuth 路由缺少 name：${fullPath}（source=${context.source}），该路由不会加入守卫白名单。`);
-      } else {
-        context.skipMenuAuthRouteNames.add(nameKey);
-      }
+    const skipMenuAuthRouteName = getSkipMenuAuthRouteName(route);
+    if (isSkipMenuAuthRoute(route) && skipMenuAuthRouteName === null) {
+      logger.warn(`skipMenuAuth 路由缺少 name：${fullPath}（source=${context.source}），该路由不会加入守卫白名单。`);
+    }
+    if (skipMenuAuthRouteName !== null) {
+      context.skipMenuAuthRouteNames.add(skipMenuAuthRouteName);
     }
 
     const nextRoute: RouteRecordRaw = { ...route };
     if (Array.isArray(route.children) && route.children.length > 0) {
-      nextRoute.children = collectModuleRoutes(route.children, {
+      nextRoute.children = buildModuleRoutes(route.children, {
         ...context,
         parentPath: fullPath
       });
@@ -135,7 +125,7 @@ export function getAppRoutes(): AppRouteAssemblyResult {
   const usedNames = new Set<string>();
   const skipMenuAuthRouteNames = new Set<string>();
 
-  const standaloneRoutes = collectModuleRoutes(
+  const standaloneRoutes = buildModuleRoutes(
     modules.flatMap((item) => item.routes.standalone ?? []),
     {
       source: 'standalone',
@@ -146,7 +136,7 @@ export function getAppRoutes(): AppRouteAssemblyResult {
     }
   );
 
-  const layoutRoutes = collectModuleRoutes(
+  const layoutRoutes = buildModuleRoutes(
     modules.flatMap((item) => item.routes.layout),
     {
       source: 'layout',

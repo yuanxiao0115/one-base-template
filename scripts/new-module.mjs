@@ -68,6 +68,7 @@ import layoutRoutes from './routes/layout';
 const ${moduleVar}: AdminModuleManifest = {
   id: '${moduleId}',
   version: '1',
+  moduleTier: 'core',
   enabledByDefault: true,
   apiNamespace: '${moduleId}',
   routes: {

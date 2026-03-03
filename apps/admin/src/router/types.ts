@@ -8,11 +8,9 @@ export type RouteAlias = {
   to: string;
 };
 
-export interface AdminModuleManifest {
+interface AdminModuleManifestBase {
   id: string;
   version: '1';
-  moduleTier?: ModuleTier;
-  enabledByDefault: boolean;
   routes: {
     layout: RouteRecordRaw[];
     standalone?: RouteRecordRaw[];
@@ -23,6 +21,18 @@ export interface AdminModuleManifest {
     activePathMap?: Record<string, string>;
   };
 }
+
+export type CoreModuleManifest = AdminModuleManifestBase & {
+  moduleTier: 'core';
+  enabledByDefault: boolean;
+};
+
+export type OptionalModuleManifest = AdminModuleManifestBase & {
+  moduleTier: 'optional';
+  enabledByDefault: false;
+};
+
+export type AdminModuleManifest = CoreModuleManifest | OptionalModuleManifest;
 
 export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];

@@ -1,4 +1,4 @@
-import type { AdminModuleManifest, EnabledModulesSetting, ModuleTier } from './types';
+import type { AdminModuleManifest, EnabledModulesSetting } from './types';
 import { createAppLogger } from '@/shared/logger';
 
 type RouteModule = {
@@ -22,28 +22,10 @@ function isValidManifest(input: unknown): input is AdminModuleManifest {
   const value = input as AdminModuleManifest;
   if (!value.id || typeof value.id !== 'string') return false;
   if (value.version !== '1') return false;
+  if (value.moduleTier !== 'core' && value.moduleTier !== 'optional') return false;
   if (typeof value.enabledByDefault !== 'boolean') return false;
-  if (value.moduleTier && value.moduleTier !== 'core' && value.moduleTier !== 'optional') return false;
+  if (value.moduleTier === 'optional' && value.enabledByDefault !== false) return false;
   return Array.isArray(value.routes?.layout);
-}
-
-function resolveModuleTier(moduleTier: AdminModuleManifest['moduleTier']): ModuleTier {
-  if (moduleTier === 'optional') return 'optional';
-  return 'core';
-}
-
-function normalizeManifest(manifest: AdminModuleManifest, path: string): AdminModuleManifest {
-  const moduleTier = resolveModuleTier(manifest.moduleTier);
-
-  if (moduleTier === 'optional' && manifest.enabledByDefault) {
-    warn(`optional 模块不应 enabledByDefault=true，已自动收敛为 false：${manifest.id}（${path}）`);
-  }
-
-  return {
-    ...manifest,
-    moduleTier,
-    enabledByDefault: moduleTier === 'optional' ? false : manifest.enabledByDefault
-  };
 }
 
 function getAllModules(): AdminModuleManifest[] {
@@ -54,18 +36,16 @@ function getAllModules(): AdminModuleManifest[] {
   for (const [path, mod] of Object.entries(modules)) {
     const candidate = mod.default ?? mod.module;
     if (!isValidManifest(candidate)) {
-      warn(`忽略无效模块声明：${path}`);
+      warn(`忽略无效模块声明：${path}（要求 moduleTier 必填，且 optional 模块 enabledByDefault 必须为 false）`);
       continue;
     }
 
-    const normalized = normalizeManifest(candidate, path);
-
-    if (byId.has(normalized.id)) {
-      warn(`检测到重复模块 id：${normalized.id}（忽略：${path}）`);
+    if (byId.has(candidate.id)) {
+      warn(`检测到重复模块 id：${candidate.id}（忽略：${path}）`);
       continue;
     }
 
-    byId.set(normalized.id, normalized);
+    byId.set(candidate.id, candidate);
   }
 
   const out = [...byId.values()];
