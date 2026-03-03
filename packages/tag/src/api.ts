@@ -2,6 +2,7 @@ import { useTagOperations } from './hooks/useTagOperations'
 import { useTagStoreHook, setTagPiniaInstance } from './store'
 import { tagsCache, getStoredTags } from './utils/storage'
 import { TAG_CONSTANTS } from './types'
+import type { TagItem } from './types'
 import { enableAutoTags, addTagFromRoute } from './guards/tagGuard'
 import { configManager, setConfig, getConfig } from './config/configManager'
 import type { TagConfig, RouteIgnoreRule } from './config/configManager'
@@ -159,13 +160,13 @@ export function useTagAPI() {
      * 删除标签
      * @param tag 标签项
      */
-    deleteTag: (tag: any) => store.handleTags('splice', tag),
+    deleteTag: (tag: TagItem) => store.handleTags('splice', tag),
 
     /**
      * 更新标签标题
      * @param tag 标签项
      */
-    updateTagTitle: (tag: any) => store.handleTags('update', tag),
+    updateTagTitle: (tag: TagItem) => store.handleTags('update', tag),
 
     /**
      * 清空所有标签
@@ -176,19 +177,19 @@ export function useTagAPI() {
      * 关闭左侧标签
      * @param tag 标签项
      */
-    closeLeftTags: (tag: any) => store.handleTags('splice', tag, { position: 'left' }),
+    closeLeftTags: (tag: TagItem) => store.handleTags('splice', tag, { position: 'left' }),
 
     /**
      * 关闭右侧标签
      * @param tag 标签项
      */
-    closeRightTags: (tag: any) => store.handleTags('splice', tag, { position: 'right' }),
+    closeRightTags: (tag: TagItem) => store.handleTags('splice', tag, { position: 'right' }),
 
     /**
      * 关闭其他标签
      * @param tag 标签项
      */
-    closeOtherTags: (tag: any) => store.handleTags('splice', tag, { position: 'other' }),
+    closeOtherTags: (tag: TagItem) => store.handleTags('splice', tag, { position: 'other' }),
 
     /**
      * 清空除首页外的所有标签
@@ -202,7 +203,7 @@ export function useTagAPI() {
      * 重置标签为默认状态
      * @param defaultTags 可选的默认标签数组，不传则使用配置的默认标签
      */
-    reset: (defaultTags?: any[]) => {
+    reset: (defaultTags?: TagItem[]) => {
       const config = configManager.getConfig()
       const tagsToUse = defaultTags || config.defaultTags
       store.handleTags('equal', [...tagsToUse])

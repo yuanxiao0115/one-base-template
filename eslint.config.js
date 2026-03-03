@@ -19,6 +19,16 @@ export default [
     ]
   },
   {
+    // Node 脚本（CLI/脚手架）允许使用 console/process 等全局变量
+    files: ['scripts/**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly'
+      }
+    }
+  },
+  {
     files: ['**/*.{ts,tsx,vue}'],
     languageOptions: {
       parserOptions: {
@@ -71,6 +81,14 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       'no-control-regex': 'off'
+    }
+  },
+  {
+    // tag 为历史迁移包，先保证功能收敛与行为稳定，类型债务分批治理。
+    files: ['packages/tag/src/**/*.{ts,tsx,vue}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
     }
   },
   {
@@ -163,6 +181,25 @@ export default [
           message: '禁止在业务模块调用 app.use/app.component/... 安装全局能力，请到 apps/admin/src/bootstrap 中统一安装。'
         }
       ]
+    }
+  },
+  {
+    // 文件长度建议（非阻断）：通过 warning 引导拆分，避免单文件持续膨胀
+    files: [
+      'apps/admin/src/bootstrap/**/*.{ts,tsx,vue}',
+      'apps/admin/src/router/**/*.{ts,tsx,vue}',
+      'apps/admin/src/config/**/*.{ts,tsx,vue}',
+      'apps/admin/src/shared/**/*.{ts,tsx,vue}'
+    ],
+    rules: {
+      'max-lines': ['warn', { max: 220, skipBlankLines: true, skipComments: true }]
+    }
+  },
+  {
+    // 页面与模块允许更高上限，但仍建议超过阈值后拆分编排层与实现层
+    files: ['apps/admin/src/modules/**/*.{ts,tsx,vue}', 'apps/admin/src/pages/**/*.{ts,tsx,vue}'],
+    rules: {
+      'max-lines': ['warn', { max: 360, skipBlankLines: true, skipComments: true }]
     }
   },
   {

@@ -2,8 +2,6 @@
 import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type {
-  UploadFile,
-  UploadFiles,
   UploadInstance,
   UploadProps,
   UploadRawFile,
@@ -69,16 +67,18 @@ function createError(message: string): Error {
   return new Error(message || '导入失败')
 }
 
-function toUploadAjaxError(error: Error) {
-  const uploadError = error as Error & {
-    status?: number
-    method?: string
-    url?: string
-  }
+type UploadAjaxErrorLike = Error & {
+  status: number
+  method: string
+  url: string
+}
+
+function toUploadAjaxError(error: Error): UploadAjaxErrorLike {
+  const uploadError = error as Partial<UploadAjaxErrorLike> & Error
   uploadError.status = uploadError.status ?? 0
   uploadError.method = uploadError.method ?? 'post'
   uploadError.url = uploadError.url ?? ''
-  return uploadError
+  return uploadError as UploadAjaxErrorLike
 }
 
 function clearUploadList() {
@@ -155,7 +155,7 @@ function getResponseErrorMessage(response: unknown): string {
 const uploadRequest = async (options: UploadRequestOptions) => {
   if (uploading.value) {
     const error = createError('正在上传，请稍后重试')
-    options.onError(toUploadAjaxError(error) as any)
+    options.onError(toUploadAjaxError(error))
     emit('failed', error)
     ElMessage.warning(error.message)
     return
@@ -173,7 +173,7 @@ const uploadRequest = async (options: UploadRequestOptions) => {
       ElMessage.success(props.successMessage)
     }
 
-    options.onSuccess(response as unknown as UploadFile)
+    options.onSuccess(response)
     emit('uploaded', response)
 
     if (!props.showFileList) {
@@ -182,7 +182,7 @@ const uploadRequest = async (options: UploadRequestOptions) => {
   } catch (error) {
     const normalizedError = error instanceof Error ? error : createError(props.errorMessage || '导入失败')
     ElMessage.error(normalizedError.message)
-    options.onError(toUploadAjaxError(normalizedError) as any)
+    options.onError(toUploadAjaxError(normalizedError))
     emit('failed', normalizedError)
     clearUploadList()
   } finally {
