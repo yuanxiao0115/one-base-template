@@ -33,7 +33,7 @@ apps/admin/src/modules/<module-id>/
 约束补充：
 
 - `core`：主链路模块，可按需 `enabledByDefault=true`
-- `optional`：实验/迁移模块；注册器会把 `enabledByDefault` 自动收敛为 `false`
+- `optional`：实验/迁移模块；`enabledByDefault` 必须显式写为 `false`（类型层与注册器都会校验）
 - 若路由声明 `meta.skipMenuAuth=true`，必须提供稳定 `route.name`；应用启动时会从已装配路由自动收集白名单，未命名路由不会放行
 
 ### 快速创建模块（推荐）
@@ -134,6 +134,18 @@ CLI 生成器可按以下步骤裁剪：
    - `pnpm -w build`
 
 通过该契约，可以稳定支持 `--modules home,portal,...` 的脚手架生成策略。
+
+## 9) 文件长度建议（架构层）
+
+为避免“编排 + 业务细节”长期堆在同一文件，`eslint` 已增加非阻断告警规则（`max-lines`）：
+
+- `bootstrap/router/config/shared`：建议不超过 `220` 行
+- `modules/pages`：建议不超过 `360` 行
+
+说明：
+
+- 当前为 `warning`，用于引导拆分，不会直接阻断构建
+- 建议优先拆分为：页面编排层、业务逻辑层（composables/actions/services）、视图组件层
 
 ## 7) 命名规则复用（生成器推荐）
 

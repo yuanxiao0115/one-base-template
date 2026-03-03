@@ -23,6 +23,7 @@ packages/
 - `apps/admin/src/config/theme.ts`：主题注册入口（复用 core 内置主题 + 项目自定义主题）
 - `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `appEnv`
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块 Manifest 扫描、白名单过滤与路由组装
+- `apps/admin/src/router/index.ts`：路由装配单一入口（仅暴露 `getRouteAssemblyResult()`）
 - `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫
 - `packages/core/src/storage/namespace.ts`：统一存储命名空间规则（读取兼容旧 key）
 - `packages/core/src/router/initial-path.ts`：统一根路由首次跳转决策（系统首页映射 + 菜单叶子兜底）
@@ -54,6 +55,7 @@ packages/
 - `bootstrap/plugins.ts` 的 `OneTag` 配置改为：
   - `homePath` 统一复用 `DEFAULT_FALLBACK_HOME`
   - `storageKey` 加 `storageNamespace` 前缀（`${storageNamespace}:ob_tags`），避免多应用同域冲突
+- `router/index.ts` 移除 `getRoutes()` 多入口，仅保留 `getRouteAssemblyResult()`，避免路由装配结果在调用侧分叉。
 
 ## 存储命名空间与首次路由
 
@@ -103,7 +105,7 @@ packages/
 ## 模块 Manifest 与切割
 
 - 模块唯一入口：`apps/admin/src/modules/<module-id>/module.ts`
-- `module.ts` 建议显式声明 `moduleTier`（`core`/`optional`），用于表达主链路与非主链路模块边界
+- `module.ts` 必须显式声明 `moduleTier`（`core`/`optional`），用于表达主链路与非主链路模块边界
 - 路由分组：
   - `routes/layout.ts`：挂在 `AdminLayout` 下
   - `routes/standalone.ts`：顶层全屏/匿名路由（可选）
@@ -111,7 +113,7 @@ packages/
   - `"*"`：启用全部模块
   - `string[]`：只启用指定模块
   - 管理端生产配置建议使用 `string[]` 显式白名单，避免把实验/迁移模块一并装配进主链路
-  - 注册器会对 `optional` 模块执行默认禁用收敛，避免误配置导致主链路污染
+  - `optional` 模块必须配置 `enabledByDefault=false`；若契约不合法会被注册器忽略并告警
 - API 约束：页面只能调 `services/*`，模块 HTTP 请求收敛在 `api/client.ts`
 
 ## 静态路由 + 动态菜单
