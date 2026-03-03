@@ -2,10 +2,9 @@ import type { Ref } from 'vue'
 import { message } from '@/utils/message'
 import { userApi, type UserListRecord } from '../api'
 import {
-  confirmResetUserPassword,
-  confirmUserStatusAction,
+  confirmWarn,
   isConfirmCancelled
-} from '../actions'
+} from '../../shared/confirm'
 
 type UseUserStatusActionsOptions = {
   selectedList: Ref<UserListRecord[]>
@@ -13,6 +12,14 @@ type UseUserStatusActionsOptions = {
 }
 
 type UserStatusAction = '启用' | '停用'
+
+async function confirmUserStatusAction(actionLabel: UserStatusAction, userNames: string) {
+  await confirmWarn(`您确认要${actionLabel}用户 ${userNames} 吗？`, '确认')
+}
+
+async function confirmResetUserPassword(userName: string) {
+  await confirmWarn(`您确认要重置用户 ${userName} 的密码吗？`, '确认')
+}
 
 async function updateUserStatus(actionLabel: UserStatusAction, ids: string[], isEnable: boolean) {
   const response = await userApi.updateStatus({

@@ -1,530 +1,89 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
 import { Download, Lock, Plus, Rank, Unlock, Upload } from '@element-plus/icons-vue'
-import { sm4EncryptBase64 } from '@/infra/sczfw/crypto'
-import {
-  ImportUpload as ObImportUpload,
-  type CrudFormLike
-} from '@one-base-template/ui'
-import buildUserColumns from './columns'
+import { dragHandleClass } from './utils/dragSort'
 import UserSearchForm from './components/UserSearchForm.vue'
 import UserEditForm from './components/UserEditForm.vue'
 import UserAccountForm from './components/UserAccountForm.vue'
-import UserBindAccountForm, { type UserBindOption } from './components/UserBindAccountForm.vue'
-import {
-  userApi,
-  type OrgTreeNode,
-  type PositionItem,
-  type RoleItem,
-  type UserDetailData,
-  type UserListRecord,
-  type UserSavePayload
-} from './api'
-import {
-  createDefaultUserForm,
-  defaultUserAccountForm,
-  toUserForm,
-  toUserPayload,
-  type UserAccountForm as UserAccountFormModel,
-  type UserBindForm,
-  type UserForm,
-  userFormRules
-} from './form'
-import { userTypeOptions } from './const'
-import {
-  createUserTypeLabelMap,
-  downloadUserImportTemplate,
-  mapCorporateUsersToBindOptions,
-  resolveUserTypeLabel
-} from './actions'
-import {
-  assertUniqueCheck,
-  shouldCheckUserUnique,
-  toUserUniqueSnapshot,
-  type UserUniqueSnapshot
-} from '../shared/unique'
-import buildUserListParams from './utils/buildUserListParams'
-import {
-  dragHandleClass
-} from './utils/dragSort'
-import { useUserStatusActions } from './composables/useUserStatusActions'
-import { useUserDragSort } from './composables/useUserDragSort'
+import UserBindAccountForm from './components/UserBindAccountForm.vue'
+import { userFormRules } from './form'
+import { useUserCrudState } from './composables/useUserCrudState'
+import { useUserDialogState } from './composables/useUserDialogState'
 
 defineOptions({
   name: 'UserManagementPage'
 })
 
-type BindFormExpose = CrudFormLike & {
-  loadOptions?: (keyword?: string) => Promise<void>
-  setSelectedUsers?: (users: UserBindOption[]) => void
-}
+// 页面仅保留编排层：状态与副作用分别下沉到 CRUD 状态与弹窗状态 composable。
+const pageState = useUserCrudState()
 
-const tableRef = ref<unknown>(null)
-const searchRef = ref<{ resetFields?: () => void }>()
-const editFormRef = ref<CrudFormLike>()
-const accountFormRef = ref<CrudFormLike>()
-const bindFormRef = ref<BindFormExpose>()
-const treeRef = ref<{
-  setCurrentKey?: (key?: string | null) => void
-}>()
-const userUniqueSnapshot = ref<UserUniqueSnapshot | null>(null)
-
-const orgTreeData = ref<OrgTreeNode[]>([])
-const positionOptions = ref<PositionItem[]>([])
-const roleOptions = ref<RoleItem[]>([])
-
-const searchForm = reactive({
-  nickName: '',
-  phone: '',
-  userAccount: '',
-  isEnable: null as boolean | null,
-  mail: '',
-  date: [] as string[],
-  orgId: ''
-})
-
-const defaultTreeProps = {
-  children: 'children',
-  label: 'orgName'
-}
-
-const canDragSort = computed(() => Boolean(searchForm.orgId))
-const tableColumns = computed(() => buildUserColumns(canDragSort.value))
-
-const tableOpt = reactive({
-  query: {
-    api: (params: Record<string, unknown>) => userApi.page(buildUserListParams(params)),
-    params: searchForm,
-    pagination: true,
-    immediate: false
-  },
-  remove: {
-    api: (payload: { id: string }) => userApi.remove(payload),
-    deleteConfirm: {
-      nameKey: 'nickName',
-      requireInput: true,
-      title: '删除确认',
-      message: '此操作不可逆，会删除即时消息相关记录，请输入确认删除的姓名「{name}」',
-      inputPlaceholder: '请输入确认删除的姓名',
-      confirmButtonText: '确认删除'
-    },
-    onSuccess: () => {
-      message.success('删除用户成功')
-    },
-    onError: (error: unknown) => {
-      const errorMessage = error instanceof Error ? error.message : '删除用户失败'
-      message.error(errorMessage)
-    }
-  }
-})
-
-const crudPage = useCrudPage<UserForm, UserListRecord, UserDetailData, UserSavePayload>({
-  table: tableOpt,
-  tableRef,
-  editor: {
-    entity: {
-      name: '用户'
-    },
-    form: {
-      create: () => createDefaultUserForm(),
-      ref: editFormRef
-    },
-    detail: {
-      async beforeOpen({ mode, form }) {
-        await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()])
-
-        if (mode === 'create') {
-          userUniqueSnapshot.value = null
-          form.userOrgs = [
-            {
-              orgId: searchForm.orgId || '',
-              orgRankType: null,
-              ownSort: 1,
-              sort: 1,
-              status: 1,
-              postVos: [{ postId: '', sort: 1, status: 1 }]
-            }
-          ]
-        }
-      },
-      async load({ row }) {
-        const response = await userApi.detail({ id: row.id })
-        if (response.code !== 200) {
-          throw new Error(response.message || '加载用户详情失败')
-        }
-        return response.data
-      },
-      mapToForm: ({ detail }) => {
-        const mapped = toUserForm(detail)
-        userUniqueSnapshot.value = toUserUniqueSnapshot(mapped)
-        return mapped
-      }
-    },
-    save: {
-      buildPayload: async ({ form }) => {
-        const payload = toUserPayload(form)
-        const currentUnique = toUserUniqueSnapshot(payload)
-
-        if (shouldCheckUserUnique(currentUnique, userUniqueSnapshot.value)) {
-          const uniqueResponse = await userApi.checkUnique({
-            userId: payload.id,
-            userAccount: payload.userAccount,
-            phone: payload.phone,
-            mail: payload.mail
-          })
-
-          const isUnique = assertUniqueCheck(uniqueResponse, '用户唯一性校验失败')
-          if (!isUnique) {
-            throw new Error('登录账号、手机号或邮箱已存在')
-          }
-        }
-
-        return payload
-      },
-      request: async ({ mode, payload }) => {
-        const response = mode === 'create'
-          ? await userApi.add(payload)
-          : await userApi.update(payload)
-
-        if (response.code !== 200) {
-          throw new Error(response.message || '保存用户失败')
-        }
-
-        return response
-      },
-      onSuccess: async ({ mode }) => {
-        message.success(mode === 'create' ? '新增用户成功' : '更新用户成功')
-      }
-    }
-  }
-})
+const refs = pageState.refs
 
 const {
   loading,
   dataList,
-  pagination,
-  selectedList,
-  onSearch,
-  resetForm,
-  handleSelectionChange,
-  handleSizeChange,
-  handleCurrentChange
-} = crudPage.table
-
-const crud = crudPage.editor
-const { remove } = crudPage.actions
-
-const tablePagination = computed(() => ({
-  ...pagination
-}))
-
-const crudVisible = crud.visible
-const crudMode = crud.mode
-const crudTitle = crud.title
-const crudReadonly = crud.readonly
-const crudSubmitting = crud.submitting
-const crudForm = crud.form
-
-const accountVisible = ref(false)
-const accountSubmitting = ref(false)
-const accountForm = reactive<UserAccountFormModel>({
-  ...defaultUserAccountForm
-})
-
-const bindVisible = ref(false)
-const bindLoading = ref(false)
-const bindSubmitting = ref(false)
-const bindTargetUserId = ref('')
-const bindForm = reactive<UserBindForm>({
-  userIds: []
-})
-
-const userTypeLabelMap = createUserTypeLabelMap(userTypeOptions)
-const currentOrgId = computed(() => searchForm.orgId)
-
-function sortOrgTree(nodes: OrgTreeNode[]): OrgTreeNode[] {
-  return [...nodes]
-    .sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
-    .map((item) => ({
-      ...item,
-      children: Array.isArray(item.children) ? sortOrgTree(item.children) : []
-    }))
-}
-
-async function loadOrgTree() {
-  const response = await userApi.orgList()
-  if (response.code !== 200) {
-    throw new Error(response.message || '加载组织树失败')
-  }
-
-  orgTreeData.value = sortOrgTree(response.data || [])
-}
-
-async function loadPositionOptions() {
-  const response = await userApi.positionList()
-  if (response.code !== 200) {
-    throw new Error(response.message || '加载职位列表失败')
-  }
-
-  positionOptions.value = response.data || []
-}
-
-async function loadRoleOptions() {
-  const response = await userApi.roleList()
-  if (response.code !== 200) {
-    throw new Error(response.message || '加载角色列表失败')
-  }
-
-  roleOptions.value = response.data || []
-}
-
-async function checkFieldUnique(params: {
-  userId?: string
-  userAccount?: string
-  phone?: string
-  mail?: string
-}) {
-  const payload: {
-    userId?: string
-    userAccount?: string
-    phone?: string
-    mail?: string
-  } = {
-    userId: params.userId
-  }
-
-  if (params.userAccount !== undefined) {
-    payload.userAccount = toUserUniqueSnapshot({ userAccount: params.userAccount }).userAccount
-  }
-
-  if (params.phone !== undefined) {
-    payload.phone = toUserUniqueSnapshot({ phone: params.phone }).phone
-  }
-
-  if (params.mail !== undefined) {
-    payload.mail = toUserUniqueSnapshot({ mail: params.mail }).mail
-  }
-
-  const response = await userApi.checkUnique(payload)
-  return assertUniqueCheck(response, '字段唯一性校验失败')
-}
-
-async function uploadAvatar(file: File, userId: string): Promise<boolean> {
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('userId', userId)
-
-  const response = await userApi.manageEditPhoto(formData)
-  if (response.code !== 200) {
-    throw new Error(response.message || '头像上传失败')
-  }
-
-  return true
-}
-
-function tableSearch(keyword: string) {
-  searchForm.nickName = keyword
-  void onSearch()
-}
-
-function onKeywordUpdate(keyword: string) {
-  searchForm.nickName = keyword
-}
-
-function onResetSearch() {
-  searchForm.orgId = ''
-  searchForm.date = []
-  treeRef.value?.setCurrentKey?.(null)
-  resetForm(searchRef, 'nickName')
-}
-
-function handleNodeClick(node: OrgTreeNode) {
-  searchForm.orgId = Number(node.orgType) === 1 ? '' : node.id
-  void onSearch()
-}
-
-function getUserTypeLabel(value: number): string {
-  return resolveUserTypeLabel(value, userTypeLabelMap)
-}
-
-async function handleDelete(row: UserListRecord) {
-  await remove(row)
-}
+  tablePagination,
+  tableColumns,
+  orgTreeData,
+  searchForm,
+  defaultTreeProps
+} = pageState.table
 
 const {
+  positionOptions,
+  roleOptions
+} = pageState.options
+
+const {
+  crud,
+  crudVisible,
+  crudMode,
+  crudTitle,
+  crudReadonly,
+  crudSubmitting,
+  crudForm,
+  checkFieldUnique,
+  uploadAvatar
+} = pageState.editor
+
+const {
+  handleSelectionChange,
+  handleSizeChange,
+  handleCurrentChange,
+  tableSearch,
+  onKeywordUpdate,
+  onResetSearch,
+  handleNodeClick,
+  getUserTypeLabel,
+  handleDelete,
   handleSingleStatus,
   handleBatchStatus,
-  handleResetPassword
-} = useUserStatusActions({
-  selectedList,
+  handleResetPassword,
+  downloadTemplate,
+  importRequest,
+  handleImportUploaded,
   onSearch
-})
+} = pageState.actions
 
-function resetAccountForm() {
-  Object.assign(accountForm, defaultUserAccountForm)
-}
-
-function openAccountDialog(row: UserListRecord) {
-  resetAccountForm()
-  accountForm.userId = row.id
-  accountForm.nickName = row.nickName
-  accountForm.phone = row.phone
-  accountForm.userAccount = row.userAccount
-  accountForm.newUsername = row.userAccount
-  accountVisible.value = true
-}
-
-function closeAccountDialog() {
-  resetAccountForm()
-  accountVisible.value = false
-}
-
-async function submitAccountDialog() {
-  if (accountSubmitting.value) return
-
-  const isValid = await accountFormRef.value?.validate?.()
-  if (isValid === false) return
-
-  if (accountForm.isReset === 1 && accountForm.newPassword !== accountForm.newPasswordRepeat) {
-    message.error('两次密码输入不一致')
-    return
-  }
-
-  accountSubmitting.value = true
-  try {
-    const response = await userApi.changeUserAccount({
-      userId: sm4EncryptBase64(accountForm.userId),
-      newUsername: sm4EncryptBase64(accountForm.newUsername),
-      isReset: accountForm.isReset,
-      newPassword: accountForm.isReset === 1 && accountForm.newPassword
-        ? sm4EncryptBase64(accountForm.newPassword)
-        : ''
-    })
-
-    if (response.code !== 200) {
-      throw new Error(response.message || '修改账号失败')
-    }
-
-    message.success('修改账号成功')
-    closeAccountDialog()
-    await onSearch(false)
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '修改账号失败'
-    message.error(errorMessage)
-  } finally {
-    accountSubmitting.value = false
-  }
-}
-
-function resetBindForm() {
-  bindForm.userIds = []
-}
-
-async function fetchBindUsers(keyword: string): Promise<UserBindOption[]> {
-  const response = await userApi.searchUsers({ nickName: keyword })
-  if (response.code !== 200) {
-    throw new Error(response.message || '加载用户列表失败')
-  }
-
-  return (response.data || []).map((item) => ({
-    id: item.id,
-    nickName: item.nickName,
-    userAccount: item.userAccount,
-    phone: item.phone
-  }))
-}
-
-async function openBindDialog(row: UserListRecord) {
-  bindTargetUserId.value = row.id
-  bindVisible.value = true
-  bindLoading.value = true
-  resetBindForm()
-
-  try {
-    const response = await userApi.detail({ id: row.id })
-    if (response.code !== 200) {
-      throw new Error(response.message || '加载关联账号失败')
-    }
-
-    const users = mapCorporateUsersToBindOptions(response.data.corporateUserList)
-
-    bindForm.userIds = users.map((item) => item.id).filter(Boolean)
-
-    await nextTick()
-    bindFormRef.value?.setSelectedUsers?.(users)
-    await bindFormRef.value?.loadOptions?.('')
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '加载关联账号失败'
-    message.error(errorMessage)
-  } finally {
-    bindLoading.value = false
-  }
-}
-
-function closeBindDialog() {
-  resetBindForm()
-  bindVisible.value = false
-  bindTargetUserId.value = ''
-}
-
-async function submitBindDialog() {
-  if (bindSubmitting.value) return
-
-  const isValid = await bindFormRef.value?.validate?.()
-  if (isValid === false) return
-
-  bindSubmitting.value = true
-  try {
-    const response = await userApi.updateCorporateUser({
-      corporateUserId: bindTargetUserId.value,
-      userIds: bindForm.userIds
-    })
-
-    if (response.code !== 200) {
-      throw new Error(response.message || '关联账号保存失败')
-    }
-
-    message.success('关联账号保存成功')
-    closeBindDialog()
-    await onSearch(false)
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '关联账号保存失败'
-    message.error(errorMessage)
-  } finally {
-    bindSubmitting.value = false
-  }
-}
-
-function downloadTemplate() {
-  downloadUserImportTemplate()
-}
-
-async function importRequest(file: File) {
-  return userApi.importUser(file)
-}
-
-async function handleImportUploaded() {
-  await onSearch(false)
-}
-
-useUserDragSort({
-  tableRef,
-  canDragSort,
-  dataList,
-  orgId: currentOrgId,
-  pagination,
+const {
+  accountFormRef,
+  bindFormRef,
+  accountVisible,
+  accountSubmitting,
+  accountForm,
+  bindVisible,
+  bindLoading,
+  bindSubmitting,
+  bindForm,
+  openAccountDialog,
+  closeAccountDialog,
+  submitAccountDialog,
+  fetchBindUsers,
+  openBindDialog,
+  closeBindDialog,
+  submitBindDialog,
+  checkUserAccountUnique
+} = useUserDialogState({
   onSearch
-})
-
-onMounted(async () => {
-  try {
-    await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()])
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '初始化用户管理失败'
-    message.error(errorMessage)
-  }
-
-  await onSearch(false)
 })
 </script>
 
@@ -533,7 +92,7 @@ onMounted(async () => {
     <template #left>
       <div class="user-management-page__tree">
         <ObTree
-          ref="treeRef"
+          :ref="refs.treeRef"
           node-key="id"
           :data="orgTreeData"
           :tree-props="defaultTreeProps"
@@ -570,7 +129,7 @@ onMounted(async () => {
 
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
-          ref="tableRef"
+          :ref="refs.tableRef"
           :loading="loading"
           :size="size"
           :data="dataList"
@@ -625,7 +184,7 @@ onMounted(async () => {
       </template>
 
       <template #drawer>
-        <UserSearchForm ref="searchRef" v-model="searchForm" />
+        <UserSearchForm :ref="refs.searchRef" v-model="searchForm" />
       </template>
     </OneTableBar>
   </PageContainer>
@@ -644,7 +203,7 @@ onMounted(async () => {
     @close="crud.close"
   >
     <UserEditForm
-      ref="editFormRef"
+      :ref="refs.editFormRef"
       v-model="crudForm"
       :mode="crudMode"
       :rules="userFormRules"
@@ -672,7 +231,7 @@ onMounted(async () => {
       ref="accountFormRef"
       v-model="accountForm"
       :disabled="false"
-      :check-user-account-unique="async ({ userId, userAccount }) => checkFieldUnique({ userId, userAccount })"
+      :check-user-account-unique="(params) => checkUserAccountUnique(params, checkFieldUnique)"
     />
   </ObCrudContainer>
 

@@ -1,7 +1,6 @@
 import { ref, type ComputedRef, type Ref } from 'vue'
 import { message } from '@/utils/message'
 import { orgApi, type OrgRecord } from '../api'
-import { getErrorMessage } from '../actions'
 
 type SearchRefExpose = {
   resetFields?: () => void
@@ -21,6 +20,10 @@ type TreeCacheEntry = {
 }
 
 const CACHE_EXPIRE_TIME = 5 * 60 * 1000
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback
+}
 
 export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
   const {

@@ -1,426 +1,68 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
-import { useAuthStore } from '@one-base-template/core'
-import { orgColumns } from './columns'
 import OrgSearchForm from './components/OrgSearchForm.vue'
 import OrgEditForm from './components/OrgEditForm.vue'
 import OrgManagerDialog from './components/OrgManagerDialog.vue'
 import OrgLevelManageDialog from './components/OrgLevelManageDialog.vue'
-import { useOrgTreeQuery } from './composables/useOrgTreeQuery'
-import {
-  orgApi,
-  type DictItem,
-  type OrgLevelItem,
-  type OrgRecord,
-  type OrgSavePayload
-} from './api'
-import {
-  defaultOrgForm,
-  orgFormRules,
-  toOrgForm,
-  toOrgPayload,
-  type OrgForm,
-  type OrgTreeOption
-} from './form'
-import {
-  buildDictLabelMap,
-  getErrorMessage
-} from './actions'
-import {
-  assertUniqueCheck,
-  shouldCheckOrgUnique,
-  toOrgUniqueSnapshot,
-  type OrgUniqueSnapshot
-} from '../shared/unique'
+import { orgFormRules } from './form'
+import { useOrgPageState } from './composables/useOrgPageState'
 
 defineOptions({
   name: 'OrgManagementPage'
 })
 
-type AuthUserWithCompanyId = {
-  companyId?: string | number | null
-}
+// 页面仅保留编排层：组织管理查询、CRUD 与树数据加载逻辑统一下沉到 composable。
+const pageState = useOrgPageState()
 
-const authStore = useAuthStore()
-
-const tableRef = ref<unknown>(null)
-const searchRef = ref<{ resetFields?: () => void }>()
-const editFormRef = ref()
-
-const searchForm = reactive({
-  orgName: ''
-})
-
-const createParentId = ref('0')
-
-const orgTreeOptions = ref<OrgTreeOption[]>([])
-const orgCategoryOptions = ref<DictItem[]>([])
-const institutionalTypeOptions = ref<DictItem[]>([])
-const orgLevelOptions = ref<OrgLevelItem[]>([])
-const orgUniqueSnapshot = ref<OrgUniqueSnapshot | null>(null)
-
-const orgManagerVisible = ref(false)
-const orgManagerTarget = ref<OrgRecord | null>(null)
-const orgLevelDialogVisible = ref(false)
-
-const inSearchMode = computed(() => Boolean(searchForm.orgName.trim()))
-const tableColumns = computed(() => orgColumns)
-
-const rootParentId = computed(() => {
-  const user = authStore.user as AuthUserWithCompanyId | null
-  const companyId = user?.companyId
-
-  if (typeof companyId === 'number' && Number.isFinite(companyId)) {
-    return String(companyId)
-  }
-
-  if (typeof companyId === 'string' && companyId.trim()) {
-    return companyId.trim()
-  }
-
-  return '0'
-})
-
-const tableOpt = reactive({
-  query: {
-    api: async () => {
-      const parentId = rootParentId.value
-      if (inSearchMode.value) {
-        return orgApi.searchOrgList({
-          parentId,
-          orgName: searchForm.orgName
-        })
-      }
-
-      return orgApi.getOrgTree({ parentId })
-    },
-    params: searchForm,
-    pagination: false,
-    immediate: false
-  },
-  remove: {
-    api: (payload: { id: string }) => orgApi.deleteOrg(payload),
-    deleteConfirm: {
-      nameKey: 'orgName',
-      requireInput: true,
-      title: '删除确认',
-      message: '此操作不可逆，请输入组织名称「{name}」确认删除',
-      inputPlaceholder: '请输入组织名称',
-      confirmButtonText: '确认删除'
-    },
-    onSuccess: () => {
-      message.success('删除组织成功')
-      invalidateDeletedRowCache()
-    },
-    onError: (error: unknown) => {
-      clearDeletingRow()
-      const errorMessage = error instanceof Error ? error.message : '删除组织失败'
-      message.error(errorMessage)
-    }
-  }
-})
-
-const crudPage = useCrudPage<OrgForm, OrgRecord, OrgRecord, OrgSavePayload>({
-  table: tableOpt,
-  tableRef,
-  editor: {
-    entity: {
-      name: '组织'
-    },
-    form: {
-      create: () => ({
-        ...defaultOrgForm,
-        parentId: rootParentId.value
-      }),
-      ref: editFormRef
-    },
-    detail: {
-      async beforeOpen({ mode, row, form }) {
-        await Promise.all([loadDictOptions(), loadOrgLevelOptions()])
-        await loadOrgTreeOptions(mode === 'create' ? undefined : row?.id)
-
-        if (mode === 'create') {
-          orgUniqueSnapshot.value = null
-          form.parentId = createParentId.value || rootParentId.value
-        }
-      },
-      load: async ({ row }) => row,
-      mapToForm: ({ detail }) => {
-        const mapped = toOrgForm(detail)
-        orgUniqueSnapshot.value = toOrgUniqueSnapshot(mapped)
-        return mapped
-      }
-    },
-    save: {
-      buildPayload: async ({ form }) => {
-        const payload = toOrgPayload(form, rootParentId.value)
-        const currentUnique = toOrgUniqueSnapshot({
-          orgName: payload.orgName,
-          parentId: payload.parentId
-        })
-
-        if (shouldCheckOrgUnique(currentUnique, orgUniqueSnapshot.value)) {
-          const uniqueResponse = await orgApi.checkUnique({
-            orgName: payload.orgName,
-            parentId: payload.parentId,
-            orgId: payload.id
-          })
-
-          const isUnique = assertUniqueCheck(uniqueResponse, '组织名称校验失败')
-          if (!isUnique) {
-            throw new Error('已存在相同组织名称')
-          }
-        }
-
-        return payload
-      },
-      request: async ({ mode, payload }) => {
-        const response = mode === 'create'
-          ? await orgApi.addOrg(payload)
-          : await orgApi.updateOrg(payload)
-
-        if (response.code !== 200) {
-          throw new Error(response.message || '保存组织失败')
-        }
-
-        return response
-      },
-      onSuccess: async ({ mode }) => {
-        message.success(mode === 'create' ? '新增组织成功' : '更新组织成功')
-        clearTreeCache()
-      }
-    }
-  }
-})
+const refs = pageState.refs
 
 const {
   loading,
   dataList,
-  onSearch,
-  resetForm
-} = crudPage.table
+  treeConfig,
+  tableColumns,
+  searchForm,
+  orgCategoryLabelMap,
+  institutionalTypeLabelMap
+} = pageState.table
 
-const crud = crudPage.editor
-const { remove } = crudPage.actions
-
-const crudVisible = crud.visible
-const crudMode = crud.mode
-const crudTitle = crud.title
-const crudReadonly = crud.readonly
-const crudSubmitting = crud.submitting
-const crudForm = crud.form
-
-const orgCategoryLabelMap = computed(() => buildDictLabelMap(orgCategoryOptions.value))
-const institutionalTypeLabelMap = computed(() => buildDictLabelMap(institutionalTypeOptions.value))
 const {
-  clearTreeCache,
-  loadTreeChildren,
-  refreshTable,
-  markDeletingRow,
-  clearDeletingRow,
-  clearDeletingRowIfMatched,
-  invalidateDeletedRowCache,
+  crud,
+  crudVisible,
+  crudMode,
+  crudTitle,
+  crudReadonly,
+  crudSubmitting,
+  crudForm,
+  checkOrgNameUnique
+} = pageState.editor
+
+const {
+  orgTreeOptions,
+  orgCategoryOptions,
+  institutionalTypeOptions,
+  orgLevelOptions,
+  rootParentId
+} = pageState.options
+
+const {
+  orgManagerVisible,
+  orgManagerTarget,
+  orgLevelDialogVisible
+} = pageState.dialogs
+
+const {
   tableSearch,
   onKeywordUpdate,
-  onResetSearch
-} = useOrgTreeQuery({
-  inSearchMode,
-  searchForm,
-  searchRef,
-  onSearch,
-  resetForm
-})
-
-const treeConfig = computed<Record<string, unknown> | undefined>(() => {
-  if (inSearchMode.value) return undefined
-
-  return {
-    lazy: true,
-    trigger: 'cell',
-    reserve: true,
-    hasChildField: 'hasChildren',
-    childrenField: 'children',
-    loadMethod: loadTreeChildren
-  }
-})
-
-function sortRows(rows: OrgRecord[]): OrgRecord[] {
-  return [...rows].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
-}
-
-function toTreeOptions(rows: OrgRecord[]): OrgTreeOption[] {
-  return sortRows(rows).map((row) => ({
-    value: row.id,
-    label: row.orgName,
-    children: Array.isArray(row.children) ? toTreeOptions(row.children) : undefined
-  }))
-}
-
-function collectDisabledIds(rows: OrgRecord[], targetId: string, ids: Set<string>): boolean {
-  for (const row of rows) {
-    if (row.id === targetId) {
-      ids.add(row.id)
-      markChildIds(row, ids)
-      return true
-    }
-
-    if (Array.isArray(row.children) && row.children.length > 0) {
-      const found = collectDisabledIds(row.children, targetId, ids)
-      if (found) return true
-    }
-  }
-
-  return false
-}
-
-function markChildIds(row: OrgRecord, ids: Set<string>) {
-  if (!Array.isArray(row.children) || row.children.length === 0) return
-
-  row.children.forEach((child) => {
-    ids.add(child.id)
-    markChildIds(child, ids)
-  })
-}
-
-function applyDisabled(options: OrgTreeOption[], ids: Set<string>): OrgTreeOption[] {
-  return options.map((item) => ({
-    ...item,
-    disabled: ids.has(item.value),
-    children: Array.isArray(item.children) ? applyDisabled(item.children, ids) : undefined
-  }))
-}
-
-function hasOptionValue(options: OrgTreeOption[], targetValue: string): boolean {
-  for (const item of options) {
-    if (item.value === targetValue) return true
-    if (Array.isArray(item.children) && item.children.length > 0) {
-      const found = hasOptionValue(item.children, targetValue)
-      if (found) return true
-    }
-  }
-
-  return false
-}
-
-async function loadOrgTreeOptions(disabledId?: string) {
-  const response = await orgApi.queryAllOrgTree()
-  if (response.code !== 200) {
-    throw new Error(response.message || '加载组织树失败')
-  }
-
-  const rows = Array.isArray(response.data) ? response.data : []
-  const disabledIds = new Set<string>()
-
-  if (disabledId) {
-    collectDisabledIds(rows, disabledId, disabledIds)
-  }
-
-  let options = applyDisabled(toTreeOptions(rows), disabledIds)
-
-  if (!hasOptionValue(options, rootParentId.value)) {
-    options = [
-      {
-        value: rootParentId.value,
-        label: '顶级组织',
-        children: options
-      }
-    ]
-  }
-
-  orgTreeOptions.value = options
-}
-
-async function loadDictOptions() {
-  const [orgCategoryRes, institutionalTypeRes] = await Promise.all([
-    orgApi.dictDataList({ dictCode: 'org_category' }),
-    orgApi.dictDataList({ dictCode: 'institutional_type' })
-  ])
-
-  if (orgCategoryRes.code !== 200) {
-    throw new Error(orgCategoryRes.message || '加载组织类型失败')
-  }
-
-  if (institutionalTypeRes.code !== 200) {
-    throw new Error(institutionalTypeRes.message || '加载机构类别失败')
-  }
-
-  orgCategoryOptions.value = Array.isArray(orgCategoryRes.data) ? orgCategoryRes.data : []
-  institutionalTypeOptions.value = Array.isArray(institutionalTypeRes.data)
-    ? institutionalTypeRes.data
-    : []
-}
-
-async function loadOrgLevelOptions() {
-  const response = await orgApi.getOrgLevelList()
-  if (response.code !== 200) {
-    throw new Error(response.message || '加载等级列表失败')
-  }
-
-  orgLevelOptions.value = Array.isArray(response.data) ? response.data : []
-}
-
-async function openCreateRoot() {
-  createParentId.value = rootParentId.value
-  await crud.openCreate()
-}
-
-async function openCreateChild(row: OrgRecord) {
-  createParentId.value = row.id
-  await crud.openCreate()
-}
-
-async function handleDelete(row: OrgRecord) {
-  markDeletingRow(row)
-  await remove(row)
-  clearDeletingRowIfMatched(row)
-}
-
-async function checkOrgNameUnique(params: { orgName: string; parentId?: string; orgId?: string }) {
-  const parentId = params.parentId || rootParentId.value
-  const currentUnique = toOrgUniqueSnapshot({
-    orgName: params.orgName,
-    parentId
-  })
-
-  if (params.orgId && !shouldCheckOrgUnique(currentUnique, orgUniqueSnapshot.value)) {
-    return true
-  }
-
-  const response = await orgApi.checkUnique({
-    orgName: params.orgName,
-    parentId,
-    orgId: params.orgId
-  })
-  return assertUniqueCheck(response, '组织名称校验失败')
-}
-
-function openManagerDialog(row: OrgRecord) {
-  orgManagerTarget.value = row
-  orgManagerVisible.value = true
-}
-
-function openLevelManageDialog() {
-  orgLevelDialogVisible.value = true
-}
-
-function handleOrgManagerUpdated() {
-  void refreshTable()
-}
-
-function handleOrgLevelUpdated() {
-  void loadOrgLevelOptions()
-}
-
-onMounted(async () => {
-  try {
-    await Promise.all([loadDictOptions(), loadOrgLevelOptions()])
-  } catch (error) {
-    message.error(getErrorMessage(error, '初始化组织管理配置失败'))
-  }
-
-  await onSearch(false)
-})
+  onResetSearch,
+  openLevelManageDialog,
+  openCreateRoot,
+  openCreateChild,
+  openManagerDialog,
+  handleDelete,
+  handleOrgManagerUpdated,
+  handleOrgLevelUpdated
+} = pageState.actions
 </script>
 
 <template>
@@ -441,7 +83,7 @@ onMounted(async () => {
 
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
-          ref="tableRef"
+          :ref="refs.tableRef"
           :loading="loading"
           :size="size"
           :data="dataList"
@@ -481,7 +123,7 @@ onMounted(async () => {
       </template>
 
       <template #drawer>
-        <OrgSearchForm ref="searchRef" v-model="searchForm" />
+        <OrgSearchForm :ref="refs.searchRef" v-model="searchForm" />
       </template>
     </OneTableBar>
   </PageContainer>
@@ -501,7 +143,7 @@ onMounted(async () => {
     @close="crud.close"
   >
     <OrgEditForm
-      ref="editFormRef"
+      :ref="refs.editFormRef"
       v-model="crudForm"
       :rules="orgFormRules"
       :disabled="crudReadonly"
