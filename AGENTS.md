@@ -138,11 +138,22 @@ packages/
 - **CRUD 页面默认使用 `useEntityEditor` 的内置错误提示，不再为每个页面重复编写同构 `onError`**
 - **管理页脚本体超过单屏后，优先拆分“新增/编辑表单组件”和“高级搜索组件”，页面只保留编排逻辑**
 - **`UserManagement` 模块采用“一个功能一个文件夹（feature-first）”组织方式；`routes` 统一在模块根目录集中维护所有页面路由**
+- **新增/迁移 `UserManagement` 页面时，必须在同一次变更内同步更新 `apps/admin/src/modules/UserManagement/routes.ts`，禁止出现“有 `page.vue` 无路由”或“有路由指向不存在页面”**
+- **迁移/改造角色域时，必须同步核对并补齐 `角色管理`（`/system/role/management`）与 `角色分配`（`/system/role/assign`）两条路由；缺任一条时不得标记为“角色模块完成”**
+- **角色分配页“添加人员”弹层必须使用 `dialog`（禁止抽屉），并保持“左侧组织通讯录 + 右侧已选人员”双栏选择结构，对齐老项目交互**
+- **角色分配页“添加人员”弹层右侧已选人员必须支持拖拽排序并显示手机号，列表超长时保持右侧独立滚动，禁止撑高整窗体**
+- **角色分配页“添加人员”空态（未选择人员）图文必须在右侧面板完全居中；左侧面包屑区域禁止额外显示“组织”抬头文案；列表 `loading` 遮罩背景保持透明**
+- **选人能力需沉淀为 `apps/admin/src/components/PersonnelSelector` 可复用组件，默认低耦合支持后续组织/角色/岗位选择扩展（避免写死角色分配专属逻辑）**
+- **角色分配页左侧角色区优先使用 `PageContainer` 的 `#left` 插槽 + `el-menu` 组合，尽量复用容器与组件默认能力，减少页面私有样式与深度覆写**
+- **角色分配页左侧角色区必须保持扁平化无圆角：搜索输入框与角色选中项均禁止圆角样式，确保与系统整体视觉一致**
+- **admin 全局 `v-loading` 遮罩背景统一透明（含 fullscreen 场景），并统一 loading 图标主色与文案样式；禁止回退深色蒙层**
 - **CRUD 通用容器必须保留 `footer` 插槽，并支持“纯容器模式”（仅通过 `v-model` 管理 `visible`，不强制 form 与默认确认/取消按钮）**
 - **`useEntityEditor` 禁止再使用歧义命名 `submit` 作为保存入口；统一使用结构化配置 `entity/form/detail/save`，保存流程固定为 `save.buildPayload -> save.request -> save.onSuccess`，以避免与 `useTable` 查询语义混淆**
 - **UserManagement（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，确认交互统一通过 `obConfirm` 封装能力实现（含输入型确认）**
 - **业务页已使用 `ObActionButtons` 时，禁止再叠加手写 `el-dropdown` 操作列，更多操作统一交给 `ObActionButtons` 收敛**
 - **`ObActionButtons` 作为全局组件使用，UserManagement 页面默认不再手动 import 该组件**
-- **除标准增删改查外的复杂业务逻辑（状态批量处理、重置密码、导入映射、输入型删除确认等）统一下沉到模块 `actions.ts`**
+- **`@one-base-template/ui` 组件在 `apps/admin` 业务页默认走全局注册（`Ob*` 前缀）使用；仅当组件未注册且明确说明原因时，才允许局部 import**
+- **UserManagement 编排层已按 composable 分层后，禁止再新增汇总式 `actions.ts`；复杂逻辑按语义归入对应 composable（如 `useXxxState/useXxxActions/useXxxQuery`），页面仅保留编排解构**
+- **页面状态分组必须语义清晰：`editor` 仅承载 CRUD 编辑态（`visible/mode/title/submitting/form/uniqueCheck`），表单选项/字典/树数据统一放在 `options`，禁止 `editor.formOptions` 混合结构**
 - **用户管理左侧组织树统一使用封装树组件 `ObTree`：仅叶子节点在文本溢出时显示 tooltip，未溢出不显示**
 - **`PageContainer` 需支持左侧插槽（`#left`）与 `leftWidth`，用于“左树右表”布局并保障分页器稳定可见**

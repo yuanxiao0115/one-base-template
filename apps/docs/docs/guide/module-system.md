@@ -171,11 +171,59 @@ apps/admin/src/modules/UserManagement/
 关键点：
 
 - 路由集中：模块根仅保留一个 `routes.ts`
+- 路由防漏：新增/迁移 `page.vue` 必须同次更新 `routes.ts`，且路由组件路径必须可解析到真实文件
 - 功能目录：`position/` 下内聚 `page + api + form + components`
 - 路由入口：`/system/position`
 - 页面结构：`PageContainer + OneTableBar + ObVxeTable`
 - 弹窗形态：`ObCrudContainer + useEntityEditor`（业务只关心表单与接口）
 - 接口对齐老项目：直接调用 `/cmict/admin/sys-post/page|add|update|delete|unique/check` 真实后端接口
+- 角色域补充：迁移 UserManagement 角色模块时，需同时核对 `角色管理(/system/role/management)` 与 `角色分配(/system/role/assign)` 两条路由
+
+角色分配页当前已落地，关键文件如下：
+
+- 页面编排：`apps/admin/src/modules/UserManagement/role-assign/page.vue`
+- 页面状态：`apps/admin/src/modules/UserManagement/role-assign/composables/useRoleAssignPageState.ts`
+- 角色成员选择：`apps/admin/src/modules/UserManagement/role-assign/components/RoleAssignMemberSelectForm.vue`
+- 复用选人组件：`apps/admin/src/components/PersonnelSelector/PersonnelSelector.vue`
+
+当前交互基线：
+
+- 左侧角色列表（支持关键字筛选）+ 右侧成员分页表格（`OneTableBar + ObVxeTable`）
+- 左侧角色区通过 `PageContainer` 的 `#left` 插槽承载，采用“标题统计 + 搜索 + 菜单化角色列表”结构，优先复用容器与 Element 能力，减少页面私有样式
+- 左侧角色区遵循扁平化视觉：搜索输入框与角色选中项均为无圆角样式，和管理端整体风格保持一致
+- 右侧支持关键词搜索、批量选择、单条/批量移除人员
+- “添加人员”使用 `dialog` 弹窗（非抽屉），并采用“左侧组织通讯录 + 右侧已选人员”双栏结构
+- 弹窗内左侧支持组织下钻与人员搜索（含“下级”图标入口），右侧维护已选人员集合并支持拖拽排序
+- 已选人员展示统一为“姓名（手机号）”，列表超长时右侧独立滚动，不撑高弹窗
+- 保存时按差异调用 `addMembers/removeMembers`
+
+`PersonnelSelector` 复用约定（对齐老项目 `openPersonnelSelection` 的多场景思路，但保持低耦合）：
+
+- 通过 `mode=person|org|role|position` 控制查询语义，后续业务只需替换 `fetchNodes/searchNodes`
+- 通过 `selectionField=userIds|orgIds|roleIds|positionIds` 复用同一组件存储不同选择结果
+- `allowSelectOrg=true` 时可在“选人场景”附带勾选组织（兼容“人员 + 组织”混选需求）
+- 右侧拖拽采用 `sortablejs` 动态导入，仅在“可拖拽且已选数量 > 1”时初始化，避免无效开销
+
+函数式打开方式（面向“很多业务都要用”的接入场景）：
+
+```ts
+import { openPersonnelSelection } from '@/components/PersonnelSelector'
+
+const result = await openPersonnelSelection({
+  title: '添加人员',
+  mode: 'person',
+  users: selectedUsers,
+  fetchNodes: ({ parentId }) => roleAssignApi.getOrgContactsLazy({ parentId }).then((res) => res.data || []),
+  searchNodes: ({ keyword }) => roleAssignApi.searchContactUsers({ search: keyword }).then((res) => res.data || [])
+})
+
+console.log(result.userIds, result.users)
+```
+
+说明：
+
+- `users/orgs/roles/positions` 为兼容老项目习惯的初始值入参（可选）
+- 返回值同时提供 `model + ids + selectedItems`，便于不同业务按需消费
 
 最小路由声明示例：
 
@@ -197,3 +245,31 @@ export default [
 ```
 
 后续迁移 `user/org` 时，建议继续沿用同一目录与页面骨架，保持“模块可切割 + CRUD 容器可复用”的一致性。
+
+## 10) LogManagement 模块示例（登录日志 + 操作日志）
+
+日志管理模块按同一模式落地在 `apps/admin/src/modules/LogManagement`：
+
+```text
+apps/admin/src/modules/LogManagement/
+  module.ts
+  routes.ts
+  api/login-log.ts
+  api/sys-log.ts
+  login-log/page.vue
+  login-log/columns.tsx
+  login-log/composables/*
+  login-log/components/*
+  sys-log/page.vue
+  sys-log/columns.tsx
+  sys-log/composables/*
+  sys-log/components/*
+```
+
+关键点：
+
+- 路由集中：`routes.ts` 统一管理 `/system/log/login-log` 与 `/system/log/sys-log`
+- 页面编排：`page.vue` 仅保留 `OneTableBar + ObVxeTable + 详情抽屉` 编排
+- 逻辑下沉：查询、删除、详情拉取统一放在 `composables/use*PageState.ts`
+- 接口契约：`api/*` 对旧接口响应结构做标准化适配（`list/records`、`total`、分页字段）
+- 模块装配：`platform-config.json` 的 `enabledModules` 显式加入 `log-management`

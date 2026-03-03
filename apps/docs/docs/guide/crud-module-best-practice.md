@@ -13,6 +13,7 @@ outline: [2, 3]
 参考实现：
 
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/page.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/composables/usePositionPageState.ts`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/api.ts`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/form.ts`
 
@@ -23,6 +24,8 @@ outline: [2, 3]
 ```text
 modules/<FeatureName>/<EntityName>/
 ├── page.vue                    # 页面编排层（表格 + 搜索 + 容器）
+├── composables/
+│   └── use<Entity>PageState.ts # 状态编排与副作用（useCrudPage/查询/删除/分页）
 ├── api.ts                      # 接口层（请求参数/响应类型/接口函数）
 ├── form.ts                     # 表单模型、规则、映射函数
 ├── columns.tsx                 # 表格列定义
@@ -35,7 +38,8 @@ modules/<FeatureName>/<EntityName>/
 
 - `api.ts`：只关心接口契约与字段映射，**不写页面状态逻辑**
 - `form.ts`：统一做 `detail -> form`、`form -> payload` 转换
-- `page.vue`：只做 orchestration（编排），不堆积字段清洗细节
+- `composables/use<Entity>PageState.ts`：收敛 `useCrudPage`、查询参数、删除链路、分页动作与页面副作用
+- `page.vue`：只做 orchestration（编排解构 + 模板绑定），不堆积字段清洗细节
 
 ## 2. API 与类型契约规范
 
@@ -71,9 +75,9 @@ Hook 来源建议：
 
 `page.vue` 保持以下最小职责：
 
-1. 定义 `searchForm`（`reactive`）
-2. 定义 `tableOpt`（`query/remove/hooks`）并调用 `useCrudPage`
-3. 绑定分页事件 `handleSizeChange / handleCurrentChange`
+1. 调用 `use<Entity>PageState()` 获取分组状态（`refs/table/options/editor/actions/dialogs`）
+2. 在脚本中按语义二次解构，模板避免长链访问
+3. 绑定分页事件与查询事件（由 `actions` 输出）
 4. 在 `operation` 插槽编排行操作（编辑/查看/删除）
 
 ### 3.2 删除交互
@@ -208,8 +212,12 @@ const { table, editor, actions } = crudPage
 1. 复制 Position 目录骨架（`api.ts + form.ts + columns.tsx + page.vue + components/*`）
 2. 替换实体字段与接口地址，优先改 `form.ts` 映射函数
 3. 接入路由（`routes.ts`）并设置 `meta.title/keepAlive`
-4. 在页面只保留编排：`useCrudPage + slots`
-5. 跑验证命令并补文档
+4. 路由防漏自检：新增/迁移的 `page.vue` 必须在同次变更注册到 `routes.ts`；并确认不存在指向无效页面的路由项
+5. 若本次改动涉及 UserManagement 角色域，必须同时核对两条路由：
+   - `角色管理`：`/system/role/management`
+   - `角色分配`：`/system/role/assign`
+6. 在页面只保留编排：`useCrudPage + slots`
+7. 跑验证命令并补文档
 
 推荐验证命令：
 
@@ -257,7 +265,7 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - **确认交互统一封装**：UserManagement 模块不直接调用 `ElMessageBox`，统一使用 `obConfirm`（包含输入型删除确认）。
 - **非删除确认收敛**：启停、重置密码、表单内行移除等确认交互，优先复用 `modules/UserManagement/shared/confirm.ts`，避免在各页面重复写取消判定。
 - **操作列统一收敛**：使用 `ObActionButtons` 后不再叠加手写 `el-dropdown`，更多操作交给组件内置折叠能力。
-- **复杂逻辑下沉 actions.ts**：除标准 CRUD 外（批量启停、重置密码、导入映射、命名确认删除等）统一抽离到 `actions.ts`，页面脚本只做编排。
+- **复杂逻辑按语义下沉 composable**：除标准 CRUD 外（批量启停、重置密码、导入映射、命名确认删除等）拆到 `useXxxState/useXxxActions/useXxxQuery`，不再新增汇总式 `actions.ts`。
 - **批量操作统一入口**：启用/停用、重置密码、删除二次确认全部收敛到页面脚本函数，保持提示文案和异常处理一致。
 - **组织内拖拽排序**：仅在已选组织时启用拖拽，失败后强制重新查询回滚，避免“前端排序成功、后端失败”导致的数据错位。
 - **导入能力组件化**：将上传校验（数量/大小/类型）沉淀到 `ObImportUpload`，页面只负责模板下载和上传成功后的刷新动作。
@@ -297,7 +305,7 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 为避免页面脚本持续膨胀，建议在 CRUD 模块默认遵循以下阈值：
 
 - `page.vue`（编排页）建议控制在 **500 行以内**；超过 **600 行** 时，优先把“业务动作、树查询、拖拽、弹窗状态机”拆到 `composables`。
-- `api.ts / form.ts / actions.ts / composables/*.ts` 建议控制在 **300 行以内**；超过 **400 行** 时按职责再拆一层（例如 `useXxxQuery`、`useXxxMutations`）。
+- `api.ts / form.ts / composables/*.ts` 建议控制在 **300 行以内**；超过 **400 行** 时按职责再拆一层（例如 `useXxxQuery`、`useXxxMutations`）。
 - 单个函数建议控制在 **80 行以内**；超过 **120 行** 时拆分子函数，保持“动词 + 名词”命名与单一职责。
 - 每次新增需求先判断“是新增流程还是扩展现有流程”：优先复用已有 `shared/*` 与 `composables/*`，避免把逻辑回填到 `page.vue`。
 

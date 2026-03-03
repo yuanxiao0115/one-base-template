@@ -306,6 +306,22 @@ await confirm.error('该操作无法撤销，是否继续？', '失败信息')
 
 ---
 
+## 全局 Loading 遮罩（Admin）
+
+为避免 loading 状态出现深色蒙层遮挡，admin 侧统一将 Element Plus loading 遮罩改为透明背景：
+
+- 样式落点：`apps/admin/src/styles/element-plus/loading-overrides.css`
+- 引入入口：`apps/admin/src/main.ts`
+
+规则说明：
+
+- `el-loading-mask` 与 `el-loading-mask.is-fullscreen` 统一 `background-color: transparent`
+- `el-loading-spinner .path` 与自定义 loading icon 统一使用主色（`--one-color-primary`）
+- `el-loading-spinner .el-loading-text` 统一为次级文案色与 `12px` 字号
+- 保留 loading 动画与交互阻塞行为，仅统一视觉风格
+
+---
+
 ## 按钮规范（Element Plus 覆盖）
 
 按钮规范已拆分到独立章节：**[组件样式（按钮）](/guide/button-styles)**。
