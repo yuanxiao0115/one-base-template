@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, useAttrs, watch } from 'vue';
+import { Icon } from '@iconify/vue/dist/offline';
 import { useAssetStore } from '@one-base-template/core';
+import { ensureMenuIconifyCollectionsRegistered, isMenuIconifyValue } from '../../iconify/menu-iconify';
 
 const props = defineProps<{
   icon?: string;
 }>();
 
 const assetStore = useAssetStore();
+ensureMenuIconifyCollectionsRegistered();
+const attrs = useAttrs();
 
 const rawIcon = computed(() => (props.icon ?? '').trim());
 
@@ -47,7 +51,7 @@ function resolveBaseClass(iconClass: string): string | undefined {
   return undefined;
 }
 
-type IconKind = 'empty' | 'class' | 'url' | 'id';
+type IconKind = 'empty' | 'class' | 'url' | 'iconify' | 'id';
 
 const kind = computed<IconKind>(() => {
   const raw = rawIcon.value;
@@ -64,6 +68,11 @@ const kind = computed<IconKind>(() => {
   // iconfont class
   if (raw.startsWith('i-icon-') || raw.startsWith('icon-') || raw.startsWith('dj-icon-') || raw.startsWith('pure-iconfont-')) {
     return 'class';
+  }
+
+  // Iconify（离线已预注册 ep/ri）
+  if (isMenuIconifyValue(raw)) {
+    return 'iconify';
   }
 
   // 默认按“资源 id”（minio）处理
@@ -135,6 +144,15 @@ watch(
     class="w-4 h-4 object-contain"
     alt=""
     aria-hidden="true"
+    v-bind="attrs"
   >
-  <i v-else-if="classes.length" :class="classes" aria-hidden="true" />
+  <Icon
+    v-else-if="kind === 'iconify'"
+    :icon="rawIcon"
+    width="1em"
+    height="1em"
+    aria-hidden="true"
+    v-bind="attrs"
+  />
+  <i v-else-if="classes.length" :class="classes" aria-hidden="true" v-bind="attrs" />
 </template>

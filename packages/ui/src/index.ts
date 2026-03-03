@@ -5,6 +5,7 @@ import './styles/iconfont.css';
 
 export { default as AdminLayout } from './layouts/AdminLayout.vue';
 export { default as SidebarMenu } from './components/menu/SidebarMenu.vue';
+export { default as MenuIcon } from './components/menu/MenuIcon.vue';
 export { default as TopBar } from './components/top/TopBar.vue';
 export { default as TabsBar } from './components/tabs/TabsBar.vue';
 export { default as ThemeSwitcher } from './components/theme/ThemeSwitcher.vue';
@@ -14,9 +15,15 @@ export { default as PageContainer } from './components/container/PageContainer.v
 export { default as CrudContainer } from './components/container/CrudContainer.vue';
 export { default as Tree } from './components/tree/Tree.vue';
 export { default as ActionButtons } from './components/table/ActionButtons.vue';
-export { default as OneTableBar } from './components/table/OneTableBar.vue';
+export { default as TableBox } from './components/table/TableBox.vue';
 export { default as VxeTable } from './components/table/VxeTable.vue';
 export { default as ImportUpload } from './components/upload/ImportUpload.vue';
+export {
+  ensureMenuIconifyCollectionsRegistered,
+  getMenuIconifyNames,
+  isMenuIconifyValue,
+  type MenuIconifyPrefix
+} from './iconify/menu-iconify';
 export type {
   AdaptiveConfig,
   TableAlign,

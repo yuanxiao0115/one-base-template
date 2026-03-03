@@ -4,10 +4,10 @@ import { Filter, Search } from '@element-plus/icons-vue';
 import type { TableColumnList } from './types';
 
 defineOptions({
-  name: 'OneTableBar'
+  name: 'TableBox'
 });
 
-interface OneTableBarProps {
+interface TableBoxProps {
   title?: string;
   tableRef?: Record<string, unknown> | null;
   columns?: TableColumnList;
@@ -19,7 +19,7 @@ interface OneTableBarProps {
   maxlength?: number;
 }
 
-const props = withDefaults(defineProps<OneTableBarProps>(), {
+const props = withDefaults(defineProps<TableBoxProps>(), {
   title: '列表',
   tableRef: null,
   columns: () => [],

@@ -39,6 +39,7 @@ export interface AppMenuItem {
   /**
    * 菜单图标：
    * - 可能是 iconfont class（如 `i-icon-xxx` / `icon-xxx` / `dj-icon-xxx` / `iconfont-od icon-xxx` / 多个 class 拼接）
+   * - 也可能是 iconify 名称（如 `ep:home-filled` / `ri:settings-3-line`）
    * - 也可能是后端存储在 minio 的资源 id（由 adapter.assets 提供拉取能力）
    */
   icon?: string;

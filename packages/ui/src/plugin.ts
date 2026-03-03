@@ -1,6 +1,7 @@
 import type { App, Component } from 'vue';
 import AdminLayout from './layouts/AdminLayout.vue';
 import SidebarMenu from './components/menu/SidebarMenu.vue';
+import MenuIcon from './components/menu/MenuIcon.vue';
 import TopBar from './components/top/TopBar.vue';
 import TabsBar from './components/tabs/TabsBar.vue';
 import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
@@ -10,7 +11,7 @@ import PageContainer from './components/container/PageContainer.vue';
 import CrudContainer from './components/container/CrudContainer.vue';
 import Tree from './components/tree/Tree.vue';
 import ActionButtons from './components/table/ActionButtons.vue';
-import OneTableBar from './components/table/OneTableBar.vue';
+import TableBox from './components/table/TableBox.vue';
 import VxeTable from './components/table/VxeTable.vue';
 import ImportUpload from './components/upload/ImportUpload.vue';
 import { setUseTableDefaults, type UseTableDefaults } from '@one-base-template/core';
@@ -19,6 +20,7 @@ import { ONE_UI_GLOBAL_CONFIG_KEY, createOneUiGlobalConfig, type CrudContainerGl
 const UI_COMPONENTS = {
   AdminLayout,
   SidebarMenu,
+  MenuIcon,
   TopBar,
   TabsBar,
   ThemeSwitcher,
@@ -28,7 +30,7 @@ const UI_COMPONENTS = {
   CrudContainer,
   Tree,
   ActionButtons,
-  OneTableBar,
+  TableBox,
   VxeTable,
   ImportUpload
 } as const;
