@@ -8,7 +8,7 @@ outline: [2, 3]
 
 - **业务页只做编排**，不堆积数据转换和弹层状态机
 - **目录清晰且可迁移**，便于后续批量复制到组织、用户、字典等模块
-- **统一交互与视觉**，保持 `OneTableBar + ObVxeTable + ObCrudContainer` 一致体验
+- **统一交互与视觉**，保持 `ObTableBox + ObVxeTable + ObCrudContainer` 一致体验
 
 参考实现：
 
@@ -64,7 +64,7 @@ modules/<FeatureName>/<EntityName>/
 
 统一采用：
 
-`PageContainer` + `OneTableBar` + `ObVxeTable` + `ObCrudContainer`
+`ObPageContainer` + `ObTableBox` + `ObVxeTable` + `ObCrudContainer`
 
 Hook 来源建议：
 
@@ -160,7 +160,7 @@ const { table, editor, actions } = crudPage
 ### 5.3 SearchForm 组件实现要求
 
 - 使用 `defineModel<SearchForm>({ required: true })`
-- 暴露 `resetFields` 供 `OneTableBar` 的重置动作调用
+- 暴露 `resetFields` 供 `ObTableBox` 的重置动作调用
 - 仅承载筛选项 UI，不耦合查询触发逻辑
 
 ## 6. 表格列与操作区规范

@@ -35,7 +35,7 @@ import { OneUiPlugin } from '@one-base-template/ui'
 
 app.use(OneUiPlugin, {
   prefix: 'Ob',
-  aliases: true,
+  aliases: false,
   crudContainer: {
     defaultContainer: 'dialog'
   }
@@ -203,7 +203,7 @@ const crud = useEntityEditor({
 该覆盖同时作用于：
 
 - `ObCrudContainer` 业务抽屉
-- `OneTableBar` 高级筛选抽屉
+- `ObTableBox` 高级筛选抽屉
 
 使用建议：
 

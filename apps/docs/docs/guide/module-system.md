@@ -74,7 +74,7 @@ pnpm new:module user-center --title 用户中心
 
 ```json
 {
-  "enabledModules": ["home", "b", "user-management"]
+  "enabledModules": ["home", "b", "user-management", "log-management", "system-management"]
 }
 ```
 
@@ -174,7 +174,7 @@ apps/admin/src/modules/UserManagement/
 - 路由防漏：新增/迁移 `page.vue` 必须同次更新 `routes.ts`，且路由组件路径必须可解析到真实文件
 - 功能目录：`position/` 下内聚 `page + api + form + components`
 - 路由入口：`/system/position`
-- 页面结构：`PageContainer + OneTableBar + ObVxeTable`
+- 页面结构：`ObPageContainer + ObTableBox + ObVxeTable`
 - 弹窗形态：`ObCrudContainer + useEntityEditor`（业务只关心表单与接口）
 - 接口对齐老项目：直接调用 `/cmict/admin/sys-post/page|add|update|delete|unique/check` 真实后端接口
 - 角色域补充：迁移 UserManagement 角色模块时，需同时核对 `角色管理(/system/role/management)` 与 `角色分配(/system/role/assign)` 两条路由
@@ -188,8 +188,8 @@ apps/admin/src/modules/UserManagement/
 
 当前交互基线：
 
-- 左侧角色列表（支持关键字筛选）+ 右侧成员分页表格（`OneTableBar + ObVxeTable`）
-- 左侧角色区通过 `PageContainer` 的 `#left` 插槽承载，采用“标题统计 + 搜索 + 菜单化角色列表”结构，优先复用容器与 Element 能力，减少页面私有样式
+- 左侧角色列表（支持关键字筛选）+ 右侧成员分页表格（`ObTableBox + ObVxeTable`）
+- 左侧角色区通过 `ObPageContainer` 的 `#left` 插槽承载，采用“标题统计 + 搜索 + 菜单化角色列表”结构，优先复用容器与 Element 能力，减少页面私有样式
 - 左侧角色区遵循扁平化视觉：搜索输入框与角色选中项均为无圆角样式，和管理端整体风格保持一致
 - 右侧支持关键词搜索、批量选择、单条/批量移除人员
 - “添加人员”使用 `dialog` 弹窗（非抽屉），并采用“左侧组织通讯录 + 右侧已选人员”双栏结构
@@ -269,7 +269,42 @@ apps/admin/src/modules/LogManagement/
 关键点：
 
 - 路由集中：`routes.ts` 统一管理 `/system/log/login-log` 与 `/system/log/sys-log`
-- 页面编排：`page.vue` 仅保留 `OneTableBar + ObVxeTable + 详情抽屉` 编排
+- 页面编排：`page.vue` 仅保留 `ObTableBox + ObVxeTable + 详情抽屉` 编排
 - 逻辑下沉：查询、删除、详情拉取统一放在 `composables/use*PageState.ts`
 - 接口契约：`api/*` 对旧接口响应结构做标准化适配（`list/records`、`total`、分页字段）
 - 模块装配：`platform-config.json` 的 `enabledModules` 显式加入 `log-management`
+
+## 11) SystemManagement 模块示例（菜单管理 + 字典管理）
+
+系统管理模块落地在 `apps/admin/src/modules/SystemManagement`：
+
+```text
+apps/admin/src/modules/SystemManagement/
+  module.ts
+  routes.ts
+  menu/
+    api.ts
+    columns.ts
+    form.ts
+    composables/useMenuManagementPageState.ts
+    components/*
+    page.vue
+  dict/
+    api.ts
+    columns.ts
+    form.ts
+    composables/useDictPageState.ts
+    components/*
+    page.vue
+```
+
+关键点：
+
+- 路由集中：`routes.ts` 同时声明 `/system/permission`（菜单管理）与 `/system/dict`（字典管理）
+- 菜单管理：沿用 `ObPageContainer + ObTableBox + ObVxeTable + ObCrudContainer`，支持树模式与筛选模式切换
+- 菜单管理图标：支持手动输入（兼容 class/url/minio id）+ 可视化选择（CP=产品 Iconfont、DJ=党建 Iconfont、OM=OM Iconfont、OD=公文 Iconfont、EP=Element Plus、RI=Remix Icon）
+  - 编辑表单入口采用“输入框右侧插槽 + 图标按钮”简约触发器（不展示“选择图标”文字按钮），控件高度统一 `30px`
+  - iconfont 选择值统一保存为完整 class（例如 `dj-icons dj-icon-icon-1`）
+  - iconify 选择值保存为 `ep:*` / `ri:*`，运行时按离线集合渲染
+- 字典管理：主表为字典列表，二级弹层内承载字典项 CRUD 与启停能力
+- 模块装配：`platform-config.json` 的 `enabledModules` 需包含 `system-management`

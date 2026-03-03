@@ -25,9 +25,9 @@ export const appSidebarWidth = '256px';
 export const appSidebarCollapsedWidth = '64px';
 ```
 
-## 页面容器（PageContainer）
+## 页面容器（ObPageContainer）
 
-当业务页面需要“**撑满可用区域** + **内容超高后内部滚动**”时，推荐直接使用 `@one-base-template/ui` 提供的 `PageContainer`：
+当业务页面需要“**撑满可用区域** + **内容超高后内部滚动**”时，推荐直接使用全局组件 `ObPageContainer`（导出名为 `PageContainer`）：
 
 - 组件位置：`packages/ui/src/components/container/PageContainer.vue`
 - 插件全局组件名：`ObPageContainer`（默认 `OneUiPlugin` 前缀为 `Ob`）
@@ -79,9 +79,9 @@ defineOptions({ name: 'UserListPage' });
     />
   </template>
 
-  <OneTableBar ...>
+  <ObTableBox ...>
     <!-- 右侧表格内容 -->
-  </OneTableBar>
+  </ObTableBox>
 </ObPageContainer>
 ```
 
@@ -91,11 +91,11 @@ defineOptions({ name: 'UserListPage' });
 - 若页面开启 `meta.fullScreen=true`，可结合 `ObPageContainer` 管理页面内部滚动，避免整页滚动串联。
 - 管理端已提供可访问示例页：`/demo/page-container`（路由名 `DemoPageContainer`）。
 
-## 表格布局组合（OneTableBar + ObVxeTable）
+## 表格布局组合（ObTableBox + ObVxeTable）
 
-为了降低旧 puretable 页面迁移成本，模板提供了 **OneTableBar + ObVxeTable** 组合：
+为了降低旧 puretable 页面迁移成本，模板提供了 **ObTableBox + ObVxeTable** 组合：
 
-- `OneTableBar`：保留旧工具条交互（快捷搜索、抽屉筛选、已选条、按钮区）。
+- `ObTableBox`：保留旧工具条交互（快捷搜索、抽屉筛选、已选条、按钮区）。
 - `ObVxeTable`：承接表格渲染与分页，多数旧列定义可直接复用。
 - `useTable`：继续支持旧调用方式，同时可按需切换到新版缓存/防抖/刷新策略。
 
@@ -103,7 +103,7 @@ defineOptions({ name: 'UserListPage' });
 
 ```vue
 <ObPageContainer padding="0">
-  <OneTableBar
+  <ObTableBox
     title="登录日志"
     :columns="columns"
     :keyword="searchForm.nickName"
@@ -120,7 +120,7 @@ defineOptions({ name: 'UserListPage' });
         @page-current-change="handleCurrentChange"
       />
     </template>
-  </OneTableBar>
+  </ObTableBox>
 </ObPageContainer>
 ```
 
@@ -222,10 +222,11 @@ UI 行为：
 - `skipMenuAuth` 只会跳过“菜单 allowedPaths 校验”，不会跳过登录校验（仍会被重定向到 `/login`）。
 - 该能力会放宽前端权限控制，应谨慎使用；**能用 `activePath` 归属到已有菜单时，优先用 `activePath`**。
 
-## 菜单 icon：class / url / minio id
+## 菜单 icon：class / url / minio id / iconify
 
 后端的 `menu.icon` 可能是：
 - iconfont class（如 `i-icon-xxx` / `icon-xxx` / `dj-icon-xxx` / `iconfont-od icon-xxx`）
+- iconify 名称（如 `ep:home-filled` / `ri:settings-3-line`）
 - url（http/https/data/blob）
 - minio 资源 id（需要额外请求拿图片）
 
@@ -237,7 +238,12 @@ UI 行为：
 补充：
 - `dj-icon-*` 会自动叠加 `dj-icons` 基类，避免与 CP 的 `icon-*` 冲突。
 - legacy OD 菜单图标（如 `icon-huishouzhan`）会自动补齐 `iconfont-od` 基类。
+- `ep:*` / `ri:*` 图标通过 Iconify 离线集合渲染，不依赖运行时网络请求。
 - 图标组件化用法与三套字体 demo 预览见：`/guide/iconfont`。
+- 菜单管理页（`/system/permission`）支持“输入 + 可视化选择器”混合模式：
+  - 选择器分组缩写：`CP=产品 Iconfont`、`DJ=党建 Iconfont`、`OM=OM Iconfont`、`OD=公文 Iconfont`、`EP=Element Plus`、`RI=Remix Icon`。
+  - iconfont 选择后会落盘完整 class（例如 `iconfont icon-tongxunlu2`）。
+  - iconify 选择后会落盘 `ep:*` / `ri:*` 字符串。
 
 ## 首次进入路由兜底
 
