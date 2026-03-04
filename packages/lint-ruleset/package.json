@@ -1,0 +1,87 @@
+{
+  "name": "@one-base-template/lint-ruleset",
+  "private": false,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "无 Sonar 服务端场景下的前端 lint 规则集（ESLint + Stylelint + Csslint）",
+  "license": "MIT",
+  "keywords": [
+    "eslint",
+    "stylelint",
+    "csslint",
+    "vue",
+    "typescript",
+    "sonarjs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "eslint.config.mjs",
+    "rules/**/*.{mjs,cjs}",
+    "stylelint.config.cjs",
+    "README.md",
+    "mappings/*.csv",
+    "mappings/*.json",
+    "docs/*.md",
+    "scripts/run-csslint.mjs"
+  ],
+  "exports": {
+    "./eslint": "./eslint.config.mjs",
+    "./stylelint": "./stylelint.config.cjs",
+    "./mappings/replaced-rules.csv": "./mappings/replaced-rules.csv",
+    "./mappings/unmapped-rules.csv": "./mappings/unmapped-rules.csv",
+    "./mappings/full-frontend-all-rules.csv": "./mappings/full-frontend-all-rules.csv",
+    "./mappings/full-frontend-direct-rules.csv": "./mappings/full-frontend-direct-rules.csv",
+    "./mappings/full-frontend-partial-rules.csv": "./mappings/full-frontend-partial-rules.csv",
+    "./mappings/full-frontend-none-rules.csv": "./mappings/full-frontend-none-rules.csv",
+    "./mappings/full-frontend-summary.json": "./mappings/full-frontend-summary.json",
+    "./mappings/vue-priority-baseline.csv": "./mappings/vue-priority-baseline.csv",
+    "./mappings/vue-priority-summary.json": "./mappings/vue-priority-summary.json"
+  },
+  "scripts": {
+    "lint:code": "eslint .",
+    "lint:style": "stylelint \"**/*.{css,scss,vue}\" --allow-empty-input",
+    "lint:legacy:css": "node ./scripts/run-csslint.mjs",
+    "verify:custom:stylelint": "node ./scripts/verify-custom-csslint-rules.mjs",
+    "mapping:full": "node ./scripts/generate-full-mapping.mjs",
+    "lint:all": "pnpm lint:code && pnpm lint:style && pnpm lint:legacy:css",
+    "prepublishOnly": "pnpm lint:all"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.39.1",
+    "@stylistic/stylelint-plugin": "^5.0.1",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.23.1",
+    "eslint-plugin-security": "^4.0.0",
+    "eslint-plugin-sonarjs": "^4.0.0",
+    "eslint-plugin-vue": "^10.5.1",
+    "globals": "^16.4.0",
+    "postcss-value-parser": "^4.2.0",
+    "stylelint-config-recommended-vue": "^1.6.1",
+    "stylelint-config-standard": "^40.0.0",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "typescript-eslint": "^8.46.2",
+    "vue-eslint-parser": "^10.2.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0",
+    "stylelint": "^17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "eslint": {
+      "optional": true
+    },
+    "stylelint": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "csslint": "^1.0.5",
+    "eslint": "^9.39.1",
+    "stylelint": "^17.4.0",
+    "typescript": "^5.9.3",
+    "vue": "^3.5.28"
+  }
+}

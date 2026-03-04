@@ -1,0 +1,5 @@
+sourceTool,langName,ruleId,ruleName,ruleLevel,mappingStatus,replacementTool,replacementRuleOrPack,note,officialCategory,deprecated,baselineIncluded,baselineReason
+ESLint-缺陷,Vue,7433,vue/valid-v-bind-sync,1,none,-,-,"deprecated (eslint-plugin-vue), excluded from vue3 baseline",vue2-essential,true,false,deprecated
+ESLint-缺陷,Vue,7493,vue/no-v-for-template-key,1,none,-,-,"deprecated (eslint-plugin-vue), excluded from vue3 baseline",vue2-essential,true,false,deprecated
+ESLint-缺陷,Vue,7527,vue/no-v-model-argument,1,none,-,-,"deprecated (eslint-plugin-vue), excluded from vue3 baseline",vue2-essential,true,false,deprecated
+ESLint-缺陷,Vue,11439,vue/valid-model-definition,1,none,-,-,"deprecated (eslint-plugin-vue), excluded from vue3 baseline",vue2-essential,true,false,deprecated

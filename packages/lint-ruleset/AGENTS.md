@@ -8,6 +8,9 @@
 
 - 维护 `@one-base-template/lint-ruleset` 子包，提供无 Sonar 服务端场景下的可执行质量门禁。
 - 输出 ESLint / Stylelint / Csslint 配置与规则映射产物，并保证可发布流程稳定。
+- ESLint 规则必须按语言拆分在 `rules/eslint/js-rules.mjs`、`rules/eslint/ts-rules.mjs`、`rules/eslint/vue-rules.mjs` 维护，再由 `eslint.config.mjs` 统一引入。
+- 平台抓取的 Vue deprecated 规则仅做追溯，禁止计入可治理缺口。
+- 自定义 Csslint 兼容规则保持**单档策略**：`css037` 最小字号固定 `12px`，不引入严格档环境变量切换。
 
 ## 统计与汇报口径（必须）
 
