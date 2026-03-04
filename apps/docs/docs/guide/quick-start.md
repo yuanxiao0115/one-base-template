@@ -41,8 +41,10 @@ pnpm -C apps/docs dev
 pnpm typecheck
 pnpm lint
 pnpm build
+pnpm changeset
+pnpm -C packages/lint-ruleset lint:all
 ```
 
 说明：
 - `pnpm build` 会通过 Turborepo 同时构建 `apps/admin` 与 `apps/docs`（文档构建需保持常绿）。
-
+- 子包发布与版本管理流程见：`/guide/package-release`。
