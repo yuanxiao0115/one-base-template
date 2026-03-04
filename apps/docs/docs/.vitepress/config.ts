@@ -19,6 +19,7 @@ export default defineConfig({
           { text: '目录结构与边界', link: '/guide/architecture' },
           { text: '模块系统与切割', link: '/guide/module-system' },
           { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
+          { text: 'Lint 规则集（无服务端）', link: '/guide/lint-ruleset' },
           { text: '主题系统', link: '/guide/theme-system' },
           { text: '组件样式（按钮）', link: '/guide/button-styles' },
           { text: '布局与菜单', link: '/guide/layout-menu' },
@@ -37,7 +38,15 @@ export default defineConfig({
           { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
         ]
       },
-      { text: '开发协作', link: '/guide/development' }
+      {
+        text: '开发协作',
+        items: [
+          { text: '开发规范与维护', link: '/guide/development' },
+          { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
+          { text: '子包发布与版本控制', link: '/guide/package-release' },
+          { text: '规则治理汇报（5分钟）', link: '/guide/lint-ruleset-briefing' }
+        ]
+      }
     ],
     sidebar: {
       '/guide/': [
@@ -55,6 +64,7 @@ export default defineConfig({
             { text: '目录结构与边界', link: '/guide/architecture' },
             { text: '模块系统与切割', link: '/guide/module-system' },
             { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
+            { text: 'Lint 规则集（无服务端）', link: '/guide/lint-ruleset' },
             { text: '主题系统', link: '/guide/theme-system' },
             { text: '组件样式（按钮）', link: '/guide/button-styles' },
             { text: '布局与菜单', link: '/guide/layout-menu' },
@@ -75,7 +85,12 @@ export default defineConfig({
         },
         {
           text: '协作规范',
-          items: [{ text: '开发规范与维护', link: '/guide/development' }]
+          items: [
+            { text: '开发规范与维护', link: '/guide/development' },
+            { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
+            { text: '子包发布与版本控制', link: '/guide/package-release' },
+            { text: '规则治理汇报（5分钟）', link: '/guide/lint-ruleset-briefing' }
+          ]
         }
       ]
     },

@@ -11,6 +11,10 @@ pnpm build
 pnpm check:naming
 pnpm verify
 pnpm doctor
+pnpm changeset
+pnpm version:packages
+pnpm release:packages
+pnpm -C packages/lint-ruleset lint:all
 ```
 
 ## 文档必须随功能演进同步更新
@@ -22,6 +26,15 @@ pnpm doctor
 - 新增布局模式、菜单行为、权限拦截逻辑
 - Adapter 接口变更（路径、字段映射、鉴权模式）
 - 核心约定变更（例如路由/菜单/SSO 流程）
+
+## AGENTS 规则分层维护
+
+仓库已启用“根目录全局规则 + 子项目专属规则”模式：
+
+- 根目录 `AGENTS.md`：维护全局流程与协作规则
+- 子项目 `AGENTS.md`：维护目录内专属约束
+
+详细分类与适用范围见：`/guide/agents-scope`。
 
 ## 本地预览文档
 
@@ -59,6 +72,29 @@ pnpm verify
 ```bash
 pnpm doctor
 ```
+
+## 无服务端 Lint 规则包（可分享）
+
+仓库内置 `@one-base-template/lint-ruleset` 子包，用于无 Sonar 服务端场景下的质量校验。
+
+- 文档：`/guide/lint-ruleset`
+- 自检命令：
+
+```bash
+pnpm -C packages/lint-ruleset lint:all
+```
+
+## 子包发布与版本控制（Changesets）
+
+仓库已接入 `changesets`，用于管理多子包版本发布：
+
+- 创建发布说明：`pnpm changeset`
+- 推进版本号：`pnpm version:packages`
+- 发布到 registry：`pnpm release:packages`
+
+详细流程见：`/guide/package-release`
+
+跨团队汇报可直接复用：`/guide/lint-ruleset-briefing`
 
 ## admin 启动与 env 约束
 
