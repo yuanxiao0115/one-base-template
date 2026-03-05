@@ -4,18 +4,15 @@
       <div class="form-item-with-tip">
         <!-- 隐藏的el-radio-group用于数据绑定 -->
         <el-radio-group v-model="layoutData.layout" class="hidden-radio-group">
-          <el-radio
-            v-for="option in layoutOptions"
-            :key="option.value"
-            :label="option.value"
-          />
+          <el-radio v-for="option in layoutOptions" :key="option.value" :label="option.value" />
         </el-radio-group>
 
         <div class="layout-options-container">
           <div
             v-for="option in layoutOptions"
             :key="option.value"
-            class="layout-option" :class="[{ active: layoutData.layout === option.value }]"
+            class="layout-option"
+            :class="[{ active: layoutData.layout === option.value }]"
             @click="() => layoutData.layout = option.value"
           >
             <div class="layout-preview" :class="option.value">
@@ -59,230 +56,229 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import SelectImg from '../../../SelectImg.vue';
+  import { ref, watch } from "vue";
+  import SelectImg from "../../../SelectImg.vue";
 
-// 定义模型类型接口
-export type LayoutConfigModelType = {
-  layout: string;
-  contentGap?: number;
-  imageHeight?: number;
-  imageWidth?: number; // 添加图片宽度字段
-  contentImage?: string; // 添加图片URL字段
-}
-
-// 从schema中获取layout数据的计算属性
-const layoutData = defineModel<LayoutConfigModelType>({
-  default: () => ({
-    layout: 'no-image',
-    contentGap: 0,
-    imageHeight: 0,
-    imageWidth: 0,
-    contentImage: ''
-  })
-});
-
-// 图片ID ref
-const contentImageId = ref('');
-
-// 初始化图片ID
-if (layoutData.value?.contentImage) {
-  contentImageId.value = layoutData.value.contentImage;
-}
-
-// 监听图片ID变化，更新contentImage
-watch(contentImageId, (newVal) => {
-  if (newVal) {
-    // 更新布局数据中的图片URL
-    layoutData.value.contentImage = newVal;
-    // 简化图片处理，无需额外转换
-  } else {
-    // 图片被删除
-    layoutData.value.contentImage = '';
+  // 定义模型类型接口
+  export interface LayoutConfigModelType {
+    layout: string;
+    contentGap?: number;
+    imageHeight?: number;
+    imageWidth?: number; // 添加图片宽度字段
+    contentImage?: string; // 添加图片URL字段
   }
-});
 
-// 布局选项
-const layoutOptions = [
-  {
-    label: '无图模式',
-    value: 'no-image'
-  },
-  {
-    label: '图片在上',
-    value: 'image-top'
-  },
-  {
-    label: '图片在下',
-    value: 'image-bottom'
+  // 从schema中获取layout数据的计算属性
+  const layoutData = defineModel<LayoutConfigModelType>({
+    default: () => ({
+      layout: "no-image",
+      contentGap: 0,
+      imageHeight: 0,
+      imageWidth: 0,
+      contentImage: "",
+    }),
+  });
+
+  // 图片ID ref
+  const contentImageId = ref("");
+
+  // 初始化图片ID
+  if (layoutData.value?.contentImage) {
+    contentImageId.value = layoutData.value.contentImage;
   }
-];
 
-defineOptions({
-  name: 'pb-layout-config'
-});
+  // 监听图片ID变化，更新contentImage
+  watch(contentImageId, (newVal) => {
+    if (newVal) {
+      // 更新布局数据中的图片URL
+      layoutData.value.contentImage = newVal;
+      // 简化图片处理，无需额外转换
+    } else {
+      // 图片被删除
+      layoutData.value.contentImage = "";
+    }
+  });
+
+  // 布局选项
+  const layoutOptions = [
+    {
+      label: "无图模式",
+      value: "no-image",
+    },
+    {
+      label: "图片在上",
+      value: "image-top",
+    },
+    {
+      label: "图片在下",
+      value: "image-bottom",
+    },
+  ];
+
+  defineOptions({
+    name: "pb-layout-config",
+  });
 </script>
 
 <style scoped>
-.layout-content-config {
+  .layout-content-config {
+    --config-text: #0f172a;
 
-  --config-text: #0f172a;
+    --config-muted: #64748b;
+    width: 100%;
+  }
 
-  --config-muted: #64748b;
-  width: 100%;
-}
+  .layout-content-config :deep(.el-form-item__label) {
+    font-weight: 500;
+    color: var(--config-muted);
+  }
 
-.layout-content-config :deep(.el-form-item__label) {
-  font-weight: 500;
-  color: var(--config-muted);
-}
+  .form-item-with-tip {
+    display: flex;
+    flex-direction: column;
+  }
 
-.form-item-with-tip {
-  display: flex;
-  flex-direction: column;
-}
+  .form-tip {
+    margin-top: 5px;
+    font-size: 12px;
+    color: var(--config-muted);
+    line-height: 1.4;
+  }
 
-.form-tip {
-  margin-top: 5px;
-  font-size: 12px;
-  color: var(--config-muted);
-  line-height: 1.4;
-}
+  /* 隐藏实际的radio组件 */
 
-/* 隐藏实际的radio组件 */
+  .hidden-radio-group {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
 
-.hidden-radio-group {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
+  .layout-options-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
 
-.layout-options-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 10px;
-}
+  .layout-option {
+    border: 2px solid transparent;
+    border-radius: 4px;
+    padding: 8px;
+    width: 90px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
 
-.layout-option {
-  border: 2px solid transparent;
-  border-radius: 4px;
-  padding: 8px;
-  width: 90px;
-  transition: all .3s;
-  cursor: pointer;
-}
+  .layout-option.active {
+    border-color: #409eff;
+    background-color: #ecf5ff;
+  }
 
-.layout-option.active {
-  border-color: #409eff;
-  background-color: #ecf5ff;
-}
+  .layout-preview {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 5px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    padding: 5px;
+    height: 80px;
+    background-color: #f5f7fa;
+    flex-direction: column;
+  }
 
-.layout-preview {
-  position: relative;
-  display: flex;
-  overflow: hidden;
-  margin-bottom: 5px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 5px;
-  height: 80px;
-  background-color: #f5f7fa;
-  flex-direction: column;
-}
+  .layout-preview-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    height: 10px;
+  }
 
-.layout-preview-title {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-  height: 10px;
-}
+  .title-line {
+    border-radius: 2px;
+    width: 100%;
+    height: 4px;
+    background-color: #be0108;
+  }
 
-.title-line {
-  border-radius: 2px;
-  width: 100%;
-  height: 4px;
-  background-color: #be0108;
-}
+  .layout-preview-image {
+    display: none;
+    background-color: #dcdfe6;
+  }
 
-.layout-preview-image {
-  display: none;
-  background-color: #dcdfe6;
-}
+  .layout-preview-text {
+    display: flex;
+    justify-content: center;
+    padding: 4px;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+  }
 
-.layout-preview-text {
-  display: flex;
-  justify-content: center;
-  padding: 4px;
-  flex: 1;
-  flex-direction: column;
-  gap: 5px;
-}
+  .text-line {
+    border-radius: 2px;
+    height: 4px;
+    background-color: #dcdfe6;
+  }
 
-.text-line {
-  border-radius: 2px;
-  height: 4px;
-  background-color: #dcdfe6;
-}
+  .text-line.short {
+    width: 60%;
+  }
 
-.text-line.short {
-  width: 60%;
-}
+  /* 无图模式 */
 
-/* 无图模式 */
+  .layout-preview.no-image .layout-preview-text {
+    margin-top: 5px;
+  }
 
-.layout-preview.no-image .layout-preview-text {
-  margin-top: 5px;
-}
+  /* 图片在标题上方布局 */
 
-/* 图片在标题上方布局 */
+  .layout-preview.image-top .layout-preview-image {
+    display: block;
+    margin-bottom: 5px;
+    width: 100%;
+    height: 30px;
+  }
 
-.layout-preview.image-top .layout-preview-image {
-  display: block;
-  margin-bottom: 5px;
-  width: 100%;
-  height: 30px;
-}
+  /* 图片在标题下方布局 */
 
-/* 图片在标题下方布局 */
+  .layout-preview.image-bottom .layout-preview-image {
+    display: block;
+    margin-top: 5px;
+    width: 100%;
+    height: 30px;
+    order: 1;
+  }
 
-.layout-preview.image-bottom .layout-preview-image {
-  display: block;
-  margin-top: 5px;
-  width: 100%;
-  height: 30px;
-  order: 1;
-}
+  .layout-name {
+    font-size: 12px;
+    text-align: center;
+    color: var(--config-muted);
+  }
 
-.layout-name {
-  font-size: 12px;
-  text-align: center;
-  color: var(--config-muted);
-}
+  /* 样式工具类 */
 
-/* 样式工具类 */
+  .input-with-unit {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+  }
 
-.input-with-unit {
-  display: flex;
-  align-items: center;
-  margin-right: 10px;
-}
+  .suffix-unit {
+    margin-right: 8px;
+    font-size: 14px;
+    color: var(--config-muted);
+  }
 
-.suffix-unit {
-  margin-right: 8px;
-  font-size: 14px;
-  color: var(--config-muted);
-}
+  .slider-with-value {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
 
-.slider-with-value {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.slider-value {
-  margin-left: 15px;
-  min-width: 45px;
-  color: var(--config-muted);
-}
+  .slider-value {
+    margin-left: 15px;
+    min-width: 45px;
+    color: var(--config-muted);
+  }
 </style>

@@ -1,5 +1,4 @@
 :root {
-
   --ob-button-size-large: 40px;
 
   --ob-button-size-default: 32px;
@@ -21,7 +20,6 @@
 .el-button--warning,
 .el-button--info,
 .el-button--danger {
-
   --el-button-disabled-text-color: var(--one-button-disabled-text-color);
 
   --el-button-disabled-bg-color: var(--one-button-disabled-bg-color);
@@ -145,12 +143,10 @@
 /* Link 按钮跟随 one link token；danger 类型保留 Element 默认 hover/active 语义。 */
 
 .el-button.is-link {
-
   --el-button-text-color: var(--one-color-link);
 }
 
 .el-button.is-link:not(.el-button--danger) {
-
   --el-button-hover-link-text-color: var(--one-color-link-light-5);
 
   --el-button-active-color: var(--one-color-link-light-7);

@@ -1,37 +1,36 @@
-import { getAppHttpClient } from '@/shared/api/http-client';
+import { getAppHttpClient } from "@/shared/api/http-client";
 
-type BizResponse<T> = {
+interface BizResponse<T> {
   code?: unknown;
   data?: T;
   message?: string;
-};
+}
 
-type CaptchaBlockPuzzleData = {
+interface CaptchaBlockPuzzleData {
   originBase64?: string;
   jigsawBase64?: string;
   captchaKey?: string;
   [k: string]: unknown;
-};
+}
 
 /**
  * 获取滑块拼图验证码
  */
-export async function reqGet (params: { captchaKey: string }) {
+export async function reqGet(params: { captchaKey: string }) {
   const http = getAppHttpClient();
-  return http.get<BizResponse<CaptchaBlockPuzzleData>>('/cmict/auth/captcha/block-puzzle', {
+  return http.get<BizResponse<CaptchaBlockPuzzleData>>("/cmict/auth/captcha/block-puzzle", {
     params,
-    $noErrorAlert: true
+    $noErrorAlert: true,
   });
 }
 
 /**
  * 校验验证码
  */
-export async function reqCheck (params: { captcha: string; captchaKey: string }) {
+export async function reqCheck(params: { captcha: string; captchaKey: string }) {
   const http = getAppHttpClient();
-  return http.get<BizResponse<unknown>>('/cmict/auth/captcha/check', {
+  return http.get<BizResponse<unknown>>("/cmict/auth/captcha/check", {
     params,
-    $noErrorAlert: true
+    $noErrorAlert: true,
   });
 }
-

@@ -1,41 +1,37 @@
-import { onMounted, reactive, ref } from 'vue';
-import { useTable } from '@one-base-template/core';
-import { message } from '@/utils/message';
-import loginLogColumns from '../columns';
-import {
-  type ClientTypeOption,
-  loginLogApi,
-  type LoginLogRecord
-} from '../../api/login-log';
+import { onMounted, reactive, ref } from "vue";
+import { useTable } from "@one-base-template/core";
+import { message } from "@/utils/message";
+import loginLogColumns from "../columns";
+import { type ClientTypeOption, loginLogApi, type LoginLogRecord } from "../../api/login-log";
 
-type SearchRefExpose = {
-  resetFields?: () => void
-};
+interface SearchRefExpose {
+  resetFields?: () => void;
+}
 
-type LoginLogSearchForm = {
-  nickName: string
-  clientType: string
-  time: string[]
-};
+interface LoginLogSearchForm {
+  nickName: string;
+  clientType: string;
+  time: string[];
+}
 
 const SUCCESS_CODE = 200;
-const DETAIL_ERROR_MESSAGE = '获取登录日志详情失败';
-const DELETE_ERROR_MESSAGE = '删除登录日志失败';
+const DETAIL_ERROR_MESSAGE = "获取登录日志详情失败";
+const DELETE_ERROR_MESSAGE = "删除登录日志失败";
 const DEFAULT_LOGIN_LOG_SEARCH_FORM: LoginLogSearchForm = {
-  nickName: '',
-  clientType: '',
-  time: []
+  nickName: "",
+  clientType: "",
+  time: [],
 };
 
-function getErrorMessage (error: unknown, fallback: string): string {
+function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
-function isConfirmCanceled (error: unknown): boolean {
-  return error === 'cancel' || error === 'close';
+function isConfirmCanceled(error: unknown): boolean {
+  return error === "cancel" || error === "close";
 }
 
-async function fetchLoginLogDetail (id: string): Promise<LoginLogRecord> {
+async function fetchLoginLogDetail(id: string): Promise<LoginLogRecord> {
   const response = await loginLogApi.detail({ id });
   if (response.code !== SUCCESS_CODE) {
     throw new Error(response.message || DETAIL_ERROR_MESSAGE);
@@ -44,16 +40,16 @@ async function fetchLoginLogDetail (id: string): Promise<LoginLogRecord> {
   return response.data;
 }
 
-async function deleteLoginLog (id: string): Promise<void> {
+async function deleteLoginLog(id: string): Promise<void> {
   const response = await loginLogApi.remove({ idList: [id] });
   if (response.code !== SUCCESS_CODE) {
     throw new Error(response.message || DELETE_ERROR_MESSAGE);
   }
 }
 
-async function confirmDeleteLoginLog (userAccount: string): Promise<boolean> {
+async function confirmDeleteLoginLog(userAccount: string): Promise<boolean> {
   try {
-    await obConfirm.warn(`是否确认删除登录账号为${userAccount}的这条数据`, '删除确认');
+    await obConfirm.warn(`是否确认删除登录账号为${userAccount}的这条数据`, "删除确认");
     return true;
   } catch (error) {
     if (isConfirmCanceled(error)) {
@@ -64,24 +60,19 @@ async function confirmDeleteLoginLog (userAccount: string): Promise<boolean> {
   }
 }
 
-function useLoginLogTableState (tableRef: ReturnType<typeof ref>, searchRef: ReturnType<typeof ref<SearchRefExpose>>) {
+function useLoginLogTableState(tableRef: ReturnType<typeof ref>, searchRef: ReturnType<typeof ref<SearchRefExpose>>) {
   const searchForm = reactive({ ...DEFAULT_LOGIN_LOG_SEARCH_FORM });
   const tableOpt = reactive({
     query: {
       api: loginLogApi.list,
       params: searchForm,
-      pagination: true
-    }
+      pagination: true,
+    },
   });
-  const {
-    loading,
-    dataList,
-    pagination,
-    onSearch,
-    resetForm,
-    handleSizeChange,
-    handleCurrentChange
-  } = useTable(tableOpt, tableRef);
+  const { loading, dataList, pagination, onSearch, resetForm, handleSizeChange, handleCurrentChange } = useTable(
+    tableOpt,
+    tableRef
+  );
 
   const tableSearch = async (keyword: string) => {
     searchForm.nickName = keyword;
@@ -91,7 +82,7 @@ function useLoginLogTableState (tableRef: ReturnType<typeof ref>, searchRef: Ret
     searchForm.nickName = keyword;
   };
   const onResetSearch = () => {
-    resetForm(searchRef, 'nickName');
+    resetForm(searchRef, "nickName");
   };
 
   return {
@@ -105,11 +96,11 @@ function useLoginLogTableState (tableRef: ReturnType<typeof ref>, searchRef: Ret
     handleCurrentChange,
     tableSearch,
     onKeywordUpdate,
-    onResetSearch
+    onResetSearch,
   };
 }
 
-function useLoginLogDetailState (onSearch: (resetPage?: boolean) => Promise<unknown>) {
+function useLoginLogDetailState(onSearch: (resetPage?: boolean) => Promise<unknown>) {
   const detailVisible = ref(false);
   const detailLoading = ref(false);
   const detailData = ref<LoginLogRecord | null>(null);
@@ -136,7 +127,7 @@ function useLoginLogDetailState (onSearch: (resetPage?: boolean) => Promise<unkn
 
     try {
       await deleteLoginLog(row.id);
-      message.success('删除登录日志成功');
+      message.success("删除登录日志成功");
       await onSearch(false);
     } catch (error) {
       message.error(getErrorMessage(error, DELETE_ERROR_MESSAGE));
@@ -148,18 +139,18 @@ function useLoginLogDetailState (onSearch: (resetPage?: boolean) => Promise<unkn
     detailLoading,
     detailData,
     openDetail,
-    handleDelete
+    handleDelete,
   };
 }
 
-function useClientTypeState () {
+function useClientTypeState() {
   const clientTypeList = ref<ClientTypeOption[]>([]);
 
   const loadClientTypes = async () => {
     try {
       const response = await loginLogApi.getEnum();
       if (response.code !== SUCCESS_CODE) {
-        throw new Error(response.message || '获取客户端类型失败');
+        throw new Error(response.message || "获取客户端类型失败");
       }
 
       clientTypeList.value = response.data;
@@ -170,11 +161,11 @@ function useClientTypeState () {
 
   return {
     clientTypeList,
-    loadClientTypes
+    loadClientTypes,
   };
 }
 
-export function useLoginLogPageState () {
+export function useLoginLogPageState() {
   const tableRef = ref<unknown>(null);
   const searchRef = ref<SearchRefExpose>();
   const tableState = useLoginLogTableState(tableRef, searchRef);
@@ -188,7 +179,7 @@ export function useLoginLogPageState () {
   return {
     refs: {
       tableRef,
-      searchRef
+      searchRef,
     },
     table: {
       loading: tableState.loading,
@@ -196,12 +187,12 @@ export function useLoginLogPageState () {
       pagination: tableState.pagination,
       tableColumns: tableState.tableColumns,
       searchForm: tableState.searchForm,
-      clientTypeList: clientTypeState.clientTypeList
+      clientTypeList: clientTypeState.clientTypeList,
     },
     detail: {
       detailVisible: detailState.detailVisible,
       detailLoading: detailState.detailLoading,
-      detailData: detailState.detailData
+      detailData: detailState.detailData,
     },
     actions: {
       tableSearch: tableState.tableSearch,
@@ -210,7 +201,7 @@ export function useLoginLogPageState () {
       handleSizeChange: tableState.handleSizeChange,
       handleCurrentChange: tableState.handleCurrentChange,
       openDetail: detailState.openDetail,
-      handleDelete: detailState.handleDelete
-    }
+      handleDelete: detailState.handleDelete,
+    },
   };
 }

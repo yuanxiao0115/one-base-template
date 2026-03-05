@@ -1,63 +1,68 @@
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
+  import { computed, nextTick, reactive, ref, watch } from "vue";
+  import type { FormInstance, FormRules } from "element-plus";
 
-const props = defineProps<{
-  modelValue: boolean;
-  title?: string;
-  loading?: boolean;
-}>();
+  const props = defineProps<{
+    modelValue: boolean;
+    title?: string;
+    loading?: boolean;
+  }>();
 
-const emit = defineEmits<{(e: 'update:modelValue', v: boolean): void;
-                          (e: 'submit', payload: { tabName: string }): void;
-}>();
+  const emit = defineEmits<{
+    (e: "update:modelValue", v: boolean): void;
+    (e: "submit", payload: { tabName: string }): void;
+  }>();
 
-defineOptions({
-  name: 'CreateBlankPageDialog'
-});
+  defineOptions({
+    name: "CreateBlankPageDialog",
+  });
 
-const visible = computed({
-  get: () => props.modelValue,
-  set: (v: boolean) => emit('update:modelValue', v)
-});
+  const visible = computed({
+    get: () => props.modelValue,
+    set: (v: boolean) => emit("update:modelValue", v),
+  });
 
-const formRef = ref<FormInstance>();
-const form = reactive({
-  tabName: ''
-});
+  const formRef = ref<FormInstance>();
+  const form = reactive({
+    tabName: "",
+  });
 
-const rules: FormRules = {
-  tabName: [{
-    required: true,
-    message: '请输入页面名称',
-    trigger: 'blur'
-  }]
-};
+  const rules: FormRules = {
+    tabName: [
+      {
+        required: true,
+        message: "请输入页面名称",
+        trigger: "blur",
+      },
+    ],
+  };
 
-watch(() => visible.value,
-      (v) => {
-        if (!v) {
+  watch(
+    () => visible.value,
+    (v) => {
+      if (!v) {
+        return;
+      }
+      form.tabName = "";
+      nextTick(() => formRef.value?.clearValidate());
+    }
+  );
+
+  function onCancel() {
+    visible.value = false;
+  }
+
+  async function onSubmit() {
+    const ok = await formRef.value?.validate().catch(() => false);
+    if (!ok) {
       return;
     }
-        form.tabName = '';
-        nextTick(() => formRef.value?.clearValidate());
-      });
-
-function onCancel () {
-  visible.value = false;
-}
-
-async function onSubmit () {
-  const ok = await formRef.value?.validate().catch(() => false);
-  if (!ok) {
-    return;
+    const tabName = form.tabName.trim();
+    if (!tabName) {
+      return;
+    }
+    emit("submit", { tabName });
   }
-  const tabName = form.tabName.trim();
-  if (!tabName) {
-    return;
-  }
-  emit('submit', { tabName });
-}
 </script>
 
 <template>
@@ -78,10 +83,9 @@ async function onSubmit () {
 </template>
 
 <style scoped>
-.footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
 </style>
-

@@ -1,6 +1,6 @@
-import type { closeAllMessage, ObMessageFn } from '@/utils/message';
+import type { closeAllMessage, ObMessageFn } from "@/utils/message";
 
-declare module 'vue' {
+declare module "vue" {
   interface ComponentCustomProperties {
     /**
      * 全局消息提示工具（兼容老项目 message.ts 调用风格）。
@@ -12,6 +12,3 @@ declare module 'vue' {
     $closeAllMessage: typeof closeAllMessage;
   }
 }
-
-export {};
-

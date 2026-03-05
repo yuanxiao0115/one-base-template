@@ -1,7 +1,7 @@
-import { onMounted, ref, type Ref } from 'vue';
-import { cmsApi } from '../../../../api';
+import { onMounted, ref, type Ref } from "vue";
+import { cmsApi } from "../../../../api";
 
-export type CmsListItem = {
+export interface CmsListItem {
   id: string;
   articleTitle: string;
   coverUrl?: string;
@@ -9,17 +9,17 @@ export type CmsListItem = {
   publishTime?: string;
 }
 
-export type CmsListDataSourceModel<T extends CmsListItem = CmsListItem> = {
+export interface CmsListDataSourceModel<T extends CmsListItem = CmsListItem> {
   categoryId?: string;
   items: T[];
 }
 
-type UseCmsListOptions = {
+interface UseCmsListOptions {
   autoLoad?: boolean;
 }
 
 const defaultOptions: UseCmsListOptions = {
-  autoLoad: true
+  autoLoad: true,
 };
 
 export const useCmsListDataSource = <T extends CmsListItem>(
@@ -28,7 +28,7 @@ export const useCmsListDataSource = <T extends CmsListItem>(
 ) => {
   const resolvedOptions = {
     ...defaultOptions,
-    ...options
+    ...options,
   };
   const columns = ref<any[]>([]);
   const articles = ref<CmsListItem[]>([]);
@@ -50,7 +50,7 @@ export const useCmsListDataSource = <T extends CmsListItem>(
         columns.value = res.data;
       }
     } catch (error) {
-      console.error('获取专栏列表失败', error);
+      console.error("获取专栏列表失败", error);
     } finally {
       columnsLoading.value = false;
     }
@@ -70,7 +70,7 @@ export const useCmsListDataSource = <T extends CmsListItem>(
         updateModelData(records);
       }
     } catch (error) {
-      console.error('获取文章列表失败', error);
+      console.error("获取文章列表失败", error);
     } finally {
       articlesLoading.value = false;
     }
@@ -106,6 +106,6 @@ export const useCmsListDataSource = <T extends CmsListItem>(
     handleCategoryChange,
     handleRefresh,
     loadColumns,
-    loadArticlesByCategory
+    loadArticlesByCategory,
   };
 };

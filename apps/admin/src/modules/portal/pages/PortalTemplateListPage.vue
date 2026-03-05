@@ -1,268 +1,288 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { confirm } from '@/infra/confirm';
+  import { onMounted, ref } from "vue";
+  import { useRouter } from "vue-router";
+  import { ElMessage } from "element-plus";
+  import { confirm } from "@/infra/confirm";
 
-import { portalService } from '../services/portal-service';
-import type { BizResponse, PageResult, PortalTemplate } from '../types';
-import { findFirstPageTabId } from '../utils/portalTree';
-import PortalTemplateCreateDialog from '../components/template/PortalTemplateCreateDialog.vue';
+  import { portalService } from "../services/portal-service";
+  import type { BizResponse, PageResult, PortalTemplate } from "../types";
+  import { findFirstPageTabId } from "../utils/portalTree";
+  import PortalTemplateCreateDialog from "../components/template/PortalTemplateCreateDialog.vue";
 
-defineOptions({ name: 'PortalTemplateList' });
+  defineOptions({ name: "PortalTemplateList" });
 
-type BizResLike = Pick<BizResponse<unknown>, 'code' | 'message' | 'success'>;
+  type BizResLike = Pick<BizResponse<unknown>, "code" | "message" | "success">;
 
-const router = useRouter();
+  const router = useRouter();
 
-const loading = ref(false);
-const searchKey = ref('');
-const publishStatus = ref(-1); // -1 表示全部（Element Plus el-option 不接受 null/undefined）
+  const loading = ref(false);
+  const searchKey = ref("");
+  const publishStatus = ref(-1); // -1 表示全部（Element Plus el-option 不接受 null/undefined）
 
-const currentPage = ref(1);
-const pageSize = ref(10);
-const total = ref(0);
-const rows = ref<PortalTemplate[]>([]);
+  const currentPage = ref(1);
+  const pageSize = ref(10);
+  const total = ref(0);
+  const rows = ref<PortalTemplate[]>([]);
 
-const createVisible = ref(false);
-const creating = ref(false);
+  const createVisible = ref(false);
+  const creating = ref(false);
 
-function normalizeBizOk (res: BizResLike | null | undefined): boolean {
-  const code = res?.code;
-  return res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
-}
-
-function normalizePageTotal (data: PageResult<unknown> | null | undefined): number {
-  const raw = (data as Record<string, unknown> | null)?.total ?? (data as Record<string, unknown> | null)?.totalCount ?? 0;
-  const val = Number(raw);
-  return Number.isFinite(val) ? val : 0;
-}
-
-function normalizeRecords (data: PageResult<PortalTemplate> | null | undefined): PortalTemplate[] {
-  const raw = (data as PageResult<PortalTemplate> | null)?.records;
-  return Array.isArray(raw) ? raw : [];
-}
-
-function isPublished (row: PortalTemplate): boolean {
-  return Number(row.publishStatus) === 1;
-}
-
-function getPublishStatusText (row: PortalTemplate): string {
-  const val = Number(row.publishStatus);
-  if (val === 1) {
-    return '已发布';
-  }
-  if (val === 0) {
-    return '草稿';
-  }
-  return '未知';
-}
-
-function normalizeIdLike (value: unknown): string {
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'number') {
-    return String(value);
-  }
-  return '';
-}
-
-function extractTemplateId (value: unknown): string {
-  // 尽量兼容不同环境：可能返回 string/number，或 { id } / { templateId }
-  const direct = normalizeIdLike(value);
-  if (direct) {
-    return direct;
+  function normalizeBizOk(res: BizResLike | null | undefined): boolean {
+    const code = res?.code;
+    return res?.success === true || code === 0 || code === 200 || String(code) === "0" || String(code) === "200";
   }
 
-  if (value && typeof value === 'object') {
-    const obj = value as Record<string, unknown>;
-    return normalizeIdLike(obj.id) || normalizeIdLike(obj.templateId) || '';
+  function normalizePageTotal(data: PageResult<unknown> | null | undefined): number {
+    const raw =
+      (data as Record<string, unknown> | null)?.total ?? (data as Record<string, unknown> | null)?.totalCount ?? 0;
+    const val = Number(raw);
+    return Number.isFinite(val) ? val : 0;
   }
 
-  return '';
-}
+  function normalizeRecords(data: PageResult<PortalTemplate> | null | undefined): PortalTemplate[] {
+    const raw = (data as PageResult<PortalTemplate> | null)?.records;
+    return Array.isArray(raw) ? raw : [];
+  }
 
-async function queryList (page = currentPage.value) {
-  loading.value = true;
-  try {
-    currentPage.value = page;
+  function isPublished(row: PortalTemplate): boolean {
+    return Number(row.publishStatus) === 1;
+  }
 
-    const res = await portalService.template.list({
-      currentPage: currentPage.value,
-      pageSize: pageSize.value,
-      searchKey: searchKey.value || undefined,
-      publishStatus: publishStatus.value === -1 ? undefined : publishStatus.value
-    });
+  function getPublishStatusText(row: PortalTemplate): string {
+    const val = Number(row.publishStatus);
+    if (val === 1) {
+      return "已发布";
+    }
+    if (val === 0) {
+      return "草稿";
+    }
+    return "未知";
+  }
 
-    if (!normalizeBizOk(res)) {
-      ElMessage.error(res?.message || '加载失败');
+  function normalizeIdLike(value: unknown): string {
+    if (typeof value === "string") {
+      return value;
+    }
+    if (typeof value === "number") {
+      return String(value);
+    }
+    return "";
+  }
+
+  function extractTemplateId(value: unknown): string {
+    // 尽量兼容不同环境：可能返回 string/number，或 { id } / { templateId }
+    const direct = normalizeIdLike(value);
+    if (direct) {
+      return direct;
+    }
+
+    if (value && typeof value === "object") {
+      const obj = value as Record<string, unknown>;
+      return normalizeIdLike(obj.id) || normalizeIdLike(obj.templateId) || "";
+    }
+
+    return "";
+  }
+
+  async function queryList(page = currentPage.value) {
+    loading.value = true;
+    try {
+      currentPage.value = page;
+
+      const res = await portalService.template.list({
+        currentPage: currentPage.value,
+        pageSize: pageSize.value,
+        searchKey: searchKey.value || undefined,
+        publishStatus: publishStatus.value === -1 ? undefined : publishStatus.value,
+      });
+
+      if (!normalizeBizOk(res)) {
+        ElMessage.error(res?.message || "加载失败");
+        rows.value = [];
+        total.value = 0;
+        return;
+      }
+
+      rows.value = normalizeRecords(res?.data);
+      total.value = normalizePageTotal(res?.data);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "加载失败";
+      ElMessage.error(msg);
       rows.value = [];
       total.value = 0;
-      return;
+    } finally {
+      loading.value = false;
     }
-
-    rows.value = normalizeRecords(res?.data);
-    total.value = normalizePageTotal(res?.data);
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : '加载失败';
-    ElMessage.error(msg);
-    rows.value = [];
-    total.value = 0;
-  } finally {
-    loading.value = false;
-  }
-}
-
-function onSearch () {
-  queryList(1).catch(() => {});
-}
-
-function onReset () {
-  searchKey.value = '';
-  publishStatus.value = -1;
-  queryList(1).catch(() => {});
-}
-
-function openCreate () {
-  createVisible.value = true;
-}
-
-async function onCreateTemplate (payload: { templateName: string; description: string; templateType: number; isOpen: number }) {
-  if (creating.value) {
-    return;
   }
 
-  creating.value = true;
-  try {
-    const res = await portalService.template.add({
-      templateName: payload.templateName,
-      description: payload.description || '',
-      // 对齐老项目的必填字段，避免后端校验失败
-      templateType: payload.templateType,
-      isOpen: payload.isOpen,
-      // 这些字段在部分环境可能存在默认值，显式传递更稳妥（后端可忽略）
-      widthSize: 1280,
-      widthType: 1,
-      autoWidthSize: 100
+  function onSearch() {
+    queryList(1).catch((error) => {
+      console.warn("[PortalTemplateListPage] 查询失败", error);
     });
+  }
 
+  function onReset() {
+    searchKey.value = "";
+    publishStatus.value = -1;
+    queryList(1).catch((error) => {
+      console.warn("[PortalTemplateListPage] 重置后查询失败", error);
+    });
+  }
+
+  function openCreate() {
+    createVisible.value = true;
+  }
+
+  async function onCreateTemplate(payload: {
+    templateName: string;
+    description: string;
+    templateType: number;
+    isOpen: number;
+  }) {
+    if (creating.value) {
+      return;
+    }
+
+    creating.value = true;
+    try {
+      const res = await portalService.template.add({
+        templateName: payload.templateName,
+        description: payload.description || "",
+        // 对齐老项目的必填字段，避免后端校验失败
+        templateType: payload.templateType,
+        isOpen: payload.isOpen,
+        // 这些字段在部分环境可能存在默认值，显式传递更稳妥（后端可忽略）
+        widthSize: 1280,
+        widthType: 1,
+        autoWidthSize: 100,
+      });
+
+      if (!normalizeBizOk(res)) {
+        ElMessage.error(res?.message || "创建失败");
+        return;
+      }
+
+      const newId = extractTemplateId((res as BizResponse<unknown> | null)?.data);
+      ElMessage.success("创建成功");
+      createVisible.value = false;
+
+      // 创建后默认进入配置（符合老项目“创建即配置”的常用操作路径）
+      if (newId) {
+        router
+          .push({
+            path: "/portal/designer",
+            query: { templateId: newId },
+          })
+          .catch((error) => {
+            console.warn("[PortalTemplateListPage] 跳转设计页失败", error);
+          });
+        return;
+      }
+
+      await queryList(1);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "创建失败";
+      ElMessage.error(msg);
+    } finally {
+      creating.value = false;
+    }
+  }
+
+  function goDesigner(row: PortalTemplate) {
+    const { id } = row;
+    if (!id) {
+      return;
+    }
+    router
+      .push({
+        path: "/portal/designer",
+        query: { templateId: id },
+      })
+      .catch((error) => {
+        console.warn("[PortalTemplateListPage] 跳转设计页失败", error);
+      });
+  }
+
+  async function openPreview(row: PortalTemplate) {
+    const { id } = row;
+    if (!id) {
+      return;
+    }
+
+    try {
+      const res = await portalService.template.detail({ id });
+      if (!normalizeBizOk(res)) {
+        ElMessage.error(res?.message || "获取模板详情失败");
+        return;
+      }
+
+      const tpl = res.data;
+      const tabIdFromTree = findFirstPageTabId(tpl?.tabList);
+      const tabId = tabIdFromTree || (Array.isArray(tpl?.tabIds) ? tpl?.tabIds?.[0] || "" : "");
+      if (!tabId) {
+        ElMessage.warning("该模板暂无可预览页面");
+        return;
+      }
+
+      window.open(`/portal/preview/${tabId}?templateId=${id}`, "_blank");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "预览失败";
+      ElMessage.error(msg);
+    }
+  }
+
+  async function togglePublish(row: PortalTemplate) {
+    const { id } = row;
+    if (!id) {
+      return;
+    }
+
+    const nextStatus = isPublished(row) ? 0 : 1;
+    const text = nextStatus === 1 ? "发布" : "取消发布";
+
+    const res = await portalService.template.publish({
+      id,
+      status: nextStatus,
+    });
     if (!normalizeBizOk(res)) {
-      ElMessage.error(res?.message || '创建失败');
+      ElMessage.error(res?.message || `${text}失败`);
       return;
     }
 
-    const newId = extractTemplateId((res as BizResponse<unknown> | null)?.data);
-    ElMessage.success('创建成功');
-    createVisible.value = false;
+    ElMessage.success(`${text}成功`);
+    await queryList();
+  }
 
-    // 创建后默认进入配置（符合老项目“创建即配置”的常用操作路径）
-    if (newId) {
-      router.push({
-        path: '/portal/designer',
-        query: { templateId: newId }
-      }).catch(() => {});
+  async function deleteTemplate(row: PortalTemplate) {
+    const { id } = row;
+    if (!id) {
       return;
     }
 
-    await queryList(1);
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : '创建失败';
-    ElMessage.error(msg);
-  } finally {
-    creating.value = false;
-  }
-}
+    try {
+      await confirm.warn("确定要删除该门户模板吗？", "删除确认");
+    } catch {
+      return;
+    }
 
-function goDesigner (row: PortalTemplate) {
-  const { id } = row;
-  if (!id) {
-    return;
-  }
-  router.push({
-    path: '/portal/designer',
-    query: { templateId: id }
-  }).catch(() => {});
-}
-
-async function openPreview (row: PortalTemplate) {
-  const { id } = row;
-  if (!id) {
-    return;
-  }
-
-  try {
-    const res = await portalService.template.detail({ id });
+    const res = await portalService.template.delete({ id });
     if (!normalizeBizOk(res)) {
-      ElMessage.error(res?.message || '获取模板详情失败');
+      ElMessage.error(res?.message || "删除失败");
       return;
     }
 
-    const tpl = res.data;
-    const tabIdFromTree = findFirstPageTabId(tpl?.tabList);
-    const tabId = tabIdFromTree || (Array.isArray(tpl?.tabIds) ? (tpl?.tabIds?.[0] || '') : '');
-    if (!tabId) {
-      ElMessage.warning('该模板暂无可预览页面');
-      return;
-    }
+    ElMessage.success("删除成功");
 
-    window.open(`/portal/preview/${tabId}?templateId=${id}`, '_blank');
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : '预览失败';
-    ElMessage.error(msg);
-  }
-}
-
-async function togglePublish (row: PortalTemplate) {
-  const { id } = row;
-  if (!id) {
-    return;
+    // 若当前页删空，自动回退上一页（避免出现空白页体验差）
+    const nextPage = rows.value.length <= 1 && currentPage.value > 1 ? currentPage.value - 1 : currentPage.value;
+    await queryList(nextPage);
   }
 
-  const nextStatus = isPublished(row) ? 0 : 1;
-  const text = nextStatus === 1 ? '发布' : '取消发布';
-
-  const res = await portalService.template.publish({
-    id,
-    status: nextStatus
+  onMounted(() => {
+    queryList(1).catch((error) => {
+      console.warn("[PortalTemplateListPage] 初始化查询失败", error);
+    });
   });
-  if (!normalizeBizOk(res)) {
-    ElMessage.error(res?.message || `${text}失败`);
-    return;
-  }
-
-  ElMessage.success(`${text}成功`);
-  await queryList();
-}
-
-async function deleteTemplate (row: PortalTemplate) {
-  const { id } = row;
-  if (!id) {
-    return;
-  }
-
-  try {
-    await confirm.warn('确定要删除该门户模板吗？', '删除确认');
-  } catch {
-    return;
-  }
-
-  const res = await portalService.template.delete({ id });
-  if (!normalizeBizOk(res)) {
-    ElMessage.error(res?.message || '删除失败');
-    return;
-  }
-
-  ElMessage.success('删除成功');
-
-  // 若当前页删空，自动回退上一页（避免出现空白页体验差）
-  const nextPage = rows.value.length <= 1 && currentPage.value > 1 ? currentPage.value - 1 : currentPage.value;
-  await queryList(nextPage);
-}
-
-onMounted(() => {
-  queryList(1).catch(() => {});
-});
 </script>
 
 <template>
@@ -327,9 +347,7 @@ onMounted(() => {
         </el-table-column>
         <el-table-column label="状态" width="120">
           <template #default="{ row }">
-            <el-tag :type="isPublished(row) ? 'success' : 'info'">
-              {{ getPublishStatusText(row) }}
-            </el-tag>
+            <el-tag :type="isPublished(row) ? 'success' : 'info'"> {{ getPublishStatusText(row) }} </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="320" fixed="right">
@@ -358,91 +376,87 @@ onMounted(() => {
       </div>
     </el-card>
 
-    <PortalTemplateCreateDialog
-      v-model="createVisible"
-      :loading="creating"
-      @submit="onCreateTemplate"
-    />
+    <PortalTemplateCreateDialog v-model="createVisible" :loading="creating" @submit="onCreateTemplate" />
   </div>
 </template>
 
 <style scoped>
-.toolbar-card {
-  border-radius: 12px;
-}
+  .toolbar-card {
+    border-radius: 12px;
+  }
 
-.toolbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
+  .toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
 
-.toolbar-left {
-  min-width: 0;
-}
+  .toolbar-left {
+    min-width: 0;
+  }
 
-.title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--el-text-color-primary);
-}
+  .title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--el-text-color-primary);
+  }
 
-.sub {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--el-text-color-secondary);
-}
+  .sub {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+  }
 
-.toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: none;
-}
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+  }
 
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-end;
-}
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
 
-.filter-item {
-  width: 260px;
-}
+  .filter-item {
+    width: 260px;
+  }
 
-.filter-item.small {
-  width: 160px;
-}
+  .filter-item.small {
+    width: 160px;
+  }
 
-.label {
-  margin-bottom: 6px;
-  font-size: 12px;
-  color: var(--el-text-color-secondary);
-}
+  .label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+  }
 
-.filter-actions {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  flex: none;
-}
+  .filter-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    flex: none;
+  }
 
-.table-card {
-  border-radius: 12px;
-}
+  .table-card {
+    border-radius: 12px;
+  }
 
-.portal-template-list :deep(.el-card__header) {
-  border-bottom: 1px solid var(--el-border-color-lighter);
-  background: linear-gradient(180deg, var(--el-bg-color) 0%, var(--el-bg-color-overlay) 100%);
-}
+  .portal-template-list :deep(.el-card__header) {
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    background: linear-gradient(180deg, var(--el-bg-color) 0%, var(--el-bg-color-overlay) 100%);
+  }
 
-.portal-template-list :deep(.el-table__row) {
-  transition: background-color 160ms ease;
-}
+  .portal-template-list :deep(.el-table__row) {
+    transition: background-color 160ms ease;
+  }
 
-.table-empty {
-  padding: 36px 0 24px;
-}
+  .table-empty {
+    padding: 36px 0 24px;
+  }
 </style>

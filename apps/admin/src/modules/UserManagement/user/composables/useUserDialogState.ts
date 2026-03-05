@@ -1,44 +1,36 @@
-import { nextTick, reactive, ref } from 'vue';
-import type { CrudFormLike } from '@one-base-template/ui';
-import { sm4EncryptBase64 } from '@/infra/sczfw/crypto';
-import { message } from '@/utils/message';
-import {
-  type CorporateUserRecord,
-  userApi,
-  type UserListRecord
-} from '../api';
-import {
-  defaultUserAccountForm,
-  type UserAccountForm as UserAccountFormModel,
-  type UserBindForm
-} from '../form';
+import { nextTick, reactive, ref } from "vue";
+import type { CrudFormLike } from "@one-base-template/ui";
+import { sm4EncryptBase64 } from "@/infra/sczfw/crypto";
+import { message } from "@/utils/message";
+import { type CorporateUserRecord, userApi, type UserListRecord } from "../api";
+import { defaultUserAccountForm, type UserAccountForm as UserAccountFormModel, type UserBindForm } from "../form";
 
-type UserBindOption = {
-  id: string
-  nickName: string
-  userAccount: string
-  phone: string
+interface UserBindOption {
+  id: string;
+  nickName: string;
+  userAccount: string;
+  phone: string;
 }
 
 type BindFormExpose = CrudFormLike & {
-  loadOptions?: (keyword?: string) => Promise<void>
-  setSelectedUsers?: (users: UserBindOption[]) => void
+  loadOptions?: (keyword?: string) => Promise<void>;
+  setSelectedUsers?: (users: UserBindOption[]) => void;
+};
+
+interface UseUserDialogStateOptions {
+  onSearch: (goFirstPage?: boolean) => Promise<void>;
 }
 
-type UseUserDialogStateOptions = {
-  onSearch: (goFirstPage?: boolean) => Promise<void>
-}
-
-function getBindOptionsFromCorporateUsers (records: CorporateUserRecord[]): UserBindOption[] {
+function getBindOptionsFromCorporateUsers(records: CorporateUserRecord[]): UserBindOption[] {
   return records.map((item) => ({
     id: item.userId,
     nickName: item.userName,
     userAccount: item.userName,
-    phone: item.phone
+    phone: item.phone,
   }));
 }
 
-export function useUserDialogState (options: UseUserDialogStateOptions) {
+export function useUserDialogState(options: UseUserDialogStateOptions) {
   const { onSearch } = options;
 
   const accountFormRef = ref<CrudFormLike>();
@@ -47,22 +39,22 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
   const accountVisible = ref(false);
   const accountSubmitting = ref(false);
   const accountForm = reactive<UserAccountFormModel>({
-    ...defaultUserAccountForm
+    ...defaultUserAccountForm,
   });
 
   const bindVisible = ref(false);
   const bindLoading = ref(false);
   const bindSubmitting = ref(false);
-  const bindTargetUserId = ref('');
+  const bindTargetUserId = ref("");
   const bindForm = reactive<UserBindForm>({
-    userIds: []
+    userIds: [],
   });
 
-  function resetAccountForm () {
+  function resetAccountForm() {
     Object.assign(accountForm, defaultUserAccountForm);
   }
 
-  function openAccountDialog (row: UserListRecord) {
+  function openAccountDialog(row: UserListRecord) {
     resetAccountForm();
     accountForm.userId = row.id;
     accountForm.nickName = row.nickName;
@@ -72,12 +64,12 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
     accountVisible.value = true;
   }
 
-  function closeAccountDialog () {
+  function closeAccountDialog() {
     resetAccountForm();
     accountVisible.value = false;
   }
 
-  async function submitAccountDialog () {
+  async function submitAccountDialog() {
     if (accountSubmitting.value) {
       return;
     }
@@ -88,7 +80,7 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
     }
 
     if (accountForm.isReset === 1 && accountForm.newPassword !== accountForm.newPasswordRepeat) {
-      message.error('两次密码输入不一致');
+      message.error("两次密码输入不一致");
       return;
     }
 
@@ -98,34 +90,33 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
         userId: sm4EncryptBase64(accountForm.userId),
         newUsername: sm4EncryptBase64(accountForm.newUsername),
         isReset: accountForm.isReset,
-        newPassword: accountForm.isReset === 1 && accountForm.newPassword
-          ? sm4EncryptBase64(accountForm.newPassword)
-          : ''
+        newPassword:
+          accountForm.isReset === 1 && accountForm.newPassword ? sm4EncryptBase64(accountForm.newPassword) : "",
       });
 
       if (response.code !== 200) {
-        throw new Error(response.message || '修改账号失败');
+        throw new Error(response.message || "修改账号失败");
       }
 
-      message.success('修改账号成功');
+      message.success("修改账号成功");
       closeAccountDialog();
       await onSearch(false);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '修改账号失败';
+      const errorMessage = error instanceof Error ? error.message : "修改账号失败";
       message.error(errorMessage);
     } finally {
       accountSubmitting.value = false;
     }
   }
 
-  function resetBindForm () {
+  function resetBindForm() {
     bindForm.userIds = [];
   }
 
-  async function fetchBindUsers (keyword: string): Promise<UserBindOption[]> {
+  async function fetchBindUsers(keyword: string): Promise<UserBindOption[]> {
     const response = await userApi.searchUsers({ nickName: keyword });
     if (response.code !== 200) {
-      throw new Error(response.message || '加载用户列表失败');
+      throw new Error(response.message || "加载用户列表失败");
     }
 
     const rows = Array.isArray(response.data) ? response.data : [];
@@ -133,11 +124,11 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
       id: item.id,
       nickName: item.nickName,
       userAccount: item.userAccount,
-      phone: item.phone
+      phone: item.phone,
     }));
   }
 
-  async function openBindDialog (row: UserListRecord) {
+  async function openBindDialog(row: UserListRecord) {
     bindTargetUserId.value = row.id;
     bindVisible.value = true;
     bindLoading.value = true;
@@ -146,35 +137,37 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
     try {
       const response = await userApi.detail({ id: row.id });
       if (response.code !== 200) {
-        throw new Error(response.message || '加载关联账号失败');
+        throw new Error(response.message || "加载关联账号失败");
       }
 
-      const detail = response.data as { corporateUserList?: CorporateUserRecord[] };
+      const detail = response.data as {
+        corporateUserList?: CorporateUserRecord[];
+      };
       const corporateUsers = Array.isArray(detail.corporateUserList) ? detail.corporateUserList : [];
       const users: UserBindOption[] = getBindOptionsFromCorporateUsers(corporateUsers);
 
       bindForm.userIds = users
         .map((item) => item.id)
-        .filter((id): id is string => typeof id === 'string' && id.length > 0);
+        .filter((id): id is string => typeof id === "string" && id.length > 0);
 
       await nextTick();
       bindFormRef.value?.setSelectedUsers?.(users);
-      await bindFormRef.value?.loadOptions?.('');
+      await bindFormRef.value?.loadOptions?.("");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '加载关联账号失败';
+      const errorMessage = error instanceof Error ? error.message : "加载关联账号失败";
       message.error(errorMessage);
     } finally {
       bindLoading.value = false;
     }
   }
 
-  function closeBindDialog () {
+  function closeBindDialog() {
     resetBindForm();
     bindVisible.value = false;
-    bindTargetUserId.value = '';
+    bindTargetUserId.value = "";
   }
 
-  async function submitBindDialog () {
+  async function submitBindDialog() {
     if (bindSubmitting.value) {
       return;
     }
@@ -188,28 +181,31 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
     try {
       const response = await userApi.updateCorporateUser({
         corporateUserId: bindTargetUserId.value,
-        userIds: bindForm.userIds
+        userIds: bindForm.userIds,
       });
 
       if (response.code !== 200) {
-        throw new Error(response.message || '关联账号保存失败');
+        throw new Error(response.message || "关联账号保存失败");
       }
 
-      message.success('关联账号保存成功');
+      message.success("关联账号保存成功");
       closeBindDialog();
       await onSearch(false);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '关联账号保存失败';
+      const errorMessage = error instanceof Error ? error.message : "关联账号保存失败";
       message.error(errorMessage);
     } finally {
       bindSubmitting.value = false;
     }
   }
 
-  async function checkUserAccountUnique (params: {
-    userId?: string
-    userAccount?: string
-  }, checkFieldUnique: (params: { userId?: string; userAccount?: string }) => Promise<boolean>) {
+  async function checkUserAccountUnique(
+    params: {
+      userId?: string;
+      userAccount?: string;
+    },
+    checkFieldUnique: (params: { userId?: string; userAccount?: string }) => Promise<boolean>
+  ) {
     return checkFieldUnique(params);
   }
 
@@ -230,6 +226,6 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
     openBindDialog,
     closeBindDialog,
     submitBindDialog,
-    checkUserAccountUnique
+    checkUserAccountUnique,
   };
 }

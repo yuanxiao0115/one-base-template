@@ -1,7 +1,7 @@
-import { mergeWithBaseConfig } from './config-merger';
+import { mergeWithBaseConfig } from "./config-merger";
 
 // 组件配置接口
-export type ComponentConfig = {
+export interface ComponentConfig {
   id: string;
   type: string;
   cmptName: string;
@@ -23,18 +23,18 @@ export type ComponentConfig = {
  * @param baseConfig 基础配置
  * @returns 组件配置对象
  */
-export const createComponent = (id: string,
+export const createComponent = (
+  id: string,
   type: string,
   name: string,
   width: number,
   height: number,
   icon: string,
   config: any,
-  baseConfig?: any): ComponentConfig => {
+  baseConfig?: any
+): ComponentConfig => {
   // 如果提供了基础配置，就合并配置
-  const finalConfig = baseConfig
-    ? mergeWithBaseConfig(config, baseConfig)
-    : config;
+  const finalConfig = baseConfig ? mergeWithBaseConfig(config, baseConfig) : config;
 
   return {
     id,
@@ -43,7 +43,7 @@ export const createComponent = (id: string,
     cmptWidth: width,
     cmptHeight: height,
     cmptIcon: icon,
-    cmptConfig: finalConfig
+    cmptConfig: finalConfig,
   };
 };
 
@@ -53,7 +53,8 @@ export const createComponent = (id: string,
  * @param baseConfig 基础配置
  * @returns 组件配置数组
  */
-export const createComponentGroup = (components: Array<{
+export const createComponentGroup = (
+  components: Array<{
     id: string;
     type: string;
     name: string;
@@ -62,11 +63,8 @@ export const createComponentGroup = (components: Array<{
     icon: string;
     config: any;
   }>,
-baseConfig?: any): ComponentConfig[] => components.map((comp) => createComponent(comp.id,
-  comp.type,
-  comp.name,
-  comp.width,
-  comp.height,
-  comp.icon,
-  comp.config,
-  baseConfig));
+  baseConfig?: any
+): ComponentConfig[] =>
+  components.map((comp) =>
+    createComponent(comp.id, comp.type, comp.name, comp.width, comp.height, comp.icon, comp.config, baseConfig)
+  );

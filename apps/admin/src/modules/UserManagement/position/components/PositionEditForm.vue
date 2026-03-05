@@ -1,38 +1,32 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
-import type { CrudFormLike } from '@one-base-template/ui';
-import type { PositionForm } from '../form';
+  import { ref } from "vue";
+  import type { FormInstance, FormRules } from "element-plus";
+  import type { CrudFormLike } from "@one-base-template/ui";
+  import type { PositionForm } from "../form";
 
-const props = defineProps<{
-  rules: FormRules<PositionForm>
-  disabled: boolean
-}>();
-const model = defineModel<PositionForm>({ required: true });
+  const props = defineProps<{
+    rules: FormRules<PositionForm>;
+    disabled: boolean;
+  }>();
+  const model = defineModel<PositionForm>({ required: true });
 
-const formRef = ref<FormInstance>();
+  const formRef = ref<FormInstance>();
 
-defineExpose<CrudFormLike>({
-  validate: (...args) => {
-    const [callback] = args;
-    if (callback) {
-      return formRef.value?.validate?.(callback);
-    }
-    return formRef.value?.validate?.();
-  },
-  clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
-  resetFields: (...args) => formRef.value?.resetFields?.(...args)
-});
+  defineExpose<CrudFormLike>({
+    validate: (...args) => {
+      const [callback] = args;
+      if (callback) {
+        return formRef.value?.validate?.(callback);
+      }
+      return formRef.value?.validate?.();
+    },
+    clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
+    resetFields: (...args) => formRef.value?.resetFields?.(...args),
+  });
 </script>
 
 <template>
-  <el-form
-    ref="formRef"
-    :model
-    :rules="props.rules"
-    label-position="top"
-    :disabled="props.disabled"
-  >
+  <el-form ref="formRef" :model :rules="props.rules" label-position="top" :disabled="props.disabled">
     <el-form-item label="职位名称" prop="postName">
       <el-input v-model.trim="model.postName" maxlength="30" show-word-limit placeholder="请输入职位名称" />
     </el-form-item>

@@ -1,44 +1,24 @@
 <script setup lang="ts">
-import { Plus } from '@element-plus/icons-vue';
-import PositionEditForm from './components/PositionEditForm.vue';
-import PositionSearchForm from './components/PositionSearchForm.vue';
-import { positionFormRules } from './form';
-import { usePositionPageState } from './composables/usePositionPageState';
+  import { Plus } from "@element-plus/icons-vue";
+  import PositionEditForm from "./components/PositionEditForm.vue";
+  import PositionSearchForm from "./components/PositionSearchForm.vue";
+  import { positionFormRules } from "./form";
+  import { usePositionPageState } from "./composables/usePositionPageState";
 
-defineOptions({
-  name: 'PositionManagementPage'
-});
+  defineOptions({
+    name: "PositionManagementPage",
+  });
 
-// 页面仅保留编排层：职位管理查询、CRUD 与分页行为统一下沉到 composable。
-const pageState = usePositionPageState();
+  // 页面仅保留编排层：职位管理查询、CRUD 与分页行为统一下沉到 composable。
+  const pageState = usePositionPageState();
 
-const { refs } = pageState;
-const {
-  loading,
-  dataList,
-  tablePagination,
-  tableColumns,
-  searchForm
-} = pageState.table;
+  const { refs } = pageState;
+  const { loading, dataList, tablePagination, tableColumns, searchForm } = pageState.table;
 
-const {
-  crud,
-  crudVisible,
-  crudMode,
-  crudTitle,
-  crudReadonly,
-  crudSubmitting,
-  crudForm
-} = pageState.editor;
+  const { crud, crudVisible, crudMode, crudTitle, crudReadonly, crudSubmitting, crudForm } = pageState.editor;
 
-const {
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  handleSizeChange,
-  handleCurrentChange,
-  handleDelete
-} = pageState.actions;
+  const { tableSearch, onKeywordUpdate, onResetSearch, handleSizeChange, handleCurrentChange, handleDelete } =
+    pageState.actions;
 </script>
 
 <template>
@@ -77,9 +57,7 @@ const {
         </ObVxeTable>
       </template>
 
-      <template #drawer>
-        <PositionSearchForm :ref="refs.searchRef" v-model="searchForm" />
-      </template>
+      <template #drawer> <PositionSearchForm :ref="refs.searchRef" v-model="searchForm" /> </template>
     </ObTableBox>
   </ObPageContainer>
 

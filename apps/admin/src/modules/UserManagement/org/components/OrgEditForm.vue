@@ -1,113 +1,110 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import type { FormInstance, FormItemRule, FormRules } from 'element-plus';
-import type { CrudFormLike } from '@one-base-template/ui';
-import type { DictItem, OrgLevelItem } from '../api';
-import type { OrgForm, OrgTreeOption } from '../form';
+  import { computed, ref, watch } from "vue";
+  import type { FormInstance, FormItemRule, FormRules } from "element-plus";
+  import type { CrudFormLike } from "@one-base-template/ui";
+  import type { DictItem, OrgLevelItem } from "../api";
+  import type { OrgForm, OrgTreeOption } from "../form";
 
-const props = defineProps<{
-  disabled: boolean
-  rules: FormRules<OrgForm>
-  orgTreeOptions: OrgTreeOption[]
-  orgCategoryOptions: DictItem[]
-  institutionalTypeOptions: DictItem[]
-  orgLevelOptions: OrgLevelItem[]
-  rootParentId: string
-  checkOrgNameUnique:(params: { orgName: string; parentId?: string; orgId?: string }) => Promise<boolean>
-}>();
+  const props = defineProps<{
+    disabled: boolean;
+    rules: FormRules<OrgForm>;
+    orgTreeOptions: OrgTreeOption[];
+    orgCategoryOptions: DictItem[];
+    institutionalTypeOptions: DictItem[];
+    orgLevelOptions: OrgLevelItem[];
+    rootParentId: string;
+    checkOrgNameUnique: (params: { orgName: string; parentId?: string; orgId?: string }) => Promise<boolean>;
+  }>();
 
-const model = defineModel<OrgForm>({ required: true });
+  const model = defineModel<OrgForm>({ required: true });
 
-const formRef = ref<FormInstance>();
+  const formRef = ref<FormInstance>();
 
-const uniqueNameRule: FormItemRule = {
-  trigger: 'blur',
-  validator: (_, value, callback) => {
-    const orgName = (value || '').trim();
-    if (!orgName) {
-      callback();
+  const uniqueNameRule: FormItemRule = {
+    trigger: "blur",
+    validator: (_, value, callback) => {
+      const orgName = (value || "").trim();
+      if (!orgName) {
+        callback();
+        return;
+      }
+
+      void props
+        .checkOrgNameUnique({
+          orgName,
+          parentId: model.value.parentId || props.rootParentId,
+          orgId: model.value.id,
+        })
+        .then((unique) => {
+          if (!unique) {
+            callback(new Error("已存在相同组织名称"));
+            return;
+          }
+          callback();
+        })
+        .catch((error: unknown) => {
+          const errorMessage = error instanceof Error ? error.message : "组织名称校验失败";
+          callback(new Error(errorMessage));
+        });
+    },
+  };
+
+  const mergedRules = computed<FormRules<OrgForm>>(() => {
+    const baseRules = props.rules || {};
+    const rawOrgNameRules = baseRules.orgName;
+    const orgNameRules = Array.isArray(rawOrgNameRules)
+      ? [...rawOrgNameRules]
+      : rawOrgNameRules
+        ? [rawOrgNameRules]
+        : [];
+
+    return {
+      ...baseRules,
+      orgName: [...orgNameRules, uniqueNameRule],
+    };
+  });
+
+  function syncLevelMeta(level: number | null) {
+    if (level == null) {
+      model.value.orgLevelName = "";
+      model.value.orgLevelId = "";
       return;
     }
 
-    void props.checkOrgNameUnique({
-      orgName,
-      parentId: model.value.parentId || props.rootParentId,
-      orgId: model.value.id
-    }).then((unique) => {
-      if (!unique) {
-        callback(new Error('已存在相同组织名称'));
-        return;
-      }
-      callback();
-    })
-      .catch((error: unknown) => {
-        const errorMessage = error instanceof Error ? error.message : '组织名称校验失败';
-        callback(new Error(errorMessage));
-      });
-  }
-};
-
-const mergedRules = computed<FormRules<OrgForm>>(() => {
-  const baseRules = props.rules || {};
-  const rawOrgNameRules = baseRules.orgName;
-  const orgNameRules = Array.isArray(rawOrgNameRules)
-    ? [...rawOrgNameRules]
-    : rawOrgNameRules
-      ? [rawOrgNameRules]
-      : [];
-
-  return {
-    ...baseRules,
-    orgName: [
-      ...orgNameRules,
-      uniqueNameRule
-    ]
-  };
-});
-
-function syncLevelMeta (level: number | null) {
-  if (level == null) {
-    model.value.orgLevelName = '';
-    model.value.orgLevelId = '';
-    return;
+    const target = props.orgLevelOptions.find((item) => Number(item.orgLevel) === Number(level));
+    model.value.orgLevelName = target?.orgLevelName || "";
+    model.value.orgLevelId = target?.id || "";
   }
 
-  const target = props.orgLevelOptions.find((item) => Number(item.orgLevel) === Number(level));
-  model.value.orgLevelName = target?.orgLevelName || '';
-  model.value.orgLevelId = target?.id || '';
-}
-
-watch(() => model.value.orgLevel,
-  (level) => {
-    syncLevelMeta(level);
-  });
-
-watch(() => props.orgLevelOptions,
-  () => {
-    syncLevelMeta(model.value.orgLevel);
-  });
-
-defineExpose<CrudFormLike>({
-  validate: (...args) => {
-    const [callback] = args;
-    if (callback) {
-      return formRef.value?.validate?.(callback);
+  watch(
+    () => model.value.orgLevel,
+    (level) => {
+      syncLevelMeta(level);
     }
-    return formRef.value?.validate?.();
-  },
-  clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
-  resetFields: (...args) => formRef.value?.resetFields?.(...args)
-});
+  );
+
+  watch(
+    () => props.orgLevelOptions,
+    () => {
+      syncLevelMeta(model.value.orgLevel);
+    }
+  );
+
+  defineExpose<CrudFormLike>({
+    validate: (...args) => {
+      const [callback] = args;
+      if (callback) {
+        return formRef.value?.validate?.(callback);
+      }
+      return formRef.value?.validate?.();
+    },
+    clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
+    resetFields: (...args) => formRef.value?.resetFields?.(...args),
+  });
 </script>
 
 <template>
-  <el-form
-    ref="formRef"
-    :model
-    :rules="mergedRules"
-    label-position="top"
-    :disabled="props.disabled"
-  >
+  <el-form ref="formRef" :model :rules="mergedRules" label-position="top" :disabled="props.disabled">
     <el-form-item label="上级组织" prop="parentId" class="ob-crud-container__item--full">
       <el-tree-select
         v-model="model.parentId"
@@ -142,12 +139,7 @@ defineExpose<CrudFormLike>({
     </el-form-item>
 
     <el-form-item label="是否外部组织" prop="isExternal">
-      <el-switch
-        v-model="model.isExternal"
-        inline-prompt
-        active-text="是"
-        inactive-text="否"
-      />
+      <el-switch v-model="model.isExternal" inline-prompt active-text="是" inactive-text="否" />
     </el-form-item>
 
     <el-form-item label="组织类型" prop="orgCategory">

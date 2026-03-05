@@ -1,30 +1,30 @@
-import { createApp } from 'vue';
-import { createPinia, setActivePinia } from 'pinia';
-import '@one-base-template/tag/style';
+import { createApp } from "vue";
+import { createPinia, setActivePinia } from "pinia";
+import "@one-base-template/tag/style";
 
-import App from '../App.vue';
-import { getRouteAssemblyResult } from '../router';
+import App from "../App.vue";
+import { getRouteAssemblyResult } from "../router";
 
-import { setObHttpClient } from '../infra/http';
-import { appEnv } from '../infra/env';
+import { setObHttpClient } from "../infra/http";
+import { appEnv } from "../infra/env";
 import {
   appLayoutMode,
   appSidebarCollapsedWidth,
   appSidebarWidth,
   appSystemSwitchStyle,
-  appTopbarHeight
-} from '../config';
+  appTopbarHeight,
+} from "../config";
 
-import { createAppRouter } from './router';
-import { createAppHttp } from './http';
-import { createAppAdapter } from './adapter';
-import { installCore } from './core';
-import { installAppShellPlugins } from './plugins';
-import { installAppRouterGuards } from './guards';
-import { registerMessageUtils } from '../utils/message';
-import { registerPersonnelSelectionAppContext } from '../components/PersonnelSelector/openPersonnelSelection';
+import { createAppRouter } from "./router";
+import { createAppHttp } from "./http";
+import { createAppAdapter } from "./adapter";
+import { installCore } from "./core";
+import { installAppShellPlugins } from "./plugins";
+import { installAppRouterGuards } from "./guards";
+import { registerMessageUtils } from "../utils/message";
+import { registerPersonnelSelectionAppContext } from "../components/PersonnelSelector/openPersonnelSelection";
 
-export function bootstrapAdminApp () {
+export function bootstrapAdminApp() {
   const app = createApp(App);
   registerMessageUtils(app);
   registerPersonnelSelectionAppContext(app._context);
@@ -40,7 +40,7 @@ export function bootstrapAdminApp () {
   installAppShellPlugins({
     app,
     pinia,
-    router
+    router,
   });
 
   const http = createAppHttp({
@@ -54,7 +54,7 @@ export function bootstrapAdminApp () {
     clientSignatureSalt: appEnv.clientSignatureSalt,
     clientSignatureClientId: appEnv.clientSignatureClientId,
     pinia,
-    router
+    router,
   });
   setObHttpClient(http);
 
@@ -62,7 +62,7 @@ export function bootstrapAdminApp () {
     backend: appEnv.backend,
     http,
     tokenKey: appEnv.tokenKey,
-    sczfwSystemPermissionCode: appEnv.sczfwSystemPermissionCode
+    sczfwSystemPermissionCode: appEnv.sczfwSystemPermissionCode,
   });
 
   installCore(app, {
@@ -76,7 +76,7 @@ export function bootstrapAdminApp () {
     sidebarCollapsedWidth: appSidebarCollapsedWidth,
     storageNamespace: appEnv.storageNamespace,
     defaultSystemCode: appEnv.defaultSystemCode,
-    systemHomeMap: appEnv.systemHomeMap
+    systemHomeMap: appEnv.systemHomeMap,
   });
 
   installAppRouterGuards({
@@ -84,12 +84,12 @@ export function bootstrapAdminApp () {
     skipMenuAuthRouteNames,
     onNavigationStart: () => {
       http.cancelRouteRequests();
-    }
+    },
   });
 
   return {
     app,
     router,
-    pinia
+    pinia,
   };
 }

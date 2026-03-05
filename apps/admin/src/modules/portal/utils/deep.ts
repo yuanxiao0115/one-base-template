@@ -6,8 +6,8 @@
  * - 优先使用 structuredClone（更安全）
  * - 兜底使用 JSON（不支持函数/循环引用，但足够覆盖本模块数据结构）
  */
-export function deepClone<T> (value: T): T {
-  if (typeof structuredClone === 'function') {
+export function deepClone<T>(value: T): T {
+  if (typeof structuredClone === "function") {
     return structuredClone(value);
   }
   return JSON.parse(JSON.stringify(value)) as T;
@@ -18,7 +18,7 @@ export function deepClone<T> (value: T): T {
  *
  * 约束：不处理循环引用。
  */
-export function deepEqual (a: any, b: any): boolean {
+export function deepEqual(a: any, b: any): boolean {
   if (Object.is(a, b)) {
     return true;
   }
@@ -45,7 +45,7 @@ export function deepEqual (a: any, b: any): boolean {
     return true;
   }
 
-  if (typeof a === 'object') {
+  if (typeof a === "object") {
     if (Array.isArray(b)) {
       return false;
     }
@@ -67,4 +67,3 @@ export function deepEqual (a: any, b: any): boolean {
 
   return false;
 }
-

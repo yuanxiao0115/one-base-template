@@ -1,21 +1,21 @@
-import type { PortalTab } from '../types';
+import type { PortalTab } from "../types";
 
-function normalizeIdLike (value: unknown): string {
-  if (typeof value === 'string') {
+function normalizeIdLike(value: unknown): string {
+  if (typeof value === "string") {
     return value;
   }
-  if (typeof value === 'number') {
+  if (typeof value === "number") {
     return String(value);
   }
-  return '';
+  return "";
 }
 
-export function walkTabs (tabs: PortalTab[] | undefined, visitor: (tab: PortalTab) => void) {
+export function walkTabs(tabs: PortalTab[] | undefined, visitor: (tab: PortalTab) => void) {
   if (!Array.isArray(tabs)) {
     return;
   }
   for (const tab of tabs) {
-    if (!tab || typeof tab !== 'object') {
+    if (!tab || typeof tab !== "object") {
       continue;
     }
     visitor(tab);
@@ -25,15 +25,15 @@ export function walkTabs (tabs: PortalTab[] | undefined, visitor: (tab: PortalTa
   }
 }
 
-export function findFirstPageTabId (tabs: PortalTab[] | undefined): string {
+export function findFirstPageTabId(tabs: PortalTab[] | undefined): string {
   if (!Array.isArray(tabs)) {
-    return '';
+    return "";
   }
   for (const tab of tabs) {
-    if (!tab || typeof tab !== 'object') {
+    if (!tab || typeof tab !== "object") {
       continue;
     }
-    if (tab.tabType === 2 && typeof tab.id === 'string' && tab.id) {
+    if (tab.tabType === 2 && typeof tab.id === "string" && tab.id) {
       return tab.id;
     }
     const nested = findFirstPageTabId(tab.children);
@@ -41,10 +41,10 @@ export function findFirstPageTabId (tabs: PortalTab[] | undefined): string {
       return nested;
     }
   }
-  return '';
+  return "";
 }
 
-export function containsTabId (tabs: PortalTab[] | undefined, tabId: string): boolean {
+export function containsTabId(tabs: PortalTab[] | undefined, tabId: string): boolean {
   if (!tabId) {
     return false;
   }
@@ -60,11 +60,11 @@ export function containsTabId (tabs: PortalTab[] | undefined, tabId: string): bo
   return found;
 }
 
-export function calcNextSort (tabs: PortalTab[] | undefined, parentId: PortalTab['parentId']): number {
-  const parentKey = normalizeIdLike(parentId) || '0';
+export function calcNextSort(tabs: PortalTab[] | undefined, parentId: PortalTab["parentId"]): number {
+  const parentKey = normalizeIdLike(parentId) || "0";
   let maxSort = 0;
   walkTabs(tabs, (t) => {
-    const key = normalizeIdLike(t.parentId) || '0';
+    const key = normalizeIdLike(t.parentId) || "0";
     if (key !== parentKey) {
       return;
     }

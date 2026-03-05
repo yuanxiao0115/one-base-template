@@ -1,35 +1,26 @@
-import { computed, reactive, ref } from 'vue';
-import type { CrudFormLike } from '@one-base-template/ui';
-import { useCrudPage } from '@one-base-template/core';
-import { message } from '@/utils/message';
-import roleColumns from '../columns';
-import {
-  roleApi,
-  type RoleRecord,
-  type RoleSavePayload
-} from '../api';
-import {
-  defaultRoleForm,
-  type RoleForm,
-  toRoleForm,
-  toRolePayload
-} from '../form';
+import { computed, reactive, ref } from "vue";
+import type { CrudFormLike } from "@one-base-template/ui";
+import { useCrudPage } from "@one-base-template/core";
+import { message } from "@/utils/message";
+import roleColumns from "../columns";
+import { roleApi, type RoleRecord, type RoleSavePayload } from "../api";
+import { defaultRoleForm, type RoleForm, toRoleForm, toRolePayload } from "../form";
 
-type SearchRefExpose = {
-  resetFields?: () => void
+interface SearchRefExpose {
+  resetFields?: () => void;
 }
 
-export function useRolePageState () {
+export function useRolePageState() {
   const tableRef = ref<unknown>(null);
   const searchRef = ref<SearchRefExpose>();
   const editFormRef = ref<CrudFormLike>();
 
   const permissionVisible = ref(false);
-  const permissionRoleId = ref('');
-  const permissionRoleName = ref('');
+  const permissionRoleId = ref("");
+  const permissionRoleName = ref("");
 
   const searchForm = reactive({
-    roleName: ''
+    roleName: "",
   });
 
   const tableOpt = reactive({
@@ -37,23 +28,23 @@ export function useRolePageState () {
       api: roleApi.page,
       params: searchForm,
       pagination: true,
-      immediate: false
+      immediate: false,
     },
     remove: {
       api: async (payload: { id: string }) => roleApi.remove({ idList: [payload.id] }),
       deleteConfirm: {
-        nameKey: 'roleName',
-        title: '删除确认',
-        message: '是否确认删除角色「{name}」？'
+        nameKey: "roleName",
+        title: "删除确认",
+        message: "是否确认删除角色「{name}」？",
       },
       onSuccess: () => {
-        message.success('删除角色成功');
+        message.success("删除角色成功");
       },
       onError: (error: unknown) => {
-        const errorMessage = error instanceof Error ? error.message : '删除角色失败';
+        const errorMessage = error instanceof Error ? error.message : "删除角色失败";
         message.error(errorMessage);
-      }
-    }
+      },
+    },
   });
 
   const crudPage = useCrudPage<RoleForm, RoleRecord, RoleRecord, RoleSavePayload>({
@@ -61,57 +52,47 @@ export function useRolePageState () {
     tableRef,
     editor: {
       entity: {
-        name: '角色'
+        name: "角色",
       },
       form: {
         create: () => ({ ...defaultRoleForm }),
-        ref: editFormRef
+        ref: editFormRef,
       },
       detail: {
         load: async ({ row }) => row,
-        mapToForm: ({ detail }) => toRoleForm(detail)
+        mapToForm: ({ detail }) => toRoleForm(detail),
       },
       save: {
         buildPayload: async ({ form }) => {
           const payload = toRolePayload(form);
           if (!payload.roleName) {
-            throw new Error('角色名称不能为空');
+            throw new Error("角色名称不能为空");
           }
           return payload;
         },
         request: async ({ mode, payload }) => {
-          const response = mode === 'create'
-            ? await roleApi.add(payload)
-            : await roleApi.update(payload);
+          const response = mode === "create" ? await roleApi.add(payload) : await roleApi.update(payload);
 
           if (response.code !== 200) {
-            throw new Error(response.message || '保存角色失败');
+            throw new Error(response.message || "保存角色失败");
           }
           return response;
         },
         onSuccess: async ({ mode }) => {
-          message.success(mode === 'create' ? '新增角色成功' : '更新角色成功');
-        }
-      }
-    }
+          message.success(mode === "create" ? "新增角色成功" : "更新角色成功");
+        },
+      },
+    },
   });
 
-  const {
-    loading,
-    dataList,
-    pagination,
-    onSearch,
-    resetForm,
-    handleSizeChange,
-    handleCurrentChange
-  } = crudPage.table;
+  const { loading, dataList, pagination, onSearch, resetForm, handleSizeChange, handleCurrentChange } = crudPage.table;
 
   const crud = crudPage.editor;
   const { remove } = crudPage.actions;
 
   const tableColumns = computed(() => roleColumns);
   const tablePagination = computed(() => ({
-    ...pagination
+    ...pagination,
   }));
 
   const crudVisible = crud.visible;
@@ -121,30 +102,30 @@ export function useRolePageState () {
   const crudSubmitting = crud.submitting;
   const crudForm = crud.form;
 
-  function tableSearch (keyword: string) {
+  function tableSearch(keyword: string) {
     searchForm.roleName = keyword;
     void onSearch();
   }
 
-  function onKeywordUpdate (keyword: string) {
+  function onKeywordUpdate(keyword: string) {
     searchForm.roleName = keyword;
   }
 
-  function onResetSearch () {
-    resetForm(searchRef, 'roleName');
+  function onResetSearch() {
+    resetForm(searchRef, "roleName");
   }
 
-  async function handleDelete (row: RoleRecord) {
+  async function handleDelete(row: RoleRecord) {
     await remove(row);
   }
 
-  function openPermissionDialog (row: RoleRecord) {
+  function openPermissionDialog(row: RoleRecord) {
     permissionRoleId.value = row.id;
     permissionRoleName.value = row.roleName;
     permissionVisible.value = true;
   }
 
-  function handlePermissionSaved () {
+  function handlePermissionSaved() {
     void onSearch(false);
   }
 
@@ -152,14 +133,14 @@ export function useRolePageState () {
     refs: {
       tableRef,
       searchRef,
-      editFormRef
+      editFormRef,
     },
     table: {
       loading,
       dataList,
       tablePagination,
       tableColumns,
-      searchForm
+      searchForm,
     },
     editor: {
       crud,
@@ -168,12 +149,12 @@ export function useRolePageState () {
       crudTitle,
       crudReadonly,
       crudSubmitting,
-      crudForm
+      crudForm,
     },
     dialogs: {
       permissionVisible,
       permissionRoleId,
-      permissionRoleName
+      permissionRoleName,
     },
     actions: {
       tableSearch,
@@ -183,7 +164,7 @@ export function useRolePageState () {
       handleCurrentChange,
       handleDelete,
       openPermissionDialog,
-      handlePermissionSaved
-    }
+      handlePermissionSaved,
+    },
   };
 }

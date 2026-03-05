@@ -1,51 +1,45 @@
-import { type ComputedRef, type Ref, ref } from 'vue';
-import { message } from '@/utils/message';
-import { orgApi, type OrgRecord } from '../api';
+import { type ComputedRef, type Ref, ref } from "vue";
+import { message } from "@/utils/message";
+import { orgApi, type OrgRecord } from "../api";
 
-type SearchRefExpose = {
-  resetFields?: () => void
+interface SearchRefExpose {
+  resetFields?: () => void;
 }
 
-type UseOrgTreeQueryOptions = {
-  inSearchMode: ComputedRef<boolean>
-  searchForm: { orgName: string }
-  searchRef: Ref<SearchRefExpose | undefined>
-  onSearch: (goFirstPage?: boolean) => Promise<void>
-  resetForm: (formRef: Ref<SearchRefExpose | undefined>, keywordField?: string) => void
+interface UseOrgTreeQueryOptions {
+  inSearchMode: ComputedRef<boolean>;
+  searchForm: { orgName: string };
+  searchRef: Ref<SearchRefExpose | undefined>;
+  onSearch: (goFirstPage?: boolean) => Promise<void>;
+  resetForm: (formRef: Ref<SearchRefExpose | undefined>, keywordField?: string) => void;
 }
 
-type TreeCacheEntry = {
-  data: OrgRecord[]
-  timestamp: number
+interface TreeCacheEntry {
+  data: OrgRecord[];
+  timestamp: number;
 }
 
 const CACHE_EXPIRE_TIME = 5 * 60 * 1000;
 
-function getErrorMessage (error: unknown, fallback: string): string {
+function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
-export function useOrgTreeQuery (options: UseOrgTreeQueryOptions) {
-  const {
-    inSearchMode,
-    searchForm,
-    searchRef,
-    onSearch,
-    resetForm
-  } = options;
+export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
+  const { inSearchMode, searchForm, searchRef, onSearch, resetForm } = options;
 
   const treeChildrenCache = new Map<string, TreeCacheEntry>();
   const deletingRow = ref<OrgRecord | null>(null);
 
-  function clearTreeCache () {
+  function clearTreeCache() {
     treeChildrenCache.clear();
   }
 
-  function isCacheExpired (cache: TreeCacheEntry): boolean {
+  function isCacheExpired(cache: TreeCacheEntry): boolean {
     return Date.now() - cache.timestamp > CACHE_EXPIRE_TIME;
   }
 
-  function getCacheRows (parentId: string): OrgRecord[] | null {
+  function getCacheRows(parentId: string): OrgRecord[] | null {
     const cache = treeChildrenCache.get(parentId);
     if (!cache) {
       return null;
@@ -59,14 +53,14 @@ export function useOrgTreeQuery (options: UseOrgTreeQueryOptions) {
     return cache.data;
   }
 
-  function saveCacheRows (parentId: string, rows: OrgRecord[]) {
+  function saveCacheRows(parentId: string, rows: OrgRecord[]) {
     treeChildrenCache.set(parentId, {
       data: rows,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
-  async function loadTreeChildren (params: { row: OrgRecord }) {
+  async function loadTreeChildren(params: { row: OrgRecord }) {
     if (inSearchMode.value) {
       return [];
     }
@@ -80,7 +74,7 @@ export function useOrgTreeQuery (options: UseOrgTreeQueryOptions) {
     try {
       const response = await orgApi.getOrgTree({ parentId });
       if (response.code !== 200) {
-        throw new Error(response.message || '加载下级组织失败');
+        throw new Error(response.message || "加载下级组织失败");
       }
 
       const rows = Array.isArray(response.data) ? response.data : [];
@@ -91,31 +85,31 @@ export function useOrgTreeQuery (options: UseOrgTreeQueryOptions) {
       saveCacheRows(parentId, rows);
       return rows;
     } catch (error) {
-      message.error(getErrorMessage(error, '加载下级组织失败'));
+      message.error(getErrorMessage(error, "加载下级组织失败"));
       return [];
     }
   }
 
-  async function refreshTable () {
+  async function refreshTable() {
     clearTreeCache();
     await onSearch(false);
   }
 
-  function markDeletingRow (row: OrgRecord) {
+  function markDeletingRow(row: OrgRecord) {
     deletingRow.value = row;
   }
 
-  function clearDeletingRow () {
+  function clearDeletingRow() {
     deletingRow.value = null;
   }
 
-  function clearDeletingRowIfMatched (row: OrgRecord) {
+  function clearDeletingRowIfMatched(row: OrgRecord) {
     if (deletingRow.value?.id === row.id) {
       deletingRow.value = null;
     }
   }
 
-  function invalidateDeletedRowCache () {
+  function invalidateDeletedRowCache() {
     const row = deletingRow.value;
     deletingRow.value = null;
 
@@ -124,23 +118,23 @@ export function useOrgTreeQuery (options: UseOrgTreeQueryOptions) {
       return;
     }
 
-    treeChildrenCache.delete(String(row.id || ''));
-    treeChildrenCache.delete(String(row.parentId || ''));
+    treeChildrenCache.delete(String(row.id || ""));
+    treeChildrenCache.delete(String(row.parentId || ""));
   }
 
-  function tableSearch (keyword: string) {
+  function tableSearch(keyword: string) {
     searchForm.orgName = keyword;
     clearTreeCache();
     void onSearch();
   }
 
-  function onKeywordUpdate (keyword: string) {
+  function onKeywordUpdate(keyword: string) {
     searchForm.orgName = keyword;
   }
 
-  function onResetSearch () {
+  function onResetSearch() {
     clearTreeCache();
-    resetForm(searchRef, 'orgName');
+    resetForm(searchRef, "orgName");
   }
 
   return {
@@ -153,6 +147,6 @@ export function useOrgTreeQuery (options: UseOrgTreeQueryOptions) {
     invalidateDeletedRowCache,
     tableSearch,
     onKeywordUpdate,
-    onResetSearch
+    onResetSearch,
   };
 }

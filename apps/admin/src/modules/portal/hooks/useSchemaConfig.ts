@@ -1,17 +1,17 @@
-import type { Ref } from 'vue';
-import { nextTick, ref, watch } from 'vue';
+import type { Ref } from "vue";
+import { nextTick, ref, watch } from "vue";
 
 /**
  * 子组件配置部分定义
  */
-export type SectionConfig = {
+export interface SectionConfig {
   defaultValue?: unknown;
 }
 
 /**
  * 配置参数接口
  */
-export type SchemaConfigOptions = {
+export interface SchemaConfigOptions {
   name: string;
   sections: Record<string, SectionConfig>;
   schema: Record<string, unknown>;
@@ -21,7 +21,7 @@ export type SchemaConfigOptions = {
 /**
  * 返回值接口
  */
-export type SchemaConfigResult<T extends object = Record<string, unknown>> = {
+export interface SchemaConfigResult<T extends object = Record<string, unknown>> {
   sectionData: T;
   contentData: Ref<Record<string, unknown>>;
   updateSchema: () => void;
@@ -29,8 +29,8 @@ export type SchemaConfigResult<T extends object = Record<string, unknown>> = {
 
 type SchemaObject = Record<string, unknown>;
 
-function toPlainObject (value: unknown): SchemaObject {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+function toPlainObject(value: unknown): SchemaObject {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }
   return value as SchemaObject;
@@ -41,7 +41,9 @@ function toPlainObject (value: unknown): SchemaObject {
  *
  * 说明：该实现来自老项目，已去除 console.log，避免编辑时刷屏。
  */
-export function useSchemaConfig<T extends object = Record<string, unknown>> (options: SchemaConfigOptions): SchemaConfigResult<T> {
+export function useSchemaConfig<T extends object = Record<string, unknown>>(
+  options: SchemaConfigOptions
+): SchemaConfigResult<T> {
   const { name, sections, schema, onChange } = options;
 
   // 内部使用的响应式数据引用
@@ -57,9 +59,9 @@ export function useSchemaConfig<T extends object = Record<string, unknown>> (opt
   const contentData = ref<SchemaObject>({
     name,
     ...Object.keys(sections).reduce<SchemaObject>((acc, key) => {
-      acc[key] = { ...sectionRefs[key]!.value };
+      acc[key] = { ...sectionRefs[key]?.value };
       return acc;
-    }, {})
+    }, {}),
   });
 
   // 创建代理对象，直接暴露给组件使用
@@ -67,7 +69,7 @@ export function useSchemaConfig<T extends object = Record<string, unknown>> (opt
 
   Object.keys(sections).forEach((key) => {
     Object.defineProperty(sectionData, key, {
-      get: () => sectionRefs[key]!.value,
+      get: () => sectionRefs[key]?.value,
       set: (newValue) => {
         const obj = toPlainObject(newValue);
         sectionRefs[key]!.value = obj;
@@ -76,12 +78,13 @@ export function useSchemaConfig<T extends object = Record<string, unknown>> (opt
           updateSchema();
         });
       },
-      enumerable: true
+      enumerable: true,
     });
   });
 
   // 1) 监听 schema 变化，更新本地数据
-  watch(() => schema,
+  watch(
+    () => schema,
     (newVal) => {
       if (!newVal) {
         return;
@@ -95,30 +98,33 @@ export function useSchemaConfig<T extends object = Record<string, unknown>> (opt
 
       contentData.value = {
         ...newVal,
-        name: typeof newVal.name === 'string' ? newVal.name : name,
+        name: typeof newVal.name === "string" ? newVal.name : name,
         ...Object.keys(sections).reduce<SchemaObject>((acc, key) => {
           if (newVal[key]) {
             acc[key] = { ...toPlainObject(newVal[key]) };
           }
           return acc;
-        }, {})
+        }, {}),
       };
     },
     {
       immediate: true,
-      deep: true
-    });
+      deep: true,
+    }
+  );
 
   // 2) 监听子组件数据变化，同步到 contentData 并触发更新
   Object.keys(sectionRefs).forEach((key) => {
-    watch(sectionRefs[key]!,
+    watch(
+      sectionRefs[key]!,
       (newVal) => {
         contentData.value[key] = { ...toPlainObject(newVal) };
         nextTick(() => {
           updateSchema();
         });
       },
-      { deep: true });
+      { deep: true }
+    );
   });
 
   const updateSchema = () => {
@@ -127,7 +133,7 @@ export function useSchemaConfig<T extends object = Record<string, unknown>> (opt
       ...Object.keys(sections).reduce<SchemaObject>((acc, key) => {
         acc[key] = { ...toPlainObject(contentData.value[key]) };
         return acc;
-      }, {})
+      }, {}),
     };
 
     onChange?.(schemaData);
@@ -136,6 +142,6 @@ export function useSchemaConfig<T extends object = Record<string, unknown>> (opt
   return {
     sectionData,
     contentData,
-    updateSchema
+    updateSchema,
   };
 }

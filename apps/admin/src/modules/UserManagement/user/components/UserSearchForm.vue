@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { FormInstance } from 'element-plus';
+  import { ref } from "vue";
+  import type { FormInstance } from "element-plus";
 
-const model = defineModel<{
-  nickName: string
-  phone: string
-  userAccount: string
-  isEnable: boolean | null
-  mail: string
-  date: string[]
-}>({ required: true });
+  const model = defineModel<{
+    nickName: string;
+    phone: string;
+    userAccount: string;
+    isEnable: boolean | null;
+    mail: string;
+    date: string[];
+  }>({ required: true });
 
-const formRef = ref<FormInstance>();
+  const formRef = ref<FormInstance>();
 
-defineExpose({
-  resetFields: () => {
-    formRef.value?.resetFields?.();
-  }
-});
+  defineExpose({
+    resetFields: () => {
+      formRef.value?.resetFields?.();
+    },
+  });
 </script>
 
 <template>
@@ -60,7 +60,7 @@ defineExpose({
 </template>
 
 <style scoped>
-.user-search-form {
-  width: 100%;
-}
+  .user-search-form {
+    width: 100%;
+  }
 </style>

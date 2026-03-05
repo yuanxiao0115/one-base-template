@@ -1,40 +1,30 @@
 <script setup lang="ts">
-import SysLogSearchForm from './components/SysLogSearchForm.vue';
-import SysLogDetail from './components/SysLogDetail.vue';
-import { useSysLogPageState } from './composables/useSysLogPageState';
+  import SysLogSearchForm from "./components/SysLogSearchForm.vue";
+  import SysLogDetail from "./components/SysLogDetail.vue";
+  import { useSysLogPageState } from "./composables/useSysLogPageState";
 
-defineOptions({
-  name: 'SysLogManagementPage'
-});
+  defineOptions({
+    name: "SysLogManagementPage",
+  });
 
-// 页面仅保留编排层：操作日志查询、详情与删除逻辑统一下沉到 composable。
-const pageState = useSysLogPageState();
+  // 页面仅保留编排层：操作日志查询、详情与删除逻辑统一下沉到 composable。
+  const pageState = useSysLogPageState();
 
-const { refs } = pageState;
+  const { refs } = pageState;
 
-const {
-  loading,
-  dataList,
-  pagination,
-  tableColumns,
-  searchForm
-} = pageState.table;
+  const { loading, dataList, pagination, tableColumns, searchForm } = pageState.table;
 
-const {
-  detailVisible,
-  detailLoading,
-  detailData
-} = pageState.detail;
+  const { detailVisible, detailLoading, detailData } = pageState.detail;
 
-const {
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  handleSizeChange,
-  handleCurrentChange,
-  openDetail,
-  handleDelete
-} = pageState.actions;
+  const {
+    tableSearch,
+    onKeywordUpdate,
+    onResetSearch,
+    handleSizeChange,
+    handleCurrentChange,
+    openDetail,
+    handleDelete,
+  } = pageState.actions;
 </script>
 
 <template>
@@ -76,9 +66,7 @@ const {
           </ObVxeTable>
         </template>
 
-        <template #drawer>
-          <SysLogSearchForm :ref="refs.searchRef" v-model="searchForm" />
-        </template>
+        <template #drawer> <SysLogSearchForm :ref="refs.searchRef" v-model="searchForm" /> </template>
       </ObTableBox>
     </ObPageContainer>
 

@@ -1,54 +1,36 @@
 <script setup lang="ts">
-import { Plus } from '@element-plus/icons-vue';
-import RoleEditForm from './components/RoleEditForm.vue';
-import RolePermissionDialog from './components/RolePermissionDialog.vue';
-import RoleSearchForm from './components/RoleSearchForm.vue';
-import { roleFormRules } from './form';
-import { useRolePageState } from './composables/useRolePageState';
+  import { Plus } from "@element-plus/icons-vue";
+  import RoleEditForm from "./components/RoleEditForm.vue";
+  import RolePermissionDialog from "./components/RolePermissionDialog.vue";
+  import RoleSearchForm from "./components/RoleSearchForm.vue";
+  import { roleFormRules } from "./form";
+  import { useRolePageState } from "./composables/useRolePageState";
 
-defineOptions({
-  name: 'RoleManagementPage'
-});
+  defineOptions({
+    name: "RoleManagementPage",
+  });
 
-// 页面仅保留编排层：角色管理查询、CRUD 与权限配置逻辑统一下沉到 composable。
-const pageState = useRolePageState();
+  // 页面仅保留编排层：角色管理查询、CRUD 与权限配置逻辑统一下沉到 composable。
+  const pageState = useRolePageState();
 
-const { refs } = pageState;
+  const { refs } = pageState;
 
-const {
-  loading,
-  dataList,
-  tablePagination,
-  tableColumns,
-  searchForm
-} = pageState.table;
+  const { loading, dataList, tablePagination, tableColumns, searchForm } = pageState.table;
 
-const {
-  crud,
-  crudVisible,
-  crudMode,
-  crudTitle,
-  crudReadonly,
-  crudSubmitting,
-  crudForm
-} = pageState.editor;
+  const { crud, crudVisible, crudMode, crudTitle, crudReadonly, crudSubmitting, crudForm } = pageState.editor;
 
-const {
-  permissionVisible,
-  permissionRoleId,
-  permissionRoleName
-} = pageState.dialogs;
+  const { permissionVisible, permissionRoleId, permissionRoleName } = pageState.dialogs;
 
-const {
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  handleSizeChange,
-  handleCurrentChange,
-  handleDelete,
-  openPermissionDialog,
-  handlePermissionSaved
-} = pageState.actions;
+  const {
+    tableSearch,
+    onKeywordUpdate,
+    onResetSearch,
+    handleSizeChange,
+    handleCurrentChange,
+    handleDelete,
+    openPermissionDialog,
+    handlePermissionSaved,
+  } = pageState.actions;
 </script>
 
 <template>
@@ -82,16 +64,16 @@ const {
             <ObActionButtons>
               <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)">编辑</el-button>
               <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)">查看</el-button>
-              <el-button link type="primary" :size="actionSize" @click="() => openPermissionDialog(row)">添加权限</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => openPermissionDialog(row)"
+                >添加权限</el-button
+              >
               <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
             </ObActionButtons>
           </template>
         </ObVxeTable>
       </template>
 
-      <template #drawer>
-        <RoleSearchForm :ref="refs.searchRef" v-model="searchForm" />
-      </template>
+      <template #drawer> <RoleSearchForm :ref="refs.searchRef" v-model="searchForm" /> </template>
     </ObTableBox>
   </ObPageContainer>
 

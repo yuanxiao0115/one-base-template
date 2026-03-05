@@ -1,211 +1,217 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
+  import { finalizeAuthSession, type LoginPayload, safeRedirect, useAuthStore } from "@one-base-template/core";
+  import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+  import { onMounted, reactive, ref } from "vue";
+  import { useRoute, useRouter } from "vue-router";
+  import VerifySlide from "@/components/verifition-plus/VerifySlide.vue";
+  import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
+  import { appEnv } from "@/infra/env";
+  import { sm4EncryptBase64 } from "@/infra/sczfw/crypto";
+  import { getLoginPageConfig } from "@/shared/services/auth-remote-service";
 
-import { finalizeAuthSession, type LoginPayload, safeRedirect, useAuthStore } from '@one-base-template/core';
-import { appEnv } from '@/infra/env';
-import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
-import VerifySlide from '@/components/verifition-plus/VerifySlide.vue';
-import { sm4EncryptBase64 } from '@/infra/sczfw/crypto';
-import { getLoginPageConfig } from '@/shared/services/auth-remote-service';
+  defineOptions({
+    name: "LoginPage",
+  });
 
-defineOptions({
-  name: 'LoginPage'
-});
+  interface BizResponse<T> {
+    code?: unknown;
+    data?: T;
+    message?: string;
+  }
 
-type BizResponse<T> = {
-  code?: unknown;
-  data?: T;
-  message?: string;
-};
+  interface LoginPageConfig {
+    webLogoText?: string;
+    loginPageFodders?: string[];
+    [k: string]: unknown;
+  }
 
-type LoginPageConfig = {
-  webLogoText?: string;
-  loginPageFodders?: string[];
-  [k: string]: unknown;
-};
+  const router = useRouter();
+  const route = useRoute();
 
-const router = useRouter();
-const route = useRoute();
+  const authStore = useAuthStore();
 
-const authStore = useAuthStore();
+  const { backend } = appEnv;
+  const { tokenKey } = appEnv;
 
-const { backend } = appEnv;
-const { tokenKey } = appEnv;
+  const loading = ref(false);
+  const formRef = ref<FormInstance>();
+  const verifyRef = ref<InstanceType<typeof VerifySlide> | null>(null);
 
-const loading = ref(false);
-const formRef = ref<FormInstance>();
-const verifyRef = ref<InstanceType<typeof VerifySlide> | null>(null);
+  const form = reactive({
+    username: "",
+    password: "",
+  });
 
-const form = reactive({
-  username: '',
-  password: ''
-});
+  const loginInfoConfig = ref<LoginPageConfig | null>(null);
+  const backgroundImage = ref("");
 
-const loginInfoConfig = ref<LoginPageConfig | null>(null);
-const backgroundImage = ref('');
+  function getRedirectTarget() {
+    // 兼容老项目常用 query：redirectUrl
+    const raw = route.query.redirect ?? route.query.redirectUrl;
+    const fallback = backend === "sczfw" ? DEFAULT_FALLBACK_HOME : "/";
+    return safeRedirect(raw, fallback);
+  }
 
-function getRedirectTarget () {
-  // 兼容老项目常用 query：redirectUrl
-  const raw = route.query.redirect ?? route.query.redirectUrl;
-  const fallback = backend === 'sczfw' ? DEFAULT_FALLBACK_HOME : '/';
-  return safeRedirect(raw, fallback);
-}
-
-const rules: FormRules = {
-  username: [{
-    required: true,
-    message: '请输入账号',
-    trigger: 'blur'
-  }],
-  password: [
-    {
-      validator: (_rule, value: string, callback) => {
-        // 密码格式应为 8-18 位：数字/字母/符号任意两种组合，且不允许中文
-        const REGEXP_PWD
-          = /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){8,18}$/;
-        if (!value) {
-          return callback(new Error('请输入密码'));
-        }
-        if (!REGEXP_PWD.test(value)) {
-          return callback(new Error('密码格式应为8-18位数字、字母、符号的任意两种组合'));
-        }
-        callback();
+  const rules: FormRules = {
+    username: [
+      {
+        required: true,
+        message: "请输入账号",
+        trigger: "blur",
       },
-      trigger: 'blur'
+    ],
+    password: [
+      {
+        validator: (_rule, value: string, callback) => {
+          // 密码格式应为 8-18 位：数字/字母/符号任意两种组合，且不允许中文
+          const REGEXP_PWD =
+            /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){8,18}$/;
+          if (!value) {
+            return callback(new Error("请输入密码"));
+          }
+          if (!REGEXP_PWD.test(value)) {
+            return callback(new Error("密码格式应为8-18位数字、字母、符号的任意两种组合"));
+          }
+          callback();
+        },
+        trigger: "blur",
+      },
+    ],
+  };
+
+  async function loadLoginPageConfig() {
+    const res = (await getLoginPageConfig()) as BizResponse<LoginPageConfig>;
+
+    if (!res || res.code !== 200) {
+      return;
     }
-  ]
-};
 
-async function loadLoginPageConfig () {
-  const res = (await getLoginPageConfig()) as BizResponse<LoginPageConfig>;
+    loginInfoConfig.value = res.data ?? null;
 
-  if (!res || res.code !== 200) {
-    return;
+    const firstImgId = res.data?.loginPageFodders?.[0];
+    if (firstImgId) {
+      backgroundImage.value = `/cmict/file/resource/show?id=${firstImgId}`;
+    }
   }
 
-  loginInfoConfig.value = res.data ?? null;
-
-  const firstImgId = res.data?.loginPageFodders?.[0];
-  if (firstImgId) {
-    backgroundImage.value = `/cmict/file/resource/show?id=${firstImgId}`;
-  }
-}
-
-async function handleDirectTokenLogin (token: string) {
-  localStorage.setItem(tokenKey, token);
-  try {
-    await finalizeAuthSession({ shouldFetchMe: true });
-    await router.replace(getRedirectTarget());
-  } catch (e: unknown) {
-    const message = e instanceof Error && e.message ? e.message : '登录失败';
-    ElMessage.error(message);
-    localStorage.removeItem(tokenKey);
-  }
-}
-
-async function doDefaultLogin () {
-  loading.value = true;
-  try {
-    await authStore.login({
-      username: form.username,
-      password: form.password
-    });
-    await finalizeAuthSession({ shouldFetchMe: false });
-    await router.replace(getRedirectTarget());
-  } catch (e: unknown) {
-    const message = e instanceof Error && e.message ? e.message : '登录失败';
-    ElMessage.error(message);
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function doSczfwLogin (captcha: { captcha: string; captchaKey: string }) {
-  loading.value = true;
-  try {
-    const payload: LoginPayload = {
-      username: sm4EncryptBase64(form.username),
-      password: sm4EncryptBase64(form.password),
-      captcha: captcha.captcha,
-      captchaKey: captcha.captchaKey,
-      encrypt: 1
-    };
-
-    await authStore.login(payload);
-    await finalizeAuthSession({ shouldFetchMe: false });
-    await router.replace(getRedirectTarget());
-  } catch (e: unknown) {
-    const message = e instanceof Error && e.message ? e.message : '登录失败';
-    ElMessage.error(message);
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function onSubmit () {
-  if (backend === 'default') {
-    await doDefaultLogin();
-    return;
+  async function handleDirectTokenLogin(token: string) {
+    localStorage.setItem(tokenKey, token);
+    try {
+      await finalizeAuthSession({ shouldFetchMe: true });
+      await router.replace(getRedirectTarget());
+    } catch (e: unknown) {
+      const message = e instanceof Error && e.message ? e.message : "登录失败";
+      ElMessage.error(message);
+      localStorage.removeItem(tokenKey);
+    }
   }
 
-  if (!formRef.value) {
-    return;
+  async function doDefaultLogin() {
+    loading.value = true;
+    try {
+      await authStore.login({
+        username: form.username,
+        password: form.password,
+      });
+      await finalizeAuthSession({ shouldFetchMe: false });
+      await router.replace(getRedirectTarget());
+    } catch (e: unknown) {
+      const message = e instanceof Error && e.message ? e.message : "登录失败";
+      ElMessage.error(message);
+    } finally {
+      loading.value = false;
+    }
   }
 
-  const valid = await formRef.value
-    .validate()
-    .then(() => true)
-    .catch(() => false);
+  async function doSczfwLogin(captcha: { captcha: string; captchaKey: string }) {
+    loading.value = true;
+    try {
+      const payload: LoginPayload = {
+        username: sm4EncryptBase64(form.username),
+        password: sm4EncryptBase64(form.password),
+        captcha: captcha.captcha,
+        captchaKey: captcha.captchaKey,
+        encrypt: 1,
+      };
 
-  if (!valid) {
-    return;
+      await authStore.login(payload);
+      await finalizeAuthSession({ shouldFetchMe: false });
+      await router.replace(getRedirectTarget());
+    } catch (e: unknown) {
+      const message = e instanceof Error && e.message ? e.message : "登录失败";
+      ElMessage.error(message);
+    } finally {
+      loading.value = false;
+    }
   }
 
-  // 验证码弹层
-  await verifyRef.value?.show();
-}
+  async function onSubmit() {
+    if (backend === "default") {
+      await doDefaultLogin();
+      return;
+    }
 
-function onCaptchaSuccess (payload: { captcha: string; captchaKey: string }) {
-  void doSczfwLogin(payload);
-}
+    if (!formRef.value) {
+      return;
+    }
 
-onMounted(async () => {
-  if (backend === 'default') {
-    form.username = 'demo';
-    form.password = 'demo';
-    return;
+    const valid = await formRef.value
+      .validate()
+      .then(() => true)
+      .catch(() => false);
+
+    if (!valid) {
+      return;
+    }
+
+    // 验证码弹层
+    await verifyRef.value?.show();
   }
 
-  await loadLoginPageConfig();
-
-  // 兼容老项目：/login?token=xxx 直接免密登录
-  const { token } = route.query;
-  if (typeof token === 'string' && token) {
-    await handleDirectTokenLogin(token);
+  function onCaptchaSuccess(payload: { captcha: string; captchaKey: string }) {
+    void doSczfwLogin(payload);
   }
-});
+
+  onMounted(async () => {
+    if (backend === "default") {
+      form.username = "demo";
+      form.password = "demo";
+      return;
+    }
+
+    await loadLoginPageConfig();
+
+    // 兼容老项目：/login?token=xxx 直接免密登录
+    const { token } = route.query;
+    if (typeof token === "string" && token) {
+      await handleDirectTokenLogin(token);
+    }
+  });
 </script>
 
 <template>
   <!-- 默认模板：mock(/api) + 简单表单 -->
-  <div v-if="backend === 'default'" class="bg-[var(--el-bg-color-page)] flex h-screen items-center justify-center p-4 w-screen">
+  <div
+    v-if="backend === 'default'"
+    class="bg-(--el-bg-color-page) flex h-screen items-center justify-center p-4 w-screen"
+  >
     <el-card class="max-w-md w-full">
-      <template #header>
-        <div class="font-medium">登录</div>
-      </template>
+      <template #header> <div class="font-medium">登录</div> </template>
 
       <el-form label-position="top">
         <el-form-item label="账号">
           <el-input v-model="form.username" autocomplete="username" @keyup.enter="onSubmit" />
         </el-form-item>
         <el-form-item label="密码">
-          <el-input v-model="form.password" type="password" autocomplete="current-password" show-password @keyup.enter="onSubmit" />
+          <el-input
+            v-model="form.password"
+            type="password"
+            autocomplete="current-password"
+            show-password
+            @keyup.enter="onSubmit"
+          />
         </el-form-item>
-        <el-button class="w-full" type="primary" :loading @click="onSubmit">
-          登录
-        </el-button>
+        <el-button class="w-full" type="primary" :loading @click="onSubmit"> 登录 </el-button>
       </el-form>
 
       <div class="mt-3 text-[var(--el-text-color-regular)] text-xs">
@@ -215,7 +221,11 @@ onMounted(async () => {
   </div>
 
   <!-- sczfw：移植 standard-oa-web-sczfw 登录页（滑块验证码 + SM4 加密 + 动态背景） -->
-  <div v-else class="login-desktop" :style="{ backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined }">
+  <div
+    v-else
+    class="login-desktop"
+    :style="{ backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined }"
+  >
     <div class="login-header">
       <span v-if="loginInfoConfig?.webLogoText">{{ loginInfoConfig.webLogoText }}</span>
       <el-divider v-if="loginInfoConfig?.webLogoText" direction="vertical" />
@@ -251,79 +261,81 @@ onMounted(async () => {
     </div>
 
     <VerifySlide
-      ref="verifyRef" :img-size="{
+      ref="verifyRef"
+      :img-size="{
         width: '350px',
         height: '175px'
-      }" @success="onCaptchaSuccess"
+      }"
+      @success="onCaptchaSuccess"
     />
   </div>
 </template>
 
 <style scoped>
-.login-desktop {
-  height: 100vh;
-  min-width: 1200px;
-  background-color: #0f79e9;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-position: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-around;
-  overflow: hidden;
-  position: relative;
-}
+  .login-desktop {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    min-width: 1200px;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #0f79e9;
+    background-repeat: no-repeat;
+    background-position: 100%;
+    background-size: 100% 100%;
+  }
 
-.login-header {
-  height: 56px;
-  box-sizing: border-box;
-  padding: 0 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .login-header {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 24px;
+  }
 
-.login-header span {
-  font-size: 40px;
-  font-weight: 500;
-  color: #fff;
-  margin: 0 24px;
-}
+  .login-header span {
+    margin: 0 24px;
+    font-size: 40px;
+    font-weight: 500;
+    color: #fff;
+  }
 
-.login-container {
-  margin-top: -5%;
-  background-color: #fff;
-  padding: 24px 48px 48px;
-  border-radius: 8px;
-}
+  .login-container {
+    padding: 24px 48px 48px;
+    margin-top: -5%;
+    background-color: #fff;
+    border-radius: 8px;
+  }
 
-.login-container .title {
-  text-align: center;
-  font-size: 28px;
-  height: 72px;
-  color: #333;
-  font-weight: 700;
-}
+  .login-container .title {
+    height: 72px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+  }
 
-.login-container .login-form {
-  width: 360px;
-}
+  .login-container .login-form {
+    width: 360px;
+  }
 
-.login-container .login-btn {
-  background: #0f79e9;
-  height: 40px;
-  color: #fff;
-}
+  .login-container .login-btn {
+    height: 40px;
+    color: #fff;
+    background: #0f79e9;
+  }
 
-.login-box {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  overflow: hidden;
-}
+  .login-box {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-align: center;
+  }
 
-.custom-color {
-  border-color: transparent;
-}
+  .custom-color {
+    border-color: transparent;
+  }
 </style>

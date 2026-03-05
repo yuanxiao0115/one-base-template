@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { LoginLogRecord } from '../../api/login-log';
+  import type { LoginLogRecord } from "../../api/login-log";
 
-const props = defineProps<{
-  detail: LoginLogRecord | null
-}>();
+  const props = defineProps<{
+    detail: LoginLogRecord | null;
+  }>();
 </script>
 
 <template>

@@ -1,11 +1,11 @@
-import type { App, VNode } from 'vue';
-import { ElMessage, type MessageHandler, type MessageOptions, type MessageProps } from 'element-plus';
+import type { App, VNode } from "vue";
+import { ElMessage, type MessageHandler, type MessageOptions, type MessageProps } from "element-plus";
 
-type MessageStyle = 'el' | 'antd';
-type MessageType = Extract<MessageProps['type'], 'primary' | 'success' | 'warning' | 'info' | 'error'>;
+type MessageStyle = "el" | "antd";
+type MessageType = Extract<MessageProps["type"], "primary" | "success" | "warning" | "info" | "error">;
 type MessageContent = string | VNode | (() => VNode);
 
-export interface MessageParams extends Omit<MessageOptions, 'message' | 'type' | 'customClass'> {
+export interface MessageParams extends Omit<MessageOptions, "message" | "type" | "customClass"> {
   /**
    * 消息类型，默认 `info`。
    */
@@ -22,26 +22,30 @@ export interface MessageParams extends Omit<MessageOptions, 'message' | 'type' |
 
 export interface ObMessageFn {
   (content: MessageContent, params?: MessageParams): MessageHandler;
-  primary: (content: MessageContent, params?: Omit<MessageParams, 'type'>) => MessageHandler;
-  success: (content: MessageContent, params?: Omit<MessageParams, 'type'>) => MessageHandler;
-  warning: (content: MessageContent, params?: Omit<MessageParams, 'type'>) => MessageHandler;
-  info: (content: MessageContent, params?: Omit<MessageParams, 'type'>) => MessageHandler;
-  error: (content: MessageContent, params?: Omit<MessageParams, 'type'>) => MessageHandler;
+  primary: (content: MessageContent, params?: Omit<MessageParams, "type">) => MessageHandler;
+  success: (content: MessageContent, params?: Omit<MessageParams, "type">) => MessageHandler;
+  warning: (content: MessageContent, params?: Omit<MessageParams, "type">) => MessageHandler;
+  info: (content: MessageContent, params?: Omit<MessageParams, "type">) => MessageHandler;
+  error: (content: MessageContent, params?: Omit<MessageParams, "type">) => MessageHandler;
   closeAll: () => void;
 }
 
-function resolveAppendToTarget(appendTo: MessageOptions['appendTo']) {
-  if (appendTo) return appendTo;
-  if (typeof document !== 'undefined') return document.body;
+function resolveAppendToTarget(appendTo: MessageOptions["appendTo"]) {
+  if (appendTo) {
+    return appendTo;
+  }
+  if (typeof document !== "undefined") {
+    return document.body;
+  }
   return undefined;
 }
 
 function showMessage(content: MessageContent, params: MessageParams = {}): MessageHandler {
   const {
-    type = 'info',
+    type = "info",
     icon,
     dangerouslyUseHTMLString = false,
-    customClass = 'antd',
+    customClass = "antd",
     duration = 2000,
     showClose = false,
     offset = 20,
@@ -50,7 +54,7 @@ function showMessage(content: MessageContent, params: MessageParams = {}): Messa
     onClose,
     placement,
     plain,
-    zIndex
+    zIndex,
   } = params;
 
   return ElMessage({
@@ -66,15 +70,15 @@ function showMessage(content: MessageContent, params: MessageParams = {}): Messa
     placement,
     plain,
     zIndex,
-    customClass: customClass === 'antd' ? 'ob-message' : '',
+    customClass: customClass === "antd" ? "ob-message" : "",
     onClose: () => {
       onClose?.();
-    }
+    },
   });
 }
 
 function createTypedMessage(type: MessageType) {
-  return (content: MessageContent, params: Omit<MessageParams, 'type'> = {}) => {
+  return (content: MessageContent, params: Omit<MessageParams, "type"> = {}) => {
     return showMessage(content, { ...params, type });
   };
 }
@@ -84,12 +88,12 @@ export const closeAllMessage = (): void => {
 };
 
 export const message: ObMessageFn = Object.assign(showMessage, {
-  primary: createTypedMessage('primary'),
-  success: createTypedMessage('success'),
-  warning: createTypedMessage('warning'),
-  info: createTypedMessage('info'),
-  error: createTypedMessage('error'),
-  closeAll: closeAllMessage
+  primary: createTypedMessage("primary"),
+  success: createTypedMessage("success"),
+  warning: createTypedMessage("warning"),
+  info: createTypedMessage("info"),
+  error: createTypedMessage("error"),
+  closeAll: closeAllMessage,
 });
 
 export function registerMessageUtils(app: App) {

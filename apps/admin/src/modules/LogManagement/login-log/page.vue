@@ -1,41 +1,30 @@
 <script setup lang="ts">
-import LoginLogSearchForm from './components/LoginLogSearchForm.vue';
-import LoginLogDetail from './components/LoginLogDetail.vue';
-import { useLoginLogPageState } from './composables/useLoginLogPageState';
+  import LoginLogSearchForm from "./components/LoginLogSearchForm.vue";
+  import LoginLogDetail from "./components/LoginLogDetail.vue";
+  import { useLoginLogPageState } from "./composables/useLoginLogPageState";
 
-defineOptions({
-  name: 'LoginLogManagementPage'
-});
+  defineOptions({
+    name: "LoginLogManagementPage",
+  });
 
-// 页面仅保留编排层：登录日志查询、详情与删除逻辑统一下沉到 composable。
-const pageState = useLoginLogPageState();
+  // 页面仅保留编排层：登录日志查询、详情与删除逻辑统一下沉到 composable。
+  const pageState = useLoginLogPageState();
 
-const { refs } = pageState;
+  const { refs } = pageState;
 
-const {
-  loading,
-  dataList,
-  pagination,
-  tableColumns,
-  searchForm,
-  clientTypeList
-} = pageState.table;
+  const { loading, dataList, pagination, tableColumns, searchForm, clientTypeList } = pageState.table;
 
-const {
-  detailVisible,
-  detailLoading,
-  detailData
-} = pageState.detail;
+  const { detailVisible, detailLoading, detailData } = pageState.detail;
 
-const {
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  handleSizeChange,
-  handleCurrentChange,
-  openDetail,
-  handleDelete
-} = pageState.actions;
+  const {
+    tableSearch,
+    onKeywordUpdate,
+    onResetSearch,
+    handleSizeChange,
+    handleCurrentChange,
+    openDetail,
+    handleDelete,
+  } = pageState.actions;
 </script>
 
 <template>

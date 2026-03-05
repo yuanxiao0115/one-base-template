@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useSlots } from 'vue';
-import { VxeTable as ObVxeTable } from '@one-base-template/ui';
+  import { useSlots } from "vue";
+  import { VxeTable as ObVxeTable } from "@one-base-template/ui";
 
-defineOptions({
-  name: 'PureTableCompat'
-});
+  defineOptions({
+    name: "PureTableCompat",
+  });
 
-const slots = useSlots();
+  const slots = useSlots();
 </script>
 
 <template>

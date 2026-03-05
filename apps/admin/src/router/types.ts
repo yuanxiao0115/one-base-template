@@ -1,16 +1,16 @@
-import type { RouteRecordRaw } from 'vue-router';
+import type { RouteRecordRaw } from "vue-router";
 
-export type EnabledModulesSetting = string[] | '*';
-export type ModuleTier = 'core' | 'optional';
+export type EnabledModulesSetting = string[] | "*";
+export type ModuleTier = "core" | "optional";
 
-export type RouteAlias = {
+export interface RouteAlias {
   from: string;
   to: string;
-};
+}
 
-type AdminModuleManifestBase = {
+interface AdminModuleManifestBase {
   id: string;
-  version: '1';
+  version: "1";
   routes: {
     layout: RouteRecordRaw[];
     standalone?: RouteRecordRaw[];
@@ -23,18 +23,18 @@ type AdminModuleManifestBase = {
 }
 
 export type CoreModuleManifest = AdminModuleManifestBase & {
-  moduleTier: 'core';
+  moduleTier: "core";
   enabledByDefault: boolean;
 };
 
 export type OptionalModuleManifest = AdminModuleManifestBase & {
-  moduleTier: 'optional';
+  moduleTier: "optional";
   enabledByDefault: false;
 };
 
 export type AdminModuleManifest = CoreModuleManifest | OptionalModuleManifest;
 
-export type AppRouteAssemblyResult = {
+export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];
   skipMenuAuthRouteNames: string[];
 }

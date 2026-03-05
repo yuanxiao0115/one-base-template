@@ -1,27 +1,24 @@
-import { type Ref, ref } from 'vue';
-import {
-  orgApi,
-  type OrgRecord
-} from '../api';
-import type { OrgTreeOption } from '../form';
+import { type Ref, ref } from "vue";
+import { orgApi, type OrgRecord } from "../api";
+import type { OrgTreeOption } from "../form";
 
-type UseOrgTreeOptionsParams = {
-  rootParentId: Ref<string>
+interface UseOrgTreeOptionsParams {
+  rootParentId: Ref<string>;
 }
 
-function getSortedRows (rows: OrgRecord[]): OrgRecord[] {
+function getSortedRows(rows: OrgRecord[]): OrgRecord[] {
   return [...rows].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
 }
 
-function getTreeOptions (rows: OrgRecord[]): OrgTreeOption[] {
+function getTreeOptions(rows: OrgRecord[]): OrgTreeOption[] {
   return getSortedRows(rows).map((row) => ({
     value: row.id,
     label: row.orgName,
-    children: Array.isArray(row.children) ? getTreeOptions(row.children) : undefined
+    children: Array.isArray(row.children) ? getTreeOptions(row.children) : undefined,
   }));
 }
 
-function markChildIds (row: OrgRecord, ids: Set<string>) {
+function markChildIds(row: OrgRecord, ids: Set<string>) {
   if (!Array.isArray(row.children) || row.children.length === 0) {
     return;
   }
@@ -32,7 +29,7 @@ function markChildIds (row: OrgRecord, ids: Set<string>) {
   });
 }
 
-function getDisabledIds (rows: OrgRecord[], targetId: string, ids: Set<string>): boolean {
+function getDisabledIds(rows: OrgRecord[], targetId: string, ids: Set<string>): boolean {
   for (const row of rows) {
     if (row.id === targetId) {
       ids.add(row.id);
@@ -51,15 +48,15 @@ function getDisabledIds (rows: OrgRecord[], targetId: string, ids: Set<string>):
   return false;
 }
 
-function getDisabledTreeOptions (options: OrgTreeOption[], ids: Set<string>): OrgTreeOption[] {
+function getDisabledTreeOptions(options: OrgTreeOption[], ids: Set<string>): OrgTreeOption[] {
   return options.map((item) => ({
     ...item,
     disabled: ids.has(item.value),
-    children: Array.isArray(item.children) ? getDisabledTreeOptions(item.children, ids) : undefined
+    children: Array.isArray(item.children) ? getDisabledTreeOptions(item.children, ids) : undefined,
   }));
 }
 
-function hasOptionValue (options: OrgTreeOption[], targetValue: string): boolean {
+function hasOptionValue(options: OrgTreeOption[], targetValue: string): boolean {
   for (const item of options) {
     if (item.value === targetValue) {
       return true;
@@ -75,14 +72,14 @@ function hasOptionValue (options: OrgTreeOption[], targetValue: string): boolean
   return false;
 }
 
-export function useOrgTreeOptions (params: UseOrgTreeOptionsParams) {
+export function useOrgTreeOptions(params: UseOrgTreeOptionsParams) {
   const { rootParentId } = params;
   const orgTreeOptions = ref<OrgTreeOption[]>([]);
 
-  async function loadOrgTreeOptions (disabledId?: string) {
+  async function loadOrgTreeOptions(disabledId?: string) {
     const response = await orgApi.queryAllOrgTree();
     if (response.code !== 200) {
-      throw new Error(response.message || '加载组织树失败');
+      throw new Error(response.message || "加载组织树失败");
     }
 
     const rows = Array.isArray(response.data) ? response.data : [];
@@ -98,9 +95,9 @@ export function useOrgTreeOptions (params: UseOrgTreeOptionsParams) {
       options = [
         {
           value: rootParentId.value,
-          label: '顶级组织',
-          children: options
-        }
+          label: "顶级组织",
+          children: options,
+        },
       ];
     }
 
@@ -109,6 +106,6 @@ export function useOrgTreeOptions (params: UseOrgTreeOptionsParams) {
 
   return {
     orgTreeOptions,
-    loadOrgTreeOptions
+    loadOrgTreeOptions,
   };
 }

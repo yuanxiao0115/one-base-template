@@ -1,11 +1,19 @@
-import type { App } from 'vue';
-import type { RouteRecordRaw } from 'vue-router';
-import { type BackendAdapter, createCore, createStaticMenusFromRoutes, type LayoutMode, type MenuMode, type SystemSwitchStyle } from '@one-base-template/core';
-import { obConfirm } from '@/infra/confirm';
+import type { App } from "vue";
+import type { RouteRecordRaw } from "vue-router";
+import {
+  type BackendAdapter,
+  createCore,
+  createStaticMenusFromRoutes,
+  type LayoutMode,
+  type MenuMode,
+  type SystemSwitchStyle,
+} from "@one-base-template/core";
+import { obConfirm } from "@/infra/confirm";
 
-import { appSsoOptions, appThemeOptions, createSystemsOptions } from '../config';
+import { appSsoOptions, appThemeOptions, createSystemsOptions } from "../config";
 
-export function installCore (app: App,
+export function installCore(
+  app: App,
   params: {
     adapter: BackendAdapter;
     menuMode: MenuMode;
@@ -18,7 +26,8 @@ export function installCore (app: App,
     storageNamespace: string;
     defaultSystemCode?: string;
     systemHomeMap: Record<string, string>;
-  }) {
+  }
+) {
   const {
     adapter,
     menuMode,
@@ -30,41 +39,40 @@ export function installCore (app: App,
     sidebarCollapsedWidth,
     storageNamespace,
     defaultSystemCode,
-    systemHomeMap
+    systemHomeMap,
   } = params;
 
-  const staticMenus
-    = menuMode === 'static'
-      ? createStaticMenusFromRoutes(routes, { rootPath: '/' })
-      : undefined;
+  const staticMenus = menuMode === "static" ? createStaticMenusFromRoutes(routes, { rootPath: "/" }) : undefined;
 
-  app.use(createCore({
-    storageNamespace,
-    adapter,
-    menuMode,
-    staticMenus,
-    sso: appSsoOptions,
-    theme: {
-      ...appThemeOptions,
-      storageNamespace
-    },
-    layout: {
-      defaultMode: layoutMode,
-      systemSwitchStyle,
-      topbarHeight,
-      sidebarWidth,
-      sidebarCollapsedWidth,
-      persist: true
-    },
-    systems: createSystemsOptions({
-      defaultCode: defaultSystemCode,
-      homeMap: systemHomeMap
-    }),
-    hooks: {
-      tableConfirmAdapter: {
-        warn: async (message, title, options) => obConfirm.warn(message, title, options),
-        prompt: async (message, title, options) => obConfirm.prompt(message, title, options)
-      }
-    }
-  }));
+  app.use(
+    createCore({
+      storageNamespace,
+      adapter,
+      menuMode,
+      staticMenus,
+      sso: appSsoOptions,
+      theme: {
+        ...appThemeOptions,
+        storageNamespace,
+      },
+      layout: {
+        defaultMode: layoutMode,
+        systemSwitchStyle,
+        topbarHeight,
+        sidebarWidth,
+        sidebarCollapsedWidth,
+        persist: true,
+      },
+      systems: createSystemsOptions({
+        defaultCode: defaultSystemCode,
+        homeMap: systemHomeMap,
+      }),
+      hooks: {
+        tableConfirmAdapter: {
+          warn: async (message, title, options) => obConfirm.warn(message, title, options),
+          prompt: async (message, title, options) => obConfirm.prompt(message, title, options),
+        },
+      },
+    })
+  );
 }

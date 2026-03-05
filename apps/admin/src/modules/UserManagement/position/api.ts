@@ -1,12 +1,12 @@
-import { getHttpClient, trimText } from '@/shared/api/utils';
+import { getHttpClient, trimText } from "@/shared/api/utils";
 
-export type BizResponse<T> = {
+export interface BizResponse<T> {
   code: number;
   data: T;
   message?: string;
 }
 
-export type PositionRecord = {
+export interface PositionRecord {
   id: string;
   postName: string;
   sort: number;
@@ -14,54 +14,59 @@ export type PositionRecord = {
   createTime: string;
 }
 
-export type PositionPageParams = {
+export interface PositionPageParams {
   postName?: string;
   currentPage?: number;
   pageSize?: number;
 }
 
-export type PositionPageData = {
+export interface PositionPageData {
   records: PositionRecord[];
   total: number;
   currentPage: number;
   pageSize: number;
 }
 
-export type PositionSavePayload = {
+export interface PositionSavePayload {
   id?: string;
   postName: string;
   sort: number;
   remark: string;
 }
 
-export type PositionUniqueParams = {
+export interface PositionUniqueParams {
   id?: string;
   postName: string;
 }
 
 export const positionApi = {
-  page: async (params: PositionPageParams) => getHttpClient().get<BizResponse<PositionPageData>>('/cmict/admin/sys-post/page', {
-    params: {
-      postName: trimText(params.postName),
-      currentPage: params.currentPage,
-      pageSize: params.pageSize
-    }
-  }),
+  page: async (params: PositionPageParams) =>
+    getHttpClient().get<BizResponse<PositionPageData>>("/cmict/admin/sys-post/page", {
+      params: {
+        postName: trimText(params.postName),
+        currentPage: params.currentPage,
+        pageSize: params.pageSize,
+      },
+    }),
 
-  addPost: async (data: PositionSavePayload) => getHttpClient().post<BizResponse<PositionRecord>>('/cmict/admin/sys-post/add', { data }),
+  addPost: async (data: PositionSavePayload) =>
+    getHttpClient().post<BizResponse<PositionRecord>>("/cmict/admin/sys-post/add", { data }),
 
-  updatePost: async (data: PositionSavePayload) => getHttpClient().post<BizResponse<PositionRecord>>('/cmict/admin/sys-post/update', { data }),
+  updatePost: async (data: PositionSavePayload) =>
+    getHttpClient().post<BizResponse<PositionRecord>>("/cmict/admin/sys-post/update", { data }),
 
-  removePost: async (data: { id: string }) => getHttpClient().post<BizResponse<null>>('/cmict/admin/sys-post/delete', {
-    data
-  }),
+  removePost: async (data: { id: string }) =>
+    getHttpClient().post<BizResponse<null>>("/cmict/admin/sys-post/delete", {
+      data,
+    }),
 
-  checkUnique: async (params: PositionUniqueParams) => getHttpClient().get<BizResponse<boolean>>('/cmict/admin/sys-post/unique/check', {
-    params: {
-      id: params.id,
-      postName: trimText(params.postName)
-    }
-  })
+  checkUnique: async (params: PositionUniqueParams) =>
+    getHttpClient().get<BizResponse<boolean>>("/cmict/admin/sys-post/unique/check", {
+      params: {
+        id: params.id,
+        postName: trimText(params.postName),
+      },
+    }),
 };
 
 export default positionApi;

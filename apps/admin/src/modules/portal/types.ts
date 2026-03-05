@@ -1,19 +1,19 @@
-export type BizResponse<T> = {
+export interface BizResponse<T> {
   code?: unknown;
   data?: T;
   message?: string;
   success?: boolean;
-};
+}
 
-export type PageResult<T> = {
+export interface PageResult<T> {
   records?: T[];
   total?: number;
   currentPage?: number;
   pageSize?: number;
   [k: string]: unknown;
-};
+}
 
-export type PortalTemplate = {
+export interface PortalTemplate {
   id?: string;
   templateName?: string;
   description?: string;
@@ -27,9 +27,9 @@ export type PortalTemplate = {
   whiteDTOS?: unknown[];
   whiteList?: unknown;
   [k: string]: unknown;
-};
+}
 
-export type PortalTab = {
+export interface PortalTab {
   id?: string;
   templateId?: string;
   tabName?: string;
@@ -49,4 +49,4 @@ export type PortalTab = {
   cmptInsts?: unknown[];
   children?: PortalTab[];
   [k: string]: unknown;
-};
+}

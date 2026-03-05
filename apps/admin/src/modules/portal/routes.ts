@@ -1,1 +1,1 @@
-export { default } from './routes/layout';
+export { default } from "./routes/layout";

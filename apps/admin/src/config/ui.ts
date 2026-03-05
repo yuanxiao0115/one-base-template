@@ -1,8 +1,8 @@
-import type { CrudContainerType } from '@one-base-template/ui';
-import type { UseTableDefaults, UseTableStandardResponse } from '@one-base-template/core';
+import type { CrudContainerType } from "@one-base-template/ui";
+import type { UseTableDefaults, UseTableStandardResponse } from "@one-base-template/core";
 
-function toRecord (value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+function toRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }
   return value as Record<string, unknown>;
@@ -14,12 +14,12 @@ function toRecord (value: unknown): Record<string, unknown> {
  * - 兼容部分项目将分页结果放在 data.result 下
  * - 仍可在页面级通过 useTable 局部 responseAdapter 覆盖
  */
-export function appTableResponseAdapter (response: unknown): UseTableStandardResponse<unknown> {
+export function appTableResponseAdapter(response: unknown): UseTableStandardResponse<unknown> {
   if (Array.isArray(response)) {
     return {
       records: response,
       total: response.length,
-      raw: response
+      raw: response,
     };
   }
 
@@ -29,19 +29,19 @@ export function appTableResponseAdapter (response: unknown): UseTableStandardRes
   const resultRaw = data.result;
   const result = toRecord(resultRaw);
 
-  const recordsCandidate
-    = data.records
-    ?? data.list
-    ?? data.rows
-    ?? data.items
-    ?? result.records
-    ?? result.list
-    ?? result.rows
-    ?? result.items
-    ?? root.records
-    ?? root.list
-    ?? root.rows
-    ?? root.items;
+  const recordsCandidate =
+    data.records ??
+    data.list ??
+    data.rows ??
+    data.items ??
+    result.records ??
+    result.list ??
+    result.rows ??
+    result.items ??
+    root.records ??
+    root.list ??
+    root.rows ??
+    root.items;
 
   const records = Array.isArray(recordsCandidate)
     ? recordsCandidate
@@ -51,27 +51,27 @@ export function appTableResponseAdapter (response: unknown): UseTableStandardRes
         ? resultRaw
         : [];
 
-  const totalCandidate
-    = data.totalCount
-    ?? data.total
-    ?? data.count
-    ?? result.totalCount
-    ?? result.total
-    ?? result.count
-    ?? root.totalCount
-    ?? root.total
-    ?? root.count
-    ?? records.length;
-  const currentCandidate
-    = data.currentPage
-    ?? data.current
-    ?? data.page
-    ?? result.currentPage
-    ?? result.current
-    ?? result.page
-    ?? root.currentPage
-    ?? root.current
-    ?? root.page;
+  const totalCandidate =
+    data.totalCount ??
+    data.total ??
+    data.count ??
+    result.totalCount ??
+    result.total ??
+    result.count ??
+    root.totalCount ??
+    root.total ??
+    root.count ??
+    records.length;
+  const currentCandidate =
+    data.currentPage ??
+    data.current ??
+    data.page ??
+    result.currentPage ??
+    result.current ??
+    result.page ??
+    root.currentPage ??
+    root.current ??
+    root.page;
   const pageSizeCandidate = data.pageSize ?? data.size ?? result.pageSize ?? result.size ?? root.pageSize ?? root.size;
 
   return {
@@ -79,7 +79,7 @@ export function appTableResponseAdapter (response: unknown): UseTableStandardRes
     total: Number(totalCandidate ?? records.length),
     currentPage: currentCandidate == null ? undefined : Number(currentCandidate),
     pageSize: pageSizeCandidate == null ? undefined : Number(pageSizeCandidate),
-    raw: response
+    raw: response,
   };
 }
 
@@ -88,7 +88,7 @@ export function appTableResponseAdapter (response: unknown): UseTableStandardRes
  * - 未传 container 时生效
  * - 组件 props.container 始终优先于该默认值
  */
-export const appCrudContainerDefaultType: CrudContainerType = 'drawer';
+export const appCrudContainerDefaultType: CrudContainerType = "drawer";
 
 /**
  * useTable 全局默认配置：
@@ -98,12 +98,12 @@ export const appCrudContainerDefaultType: CrudContainerType = 'drawer';
  */
 export const appTableDefaults: UseTableDefaults = {
   paginationKey: {
-    current: 'currentPage',
-    size: 'pageSize'
+    current: "currentPage",
+    size: "pageSize",
   },
   paginationAlias: {
-    current: ['current', 'page'],
-    size: ['size']
+    current: ["current", "page"],
+    size: ["size"],
   },
-  responseAdapter: appTableResponseAdapter
+  responseAdapter: appTableResponseAdapter,
 };

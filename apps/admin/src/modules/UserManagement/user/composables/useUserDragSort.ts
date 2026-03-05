@@ -1,74 +1,61 @@
-import { nextTick, onBeforeUnmount, ref, type Ref, watch } from 'vue';
-import type Sortable from 'sortablejs';
-import { userApi, type UserListRecord } from '../api';
-import {
-  buildAdjustOrgSortPayload,
-  buildSortableOptions,
-  moveArrayItem,
-  type PaginationLike
-} from '../utils/dragSort';
+import { nextTick, onBeforeUnmount, ref, type Ref, watch } from "vue";
+import type Sortable from "sortablejs";
+import { userApi, type UserListRecord } from "../api";
+import { buildAdjustOrgSortPayload, buildSortableOptions, moveArrayItem, type PaginationLike } from "../utils/dragSort";
 
-type SortableCtor = {
-  create: (element: HTMLElement, options?: Record<string, unknown>) => Sortable
+interface SortableCtor {
+  create: (element: HTMLElement, options?: Record<string, unknown>) => Sortable;
 }
 
-type SortableEndEvent = {
-  oldIndex?: number
-  newIndex?: number
+interface SortableEndEvent {
+  oldIndex?: number;
+  newIndex?: number;
 }
 
-type UseUserDragSortOptions = {
-  tableRef: Ref<unknown>
-  canDragSort: Ref<boolean>
-  dataList: Ref<UserListRecord[]>
-  orgId: Ref<string>
-  pagination: PaginationLike
-  onSearch: (goFirstPage?: boolean) => Promise<void>
+interface UseUserDragSortOptions {
+  tableRef: Ref<unknown>;
+  canDragSort: Ref<boolean>;
+  dataList: Ref<UserListRecord[]>;
+  orgId: Ref<string>;
+  pagination: PaginationLike;
+  onSearch: (goFirstPage?: boolean) => Promise<void>;
 }
 
-export function useUserDragSort (options: UseUserDragSortOptions) {
-  const {
-    tableRef,
-    canDragSort,
-    dataList,
-    orgId,
-    pagination,
-    onSearch
-  } = options;
+export function useUserDragSort(options: UseUserDragSortOptions) {
+  const { tableRef, canDragSort, dataList, orgId, pagination, onSearch } = options;
 
   const sortableCtor = ref<SortableCtor | null>(null);
   const sortableInstance = ref<Sortable | null>(null);
   let sortableInitToken = 0;
 
-  function getTableBodyElement () {
+  function getTableBodyElement() {
     const tableEl = (tableRef.value as { $el?: HTMLElement } | null)?.$el;
     if (!tableEl) {
       return null;
     }
 
     return (
-      tableEl.querySelector('.vxe-table--body-wrapper tbody')
-      || tableEl.querySelector('.vxe-table--main-body tbody')
+      tableEl.querySelector(".vxe-table--body-wrapper tbody") || tableEl.querySelector(".vxe-table--main-body tbody")
     );
   }
 
-  function destroySortable () {
+  function destroySortable() {
     sortableInstance.value?.destroy();
     sortableInstance.value = null;
   }
 
-  async function ensureSortableCtor () {
+  async function ensureSortableCtor() {
     if (sortableCtor.value) {
       return sortableCtor.value;
     }
-    const imported = await import('sortablejs');
+    const imported = await import("sortablejs");
     const importedRecord = imported as unknown as Record<string, unknown>;
-    const ctor = ('default' in importedRecord ? importedRecord.default : importedRecord) as SortableCtor;
+    const ctor = ("default" in importedRecord ? importedRecord.default : importedRecord) as SortableCtor;
     sortableCtor.value = ctor;
     return ctor;
   }
 
-  async function handleSortEnd (event: SortableEndEvent) {
+  async function handleSortEnd(event: SortableEndEvent) {
     if (!canDragSort.value) {
       return;
     }
@@ -90,7 +77,7 @@ export function useUserDragSort (options: UseUserDragSortOptions) {
       orgId: orgId.value,
       rowId: currentRow.id,
       newIndex,
-      pagination
+      pagination,
     });
 
     if (!payload) {
@@ -100,16 +87,16 @@ export function useUserDragSort (options: UseUserDragSortOptions) {
     try {
       const response = await userApi.adjustOrgSort(payload);
       if (response.code !== 200) {
-        throw new Error(response.message || '用户排序更新失败');
+        throw new Error(response.message || "用户排序更新失败");
       }
     } catch {
       await onSearch(false);
     }
   }
 
-  async function initSortable () {
+  async function initSortable() {
     const currentToken = ++sortableInitToken;
-    if (!canDragSort.value || !Array.isArray(dataList.value) || dataList.value.length === 0) {
+    if (!(canDragSort.value && Array.isArray(dataList.value)) || dataList.value.length === 0) {
       destroySortable();
       return;
     }
@@ -130,19 +117,15 @@ export function useUserDragSort (options: UseUserDragSortOptions) {
     }
 
     destroySortable();
-    sortableInstance.value = SortableCtor.create(tbody as HTMLElement,
+    sortableInstance.value = SortableCtor.create(
+      tbody as HTMLElement,
       buildSortableOptions((event: unknown) => {
         void handleSortEnd(event as SortableEndEvent);
-      }));
+      })
+    );
   }
 
-  watch([
-    canDragSort,
-    dataList,
-    () => pagination.currentPage,
-    () => pagination.pageSize
-  ],
-  () => {
+  watch([canDragSort, dataList, () => pagination.currentPage, () => pagination.pageSize], () => {
     void initSortable();
   });
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { SysLogRecord } from '../../api/sys-log';
+  import type { SysLogRecord } from "../../api/sys-log";
 
-const props = defineProps<{
-  detail: SysLogRecord | null
-}>();
+  const props = defineProps<{
+    detail: SysLogRecord | null;
+  }>();
 </script>
 
 <template>

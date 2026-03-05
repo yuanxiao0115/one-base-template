@@ -102,14 +102,14 @@
 
 - `apps/admin/src/styles/index.css` 禁止通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/main.ts` 显式导入 `styles/element-plus/*.css`。
 - admin 全局 `v-loading` 遮罩背景统一透明（含 fullscreen 场景），并统一 loading 图标主色与文案样式，禁止回退深色蒙层。
-- 接入 `@one-base-template/lint-ruleset` 后，`stylelint.project-overrides` 禁止覆盖与团队规则集同名的规则；本地只允许补充团队规范未定义的项目专属规则。
-- ESLint warning 清理同样遵循“团队规则优先”：同名规则优先在 `packages/lint-ruleset` 收敛，`apps/admin` 仅保留项目专属补充，不做同名覆盖。
-- lint 门禁已收敛为统一口径（不再区分 phase）：
-  - `lint:code`：覆盖 `home/LogManagement/SystemManagement/UserManagement + bootstrap/router/config/shared/infra/pages/components`，并使用 `--max-warnings=0`；
-  - `lint:style`：覆盖 `home/LogManagement/UserManagement/SystemManagement + styles/components/pages`，并使用 `--max-warnings=0`；
-  - `lint:*:audit` 仅用于排查，不作为门禁阻断命令。
-- `.test/.spec` 与 `__tests__` 文件默认不纳入 ESLint 门禁范围（测试行为由测试命令保障，不作为代码规范阻断项）。
-- 当前阶段 lint 治理不包含 i18n 文案约束：`vue/no-bare-strings-in-template` 不作为治理与门禁目标。
+- admin lint 已切换到 `Ultracite + Biome`（单引擎门禁，不再保留 ESLint/Stylelint 双轨脚本）。
+- lint 门禁命令：
+  - `lint`：`ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src`（按 admin 子项目 `src` 范围统一门禁，warning 与 error 同级阻断）；
+  - `lint:fix`：`ultracite fix src`（按 admin 子项目 `src` 范围统一格式化与可自动修复项）；
+  - `lint:doctor`：`ultracite doctor`（诊断本地配置/环境）。
+- Biome 规则改为仓库根 `biome.jsonc` 全局维护；admin 不再保留本地 `biome.jsonc`。
+- `.vue` 文件启用 HTML-ish 全支持解析（`html.experimentalFullSupportEnabled=true`），降低模板场景误报。
+- 对于已在全局注入的能力（如 `obConfirm`），禁止为“消除 lint 未声明”而补显式 import；应在全局配置中声明 globals。
 - 命名必须“短、清楚、通用”，优先 `get/list/build/create/update/remove`。
 - 方法命名优先“动词 + 名词”结构（如 `getInitialPath`、`parseRuntimeConfig`、`clearByPrefixes`）。
 - 涉及老项目对齐时，固定参考路径：`/Users/haoqiuzhi/code/sczfw/standard-oa-web-sczfw`。
@@ -119,6 +119,8 @@
 ```bash
 pnpm -C apps/admin dev
 pnpm -C apps/admin typecheck
+pnpm -C apps/admin lint:doctor
 pnpm -C apps/admin lint
+pnpm -C apps/admin lint:fix
 pnpm -C apps/admin build
 ```

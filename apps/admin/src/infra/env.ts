@@ -1,24 +1,24 @@
-import { getPlatformConfig } from '../config/platform-config';
+import { getPlatformConfig } from "../config/platform-config";
 import type {
   EnabledModulesSetting,
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
-  PlatformMenuMode
-} from '@one-base-template/core';
+  PlatformMenuMode,
+} from "@one-base-template/core";
 
 export type BackendKind = PlatformBackendKind;
 export type AuthMode = PlatformAuthMode;
 export type MenuMode = PlatformMenuMode;
 
-export type BuildEnv = {
+export interface BuildEnv {
   isProd: boolean;
   baseUrl: string;
   apiBaseUrl?: string;
   useMock: boolean;
   sczfwSystemPermissionCode?: string;
-};
+}
 
-export type AppEnv = {
+export interface AppEnv {
   isProd: boolean;
   baseUrl: string;
   apiBaseUrl?: string;
@@ -35,47 +35,47 @@ export type AppEnv = {
   sczfwSystemPermissionCode?: string;
   defaultSystemCode?: string;
   systemHomeMap: Record<string, string>;
-};
-
-function isNonEmptyString (v: unknown): v is string {
-  return typeof v === 'string' && v.length > 0;
 }
 
-export function resolveSczfwHeaders (params: {
+function isNonEmptyString(v: unknown): v is string {
+  return typeof v === "string" && v.length > 0;
+}
+
+export function resolveSczfwHeaders(params: {
   backend: BackendKind;
   authorizationType: string;
   appsource: string;
   appcode: string;
 }): Record<string, string> | undefined {
   const { backend, authorizationType, appsource, appcode } = params;
-  if (backend !== 'sczfw') {
+  if (backend !== "sczfw") {
     return undefined;
   }
 
   // sczfw 老项目请求头约定（由 platform-config.json 提供）。
   return {
-    'Authorization-Type': authorizationType,
+    "Authorization-Type": authorizationType,
     Appsource: appsource,
-    Appcode: appcode
+    Appcode: appcode,
   };
 }
 
-export function resolveApiBaseUrl (): string | undefined {
+export function resolveApiBaseUrl(): string | undefined {
   const raw = import.meta.env.VITE_API_BASE_URL as unknown;
   return isNonEmptyString(raw) ? raw : undefined;
 }
 
-export function resolveSczfwSystemPermissionCode (): string | undefined {
+export function resolveSczfwSystemPermissionCode(): string | undefined {
   const raw = import.meta.env.VITE_SCZFW_SYSTEM_PERMISSION_CODE as unknown;
   return isNonEmptyString(raw) ? raw : undefined;
 }
 
-export function resolveUseMock (): boolean {
+export function resolveUseMock(): boolean {
   const raw = import.meta.env.VITE_USE_MOCK as unknown;
-  return raw === 'true';
+  return raw === "true";
 }
 
-export function resolveDefaultSystemCode (params: {
+export function resolveDefaultSystemCode(params: {
   backend: BackendKind;
   defaultSystemCode?: string;
 }): string | undefined {
@@ -83,14 +83,14 @@ export function resolveDefaultSystemCode (params: {
   if (isNonEmptyString(defaultSystemCode)) {
     return defaultSystemCode;
   }
-  if (backend !== 'sczfw') {
+  if (backend !== "sczfw") {
     return undefined;
   }
   // 与旧实现保持一致：sczfw 默认系统为 admin_server
-  return 'admin_server';
+  return "admin_server";
 }
 
-export function resolveBuildEnv (): BuildEnv {
+export function resolveBuildEnv(): BuildEnv {
   const isProd = import.meta.env.PROD;
   const baseUrl = import.meta.env.BASE_URL;
   const apiBaseUrl = resolveApiBaseUrl();
@@ -102,11 +102,11 @@ export function resolveBuildEnv (): BuildEnv {
     baseUrl,
     apiBaseUrl,
     useMock,
-    sczfwSystemPermissionCode
+    sczfwSystemPermissionCode,
   };
 }
 
-export function resolveAppEnv (params: { buildEnv: BuildEnv }): AppEnv {
+export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   const { buildEnv } = params;
   const runtime = getPlatformConfig();
 
@@ -120,14 +120,14 @@ export function resolveAppEnv (params: { buildEnv: BuildEnv }): AppEnv {
     backend,
     authorizationType: runtime.authorizationType,
     appsource: runtime.appsource,
-    appcode: runtime.appcode
+    appcode: runtime.appcode,
   });
   const { clientSignatureSalt } = runtime;
   const { clientSignatureClientId } = runtime;
   const storageNamespace = runtime.storageNamespace || runtime.appcode;
   const defaultSystemCode = resolveDefaultSystemCode({
     backend,
-    defaultSystemCode: runtime.defaultSystemCode
+    defaultSystemCode: runtime.defaultSystemCode,
   });
   const { systemHomeMap } = runtime;
 
@@ -150,7 +150,7 @@ export function resolveAppEnv (params: { buildEnv: BuildEnv }): AppEnv {
     storageNamespace,
     sczfwSystemPermissionCode,
     defaultSystemCode,
-    systemHomeMap
+    systemHomeMap,
   };
 }
 

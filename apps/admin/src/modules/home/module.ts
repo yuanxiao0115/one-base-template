@@ -1,15 +1,15 @@
-import type { AdminModuleManifest } from '@/router/types';
-import layoutRoutes from './routes/layout';
+import type { AdminModuleManifest } from "@/router/types";
+import layoutRoutes from "./routes/layout";
 
 const homeModule: AdminModuleManifest = {
-  id: 'home',
-  version: '1',
-  moduleTier: 'core',
+  id: "home",
+  version: "1",
+  moduleTier: "core",
   enabledByDefault: true,
-  apiNamespace: 'home',
+  apiNamespace: "home",
   routes: {
-    layout: layoutRoutes
-  }
+    layout: layoutRoutes,
+  },
 };
 
 export default homeModule;

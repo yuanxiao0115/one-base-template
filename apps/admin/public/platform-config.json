@@ -14,5 +14,10 @@
   "systemHomeMap": {
     "admin_server": "/home/index"
   },
-  "enabledModules": ["home", "user-management", "log-management", "system-management"]
+  "enabledModules": [
+    "home",
+    "user-management",
+    "log-management",
+    "system-management"
+  ]
 }

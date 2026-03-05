@@ -5,9 +5,9 @@
  * @returns 合并后的对象
  */
 export const mergeDeep = (target: any, source: any): any => {
-  const isObject = (obj: any) => obj && typeof obj === 'object' && !Array.isArray(obj);
+  const isObject = (obj: any) => obj && typeof obj === "object" && !Array.isArray(obj);
 
-  if (!isObject(target) || !isObject(source)) {
+  if (!(isObject(target) && isObject(source))) {
     return source;
   }
 
@@ -15,10 +15,10 @@ export const mergeDeep = (target: any, source: any): any => {
 
   Object.keys(source).forEach((key) => {
     if (isObject(source[key])) {
-      if (!(key in target)) {
-        output[key] = source[key];
-      } else {
+      if (key in target) {
         output[key] = mergeDeep(target[key], source[key]);
+      } else {
+        output[key] = source[key];
       }
     } else {
       output[key] = source[key];
@@ -34,8 +34,7 @@ export const mergeDeep = (target: any, source: any): any => {
  * @param baseConfig 基础配置
  * @returns 合并后的配置
  */
-export const mergeWithBaseConfig = (componentConfig: any,
-  baseConfig: any): any => {
+export const mergeWithBaseConfig = (componentConfig: any, baseConfig: any): any => {
   if (!baseConfig) {
     return componentConfig;
   }
@@ -72,8 +71,7 @@ export const mergeWithBaseConfig = (componentConfig: any,
  * @param baseConfig 基础配置
  * @returns 合并后的配置映射对象
  */
-export const batchMergeConfigs = (configMap: Record<string, any>,
-  baseConfig: any): Record<string, any> => {
+export const batchMergeConfigs = (configMap: Record<string, any>, baseConfig: any): Record<string, any> => {
   const result: Record<string, any> = {};
 
   Object.keys(configMap).forEach((key) => {

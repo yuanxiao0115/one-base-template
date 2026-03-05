@@ -8,11 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
-    "lint:code": "eslint \"src/modules/{home,LogManagement,SystemManagement,UserManagement}/**/*.{ts,tsx,vue}\" \"src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx,vue}\" --max-warnings=0",
-    "lint:code:audit": "eslint \"src/modules/{home,LogManagement,SystemManagement,UserManagement}/**/*.{ts,tsx,vue}\" \"src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx,vue}\"",
-    "lint:style": "stylelint \"src/modules/{home,LogManagement,UserManagement,SystemManagement}/**/*.{css,scss,vue}\" \"src/{styles,components,pages}/**/*.{css,scss,vue}\" --allow-empty-input --max-warnings=0",
-    "lint:style:audit": "stylelint \"src/modules/{home,LogManagement,UserManagement,SystemManagement}/**/*.{css,scss,vue}\" \"src/{styles,components,pages}/**/*.{css,scss,vue}\" --allow-empty-input",
-    "lint": "pnpm lint:code && pnpm lint:style"
+    "lint": "ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src",
+    "lint:fix": "ultracite fix src",
+    "lint:doctor": "ultracite doctor"
   },
   "dependencies": {
     "@one-base-template/adapters": "workspace:*",
@@ -28,15 +26,14 @@
     "vue-router": "^5.0.2"
   },
   "devDependencies": {
-    "@one-base-template/lint-ruleset": "workspace:*",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/sortablejs": "^1.15.9",
     "@vitejs/plugin-vue": "^6.0.4",
     "autoprefixer": "^10.0.0",
     "postcss": "^8.0.0",
     "sass": "^1.93.2",
-    "stylelint": "^17.4.0",
     "tailwindcss": "^4.1.18",
+    "ultracite": "^7.2.4",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^31.0.0",
     "vite": "^8.0.0-beta.13"

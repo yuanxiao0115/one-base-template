@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { defineStore } from "pinia";
+import { computed, ref } from "vue";
 
-import { deepClone } from '../utils/deep';
+import { deepClone } from "../utils/deep";
 
-export type PortalLayoutItem = {
+export interface PortalLayoutItem {
   i: string;
   x: number;
   y: number;
@@ -14,9 +14,9 @@ export type PortalLayoutItem = {
   component?: {
     cmptConfig?: any;
   };
-};
+}
 
-export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
+export const usePortalPageLayoutStore = defineStore("portalPageLayout", () => {
   // 当前画布中的所有组件
   const layoutItems = ref<PortalLayoutItem[]>([]);
 
@@ -27,12 +27,12 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
   const configForm = ref<any>({});
 
   // 当前激活的属性标签页
-  const activeName = ref<'content' | 'style'>('content');
+  const activeName = ref<"content" | "style">("content");
 
   // 组件加载状态（用于骨架屏/过渡）
   const loadingComponents = ref({
     content: false,
-    style: false
+    style: false,
   });
 
   const currentLayoutItem = computed(() => {
@@ -46,7 +46,7 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
   const styleComponentName = computed(() => configForm.value?.style?.name);
   const componentBaseName = computed(() => configForm.value?.index?.name);
 
-  function selectLayoutItem (itemId: string) {
+  function selectLayoutItem(itemId: string) {
     if (currentLayoutItemId.value === itemId) {
       return;
     }
@@ -56,17 +56,17 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
 
     if (item?.component?.cmptConfig) {
       configForm.value = deepClone(item.component.cmptConfig);
-      activeName.value = 'content';
+      activeName.value = "content";
 
       // 轻量过渡：给 UI 一个“切换中”的机会
       loadingComponents.value = {
         content: true,
-        style: true
+        style: true,
       };
       setTimeout(() => {
         loadingComponents.value = {
           content: false,
-          style: false
+          style: false,
         };
       }, 50);
     } else {
@@ -74,12 +74,12 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     }
   }
 
-  function deselectLayoutItem () {
+  function deselectLayoutItem() {
     currentLayoutItemId.value = null;
     configForm.value = {};
   }
 
-  function updateLayoutItems (next: PortalLayoutItem[]) {
+  function updateLayoutItems(next: PortalLayoutItem[]) {
     layoutItems.value = next;
 
     // 选中项被删除时，清空选中状态
@@ -92,11 +92,11 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     }
   }
 
-  function removeLayoutItem (itemId: string) {
+  function removeLayoutItem(itemId: string) {
     updateLayoutItems(layoutItems.value.filter((i) => i.i !== itemId));
   }
 
-  function updateCurrentItemConfig (config: any) {
+  function updateCurrentItemConfig(config: any) {
     if (!currentLayoutItemId.value) {
       return;
     }
@@ -119,7 +119,7 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     item.component.cmptConfig = deepClone(cloned);
   }
 
-  function reset () {
+  function reset() {
     layoutItems.value = [];
     deselectLayoutItem();
   }
@@ -139,6 +139,6 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     deselectLayoutItem,
     updateLayoutItems,
     removeLayoutItem,
-    updateCurrentItemConfig
+    updateCurrentItemConfig,
   };
 });

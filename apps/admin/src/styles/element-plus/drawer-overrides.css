@@ -5,7 +5,6 @@
 
 .el-drawer.ob-crud-container--drawer,
 .el-drawer.one-drawer {
-
   --el-dialog-bg-color: #fff;
 
   --el-drawer-bg-color: var(--el-dialog-bg-color);
