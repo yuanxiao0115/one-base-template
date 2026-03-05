@@ -1,7 +1,9 @@
 export type StorageKind = 'local' | 'session';
 
 function getStorage(kind: StorageKind): Storage | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {
+    return null;
+  }
   try {
     return kind === 'local' ? window.localStorage : window.sessionStorage;
   } catch {
@@ -10,13 +12,17 @@ function getStorage(kind: StorageKind): Storage | null {
 }
 
 export function isQuotaExceededError(err: unknown): boolean {
-  if (!err || typeof err !== 'object') return false;
+  if (!err || typeof err !== 'object') {
+    return false;
+  }
 
   // 现代浏览器的 DOMException.name：
   // - QuotaExceededError
   // - NS_ERROR_DOM_QUOTA_REACHED（Firefox）
   const name = (err as { name?: unknown }).name;
-  if (name === 'QuotaExceededError' || name === 'NS_ERROR_DOM_QUOTA_REACHED') return true;
+  if (name === 'QuotaExceededError' || name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+    return true;
+  }
 
   // 兼容旧实现（部分浏览器 / 老 WebView）
   const code = (err as { code?: unknown }).code;
@@ -35,10 +41,14 @@ export function byteLength(text: string): number {
 export function readFromStorages(key: string, kinds: StorageKind[] = ['local', 'session']): string | null {
   for (const kind of kinds) {
     const storage = getStorage(kind);
-    if (!storage) continue;
+    if (!storage) {
+      continue;
+    }
     try {
       const raw = storage.getItem(key);
-      if (typeof raw === 'string' && raw.length > 0) return raw;
+      if (typeof raw === 'string' && raw.length > 0) {
+        return raw;
+      }
     } catch {
       // 忽略
     }
@@ -49,7 +59,9 @@ export function readFromStorages(key: string, kinds: StorageKind[] = ['local', '
 export function removeFromStorages(key: string, kinds: StorageKind[] = ['local', 'session']) {
   for (const kind of kinds) {
     const storage = getStorage(kind);
-    if (!storage) continue;
+    if (!storage) {
+      continue;
+    }
     try {
       storage.removeItem(key);
     } catch {
@@ -72,7 +84,9 @@ export function safeSetToStorage(
 
   const tryWrite = (kind: StorageKind, onQuotaExceeded?: () => void): boolean => {
     const storage = getStorage(kind);
-    if (!storage) return false;
+    if (!storage) {
+      return false;
+    }
 
     try {
       storage.setItem(key, value);
@@ -97,7 +111,9 @@ export function safeSetToStorage(
 
   const clearKey = (kind: StorageKind) => {
     const storage = getStorage(kind);
-    if (!storage) return;
+    if (!storage) {
+      return;
+    }
     try {
       storage.removeItem(key);
     } catch {
@@ -107,7 +123,9 @@ export function safeSetToStorage(
 
   if (tryWrite(primary, options.onPrimaryQuotaExceeded)) {
     // 避免 local/session 同时存在不同值时“读优先级”带来的状态抖动。
-    if (fallback !== primary) clearKey(fallback);
+    if (fallback !== primary) {
+      clearKey(fallback);
+    }
     return primary;
   }
 
@@ -122,14 +140,18 @@ export function safeSetToStorage(
 
 export function removeByPrefixes(prefixes: string[], kind: StorageKind = 'local'): number {
   const storage = getStorage(kind);
-  if (!storage) return 0;
+  if (!storage) {
+    return 0;
+  }
 
   let removed = 0;
   try {
     for (let i = storage.length - 1; i >= 0; i--) {
       const key = storage.key(i);
-      if (!key) continue;
-      if (prefixes.some(p => key.startsWith(p))) {
+      if (!key) {
+        continue;
+      }
+      if (prefixes.some((p) => key.startsWith(p))) {
         storage.removeItem(key);
         removed++;
       }

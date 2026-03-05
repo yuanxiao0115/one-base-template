@@ -10,7 +10,7 @@ import {
   clearByPrefixes,
   removeWithLegacy,
   getNamespacedKey,
-  getNamespacedPrefix
+  getNamespacedPrefix,
 } from '../storage/namespace';
 
 const MENU_TREE_LEGACY_STORAGE_BASE_KEY = 'ob_menu_tree';
@@ -44,8 +44,12 @@ function getStoredMenuTree(systemCode: string): AppMenuItem[] | null {
   const legacyKey = buildLegacyMenuTreeKey(systemCode);
 
   try {
-    const raw = readFromStorages(scopedKey, ['local', 'session']) ?? (scopedKey !== legacyKey ? readFromStorages(legacyKey, ['local', 'session']) : null);
-    if (!raw) return null;
+    const raw =
+      readFromStorages(scopedKey, ['local', 'session']) ??
+      (scopedKey !== legacyKey ? readFromStorages(legacyKey, ['local', 'session']) : null);
+    if (!raw) {
+      return null;
+    }
     const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? (parsed as AppMenuItem[]) : null;
   } catch {
@@ -75,7 +79,7 @@ function writeStoredMenuTree(systemCode: string, tree: AppMenuItem[]) {
         [MENU_TREE_STORAGE_BASE_PREFIX, MENU_TREE_LEGACY_STORAGE_BASE_KEY, MENU_PATH_INDEX_STORAGE_BASE_KEY],
         'local'
       );
-    }
+    },
   });
 
   if (key !== legacyKey) {
@@ -86,7 +90,9 @@ function writeStoredMenuTree(systemCode: string, tree: AppMenuItem[]) {
 function readLegacyStoredMenuTree(): AppMenuItem[] | null {
   try {
     const hit = getWithLegacy(MENU_TREE_LEGACY_STORAGE_BASE_KEY, ['local', 'session']);
-    if (!hit?.value) return null;
+    if (!hit?.value) {
+      return null;
+    }
 
     const parsed = JSON.parse(hit.value) as unknown;
     return Array.isArray(parsed) ? (parsed as AppMenuItem[]) : null;
@@ -104,14 +110,20 @@ function clearLegacyMenuTree() {
 function readStoredPathIndex(): Record<string, string> | null {
   try {
     const hit = getWithLegacy(MENU_PATH_INDEX_STORAGE_BASE_KEY, ['local', 'session']);
-    if (!hit?.value) return null;
+    if (!hit?.value) {
+      return null;
+    }
 
     const parsed = JSON.parse(hit.value) as unknown;
-    if (!parsed || typeof parsed !== 'object') return null;
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
 
     const out: Record<string, string> = {};
     for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
-      if (typeof v === 'string' && v) out[k] = v;
+      if (typeof v === 'string' && v) {
+        out[k] = v;
+      }
     }
     return Object.keys(out).length ? out : null;
   } catch {
@@ -136,7 +148,7 @@ function writeStoredPathIndex(index: Record<string, string>) {
         [MENU_TREE_STORAGE_BASE_PREFIX, MENU_TREE_LEGACY_STORAGE_BASE_KEY, MENU_PATH_INDEX_STORAGE_BASE_KEY],
         'local'
       );
-    }
+    },
   });
 
   if (key !== MENU_PATH_INDEX_STORAGE_BASE_KEY) {
@@ -151,7 +163,7 @@ function clearStoredPathIndex() {
 function normalizeMenuTree(items: AppMenuItem[]): AppMenuItem[] {
   const walk = (list: AppMenuItem[]): AppMenuItem[] => {
     return list
-      .map(item => {
+      .map((item) => {
         const external = item.external ?? isHttpUrl(item.path);
         const children = item.children ? walk(item.children) : undefined;
         return { ...item, external, children };
@@ -177,7 +189,9 @@ function collectPathIndex(items: AppMenuItem[], systemCode: string, out: Record<
   for (const item of items) {
     if (!item.external) {
       // 多系统下 path 需要全局唯一；若重复，这里默认“先到先得”，避免来回抖动
-      if (!out[item.path]) out[item.path] = systemCode;
+      if (!out[item.path]) {
+        out[item.path] = systemCode;
+      }
     }
     if (item.children?.length) {
       collectPathIndex(item.children, systemCode, out);
@@ -199,11 +213,11 @@ export const useMenuStore = defineStore('ob-menu', () => {
   const currentSystemCode = computed(() => systemStore.currentSystemCode);
   const menus = computed(() => {
     const code = currentSystemCode.value;
-    return code ? menuTrees.value[code] ?? [] : [];
+    return code ? (menuTrees.value[code] ?? []) : [];
   });
   const allowedPaths = computed(() => {
     const code = currentSystemCode.value;
-    return code ? allowedPathsBySystem.value[code] ?? [] : [];
+    return code ? (allowedPathsBySystem.value[code] ?? []) : [];
   });
   const loaded = computed(() => {
     const code = currentSystemCode.value;
@@ -261,9 +275,13 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
   const candidateSystemCodes = new Set<string>();
   for (const s of systemStore.systems) {
-    if (s.code) candidateSystemCodes.add(s.code);
+    if (s.code) {
+      candidateSystemCodes.add(s.code);
+    }
   }
-  if (systemStore.currentSystemCode) candidateSystemCodes.add(systemStore.currentSystemCode);
+  if (systemStore.currentSystemCode) {
+    candidateSystemCodes.add(systemStore.currentSystemCode);
+  }
 
   let hydratedAny = false;
   for (const code of candidateSystemCodes) {
@@ -291,11 +309,15 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
   function resolveSystemCodeByPath(path: string): string | undefined {
     const hit = pathIndex.value[path];
-    if (hit) return hit;
+    if (hit) {
+      return hit;
+    }
 
     // 索引缺失时兜底扫描（通常只发生在首次加载或缓存被清理后）
     for (const [code, tree] of Object.entries(menuTrees.value)) {
-      if (!tree?.length) continue;
+      if (!tree?.length) {
+        continue;
+      }
       const found = findMenuByPath(tree, path);
       if (found) {
         pathIndex.value[path] = code;
@@ -309,10 +331,14 @@ export const useMenuStore = defineStore('ob-menu', () => {
 
   function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefined {
     for (const item of list) {
-      if (item.path === path) return item;
+      if (item.path === path) {
+        return item;
+      }
       if (item.children?.length) {
         const found = findMenuByPath(item.children, path);
-        if (found) return found;
+        if (found) {
+          return found;
+        }
       }
     }
     return undefined;
@@ -347,21 +373,23 @@ export const useMenuStore = defineStore('ob-menu', () => {
     if (options.adapter.menu.fetchMenuSystems) {
       const systems = await options.adapter.menu.fetchMenuSystems();
       const normalizedSystems = (Array.isArray(systems) ? systems : [])
-        .map(s => ({
+        .map((s) => ({
           code: typeof s.code === 'string' ? s.code : '',
           name: typeof s.name === 'string' && s.name ? s.name : typeof s.code === 'string' ? s.code : '',
-          menus: Array.isArray(s.menus) ? s.menus : []
+          menus: Array.isArray(s.menus) ? s.menus : [],
         }))
-        .filter(s => s.code && s.menus.length > 0);
+        .filter((s) => s.code && s.menus.length > 0);
 
-      const nextCodes = new Set(normalizedSystems.map(s => s.code));
+      const nextCodes = new Set(normalizedSystems.map((s) => s.code));
       const scopedPrefix = getNamespacedPrefix(MENU_TREE_STORAGE_BASE_PREFIX);
       const legacyPrefix = MENU_TREE_STORAGE_BASE_PREFIX;
       // 清理已被移除的系统菜单缓存，避免 pathIndex / 菜单切换误命中旧系统
       try {
         for (let i = localStorage.length - 1; i >= 0; i--) {
           const key = localStorage.key(i);
-          if (!key) continue;
+          if (!key) {
+            continue;
+          }
 
           let code = '';
           if (key.startsWith(scopedPrefix)) {
@@ -372,7 +400,9 @@ export const useMenuStore = defineStore('ob-menu', () => {
             continue;
           }
 
-          if (code && !nextCodes.has(code)) localStorage.removeItem(key);
+          if (code && !nextCodes.has(code)) {
+            localStorage.removeItem(key);
+          }
         }
       } catch {
         // ignore
@@ -382,9 +412,9 @@ export const useMenuStore = defineStore('ob-menu', () => {
       allowedPathsBySystem.value = {};
       loadedSystemFlags.value = {};
 
-      systemStore.setSystems(normalizedSystems.map(s => ({ code: s.code, name: s.name })));
+      systemStore.setSystems(normalizedSystems.map((s) => ({ code: s.code, name: s.name })));
 
-      const picked = systemStore.ensureCurrentSystem(normalizedSystems.map(s => s.code));
+      const picked = systemStore.ensureCurrentSystem(normalizedSystems.map((s) => s.code));
       if (picked) {
         // 确保 currentSystemCode 一定是有效值（避免 UI/守卫取不到）
         if (systemStore.currentSystemCode !== picked) {
@@ -468,6 +498,6 @@ export const useMenuStore = defineStore('ob-menu', () => {
     loadMenus,
     reset,
     isAllowed,
-    resolveSystemByMenuKey
+    resolveSystemByMenuKey,
   };
 });

@@ -44,7 +44,9 @@ function isBizCode(value: unknown): value is ObBizCode {
 }
 
 function normalizeHeaders(input: ObHttpRequestConfig['headers']): Record<string, string> {
-  if (!input) return {};
+  if (!input) {
+    return {};
+  }
   if (typeof input === 'object' && input !== null) {
     return input as unknown as Record<string, string>;
   }
@@ -58,8 +60,12 @@ function setHeader(config: ObHttpRequestConfig, key: string, value: string) {
 }
 
 function getHeader(headers: unknown, key: string): string | undefined {
-  if (!headers) return undefined;
-  if (!isRecord(headers)) return undefined;
+  if (!headers) {
+    return undefined;
+  }
+  if (!isRecord(headers)) {
+    return undefined;
+  }
 
   // AxiosHeaders: get(name) -> string
   const getter = (headers as { get?: unknown }).get;
@@ -73,14 +79,18 @@ function getHeader(headers: unknown, key: string): string | undefined {
 }
 
 function getFileNameFromHeader(headerValue: string | undefined): string | undefined {
-  if (!headerValue) return undefined;
+  if (!headerValue) {
+    return undefined;
+  }
 
   // RFC5987: filename*=UTF-8''xxxx
   const m1 = /filename\*\s*=\s*([^']*)''([^;]+)/i.exec(headerValue);
   if (m1) {
     const encoding = (m1[1] || '').toLowerCase();
     const raw = m1[2];
-    if (!raw) return undefined;
+    if (!raw) {
+      return undefined;
+    }
     try {
       const decoded = decodeURIComponent(raw);
       return encoding && encoding !== 'utf-8' ? decoded : decoded;
@@ -92,12 +102,16 @@ function getFileNameFromHeader(headerValue: string | undefined): string | undefi
   // filename="xxx"
   const m2 = /filename\s*=\s*"([^"]+)"/i.exec(headerValue);
   const v2 = m2?.[1];
-  if (v2) return v2;
+  if (v2) {
+    return v2;
+  }
 
   // filename=xxx
   const m3 = /filename\s*=\s*([^;]+)/i.exec(headerValue);
   const v3 = m3?.[1];
-  if (v3) return v3.trim();
+  if (v3) {
+    return v3.trim();
+  }
 
   return undefined;
 }
@@ -137,7 +151,9 @@ async function parseBlobJson(
 
   // 有些后端会返回 application/octet-stream 但内容其实是 JSON 错误；这里做有限探测
   const shouldProbe = mayBeJson || blob.size <= options.maxJsonProbeSize;
-  if (!shouldProbe) return { json: false };
+  if (!shouldProbe) {
+    return { json: false };
+  }
 
   try {
     const text = await blob.text();
@@ -155,13 +171,13 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     headers: {
       Accept: 'application/json, text/plain, */*',
       'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
+      'X-Requested-With': 'XMLHttpRequest',
     },
     paramsSerializer: {
       // 兼容旧项目：数组参数序列化由 qs 处理
-      serialize: params => stringify(params)
+      serialize: (params) => stringify(params),
     },
-    ...(options.axios ?? {})
+    ...(options.axios ?? {}),
   });
 
   const hooks = options.hooks ?? {};
@@ -172,14 +188,14 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
   const getToken = options.auth?.getToken;
 
   const biz = options.biz ?? {};
-  const isBizResponse =
-    biz.isBizResponse ??
-    ((data: unknown) => isRecord(data) && 'code' in data);
+  const isBizResponse = biz.isBizResponse ?? ((data: unknown) => isRecord(data) && 'code' in data);
 
   const getCode =
     biz.getCode ??
     ((data: unknown) => {
-      if (!isRecord(data)) return undefined;
+      if (!isRecord(data)) {
+        return undefined;
+      }
       const code = data.code;
       return isBizCode(code) ? code : undefined;
     });
@@ -187,7 +203,9 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
   const getMessage =
     biz.getMessage ??
     ((data: unknown) => {
-      if (!isRecord(data)) return undefined;
+      if (!isRecord(data)) {
+        return undefined;
+      }
       const msg = data.message;
       return typeof msg === 'string' ? msg : undefined;
     });
@@ -203,13 +221,13 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
   const download = {
     autoDownload: options.download?.autoDownload ?? true,
     maxJsonProbeSize: options.download?.maxJsonProbeSize ?? 1024 * 1024,
-    defaultFileName: options.download?.defaultFileName ?? 'download'
+    defaultFileName: options.download?.defaultFileName ?? 'download',
   };
 
-  type PendingRequest = {
+  interface PendingRequest {
     controller: AbortController | null;
     cancelOnRouteChange: boolean;
-  };
+  }
 
   const pendingRequests = new Map<number, PendingRequest>();
   let requestIdSeed = 0;
@@ -220,13 +238,13 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     const requestId = ++requestIdSeed;
     const cancelOnRouteChange = config.$cancelOnRouteChange ?? true;
     // 仅在业务未显式传 signal 时挂接内部 AbortController，方便统一做路由切换取消。
-    const controller = !config.signal ? new AbortController() : null;
+    const controller = config.signal ? null : new AbortController();
     if (controller) {
       config.signal = controller.signal;
     }
     pendingRequests.set(requestId, {
       controller,
-      cancelOnRouteChange
+      cancelOnRouteChange,
     });
 
     // token / cookie 混合模式：根据配置决定是否附加 Authorization
@@ -240,7 +258,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     if (config.$isUpload) {
       // FormData 场景不建议手动拼 boundary，这里仅声明 multipart 类型
       setHeader(config, 'Content-Type', 'multipart/form-data');
-    } else if (!getHeader(config.headers, 'content-type') && !getHeader(config.headers, 'Content-Type')) {
+    } else if (!(getHeader(config.headers, 'content-type') || getHeader(config.headers, 'Content-Type'))) {
       setHeader(config, 'Content-Type', 'application/json');
     }
 
@@ -265,14 +283,16 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
         options.beforeResponseCallback(response);
       }
 
-      if (config.$rawResponse) return response as unknown as T;
+      if (config.$rawResponse) {
+        return response as unknown as T;
+      }
 
       let data: unknown = response.data;
 
       // 下载：Blob 可能实际是 JSON 错误，需要先探测
       if (config.$isDownload && data instanceof Blob) {
         const parsed = await parseBlobJson(data, response, {
-          maxJsonProbeSize: download.maxJsonProbeSize
+          maxJsonProbeSize: download.maxJsonProbeSize,
         });
 
         if (parsed.json) {
@@ -344,9 +364,15 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     cancelRouteRequests(reason = 'route-change'): number {
       let count = 0;
       for (const request of pendingRequests.values()) {
-        if (!request.cancelOnRouteChange) continue;
-        if (!request.controller) continue;
-        if (request.controller.signal.aborted) continue;
+        if (!request.cancelOnRouteChange) {
+          continue;
+        }
+        if (!request.controller) {
+          continue;
+        }
+        if (request.controller.signal.aborted) {
+          continue;
+        }
         request.controller.abort(reason);
         count += 1;
       }
@@ -365,7 +391,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
         method,
         url,
         ...(param ?? {}),
-        ...(axiosConfig ?? {})
+        ...(axiosConfig ?? {}),
       } as ObHttpRequestConfig;
 
       return requestInternal<T>(config);
@@ -381,7 +407,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     },
     delete<T = unknown>(url: string, config?: ObHttpRequestConfig): Promise<T> {
       return http.request<T>('delete', url, config);
-    }
+    },
   };
 
   return http;

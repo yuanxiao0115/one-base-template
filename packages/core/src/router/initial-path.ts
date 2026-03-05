@@ -8,11 +8,11 @@ export interface GetInitialPathOptions {
   storageNamespace?: string;
 }
 
-type StoredMenuItem = {
+interface StoredMenuItem {
   path?: unknown;
   external?: unknown;
   children?: unknown;
-};
+}
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
@@ -36,7 +36,9 @@ function getStoredMenuTree(systemCode: string, storageNamespace?: string): unkno
     readFromStorages(scopedKey, ['local', 'session']) ??
     (scopedKey !== legacyKey ? readFromStorages(legacyKey, ['local', 'session']) : null);
 
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
 
   try {
     const parsed = JSON.parse(raw) as unknown;
@@ -49,7 +51,9 @@ function getStoredMenuTree(systemCode: string, storageNamespace?: string): unkno
 function getFirstLeafPath(list: unknown[]): string | undefined {
   const walk = (items: unknown[]): string | undefined => {
     for (const item of items) {
-      if (!item || typeof item !== 'object') continue;
+      if (!item || typeof item !== 'object') {
+        continue;
+      }
       const node = item as StoredMenuItem;
 
       const rawPath = node.path;
@@ -60,12 +64,16 @@ function getFirstLeafPath(list: unknown[]): string | undefined {
       const children = Array.isArray(rawChildren) ? rawChildren : [];
       if (children.length) {
         const leaf = walk(children);
-        if (leaf) return leaf;
+        if (leaf) {
+          return leaf;
+        }
         continue;
       }
 
       // 仅叶子节点可作为首页兜底，避免命中目录节点。
-      if (!external && path.startsWith('/')) return path;
+      if (!external && path.startsWith('/')) {
+        return path;
+      }
     }
     return undefined;
   };
@@ -74,7 +82,7 @@ function getFirstLeafPath(list: unknown[]): string | undefined {
 }
 
 export function getInitialPath(options: GetInitialPathOptions = {}): string {
-  const fallbackHome = options.fallbackHome && options.fallbackHome.startsWith('/') ? options.fallbackHome : '/home/index';
+  const fallbackHome = options.fallbackHome?.startsWith('/') ? options.fallbackHome : '/home/index';
 
   const currentSystemCode = getStoredSystemCode(options.storageNamespace);
   const code = currentSystemCode || options.defaultSystemCode || '';
@@ -88,7 +96,9 @@ export function getInitialPath(options: GetInitialPathOptions = {}): string {
     const cachedTree = getStoredMenuTree(code, options.storageNamespace);
     if (cachedTree?.length) {
       const leaf = getFirstLeafPath(cachedTree);
-      if (leaf) return leaf;
+      if (leaf) {
+        return leaf;
+      }
     }
   }
 

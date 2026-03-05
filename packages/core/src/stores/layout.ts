@@ -31,17 +31,21 @@ export const DEFAULT_LAYOUT_TOPBAR_HEIGHT = '64px';
 export const DEFAULT_LAYOUT_SIDEBAR_WIDTH = '256px';
 export const DEFAULT_LAYOUT_SIDEBAR_COLLAPSED_WIDTH = '64px';
 
-type StoredLayout = {
+interface StoredLayout {
   siderCollapsed?: boolean;
-};
+}
 
 function readStoredLayout(): StoredLayout {
   const hit = getWithLegacy(STORAGE_BASE_KEY, ['local', 'session']);
-  if (!hit?.value) return {};
+  if (!hit?.value) {
+    return {};
+  }
 
   try {
     const parsed = JSON.parse(hit.value) as unknown;
-    if (!parsed || typeof parsed !== 'object') return {};
+    if (!parsed || typeof parsed !== 'object') {
+      return {};
+    }
     return parsed as StoredLayout;
   } catch {
     return {};
@@ -57,7 +61,7 @@ function writeStoredLayout(next: StoredLayout) {
     onPrimaryQuotaExceeded: () => {
       // 菜单缓存可重新拉取，优先清理避免影响布局/主题等关键状态的持久化
       clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
-    }
+    },
   });
 
   if (key !== STORAGE_BASE_KEY) {
@@ -82,15 +86,19 @@ export const useLayoutStore = defineStore('ob-layout', () => {
     }
     if (typeof value === 'string') {
       const trimmed = value.trim();
-      if (trimmed.length > 0) return trimmed;
+      if (trimmed.length > 0) {
+        return trimmed;
+      }
     }
     return fallback;
   }
 
   function persist() {
-    if (!persistEnabled.value) return;
+    if (!persistEnabled.value) {
+      return;
+    }
     writeStoredLayout({
-      siderCollapsed: siderCollapsed.value
+      siderCollapsed: siderCollapsed.value,
     });
   }
 
@@ -162,6 +170,6 @@ export const useLayoutStore = defineStore('ob-layout', () => {
     setSiderCollapsed,
     setSystemSwitchStyle,
     toggleSiderCollapsed,
-    reset
+    reset,
   };
 });

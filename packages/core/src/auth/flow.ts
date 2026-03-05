@@ -11,17 +11,27 @@ export interface FinalizeAuthSessionOptions {
 }
 
 export function safeRedirect(raw: unknown, fallback = '/'): string {
-  if (typeof raw !== 'string' || !raw) return fallback;
+  if (typeof raw !== 'string' || !raw) {
+    return fallback;
+  }
 
   try {
     const decoded = decodeURIComponent(raw);
     // 仅允许站内路径，阻断协议跳转与 //host 形式的开放重定向。
-    if (!decoded.startsWith('/')) return fallback;
-    if (decoded.startsWith('//')) return fallback;
+    if (!decoded.startsWith('/')) {
+      return fallback;
+    }
+    if (decoded.startsWith('//')) {
+      return fallback;
+    }
     return decoded;
   } catch {
-    if (!raw.startsWith('/')) return fallback;
-    if (raw.startsWith('//')) return fallback;
+    if (!raw.startsWith('/')) {
+      return fallback;
+    }
+    if (raw.startsWith('//')) {
+      return fallback;
+    }
     return raw;
   }
 }

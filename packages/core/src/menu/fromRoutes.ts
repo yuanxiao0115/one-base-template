@@ -28,11 +28,17 @@ function joinPath(parent: string, child: string): string {
   if (!parent || parent === '/') {
     return child.startsWith('/') ? child : `/${child}`;
   }
-  if (child.startsWith('/')) return child;
+  if (child.startsWith('/')) {
+    return child;
+  }
   return `${parent.replace(/\/$/, '')}/${child}`;
 }
 
-function buildMenus(records: RouteRecordRaw[], parentPath: string, options: Required<CreateStaticMenusOptions>): AppMenuItem[] {
+function buildMenus(
+  records: RouteRecordRaw[],
+  parentPath: string,
+  options: Required<CreateStaticMenusOptions>
+): AppMenuItem[] {
   const out: AppMenuItem[] = [];
 
   for (const record of records) {
@@ -40,8 +46,12 @@ function buildMenus(records: RouteRecordRaw[], parentPath: string, options: Requ
     const fullPath = joinPath(parentPath, record.path);
 
     // 约定：public 路由不进菜单（例如 /login、/sso、/404 等）
-    if (meta.public === true) continue;
-    if (meta.hideInMenu === true) continue;
+    if (meta.public === true) {
+      continue;
+    }
+    if (meta.hideInMenu === true) {
+      continue;
+    }
 
     const children = record.children?.length ? buildMenus(record.children, fullPath, options) : [];
 
@@ -62,7 +72,7 @@ function buildMenus(records: RouteRecordRaw[], parentPath: string, options: Requ
       order,
       keepAlive: meta.keepAlive === true,
       external: isHttpUrl(fullPath) ? true : undefined,
-      children: children.length ? children : undefined
+      children: children.length ? children : undefined,
     });
   }
 
@@ -87,10 +97,10 @@ export function createStaticMenusFromRoutes(
 ): AppMenuItem[] {
   const resolved: Required<CreateStaticMenusOptions> = {
     rootPath: options.rootPath ?? '/',
-    sort: options.sort ?? true
+    sort: options.sort ?? true,
   };
 
-  const root = routes.find(r => r.path === resolved.rootPath);
+  const root = routes.find((r) => r.path === resolved.rootPath);
   const start = root?.children?.length ? root.children : routes;
   const parentPath = root ? root.path : '';
   return buildMenus(start, parentPath, resolved);

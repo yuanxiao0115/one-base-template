@@ -3,7 +3,7 @@ export type AuthMode = 'cookie' | 'token' | 'mixed';
 export type MenuMode = 'remote' | 'static';
 export type EnabledModulesSetting = '*' | string[];
 
-export type RuntimeConfig = {
+export interface RuntimeConfig {
   backend: BackendKind;
   authMode: AuthMode;
   tokenKey: string;
@@ -18,7 +18,7 @@ export type RuntimeConfig = {
   storageNamespace?: string;
   defaultSystemCode?: string;
   systemHomeMap: Record<string, string>;
-};
+}
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -35,31 +35,35 @@ function expectEnum<T extends string>(
   errors: string[]
 ): T | undefined {
   const value = raw[key];
-  if (candidates.includes(value as T)) return value as T;
+  if (candidates.includes(value as T)) {
+    return value as T;
+  }
   errors.push(`"${key}" 必须是 ${candidates.join('/')} 之一`);
   return undefined;
 }
 
 function expectString(raw: Record<string, unknown>, key: string, errors: string[]): string | undefined {
   const value = raw[key];
-  if (isNonEmptyString(value)) return value;
+  if (isNonEmptyString(value)) {
+    return value;
+  }
   errors.push(`"${key}" 必须是非空字符串`);
   return undefined;
 }
 
 function expectOptionalString(raw: Record<string, unknown>, key: string, errors: string[]): string | undefined {
   const value = raw[key];
-  if (value == null || value === '') return undefined;
-  if (typeof value === 'string') return value;
+  if (value == null || value === '') {
+    return undefined;
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
   errors.push(`"${key}" 必须是字符串`);
   return undefined;
 }
 
-function expectEnabledModules(
-  raw: Record<string, unknown>,
-  key: string,
-  errors: string[]
-): EnabledModulesSetting {
+function expectEnabledModules(raw: Record<string, unknown>, key: string, errors: string[]): EnabledModulesSetting {
   const value = raw[key];
   if (value == null || value === '*') {
     return '*';
@@ -70,9 +74,7 @@ function expectEnabledModules(
     return '*';
   }
 
-  const modules = value
-    .map(v => (typeof v === 'string' ? v.trim() : ''))
-    .filter(Boolean);
+  const modules = value.map((v) => (typeof v === 'string' ? v.trim() : '')).filter(Boolean);
 
   if (modules.length !== value.length) {
     errors.push(`"${key}" 仅允许非空字符串数组`);
@@ -152,6 +154,6 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
     clientSignatureClientId,
     storageNamespace,
     defaultSystemCode,
-    systemHomeMap: systemHomeMap!
+    systemHomeMap: systemHomeMap!,
   };
 }

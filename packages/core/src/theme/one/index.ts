@@ -8,5 +8,5 @@ export {
   resolveThemePresetKey,
   type ThemePresetKey,
   type OneTokenMap,
-  type PrimaryScale
+  type PrimaryScale,
 } from './theme-tokens';

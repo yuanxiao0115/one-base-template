@@ -11,9 +11,7 @@ export interface ObApiWrapperResult<T> {
  * - 保持与旧项目习惯一致：不会抛出异常，失败时返回标准结构
  * - 适合在“页面/业务层”快速兜底，避免到处 try/catch
  */
-export async function apiWrapper<T>(
-  apiCall: Promise<unknown>
-): Promise<ObApiWrapperResult<T>> {
+export async function apiWrapper<T>(apiCall: Promise<unknown>): Promise<ObApiWrapperResult<T>> {
   try {
     const response = (await apiCall) as ObApiWrapperResult<T>;
     return response;
@@ -23,8 +21,7 @@ export async function apiWrapper<T>(
       code: 500,
       data: null as unknown as T,
       message,
-      success: false
+      success: false,
     };
   }
 }
-

@@ -50,7 +50,7 @@ function writeStoredCurrent(code: string) {
     onPrimaryQuotaExceeded: () => {
       // 菜单树缓存体积最大，且可重新拉取，优先清理为关键状态让路
       clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
-    }
+    },
   });
 
   if (key !== SYSTEM_CURRENT_STORAGE_BASE_KEY) {
@@ -65,20 +65,28 @@ function clearStoredCurrent() {
 function readStoredSystems(): AppSystemInfo[] | null {
   try {
     const hit = getWithLegacy(SYSTEM_LIST_STORAGE_BASE_KEY, ['local', 'session']);
-    if (!hit?.value) return null;
+    if (!hit?.value) {
+      return null;
+    }
 
     const parsed = JSON.parse(hit.value) as unknown;
-    if (!Array.isArray(parsed)) return null;
+    if (!Array.isArray(parsed)) {
+      return null;
+    }
 
     const list: AppSystemInfo[] = [];
     for (const item of parsed) {
-      if (!item || typeof item !== 'object') continue;
+      if (!item || typeof item !== 'object') {
+        continue;
+      }
       const code = (item as Record<string, unknown>).code;
       const name = (item as Record<string, unknown>).name;
-      if (!isNonEmptyString(code)) continue;
+      if (!isNonEmptyString(code)) {
+        continue;
+      }
       list.push({
         code,
-        name: isNonEmptyString(name) ? name : code
+        name: isNonEmptyString(name) ? name : code,
       });
     }
     return list.length ? list : null;
@@ -97,7 +105,7 @@ function writeStoredSystems(list: AppSystemInfo[]) {
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
       clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
-    }
+    },
   });
 
   if (key !== SYSTEM_LIST_STORAGE_BASE_KEY) {
@@ -129,7 +137,7 @@ export const useSystemStore = defineStore('ob-system', () => {
     currentSystemCode.value = storedCurrent;
   }
 
-  const currentSystem = computed(() => systems.value.find(s => s.code === currentSystemCode.value));
+  const currentSystem = computed(() => systems.value.find((s) => s.code === currentSystemCode.value));
   const currentSystemName = computed(() => currentSystem.value?.name ?? (currentSystemCode.value || '系统'));
 
   function init(options?: SystemOptions) {
@@ -205,6 +213,6 @@ export const useSystemStore = defineStore('ob-system', () => {
     setCurrentSystem,
     ensureCurrentSystem,
     resolveHomePath,
-    reset
+    reset,
   };
 });

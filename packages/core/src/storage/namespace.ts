@@ -2,18 +2,24 @@ import { tryGetCoreOptions } from '../context';
 import { type StorageKind, readFromStorages, removeByPrefixes, removeFromStorages } from '../utils/storage';
 
 function normalizeNamespace(value: string | undefined): string | undefined {
-  if (!value) return undefined;
+  if (!value) {
+    return undefined;
+  }
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
 export function getCoreStorageNamespace(explicitNamespace?: string): string | undefined {
   const explicit = normalizeNamespace(explicitNamespace);
-  if (explicit) return explicit;
+  if (explicit) {
+    return explicit;
+  }
 
   const options = tryGetCoreOptions();
   const fromRoot = normalizeNamespace(options?.storageNamespace);
-  if (fromRoot) return fromRoot;
+  if (fromRoot) {
+    return fromRoot;
+  }
 
   // 向后兼容：历史仅在 theme 上配置 storageNamespace。
   return normalizeNamespace(options?.theme?.storageNamespace);
@@ -41,17 +47,19 @@ export function getWithLegacy(
     if (scopedValue != null) {
       return {
         key: scopedKey,
-        value: scopedValue
+        value: scopedValue,
       };
     }
   }
 
   const legacyValue = readFromStorages(baseKey, kinds);
-  if (legacyValue == null) return null;
+  if (legacyValue == null) {
+    return null;
+  }
 
   return {
     key: baseKey,
-    value: legacyValue
+    value: legacyValue,
   };
 }
 
@@ -72,7 +80,7 @@ export function clearByPrefixes(
   kind: StorageKind = 'local',
   explicitNamespace?: string
 ): number {
-  const scopedPrefixes = basePrefixes.map(prefix => getNamespacedPrefix(prefix, explicitNamespace));
+  const scopedPrefixes = basePrefixes.map((prefix) => getNamespacedPrefix(prefix, explicitNamespace));
   const allPrefixes = Array.from(new Set([...basePrefixes, ...scopedPrefixes]));
   return removeByPrefixes(allPrefixes, kind);
 }

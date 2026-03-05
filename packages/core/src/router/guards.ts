@@ -18,8 +18,12 @@ function resolveMenuKey(to: { path: string; meta: Record<string, unknown> }): st
 }
 
 function toRouteNameKey(name: RouteLocationNormalized['name']): string | null {
-  if (typeof name === 'string') return name;
-  if (typeof name === 'symbol') return name.toString();
+  if (typeof name === 'string') {
+    return name;
+  }
+  if (typeof name === 'symbol') {
+    return name.toString();
+  }
   return null;
 }
 
@@ -78,7 +82,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     if (!authed) {
       return {
         path: loginRoutePath,
-        query: { redirect: to.fullPath }
+        query: { redirect: to.fullPath },
       };
     }
 
@@ -114,7 +118,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     }
 
     // 若当前系统菜单未加载，先加载（remote 模式通常一次拉取所有系统菜单）
-    if (!menuStore.loaded && !(isRemoteMenuMode && menuStore.remoteSynced)) {
+    if (!(menuStore.loaded || (isRemoteMenuMode && menuStore.remoteSynced))) {
       await menuStore.loadMenus();
     }
 
@@ -129,7 +133,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     if (resolvedSystem && resolvedSystem !== systemStore.currentSystemCode) {
       systemStore.setCurrentSystem(resolvedSystem);
       // 如果切到的新系统尚未加载（极少发生：缓存不全/系统列表变化），兜底再拉一次
-      if (!menuStore.loaded && !(isRemoteMenuMode && menuStore.remoteSynced)) {
+      if (!(menuStore.loaded || (isRemoteMenuMode && menuStore.remoteSynced))) {
         await menuStore.loadMenus();
       }
     }
@@ -148,7 +152,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
           console.warn(`[core/router/guards] skipMenuAuth 路由缺少 name：${to.path}`);
           return {
             path: forbiddenRoutePath,
-            query: { from: to.fullPath }
+            query: { from: to.fullPath },
           };
         }
 
@@ -156,17 +160,15 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
           return true;
         }
 
-        console.warn(
-          `[core/router/guards] skipMenuAuth 路由未加入白名单：name=${routeName}, path=${to.path}`
-        );
+        console.warn(`[core/router/guards] skipMenuAuth 路由未加入白名单：name=${routeName}, path=${to.path}`);
         return {
           path: forbiddenRoutePath,
-          query: { from: to.fullPath }
+          query: { from: to.fullPath },
         };
       }
       return {
         path: forbiddenRoutePath,
-        query: { from: to.fullPath }
+        query: { from: to.fullPath },
       };
     }
 

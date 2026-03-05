@@ -3,13 +3,19 @@ import { useAuthStore } from '../stores/auth';
 import { useMenuStore } from '../stores/menu';
 
 function normalizeRedirect(raw: string | null): string {
-  if (!raw) return '/';
+  if (!raw) {
+    return '/';
+  }
 
   try {
     const decoded = decodeURIComponent(raw);
     // 只允许站内跳转
-    if (!decoded.startsWith('/')) return '/';
-    if (decoded.startsWith('//')) return '/';
+    if (!decoded.startsWith('/')) {
+      return '/';
+    }
+    if (decoded.startsWith('//')) {
+      return '/';
+    }
     return decoded;
   } catch {
     return '/';
@@ -34,8 +40,10 @@ export async function handleSsoCallback(): Promise<{ redirect: string }> {
   // 约定按策略列表顺序匹配，命中即停止，避免多种参数同时存在时出现重复 exchange。
   for (const strategy of options.sso.strategies) {
     if (strategy.type === 'token') {
-      const token = strategy.paramNames.map(k => sp.get(k)).find(v => !!v);
-      if (!token) continue;
+      const token = strategy.paramNames.map((k) => sp.get(k)).find((v) => !!v);
+      if (!token) {
+        continue;
+      }
       matched = true;
 
       if (strategy.exchange === 'adapter') {
@@ -48,8 +56,10 @@ export async function handleSsoCallback(): Promise<{ redirect: string }> {
     }
 
     if (strategy.type === 'ticket') {
-      const ticket = strategy.paramNames.map(k => sp.get(k)).find(v => !!v);
-      if (!ticket) continue;
+      const ticket = strategy.paramNames.map((k) => sp.get(k)).find((v) => !!v);
+      if (!ticket) {
+        continue;
+      }
       matched = true;
 
       if (!sso?.exchangeTicket) {
@@ -63,7 +73,9 @@ export async function handleSsoCallback(): Promise<{ redirect: string }> {
 
     if (strategy.type === 'oauth') {
       const code = sp.get(strategy.codeParam ?? 'code');
-      if (!code) continue;
+      if (!code) {
+        continue;
+      }
       matched = true;
 
       if (!sso?.exchangeOAuthCode) {
@@ -74,7 +86,7 @@ export async function handleSsoCallback(): Promise<{ redirect: string }> {
       await sso.exchangeOAuthCode({
         code,
         state,
-        redirectUri: strategy.redirectUri
+        redirectUri: strategy.redirectUri,
       });
       break;
     }

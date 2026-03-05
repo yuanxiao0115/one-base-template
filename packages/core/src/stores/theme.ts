@@ -62,19 +62,19 @@ export interface ThemeOptions {
   onThemeApplied?: (payload: ThemeApplyPayload) => void;
 }
 
-type StoredThemeState = {
+interface StoredThemeState {
   version: number;
   mode: ThemeMode;
   presetKey: string;
   customPrimary: string | null;
   grayscale: boolean;
-};
+}
 
 const DEFAULT_SEMANTIC: Required<ThemeSemanticColors> = {
   success: '#00B42A',
   warning: '#FF7D00',
   error: '#F53F3F',
-  info: '#909399'
+  info: '#909399',
 };
 
 function normalizeHexColor(raw: string): string | null {
@@ -82,7 +82,10 @@ function normalizeHexColor(raw: string): string | null {
   const short = /^#[0-9a-fA-F]{3}$/.exec(value);
   if (short) {
     const chars = value.slice(1).split('');
-    return `#${chars.map(c => `${c}${c}`).join('').toUpperCase()}`;
+    return `#${chars
+      .map((c) => `${c}${c}`)
+      .join('')
+      .toUpperCase()}`;
   }
 
   if (/^#[0-9a-fA-F]{6}$/.test(value)) {
@@ -93,23 +96,31 @@ function normalizeHexColor(raw: string): string | null {
 }
 
 function toHexColor(raw: unknown): string | null {
-  if (typeof raw !== 'string') return null;
+  if (typeof raw !== 'string') {
+    return null;
+  }
   return normalizeHexColor(raw);
 }
 
 function resolveThemeStorageKey(storageNamespace?: string): string {
   const namespace = storageNamespace?.trim();
-  if (!namespace) return THEME_KEY;
+  if (!namespace) {
+    return THEME_KEY;
+  }
   return `${namespace}:${THEME_KEY}`;
 }
 
 function readStoredThemeState(storageKey: string): StoredThemeState | null {
   const raw = readFromStorages(storageKey, ['local', 'session']);
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
 
   try {
     const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== 'object') return null;
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
 
     const data = parsed as Partial<StoredThemeState>;
     const mode = data.mode === 'custom' ? 'custom' : data.mode === 'preset' ? 'preset' : null;
@@ -117,14 +128,16 @@ function readStoredThemeState(storageKey: string): StoredThemeState | null {
     const customPrimary = toHexColor(data.customPrimary);
     const grayscale = data.grayscale === true;
 
-    if (!mode || !presetKey) return null;
+    if (!(mode && presetKey)) {
+      return null;
+    }
 
     return {
       version: typeof data.version === 'number' ? data.version : 0,
       mode,
       presetKey,
       customPrimary,
-      grayscale
+      grayscale,
     };
   } catch {
     return null;
@@ -138,7 +151,7 @@ function writeStoredThemeState(storageKey: string, state: StoredThemeState) {
     onPrimaryQuotaExceeded: () => {
       // 菜单缓存可重新拉取，优先清理避免主题切换失败
       removeByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
-    }
+    },
   });
 }
 
@@ -147,16 +160,20 @@ function resolveSemantic(theme: ThemeDefinition): Required<ThemeSemanticColors> 
     success: toHexColor(theme.semantic?.success) ?? DEFAULT_SEMANTIC.success,
     warning: toHexColor(theme.semantic?.warning) ?? DEFAULT_SEMANTIC.warning,
     error: toHexColor(theme.semantic?.error) ?? DEFAULT_SEMANTIC.error,
-    info: toHexColor(theme.semantic?.info) ?? DEFAULT_SEMANTIC.info
+    info: toHexColor(theme.semantic?.info) ?? DEFAULT_SEMANTIC.info,
   };
 }
 
 function pickInitialThemeKey(themes: Record<string, ThemeDefinition>, fallback: string): string {
-  if (themes[fallback]) return fallback;
+  if (themes[fallback]) {
+    return fallback;
+  }
 
   const keys = Object.keys(themes);
   const first = keys[0];
-  if (first) return first;
+  if (first) {
+    return first;
+  }
 
   throw new Error('[theme] themes 不能为空');
 }
@@ -176,7 +193,9 @@ export const useThemeStore = defineStore('ob-theme', () => {
   const currentTheme = computed(() => themes.value[themeKey.value]);
   const currentSemantic = computed(() => resolveSemantic(currentTheme.value ?? { primary: '#409EFF' }));
   const currentPrimary = computed(() => {
-    if (themeMode.value === 'custom' && customPrimary.value) return customPrimary.value;
+    if (themeMode.value === 'custom' && customPrimary.value) {
+      return customPrimary.value;
+    }
     return toHexColor(currentTheme.value?.primary) ?? '#409EFF';
   });
 
@@ -203,7 +222,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
       semantic,
       theme,
       themes: themes.value,
-      storageKey: storageKey.value
+      storageKey: storageKey.value,
     });
   }
 
@@ -213,10 +232,12 @@ export const useThemeStore = defineStore('ob-theme', () => {
       mode: themeMode.value,
       presetKey: themeKey.value,
       customPrimary: customPrimary.value,
-      grayscale: grayscale.value
+      grayscale: grayscale.value,
     };
     const serialized = JSON.stringify(nextState);
-    if (serialized === lastPersistedState.value) return;
+    if (serialized === lastPersistedState.value) {
+      return;
+    }
 
     writeStoredThemeState(storageKey.value, nextState);
     lastPersistedState.value = serialized;
@@ -250,7 +271,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
       mode: themeMode.value,
       presetKey: themeKey.value,
       customPrimary: customPrimary.value,
-      grayscale: grayscale.value
+      grayscale: grayscale.value,
     };
     const matchesStored = stored
       ? stored.version === THEME_STATE_VERSION &&
@@ -313,7 +334,9 @@ export const useThemeStore = defineStore('ob-theme', () => {
   }
 
   function setGrayscale(enabled: boolean) {
-    if (grayscale.value === enabled) return;
+    if (grayscale.value === enabled) {
+      return;
+    }
     grayscale.value = enabled;
     syncTheme();
   }
@@ -333,6 +356,6 @@ export const useThemeStore = defineStore('ob-theme', () => {
     setThemeMode,
     setCustomPrimary,
     resetCustomPrimary,
-    setGrayscale
+    setGrayscale,
   };
 });

@@ -21,12 +21,12 @@ export function createHttpClient(options: HttpClientOptions = {}): AxiosInstance
     timeout: options.timeoutMs ?? 30_000,
     headers: {
       Accept: 'application/json, text/plain, */*',
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 
   instance.interceptors.response.use(
-    response => response.data,
+    (response) => response.data,
     (error: AxiosError) => {
       const status = error.response?.status;
       if (status === 401) {

@@ -3,10 +3,10 @@ import { ref } from 'vue';
 import { getCoreOptions } from '../context';
 import { getNamespacedKey } from '../storage/namespace';
 
-type GetImageUrlOptions = {
+interface GetImageUrlOptions {
   /** 强制从后端重新拉取（同时覆盖本地持久化缓存） */
   forceRefresh?: boolean;
-};
+}
 
 const DB_NAME_BASE = 'ob_asset_cache';
 const DB_VERSION = 1;
@@ -21,8 +21,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 async function readBizErrorFromBlob(blob: Blob): Promise<string | undefined> {
-  if (blob.size <= 0) return undefined;
-  if (blob.size > MAX_JSON_PROBE_SIZE) return undefined;
+  if (blob.size <= 0) {
+    return undefined;
+  }
+  if (blob.size > MAX_JSON_PROBE_SIZE) {
+    return undefined;
+  }
 
   // icon 应该返回图片二进制；如果返回 JSON，大概率是后端报错（未登录/无权限/不存在等）
   const type = (blob.type || '').toLowerCase();
@@ -34,18 +38,26 @@ async function readBizErrorFromBlob(blob: Blob): Promise<string | undefined> {
     type.includes('application/problem+json') ||
     type.includes('application/octet-stream');
 
-  if (!shouldProbe) return undefined;
+  if (!shouldProbe) {
+    return undefined;
+  }
 
   try {
     const text = await blob.text();
     const parsed = JSON.parse(text) as unknown;
-    if (!isRecord(parsed)) return undefined;
+    if (!isRecord(parsed)) {
+      return undefined;
+    }
 
     // 兼容常见业务码结构：{ code, data, message }
-    if (!('code' in parsed)) return undefined;
+    if (!('code' in parsed)) {
+      return undefined;
+    }
 
     const message = parsed.message;
-    if (typeof message === 'string' && message) return message;
+    if (typeof message === 'string' && message) {
+      return message;
+    }
 
     return '后端返回业务错误';
   } catch {
@@ -60,10 +72,14 @@ function resolveDbName() {
 function openDb(): Promise<IDBDatabase | null> {
   const dbName = resolveDbName();
   const cached = dbPromiseCache.get(dbName);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
 
-  const promise = new Promise<IDBDatabase | null>(resolve => {
-    if (typeof indexedDB === 'undefined') return resolve(null);
+  const promise = new Promise<IDBDatabase | null>((resolve) => {
+    if (typeof indexedDB === 'undefined') {
+      return resolve(null);
+    }
 
     const req = indexedDB.open(dbName, DB_VERSION);
 
@@ -84,7 +100,9 @@ function openDb(): Promise<IDBDatabase | null> {
 
 async function idbGetBlob(key: string): Promise<Blob | undefined> {
   const db = await openDb();
-  if (!db) return undefined;
+  if (!db) {
+    return undefined;
+  }
 
   return await new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readonly');
@@ -98,7 +116,9 @@ async function idbGetBlob(key: string): Promise<Blob | undefined> {
 
 async function idbSetBlob(key: string, blob: Blob): Promise<void> {
   const db = await openDb();
-  if (!db) return;
+  if (!db) {
+    return;
+  }
 
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -125,24 +145,34 @@ export const useAssetStore = defineStore('ob-assets', () => {
   async function fetchImageBlob(id: string): Promise<Blob | undefined> {
     const adapter = getCoreOptions().adapter;
     const api = adapter.assets?.fetchImageBlob;
-    if (!api) return undefined;
+    if (!api) {
+      return undefined;
+    }
 
     const blob = await api({ id });
-    if (!(blob instanceof Blob)) return undefined;
+    if (!(blob instanceof Blob)) {
+      return undefined;
+    }
     return blob;
   }
 
   async function getImageUrl(id: string, options: GetImageUrlOptions = {}): Promise<string | undefined> {
     const key = id.trim();
-    if (!key) return undefined;
+    if (!key) {
+      return undefined;
+    }
 
     if (!options.forceRefresh) {
       const inMemory = urlCache.get(key);
-      if (inMemory) return inMemory;
+      if (inMemory) {
+        return inMemory;
+      }
     }
 
     const inflight = pending.get(key);
-    if (inflight) return inflight;
+    if (inflight) {
+      return inflight;
+    }
 
     const task = (async () => {
       try {
@@ -159,7 +189,9 @@ export const useAssetStore = defineStore('ob-assets', () => {
         }
 
         const fresh = await fetchImageBlob(key);
-        if (!fresh) return undefined;
+        if (!fresh) {
+          return undefined;
+        }
 
         const bizError = await readBizErrorFromBlob(fresh);
         if (bizError) {
@@ -191,7 +223,9 @@ export const useAssetStore = defineStore('ob-assets', () => {
 
   function revokeImageUrl(id: string) {
     const key = id.trim();
-    if (!key) return;
+    if (!key) {
+      return;
+    }
 
     const url = urlCache.get(key);
     if (url) {
@@ -211,6 +245,6 @@ export const useAssetStore = defineStore('ob-assets', () => {
     errors,
     getImageUrl,
     revokeImageUrl,
-    clearMemoryCache
+    clearMemoryCache,
   };
 });

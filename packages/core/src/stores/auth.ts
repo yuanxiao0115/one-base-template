@@ -12,8 +12,10 @@ function isNonEmptyString(v: unknown): v is string {
 }
 
 function normalizeStringList(input: unknown): string[] | undefined {
-  if (!Array.isArray(input)) return undefined;
-  const out = input.map(v => (typeof v === 'string' ? v.trim() : '')).filter(Boolean);
+  if (!Array.isArray(input)) {
+    return undefined;
+  }
+  const out = input.map((v) => (typeof v === 'string' ? v.trim() : '')).filter(Boolean);
   return out.length ? out : undefined;
 }
 
@@ -40,13 +42,15 @@ function normalizeUser(input: AppUser): AppUser {
     roles,
     roleCodes: roles,
     permissions,
-    permissionCodes: permissions
+    permissionCodes: permissions,
   };
 }
 
 function readStoredUser(): AppUser | null {
   const hit = getWithLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
-  if (!hit?.value) return null;
+  if (!hit?.value) {
+    return null;
+  }
 
   try {
     return normalizeUser(JSON.parse(hit.value) as AppUser);
@@ -65,7 +69,7 @@ function writeStoredUser(user: AppUser) {
     onPrimaryQuotaExceeded: () => {
       // 用户态优先级高于菜单缓存，localStorage 满额时先清菜单分片缓存腾挪空间。
       clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
-    }
+    },
   });
 
   // 向命名空间迁移时清理旧 key，避免读优先级导致状态抖动。
@@ -101,7 +105,9 @@ export const useAuthStore = defineStore('ob-auth', () => {
   }
 
   async function ensureAuthed(): Promise<boolean> {
-    if (user.value) return true;
+    if (user.value) {
+      return true;
+    }
     try {
       await fetchMe();
       return true;
@@ -143,6 +149,6 @@ export const useAuthStore = defineStore('ob-auth', () => {
     ensureAuthed,
     login,
     logout,
-    reset
+    reset,
   };
 });

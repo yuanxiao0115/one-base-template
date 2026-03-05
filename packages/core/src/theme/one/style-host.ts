@@ -11,7 +11,9 @@ export function serializeVarsToCssText(vars: CssVarMap): string {
 }
 
 export function ensureThemeStyleElement(id: string): HTMLStyleElement | null {
-  if (typeof document === 'undefined') return null;
+  if (typeof document === 'undefined') {
+    return null;
+  }
 
   const existing = document.getElementById(id);
   if (existing instanceof HTMLStyleElement) {
@@ -28,7 +30,9 @@ export function ensureThemeStyleElement(id: string): HTMLStyleElement | null {
   styleElement.setAttribute(ONE_THEME_STYLE_ATTR, 'true');
 
   const head = document.head ?? document.getElementsByTagName('head')[0];
-  if (!head) return null;
+  if (!head) {
+    return null;
+  }
 
   head.appendChild(styleElement);
   return styleElement;
@@ -36,7 +40,9 @@ export function ensureThemeStyleElement(id: string): HTMLStyleElement | null {
 
 export function applyRootVarsToStyleElement(id: string, vars: CssVarMap): boolean {
   const styleElement = ensureThemeStyleElement(id);
-  if (!styleElement) return false;
+  if (!styleElement) {
+    return false;
+  }
 
   const cssText = serializeVarsToCssText(vars);
   if (styleElement.textContent === cssText) {

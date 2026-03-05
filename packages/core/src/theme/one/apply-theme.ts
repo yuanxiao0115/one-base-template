@@ -5,7 +5,7 @@ import {
   buildOneStaticTokens,
   resolveThemePresetKey,
   type OneTokenMap,
-  type ThemePresetKey
+  type ThemePresetKey,
 } from './theme-tokens';
 
 const ONE_THEME_BASE_STYLE_ID = 'one-theme-base';
@@ -34,7 +34,7 @@ function buildElementPrimaryBridgeTokens(tokens: OneTokenMap): OneTokenMap {
     '--el-color-primary-light-7': getToken(tokens, '--one-color-primary-light-3'),
     '--el-color-primary-light-8': getToken(tokens, '--one-color-primary-light-2'),
     '--el-color-primary-light-9': getToken(tokens, '--one-color-primary-light-1'),
-    '--el-color-primary-dark-2': getToken(tokens, '--one-color-primary-light-8')
+    '--el-color-primary-dark-2': getToken(tokens, '--one-color-primary-light-8'),
   };
 }
 
@@ -50,7 +50,7 @@ function buildElementFeedbackScaleTokens(
     [`--el-color-${elementType}-light-7`]: getToken(tokens, `--one-color-${oneType}-light-3`),
     [`--el-color-${elementType}-light-8`]: getToken(tokens, `--one-color-${oneType}-light-2`),
     [`--el-color-${elementType}-light-9`]: getToken(tokens, `--one-color-${oneType}-light-1`),
-    [`--el-color-${elementType}-dark-2`]: getToken(tokens, `--one-color-${oneType}-light-7`)
+    [`--el-color-${elementType}-dark-2`]: getToken(tokens, `--one-color-${oneType}-light-7`),
   };
 }
 
@@ -60,7 +60,7 @@ function buildElementFeedbackBridgeTokens(tokens: OneTokenMap): OneTokenMap {
     ...buildElementFeedbackScaleTokens(tokens, 'warning', 'warning'),
     ...buildElementFeedbackScaleTokens(tokens, 'info', 'info'),
     ...buildElementFeedbackScaleTokens(tokens, 'danger', 'error'),
-    ...buildElementFeedbackScaleTokens(tokens, 'error', 'error')
+    ...buildElementFeedbackScaleTokens(tokens, 'error', 'error'),
   };
 }
 
@@ -68,7 +68,7 @@ function buildElementLinkBridgeTokens(tokens: OneTokenMap): OneTokenMap {
   return {
     '--el-link-text-color': getToken(tokens, '--one-color-link'),
     '--el-link-hover-text-color': getToken(tokens, '--one-color-link-light-5'),
-    '--el-link-disabled-text-color': getToken(tokens, '--one-color-link-light-2')
+    '--el-link-disabled-text-color': getToken(tokens, '--one-color-link-light-2'),
   };
 }
 
@@ -107,7 +107,7 @@ function buildElementTextBorderFillBridgeTokens(tokens: OneTokenMap): OneTokenMa
     // 按钮禁用态统一走 one token，避免不同 type 各自覆盖导致视觉不一致。
     '--el-button-disabled-text-color': getToken(tokens, '--one-button-disabled-text-color'),
     '--el-button-disabled-bg-color': getToken(tokens, '--one-button-disabled-bg-color'),
-    '--el-button-disabled-border-color': getToken(tokens, '--one-button-disabled-border-color')
+    '--el-button-disabled-border-color': getToken(tokens, '--one-button-disabled-border-color'),
   };
 }
 
@@ -116,7 +116,7 @@ function buildElementBridgeTokens(tokens: OneTokenMap): OneTokenMap {
     ...buildElementPrimaryBridgeTokens(tokens),
     ...buildElementFeedbackBridgeTokens(tokens),
     ...buildElementLinkBridgeTokens(tokens),
-    ...buildElementTextBorderFillBridgeTokens(tokens)
+    ...buildElementTextBorderFillBridgeTokens(tokens),
   };
 }
 
@@ -126,7 +126,9 @@ function resolveOnePresetKey(payload: ThemeApplyPayload): ThemePresetKey {
 }
 
 function resolveOnePrimaryScaleOverride(payload: ThemeApplyPayload) {
-  if (payload.mode === 'custom') return null;
+  if (payload.mode === 'custom') {
+    return null;
+  }
   return payload.theme.primaryScale ?? null;
 }
 
@@ -148,7 +150,9 @@ function resolveOnePrimaryOverride(payload: ThemeApplyPayload): string | null {
 }
 
 function applyGrayscaleMode(enabled: boolean) {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined') {
+    return;
+  }
 
   const root = document.documentElement;
   if (enabled) {
@@ -158,7 +162,9 @@ function applyGrayscaleMode(enabled: boolean) {
   }
 
   const styleElement = ensureThemeStyleElement(ONE_THEME_EFFECT_STYLE_ID);
-  if (!styleElement) return;
+  if (!styleElement) {
+    return;
+  }
 
   if (styleElement.textContent !== ONE_THEME_GRAYSCALE_CSS) {
     styleElement.textContent = ONE_THEME_GRAYSCALE_CSS;
@@ -166,7 +172,9 @@ function applyGrayscaleMode(enabled: boolean) {
 }
 
 export function applyOneTheme(payload: ThemeApplyPayload) {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined') {
+    return;
+  }
 
   const presetKey = resolveOnePresetKey(payload);
   const primaryScale = resolveOnePrimaryScaleOverride(payload);
@@ -176,18 +184,18 @@ export function applyOneTheme(payload: ThemeApplyPayload) {
   const runtimeTokens = buildOneRuntimeTokens({
     presetKey,
     customPrimary,
-    primaryScale
+    primaryScale,
   });
   const resolvedOneTokens = {
     ...staticTokens,
-    ...runtimeTokens
+    ...runtimeTokens,
   };
   const elementBridgeTokens = buildElementBridgeTokens(resolvedOneTokens);
 
   applyRootVarsToStyleElement(ONE_THEME_BASE_STYLE_ID, staticTokens);
   applyRootVarsToStyleElement(ONE_THEME_RUNTIME_STYLE_ID, {
     ...runtimeTokens,
-    ...elementBridgeTokens
+    ...elementBridgeTokens,
   });
   applyGrayscaleMode(payload.grayscale);
 }
