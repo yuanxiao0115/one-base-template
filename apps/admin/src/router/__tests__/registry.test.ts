@@ -16,7 +16,7 @@ describe('router/registry', () => {
     const modules = getEnabledModules('*');
     const ids = modules.map((item) => item.id);
 
-    expect(ids).toContain('demo');
     expect(ids).toContain('portal');
+    expect(ids).not.toContain('demo');
   });
 });

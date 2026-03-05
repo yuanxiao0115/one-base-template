@@ -12,8 +12,7 @@
   "clientSignatureSalt": "fc54f9655dc04da486663f1055978ba8",
   "defaultSystemCode": "admin_server",
   "systemHomeMap": {
-    "admin_server": "/home/index",
-    "b_system": "/b/home"
+    "admin_server": "/home/index"
   },
-  "enabledModules": ["home", "b", "user-management", "log-management", "system-management"]
+  "enabledModules": ["home", "user-management", "log-management", "system-management"]
 }

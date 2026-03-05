@@ -337,7 +337,7 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
       routeCache: 1,
       sort: 10,
       hidden: 0,
-      component: 'demo/pages/DemoMenuManagementMigrationPage',
+      component: 'SystemManagement/menu/page',
       remark: '菜单管理迁移页'
     },
     {
@@ -405,7 +405,7 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
       routeCache: 1,
       sort: 20,
       hidden: 0,
-      component: 'demo/pages/DemoOrgManagementMigrationPage',
+      component: 'UserManagement/org/page',
       remark: '组织管理迁移页'
     }
   ];
@@ -1039,49 +1039,7 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
                   title: '系统 A',
                   children: [
                     { url: '/home/index', resourceName: '首页', resourceType: 1, hidden: 0, routeCache: 1 },
-                    {
-                      url: '/demo',
-                      resourceName: '示例',
-                      resourceType: 1,
-                      hidden: 0,
-                      children: [
-                        { url: '/demo/page-a', resourceName: '页面 A', resourceType: 1, hidden: 0, routeCache: 1 },
-                        { url: '/demo/page-b', resourceName: '页面 B', resourceType: 1, hidden: 0, routeCache: 1 },
-                        { url: '/demo/login-log-vxe', resourceName: '登录日志迁移', resourceType: 1, hidden: 0, routeCache: 1 },
-                        { url: '/demo/org-management-vxe', resourceName: '组织管理迁移', resourceType: 1, hidden: 0, routeCache: 1 },
-                        { url: '/demo/menu-management-vxe', resourceName: '权限管理迁移', resourceType: 1, hidden: 0, routeCache: 1 }
-                      ]
-                    },
-                    {
-                      url: '/portal',
-                      resourceName: '门户管理',
-                      resourceType: 1,
-                      hidden: 0,
-                      children: [
-                        { url: '/portal/templates', resourceName: '门户模板', resourceType: 1, hidden: 0, routeCache: 0 },
-                        // 详情/编辑页通常不出现在菜单里，但需要在白名单中才能直达访问
-                        { url: '/portal/designer', resourceName: '门户配置', resourceType: 1, hidden: 1, routeCache: 0 },
-                        { url: '/portal/layout', resourceName: '页面编辑', resourceType: 1, hidden: 1, routeCache: 0 }
-                      ]
-                    },
                     { url: '/system/permission', resourceName: '权限管理迁移', resourceType: 1, hidden: 0, routeCache: 1 }
-                  ]
-                },
-                {
-                  permissionCode: 'b_system',
-                  title: '系统 B',
-                  children: [
-                    { url: '/b/home', resourceName: 'B 首页', resourceType: 1, hidden: 0, routeCache: 1 },
-                    {
-                      url: '/b/demo',
-                      resourceName: 'B 示例',
-                      resourceType: 1,
-                      hidden: 0,
-                      children: [
-                        { url: '/b/demo/page-1', resourceName: '页面 1', resourceType: 1, hidden: 0, routeCache: 1 },
-                        { url: '/b/demo/page-2', resourceName: '页面 2', resourceType: 1, hidden: 0, routeCache: 1 }
-                      ]
-                    }
                   ]
                 }
               ]);
@@ -1124,18 +1082,6 @@ function mockMiddleware(options?: { sczfwSystemPermissionCode?: string }): Plugi
           if (req.method === 'GET' && url === '/api/menu/tree') {
             return ok(res, [
               { path: '/home/index', title: '首页', order: 10, keepAlive: true },
-              {
-                path: '/demo',
-                title: '示例',
-                order: 20,
-                children: [
-                  { path: '/demo/page-a', title: '页面 A', order: 1, keepAlive: true },
-                  { path: '/demo/page-b', title: '页面 B', order: 2, keepAlive: true },
-                  { path: '/demo/login-log-vxe', title: '登录日志迁移', order: 3, keepAlive: true },
-                  { path: '/demo/org-management-vxe', title: '组织管理迁移', order: 4, keepAlive: true },
-                  { path: '/demo/menu-management-vxe', title: '权限管理迁移', order: 5, keepAlive: true }
-                ]
-              },
               { path: '/system/permission', title: '权限管理迁移', order: 25, keepAlive: true },
               { path: 'https://example.com', title: '外链示例', order: 30, external: true }
             ]);

@@ -9,18 +9,14 @@ const TYPE_AWARE_LANGUAGE_OPTIONS = {
     tsconfigRootDir: ADMIN_ROOT
   }
 };
-const TYPE_AWARE_PHASE1_FILES = [
+const TYPE_AWARE_RECOVERY_FILES = [
   'src/modules/home/**/*.{ts,tsx}',
-  'src/modules/b/**/*.{ts,tsx}',
   'src/modules/LogManagement/**/*.{ts,tsx}',
   'src/modules/SystemManagement/**/*.{ts,tsx}',
   'src/modules/UserManagement/**/*.{ts,tsx}'
 ];
-const TYPE_AWARE_PHASE2_FILES = [
-  'src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx}',
-  'src/modules/{demo,portal}/**/*.{ts,tsx}'
-];
-const TYPE_AWARE_PHASE1_RECOVERY_RULES = {
+const TYPE_AWARE_BASELINE_FILES = ['src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx}'];
+const TYPE_AWARE_RECOVERY_RULES = {
   '@typescript-eslint/no-floating-promises': 'warn',
   '@typescript-eslint/no-unnecessary-condition': 'warn',
   '@typescript-eslint/no-unsafe-assignment': 'warn',
@@ -53,9 +49,7 @@ export default [
       // 统一为单引号，避免引号风格混乱
       quotes: ['error', 'single', { avoidEscape: true }],
       // TypeScript 已能识别未定义变量；该规则在 TS/Vue SFC 下容易产生误报
-      'no-undef': 'off',
-      // 作为脚手架，允许单词组件名（方便 Demo）
-      'vue/multi-word-component-names': 'off'
+      'no-undef': 'off'
     }
   },
   {
@@ -75,21 +69,20 @@ export default [
     }
   },
   {
-    // type-aware phase1：warning 可见（与 lint:code:phase1 模块保持一致）
-    files: TYPE_AWARE_PHASE1_FILES,
-    ignores: ['**/*.d.ts'],
-    languageOptions: TYPE_AWARE_LANGUAGE_OPTIONS,
-    rules: {
-      ...tsTypeAwareWarnRules,
-      ...TYPE_AWARE_PHASE1_RECOVERY_RULES
-    }
-  },
-  {
-    // type-aware phase2：先覆盖其余模块，配合 lint:code:phase2 --quiet 仅做 error 阻断
-    files: TYPE_AWARE_PHASE2_FILES,
+    // type-aware baseline：治理范围内统一启用 typed 规则基础集。
+    files: [...TYPE_AWARE_RECOVERY_FILES, ...TYPE_AWARE_BASELINE_FILES],
     ignores: ['**/*.d.ts'],
     languageOptions: TYPE_AWARE_LANGUAGE_OPTIONS,
     rules: tsTypeAwareWarnRules
+  },
+  {
+    // type-aware recovery：高价值规则先在业务模块启用，统一门禁以 0 warning 约束。
+    files: TYPE_AWARE_RECOVERY_FILES,
+    ignores: ['**/*.d.ts'],
+    languageOptions: TYPE_AWARE_LANGUAGE_OPTIONS,
+    rules: {
+      ...TYPE_AWARE_RECOVERY_RULES
+    }
   },
   {
     // 约束：模块间默认禁止直接互相 import，公共能力需上移到 shared/core/ui

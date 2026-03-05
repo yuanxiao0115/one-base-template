@@ -3,8 +3,8 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-const goDemoPage = async (): Promise<void> => {
-  await router.push('/demo/page-a');
+const goPermissionPage = async (): Promise<void> => {
+  await router.push('/system/permission');
 };
 
 const mockSsoToken = async (): Promise<void> => {
@@ -21,7 +21,7 @@ const staticMenuModeHint = [
 ].join(' ');
 
 defineOptions({
-  name: 'Home'
+  name: 'HomePage'
 });
 </script>
 
@@ -38,9 +38,9 @@ defineOptions({
       <div class="flex gap-2 mt-3">
         <el-button
           type="primary"
-          @click="goDemoPage"
+          @click="goPermissionPage"
         >
-          去示例页面
+          去权限管理
         </el-button>
         <el-button @click="mockSsoToken">模拟 SSO(token)</el-button>
         <el-button @click="mockSsoTicket">模拟 SSO(ticket)</el-button>

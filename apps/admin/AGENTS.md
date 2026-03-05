@@ -104,10 +104,11 @@
 - admin 全局 `v-loading` 遮罩背景统一透明（含 fullscreen 场景），并统一 loading 图标主色与文案样式，禁止回退深色蒙层。
 - 接入 `@one-base-template/lint-ruleset` 后，`stylelint.project-overrides` 禁止覆盖与团队规则集同名的规则；本地只允许补充团队规范未定义的项目专属规则。
 - ESLint warning 清理同样遵循“团队规则优先”：同名规则优先在 `packages/lint-ruleset` 收敛，`apps/admin` 仅保留项目专属补充，不做同名覆盖。
-- lint 门禁采用“按模块渐进”：
-  - `lint:code:phase1`（`home,b,LogManagement`）warning 可见；`lint:code:phase2:quiet`（`SystemManagement,UserManagement,demo,portal + bootstrap/router/config/shared/infra/pages/components`）仅 error 阻断；
-  - `lint:style:phase1`（`home,b,LogManagement,UserManagement,demo,SystemManagement,portal`）warning 可见；其余范围通过 `lint:style:phase2:audit` 建立待治理清单；
-  - 模块完成治理后，从 phase2 移入 phase1，最终目标是全量移除 `--quiet`。
+- lint 门禁已收敛为统一口径（不再区分 phase）：
+  - `lint:code`：覆盖 `home/LogManagement/SystemManagement/UserManagement + bootstrap/router/config/shared/infra/pages/components`，并使用 `--max-warnings=0`；
+  - `lint:style`：覆盖 `home/LogManagement/UserManagement/SystemManagement + styles/components/pages`，并使用 `--max-warnings=0`；
+  - `lint:*:audit` 仅用于排查，不作为门禁阻断命令。
+- `.test/.spec` 与 `__tests__` 文件默认不纳入 ESLint 门禁范围（测试行为由测试命令保障，不作为代码规范阻断项）。
 - 当前阶段 lint 治理不包含 i18n 文案约束：`vue/no-bare-strings-in-template` 不作为治理与门禁目标。
 - 命名必须“短、清楚、通用”，优先 `get/list/build/create/update/remove`。
 - 方法命名优先“动词 + 名词”结构（如 `getInitialPath`、`parseRuntimeConfig`、`clearByPrefixes`）。
