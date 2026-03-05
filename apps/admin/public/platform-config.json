@@ -1,4 +1,5 @@
 {
+  "preset": "remote-single",
   "backend": "sczfw",
   "authMode": "token",
   "tokenKey": "token",
