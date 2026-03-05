@@ -22,7 +22,7 @@ export {
   ensureMenuIconifyCollectionsRegistered,
   getMenuIconifyNames,
   isMenuIconifyValue,
-  type MenuIconifyPrefix
+  type MenuIconifyPrefix,
 } from './iconify/menu-iconify';
 export type {
   AdaptiveConfig,
@@ -34,7 +34,7 @@ export type {
   TableFixed,
   TablePagination,
   TableSortable,
-  VxeVirtualConfig
+  VxeVirtualConfig,
 } from './components/table/types';
 export { default as ForbiddenPage } from './pages/error/ForbiddenPage.vue';
 export { default as NotFoundPage } from './pages/error/NotFoundPage.vue';
@@ -58,7 +58,7 @@ export {
   type CrudSaveContext,
   type CrudSaveSuccessContext,
   type UseEntityEditorOptions,
-  type UseEntityEditorReturn
+  type UseEntityEditorReturn,
 } from './hooks/useEntityEditor';
 export { OneUiPlugin, registerOneUiComponents, type OneUiPluginOptions, type OneUiComponentName } from './plugin';
 export { default } from './plugin';

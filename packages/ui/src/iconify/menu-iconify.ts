@@ -11,12 +11,12 @@ const ICONIFY_PREFIX_SET = new Set<MenuIconifyPrefix>(['ep', 'ri']);
 
 const ICONIFY_COLLECTIONS: Record<MenuIconifyPrefix, IconifyJSON> = {
   ep: EP_COLLECTION,
-  ri: RI_COLLECTION
+  ri: RI_COLLECTION,
 };
 
 const ICONIFY_NAMES: Record<MenuIconifyPrefix, string[]> = {
   ep: Object.keys(EP_COLLECTION.icons ?? {}),
-  ri: Object.keys(RI_COLLECTION.icons ?? {})
+  ri: Object.keys(RI_COLLECTION.icons ?? {}),
 };
 
 let menuIconifyRegistered = false;
@@ -28,7 +28,9 @@ function normalizeIconValue(value: string | undefined): string {
 export function isMenuIconifyValue(value: string | undefined): value is `${MenuIconifyPrefix}:${string}` {
   const normalized = normalizeIconValue(value);
   const separatorIndex = normalized.indexOf(':');
-  if (separatorIndex <= 0) return false;
+  if (separatorIndex <= 0) {
+    return false;
+  }
 
   const prefix = normalized.slice(0, separatorIndex) as MenuIconifyPrefix;
   const name = normalized.slice(separatorIndex + 1);
@@ -36,7 +38,9 @@ export function isMenuIconifyValue(value: string | undefined): value is `${MenuI
 }
 
 export function ensureMenuIconifyCollectionsRegistered(): void {
-  if (menuIconifyRegistered) return;
+  if (menuIconifyRegistered) {
+    return;
+  }
 
   addCollection(ICONIFY_COLLECTIONS.ep);
   addCollection(ICONIFY_COLLECTIONS.ri);

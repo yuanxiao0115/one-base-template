@@ -1,89 +1,81 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+  import { computed } from 'vue';
 
-defineOptions({
-  name: 'PageContainer'
-});
+  defineOptions({
+    name: 'PageContainer',
+  });
 
-type PageContainerOverflow = 'auto' | 'scroll' | 'hidden';
+  type PageContainerOverflow = 'auto' | 'scroll' | 'hidden';
 
-interface PageContainerProps {
-  padding?: string;
-  overflow?: PageContainerOverflow;
-  leftWidth?: string;
-}
+  interface PageContainerProps {
+    padding?: string;
+    overflow?: PageContainerOverflow;
+    leftWidth?: string;
+  }
 
-const props = withDefaults(defineProps<PageContainerProps>(), {
-  padding: '0',
-  overflow: 'auto',
-  leftWidth: '216px'
-});
+  const props = withDefaults(defineProps<PageContainerProps>(), {
+    padding: '0',
+    overflow: 'auto',
+    leftWidth: '216px',
+  });
 
-const containerStyle = computed(() => ({
-  '--ob-page-container-padding': props.padding,
-  '--ob-page-container-overflow': props.overflow,
-  '--ob-page-container-left-width': props.leftWidth
-}));
+  const containerStyle = computed(() => ({
+    '--ob-page-container-padding': props.padding,
+    '--ob-page-container-overflow': props.overflow,
+    '--ob-page-container-left-width': props.leftWidth,
+  }));
 </script>
 
 <template>
   <section class="ob-page-container" :style="containerStyle">
-    <header v-if="$slots.header" class="ob-page-container__header">
-      <slot name="header" />
-    </header>
+    <header v-if="$slots.header" class="ob-page-container__header"><slot name="header" /></header>
 
     <div class="ob-page-container__body">
-      <aside v-if="$slots.left" class="ob-page-container__left">
-        <slot name="left" />
-      </aside>
+      <aside v-if="$slots.left" class="ob-page-container__left"><slot name="left" /></aside>
 
-      <div class="ob-page-container__main">
-        <slot />
-      </div>
+      <div class="ob-page-container__main"><slot /></div>
     </div>
 
-    <footer v-if="$slots.footer" class="ob-page-container__footer">
-      <slot name="footer" />
-    </footer>
+    <footer v-if="$slots.footer" class="ob-page-container__footer"><slot name="footer" /></footer>
   </section>
 </template>
 
 <style scoped>
-.ob-page-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  min-height: 0;
-}
+  .ob-page-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+  }
 
-.ob-page-container__header,
-.ob-page-container__footer {
-  flex-shrink: 0;
-}
+  .ob-page-container__header,
+  .ob-page-container__footer {
+    flex-shrink: 0;
+  }
 
-.ob-page-container__body {
-  flex: 1;
-  display: flex;
-  min-width: 0;
-  min-height: 0;
-}
+  .ob-page-container__body {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+  }
 
-.ob-page-container__left {
-  flex-shrink: 0;
-  width: var(--ob-page-container-left-width);
-  min-width: 0;
-  min-height: 0;
-}
+  .ob-page-container__left {
+    flex-shrink: 0;
+    width: var(--ob-page-container-left-width);
+    min-width: 0;
+    min-height: 0;
+  }
 
-.ob-page-container__main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  padding: var(--ob-page-container-padding);
-  overflow: var(--ob-page-container-overflow);
-}
+  .ob-page-container__main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    padding: var(--ob-page-container-padding);
+    overflow: var(--ob-page-container-overflow);
+  }
 </style>

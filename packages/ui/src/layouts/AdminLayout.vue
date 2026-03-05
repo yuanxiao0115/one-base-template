@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useLayoutStore } from '@one-base-template/core';
+  import { computed } from 'vue';
+  import { useLayoutStore } from '@one-base-template/core';
 
-import SideLayout from './modes/SideLayout.vue';
-import TopLayout from './modes/TopLayout.vue';
+  import SideLayout from './modes/SideLayout.vue';
+  import TopLayout from './modes/TopLayout.vue';
 
-const layoutStore = useLayoutStore();
+  const layoutStore = useLayoutStore();
 
-const layoutComponent = computed(() => {
-  switch (layoutStore.mode) {
-    case 'top':
-      return TopLayout;
-    case 'side':
-    default:
-      return SideLayout;
-  }
-});
+  const layoutComponent = computed(() => {
+    switch (layoutStore.mode) {
+      case 'top':
+        return TopLayout;
+      default:
+        return SideLayout;
+    }
+  });
 </script>
 
 <template>

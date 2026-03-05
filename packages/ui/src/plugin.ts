@@ -32,7 +32,7 @@ const UI_COMPONENTS = {
   ActionButtons,
   TableBox,
   VxeTable,
-  ImportUpload
+  ImportUpload,
 } as const;
 
 export type OneUiComponentName = keyof typeof UI_COMPONENTS;
@@ -61,7 +61,9 @@ export interface OneUiPluginOptions {
 }
 
 function shouldRegister(options: OneUiPluginOptions, name: OneUiComponentName): boolean {
-  if (!options.include) return true;
+  if (!options.include) {
+    return true;
+  }
   return options.include[name] !== false;
 }
 
@@ -75,8 +77,10 @@ export function registerOneUiComponents(app: App, options: OneUiPluginOptions = 
   const prefix = options.prefix?.trim() || 'Ob';
   const aliases = options.aliases ?? false;
 
-  (Object.entries(UI_COMPONENTS) as Array<[OneUiComponentName, Component]>).forEach(([name, component]) => {
-    if (!shouldRegister(options, name)) return;
+  (Object.entries(UI_COMPONENTS) as [OneUiComponentName, Component][]).forEach(([name, component]) => {
+    if (!shouldRegister(options, name)) {
+      return;
+    }
 
     registerComponent(app, `${prefix}${name}`, component);
     if (aliases) {
@@ -90,7 +94,7 @@ export const OneUiPlugin = {
     app.provide(
       ONE_UI_GLOBAL_CONFIG_KEY,
       createOneUiGlobalConfig({
-        crudContainer: options?.crudContainer
+        crudContainer: options?.crudContainer,
       })
     );
 
@@ -99,7 +103,7 @@ export const OneUiPlugin = {
     }
 
     registerOneUiComponents(app, options);
-  }
+  },
 };
 
 export default OneUiPlugin;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-defineOptions({
-  name: 'OneForbiddenPage'
-});
+  defineOptions({
+    name: 'OneForbiddenPage',
+  });
 </script>
 
 <template>

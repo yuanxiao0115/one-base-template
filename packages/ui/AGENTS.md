@@ -12,6 +12,7 @@
 ## 组件边界与导出
 
 - 仅内部使用的 UI 组件禁止在 `packages/ui/src/index.ts` 与 `packages/ui/src/plugin.ts` 对外导出/注册。
+- `packages/ui/src/assets/iconfont/**` 视为第三方生成静态资源：不参与 Biome 格式化与自动修复，禁止对该目录执行 `--write`/`--unsafe`。
 - 表格工具条组件统一命名为 `TableBox`（全局前缀组件名 `ObTableBox`），禁止继续使用 `OneTableBar` 或 `TableToolbar` 兼容别名。
 - `ObCrudContainer`：未传 `container` 时读取全局默认；传入 `container` 时 props 优先。
 - CRUD 通用容器必须保留 `footer` 插槽，并支持“纯容器模式”（仅通过 `v-model` 管理 `visible`，不强制 form 与默认确认/取消按钮）。
