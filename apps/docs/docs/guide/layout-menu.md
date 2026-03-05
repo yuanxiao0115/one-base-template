@@ -1,5 +1,7 @@
 # 布局与菜单
 
+> 如果你需要“完整的菜单/路由配置与 Schema”，优先查看：[菜单与路由规范（Schema）](/guide/menu-route-spec)。
+
 ## 布局模式
 
 布局由 `packages/core` 的 layout store 驱动，app 在启动时从 `apps/admin/src/config/layout.ts` 注入默认值：

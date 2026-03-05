@@ -46,6 +46,10 @@ outline: false
     <h3>布局与菜单</h3>
     <p>布局模式、菜单权限与路由协同说明。</p>
   </a>
+  <a class="guide-card" href="/guide/menu-route-spec">
+    <h3>菜单与路由规范（Schema）</h3>
+    <p>菜单来源、配置方式、路由约束与 JSON Schema 汇总。</p>
+  </a>
   <a class="guide-card" href="/guide/crud-container">
     <h3>CRUD 容器与 Hook</h3>
     <p>统一新增/编辑/详情容器能力，支持 dialog/drawer 与纯容器模式。</p>

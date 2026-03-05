@@ -1,0 +1,303 @@
+# 菜单与路由规范（含 Schema）
+
+> 适用范围：`apps/admin` + `packages/core` + `packages/adapters` + `packages/ui`  
+> 目标：给模板使用者一份“能直接照做”的菜单/路由规范，降低理解与配置成本。
+
+## 1. 推荐模式（不混合）
+
+本模板明确不推荐“静态 + 远程混合菜单”。对外只推荐两种模式：
+
+1. `static-single`：静态菜单 + 单系统（最简，优先）
+2. `remote-single`：远程菜单 + 单系统（需要后端权限树）
+
+## 2. 菜单从哪里来
+
+### 2.1 static-single
+
+静态菜单**不单独维护 JSON**，直接从路由生成。
+
+- 路由放置：`apps/admin/src/modules/**/routes*.ts`、`apps/admin/src/modules/**/routes/*.ts`
+- 菜单生成：`createStaticMenusFromRoutes(...)`
+- 关键字段：`meta.title`、`meta.order`、`meta.icon`、`meta.keepAlive`
+
+换句话说：**路由即菜单源**，避免两份配置漂移。
+
+### 2.2 remote-single
+
+菜单来自 adapter 的远端接口：
+
+- 优先：`menu.fetchMenuTree()`
+- 远端返回结构映射到 `AppMenuItem[]`
+- 前端路由仍保持静态声明，菜单只负责显示与权限
+
+## 3. 最小配置示例
+
+### 3.1 static-single（推荐模板默认）
+
+```json
+{
+  "preset": "static-single"
+}
+```
+
+### 3.2 remote-single（保留后端权限）
+
+```json
+{
+  "preset": "remote-single",
+  "backend": "sczfw",
+  "appsource": "frame",
+  "defaultSystemCode": "admin_server",
+  "systemHomeMap": {
+    "admin_server": "/home/index"
+  }
+}
+```
+
+## 4. Runtime Config Schema（platform-config.json）
+
+以下为当前实现可用的 JSON Schema（与 `parseRuntimeConfig` 对齐）：
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-base-template/schema/runtime-config.schema.json",
+  "title": "RuntimeConfig",
+  "type": "object",
+  "additionalProperties": true,
+  "oneOf": [
+    {
+      "required": ["preset"]
+    },
+    {
+      "required": [
+        "backend",
+        "authMode",
+        "tokenKey",
+        "idTokenKey",
+        "menuMode",
+        "enabledModules",
+        "authorizationType",
+        "appsource",
+        "appcode",
+        "systemHomeMap"
+      ],
+      "not": {
+        "required": ["preset"]
+      }
+    }
+  ],
+  "properties": {
+    "preset": {
+      "type": "string",
+      "enum": ["static-single", "remote-single"]
+    },
+    "backend": {
+      "type": "string",
+      "enum": ["default", "sczfw"]
+    },
+    "authMode": {
+      "type": "string",
+      "enum": ["cookie", "token", "mixed"]
+    },
+    "tokenKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idTokenKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "menuMode": {
+      "type": "string",
+      "enum": ["remote", "static"]
+    },
+    "enabledModules": {
+      "oneOf": [
+        { "const": "*" },
+        {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "authorizationType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "appsource": {
+      "type": "string",
+      "minLength": 1
+    },
+    "appcode": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clientSignatureSalt": {
+      "type": "string"
+    },
+    "clientSignatureClientId": {
+      "type": "string"
+    },
+    "storageNamespace": {
+      "type": "string"
+    },
+    "defaultSystemCode": {
+      "type": "string"
+    },
+    "systemHomeMap": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^/"
+      }
+    }
+  }
+}
+```
+
+补充说明：
+
+- 当配置 `preset` 时，可省略大部分字段，解析器会自动补全默认值。
+- `preset` 模式下仍会执行额外运行时校验（例如单系统约束、`menuMode` 冲突）。
+- 解析器当前不会拦截未知字段（向前兼容），因此 Schema 采用 `additionalProperties: true`。
+
+## 5. 路由 Meta Schema（菜单与权限相关）
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-base-template/schema/route-meta-menu.schema.json",
+  "title": "RouteMetaForMenuAndGuard",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "icon": { "type": "string" },
+    "order": { "type": "number" },
+    "keepAlive": { "type": "boolean" },
+    "public": { "type": "boolean" },
+    "hideInMenu": { "type": "boolean" },
+    "activePath": {
+      "type": "string",
+      "pattern": "^/"
+    },
+    "skipMenuAuth": { "type": "boolean" },
+    "hiddenTab": { "type": "boolean" },
+    "noTag": { "type": "boolean" },
+    "fullScreen": { "type": "boolean" }
+  }
+}
+```
+
+## 6. 菜单数据 Schema（AppMenuItem）
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-base-template/schema/app-menu-item.schema.json",
+  "title": "AppMenuItem",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["path", "title"],
+  "properties": {
+    "path": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "icon": { "type": "string" },
+    "external": { "type": "boolean" },
+    "keepAlive": { "type": "boolean" },
+    "order": { "type": "number" },
+    "children": {
+      "type": "array",
+      "items": {
+        "$ref": "https://one-base-template/schema/app-menu-item.schema.json"
+      }
+    }
+  }
+}
+```
+
+## 7. 模块路由清单 Schema（module.ts）
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://one-base-template/schema/admin-module-manifest.schema.json",
+  "title": "AdminModuleManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "version", "moduleTier", "enabledByDefault", "routes", "apiNamespace"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "version": { "const": "1" },
+    "moduleTier": { "type": "string", "enum": ["core", "optional"] },
+    "enabledByDefault": { "type": "boolean" },
+    "apiNamespace": { "type": "string", "minLength": 1 },
+    "routes": {
+      "type": "object",
+      "required": ["layout"],
+      "properties": {
+        "layout": { "type": "array" },
+        "standalone": { "type": "array" }
+      },
+      "additionalProperties": false
+    },
+    "compat": {
+      "type": "object",
+      "properties": {
+        "routeAliases": { "type": "array" },
+        "activePathMap": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "moduleTier": { "const": "optional" }
+        }
+      },
+      "then": {
+        "properties": {
+          "enabledByDefault": { "const": false }
+        }
+      }
+    }
+  ]
+}
+```
+
+## 8. 权限与跳转规则（必须理解）
+
+1. 路由始终静态声明，不依赖动态 `addRoute`
+2. 菜单树 path 集合 = `allowedPaths`
+3. 非菜单页（详情/编辑）用 `meta.activePath` 归属菜单
+4. 本地临时页可用 `meta.skipMenuAuth=true`，但仍需登录
+
+## 9. 常见误区
+
+1. 误区：静态菜单要单独写一份菜单 JSON  
+结论：不需要，静态菜单默认从路由生成。
+
+2. 误区：想让简单项目也支持动静态混合  
+结论：不建议，复杂度和排障成本会明显上升。
+
+3. 误区：单系统还保留多系统心智  
+结论：`defaultSystemCode + systemHomeMap` 固定单值即可，系统切换 UI 会自动隐藏。
+
+## 10. 落地检查清单
+
+1. `platform-config.json` 的 `preset`（或 `menuMode`）与目标模式一致
+2. 模块页面路由都在 `modules/**/routes*` 下
+3. 需要进菜单的页面都配置了 `meta.title`
+4. 详情/编辑页都配置了 `meta.activePath`
+5. 验证通过：`pnpm -C apps/docs lint && pnpm -C apps/docs build`

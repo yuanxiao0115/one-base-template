@@ -26,10 +26,47 @@
 
 文件路径：`apps/admin/public/platform-config.json`
 
+推荐优先使用 `preset`（更少配置）：
+
+### 2.1 最简写法（推荐）
+
+```json
+{
+  "preset": "static-single"
+}
+```
+
+或：
+
+```json
+{
+  "preset": "remote-single"
+}
+```
+
+默认补全规则：
+
+- `backend=default`
+- `authMode=token`
+- `tokenKey=token`
+- `idTokenKey=idToken`
+- `enabledModules=*`
+- `authorizationType=ADMIN`
+- `appsource=frame`
+- `appcode=one-base-template`
+- `storageNamespace=appcode`
+- `defaultSystemCode=default`
+- `systemHomeMap={ [defaultSystemCode]: "/home/index" }`
+
+并且 preset 模式下仅允许单系统（`systemHomeMap` 只能 1 个 key）。
+
+### 2.2 完整写法（高级）
+
 示例：
 
 ```json
 {
+  "preset": "remote-single",
   "backend": "sczfw",
   "authMode": "token",
   "tokenKey": "token",
@@ -51,6 +88,7 @@
 
 字段说明：
 
+- `preset`（可选）: `static-single | remote-single`，用于收敛到“单系统 + 不混合”模式
 - `backend`: `default | sczfw`
 - `authMode`: `cookie | token | mixed`
 - `tokenKey` / `idTokenKey`: token 存储键
