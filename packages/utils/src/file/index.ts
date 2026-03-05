@@ -500,13 +500,7 @@ export function getFileExtensionFromUrl(url: string): string {
  */
 export function isImageFile(file: File | string): boolean {
   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico']
-
-  let extension = ''
-  if (typeof file === 'string') {
-    extension = getFileExtension(file)
-  } else {
-    extension = getFileExtension(file.name)
-  }
+  const extension = getFileExtension(typeof file === 'string' ? file : file.name)
 
   return imageExtensions.includes(extension.toLowerCase())
 }
@@ -524,13 +518,7 @@ export function isImageFile(file: File | string): boolean {
  */
 export function isVideoFile(file: File | string): boolean {
   const videoExtensions = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv', 'm4v', '3gp']
-
-  let extension = ''
-  if (typeof file === 'string') {
-    extension = getFileExtension(file)
-  } else {
-    extension = getFileExtension(file.name)
-  }
+  const extension = getFileExtension(typeof file === 'string' ? file : file.name)
 
   return videoExtensions.includes(extension.toLowerCase())
 }
@@ -548,13 +536,7 @@ export function isVideoFile(file: File | string): boolean {
  */
 export function isAudioFile(file: File | string): boolean {
   const audioExtensions = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma', 'm4a']
-
-  let extension = ''
-  if (typeof file === 'string') {
-    extension = getFileExtension(file)
-  } else {
-    extension = getFileExtension(file.name)
-  }
+  const extension = getFileExtension(typeof file === 'string' ? file : file.name)
 
   return audioExtensions.includes(extension.toLowerCase())
 }
@@ -572,13 +554,7 @@ export function isAudioFile(file: File | string): boolean {
  */
 export function isDocumentFile(file: File | string): boolean {
   const documentExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf']
-
-  let extension = ''
-  if (typeof file === 'string') {
-    extension = getFileExtension(file)
-  } else {
-    extension = getFileExtension(file.name)
-  }
+  const extension = getFileExtension(typeof file === 'string' ? file : file.name)
 
   return documentExtensions.includes(extension.toLowerCase())
 }

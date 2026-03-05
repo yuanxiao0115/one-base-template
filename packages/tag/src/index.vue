@@ -138,12 +138,9 @@
   const handleWheel = (event: WheelEvent): void => {
     isScrolling.value = true
     const scrollIntensity = Math.abs(event.deltaX) + Math.abs(event.deltaY)
-    let offset = 0
-    if (event.deltaX < 0) {
-      offset = scrollIntensity > 0 ? scrollIntensity : 100
-    } else {
-      offset = scrollIntensity > 0 ? -scrollIntensity : -100
-    }
+    const offset = event.deltaX < 0
+      ? scrollIntensity > 0 ? scrollIntensity : 100
+      : scrollIntensity > 0 ? -scrollIntensity : -100
     smoothScroll(offset)
   }
 
