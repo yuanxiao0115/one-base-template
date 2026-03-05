@@ -10,6 +10,7 @@ export {
   type BackendKind,
   type AuthMode,
   type MenuMode as PlatformMenuMode,
+  type MenuRoutePreset,
   type EnabledModulesSetting,
 } from './config/platform-config';
 export type {

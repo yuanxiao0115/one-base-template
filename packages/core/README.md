@@ -140,6 +140,12 @@ declare module '@one-base-template/core' {
 - `parseRuntimeConfig(input)`：解析并校验运行时配置对象
 - `RuntimeConfig`：配置类型定义（含 `backend/authMode/menuMode/systemHomeMap` 等）
 
+收敛配置建议：
+
+- 支持 `preset=static-single | remote-single`，可自动补全默认字段，降低接入门槛。
+- `preset` 模式下强制单系统约束（`systemHomeMap` 仅允许一个系统）。
+- `preset` 与显式 `menuMode` 冲突时会直接报错，避免混合模式语义不清。
+
 安全口径约定：
 
 - sczfw 签名字段统一命名为 `clientSignatureSalt`（公开盐值）

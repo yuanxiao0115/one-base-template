@@ -2,8 +2,10 @@ export type BackendKind = 'default' | 'sczfw';
 export type AuthMode = 'cookie' | 'token' | 'mixed';
 export type MenuMode = 'remote' | 'static';
 export type EnabledModulesSetting = '*' | string[];
+export type MenuRoutePreset = 'static-single' | 'remote-single';
 
 export interface RuntimeConfig {
+  preset?: MenuRoutePreset;
   backend: BackendKind;
   authMode: AuthMode;
   tokenKey: string;
@@ -63,6 +65,67 @@ function expectOptionalString(raw: Record<string, unknown>, key: string, errors:
   return undefined;
 }
 
+function isMenuRoutePreset(v: unknown): v is MenuRoutePreset {
+  return v === 'static-single' || v === 'remote-single';
+}
+
+function getPresetExpectedMenuMode(preset: MenuRoutePreset): MenuMode {
+  return preset === 'static-single' ? 'static' : 'remote';
+}
+
+function normalizePresetRuntimeConfig(input: Record<string, unknown>, errors: string[]): {
+  preset?: MenuRoutePreset;
+  normalized: Record<string, unknown>;
+} {
+  const rawPreset = input.preset;
+  if (rawPreset == null || rawPreset === '') {
+    return {
+      normalized: input,
+    };
+  }
+
+  if (!isMenuRoutePreset(rawPreset)) {
+    errors.push('"preset" 必须是 static-single/remote-single 之一');
+    return {
+      normalized: input,
+    };
+  }
+
+  const expectedMenuMode = getPresetExpectedMenuMode(rawPreset);
+  if (input.menuMode != null && input.menuMode !== expectedMenuMode) {
+    errors.push(`preset=${rawPreset} 不允许 menuMode=${String(input.menuMode)}，应为 ${expectedMenuMode}`);
+  }
+
+  const fallbackSystemCode = isNonEmptyString(input.defaultSystemCode) ? input.defaultSystemCode : 'default';
+  const normalized: Record<string, unknown> = {
+    preset: rawPreset,
+    backend: 'default',
+    authMode: 'token',
+    tokenKey: 'token',
+    idTokenKey: 'idToken',
+    menuMode: expectedMenuMode,
+    enabledModules: '*',
+    authorizationType: 'ADMIN',
+    appsource: 'frame',
+    appcode: 'one-base-template',
+    defaultSystemCode: fallbackSystemCode,
+    systemHomeMap: {
+      [fallbackSystemCode]: '/home/index',
+    },
+    ...input,
+  };
+
+  // storageNamespace 未显式配置时与 appcode 对齐，降低最小配置成本。
+  if (!isNonEmptyString(normalized.storageNamespace) && isNonEmptyString(normalized.appcode)) {
+    normalized.storageNamespace = normalized.appcode;
+  }
+
+  return {
+    preset: rawPreset,
+    normalized,
+  };
+}
+
 function expectEnabledModules(raw: Record<string, unknown>, key: string, errors: string[]): EnabledModulesSetting {
   const value = raw[key];
   if (value == null || value === '*') {
@@ -115,25 +178,36 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   }
 
   const errors: string[] = [];
-  const backend = expectEnum(input, 'backend', ['default', 'sczfw'], errors);
-  const authMode = expectEnum(input, 'authMode', ['cookie', 'token', 'mixed'], errors);
-  const tokenKey = expectString(input, 'tokenKey', errors);
-  const idTokenKey = expectString(input, 'idTokenKey', errors);
-  const menuMode = expectEnum(input, 'menuMode', ['remote', 'static'], errors);
-  const enabledModules = expectEnabledModules(input, 'enabledModules', errors);
-  const authorizationType = expectString(input, 'authorizationType', errors);
-  const appsource = expectString(input, 'appsource', errors);
-  const appcode = expectString(input, 'appcode', errors);
-  const clientSignatureSalt = expectOptionalString(input, 'clientSignatureSalt', errors);
-  const clientSignatureClientId = expectOptionalString(input, 'clientSignatureClientId', errors);
-  const storageNamespace = expectOptionalString(input, 'storageNamespace', errors);
-  const defaultSystemCode = expectOptionalString(input, 'defaultSystemCode', errors);
-  const systemHomeMap = expectSystemHomeMap(input, 'systemHomeMap', errors);
+  const { preset, normalized } = normalizePresetRuntimeConfig(input, errors);
 
-  if ('clientSignatureSecret' in input) {
+  const backend = expectEnum(normalized, 'backend', ['default', 'sczfw'], errors);
+  const authMode = expectEnum(normalized, 'authMode', ['cookie', 'token', 'mixed'], errors);
+  const tokenKey = expectString(normalized, 'tokenKey', errors);
+  const idTokenKey = expectString(normalized, 'idTokenKey', errors);
+  const menuMode = expectEnum(normalized, 'menuMode', ['remote', 'static'], errors);
+  const enabledModules = expectEnabledModules(normalized, 'enabledModules', errors);
+  const authorizationType = expectString(normalized, 'authorizationType', errors);
+  const appsource = expectString(normalized, 'appsource', errors);
+  const appcode = expectString(normalized, 'appcode', errors);
+  const clientSignatureSalt = expectOptionalString(normalized, 'clientSignatureSalt', errors);
+  const clientSignatureClientId = expectOptionalString(normalized, 'clientSignatureClientId', errors);
+  const storageNamespace = expectOptionalString(normalized, 'storageNamespace', errors);
+  const defaultSystemCode = expectOptionalString(normalized, 'defaultSystemCode', errors);
+  const systemHomeMap = expectSystemHomeMap(normalized, 'systemHomeMap', errors);
+
+  if ('clientSignatureSecret' in normalized) {
     errors.push(
       '"clientSignatureSecret" 已废弃，请改为 "clientSignatureSalt"（该字段为公开签名盐值，不是前端 secret）'
     );
+  }
+
+  if (preset && systemHomeMap) {
+    if (Object.keys(systemHomeMap).length !== 1) {
+      errors.push(`preset=${preset} 为单系统模式，"systemHomeMap" 仅允许配置一个系统`);
+    }
+    if (defaultSystemCode && !systemHomeMap[defaultSystemCode]) {
+      errors.push(`preset=${preset} 下 "defaultSystemCode" 必须命中 "systemHomeMap"`);
+    }
   }
 
   if (errors.length > 0) {
@@ -141,6 +215,7 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   }
 
   return {
+    preset,
     backend: backend!,
     authMode: authMode!,
     tokenKey: tokenKey!,
