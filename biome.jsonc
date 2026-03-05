@@ -30,6 +30,8 @@
       "!**/coverage",
       "!**/public/fonts",
       "!packages/ui/src/assets/iconfont",
+      "!apps/admin/src/auto-imports.d.ts",
+      "!apps/admin/src/components.d.ts",
       "!apps/admin/src/modules/SystemManagement/menu/components/MenuIconInput.css",
       "!**/__tests__",
       "!**/*.{test,spec}.{js,jsx,ts,tsx,vue,mjs,cjs}"
