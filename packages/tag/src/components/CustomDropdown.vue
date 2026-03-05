@@ -1,14 +1,14 @@
 <script setup lang="ts">
-  import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
-  import { onClickOutside } from '@vueuse/core'
-  import { Icon } from '@iconify/vue'
-  import { useTagOperations } from '../hooks/useTagOperations'
-  import { useDropdownMenuDisplay } from '../hooks/useDropdownMenuDisplay'
+  import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
+  import { onClickOutside } from '@vueuse/core';
+  import { Icon } from '@iconify/vue';
+  import { useTagOperations } from '../hooks/useTagOperations';
+  import { useDropdownMenuDisplay } from '../hooks/useDropdownMenuDisplay';
 
   // ===== Props 定义 =====
   interface Props {
     /** 触发方式 */
-    trigger?: 'hover' | 'click' | 'focus' | 'contextmenu'
+    trigger?: 'hover' | 'click' | 'focus' | 'contextmenu';
     /** 弹出位置 */
     placement?:
       | 'top'
@@ -22,96 +22,90 @@
       | 'left-end'
       | 'right'
       | 'right-start'
-      | 'right-end'
+      | 'right-end';
   }
 
   // ===== Emits 定义 =====
   interface Emits {
     /** 可见性变化事件 */
-    'visible-change': [visible: boolean]
+    'visible-change': [visible: boolean];
   }
 
   const props = withDefaults(defineProps<Props>(), {
     trigger: 'click',
     placement: 'bottom-end',
-  })
+  });
 
-  const emit = defineEmits<Emits>()
+  const emit = defineEmits<Emits>();
 
   // ===== 响应式数据 =====
-  const visible = ref(false)
-  const triggerRef = ref<HTMLElement>()
-  const dropdownRef = ref<HTMLElement>()
-  const hoverTimer = ref<number>()
+  const visible = ref(false);
+  const triggerRef = ref<HTMLElement>();
+  const dropdownRef = ref<HTMLElement>();
+  const hoverTimer = ref<number>();
 
   // ===== Hooks =====
-  const { onClickDrop } = useTagOperations()
-  const { dropdownMenuViews, configureDropdownMenu } = useDropdownMenuDisplay()
+  const { onClickDrop } = useTagOperations();
+  const { dropdownMenuViews, configureDropdownMenu } = useDropdownMenuDisplay();
 
   // ===== 计算属性 =====
   /** 过滤后的菜单项 */
   const visibleMenuItems = computed(() => {
-    return dropdownMenuViews
-      .map((item, index) => ({ ...item, originalIndex: index }))
-      .filter((item) => !item.disabled)
-  })
+    return dropdownMenuViews.map((item, index) => ({ ...item, originalIndex: index })).filter((item) => !item.disabled);
+  });
 
   /** 下拉菜单样式 */
   const dropdownStyle = computed(() => {
-    if (!visible.value || !triggerRef.value) return { display: 'none' }
+    if (!(visible.value && triggerRef.value)) {
+      return { display: 'none' };
+    }
 
-    const triggerRect = triggerRef.value.getBoundingClientRect()
-    const placement = props.placement
+    const triggerRect = triggerRef.value.getBoundingClientRect();
+    const placement = props.placement;
 
-    let top = 0
-    let left = 0
+    let top = 0;
+    let left = 0;
 
     // 根据placement计算位置
     switch (placement) {
       case 'bottom':
       case 'bottom-start':
       case 'bottom-end':
-        top = triggerRect.bottom + 4
-        break
+        top = triggerRect.bottom + 4;
+        break;
       case 'top':
       case 'top-start':
       case 'top-end':
-        top = triggerRect.top - 4
-        break
+        top = triggerRect.top - 4;
+        break;
       case 'left':
       case 'left-start':
       case 'left-end':
-        left = triggerRect.left - 4
-        break
+        left = triggerRect.left - 4;
+        break;
       case 'right':
       case 'right-start':
       case 'right-end':
-        left = triggerRect.right + 4
-        break
+        left = triggerRect.right + 4;
+        break;
     }
 
     // 水平对齐
     if (placement.includes('start')) {
-      left = triggerRect.left
+      left = triggerRect.left;
     } else if (placement.includes('end')) {
-      left = triggerRect.right - 140 // 假设菜单宽度160px
-    } else if (!placement.includes('left') && !placement.includes('right')) {
-      left = triggerRect.left + triggerRect.width / 2 - 80 // 居中
+      left = triggerRect.right - 140; // 假设菜单宽度160px
+    } else if (!(placement.includes('left') || placement.includes('right'))) {
+      left = triggerRect.left + triggerRect.width / 2 - 80; // 居中
     }
 
     // 垂直对齐
-    if (
-      placement.includes('start') &&
-      (placement.includes('left') || placement.includes('right'))
-    ) {
-      top = triggerRect.top
-    } else if (
-      placement.includes('end') &&
-      (placement.includes('left') || placement.includes('right'))
-    ) {
-      top = triggerRect.bottom - 100 // 假设菜单高度
+    if (placement.includes('start') && (placement.includes('left') || placement.includes('right'))) {
+      top = triggerRect.top;
+    } else if (placement.includes('end') && (placement.includes('left') || placement.includes('right'))) {
+      top = triggerRect.bottom - 100; // 假设菜单高度
     } else if (placement.includes('left') || placement.includes('right')) {
-      top = triggerRect.top + triggerRect.height / 2 - 50
+      top = triggerRect.top + triggerRect.height / 2 - 50;
     }
 
     return {
@@ -119,114 +113,120 @@
       top: `${top}px`,
       left: `${left}px`,
       zIndex: 2000,
-    }
-  })
+    };
+  });
 
   // ===== 方法 =====
   /** 显示下拉菜单 */
   const showDropdown = () => {
-    if (visible.value) return
-    visible.value = true
-    emit('visible-change', true)
+    if (visible.value) {
+      return;
+    }
+    visible.value = true;
+    emit('visible-change', true);
     nextTick(() => {
-      configureDropdownMenu()
-    })
-  }
+      configureDropdownMenu();
+    });
+  };
 
   /** 隐藏下拉菜单 */
   const hideDropdown = () => {
-    if (!visible.value) return
-    visible.value = false
-    emit('visible-change', false)
-  }
+    if (!visible.value) {
+      return;
+    }
+    visible.value = false;
+    emit('visible-change', false);
+  };
 
   /** 切换下拉菜单 */
   const toggleDropdown = () => {
     if (visible.value) {
-      hideDropdown()
+      hideDropdown();
     } else {
-      showDropdown()
+      showDropdown();
     }
-  }
+  };
 
   /** 处理命令 */
   const handleCommand = (command: number | string) => {
-    const index = typeof command === 'string' ? parseInt(command) : command
-    const item = dropdownMenuViews[index]
+    const index = typeof command === 'string' ? Number.parseInt(command, 10) : command;
+    const item = dropdownMenuViews[index];
 
-    if (item && item.disabled) return
+    if (item?.disabled) {
+      return;
+    }
 
-    onClickDrop(index, item)
-    hideDropdown()
-  }
+    onClickDrop(index, item);
+    hideDropdown();
+  };
 
   /** 处理触发器点击 */
   const handleTriggerClick = () => {
     if (props.trigger === 'click') {
-      toggleDropdown()
+      toggleDropdown();
     }
-  }
+  };
 
   /** 处理触发器鼠标进入 */
   const handleTriggerMouseEnter = () => {
     if (props.trigger === 'hover') {
-      clearTimeout(hoverTimer.value)
-      showDropdown()
+      clearTimeout(hoverTimer.value);
+      showDropdown();
     }
-  }
+  };
 
   /** 处理触发器鼠标离开 */
   const handleTriggerMouseLeave = () => {
     if (props.trigger === 'hover') {
       hoverTimer.value = window.setTimeout(() => {
-        hideDropdown()
-      }, 150)
+        hideDropdown();
+      }, 150);
     }
-  }
+  };
 
   /** 处理下拉菜单鼠标进入 */
   const handleDropdownMouseEnter = () => {
     if (props.trigger === 'hover') {
-      clearTimeout(hoverTimer.value)
+      clearTimeout(hoverTimer.value);
     }
-  }
+  };
 
   /** 处理下拉菜单鼠标离开 */
   const handleDropdownMouseLeave = () => {
     if (props.trigger === 'hover') {
       hoverTimer.value = window.setTimeout(() => {
-        hideDropdown()
-      }, 150)
+        hideDropdown();
+      }, 150);
     }
-  }
+  };
 
   /** 处理键盘事件 */
   const handleKeydown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
-      hideDropdown()
+      hideDropdown();
     }
-  }
+  };
 
   // ===== 生命周期 =====
   onMounted(() => {
-    document.addEventListener('keydown', handleKeydown)
-  })
+    document.addEventListener('keydown', handleKeydown);
+  });
 
   onUnmounted(() => {
-    document.removeEventListener('keydown', handleKeydown)
-    clearTimeout(hoverTimer.value)
-  })
+    document.removeEventListener('keydown', handleKeydown);
+    clearTimeout(hoverTimer.value);
+  });
 
   // 点击外部关闭
   onClickOutside(
     dropdownRef,
     () => {
       if (props.trigger === 'click') {
-        hideDropdown()
+        hideDropdown();
       }
     },
-    { ignore: [triggerRef] },
-  )
+    { ignore: [triggerRef] }
+  );
 </script>
 
 <template>
@@ -240,9 +240,7 @@
       @mouseleave="handleTriggerMouseLeave"
     >
       <slot name="trigger">
-        <span class="dropdown-trigger-default">
-          <Icon icon="ri:arrow-down-s-line" />
-        </span>
+        <span class="dropdown-trigger-default"> <Icon icon="ri:arrow-down-s-line" /> </span>
       </slot>
     </div>
 

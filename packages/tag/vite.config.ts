@@ -1,73 +1,70 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
-import fs from 'fs'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'node:path';
+import fs from 'node:fs';
 
 // 自定义插件：重命名 CSS 文件
 const renameCssPlugin = () => {
   return {
     name: 'rename-css',
     writeBundle() {
-      const distDir = resolve(__dirname, 'dist')
+      const distDir = resolve(import.meta.dirname, 'dist');
 
       // 检查 assets 目录
-      const assetsDir = resolve(distDir, 'assets')
+      const assetsDir = resolve(distDir, 'assets');
       if (fs.existsSync(assetsDir)) {
-        const assetCssFiles = fs.readdirSync(assetsDir).filter((file) => file.endsWith('.css'))
+        const assetCssFiles = fs.readdirSync(assetsDir).filter((file) => file.endsWith('.css'));
 
         if (assetCssFiles.length > 0) {
-          const originalPath = resolve(assetsDir, assetCssFiles[0])
-          const newPath = resolve(distDir, 'index.css')
+          const originalPath = resolve(assetsDir, assetCssFiles[0]);
+          const newPath = resolve(distDir, 'index.css');
 
           if (fs.existsSync(originalPath)) {
-            fs.copyFileSync(originalPath, newPath)
-            console.log(`CSS file copied from assets/${assetCssFiles[0]} to index.css`)
+            fs.copyFileSync(originalPath, newPath);
+            console.log(`CSS file copied from assets/${assetCssFiles[0]} to index.css`);
           }
         }
       }
 
       // 处理根目录的 CSS 文件
-      const cssFiles = fs
-        .readdirSync(distDir)
-        .filter((file) => file.endsWith('.css') && file !== 'index.css')
+      const cssFiles = fs.readdirSync(distDir).filter((file) => file.endsWith('.css') && file !== 'index.css');
 
       // 如果找到其他 CSS 文件，重命名为 index.css
       if (cssFiles.length > 0) {
-        const originalPath = resolve(distDir, cssFiles[0])
-        const newPath = resolve(distDir, 'index.css')
+        const originalPath = resolve(distDir, cssFiles[0]);
+        const newPath = resolve(distDir, 'index.css');
 
         if (fs.existsSync(originalPath)) {
           // 如果 index.css 已存在，先删除原文件
           if (fs.existsSync(newPath)) {
-            fs.unlinkSync(originalPath)
-            console.log(`Removed duplicate CSS file: ${cssFiles[0]}`)
+            fs.unlinkSync(originalPath);
+            console.log(`Removed duplicate CSS file: ${cssFiles[0]}`);
           } else {
-            fs.renameSync(originalPath, newPath)
-            console.log(`CSS file renamed from ${cssFiles[0]} to index.css`)
+            fs.renameSync(originalPath, newPath);
+            console.log(`CSS file renamed from ${cssFiles[0]} to index.css`);
           }
         }
       }
 
       // 清理 assets 目录（如果为空）
       if (fs.existsSync(assetsDir)) {
-        const remainingFiles = fs.readdirSync(assetsDir)
+        const remainingFiles = fs.readdirSync(assetsDir);
         if (remainingFiles.length === 0) {
-          fs.rmdirSync(assetsDir)
-          console.log('Removed empty assets directory')
+          fs.rmdirSync(assetsDir);
+          console.log('Removed empty assets directory');
         }
       }
     },
-  }
-}
+  };
+};
 
 export default defineConfig({
   plugins: [vue(), renameCssPlugin()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
       name: 'OneTag',
-      fileName: (format) =>
-        `index.${format === 'es' ? 'js' : format === 'umd' ? 'umd.cjs' : format}`,
+      fileName: (format) => `index.${format === 'es' ? 'js' : format === 'umd' ? 'umd.cjs' : format}`,
     },
     rollupOptions: {
       external: ['vue', 'vue-router', 'pinia'],
@@ -81,7 +78,7 @@ export default defineConfig({
       },
       // 排除测试文件
       input: {
-        index: resolve(__dirname, 'src/index.ts'),
+        index: resolve(import.meta.dirname, 'src/index.ts'),
       },
       // 保守的 Tree Shaking 配置
       treeshake: true,
@@ -136,7 +133,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': resolve(import.meta.dirname, 'src'),
     },
   },
-})
+});

@@ -1,176 +1,160 @@
 <script setup lang="ts">
-  import {
-    ref,
-    unref,
-    computed,
-    onMounted,
-    nextTick,
-    watch,
-    getCurrentInstance,
-    type CSSProperties,
-  } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
-  import { Icon } from '@iconify/vue'
+  import { ref, unref, computed, onMounted, nextTick, watch, getCurrentInstance, type CSSProperties } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import { Icon } from '@iconify/vue';
 
   // 导入已有的 utils 方法
-  import { isEqual, delay, useResizeObserver } from './utils'
-  import { getLinkActiveClass } from './utils/tagState'
-  import { useTagStoreHook } from './store'
+  import { isEqual, delay, useResizeObserver } from './utils';
+  import { getLinkActiveClass } from './utils/tagState';
+  import { useTagStoreHook } from './store';
 
   // 导入新的菜单显示管理 Hook
-  import { useContextMenuDisplay } from './hooks/useContextMenuDisplay'
-  import { useTagOperations } from './hooks/useTagOperations'
+  import { useContextMenuDisplay } from './hooks/useContextMenuDisplay';
+  import { useTagOperations } from './hooks/useTagOperations';
 
   // 导入菜单组件
-  import ContextMenu from './components/ContextMenu.vue'
-  import DropdownMenu from './components/DropdownMenu.vue'
+  import ContextMenu from './components/ContextMenu.vue';
+  import DropdownMenu from './components/DropdownMenu.vue';
 
   // 图标
-  import ArrowRightSLine from '@iconify-icons/ri/arrow-right-s-line'
-  import ArrowLeftSLine from '@iconify-icons/ri/arrow-left-s-line'
+  import ArrowRightSLine from '@iconify-icons/ri/arrow-right-s-line';
+  import ArrowLeftSLine from '@iconify-icons/ri/arrow-left-s-line';
 
-  const route = useRoute()
-  const router = useRouter()
-  const instance = getCurrentInstance()
-  const store = useTagStoreHook()
+  const route = useRoute();
+  const router = useRouter();
+  const instance = getCurrentInstance();
+  const store = useTagStoreHook();
 
   // ===== 菜单显示管理 =====
-  const menuDisplay = useContextMenuDisplay()
-  const { tagsViews, configureContextMenu } = menuDisplay
+  const menuDisplay = useContextMenuDisplay();
+  const { tagsViews, configureContextMenu } = menuDisplay;
 
   // ===== 标签操作管理 =====
-  const { deleteDynamicTag } = useTagOperations()
+  const { deleteDynamicTag } = useTagOperations();
 
   // ===== DOM 引用 =====
-  const containerDom = ref()
-  const scrollbarDom = ref()
-  const tabDom = ref()
+  const containerDom = ref();
+  const scrollbarDom = ref();
+  const tabDom = ref();
 
   // ===== 状态管理 =====
-  const buttonTop = ref(0)
-  const buttonLeft = ref(0)
-  const translateX = ref(0)
-  const visible = ref(false)
-  const activeIndex = ref(-1)
-  const currentSelect = ref<any>({})
-  const isScrolling = ref(false)
-  const isShowArrow = ref(false)
+  const buttonTop = ref(0);
+  const buttonLeft = ref(0);
+  const translateX = ref(0);
+  const visible = ref(false);
+  const activeIndex = ref(-1);
+  const currentSelect = ref<any>({});
+  const isScrolling = ref(false);
+  const isShowArrow = ref(false);
 
   // ===== 计算属性 =====
-  const multiTags = computed(() => store.multiTags)
+  const multiTags = computed(() => store.multiTags);
 
   const linkIsActive = computed(() => {
-    return (item: any) => getLinkActiveClass(route, item)
-  })
+    return (item: any) => getLinkActiveClass(route, item);
+  });
 
   const getTabStyle = computed((): CSSProperties => {
     return {
       transform: `translateX(${translateX.value}px)`,
       transition: isScrolling.value ? 'none' : 'transform 0.5s ease-in-out',
-    }
-  })
+    };
+  });
 
   // ===== 核心方法 =====
   const closeMenu = () => {
-    visible.value = false
-  }
+    visible.value = false;
+  };
 
   /** 移动到指定视图 */
   const moveToView = async (index: number): Promise<void> => {
-    await nextTick()
-    const tabNavPadding = 10
-    if (!instance?.refs || !instance.refs['dynamic' + index]) return
+    await nextTick();
+    const tabNavPadding = 10;
+    if (!instance?.refs?.[`dynamic${index}`]) {
+      return;
+    }
 
-    const tabItemEl = (instance.refs['dynamic' + index] as any)[0]
-    const tabItemElOffsetLeft = tabItemEl?.offsetLeft || 0
-    const tabItemOffsetWidth = tabItemEl?.offsetWidth || 0
+    const tabItemEl = (instance.refs[`dynamic${index}`] as any)[0];
+    const tabItemElOffsetLeft = tabItemEl?.offsetLeft || 0;
+    const tabItemOffsetWidth = tabItemEl?.offsetWidth || 0;
 
     // 标签页导航栏可视长度（不包含溢出部分）
-    const scrollbarDomWidth = scrollbarDom.value ? scrollbarDom.value?.offsetWidth : 0
+    const scrollbarDomWidth = scrollbarDom.value ? scrollbarDom.value?.offsetWidth : 0;
     // 已有标签页总长度（包含溢出部分）
-    const tabDomWidth = tabDom.value ? tabDom.value?.offsetWidth : 0
+    const tabDomWidth = tabDom.value ? tabDom.value?.offsetWidth : 0;
 
-    isShowArrow.value = scrollbarDomWidth <= tabDomWidth
+    isShowArrow.value = scrollbarDomWidth <= tabDomWidth;
 
     if (tabDomWidth < scrollbarDomWidth || tabItemElOffsetLeft === 0) {
-      translateX.value = 0
+      translateX.value = 0;
     } else if (tabItemElOffsetLeft < -translateX.value) {
       // 标签在可视区域左侧
-      translateX.value = -tabItemElOffsetLeft + tabNavPadding
+      translateX.value = -tabItemElOffsetLeft + tabNavPadding;
     } else if (
       tabItemElOffsetLeft > -translateX.value &&
       tabItemElOffsetLeft + tabItemOffsetWidth < -translateX.value + scrollbarDomWidth
     ) {
       // 标签在可视区域
-      translateX.value = Math.min(
-        0,
-        scrollbarDomWidth - tabItemOffsetWidth - tabItemElOffsetLeft - tabNavPadding,
-      )
+      translateX.value = Math.min(0, scrollbarDomWidth - tabItemOffsetWidth - tabItemElOffsetLeft - tabNavPadding);
     } else {
       // 标签在可视区域右侧
-      translateX.value = -(
-        tabItemElOffsetLeft -
-        (scrollbarDomWidth - tabNavPadding - tabItemOffsetWidth)
-      )
+      translateX.value = -(tabItemElOffsetLeft - (scrollbarDomWidth - tabNavPadding - tabItemOffsetWidth));
     }
-  }
+  };
 
   /** 处理滚动 */
   const handleScroll = (offset: number): void => {
-    const scrollbarDomWidth = scrollbarDom.value ? scrollbarDom.value?.offsetWidth : 0
-    const tabDomWidth = tabDom.value ? tabDom.value.offsetWidth : 0
+    const scrollbarDomWidth = scrollbarDom.value ? scrollbarDom.value?.offsetWidth : 0;
+    const tabDomWidth = tabDom.value ? tabDom.value.offsetWidth : 0;
 
     if (offset > 0) {
-      translateX.value = Math.min(0, translateX.value + offset)
-    } else {
-      if (scrollbarDomWidth < tabDomWidth) {
-        if (translateX.value >= -(tabDomWidth - scrollbarDomWidth)) {
-          translateX.value = Math.max(translateX.value + offset, scrollbarDomWidth - tabDomWidth)
-        }
-      } else {
-        translateX.value = 0
+      translateX.value = Math.min(0, translateX.value + offset);
+    } else if (scrollbarDomWidth < tabDomWidth) {
+      if (translateX.value >= -(tabDomWidth - scrollbarDomWidth)) {
+        translateX.value = Math.max(translateX.value + offset, scrollbarDomWidth - tabDomWidth);
       }
+    } else {
+      translateX.value = 0;
     }
-    isScrolling.value = false
-  }
+    isScrolling.value = false;
+  };
 
   /** 处理鼠标滚轮事件 */
   const handleWheel = (event: WheelEvent): void => {
-    isScrolling.value = true
-    const scrollIntensity = Math.abs(event.deltaX) + Math.abs(event.deltaY)
-    const offset = event.deltaX < 0
-      ? scrollIntensity > 0 ? scrollIntensity : 100
-      : scrollIntensity > 0 ? -scrollIntensity : -100
-    smoothScroll(offset)
-  }
+    isScrolling.value = true;
+    const scrollIntensity = Math.abs(event.deltaX) + Math.abs(event.deltaY);
+    const offset =
+      event.deltaX < 0 ? (scrollIntensity > 0 ? scrollIntensity : 100) : scrollIntensity > 0 ? -scrollIntensity : -100;
+    smoothScroll(offset);
+  };
 
   /** 平滑滚动 */
   const smoothScroll = (offset: number): void => {
-    const scrollAmount = 20
-    let remaining = Math.abs(offset)
+    const scrollAmount = 20;
+    let remaining = Math.abs(offset);
 
     const scrollStep = () => {
-      const scrollOffset = Math.sign(offset) * Math.min(scrollAmount, remaining)
-      handleScroll(scrollOffset)
-      remaining -= Math.abs(scrollOffset)
+      const scrollOffset = Math.sign(offset) * Math.min(scrollAmount, remaining);
+      handleScroll(scrollOffset);
+      remaining -= Math.abs(scrollOffset);
 
       if (remaining > 0) {
-        requestAnimationFrame(scrollStep)
+        requestAnimationFrame(scrollStep);
       }
-    }
+    };
 
-    requestAnimationFrame(scrollStep)
-  }
+    requestAnimationFrame(scrollStep);
+  };
 
   /** 动态标签视图 */
   const dynamicTagView = async () => {
-    await nextTick()
+    await nextTick();
     // 检查是否存在完全匹配的标签（路径和参数都相同）
     const index = multiTags.value.findIndex((item: any) => {
-      const queryEqual = isEqual(route.query || {}, item.query || {})
-      const paramsEqual = isEqual(route.params || {}, item.params || {})
-      return item.path === route.path && queryEqual && paramsEqual
-    })
+      const queryEqual = isEqual(route.query || {}, item.query || {});
+      const paramsEqual = isEqual(route.params || {}, item.params || {});
+      return item.path === route.path && queryEqual && paramsEqual;
+    });
 
     // 如果没有找到完全匹配的标签，且路由有有效标题，则添加新标签
     if (index === -1) {
@@ -182,129 +166,125 @@
           meta: route.meta || { title: route.name },
           query: route.query,
           params: route.params,
-        })
+        });
         // 重新查找索引
         const newIndex = multiTags.value.findIndex((item: any) => {
-          const queryEqual = isEqual(route.query || {}, item.query || {})
-          const paramsEqual = isEqual(route.params || {}, item.params || {})
-          return item.path === route.path && queryEqual && paramsEqual
-        })
-        moveToView(newIndex)
+          const queryEqual = isEqual(route.query || {}, item.query || {});
+          const paramsEqual = isEqual(route.params || {}, item.params || {});
+          return item.path === route.path && queryEqual && paramsEqual;
+        });
+        moveToView(newIndex);
       }
     } else {
-      moveToView(index)
+      moveToView(index);
     }
-  }
+  };
 
   /** 标签点击事件 */
   function tagOnClick(item: any) {
-    const { path, query, params } = item
+    const { path, query, params } = item;
 
     // 优先使用 path 进行跳转，避免 name 字段包含标题导致的路由匹配问题
     const routeConfig: any = {
-      path: path,
+      path,
       query: query || undefined,
       params: params || undefined,
-    }
+    };
 
     // 移除未定义的属性
-    Object.keys(routeConfig).forEach(
-      (key) => routeConfig[key] === undefined && delete routeConfig[key],
-    )
+    Object.keys(routeConfig).forEach((key) => routeConfig[key] === undefined && delete routeConfig[key]);
 
-    router.push(routeConfig)
+    router.push(routeConfig);
   }
 
   /** 鼠标移入添加激活样式 */
   function onMouseenter(index: number) {
-    if (index) activeIndex.value = index
+    if (index) {
+      activeIndex.value = index;
+    }
     // 这里可以添加样式切换逻辑
   }
 
   /** 鼠标移出恢复默认样式 */
   function onMouseleave(_index: number) {
-    activeIndex.value = -1
+    activeIndex.value = -1;
     // 这里可以添加样式切换逻辑
   }
 
   /** 打开右键菜单 */
   function openMenu(tag: any, e: MouseEvent) {
-    closeMenu()
-    console.log(tag)
-    currentSelect.value = tag
+    closeMenu();
+    console.log(tag);
+    currentSelect.value = tag;
 
     // 配置右键菜单显示状态
     configureContextMenu(
       tag.path,
       tag.query || {},
       route.path, // 当前激活页路径
-      route.query || {}, // 当前激活页查询参数
-    )
+      route.query || {} // 当前激活页查询参数
+    );
 
-    const menuMinWidth = 140
+    const menuMinWidth = 140;
 
     // 获取容器的位置信息
-    const containerRect = unref(containerDom)?.getBoundingClientRect()
-    const offsetLeft = containerRect?.left || 0
-    const offsetWidth = containerRect?.width || 0
+    const containerRect = unref(containerDom)?.getBoundingClientRect();
+    const offsetLeft = containerRect?.left || 0;
+    const offsetWidth = containerRect?.width || 0;
 
     // 计算水平位置
-    const maxLeft = offsetWidth - menuMinWidth
-    const left = e.clientX - offsetLeft + 5
+    const maxLeft = offsetWidth - menuMinWidth;
+    const left = e.clientX - offsetLeft + 5;
 
     if (left > maxLeft) {
-      buttonLeft.value = maxLeft
+      buttonLeft.value = maxLeft;
     } else {
-      buttonLeft.value = left
+      buttonLeft.value = left;
     }
 
     // 计算垂直位置：菜单显示在标签下方
     // 使用绝对定位，坐标相对于容器
     // e.offsetY 是鼠标相对于触发元素的位置
     // 加上标签高度让菜单显示在标签下方
-    const tagHeight = (e.target as HTMLElement)?.offsetHeight || 32
-    buttonTop.value = e.offsetY + tagHeight + 10
+    const tagHeight = (e.target as HTMLElement)?.offsetHeight || 32;
+    buttonTop.value = e.offsetY + tagHeight + 10;
 
     nextTick(() => {
-      visible.value = true
-    })
+      visible.value = true;
+    });
   }
 
   // ===== 生命周期 =====
   watch(
     route,
     (to, from) => {
-      activeIndex.value = -1
+      activeIndex.value = -1;
       // 只在路由真正变化时才调用dynamicTagView
-      if (
-        to.path !== from.path ||
-        !isEqual(to.query, from.query) ||
-        !isEqual(to.params, from.params)
-      ) {
-        dynamicTagView()
+      if (to.path !== from.path || !isEqual(to.query, from.query) || !isEqual(to.params, from.params)) {
+        dynamicTagView();
       }
     },
     {
       deep: true,
-    },
-  )
+    }
+  );
 
   onMounted(() => {
-    if (!instance) return
+    if (!instance) {
+      return;
+    }
 
     // 根据当前路由初始化右键菜单显示状态
     // 下拉菜单状态由 DropdownMenu 组件自己管理
 
-    useResizeObserver(scrollbarDom, dynamicTagView)
-    delay().then(() => dynamicTagView())
-  })
+    useResizeObserver(scrollbarDom, dynamicTagView);
+    delay().then(() => dynamicTagView());
+  });
 </script>
 
 <template>
   <div ref="containerDom" class="tags-view">
-    <span v-show="isShowArrow" class="arrow-left">
-      <Icon :icon="ArrowLeftSLine" @click="handleScroll(200)" />
-    </span>
+    <span v-show="isShowArrow" class="arrow-left"> <Icon :icon="ArrowLeftSLine" @click="handleScroll(200)" /> </span>
     <div ref="scrollbarDom" class="scroll-container" @wheel.prevent="handleWheel">
       <div ref="tabDom" class="tab select-none" :style="getTabStyle">
         <div
@@ -317,18 +297,14 @@
           @mouseleave.prevent="onMouseleave(index)"
           @click="tagOnClick(item)"
         >
-          <span class="tag-title">
-            {{ item.meta?.title }}
-          </span>
+          <span class="tag-title"> {{ item.meta?.title }} </span>
           <span v-if="index !== 0" class="tag-close-icon" @click.stop="deleteDynamicTag(item)">
             <Icon icon="ep:close" />
           </span>
         </div>
       </div>
     </div>
-    <span v-show="isShowArrow" class="arrow-right">
-      <Icon :icon="ArrowRightSLine" @click="handleScroll(-200)" />
-    </span>
+    <span v-show="isShowArrow" class="arrow-right"> <Icon :icon="ArrowRightSLine" @click="handleScroll(-200)" /> </span>
 
     <!-- 右键菜单 -->
     <transition name="tag-zoom-in-top">

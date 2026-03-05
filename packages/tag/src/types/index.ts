@@ -8,60 +8,60 @@
 /** 路由元信息类型 */
 export interface TagRouteMeta {
   /** 页面标题 */
-  title?: string
+  title?: string;
   /** 是否显示链接 */
-  showLink?: boolean
+  showLink?: boolean;
   /** 是否保存滚动位置 */
-  savedPosition?: boolean
+  savedPosition?: boolean;
   /** 权限码 */
-  auths?: Array<string>
+  auths?: string[];
   /** 是否保持活跃 */
-  keepAlive?: boolean
+  keepAlive?: boolean;
   /** 动态路由级别 */
-  dynamicLevel?: number
+  dynamicLevel?: number;
   /** 是否为外链 */
-  frameSrc?: string
+  frameSrc?: string;
   /** 重定向地址 */
-  redirect?: string
+  redirect?: string;
   /** 是否为前台页面 */
-  front?: boolean
+  front?: boolean;
   /** 其他扩展属性 */
-  [key: string]: any
+  [key: string]: any;
 }
 
 /** 标签页类型 */
 export interface TagItem {
   /** 路由路径 */
-  path: string
+  path: string;
   /** 路由名称 */
-  name?: string
+  name?: string;
   /** 路由元信息 */
-  meta?: TagRouteMeta
+  meta?: TagRouteMeta;
   /** 查询参数 */
-  query?: Record<string, any>
+  query?: Record<string, any>;
   /** 路由参数 */
-  params?: Record<string, any>
+  params?: Record<string, any>;
   /** 子路由 */
-  children?: TagItem[]
+  children?: TagItem[];
   /** 组件 */
-  component?: any
+  component?: any;
   /** 路由属性 */
-  props?: boolean | object | ((to: any) => object)
+  props?: boolean | object | ((to: any) => object);
 }
 
 /** 标签列表类型 */
-export type TagList = TagItem[]
+export type TagList = TagItem[];
 
 /** 位置信息类型 */
 export interface TagPosition {
   /** 开始索引 */
-  startIndex?: number
+  startIndex?: number;
   /** 长度 */
-  length?: number
+  length?: number;
   /** 插入位置 */
-  insertAfterTag?: TagItem | null
+  insertAfterTag?: TagItem | null;
   /** 位置字符串 */
-  position?: 'left' | 'right' | 'other'
+  position?: 'left' | 'right' | 'other';
 }
 
 // ===== 操作相关类型 =====
@@ -75,10 +75,10 @@ export const TAG_OPERATION_MODES = {
   UPDATE_TITLE: 'updateTitle',
   EQUAL: 'equal',
   SLICE: 'slice',
-} as const
+} as const;
 
 /** 标签操作模式类型 */
-export type TagOperationMode = (typeof TAG_OPERATION_MODES)[keyof typeof TAG_OPERATION_MODES]
+export type TagOperationMode = (typeof TAG_OPERATION_MODES)[keyof typeof TAG_OPERATION_MODES];
 
 /** 标签删除类型 */
 export type TagDeleteType =
@@ -86,10 +86,10 @@ export type TagDeleteType =
   | 'left' // 关闭左侧标签
   | 'right' // 关闭右侧标签
   | 'other' // 关闭其他标签
-  | 'all' // 关闭全部标签
+  | 'all'; // 关闭全部标签
 
 /** 右键菜单操作类型 */
-export type ContextMenuAction = 0 | 1 | 2 | 3 | 4 | 5
+export type ContextMenuAction = 0 | 1 | 2 | 3 | 4 | 5;
 
 /** 菜单索引常量 */
 export const MENU_INDICES = {
@@ -99,35 +99,35 @@ export const MENU_INDICES = {
   CLOSE_RIGHT: 3,
   CLOSE_OTHER: 4,
   CLOSE_ALL: 5,
-} as const
+} as const;
 
 /** 菜单操作类型 */
-export type MenuActionType = (typeof MENU_INDICES)[keyof typeof MENU_INDICES]
+export type MenuActionType = (typeof MENU_INDICES)[keyof typeof MENU_INDICES];
 
 // ===== 存储相关类型 =====
 
 /** 存储配置类型 */
 export interface TagStorageConfig {
   /** 存储命名空间 */
-  namespace: string
+  namespace: string;
   /** 是否启用缓存 */
-  enableCache: boolean
+  enableCache: boolean;
   /** 缓存键名 */
-  cacheKey: string
+  cacheKey: string;
   /** 配置键名 */
-  configKey: string
+  configKey: string;
 }
 
 /** 标签缓存数据类型 */
 export interface TagCacheData {
   /** 标签列表 */
-  tags: TagList
+  tags: TagList;
   /** 当前激活标签 */
-  activeTag?: TagItem | null
+  activeTag?: TagItem | null;
   /** 上一个激活标签 */
-  previousTag?: TagItem | null
+  previousTag?: TagItem | null;
   /** 缓存时间戳 */
-  timestamp: number
+  timestamp: number;
 }
 
 // ===== 组件状态类型 =====
@@ -135,57 +135,57 @@ export interface TagCacheData {
 /** 标签状态类型 */
 export interface TagState {
   /** 标签列表 */
-  multiTags: TagList
+  multiTags: TagList;
   /** 当前激活标签 */
-  currentActiveTag: TagItem | null
+  currentActiveTag: TagItem | null;
   /** 上一个激活标签 */
-  previousActiveTag: TagItem | null
+  previousActiveTag: TagItem | null;
   /** 是否正在更新 */
-  isUpdating: boolean
+  isUpdating: boolean;
 }
 
 /** 显示模式类型 */
-export type TagDisplayMode = 'smart' | 'card' | 'chrome'
+export type TagDisplayMode = 'smart' | 'card' | 'chrome';
 
 // ===== 菜单相关类型 =====
 
 /** 右键菜单项类型 */
 export interface TagMenuItem {
   /** 图标 */
-  icon: any
+  icon: any;
   /** 文本 */
-  text: string
+  text: string;
   /** 是否禁用 */
-  disabled: boolean
+  disabled: boolean;
   /** 是否显示 */
-  show: boolean
+  show: boolean;
 }
 
 /** 菜单配置类型 */
 export interface TagMenuConfig {
   /** 是否显示 */
-  visible: boolean
+  visible: boolean;
   /** 菜单位置 */
   position: {
-    left: number
-    top: number
-  }
+    left: number;
+    top: number;
+  };
   /** 菜单项列表 */
-  items: TagMenuItem[]
+  items: TagMenuItem[];
 }
 
 /** 菜单配置上下文 */
 export interface MenuContext {
-  currentPath: string
-  query: Record<string, any>
-  currentIndex: number
-  routeLength: number
-  tagsViews: TagMenuItem[]
+  currentPath: string;
+  query: Record<string, any>;
+  currentIndex: number;
+  routeLength: number;
+  tagsViews: TagMenuItem[];
 }
 
 /** 菜单策略接口 */
 export interface MenuStrategy {
-  configure(context: MenuContext): void
+  configure(context: MenuContext): void;
 }
 
 // ===== 菜单组件相关类型 =====
@@ -193,32 +193,32 @@ export interface MenuStrategy {
 /** 右键菜单组件 Props */
 export interface ContextMenuProps {
   /** 是否显示菜单 */
-  visible: boolean
+  visible: boolean;
   /** 菜单位置 */
   position: {
-    left: number
-    top: number
-  }
+    left: number;
+    top: number;
+  };
   /** 菜单项列表 */
-  menuItems: TagMenuItem[]
+  menuItems: TagMenuItem[];
   /** 容器 DOM 引用 */
-  containerRef?: HTMLElement | null
+  containerRef?: HTMLElement | null;
 }
 
 /** 右键菜单组件 Emits */
 export interface ContextMenuEmits {
   /** 关闭菜单事件 */
-  close: []
+  close: [];
   /** 菜单项点击事件 */
-  'item-click': [key: number, item: TagMenuItem]
+  'item-click': [key: number, item: TagMenuItem];
 }
 
 /** 下拉菜单组件 Props */
 export interface DropdownMenuProps {
   /** 菜单项列表 */
-  menuItems: TagMenuItem[]
+  menuItems: TagMenuItem[];
   /** 触发方式 */
-  trigger?: 'hover' | 'click' | 'focus' | 'contextmenu'
+  trigger?: 'hover' | 'click' | 'focus' | 'contextmenu';
   /** 弹出位置 */
   placement?:
     | 'top'
@@ -232,15 +232,15 @@ export interface DropdownMenuProps {
     | 'left-end'
     | 'right'
     | 'right-start'
-    | 'right-end'
+    | 'right-end';
 }
 
 /** 下拉菜单组件 Emits */
 export interface DropdownMenuEmits {
   /** 命令事件 */
-  command: [command: { key: number; item: TagMenuItem }]
+  command: [command: { key: number; item: TagMenuItem }];
   /** 可见性变化事件 */
-  'visible-change': [visible: boolean]
+  'visible-change': [visible: boolean];
 }
 
 // ===== 事件相关类型 =====
@@ -248,11 +248,11 @@ export interface DropdownMenuEmits {
 /** 事件类型定义 */
 export interface TagEvents extends Record<string | symbol, any> {
   /** 菜单选择事件 */
-  menuSelect: string
+  menuSelect: string;
   /** 标签变化事件 */
-  tagChange: any
+  tagChange: any;
   /** 标签关闭事件 */
-  tagClose: any
+  tagClose: any;
 }
 
 // ===== 处理器结果类型 =====
@@ -260,23 +260,23 @@ export interface TagEvents extends Record<string | symbol, any> {
 /** 标签处理结果类型 */
 export interface TagHandlerResult<T = any> {
   /** 更新后的标签列表 */
-  updatedTags: TagList
+  updatedTags: TagList;
   /** 是否需要缓存 */
-  shouldCache: boolean
+  shouldCache: boolean;
   /** 返回结果 */
-  result?: T
+  result?: T;
 }
 
 /** 路由处理结果类型 */
 export interface RouteProcessResult {
   /** 更新后的标签列表 */
-  updatedTags: TagList
+  updatedTags: TagList;
   /** 新的激活标签 */
-  newActiveTag: TagItem
+  newActiveTag: TagItem;
   /** 是否添加了标签 */
-  tagAdded: boolean
+  tagAdded: boolean;
   /** 错误信息 */
-  error?: string
+  error?: string;
 }
 
 // ===== 验证相关类型 =====
@@ -284,33 +284,33 @@ export interface RouteProcessResult {
 /** 标签验证结果类型 */
 export interface TagValidationResult {
   /** 是否有效 */
-  isValid: boolean
+  isValid: boolean;
   /** 错误信息 */
-  error?: string
+  error?: string;
   /** 处理后的标签 */
-  processedTag?: TagItem
+  processedTag?: TagItem;
 }
 
 /** 标签存在性检查结果 */
 export interface TagExistenceResult {
   /** 是否存在 */
-  exists: boolean
+  exists: boolean;
   /** 标签索引 */
-  index: number
+  index: number;
   /** 找到的标签 */
-  tag?: TagItem
+  tag?: TagItem;
 }
 
 // ===== 工具类型 =====
 
 /** 标签比较函数类型 */
-export type TagCompareFn = (tag1: TagItem, tag2: TagItem) => boolean
+export type TagCompareFn = (tag1: TagItem, tag2: TagItem) => boolean;
 
 /** 标签过滤函数类型 */
-export type TagFilterFn = (tag: TagItem) => boolean
+export type TagFilterFn = (tag: TagItem) => boolean;
 
 /** 标签映射函数类型 */
-export type TagMapFn<T> = (tag: TagItem, index: number) => T
+export type TagMapFn<T> = (tag: TagItem, index: number) => T;
 
 // ===== 常量定义 =====
 
@@ -324,7 +324,7 @@ export const TAG_CONSTANTS = {
   SCROLL_STEP: 200,
   /** 动画延迟 */
   ANIMATION_DELAY: 100,
-} as const
+} as const;
 
 // ===== 错误处理类型 =====
 
@@ -333,41 +333,41 @@ export class TagError extends Error {
   constructor(
     message: string,
     public code: string,
-    public context?: any,
+    public context?: any
   ) {
-    super(message)
-    this.name = 'TagError'
+    super(message);
+    this.name = 'TagError';
   }
 }
 
 /** 标签操作结果 */
 export interface TagOperationResult {
   /** 操作是否成功 */
-  success: boolean
+  success: boolean;
   /** 错误信息 */
-  error?: string
+  error?: string;
   /** 操作后的标签 */
-  tag?: TagItem
+  tag?: TagItem;
 }
 
 // ===== Hook 返回类型 =====
 
 /** useTagMenu Hook 返回类型 */
 export interface UseTagMenuReturn {
-  visible: any // Ref<boolean>
-  buttonTop: any // Ref<number>
-  buttonLeft: any // Ref<number>
-  tagsViews: TagMenuItem[]
-  containerDom: any // Ref<HTMLElement | undefined>
-  getContextMenuStyle: any // ComputedRef<{ left: string; top: string }>
-  closeMenu: () => void
-  showMenus: (value: boolean) => void
-  disabledMenus: (value: boolean) => void
-  showMenuModel: (currentPath: string, query?: Record<string, any>) => void
-  openMenu: (tag: TagItem, e: MouseEvent, currentSelect: any) => void
-  onDropdownVisibleChange: (visible: boolean) => void
+  visible: any; // Ref<boolean>
+  buttonTop: any; // Ref<number>
+  buttonLeft: any; // Ref<number>
+  tagsViews: TagMenuItem[];
+  containerDom: any; // Ref<HTMLElement | undefined>
+  getContextMenuStyle: any; // ComputedRef<{ left: string; top: string }>
+  closeMenu: () => void;
+  showMenus: (value: boolean) => void;
+  disabledMenus: (value: boolean) => void;
+  showMenuModel: (currentPath: string, query?: Record<string, any>) => void;
+  openMenu: (tag: TagItem, e: MouseEvent, currentSelect: any) => void;
+  onDropdownVisibleChange: (visible: boolean) => void;
 }
 
 // ===== 兼容性类型别名 =====
-export type multiType = TagItem
-export type positionType = TagPosition
+export type multiType = TagItem;
+export type positionType = TagPosition;

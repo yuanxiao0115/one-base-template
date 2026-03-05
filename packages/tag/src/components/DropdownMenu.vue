@@ -1,11 +1,11 @@
 <script setup lang="ts">
-  import { Icon } from '@iconify/vue'
-  import CustomDropdown from './CustomDropdown.vue'
+  import { Icon } from '@iconify/vue';
+  import CustomDropdown from './CustomDropdown.vue';
 
   // ===== Props 定义 =====
   interface Props {
     /** 触发方式 */
-    trigger?: 'hover' | 'click' | 'focus' | 'contextmenu'
+    trigger?: 'hover' | 'click' | 'focus' | 'contextmenu';
     /** 弹出位置 */
     placement?:
       | 'top'
@@ -19,28 +19,28 @@
       | 'left-end'
       | 'right'
       | 'right-start'
-      | 'right-end'
+      | 'right-end';
   }
 
   // ===== Emits 定义 =====
   interface Emits {
     /** 可见性变化事件 */
-    'visible-change': [visible: boolean]
+    'visible-change': [visible: boolean];
   }
 
   withDefaults(defineProps<Props>(), {
     trigger: 'click',
     placement: 'bottom-end',
-  })
+  });
 
-  const emit = defineEmits<Emits>()
+  const emit = defineEmits<Emits>();
 
   // ===== 方法 =====
 
   /** 处理可见性变化 */
   const handleVisibleChange = (visible: boolean) => {
-    emit('visible-change', visible)
-  }
+    emit('visible-change', visible);
+  };
 </script>
 
 <template>
@@ -48,9 +48,7 @@
     <!-- 触发器插槽 -->
     <template #trigger>
       <slot name="trigger">
-        <span class="dropdown-trigger">
-          <Icon icon="ri:arrow-down-s-line" class="dark:text-white" />
-        </span>
+        <span class="dropdown-trigger"> <Icon icon="ri:arrow-down-s-line" class="dark:text-white" /> </span>
       </slot>
     </template>
   </CustomDropdown>

@@ -10,8 +10,8 @@
 // 不再依赖 Element Plus 样式，使用自定义 dropdown 组件
 
 // ===== 重新导出所有 API =====
-export * from './exports'
+export * from './exports';
 
 // ===== Vue 插件导出（保持向后兼容）=====
-export { default } from './plugin'
-export { default as OneTagPlugin } from './plugin'
+export { default } from './plugin';
+export { default as OneTagPlugin } from './plugin';

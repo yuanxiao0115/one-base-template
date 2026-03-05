@@ -1,82 +1,82 @@
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
-  import { onClickOutside } from '@vueuse/core'
-  import { Icon } from '@iconify/vue'
-  import type { TagMenuItem, TagItem } from '../types'
-  import { useTagOperations } from '../hooks/useTagOperations'
+  import { computed, ref } from 'vue';
+  import { onClickOutside } from '@vueuse/core';
+  import { Icon } from '@iconify/vue';
+  import type { TagMenuItem, TagItem } from '../types';
+  import { useTagOperations } from '../hooks/useTagOperations';
 
   // ===== Props 定义 =====
   interface Props {
     /** 菜单位置 */
     position: {
-      left: number
-      top: number
-    }
+      left: number;
+      top: number;
+    };
     /** 菜单项列表 */
-    menuItems: TagMenuItem[]
+    menuItems: TagMenuItem[];
     /** 容器 DOM 引用 */
-    containerRef?: HTMLElement | null
+    containerRef?: HTMLElement | null;
     /** 当前选中的标签 */
-    currentSelect: TagItem | null
+    currentSelect?: TagItem | null;
   }
 
   // ===== Emits 定义 =====
   interface Emits {
     /** 关闭菜单事件 */
-    close: []
+    close: [];
   }
 
   const props = withDefaults(defineProps<Props>(), {
     containerRef: null,
     currentSelect: null,
-  })
+  });
 
-  const emit = defineEmits<Emits>()
+  const emit = defineEmits<Emits>();
 
   // ===== Hooks =====
-  const tagOperations = useTagOperations()
-  const { onClickDrop } = tagOperations
+  const tagOperations = useTagOperations();
+  const { onClickDrop } = tagOperations;
 
   // ===== 响应式数据 =====
-  const contextmenuRef = ref<HTMLElement>()
+  const contextmenuRef = ref<HTMLElement>();
 
   // ===== 计算属性 =====
   /** 菜单样式 */
   const menuStyle = computed(() => ({
-    left: props.position.left + 'px',
-    top: props.position.top + 'px',
-  }))
+    left: `${props.position.left}px`,
+    top: `${props.position.top}px`,
+  }));
 
   /** 过滤后的菜单项（只显示 show 为 true 的项），保留原始索引 */
   const visibleMenuItems = computed(() => {
-    return props.menuItems
-      .map((item, index) => ({ ...item, originalIndex: index }))
-      .filter((item) => item.show)
-  })
+    return props.menuItems.map((item, index) => ({ ...item, originalIndex: index })).filter((item) => item.show);
+  });
 
   // ===== 方法 =====
   /** 处理菜单项点击 */
   const handleItemClick = (originalIndex: number, item: TagMenuItem) => {
-    console.log('handleItemClick', originalIndex, item)
-    if (item.disabled) return
+    console.log('handleItemClick', originalIndex, item);
+    if (item.disabled) {
+      return;
+    }
 
     // 关闭菜单
-    closeMenu()
+    closeMenu();
 
     // 直接调用标签操作
     // 右键菜单操作的是被右键点击的标签（currentSelect）
-    onClickDrop(originalIndex, item, props.currentSelect)
-  }
+    onClickDrop(originalIndex, item, props.currentSelect);
+  };
 
   /** 关闭菜单 */
   const closeMenu = () => {
-    emit('close')
-  }
+    emit('close');
+  };
 
   // ===== 点击外部关闭菜单 =====
   onClickOutside(contextmenuRef, closeMenu, {
     detectIframe: true,
-  })
+  });
 </script>
 
 <template>

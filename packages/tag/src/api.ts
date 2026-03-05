@@ -1,17 +1,17 @@
-import { useTagOperations } from './hooks/useTagOperations'
-import { useTagStoreHook, setTagPiniaInstance } from './store'
-import { tagsCache, getStoredTags } from './utils/storage'
-import { TAG_CONSTANTS } from './types'
-import type { TagItem } from './types'
-import { enableAutoTags, addTagFromRoute } from './guards/tagGuard'
-import { configManager, setConfig, getConfig } from './config/configManager'
-import type { TagConfig, RouteIgnoreRule } from './config/configManager'
-import { emitMenuSelect, onMenuSelect, offMenuSelect } from './utils/eventEmitter'
+import { useTagOperations } from './hooks/useTagOperations';
+import { useTagStoreHook, setTagPiniaInstance } from './store';
+import { tagsCache, getStoredTags } from './utils/storage';
+import { TAG_CONSTANTS } from './types';
+import type { TagItem } from './types';
+import { enableAutoTags, addTagFromRoute } from './guards/tagGuard';
+import { configManager, setConfig, getConfig } from './config/configManager';
+import type { TagConfig, RouteIgnoreRule } from './config/configManager';
+import { emitMenuSelect, onMenuSelect, offMenuSelect } from './utils/eventEmitter';
 
 // ===== 重新导出配置相关函数 =====
-export { setConfig, getConfig, enableAutoTags, addTagFromRoute }
-export type { TagConfig, RouteIgnoreRule }
-export type { TagItem, TagPosition, TagStorageConfig } from './types'
+export { setConfig, getConfig, enableAutoTags, addTagFromRoute };
+export type { TagConfig, RouteIgnoreRule };
+export type { TagItem, TagPosition, TagStorageConfig } from './types';
 
 /**
  * 标签页公共 API
@@ -37,37 +37,37 @@ export type { TagItem, TagPosition, TagStorageConfig } from './types'
 export const HomeConfig = {
   /** 获取当前首页路径 */
   get PATH() {
-    return configManager.getHomePath()
+    return configManager.getHomePath();
   },
   /** 获取当前首页标题 */
   get TITLE() {
-    return configManager.getHomeTitle()
+    return configManager.getHomeTitle();
   },
 
   /** 判断是否应该显示首页标签 */
   get SHOULD_SHOW() {
-    return configManager.shouldShowHomeTag()
+    return configManager.shouldShowHomeTag();
   },
   /** 首页标签索引 */
   TAG_INDEX: TAG_CONSTANTS.HOME_TAG_INDEX,
   /** 菜单最小宽度 */
   MENU_MIN_WIDTH: TAG_CONSTANTS.MENU_MIN_WIDTH,
-} as const
+} as const;
 
 // ===== 事件相关类型重新导出 =====
-export type { TagEvents } from './types'
+export type { TagEvents } from './types';
 
 /**
  * 初始化标签存储
  * 如果存储中没有标签数据，则使用默认标签初始化
  */
 function initializeTagStorage(): void {
-  const config = configManager.getConfig()
+  const config = configManager.getConfig();
 
-  const existingTags = getStoredTags()
+  const existingTags = getStoredTags();
   if (!existingTags) {
     // 使用配置的默认标签初始化存储
-    tagsCache(config.defaultTags)
+    tagsCache(config.defaultTags);
   }
 }
 
@@ -95,8 +95,8 @@ function initializeTagStorage(): void {
  */
 export function useTagAPI() {
   // 获取各个模块的功能
-  const { tagOnClick, deleteDynamicTag, dynamicRouteTag, onFresh, onClickDrop } = useTagOperations()
-  const store = useTagStoreHook()
+  const { tagOnClick, deleteDynamicTag, dynamicRouteTag, onFresh, onClickDrop } = useTagOperations();
+  const store = useTagStoreHook();
 
   return {
     // ===== 核心操作 =====
@@ -139,14 +139,14 @@ export function useTagAPI() {
      * 获取所有标签列表
      */
     get multiTags() {
-      return store.multiTags
+      return store.multiTags;
     },
 
     /**
      * 获取当前选中的标签
      */
     get currentSelect() {
-      return store.getCurrentSelect
+      return store.getCurrentSelect;
     },
 
     /**
@@ -195,8 +195,8 @@ export function useTagAPI() {
      * 清空除首页外的所有标签
      */
     clear: () => {
-      const homeTag = store.multiTags[0] // 首页标签
-      store.handleTags('equal', [homeTag])
+      const homeTag = store.multiTags[0]; // 首页标签
+      store.handleTags('equal', [homeTag]);
     },
 
     /**
@@ -204,9 +204,9 @@ export function useTagAPI() {
      * @param defaultTags 可选的默认标签数组，不传则使用配置的默认标签
      */
     reset: (defaultTags?: TagItem[]) => {
-      const config = configManager.getConfig()
-      const tagsToUse = defaultTags || config.defaultTags
-      store.handleTags('equal', [...tagsToUse])
+      const config = configManager.getConfig();
+      const tagsToUse = defaultTags || config.defaultTags;
+      store.handleTags('equal', [...tagsToUse]);
     },
 
     // ===== 配置方法 =====
@@ -219,7 +219,7 @@ export function useTagAPI() {
     /**
      * 获取当前配置
      */
-    getConfig: getConfig,
+    getConfig,
 
     /**
      * 初始化标签存储（手动调用）
@@ -231,7 +231,7 @@ export function useTagAPI() {
      * 启用自动标签管理
      * @param router Vue Router 实例
      */
-    enableAutoTags: enableAutoTags,
+    enableAutoTags,
 
     /**
      * 手动从路由添加标签
@@ -264,7 +264,7 @@ export function useTagAPI() {
      * @param handler 事件处理函数（可选）
      */
     offMenuSelect,
-  }
+  };
 }
 
 /**
@@ -272,10 +272,10 @@ export function useTagAPI() {
  * @param handler 事件处理函数
  */
 export function onMenuChange(handler: (path: string) => void) {
-  onMenuSelect(handler)
+  onMenuSelect(handler);
 }
 
 /**
  * 默认导出统一 API
  */
-export default useTagAPI
+export default useTagAPI;

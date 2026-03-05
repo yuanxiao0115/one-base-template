@@ -1,11 +1,11 @@
-import mitt from 'mitt'
-import type { TagEvents } from '../types'
+import mitt from 'mitt';
+import type { TagEvents } from '../types';
 
 /**
  * Tag组件内置的事件总线
  * 完全自治，不依赖外部mitt实例
  */
-export const tagEmitter = mitt<TagEvents>()
+export const tagEmitter = mitt<TagEvents>();
 
 // ===== 菜单选择事件操作 =====
 
@@ -14,7 +14,7 @@ export const tagEmitter = mitt<TagEvents>()
  * @param path 路由路径
  */
 export function emitMenuSelect(path: string): void {
-  tagEmitter.emit('menuSelect', path)
+  tagEmitter.emit('menuSelect', path);
 }
 
 /**
@@ -22,7 +22,7 @@ export function emitMenuSelect(path: string): void {
  * @param handler 事件处理函数
  */
 export function onMenuSelect(handler: (path: string) => void): void {
-  tagEmitter.on('menuSelect', handler)
+  tagEmitter.on('menuSelect', handler);
 }
 
 /**
@@ -31,9 +31,9 @@ export function onMenuSelect(handler: (path: string) => void): void {
  */
 export function offMenuSelect(handler?: (path: string) => void): void {
   if (handler) {
-    tagEmitter.off('menuSelect', handler)
+    tagEmitter.off('menuSelect', handler);
   } else {
-    tagEmitter.off('menuSelect')
+    tagEmitter.off('menuSelect');
   }
 }
 
@@ -44,7 +44,7 @@ export function offMenuSelect(handler?: (path: string) => void): void {
  * @param tag 标签数据
  */
 export function emitTagChange(tag: any): void {
-  tagEmitter.emit('tagChange', tag)
+  tagEmitter.emit('tagChange', tag);
 }
 
 /**
@@ -52,7 +52,7 @@ export function emitTagChange(tag: any): void {
  * @param handler 事件处理函数
  */
 export function onTagChange(handler: (tag: any) => void): void {
-  tagEmitter.on('tagChange', handler)
+  tagEmitter.on('tagChange', handler);
 }
 
 /**
@@ -61,9 +61,9 @@ export function onTagChange(handler: (tag: any) => void): void {
  */
 export function offTagChange(handler?: (tag: any) => void): void {
   if (handler) {
-    tagEmitter.off('tagChange', handler)
+    tagEmitter.off('tagChange', handler);
   } else {
-    tagEmitter.off('tagChange')
+    tagEmitter.off('tagChange');
   }
 }
 
@@ -74,7 +74,7 @@ export function offTagChange(handler?: (tag: any) => void): void {
  * @param tag 标签数据
  */
 export function emitTagClose(tag: any): void {
-  tagEmitter.emit('tagClose', tag)
+  tagEmitter.emit('tagClose', tag);
 }
 
 /**
@@ -82,7 +82,7 @@ export function emitTagClose(tag: any): void {
  * @param handler 事件处理函数
  */
 export function onTagClose(handler: (tag: any) => void): void {
-  tagEmitter.on('tagClose', handler)
+  tagEmitter.on('tagClose', handler);
 }
 
 /**
@@ -91,9 +91,9 @@ export function onTagClose(handler: (tag: any) => void): void {
  */
 export function offTagClose(handler?: (tag: any) => void): void {
   if (handler) {
-    tagEmitter.off('tagClose', handler)
+    tagEmitter.off('tagClose', handler);
   } else {
-    tagEmitter.off('tagClose')
+    tagEmitter.off('tagClose');
   }
 }
 
@@ -103,12 +103,12 @@ export function offTagClose(handler?: (tag: any) => void): void {
  * 清除所有事件监听器
  */
 export function clearAllListeners(): void {
-  tagEmitter.all.clear()
+  tagEmitter.all.clear();
 }
 
 /**
  * 获取事件发射器实例（用于高级用法）
  */
 export function getEventEmitter() {
-  return tagEmitter
+  return tagEmitter;
 }

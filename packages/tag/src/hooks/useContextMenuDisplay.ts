@@ -1,10 +1,10 @@
-import { computed, reactive } from 'vue'
-import { useRoute } from 'vue-router'
-import type { TagMenuItem } from '../types'
-import { MENU_INDICES } from '../types'
-import { useTagStoreHook } from '../store'
-import { configManager } from '../config/configManager'
-import { isEqual } from '../utils'
+import { computed, reactive } from 'vue';
+import { useRoute } from 'vue-router';
+import type { TagMenuItem } from '../types';
+import { MENU_INDICES } from '../types';
+import { useTagStoreHook } from '../store';
+import { configManager } from '../config/configManager';
+import { isEqual } from '../utils';
 
 // 使用字符串格式的图标，与 DropdownMenu 保持一致
 
@@ -79,11 +79,11 @@ import { isEqual } from '../utils'
  *   - 总是显示"重新加载"
  */
 export function useContextMenuDisplay() {
-  const route = useRoute()
+  const route = useRoute();
 
   // ===== 菜单配置声明 =====
   /** 完整的菜单项配置 */
-  const tagsViews = reactive<Array<TagMenuItem>>([
+  const tagsViews = reactive<TagMenuItem[]>([
     {
       icon: 'ep:refresh-right',
       text: '重新加载',
@@ -120,18 +120,18 @@ export function useContextMenuDisplay() {
       disabled: false,
       show: true,
     },
-  ])
+  ]);
 
   // ===== 计算属性 =====
   /** 多标签数据 */
   const multiTags = computed(() => {
-    return useTagStoreHook().multiTags
-  })
+    return useTagStoreHook().multiTags;
+  });
 
   /** 首页路径 */
   const homePath = computed(() => {
-    return configManager.getHomePath()
-  })
+    return configManager.getHomePath();
+  });
 
   // ===== 核心菜单显示逻辑 =====
 
@@ -140,7 +140,7 @@ export function useContextMenuDisplay() {
    * @param path 路径
    */
   function isHomePage(path: string): boolean {
-    return path === homePath.value
+    return path === homePath.value;
   }
 
   /**
@@ -148,9 +148,9 @@ export function useContextMenuDisplay() {
    */
   function resetMenuState(): void {
     tagsViews.forEach((item) => {
-      item.show = true
-      item.disabled = false
-    })
+      item.show = true;
+      item.disabled = false;
+    });
   }
 
   /**
@@ -160,10 +160,10 @@ export function useContextMenuDisplay() {
   function hideMenuItems(indices: number[]): void {
     indices.forEach((index) => {
       if (tagsViews[index]) {
-        tagsViews[index].show = false
-        tagsViews[index].disabled = true
+        tagsViews[index].show = false;
+        tagsViews[index].disabled = true;
       }
-    })
+    });
   }
 
   /**
@@ -173,16 +173,18 @@ export function useContextMenuDisplay() {
   function showMenuItems(indices: number[]): void {
     indices.forEach((index) => {
       if (tagsViews[index]) {
-        tagsViews[index].show = true
-        tagsViews[index].disabled = false
+        tagsViews[index].show = true;
+        tagsViews[index].disabled = false;
       }
-    })
+    });
   }
 
   function setMenuItemDisabled(index: number, disabled: boolean) {
-    const item = tagsViews[index]
-    if (!item) return
-    item.disabled = disabled
+    const item = tagsViews[index];
+    if (!item) {
+      return;
+    }
+    item.disabled = disabled;
   }
 
   /**
@@ -190,39 +192,39 @@ export function useContextMenuDisplay() {
    * @param routeLength 路由总数
    * @param isActiveTab 是否为激活标签
    */
-  function configureHomePageMenu(routeLength: number, isActiveTab: boolean = true): void {
+  function configureHomePageMenu(routeLength: number, isActiveTab = true): void {
     // 1. 重新加载：非激活页时隐藏
     if (!isActiveTab) {
-      hideMenuItems([MENU_INDICES.REFRESH])
+      hideMenuItems([MENU_INDICES.REFRESH]);
     }
 
     // 2. 关闭当前标签页：首页常驻，始终隐藏
-    hideMenuItems([MENU_INDICES.CLOSE_CURRENT])
+    hideMenuItems([MENU_INDICES.CLOSE_CURRENT]);
 
     // 3. 关闭左侧标签页：首页左侧没有标签，始终隐藏
-    hideMenuItems([MENU_INDICES.CLOSE_LEFT])
+    hideMenuItems([MENU_INDICES.CLOSE_LEFT]);
 
     // 4. 关闭右侧标签页：根据右侧是否有标签决定
     if (routeLength <= 1) {
       // 只有首页，隐藏关闭右侧
-      hideMenuItems([MENU_INDICES.CLOSE_RIGHT])
+      hideMenuItems([MENU_INDICES.CLOSE_RIGHT]);
     } else {
       // 右侧有标签，显示关闭右侧
-      showMenuItems([MENU_INDICES.CLOSE_RIGHT])
+      showMenuItems([MENU_INDICES.CLOSE_RIGHT]);
     }
 
     // 5. 关闭其他标签页：只有首页时隐藏
     if (routeLength <= 1) {
-      hideMenuItems([MENU_INDICES.CLOSE_OTHER])
+      hideMenuItems([MENU_INDICES.CLOSE_OTHER]);
     } else {
-      showMenuItems([MENU_INDICES.CLOSE_OTHER])
+      showMenuItems([MENU_INDICES.CLOSE_OTHER]);
     }
 
     // 6. 关闭全部标签页：只有首页时隐藏
     if (routeLength <= 1) {
-      hideMenuItems([MENU_INDICES.CLOSE_ALL])
+      hideMenuItems([MENU_INDICES.CLOSE_ALL]);
     } else {
-      showMenuItems([MENU_INDICES.CLOSE_ALL])
+      showMenuItems([MENU_INDICES.CLOSE_ALL]);
     }
   }
 
@@ -232,14 +234,10 @@ export function useContextMenuDisplay() {
    * @param routeLength 路由总数
    * @param isActiveTab 是否为激活标签（用于右键菜单区分）
    */
-  function configureRegularPageMenu(
-    currentIndex: number,
-    routeLength: number,
-    isActiveTab: boolean = true,
-  ): void {
+  function configureRegularPageMenu(currentIndex: number, routeLength: number, isActiveTab = true): void {
     // 如果不是激活标签，隐藏重新加载菜单项
     if (!isActiveTab) {
-      hideMenuItems([MENU_INDICES.REFRESH])
+      hideMenuItems([MENU_INDICES.REFRESH]);
     }
 
     // 只有一个标签时（只有首页），禁用所有关闭操作
@@ -250,8 +248,8 @@ export function useContextMenuDisplay() {
         MENU_INDICES.CLOSE_RIGHT,
         MENU_INDICES.CLOSE_OTHER,
         MENU_INDICES.CLOSE_ALL,
-      ])
-      return
+      ]);
+      return;
     }
 
     // 3. 关闭左侧标签页：
@@ -259,23 +257,23 @@ export function useContextMenuDisplay() {
     // - 索引1（首页右侧第一个）：不显示（左侧只有首页，首页不能关闭）
     // - 索引≥2（中间标签）：显示（左侧有可关闭的标签）
     if (currentIndex <= 1) {
-      hideMenuItems([MENU_INDICES.CLOSE_LEFT])
+      hideMenuItems([MENU_INDICES.CLOSE_LEFT]);
     } else {
-      showMenuItems([MENU_INDICES.CLOSE_LEFT])
+      showMenuItems([MENU_INDICES.CLOSE_LEFT]);
     }
 
     // 4. 关闭右侧标签页：右侧没有标签时不显示
     if (currentIndex === routeLength - 1) {
-      hideMenuItems([MENU_INDICES.CLOSE_RIGHT])
+      hideMenuItems([MENU_INDICES.CLOSE_RIGHT]);
     } else {
-      showMenuItems([MENU_INDICES.CLOSE_RIGHT])
+      showMenuItems([MENU_INDICES.CLOSE_RIGHT]);
     }
 
     // 5. 关闭其他标签页：始终显示（因为至少有首页）
-    showMenuItems([MENU_INDICES.CLOSE_OTHER])
+    showMenuItems([MENU_INDICES.CLOSE_OTHER]);
 
     // 6. 关闭全部标签页：始终显示（会保留首页）
-    showMenuItems([MENU_INDICES.CLOSE_ALL])
+    showMenuItems([MENU_INDICES.CLOSE_ALL]);
   }
 
   /**
@@ -290,27 +288,25 @@ export function useContextMenuDisplay() {
     operatedPath: string,
     operatedQuery: Record<string, any> = {},
     activePath?: string,
-    activeQuery: Record<string, any> = {},
+    activeQuery: Record<string, any> = {}
   ): void {
     // 重置菜单状态
-    resetMenuState()
+    resetMenuState();
 
-    const routeLength = multiTags.value.length
+    const routeLength = multiTags.value.length;
     const operatedIndex = multiTags.value.findIndex(
-      (v: any) => v && isEqual(v.query || {}, operatedQuery) && v.path === operatedPath,
-    )
+      (v: any) => v && isEqual(v.query || {}, operatedQuery) && v.path === operatedPath
+    );
 
     // 判断操作页是否为激活页
-    const isActiveTab = activePath
-      ? operatedPath === activePath && isEqual(operatedQuery, activeQuery)
-      : true // 如果没有传入激活页信息，默认认为是激活页
+    const isActiveTab = activePath ? operatedPath === activePath && isEqual(operatedQuery, activeQuery) : true; // 如果没有传入激活页信息，默认认为是激活页
 
     if (isHomePage(operatedPath)) {
       // 首页菜单配置
-      configureHomePageMenu(routeLength, isActiveTab)
+      configureHomePageMenu(routeLength, isActiveTab);
     } else {
       // 普通页面菜单配置
-      configureRegularPageMenu(operatedIndex, routeLength, isActiveTab)
+      configureRegularPageMenu(operatedIndex, routeLength, isActiveTab);
     }
   }
 
@@ -320,29 +316,24 @@ export function useContextMenuDisplay() {
    * @param currentPath 当前激活页路径
    * @param currentQuery 当前激活页查询参数
    */
-  function configureDropdownMenu(
-    currentPath?: string,
-    currentQuery: Record<string, any> = {},
-  ): void {
-    const path = currentPath || route.path
-    const query = currentQuery || route.query || {}
+  function configureDropdownMenu(currentPath?: string, currentQuery: Record<string, any> = {}): void {
+    const path = currentPath || route.path;
+    const query = currentQuery || route.query || {};
 
     // 重置所有菜单项的 disabled 状态
     tagsViews.forEach((item: TagMenuItem) => {
-      item.disabled = true // 默认在下拉菜单中不显示
-    })
+      item.disabled = true; // 默认在下拉菜单中不显示
+    });
 
-    const routeLength = multiTags.value.length
-    const currentIndex = multiTags.value.findIndex(
-      (v: any) => v && isEqual(v.query || {}, query) && v.path === path,
-    )
+    const routeLength = multiTags.value.length;
+    const currentIndex = multiTags.value.findIndex((v: any) => v && isEqual(v.query || {}, query) && v.path === path);
 
     if (isHomePage(path)) {
       // 首页下拉菜单配置
-      configureDropdownHomePageMenu(routeLength)
+      configureDropdownHomePageMenu(routeLength);
     } else {
       // 普通页面下拉菜单配置
-      configureDropdownRegularPageMenu(currentIndex, routeLength)
+      configureDropdownRegularPageMenu(currentIndex, routeLength);
     }
   }
 
@@ -354,17 +345,17 @@ export function useContextMenuDisplay() {
    */
   function configureDropdownHomePageMenu(routeLength: number): void {
     // 首页始终显示刷新
-    setMenuItemDisabled(0, false) // 刷新页面
+    setMenuItemDisabled(0, false); // 刷新页面
 
     if (routeLength === 1) {
       // 只有首页：只显示刷新
-      return
+      return;
     }
 
     // 有其他页签时，首页显示：刷新、关闭右侧、关闭其他、关闭所有
-    setMenuItemDisabled(3, false) // 关闭右侧标签页
-    setMenuItemDisabled(4, false) // 关闭其他标签页
-    setMenuItemDisabled(5, false) // 关闭全部标签页
+    setMenuItemDisabled(3, false); // 关闭右侧标签页
+    setMenuItemDisabled(4, false); // 关闭其他标签页
+    setMenuItemDisabled(5, false); // 关闭全部标签页
   }
 
   /**
@@ -373,26 +364,28 @@ export function useContextMenuDisplay() {
    * @param routeLength 总页签数量
    */
   function configureDropdownRegularPageMenu(currentIndex: number, routeLength: number): void {
-    if (currentIndex === -1) return
+    if (currentIndex === -1) {
+      return;
+    }
 
     // 普通页面始终显示：刷新、关闭当前、关闭其他、关闭所有
-    setMenuItemDisabled(0, false) // 刷新页面
-    setMenuItemDisabled(1, false) // 关闭当前标签页
-    setMenuItemDisabled(4, false) // 关闭其他标签页
-    setMenuItemDisabled(5, false) // 关闭全部标签页
+    setMenuItemDisabled(0, false); // 刷新页面
+    setMenuItemDisabled(1, false); // 关闭当前标签页
+    setMenuItemDisabled(4, false); // 关闭其他标签页
+    setMenuItemDisabled(5, false); // 关闭全部标签页
 
     // 根据位置决定是否显示左侧/右侧关闭
-    const isFirstNonHomePage = currentIndex === 1
-    const isLastPage = currentIndex === routeLength - 1
+    const isFirstNonHomePage = currentIndex === 1;
+    const isLastPage = currentIndex === routeLength - 1;
 
     if (!isFirstNonHomePage) {
       // 不是第一个非首页页签，显示关闭左侧
-      setMenuItemDisabled(2, false) // 关闭左侧标签页
+      setMenuItemDisabled(2, false); // 关闭左侧标签页
     }
 
     if (!isLastPage) {
       // 不是最后一个页签，显示关闭右侧
-      setMenuItemDisabled(3, false) // 关闭右侧标签页
+      setMenuItemDisabled(3, false); // 关闭右侧标签页
     }
   }
 
@@ -413,7 +406,7 @@ export function useContextMenuDisplay() {
     isHomePage,
     hideMenuItems,
     showMenuItems,
-  }
+  };
 }
 
 /**
@@ -421,23 +414,23 @@ export function useContextMenuDisplay() {
  */
 export interface UseContextMenuDisplayReturn {
   // 菜单配置
-  tagsViews: TagMenuItem[]
+  tagsViews: TagMenuItem[];
 
   // 计算属性
-  multiTags: any
+  multiTags: any;
 
   // 配置方法
   configureContextMenu: (
     operatedPath: string,
     operatedQuery?: Record<string, any>,
     activePath?: string,
-    activeQuery?: Record<string, any>,
-  ) => void
-  configureDropdownMenu: (currentPath?: string, currentQuery?: Record<string, any>) => void
-  resetMenuState: () => void
+    activeQuery?: Record<string, any>
+  ) => void;
+  configureDropdownMenu: (currentPath?: string, currentQuery?: Record<string, any>) => void;
+  resetMenuState: () => void;
 
   // 工具方法
-  isHomePage: (path: string) => boolean
-  hideMenuItems: (indices: number[]) => void
-  showMenuItems: (indices: number[]) => void
+  isHomePage: (path: string) => boolean;
+  hideMenuItems: (indices: number[]) => void;
+  showMenuItems: (indices: number[]) => void;
 }
