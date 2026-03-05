@@ -217,6 +217,9 @@
 - 2026-03-05 继续收敛：LogManagement 模块 warning 清零后迁入 `phase1`，ESLint 全量审计告警 `1872 -> 1840`（再减少 `32`，error 持续 `0`）。
 - 2026-03-05 第三轮封装层降噪：在团队规则包统一关闭迁移期低信噪比 warning（JS/TS/Vue + type-aware + Sonar/Security 部分规则）后，ESLint 全量审计告警 `1840 -> 0`（error 持续 `0`）。
 - 2026-03-05 Phase A：在 `phase1(home,b,LogManagement)` 先恢复 5 条 type-aware 高价值规则为 warning（`no-floating-promises/no-unsafe-assignment/no-unsafe-member-access/no-unsafe-return/strict-boolean-expressions`），可见面扩大后仍保持 `0 warnings / 0 errors`。
+- 2026-03-05 Wave 1：`SystemManagement` 迁入 `phase1`，并新增 `@typescript-eslint/no-unnecessary-condition`（phase1 warn）后仍为 `0 warnings / 0 errors`。
+- 2026-03-05 Wave 1 扩面阻塞：`UserManagement` 试迁入 `phase1` 时触发 `75` 条 warning（主要集中在 `strict-boolean-expressions` 与 `no-unnecessary-condition`），按“warning 回潮即停批”规则已回退扩面，保留在 phase2。
+- 规则回收台账已落盘：`packages/lint-ruleset/mappings/rule-recovery-ledger.json`（固定字段：`rule/category/currentState/targetState/scope/reason/tuning/status`）。
 - 爬取规则“仅名称无参数”审计（ESLint）：
   - 最新快照时间：`2026-03-05`；
   - 平台抓取总数 `578`，其中“规则支持 options 但仅配置级别”已清零（`0`）；

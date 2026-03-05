@@ -313,6 +313,7 @@ admin 子项目脚本：
 - 继续收敛（2026-03-05）：LogManagement 模块迁入 `phase1` 后，全量审计告警 `1872 -> 1840`（再减少 `32`，error 持续 `0`）。
 - 第三轮收敛（2026-03-05）：针对迁移期低信噪比 warning 在团队封装层继续降噪后，全量审计告警 `1840 -> 0`（error 持续 `0`）。
 - Phase A（2026-03-05）：在 `phase1(home,b,LogManagement)` 先恢复 5 条 type-aware 高价值规则（`no-floating-promises/no-unsafe-assignment/no-unsafe-member-access/no-unsafe-return/strict-boolean-expressions`）为 warning，可见面扩大后仍保持 `0 warnings / 0 errors`。
+- Wave 1（2026-03-05）：`SystemManagement` 迁入 `phase1`，并新增 `@typescript-eslint/no-unnecessary-condition`（phase1 warn）后，仍保持 `0 warnings / 0 errors`。
 
 第三轮封装层调整摘要：
 
@@ -320,6 +321,30 @@ admin 子项目脚本：
 - TS/type-aware：关闭 `@typescript-eslint/require-await`、`@typescript-eslint/naming-convention`、`@typescript-eslint/no-base-to-string`、`no-unsafe-*` 系列 warning；
 - Vue：关闭 `vue/script-indent`、`vue/v-on-handler-style`、`vue/max-len`、`vue/require-*` 等迁移期高噪声规则；
 - Sonar/Security：关闭低收益 `sonarjs/*` 告警与 `security/detect-object-injection`，保留 `detect-unsafe-regex`/`detect-eval-with-expression` 为 error 阻断。
+
+### 规则回收台账（Recovery Ledger）
+
+已新增台账文件：`packages/lint-ruleset/mappings/rule-recovery-ledger.json`。
+
+台账字段固定为：
+
+- `rule`
+- `category`（`type-safety` / `security-correctness` / `maintainability-style`）
+- `currentState`
+- `targetState`
+- `scope`
+- `reason`
+- `tuning`
+- `status`
+
+当前台账关键状态（2026-03-05）：
+
+- `type-safety`：
+  - 6 条已进入 `warn`（phase1）：`no-floating-promises`、`no-unsafe-assignment`、`no-unsafe-member-access`、`no-unsafe-return`、`strict-boolean-expressions`、`no-unnecessary-condition`；
+- 模块扩面：
+  - `SystemManagement`：已迁入 phase1 且保持 `0 warnings / 0 errors`；
+  - `UserManagement`：试迁入 phase1 时出现 `75` 条 warning（主要集中在 `strict-boolean-expressions` 与 `no-unnecessary-condition`），按“出现回潮即停批”策略暂不迁入；
+- `security-correctness` 与 `maintainability-style`：已入台账，保持 `off -> warn -> error` 逐级推进，不跳级。
 
 ### 参考口径补充（2026-03-04）
 
