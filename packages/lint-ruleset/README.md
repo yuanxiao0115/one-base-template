@@ -18,6 +18,7 @@
 - `mappings/full-frontend-*.csv`：前端全量（排除 Node.js）映射拆分清单（direct / partial / none）
 - `mappings/full-frontend-summary.json`：全量映射统计结果
 - `mappings/full-frontend-gap-catalog.json`：`none` 缺口分类清单（可直接启用 / 需参数 / 规则迁移或废弃）
+- `mappings/rule-recovery-ledger.json`：规则回收台账（`off -> warn -> error` 状态流转）
 - `mappings/vue-priority-baseline.csv`：Vue 规则基线治理清单（含 officialCategory/deprecated/baselineIncluded）
 - `mappings/vue-priority-summary.json`：Vue3 基线治理统计（不把 deprecated 计入缺口）
 - `rules/eslint/js-rules.mjs`：JavaScript 平台规则集合（与平台抓取规则对齐）
@@ -196,6 +197,20 @@
 
 - ESLint 全量审计：`1840 -> 0`（error 持续 `0`）；
 - Stylelint 全量审计：`0 -> 0`（error 持续 `0`）。
+
+### 规则回收台账（2026-03-05）
+
+- 已新增台账：`mappings/rule-recovery-ledger.json`，统一记录 `rule/category/currentState/targetState/scope/reason/tuning/status`。
+- 已落地回收（phase1）：
+  - `@typescript-eslint/no-floating-promises`
+  - `@typescript-eslint/no-unsafe-assignment`
+  - `@typescript-eslint/no-unsafe-member-access`
+  - `@typescript-eslint/no-unsafe-return`
+  - `@typescript-eslint/strict-boolean-expressions`
+  - `@typescript-eslint/no-unnecessary-condition`
+- 模块扩面进度：
+  - `SystemManagement` 已迁入 `phase1` 且保持 `0 warnings / 0 errors`；
+  - `UserManagement` 试迁入时触发 `75` 条 warning（以 `strict-boolean-expressions` 与 `no-unnecessary-condition` 为主），已按计划停在当前波次并回退扩面，待专项治理后再迁入。
 
 ## 在其他项目使用
 

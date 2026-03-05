@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "updatedAt": "2026-03-05",
+  "entries": [
+    {
+      "rule": "@typescript-eslint/no-floating-promises",
+      "category": "type-safety",
+      "currentState": "warn",
+      "targetState": "error",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "reason": "异步调用未处理会导致吞错与流程失控，属于高价值 typed safety 规则。",
+      "tuning": "保留默认参数，先在 phase1 连续两轮 0 warning 后再升 error。",
+      "status": "phase1-established"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-assignment",
+      "category": "type-safety",
+      "currentState": "warn",
+      "targetState": "error",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "reason": "阻断 any/unknown 污染进入业务变量，降低类型逃逸风险。",
+      "tuning": "优先改代码收敛；不得在 admin 侧同名覆盖团队规则。",
+      "status": "phase1-established"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-member-access",
+      "category": "type-safety",
+      "currentState": "warn",
+      "targetState": "error",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "reason": "防止不安全属性读取导致运行时 undefined 异常。",
+      "tuning": "结合类型守卫与 schema narrowing 修复，不做本地同名覆盖。",
+      "status": "phase1-established"
+    },
+    {
+      "rule": "@typescript-eslint/no-unsafe-return",
+      "category": "type-safety",
+      "currentState": "warn",
+      "targetState": "error",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "reason": "避免不安全返回值扩散到调用链，提升边界可预测性。",
+      "tuning": "优先在函数返回处补类型约束与收窄。",
+      "status": "phase1-established"
+    },
+    {
+      "rule": "@typescript-eslint/strict-boolean-expressions",
+      "category": "type-safety",
+      "currentState": "warn",
+      "targetState": "error",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "reason": "减少隐式 truthy/falsy 判断引发的分支偏差。",
+      "tuning": "当前参数：allowString/allowNumber/allowNullable* 为 true，allowAny=false。",
+      "status": "phase1-established"
+    },
+    {
+      "rule": "@typescript-eslint/no-unnecessary-condition",
+      "category": "type-safety",
+      "currentState": "warn (phase1) / off (phase2)",
+      "targetState": "warn",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement) -> phase2",
+      "reason": "可识别无效条件分支，但在现状代码中存在较多噪声。",
+      "tuning": "已观测 UserManagement 迁入 phase1 时产生 75 条 warning，需先分模块治理后再扩面。",
+      "status": "phase1-established"
+    },
+    {
+      "rule": "security/detect-object-injection",
+      "category": "security-correctness",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin phase1 (排除 src/modules/portal/materials/**/*)",
+      "reason": "动态键访问可能掩盖注入风险，需作为安全告警观测。",
+      "tuning": "已观测非 materials 范围约 50 条 warning；先在低噪声模块启用。",
+      "status": "blocked-by-noise"
+    },
+    {
+      "rule": "prefer-promise-reject-errors",
+      "category": "security-correctness",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin JS/Vue",
+      "reason": "拒绝非 Error 对象会削弱错误栈与监控可观测性。",
+      "tuning": "先 warn 收敛 reject('msg') 场景，再评估升阶。",
+      "status": "planned"
+    },
+    {
+      "rule": "@typescript-eslint/prefer-promise-reject-errors",
+      "category": "security-correctness",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin TypeScript",
+      "reason": "TS 侧补齐 Promise reject 的类型安全约束。",
+      "tuning": "与基础规则协同，优先保留 TS 版本规则。",
+      "status": "planned"
+    },
+    {
+      "rule": "max-lines-per-function",
+      "category": "maintainability-style",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin phase1",
+      "reason": "限制函数体膨胀，提升可读性与可维护性。",
+      "tuning": "建议先用 max=200。",
+      "status": "planned"
+    },
+    {
+      "rule": "max-statements",
+      "category": "maintainability-style",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin phase1",
+      "reason": "控制函数语句规模，降低分支复杂度。",
+      "tuning": "建议先用 max=25。",
+      "status": "planned"
+    },
+    {
+      "rule": "max-len",
+      "category": "maintainability-style",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin JS/TS",
+      "reason": "控制极端长行，降低 review 与 merge 冲突成本。",
+      "tuning": "建议 code=140，并忽略 URL/字符串/模板文本。",
+      "status": "planned"
+    },
+    {
+      "rule": "vue/max-len",
+      "category": "maintainability-style",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin Vue SFC",
+      "reason": "约束模板与脚本长行，保持 Vue 文件可读性。",
+      "tuning": "建议 code=140，忽略 HTML 文本内容与 URL。",
+      "status": "planned"
+    },
+    {
+      "rule": "id-length",
+      "category": "maintainability-style",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin JS/TS",
+      "reason": "减少语义不明的短命名，降低理解成本。",
+      "tuning": "保留白名单 i,j,k,e,v,t,x,y,_。",
+      "status": "planned"
+    },
+    {
+      "rule": "no-magic-numbers",
+      "category": "maintainability-style",
+      "currentState": "off",
+      "targetState": "warn",
+      "scope": "apps/admin JS/TS",
+      "reason": "降低硬编码数字带来的语义歧义和维护成本。",
+      "tuning": "维持较大 ignore 列表，仅治理高风险业务数字。",
+      "status": "planned"
+    }
+  ]
+}
