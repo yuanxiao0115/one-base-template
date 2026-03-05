@@ -18,6 +18,7 @@ export default defineConfig({
         items: [
           { text: '目录结构与边界', link: '/guide/architecture' },
           { text: '模块系统与切割', link: '/guide/module-system' },
+          { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' },
           { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
           { text: '主题系统', link: '/guide/theme-system' },
           { text: '组件样式（按钮）', link: '/guide/button-styles' },
@@ -62,6 +63,7 @@ export default defineConfig({
           items: [
             { text: '目录结构与边界', link: '/guide/architecture' },
             { text: '模块系统与切割', link: '/guide/module-system' },
+            { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' },
             { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
             { text: '主题系统', link: '/guide/theme-system' },
             { text: '组件样式（按钮）', link: '/guide/button-styles' },

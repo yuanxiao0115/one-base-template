@@ -8,6 +8,7 @@ Vue 3 + Vite 8(beta) + Tailwind(v4) + Element Plus + Pinia + Vue Router 的 Mono
 
 ```text
 apps/admin            # 主应用
+apps/template         # 最小可用示例（静态菜单）
 packages/core         # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等
 packages/ui           # UI 壳：布局/菜单/顶栏/tabs/keep-alive 等
 packages/adapters     # Adapter 示例（含 dev mock）
@@ -18,6 +19,7 @@ packages/adapters     # Adapter 示例（含 dev mock）
 ```bash
 pnpm install
 pnpm dev
+pnpm dev:template
 pnpm doctor
 ```
 
@@ -45,7 +47,7 @@ pnpm -C apps/docs dev
 pnpm -C apps/docs build
 ```
 
-说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `pnpm -C apps/admin dev`）。如需用 Turborepo 启动可尝试 `pnpm dev:turbo`（部分环境下 turbo 对 dev server 的进程托管可能不稳定）。
+说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `pnpm -C apps/admin dev`）；`pnpm dev:template` 启动最小静态菜单示例（等价于 `pnpm -C apps/template dev`）。如需用 Turborepo 启动可尝试 `pnpm dev:turbo`（部分环境下 turbo 对 dev server 的进程托管可能不稳定）。
 
 默认 `apps/admin` 会启用 dev mock（Vite middleware），不需要后端即可跑通登录/菜单/SSO 基础流程：
 

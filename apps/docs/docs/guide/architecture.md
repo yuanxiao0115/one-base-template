@@ -5,6 +5,7 @@
 ```text
 apps/
   admin/                 # 主应用（Vite + Vue）
+  template/              # 最小可用示例（静态菜单）
   docs/                  # 文档站点（VitePress）
 packages/
   core/                  # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等（禁止耦合 UI）
@@ -37,6 +38,16 @@ packages/
 5. 注册 core 路由守卫（默认启用 core tabs 同步）
 6. `router.isReady()` 后 mount
 7. 配置加载失败时，应用硬失败并显示错误页（不进入业务路由）
+
+## template 的启动分层（最小静态菜单）
+
+`apps/template` 复用同一套 core/ui 壳能力，但收敛为最小链路：
+
+- `apps/template/public/platform-config.json`：运行时配置（推荐 `preset=static-single`）
+- `apps/template/src/config/platform-config.ts`：加载与校验配置
+- `apps/template/src/infra/mock-adapter.ts`：本地 mock 鉴权（无后端依赖）
+- `apps/template/src/router/routes.ts`：静态路由与菜单来源（`modules/**/routes.ts`）
+- `apps/template/src/bootstrap/index.ts`：安装 router + core + ui + tag + 守卫
 
 ### 启动与路由收敛补充（2026-03）
 

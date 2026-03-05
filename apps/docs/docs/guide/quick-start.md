@@ -25,6 +25,18 @@ pnpm dev
 pnpm -C apps/admin dev
 ```
 
+## 启动最小模板（template，静态菜单）
+
+```bash
+pnpm dev:template
+```
+
+默认等价于：
+
+```bash
+pnpm -C apps/template dev
+```
+
 ## 启动文档（VitePress）
 
 ```bash
