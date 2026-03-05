@@ -314,6 +314,7 @@ admin 子项目脚本：
 - 第三轮收敛（2026-03-05）：针对迁移期低信噪比 warning 在团队封装层继续降噪后，全量审计告警 `1840 -> 0`（error 持续 `0`）。
 - Phase A（2026-03-05）：在 `phase1(home,b,LogManagement)` 先恢复 5 条 type-aware 高价值规则（`no-floating-promises/no-unsafe-assignment/no-unsafe-member-access/no-unsafe-return/strict-boolean-expressions`）为 warning，可见面扩大后仍保持 `0 warnings / 0 errors`。
 - Wave 1（2026-03-05）：`SystemManagement` 迁入 `phase1`，并新增 `@typescript-eslint/no-unnecessary-condition`（phase1 warn）后，仍保持 `0 warnings / 0 errors`。
+- Wave 2（2026-03-05）：完成 `UserManagement` 75 条 type-aware warning 专项治理（`75 -> 0`），并迁入 `phase1`；全量审计继续保持 `0 warnings / 0 errors`。
 
 第三轮封装层调整摘要：
 
@@ -343,7 +344,7 @@ admin 子项目脚本：
   - 6 条已进入 `warn`（phase1）：`no-floating-promises`、`no-unsafe-assignment`、`no-unsafe-member-access`、`no-unsafe-return`、`strict-boolean-expressions`、`no-unnecessary-condition`；
 - 模块扩面：
   - `SystemManagement`：已迁入 phase1 且保持 `0 warnings / 0 errors`；
-  - `UserManagement`：试迁入 phase1 时出现 `75` 条 warning（主要集中在 `strict-boolean-expressions` 与 `no-unnecessary-condition`），按“出现回潮即停批”策略暂不迁入；
+  - `UserManagement`：已完成专项治理并迁入 phase1（此前试迁入回潮 `75` 条，现已清零）；
 - `security-correctness` 与 `maintainability-style`：已入台账，保持 `off -> warn -> error` 逐级推进，不跳级。
 
 ### 参考口径补充（2026-03-04）
