@@ -137,12 +137,12 @@
 
 <script setup lang="ts">
 // 类型定义
-export interface CarouselStyleModelType {
+export type CarouselStyleModelType = {
   width: number;
   height: number;
   indicatorColor: string;
   arrowColor: string;
-  imageFit: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';
+  imageFit: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
   showTitle: boolean;
   titleBackground: string;
   titleColor: string;

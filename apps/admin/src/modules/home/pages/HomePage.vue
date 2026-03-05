@@ -1,4 +1,25 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const goDemoPage = async (): Promise<void> => {
+  await router.push('/demo/page-a');
+};
+
+const mockSsoToken = async (): Promise<void> => {
+  await router.push('/sso?token=demo&redirect=%2Fhome');
+};
+
+const mockSsoTicket = async (): Promise<void> => {
+  await router.push('/sso?ticket=st-demo&redirect=%2Fhome');
+};
+
+const staticMenuModeHint = [
+  '你可以通过 apps/admin/public/platform-config.json 的 menuMode=static',
+  '切换为静态菜单模式。'
+].join(' ');
+
 defineOptions({
   name: 'Home'
 });
@@ -10,13 +31,19 @@ defineOptions({
       <template #header>
         <div class="font-medium">欢迎</div>
       </template>
-      <div class="text-sm text-[var(--el-text-color-regular)]">
-        这是一个可拆可切的 Monorepo 脚手架示例：静态路由 + 动态菜单（菜单树决定可访问路由）。
+      <div class="text-[var(--el-text-color-regular)] text-sm">
+        这是一个可拆可切的 Monorepo 脚手架示例：静态路由 +
+        动态菜单（菜单树决定可访问路由）。
       </div>
-      <div class="mt-3 flex gap-2">
-        <el-button type="primary" @click="$router.push('/demo/page-a')">去示例页面</el-button>
-        <el-button @click="$router.push('/sso?token=demo&redirect=%2Fhome')">模拟 SSO(token)</el-button>
-        <el-button @click="$router.push('/sso?ticket=st-demo&redirect=%2Fhome')">模拟 SSO(ticket)</el-button>
+      <div class="flex gap-2 mt-3">
+        <el-button
+          type="primary"
+          @click="goDemoPage"
+        >
+          去示例页面
+        </el-button>
+        <el-button @click="mockSsoToken">模拟 SSO(token)</el-button>
+        <el-button @click="mockSsoTicket">模拟 SSO(ticket)</el-button>
       </div>
     </el-card>
 
@@ -24,7 +51,7 @@ defineOptions({
       title="提示"
       type="info"
       :closable="false"
-      description="你可以通过 apps/admin/public/platform-config.json 的 menuMode=static 切换为静态菜单模式。"
+      :description="staticMenuModeHint"
     />
   </div>
 </template>

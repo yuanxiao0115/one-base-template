@@ -1,10 +1,15 @@
+import OrgPage from './org/page.vue';
+import PositionPage from './position/page.vue';
+import RoleAssignPage from './role-assign/page.vue';
+import RolePage from './role/page.vue';
 import type { RouteRecordRaw } from 'vue-router';
+import UserPage from './user/page.vue';
 
 export default [
   {
     path: '/system/user',
     name: 'SystemUserManagement',
-    component: () => import('./user/page.vue'),
+    component: UserPage as RouteRecordRaw['component'],
     meta: {
       title: '用户管理',
       keepAlive: true
@@ -13,7 +18,7 @@ export default [
   {
     path: '/system/org',
     name: 'SystemOrgManagement',
-    component: () => import('./org/page.vue'),
+    component: OrgPage as RouteRecordRaw['component'],
     meta: {
       title: '组织管理',
       keepAlive: true
@@ -22,7 +27,7 @@ export default [
   {
     path: '/system/position',
     name: 'SystemPositionManagement',
-    component: () => import('./position/page.vue'),
+    component: PositionPage as RouteRecordRaw['component'],
     meta: {
       title: '职位管理',
       keepAlive: true
@@ -31,7 +36,7 @@ export default [
   {
     path: '/system/role/management',
     name: 'SystemRoleManagement',
-    component: () => import('./role/page.vue'),
+    component: RolePage as RouteRecordRaw['component'],
     meta: {
       title: '角色管理',
       keepAlive: true
@@ -40,7 +45,7 @@ export default [
   {
     path: '/system/role/assign',
     name: 'SystemRoleAssign',
-    component: () => import('./role-assign/page.vue'),
+    component: RoleAssignPage as RouteRecordRaw['component'],
     meta: {
       title: '角色分配',
       keepAlive: true

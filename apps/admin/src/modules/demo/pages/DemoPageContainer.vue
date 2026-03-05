@@ -5,15 +5,24 @@ defineOptions({
   name: 'DemoPageContainer'
 });
 
-type OverflowMode = 'auto' | 'scroll' | 'hidden';
+type OverflowMode = 'auto' | 'hidden' | 'scroll';
 
 const keyword = ref('');
 const overflowMode = ref<OverflowMode>('auto');
 
 const overflowOptions: Array<{ label: string; value: OverflowMode }> = [
-  { label: 'auto（默认）', value: 'auto' },
-  { label: 'scroll（总是滚动条）', value: 'scroll' },
-  { label: 'hidden（禁用滚动）', value: 'hidden' }
+  {
+    label: 'auto（默认）',
+    value: 'auto'
+  },
+  {
+    label: 'scroll（总是滚动条）',
+    value: 'scroll'
+  },
+  {
+    label: 'hidden（禁用滚动）',
+    value: 'hidden'
+  }
 ];
 
 const records = Array.from({ length: 48 }, (_, index) => {
@@ -27,7 +36,9 @@ const records = Array.from({ length: 48 }, (_, index) => {
 
 const filteredRecords = computed(() => {
   const term = keyword.value.trim();
-  if (!term) return records;
+  if (!term) {
+    return records;
+  }
   return records.filter((item) => item.title.includes(term) || item.description.includes(term));
 });
 </script>
@@ -38,10 +49,10 @@ const filteredRecords = computed(() => {
       <div class="ob-page-demo__header">
         <el-card shadow="never">
           <div class="font-medium">PageContainer Demo</div>
-          <p class="mt-2 text-sm text-[var(--el-text-color-regular)]">
+          <p class="mt-2 text-[var(--el-text-color-regular)] text-sm">
             当前页面演示“外层撑满 + 内层滚动”能力：顶部筛选区与底部操作区固定，中间列表独立滚动。
           </p>
-          <div class="mt-3 flex flex-wrap gap-3">
+          <div class="flex flex-wrap gap-3 mt-3">
             <el-input
               v-model="keyword"
               clearable
@@ -66,13 +77,13 @@ const filteredRecords = computed(() => {
         <template #header>
           <div class="font-medium">{{ item.title }}</div>
         </template>
-        <p class="text-sm text-[var(--el-text-color-regular)]">{{ item.description }}</p>
+        <p class="text-[var(--el-text-color-regular)] text-sm">{{ item.description }}</p>
       </el-card>
     </div>
 
     <template #footer>
       <div class="ob-page-demo__footer">
-        <span class="text-sm text-[var(--el-text-color-secondary)]">
+        <span class="text-[var(--el-text-color-secondary)] text-sm">
           当前展示 {{ filteredRecords.length }} / {{ records.length }} 条
         </span>
         <el-tag size="small" type="info">容器滚动由 PageContainer 控制</el-tag>

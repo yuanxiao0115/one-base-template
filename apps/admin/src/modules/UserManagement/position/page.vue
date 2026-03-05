@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { Plus } from '@element-plus/icons-vue'
-import PositionEditForm from './components/PositionEditForm.vue'
-import PositionSearchForm from './components/PositionSearchForm.vue'
-import { positionFormRules } from './form'
-import { usePositionPageState } from './composables/usePositionPageState'
+import { Plus } from '@element-plus/icons-vue';
+import PositionEditForm from './components/PositionEditForm.vue';
+import PositionSearchForm from './components/PositionSearchForm.vue';
+import { positionFormRules } from './form';
+import { usePositionPageState } from './composables/usePositionPageState';
 
 defineOptions({
   name: 'PositionManagementPage'
-})
+});
 
 // 页面仅保留编排层：职位管理查询、CRUD 与分页行为统一下沉到 composable。
-const pageState = usePositionPageState()
+const pageState = usePositionPageState();
 
-const refs = pageState.refs
+const { refs } = pageState;
 const {
   loading,
   dataList,
   tablePagination,
   tableColumns,
   searchForm
-} = pageState.table
+} = pageState.table;
 
 const {
   crud,
@@ -29,7 +29,7 @@ const {
   crudReadonly,
   crudSubmitting,
   crudForm
-} = pageState.editor
+} = pageState.editor;
 
 const {
   tableSearch,
@@ -38,7 +38,7 @@ const {
   handleSizeChange,
   handleCurrentChange,
   handleDelete
-} = pageState.actions
+} = pageState.actions;
 </script>
 
 <template>
@@ -59,8 +59,8 @@ const {
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :size="size"
-          :loading="loading"
+          :size
+          :loading
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="tablePagination"
@@ -69,9 +69,9 @@ const {
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)">编辑</el-button>
-              <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)">查看</el-button>
-              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)">编辑</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)">查看</el-button>
+              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
             </ObActionButtons>
           </template>
         </ObVxeTable>
@@ -90,7 +90,7 @@ const {
     :title="crudTitle"
     :loading="crudSubmitting"
     :show-cancel-button="!crudReadonly"
-    :confirm-text="'保存'"
+    confirm-text="保存"
     :drawer-size="400"
     @confirm="crud.confirm"
     @cancel="crud.close"

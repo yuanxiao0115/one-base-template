@@ -1,4 +1,4 @@
-import type { TableColumnList } from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui';
 
 export const orgColumns: TableColumnList = [
   {
@@ -57,6 +57,6 @@ export const orgColumns: TableColumnList = [
     width: 220,
     slot: 'operation'
   }
-]
+];
 
-export default orgColumns
+export default orgColumns;

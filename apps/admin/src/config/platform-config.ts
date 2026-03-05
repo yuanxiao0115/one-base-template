@@ -3,8 +3,8 @@ import { parseRuntimeConfig, type RuntimeConfig } from '@one-base-template/core'
 const CONFIG_URL = `${import.meta.env.BASE_URL}platform-config.json`;
 const CONFIG_REQUEST_TIMEOUT_MS = 8000;
 const CONFIG_MAX_RETRY = 1;
-const ENABLE_LOCAL_SNAPSHOT_FALLBACK =
-  import.meta.env.VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK === 'true';
+const ENABLE_LOCAL_SNAPSHOT_FALLBACK
+  = import.meta.env.VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK === 'true';
 const LOCAL_SNAPSHOT_KEY = `${import.meta.env.BASE_URL}platform-config:snapshot:v1`;
 
 type LocalConfigSnapshot = {
@@ -14,17 +14,14 @@ type LocalConfigSnapshot = {
 };
 
 export type PlatformConfigLoadErrorCode =
-  | 'REQUEST_TIMEOUT'
-  | 'REQUEST_FAILED'
-  | 'PARSE_FAILED'
-  | 'VALIDATION_FAILED'
-  | 'FALLBACK_PARSE_FAILED';
+  'FALLBACK_PARSE_FAILED' | 'PARSE_FAILED' | 'REQUEST_FAILED' | 'REQUEST_TIMEOUT' | 'VALIDATION_FAILED';
 
 export class PlatformConfigLoadError extends Error {
   readonly code: PlatformConfigLoadErrorCode;
+
   readonly cause: unknown;
 
-  constructor(params: { code: PlatformConfigLoadErrorCode; message: string; cause?: unknown }) {
+  constructor (params: { code: PlatformConfigLoadErrorCode; message: string; cause?: unknown }) {
     super(params.message);
     this.name = 'PlatformConfigLoadError';
     this.code = params.code;
@@ -35,15 +32,15 @@ export class PlatformConfigLoadError extends Error {
 let cachedConfig: RuntimeConfig | null = null;
 let loadingPromise: Promise<RuntimeConfig> | null = null;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+function isRecord (value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function toErrorMessage(error: unknown): string {
+function toErrorMessage (error: unknown): string {
   return error instanceof Error ? error.message : '未知错误';
 }
 
-function createLoadError(params: {
+function createLoadError (params: {
   code: PlatformConfigLoadErrorCode;
   message: string;
   cause?: unknown;
@@ -51,12 +48,14 @@ function createLoadError(params: {
   return new PlatformConfigLoadError(params);
 }
 
-export function isPlatformConfigLoadError(error: unknown): error is PlatformConfigLoadError {
+export function isPlatformConfigLoadError (error: unknown): error is PlatformConfigLoadError {
   return error instanceof PlatformConfigLoadError;
 }
 
-function getLocalStorageSafely(): Storage | null {
-  if (typeof window === 'undefined') return null;
+function getLocalStorageSafely (): Storage | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
   try {
     return window.localStorage;
   } catch {
@@ -64,11 +63,15 @@ function getLocalStorageSafely(): Storage | null {
   }
 }
 
-function writeLocalSnapshot(config: RuntimeConfig) {
-  if (!ENABLE_LOCAL_SNAPSHOT_FALLBACK) return;
+function writeLocalSnapshot (config: RuntimeConfig) {
+  if (!ENABLE_LOCAL_SNAPSHOT_FALLBACK) {
+    return;
+  }
 
   const storage = getLocalStorageSafely();
-  if (!storage) return;
+  if (!storage) {
+    return;
+  }
 
   const snapshot: LocalConfigSnapshot = {
     version: 1,
@@ -83,18 +86,28 @@ function writeLocalSnapshot(config: RuntimeConfig) {
   }
 }
 
-function readLocalSnapshot(): RuntimeConfig | null {
+function readLocalSnapshot (): RuntimeConfig | null {
   const storage = getLocalStorageSafely();
-  if (!storage) return null;
+  if (!storage) {
+    return null;
+  }
 
   const raw = storage.getItem(LOCAL_SNAPSHOT_KEY);
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
 
   try {
     const parsed = JSON.parse(raw) as unknown;
-    if (!isRecord(parsed)) return null;
-    if (parsed.version !== 1) return null;
-    if (!('config' in parsed)) return null;
+    if (!isRecord(parsed)) {
+      return null;
+    }
+    if (parsed.version !== 1) {
+      return null;
+    }
+    if (!('config' in parsed)) {
+      return null;
+    }
     return parseRuntimeConfig(parsed.config);
   } catch (error) {
     throw createLoadError({
@@ -105,17 +118,21 @@ function readLocalSnapshot(): RuntimeConfig | null {
   }
 }
 
-function tryResolveFallbackConfig(primaryError: PlatformConfigLoadError): RuntimeConfig | null {
-  if (!ENABLE_LOCAL_SNAPSHOT_FALLBACK) return null;
+function tryResolveFallbackConfig (primaryError: PlatformConfigLoadError): RuntimeConfig | null {
+  if (!ENABLE_LOCAL_SNAPSHOT_FALLBACK) {
+    return null;
+  }
 
   const snapshot = readLocalSnapshot();
-  if (!snapshot) return null;
+  if (!snapshot) {
+    return null;
+  }
 
   console.warn(`[platform-config] 主配置加载失败，已使用本地只读兜底快照：${primaryError.message}`);
   return snapshot;
 }
 
-async function fetchConfigJsonOnce(): Promise<unknown> {
+async function fetchConfigJsonOnce (): Promise<unknown> {
   const controller = new AbortController();
   const timeout = globalThis.setTimeout(() => {
     controller.abort();
@@ -157,7 +174,7 @@ async function fetchConfigJsonOnce(): Promise<unknown> {
   }
 }
 
-async function fetchConfigJsonWithRetry(): Promise<unknown> {
+async function fetchConfigJsonWithRetry (): Promise<unknown> {
   let lastError: unknown = null;
 
   for (let attempt = 0; attempt <= CONFIG_MAX_RETRY; attempt += 1) {
@@ -185,8 +202,10 @@ async function fetchConfigJsonWithRetry(): Promise<unknown> {
   });
 }
 
-function normalizePrimaryError(error: unknown): PlatformConfigLoadError {
-  if (isPlatformConfigLoadError(error)) return error;
+function normalizePrimaryError (error: unknown): PlatformConfigLoadError {
+  if (isPlatformConfigLoadError(error)) {
+    return error;
+  }
 
   const message = toErrorMessage(error);
   if (message.includes('[platform-config] 校验失败')) {
@@ -204,9 +223,13 @@ function normalizePrimaryError(error: unknown): PlatformConfigLoadError {
   });
 }
 
-export async function loadPlatformConfig(): Promise<RuntimeConfig> {
-  if (cachedConfig) return cachedConfig;
-  if (loadingPromise) return loadingPromise;
+export async function loadPlatformConfig (): Promise<RuntimeConfig> {
+  if (cachedConfig) {
+    return cachedConfig;
+  }
+  if (loadingPromise) {
+    return loadingPromise;
+  }
 
   loadingPromise = (async () => {
     try {
@@ -230,7 +253,7 @@ export async function loadPlatformConfig(): Promise<RuntimeConfig> {
   return loadingPromise;
 }
 
-export function getPlatformConfig(): RuntimeConfig {
+export function getPlatformConfig (): RuntimeConfig {
   if (!cachedConfig) {
     throw new Error('[platform-config] 尚未加载，请先调用 loadPlatformConfig()');
   }

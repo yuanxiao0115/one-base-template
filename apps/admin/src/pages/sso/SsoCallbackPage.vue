@@ -20,7 +20,7 @@ defineOptions({
 const router = useRouter();
 const loading = ref(true);
 const error = ref('');
-const loginStatus = ref<'success' | 'fail' | ''>('');
+const loginStatus = ref<'' | 'fail' | 'success'>('');
 
 type BizResponse<T> = {
   code?: unknown;
@@ -39,15 +39,15 @@ type IdTokenResult = {
   [k: string]: unknown;
 };
 
-const backend = appEnv.backend;
-const tokenKey = appEnv.tokenKey;
-const idTokenKey = appEnv.idTokenKey;
+const { backend } = appEnv;
+const { tokenKey } = appEnv;
+const { idTokenKey } = appEnv;
 
-function safeMessage(e: unknown, fallback: string) {
+function safeMessage (e: unknown, fallback: string) {
   return e instanceof Error && e.message ? e.message : fallback;
 }
 
-async function setTokenAndBootstrap(token: string, redirect: string) {
+async function setTokenAndBootstrap (token: string, redirect: string) {
   localStorage.setItem(tokenKey, token);
   await finalizeAuthSession({ shouldFetchMe: true });
 
@@ -55,43 +55,54 @@ async function setTokenAndBootstrap(token: string, redirect: string) {
   await router.replace(redirect);
 }
 
-async function handleZhxt(token: string, redirect: string) {
+async function handleZhxt (token: string, redirect: string) {
   const res = (await loginByZhxt(token)) as BizResponse<TokenResult>;
   const authToken = res.data?.authToken;
-  if (!authToken) throw new Error(res.message || '智慧协同单点登录失败');
+  if (!authToken) {
+    throw new Error(res.message || '智慧协同单点登录失败');
+  }
   await setTokenAndBootstrap(authToken, redirect);
 }
 
-async function handleYdbg(token: string, redirect: string) {
+async function handleYdbg (token: string, redirect: string) {
   const res = (await loginByYdbg(token)) as BizResponse<TokenResult>;
   const authToken = res.data?.authToken;
-  if (!authToken) throw new Error(res.message || '移动办公单点登录失败');
+  if (!authToken) {
+    throw new Error(res.message || '移动办公单点登录失败');
+  }
   await setTokenAndBootstrap(authToken, redirect);
 }
 
-async function handleTicket(ticket: string, redirectUrlRaw: string | null, redirect: string) {
+async function handleTicket (ticket: string, redirectUrlRaw: string | null, redirect: string) {
   // 老项目行为：serviceUrl = redirectUrl ? `${origin}/${redirectUrl}` : 当前完整 URL
   const serviceUrl = redirectUrlRaw ? `${window.location.origin}/${redirectUrlRaw}` : window.location.href;
 
-  const res = (await loginByTicket({ ticket, serviceUrl })) as BizResponse<TokenResult>;
+  const res = (await loginByTicket({
+    ticket,
+    serviceUrl
+  })) as BizResponse<TokenResult>;
 
   const authToken = res.data?.authToken;
-  if (!authToken) throw new Error(res.message || '票据验证失败');
+  if (!authToken) {
+    throw new Error(res.message || '票据验证失败');
+  }
   await setTokenAndBootstrap(authToken, redirect);
 }
 
-async function handleTypeToken(token: string, redirect: string) {
+async function handleTypeToken (token: string, redirect: string) {
   await setTokenAndBootstrap(token, redirect);
 }
 
-async function handleExternalSso(params: { from: 'portal' | 'om'; token: string; redirect: string }) {
+async function handleExternalSso (params: { from: 'om' | 'portal'; token: string; redirect: string }) {
   const res = (await loginByExternal({
     from: params.from,
     token: params.token
   })) as BizResponse<TokenResult>;
 
   const authToken = res.data?.token ?? res.data?.authToken;
-  if (!authToken) throw new Error(res.message || 'SSO 登录失败');
+  if (!authToken) {
+    throw new Error(res.message || 'SSO 登录失败');
+  }
   localStorage.setItem(tokenKey, authToken);
 
   // 兼容老项目：额外换取 idToken（用于后续桌面统一认证场景）
@@ -152,12 +163,20 @@ onMounted(async () => {
     }
 
     if (moaToken) {
-      await handleExternalSso({ from: 'om', token: moaToken, redirect });
+      await handleExternalSso({
+        from: 'om',
+        token: moaToken,
+        redirect
+      });
       return;
     }
 
     if (userToken) {
-      await handleExternalSso({ from: 'portal', token: userToken, redirect });
+      await handleExternalSso({
+        from: 'portal',
+        token: userToken,
+        redirect
+      });
       return;
     }
 
@@ -174,13 +193,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-screen w-screen flex items-center justify-center bg-[var(--el-bg-color-page)]">
-    <el-card class="w-full max-w-md">
+  <div class="bg-[var(--el-bg-color-page)] flex h-screen items-center justify-center w-screen">
+    <el-card class="max-w-md w-full">
       <template #header>
         <div class="font-medium">SSO 登录</div>
       </template>
 
-      <div v-if="loading" class="text-sm text-[var(--el-text-color-regular)]">
+      <div v-if="loading" class="text-[var(--el-text-color-regular)] text-sm">
         正在处理 SSO 回调，请稍候。
       </div>
 
@@ -191,7 +210,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div v-else class="text-sm text-[var(--el-text-color-regular)]">
+      <div v-else class="text-[var(--el-text-color-regular)] text-sm">
         登录成功，正在跳转...
       </div>
     </el-card>

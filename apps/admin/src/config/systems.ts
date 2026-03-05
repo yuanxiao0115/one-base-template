@@ -9,7 +9,7 @@ import type { SystemOptions } from '@one-base-template/core';
  */
 export const DEFAULT_FALLBACK_HOME = '/home/index';
 
-export function createSystemsOptions(params: {
+export function createSystemsOptions (params: {
   defaultCode?: string;
   homeMap: Record<string, string>;
 }): SystemOptions {

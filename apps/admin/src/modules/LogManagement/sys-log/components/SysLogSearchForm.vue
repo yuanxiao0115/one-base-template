@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { FormInstance } from 'element-plus'
+import { ref } from 'vue';
+import type { FormInstance } from 'element-plus';
 
 const model = defineModel<{
   operator: string
   clientIp: string
   module: string
   operationType: string
-  operationResult: string | number
+  operationResult: number | string
   userAccount: string
   nickName: string
   browserName: string
   clientOS: string
   tenantId: string
   time: string[]
-}>({ required: true })
+}>({ required: true });
 
-const formRef = ref<FormInstance>()
+const formRef = ref<FormInstance>();
 
 defineExpose({
   resetFields: () => formRef.value?.resetFields?.()
-})
+});
 </script>
 
 <template>
-  <el-form ref="formRef" label-position="top" :model="model">
+  <el-form ref="formRef" label-position="top" :model>
     <el-form-item label="客户端IP" prop="clientIp">
       <el-input v-model.trim="model.clientIp" clearable placeholder="请输入客户端IP" />
     </el-form-item>

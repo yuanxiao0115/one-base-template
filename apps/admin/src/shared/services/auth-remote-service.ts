@@ -23,50 +23,53 @@ type LoginPageConfig = {
   [k: string]: unknown;
 };
 
-function getHttp() {
+function getHttp () {
   return getAppHttpClient();
 }
 
-export async function getLoginPageConfig() {
-  return await getHttp().get<BizResponse<LoginPageConfig>>('/cmict/portal/getLoginPage', {
+export async function getLoginPageConfig () {
+  return getHttp().get<BizResponse<LoginPageConfig>>('/cmict/portal/getLoginPage', {
     $noErrorAlert: true
   });
 }
 
-export async function loginByZhxt(token: string) {
-  return await getHttp().get<BizResponse<TokenResult>>('/cmict/auth/external/zhxt/sso', {
+export async function loginByZhxt (token: string) {
+  return getHttp().get<BizResponse<TokenResult>>('/cmict/auth/external/zhxt/sso', {
     params: { 'zhxt-token': token },
     $isAuth: true,
     $throwOnBizError: true
   });
 }
 
-export async function loginByYdbg(token: string) {
-  return await getHttp().get<BizResponse<TokenResult>>('/cmict/auth/external/ydbg/sso', {
-    params: { 'ydbg-token': token, appType: 2 },
+export async function loginByYdbg (token: string) {
+  return getHttp().get<BizResponse<TokenResult>>('/cmict/auth/external/ydbg/sso', {
+    params: {
+      'ydbg-token': token,
+      appType: 2
+    },
     $isAuth: true,
     $throwOnBizError: true
   });
 }
 
-export async function loginByTicket(payload: { ticket: string; serviceUrl: string }) {
-  return await getHttp().get<BizResponse<TokenResult>>('/cmict/auth/ticket/sso', {
+export async function loginByTicket (payload: { ticket: string; serviceUrl: string }) {
+  return getHttp().get<BizResponse<TokenResult>>('/cmict/auth/ticket/sso', {
     params: payload,
     $isAuth: true,
     $throwOnBizError: true
   });
 }
 
-export async function loginByExternal(payload: { from: 'portal' | 'om'; token: string }) {
-  return await getHttp().get<BizResponse<TokenResult>>(`/cmict/auth/external/${payload.from}/sso`, {
+export async function loginByExternal (payload: { from: 'om' | 'portal'; token: string }) {
+  return getHttp().get<BizResponse<TokenResult>>(`/cmict/auth/external/${payload.from}/sso`, {
     params: { token: payload.token },
     $isAuth: true,
     $throwOnBizError: true
   });
 }
 
-export async function loginByDesktop() {
-  return await getHttp().post<BizResponse<IdTokenResult>>('/cmict/uaa/unity-desktop/sso-login', {
+export async function loginByDesktop () {
+  return getHttp().post<BizResponse<IdTokenResult>>('/cmict/uaa/unity-desktop/sso-login', {
     $noErrorAlert: true
   });
 }

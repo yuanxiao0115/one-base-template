@@ -1,12 +1,12 @@
 <template>
-  <TitleDisplay v-if="!hideTitle && !isSimpleTitle" :schema="schema" />
+  <TitleDisplay v-if="!hideTitle && !isSimpleTitle" :schema />
   <div class="pb-layout-container" :style="containerStyleObj">
     <!-- 无图模式: 标题在上，内容在下 -->
 
     <template v-if="layout === 'no-image'">
       <!-- 标题区域 -->
       <div v-if="isSimpleTitle && !hideTitle" class="layout-title-area">
-        <TitleDisplay :schema="schema" />
+        <TitleDisplay :schema />
       </div>
 
       <!-- 内容区域 -->
@@ -26,13 +26,13 @@
           :src="imageUrl || defaultImageUrl"
           class="content-image"
           alt="内容图片"
-          style="width: 100%; height: 100%; object-fit: cover"
+          style="width: 100%; height: 100%; object-fit: cover;"
         >
       </div>
 
       <!-- 标题区域 -->
       <div v-if="isSimpleTitle && !hideTitle" class="layout-title-area">
-        <TitleDisplay :schema="schema" />
+        <TitleDisplay :schema />
       </div>
       <div v-else-if="!hideTitle" class="layout-title-area">
         <slot name="title" />
@@ -50,7 +50,7 @@
     <template v-else-if="layout === 'image-bottom'">
       <!-- 标题区域 -->
       <div v-if="isSimpleTitle && !hideTitle" class="layout-title-area">
-        <TitleDisplay :schema="schema" />
+        <TitleDisplay :schema />
       </div>
       <div v-else-if="!hideTitle" class="layout-title-area">
         <slot name="title" />
@@ -63,7 +63,7 @@
           :src="imageUrl || defaultImageUrl"
           class="content-image"
           alt="内容图片"
-          style="width: 100%; height: 100%; object-fit: cover"
+          style="width: 100%; height: 100%; object-fit: cover;"
         >
         <!-- <slot v-else name="image"></slot> -->
       </div>
@@ -87,7 +87,7 @@
         <div class="layout-vertical-content">
           <!-- 标题区域 -->
           <div v-if="isSimpleTitle && !hideTitle" class="layout-title-area">
-            <TitleDisplay :schema="schema" />
+            <TitleDisplay :schema />
           </div>
 
           <!-- 内容区域 -->
@@ -114,23 +114,21 @@ const props = defineProps<{
 }>();
 
 // 默认图片URL - 占位图
-const defaultImageUrl =
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmMGYyZjUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgZmlsbD0iI2FhYWFhYSI+5pqC5peg5Zu+54mHPC90ZXh0Pjwvc3ZnPg==';
+const defaultImageUrl
+  = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmMGYyZjUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgZmlsbD0iI2FhYWFhYSI+5pqC5peg5Zu+54mHPC90ZXh0Pjwvc3ZnPg==';
 
 // 从schema中获取布局方式
 
 // 从schema中获取标题样式
-const titleStyle = computed(
-  () => props.schema?.content?.title?.titleStyle || 'simple'
-);
-const isSimpleTitle = computed(
-  () => titleStyle.value === 'simple' || titleStyle.value === 'blue-simple'
-);
+const titleStyle = computed(() => props.schema?.content?.title?.titleStyle || 'simple');
+const isSimpleTitle = computed(() => titleStyle.value === 'simple' || titleStyle.value === 'blue-simple');
 
 // 简化图片URL获取，不再使用复杂的异步转换
 const imageUrl = computed(() => {
   const contentImage = props.schema?.content?.layout?.contentImage;
-  if (!contentImage) return '';
+  if (!contentImage) {
+    return '';
+  }
 
   // 如果已经是完整URL则直接返回
   if (contentImage.startsWith('http')) {
@@ -143,14 +141,20 @@ const imageUrl = computed(() => {
 
 // 辅助函数：将数字类型的值转换为带px单位的字符串
 const addPxUnit = (value: any): string | undefined => {
-  if (value === undefined || value === null) return undefined;
-  if (typeof value === 'number') return `${value}px`;
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (typeof value === 'number') {
+    return `${value}px`;
+  }
   return String(value);
 };
 
 // 辅助函数：处理颜色透明度，支持多种颜色格式
 const applyColorOpacity = (color: string, opacity: number): string => {
-  if (!color) return '';
+  if (!color) {
+    return '';
+  }
 
   // 已经是rgba格式，替换透明度
   if (color.startsWith('rgba')) {
@@ -230,9 +234,7 @@ const containerStyleObj = computed(() => {
 // 图片容器样式对象
 const imageContainerStyleObj = computed(() => {
   const content = props.schema?.content.layout || {};
-  const verticalLayout = ['image-top', 'image-bottom', 'no-image'].includes(
-    props.layout
-  );
+  const verticalLayout = ['image-top', 'image-bottom', 'no-image'].includes(props.layout);
 
   return {
     overflow: 'hidden',
@@ -318,7 +320,7 @@ defineOptions({
   overflow-y: auto;
   min-height: 50px;
   scrollbar-width: thin;
-  scrollbar-color: rgb(144 147 153 / 30%) transparent;
+  scrollbar-color: rgb(144 147 153 / .3) transparent;
 }
 
 .layout-image-left,
@@ -327,6 +329,7 @@ defineOptions({
 }
 
 /* Webkit浏览器自定义滚动条 */
+
 .layout-content-area::-webkit-scrollbar {
   width: 6px;
 }
@@ -338,14 +341,15 @@ defineOptions({
 
 .layout-content-area::-webkit-scrollbar-thumb {
   border-radius: 6px;
-  background-color: rgb(144 147 153 / 30%);
+  background-color: rgb(144 147 153 / .3);
 }
 
 .layout-content-area::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(144 147 153 / 50%);
+  background-color: rgb(144 147 153 / .5);
 }
 
 /* 内容文本样式 - 从ContentDisplay合并 */
+
 .layout-content-display {
   width: 100%;
   box-sizing: border-box;

@@ -15,11 +15,8 @@
           <div
             v-for="option in layoutOptions"
             :key="option.value"
-            :class="[
-              'layout-option',
-              { active: layoutData.layout === option.value }
-            ]"
-            @click="layoutData.layout = option.value"
+            class="layout-option" :class="[{ active: layoutData.layout === option.value }]"
+            @click="() => layoutData.layout = option.value"
           >
             <div class="layout-preview" :class="option.value">
               <div class="layout-preview-title">
@@ -28,7 +25,7 @@
               <div class="layout-preview-image" />
               <div class="layout-preview-text">
                 <div class="text-line" />
-                <div class="text-line short" />
+                <div class="short text-line" />
               </div>
             </div>
             <div class="layout-name">{{ option.label }}</div>
@@ -45,7 +42,7 @@
     </el-form-item>
 
     <!-- 图片高度设置，仅在选择了有图片的布局时显示 -->
-    <el-form-item v-if="layoutData.layout !== 'no-image'" label="图片高度">
+    <el-form-item v-if="layoutData.layout !== 'no-image'" key="el-form-item-2" label="图片高度">
       <div class="input-with-unit">
         <el-input-number
           v-model="layoutData.imageHeight"
@@ -66,7 +63,7 @@ import { ref, watch } from 'vue';
 import SelectImg from '../../../SelectImg.vue';
 
 // 定义模型类型接口
-export interface LayoutConfigModelType {
+export type LayoutConfigModelType = {
   layout: string;
   contentGap?: number;
   imageHeight?: number;
@@ -94,7 +91,7 @@ if (layoutData.value?.contentImage) {
 }
 
 // 监听图片ID变化，更新contentImage
-watch(contentImageId, newVal => {
+watch(contentImageId, (newVal) => {
   if (newVal) {
     // 更新布局数据中的图片URL
     layoutData.value.contentImage = newVal;
@@ -107,9 +104,18 @@ watch(contentImageId, newVal => {
 
 // 布局选项
 const layoutOptions = [
-  { label: '无图模式', value: 'no-image' },
-  { label: '图片在上', value: 'image-top' },
-  { label: '图片在下', value: 'image-bottom' }
+  {
+    label: '无图模式',
+    value: 'no-image'
+  },
+  {
+    label: '图片在上',
+    value: 'image-top'
+  },
+  {
+    label: '图片在下',
+    value: 'image-bottom'
+  }
 ];
 
 defineOptions({
@@ -119,9 +125,10 @@ defineOptions({
 
 <style scoped>
 .layout-content-config {
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   width: 100%;
 }
 
@@ -143,6 +150,7 @@ defineOptions({
 }
 
 /* 隐藏实际的radio组件 */
+
 .hidden-radio-group {
   position: absolute;
   opacity: 0;
@@ -161,7 +169,7 @@ defineOptions({
   border-radius: 4px;
   padding: 8px;
   width: 90px;
-  transition: all 0.3s;
+  transition: all .3s;
   cursor: pointer;
 }
 
@@ -222,11 +230,13 @@ defineOptions({
 }
 
 /* 无图模式 */
+
 .layout-preview.no-image .layout-preview-text {
   margin-top: 5px;
 }
 
 /* 图片在标题上方布局 */
+
 .layout-preview.image-top .layout-preview-image {
   display: block;
   margin-bottom: 5px;
@@ -235,6 +245,7 @@ defineOptions({
 }
 
 /* 图片在标题下方布局 */
+
 .layout-preview.image-bottom .layout-preview-image {
   display: block;
   margin-top: 5px;
@@ -250,6 +261,7 @@ defineOptions({
 }
 
 /* 样式工具类 */
+
 .input-with-unit {
   display: flex;
   align-items: center;

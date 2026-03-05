@@ -1,6 +1,6 @@
-import type { TableColumnList } from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui';
 
-export const loginLogColumns: TableColumnList = [
+export default [
   {
     label: '登录账号',
     prop: 'userAccount',
@@ -39,6 +39,4 @@ export const loginLogColumns: TableColumnList = [
     width: 140,
     align: 'right'
   }
-]
-
-export default loginLogColumns
+] satisfies TableColumnList;

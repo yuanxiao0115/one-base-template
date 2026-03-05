@@ -1,13 +1,13 @@
 import { ElMessage } from 'element-plus';
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
-import { createObHttp, useAuthStore, useMenuStore, useSystemStore, type ObHttp } from '@one-base-template/core';
+import { createObHttp, type ObHttp, useAuthStore, useMenuStore, useSystemStore } from '@one-base-template/core';
 import { useTagStoreHook } from '@one-base-template/tag';
 
 import type { AuthMode, BackendKind } from '../infra/env';
 import { createClientSignature } from '../infra/sczfw/crypto';
 
-export function createAppHttp(params: {
+export function createAppHttp (params: {
   backend: BackendKind;
   isProd: boolean;
   apiBaseUrl?: string;
@@ -54,30 +54,32 @@ export function createAppHttp(params: {
     },
     beforeRequestCallback:
       backend === 'sczfw'
-        ? config => {
-            const signature = createClientSignature({
-              salt: clientSignatureSalt,
-              clientId: clientSignatureClientId
-            });
+        ? (config) => {
+          const signature = createClientSignature({
+            salt: clientSignatureSalt,
+            clientId: clientSignatureClientId
+          });
 
-            const prev =
-              config.headers && typeof config.headers === 'object'
+          const prev
+              = config.headers && typeof config.headers === 'object'
                 ? (config.headers as Record<string, unknown>)
                 : {};
 
-            config.headers = {
-              ...prev,
-              ...(sczfwHeaders ?? {}),
-              'Client-Signature': signature
-            };
-          }
+          config.headers = {
+            ...prev,
+            ...(sczfwHeaders ?? {}),
+            'Client-Signature': signature
+          };
+        }
         : undefined,
     download: {
       autoDownload: true
     },
     hooks: {
       onBizError: ({ message }) => {
-        if (message) ElMessage.error(message);
+        if (message) {
+          ElMessage.error(message);
+        }
       },
       onUnauthorized: () => {
         // 仅做“清状态 + 回登录页”，具体跳转/SSO 可由业务项目再扩展

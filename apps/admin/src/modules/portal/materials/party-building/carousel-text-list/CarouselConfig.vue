@@ -3,11 +3,11 @@
     <CmsListSourceConfig
       v-model="modelValue.categoryId"
       :columns="categoryOptions"
-      :columns-loading="columnsLoading"
+      :columns-loading
       :loading="isLoading"
-      :items-count="itemsCount"
-      :status-text="statusText"
-      :status-type="statusType"
+      :items-count
+      :status-text
+      :status-type
       @change="handleCategoryChange"
       @refresh="handleRefresh"
     />
@@ -79,13 +79,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { cmsApi } from '../../../api';
 import CmsListSourceConfig from '../common/cms/CmsListSourceConfig.vue';
 
 // 轮播图数据项类型
-export interface CarouselItem {
+export type CarouselItem = {
   id: string;
   title: string;
   imageUrl: string;
@@ -94,17 +94,17 @@ export interface CarouselItem {
 }
 
 // 列表数据项类型
-export interface ListItem {
+export type ListItem = {
   id: string;
   articleTitle: string;
   linkUrl: string;
   publishTime?: string;
 }
 
-export interface CarouselConfigModelValue {
+export type CarouselConfigModelValue = {
   categoryId?: string;
   // 轮播图设置
-  effect?: 'fade' | 'card' | 'slide';
+  effect?: 'card' | 'fade' | 'slide';
   autoplay?: boolean;
   interval?: number;
   indicator?: boolean;
@@ -140,21 +140,21 @@ const carouselsLoading = ref<boolean>(false);
 const previewListItems = ref<ListItem[]>([]);
 const previewCarouselItems = ref<CarouselItem[]>([]);
 
-const isLoading = computed(
-  () => articlesLoading.value || carouselsLoading.value
-);
+const isLoading = computed(() => articlesLoading.value || carouselsLoading.value);
 
-const itemsCount = computed(
-  () => previewListItems.value.length + previewCarouselItems.value.length
-);
+const itemsCount = computed(() => previewListItems.value.length + previewCarouselItems.value.length);
 
 const statusType = computed(() => {
-  if (isLoading.value) return 'warning';
+  if (isLoading.value) {
+    return 'warning';
+  }
   return itemsCount.value > 0 ? 'success' : 'info';
 });
 
 const statusText = computed(() => {
-  if (isLoading.value) return '获取中...';
+  if (isLoading.value) {
+    return '获取中...';
+  }
   if (itemsCount.value > 0) {
     return `已获取 ${previewListItems.value.length || 0} 条列表数据, ${previewCarouselItems.value.length || 0} 条轮播数据`;
   }
@@ -181,14 +181,18 @@ const loadColumns = async () => {
 
 // 处理栏目变更
 const handleCategoryChange = async (categoryId: string) => {
-  if (!categoryId) return;
+  if (!categoryId) {
+    return;
+  }
 
   await loadDataByCategory(categoryId);
 };
 
 // 加载文章与轮播图数据（仅用于预览，不保存到配置中）
 const loadDataByCategory = async (categoryId: string) => {
-  if (!categoryId) return;
+  if (!categoryId) {
+    return;
+  }
 
   // 分别设置两种数据的加载状态
   articlesLoading.value = true;
@@ -214,8 +218,8 @@ const loadDataByCategory = async (categoryId: string) => {
 
   // 获取轮播图数据（仅用于预览）
   try {
-    const carouselsRes: any =
-      await cmsApi.getUserCarouselsByCategory(categoryId);
+    const carouselsRes: any
+      = await cmsApi.getUserCarouselsByCategory(categoryId);
     if (carouselsRes.code === 200 && carouselsRes.data?.records) {
       // 将数据保存到本地变量用于预览，不保存到modelValue
       const maxItems = modelValue.value.maxItems || 5;
@@ -254,12 +258,16 @@ onMounted(async () => {
 
 <style scoped>
 .carousel-config {
-  --config-border: #e2e8f0;
-  --config-surface: #f8fafc;
-  --config-surface-strong: #fff;
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-border: #e2e8f0;
+
+  --config-surface: #f8fafc;
+
+  --config-surface-strong: #fff;
+
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -269,7 +277,7 @@ onMounted(async () => {
 .carousel-config :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 .carousel-config :deep(.el-form-item__label) {
@@ -290,6 +298,7 @@ onMounted(async () => {
 }
 
 /* 隐藏实际的radio组件 */
+
 .hidden-radio-group {
   position: absolute;
   opacity: 0;
@@ -308,7 +317,7 @@ onMounted(async () => {
   border-radius: 4px;
   padding: 8px;
   width: 90px;
-  transition: all 0.3s;
+  transition: all .3s;
   cursor: pointer;
 }
 
@@ -330,6 +339,7 @@ onMounted(async () => {
 }
 
 /* 图片在左布局 */
+
 .layout-preview.image-left {
   flex-direction: row;
 }
@@ -345,6 +355,7 @@ onMounted(async () => {
 }
 
 /* 图片在右布局 */
+
 .layout-preview.image-right {
   flex-direction: row-reverse;
 }
@@ -360,6 +371,7 @@ onMounted(async () => {
 }
 
 /* 图片在上布局 */
+
 .layout-preview.image-top {
   flex-direction: column;
 }

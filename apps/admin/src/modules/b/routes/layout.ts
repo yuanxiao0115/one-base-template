@@ -1,3 +1,6 @@
+import BDemoPage1 from '../pages/BDemoPage1.vue';
+import BDemoPage2 from '../pages/BDemoPage2.vue';
+import BHomePage from '../pages/BHomePage.vue';
 import type { RouteRecordRaw } from 'vue-router';
 
 export default [
@@ -10,7 +13,7 @@ export default [
       {
         path: 'home',
         name: 'BHome',
-        component: () => import('../pages/BHomePage.vue'),
+        component: BHomePage as RouteRecordRaw['component'],
         meta: {
           title: 'B 首页',
           keepAlive: true
@@ -26,7 +29,7 @@ export default [
           {
             path: 'page-1',
             name: 'BDemoPage1',
-            component: () => import('../pages/BDemoPage1.vue'),
+            component: BDemoPage1 as RouteRecordRaw['component'],
             meta: {
               title: '页面 1',
               keepAlive: true
@@ -35,7 +38,7 @@ export default [
           {
             path: 'page-2',
             name: 'BDemoPage2',
-            component: () => import('../pages/BDemoPage2.vue'),
+            component: BDemoPage2 as RouteRecordRaw['component'],
             meta: {
               title: '页面 2',
               keepAlive: true
@@ -45,4 +48,4 @@ export default [
       }
     ]
   }
-] satisfies RouteRecordRaw[];
+] as RouteRecordRaw[];

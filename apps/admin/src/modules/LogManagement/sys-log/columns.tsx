@@ -1,6 +1,6 @@
-import type { TableColumnList } from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui';
 
-export const sysLogColumns: TableColumnList = [
+export default [
   {
     label: '客户端IP',
     prop: 'clientIp',
@@ -55,6 +55,4 @@ export const sysLogColumns: TableColumnList = [
     width: 140,
     align: 'right'
   }
-]
-
-export default sysLogColumns
+] satisfies TableColumnList;

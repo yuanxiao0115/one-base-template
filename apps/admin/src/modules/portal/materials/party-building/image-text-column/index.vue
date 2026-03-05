@@ -25,12 +25,12 @@
             :key="item.id || index"
             class="list-item"
             clickable
-            @click="handleItemClick(item)"
+            @click="() => handleItemClick(item)"
           >
             <ListTitle
               class="item-title"
               :text="item.articleTitle"
-              :show-dot="showDot"
+              :show-dot
             />
             <ListDate
               v-if="item.publishTime"
@@ -57,7 +57,7 @@ import ListTitle from '../common/list/ListTitle.vue';
 import ListStyleDisplay from '../common/list-style/ListStyleDisplay.vue';
 import type { ListStyleModelType } from '../common/list-style/types';
 
-interface ColumnItem {
+type ColumnItem = {
   id: string;
   articleTitle: string;
   linkUrl?: string;
@@ -86,9 +86,7 @@ const toNonNegativeNumber = (value: unknown, fallback: number) => {
   return Number.isFinite(num) && num >= 0 ? num : fallback;
 };
 
-const maxDisplayCount = computed(() =>
-  toPositiveNumber(dataSource.value.maxDisplayCount, 10)
-);
+const maxDisplayCount = computed(() => toPositiveNumber(dataSource.value.maxDisplayCount, 10));
 
 const items = computed<ColumnItem[]>(() => {
   const allItems = Array.isArray(dataSource.value.items)
@@ -100,54 +98,26 @@ const items = computed<ColumnItem[]>(() => {
 const showDot = computed(() => dataSource.value.showDot ?? true);
 
 const imagePosition = computed(() => imageConfig.value.imagePosition || 'left');
-const imageWidth = computed(() =>
-  toPositiveNumber(imageConfig.value.imageWidth, 160)
-);
-const imageHeight = computed(() =>
-  toPositiveNumber(imageConfig.value.imageHeight, 220)
-);
-const imageBorderRadius = computed(() =>
-  toNonNegativeNumber(imageConfig.value.imageBorderRadius, 0)
-);
-const imageRepeat = computed(
-  () => imageConfig.value.imageRepeat || 'no-repeat'
-);
+const imageWidth = computed(() => toPositiveNumber(imageConfig.value.imageWidth, 160));
+const imageHeight = computed(() => toPositiveNumber(imageConfig.value.imageHeight, 220));
+const imageBorderRadius = computed(() => toNonNegativeNumber(imageConfig.value.imageBorderRadius, 0));
+const imageRepeat = computed(() => imageConfig.value.imageRepeat || 'no-repeat');
 const imageSize = computed(() => imageConfig.value.imageSize || 'cover');
-const imageBgPosition = computed(
-  () => imageConfig.value.imageBgPosition || 'center'
-);
+const imageBgPosition = computed(() => imageConfig.value.imageBgPosition || 'center');
 const showMore = computed(() => imageConfig.value.showMore ?? true);
 const moreText = computed(() => imageConfig.value.moreText || '更多>');
 const moreLink = computed(() => imageConfig.value.moreLink || '');
-const moreTextColor = computed(
-  () => imageConfig.value.moreTextColor || '#ffffff'
-);
-const moreFontSize = computed(() =>
-  toPositiveNumber(imageConfig.value.moreFontSize, 14)
-);
-const moreBgColor = computed(
-  () => imageConfig.value.moreBgColor || 'transparent'
-);
-const morePaddingX = computed(() =>
-  toNonNegativeNumber(imageConfig.value.morePaddingX, 8)
-);
-const morePaddingY = computed(() =>
-  toNonNegativeNumber(imageConfig.value.morePaddingY, 4)
-);
-const moreBorderRadius = computed(() =>
-  toNonNegativeNumber(imageConfig.value.moreBorderRadius, 0)
-);
+const moreTextColor = computed(() => imageConfig.value.moreTextColor || '#ffffff');
+const moreFontSize = computed(() => toPositiveNumber(imageConfig.value.moreFontSize, 14));
+const moreBgColor = computed(() => imageConfig.value.moreBgColor || 'transparent');
+const morePaddingX = computed(() => toNonNegativeNumber(imageConfig.value.morePaddingX, 8));
+const morePaddingY = computed(() => toNonNegativeNumber(imageConfig.value.morePaddingY, 4));
+const moreBorderRadius = computed(() => toNonNegativeNumber(imageConfig.value.moreBorderRadius, 0));
 const moreAlign = computed(() => imageConfig.value.moreAlign || 'right');
-const moreOffsetX = computed(() =>
-  toNonNegativeNumber(imageConfig.value.moreOffsetX, 12)
-);
-const moreOffsetY = computed(() =>
-  toNonNegativeNumber(imageConfig.value.moreOffsetY, 12)
-);
+const moreOffsetX = computed(() => toNonNegativeNumber(imageConfig.value.moreOffsetX, 12));
+const moreOffsetY = computed(() => toNonNegativeNumber(imageConfig.value.moreOffsetY, 12));
 
-const listStyle = computed<ListStyleModelType>(
-  () => props.schema?.style?.list || {}
-);
+const listStyle = computed<ListStyleModelType>(() => props.schema?.style?.list || {});
 const imageBackgroundStyleObj = computed(() => ({
   width: `${imageWidth.value}px`,
   height: `${imageHeight.value}px`,
@@ -170,21 +140,27 @@ const moreStyleObj = computed(() => ({
 }));
 
 const getImageUrl = (url?: string) => {
-  if (!url) return '';
-  if (url.startsWith('http')) return url;
+  if (!url) {
+    return '';
+  }
+  if (url.startsWith('http')) {
+    return url;
+  }
   return `/cmict/file/resource/show?id=${url}`;
 };
 
 const imageUrl = computed(() => getImageUrl(imageConfig.value.imageUrl));
 
 const formatDate = (value: string) => {
-  if (!value) return '';
+  if (!value) {
+    return '';
+  }
   return value.split(' ')[0];
 };
 
 const handleMoreClick = () => {
-  const categoryId = dataSource.value.categoryId;
-  const tabId = router.currentRoute.value.params.tabId;
+  const { categoryId } = dataSource.value;
+  const { tabId } = router.currentRoute.value.params;
   if (!categoryId) {
     ElMessage.error('请先选择栏目');
     return;
@@ -197,7 +173,9 @@ const handleMoreClick = () => {
 };
 
 const handleItemClick = (item: ColumnItem) => {
-  if (!item?.id) return;
+  if (!item?.id) {
+    return;
+  }
   router.push({
     name: 'portalPreviewCmsDetail',
     query: {
@@ -245,23 +223,28 @@ defineOptions({
   position: absolute;
   border: none;
   background: transparent;
-  text-shadow: 0 2px 6px rgb(0 0 0 / 40%);
-  transition: opacity 0.2s ease;
+  text-shadow: 0 2px 6px rgb(0 0 0 / .4);
+  transition: opacity .2s ease;
   cursor: pointer;
 }
 
 .image-more:hover {
-  opacity: 0.85;
+  opacity: .85;
 }
 
 .column-list {
-  --list-dot-size: 6px;
-  --list-dot-color: #2b6de5;
-  --list-title-hover-color: #2b6de5;
-  --list-divider-width: 1px;
-  --list-divider-style: dashed;
-  --list-divider-color: #eef0f3;
 
+  --list-dot-size: 6px;
+
+  --list-dot-color: #2b6de5;
+
+  --list-title-hover-color: #2b6de5;
+
+  --list-divider-width: 1px;
+
+  --list-divider-style: dashed;
+
+  --list-divider-color: #eef0f3;
   flex: 1;
   min-width: 0;
 }

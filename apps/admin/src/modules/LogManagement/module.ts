@@ -1,5 +1,5 @@
-import type { AdminModuleManifest } from '@/router/types'
-import layoutRoutes from './routes'
+import type { AdminModuleManifest } from '@/router/types';
+import layoutRoutes from './routes';
 
 const logManagementModule: AdminModuleManifest = {
   id: 'log-management',
@@ -10,6 +10,6 @@ const logManagementModule: AdminModuleManifest = {
   routes: {
     layout: layoutRoutes
   }
-}
+};
 
-export default logManagementModule
+export default logManagementModule;

@@ -34,9 +34,10 @@ defineOptions({
 
 <style scoped>
 .list-display-config {
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -45,7 +46,7 @@ defineOptions({
 .list-display-config :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 .list-display-config :deep(.el-form-item__label) {

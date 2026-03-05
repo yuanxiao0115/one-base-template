@@ -24,7 +24,7 @@ import { installAppRouterGuards } from './guards';
 import { registerMessageUtils } from '../utils/message';
 import { registerPersonnelSelectionAppContext } from '../components/PersonnelSelector/openPersonnelSelection';
 
-export function bootstrapAdminApp() {
+export function bootstrapAdminApp () {
   const app = createApp(App);
   registerMessageUtils(app);
   registerPersonnelSelectionAppContext(app._context);
@@ -37,7 +37,11 @@ export function bootstrapAdminApp() {
   const { routes, skipMenuAuthRouteNames } = getRouteAssemblyResult();
   const router = createAppRouter(routes);
   app.use(router);
-  installAppShellPlugins({ app, pinia, router });
+  installAppShellPlugins({
+    app,
+    pinia,
+    router
+  });
 
   const http = createAppHttp({
     backend: appEnv.backend,
@@ -83,5 +87,9 @@ export function bootstrapAdminApp() {
     }
   });
 
-  return { app, router, pinia };
+  return {
+    app,
+    router,
+    pinia
+  };
 }

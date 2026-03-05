@@ -2,23 +2,22 @@
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 
-defineOptions({
-  name: 'PortalTemplateCreateDialog',
-});
-
 const props = defineProps<{
   modelValue: boolean;
   loading?: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', v: boolean): void;
-  (e: 'submit', payload: { templateName: string; description: string; templateType: number; isOpen: number }): void;
+const emit = defineEmits<{(e: 'update:modelValue', v: boolean): void;
+                          (e: 'submit', payload: { templateName: string; description: string; templateType: number; isOpen: number }): void;
 }>();
+
+defineOptions({
+  name: 'PortalTemplateCreateDialog'
+});
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (v: boolean) => emit('update:modelValue', v),
+  set: (v: boolean) => emit('update:modelValue', v)
 });
 
 const formRef = ref<FormInstance>();
@@ -26,48 +25,56 @@ const form = reactive({
   templateName: '',
   description: '',
   templateType: 0, // 0=左侧导航模板（老项目默认）
-  isOpen: 0, // 0=普通门户，1=匿名门户
+  isOpen: 0 // 0=普通门户，1=匿名门户
 });
 
 const rules: FormRules = {
-  templateName: [{ required: true, message: '请输入门户名称', trigger: 'blur' }],
+  templateName: [{
+    required: true,
+    message: '请输入门户名称',
+    trigger: 'blur'
+  }]
 };
 
-watch(
-  () => visible.value,
-  (v) => {
-    if (!v) return;
-    form.templateName = '';
-    form.description = '';
-    form.templateType = 0;
-    form.isOpen = 0;
-    nextTick(() => formRef.value?.clearValidate());
-  }
-);
+watch(() => visible.value,
+      (v) => {
+        if (!v) {
+      return;
+    }
+        form.templateName = '';
+        form.description = '';
+        form.templateType = 0;
+        form.isOpen = 0;
+        nextTick(() => formRef.value?.clearValidate());
+      });
 
-function onCancel() {
+function onCancel () {
   visible.value = false;
 }
 
-async function onSubmit() {
+async function onSubmit () {
   const ok = await formRef.value?.validate().catch(() => false);
-  if (!ok) return;
+  if (!ok) {
+    return;
+  }
 
   const templateName = form.templateName.trim();
-  if (!templateName) return;
+  if (!templateName) {
+    return;
+  }
 
   emit('submit', {
     templateName,
     description: form.description.trim(),
     templateType: Number(form.templateType) || 0,
-    isOpen: Number(form.isOpen) || 0,
+    isOpen: Number(form.isOpen) || 0
   });
 }
 </script>
 
 <template>
   <el-dialog v-model="visible" title="新增门户模板" width="560px" :close-on-click-modal="false">
-    <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="form">
+    <el-form ref="formRef" :model="form" :rules label-position="top" class="form">
       <el-form-item label="门户名称" prop="templateName">
         <el-input
           v-model="form.templateName"
@@ -109,7 +116,7 @@ async function onSubmit() {
     <template #footer>
       <div class="footer">
         <el-button @click="onCancel">取消</el-button>
-        <el-button type="primary" :loading="loading" @click="onSubmit">创建并配置</el-button>
+        <el-button type="primary" :loading @click="onSubmit">创建并配置</el-button>
       </div>
     </template>
   </el-dialog>

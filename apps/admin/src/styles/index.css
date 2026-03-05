@@ -2,13 +2,16 @@
 
 /* Tailwind v4 的自动内容扫描在 monorepo/workspace 场景下可能漏掉 packages/ui 里的 class。
  * 这里显式声明额外的扫描源，避免布局类（如 flex-col、w-64 等）未生成导致页面结构错乱。 */
+
 @source "../../../../packages/ui/src/**/*.{vue,ts,tsx}";
 
-:root[data-one-os='windows'] {
+:root[data-one-os="windows"] {
+
   --one-font-family-base: var(--one-font-family-windows);
 }
 
-:root[data-one-os='other'] {
+:root[data-one-os="other"] {
+
   --one-font-family-base: var(--one-font-family-fallback);
 }
 

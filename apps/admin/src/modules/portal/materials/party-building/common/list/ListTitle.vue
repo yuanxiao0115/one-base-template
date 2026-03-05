@@ -12,22 +12,20 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = withDefaults(
-  defineProps<{
-    text?: string;
-    showDot?: boolean;
-    tag?: 'div' | 'span' | 'a' | 'p';
-    href?: string;
-    target?: string;
-  }>(),
-  {
-    text: '',
-    showDot: false,
-    tag: 'div',
-    href: '',
-    target: '_blank'
-  }
-);
+const props = withDefaults(defineProps<{
+                             text?: string;
+                             showDot?: boolean;
+                             tag?: 'a' | 'div' | 'p' | 'span';
+                             href?: string;
+                             target?: string;
+                           }>(),
+{
+  text: '',
+  showDot: false,
+  tag: 'div',
+  href: '',
+  target: '_blank'
+});
 
 const linkAttrs = computed(() => {
   if (props.tag === 'a') {

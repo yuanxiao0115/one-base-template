@@ -3,8 +3,22 @@ import { computed } from 'vue';
 
 import type { PortalTab } from '../../types';
 
+const props = defineProps<{
+  tabs: PortalTab[];
+  currentTabId: string;
+}>();
+
+const emit = defineEmits<{(e: 'select', tabId: string): void;
+                          (e: 'edit', tabId: string): void;
+                          (e: 'create-sibling', node: PortalTab): void;
+                          (e: 'create-child', node: PortalTab): void;
+                          (e: 'attribute', node: PortalTab): void;
+                          (e: 'toggle-hide', node: PortalTab): void;
+                          (e: 'delete', node: PortalTab): void;
+}>();
+
 defineOptions({
-  name: 'PortalTabTree',
+  name: 'PortalTabTree'
 });
 
 type PortalTabWithUi = PortalTab & {
@@ -12,29 +26,16 @@ type PortalTabWithUi = PortalTab & {
   children?: PortalTabWithUi[];
 };
 
-const props = defineProps<{
-  tabs: PortalTab[];
-  currentTabId: string;
-}>();
-
-const emit = defineEmits<{
-  (e: 'select', tabId: string): void;
-  (e: 'edit', tabId: string): void;
-  (e: 'create-sibling', node: PortalTab): void;
-  (e: 'create-child', node: PortalTab): void;
-  (e: 'attribute', node: PortalTab): void;
-  (e: 'toggle-hide', node: PortalTab): void;
-  (e: 'delete', node: PortalTab): void;
-}>();
-
-function mapTabs(tabs: PortalTab[] | undefined): PortalTabWithUi[] {
-  if (!Array.isArray(tabs)) return [];
+function mapTabs (tabs: PortalTab[] | undefined): PortalTabWithUi[] {
+  if (!Array.isArray(tabs)) {
+    return [];
+  }
   return tabs.map((t) => {
     const children = mapTabs(t.children);
     return {
       ...t,
       disabled: t.tabType !== 2,
-      children,
+      children
     };
   });
 }
@@ -44,37 +45,57 @@ const treeData = computed(() => mapTabs(props.tabs));
 const treeProps = {
   label: 'tabName',
   children: 'children',
-  disabled: 'disabled',
+  disabled: 'disabled'
 } as const;
 
-function normalizeId(raw: unknown): string {
-  if (typeof raw === 'string') return raw;
-  if (typeof raw === 'number') return String(raw);
+function normalizeId (raw: unknown): string {
+  if (typeof raw === 'string') {
+    return raw;
+  }
+  if (typeof raw === 'number') {
+    return String(raw);
+  }
   return '';
 }
 
-function onNodeClick(data: PortalTab) {
-  if (data.tabType !== 2) return;
+function onNodeClick (data: PortalTab) {
+  if (data.tabType !== 2) {
+    return;
+  }
   const id = normalizeId(data.id);
-  if (!id) return;
+  if (!id) {
+    return;
+  }
   emit('select', id);
 }
 
-function onEdit(data: PortalTab) {
+function onEdit (data: PortalTab) {
   const id = normalizeId(data.id);
-  if (!id) return;
+  if (!id) {
+    return;
+  }
   emit('edit', id);
 }
 
-function onCommand(command: string, data: PortalTab) {
-  if (command === 'sibling') emit('create-sibling', data);
-  if (command === 'child') emit('create-child', data);
+function onCommand (command: string, data: PortalTab) {
+  if (command === 'sibling') {
+    emit('create-sibling', data);
+  }
+  if (command === 'child') {
+    emit('create-child', data);
+  }
 }
 
-function onMoreCommand(command: string, data: PortalTab) {
-  if (command === 'attribute') emit('attribute', data);
-  if (command === 'toggleHide') emit('toggle-hide', data);
-  if (command === 'delete') emit('delete', data);
+function onMoreCommand (command: string, data: PortalTab) {
+  if (command === 'attribute') {
+    emit('attribute', data);
+  }
+  if (command === 'toggleHide') {
+    emit('toggle-hide', data);
+  }
+  if (command === 'delete') {
+    emit('delete', data);
+  }
 }
 </script>
 
@@ -99,7 +120,7 @@ function onMoreCommand(command: string, data: PortalTab) {
           </div>
 
           <div class="actions" @click.stop>
-            <el-button v-if="data.tabType === 2" link size="small" @click="onEdit(data)">编辑</el-button>
+            <el-button v-if="data.tabType === 2" link size="small" @click="() => onEdit(data)">编辑</el-button>
             <el-dropdown trigger="click" @command="(cmd: string) => onCommand(cmd, data)">
               <el-button link size="small">新建</el-button>
               <template #dropdown>
@@ -139,7 +160,7 @@ function onMoreCommand(command: string, data: PortalTab) {
 
 .tree-title {
   flex: none;
-  padding: 12px 12px;
+  padding: 12px;
   font-size: 14px;
   font-weight: 700;
   color: var(--el-text-color-primary);

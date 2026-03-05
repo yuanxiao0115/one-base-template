@@ -1,4 +1,4 @@
-export type MenuIconfontSourceKey = 'cp' | 'dj' | 'om' | 'od'
+export type MenuIconfontSourceKey = 'cp' | 'dj' | 'od' | 'om'
 
 export type MenuIconfontSource = {
   key: MenuIconfontSourceKey
@@ -37,27 +37,31 @@ export const MENU_ICONFONT_SOURCE_MAP: Record<MenuIconfontSourceKey, MenuIconfon
     baseClass: 'iconfont-od',
     classPrefix: 'icon-'
   }
-}
+};
 
 export const MENU_ICONFONT_SOURCES: MenuIconfontSource[] = [
   MENU_ICONFONT_SOURCE_MAP.cp,
   MENU_ICONFONT_SOURCE_MAP.dj,
   MENU_ICONFONT_SOURCE_MAP.om,
   MENU_ICONFONT_SOURCE_MAP.od
-]
+];
 
-export function normalizeIconfontClass(source: MenuIconfontSource, fontClass: string): string {
-  const normalized = fontClass.trim()
-  if (!normalized) return ''
+export function normalizeIconfontClass (source: MenuIconfontSource, fontClass: string): string {
+  const normalized = fontClass.trim();
+  if (!normalized) {
+    return '';
+  }
 
   return normalized.startsWith(source.classPrefix)
     ? normalized
-    : `${source.classPrefix}${normalized}`
+    : `${source.classPrefix}${normalized}`;
 }
 
-export function buildMenuIconfontValue(source: MenuIconfontSource, fontClass: string): string {
-  const normalizedClass = normalizeIconfontClass(source, fontClass)
-  if (!normalizedClass) return ''
+export function buildMenuIconfontValue (source: MenuIconfontSource, fontClass: string): string {
+  const normalizedClass = normalizeIconfontClass(source, fontClass);
+  if (!normalizedClass) {
+    return '';
+  }
 
-  return `${source.baseClass} ${normalizedClass}`
+  return `${source.baseClass} ${normalizedClass}`;
 }

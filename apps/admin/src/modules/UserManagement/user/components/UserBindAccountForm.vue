@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import { computed, ref, watch } from 'vue';
+import type { FormInstance, FormRules } from 'element-plus';
 
 export type UserBindOption = {
   id: string
@@ -11,17 +11,17 @@ export type UserBindOption = {
 
 const props = defineProps<{
   disabled: boolean
-  fetchUsers: (keyword: string) => Promise<UserBindOption[]>
-}>()
+  fetchUsers:(keyword: string) => Promise<UserBindOption[]>
+}>();
 
 const model = defineModel<{
   userIds: string[]
-}>({ required: true })
+}>({ required: true });
 
-const formRef = ref<FormInstance>()
-const loading = ref(false)
-const options = ref<UserBindOption[]>([])
-const selectedMap = ref<Record<string, UserBindOption>>({})
+const formRef = ref<FormInstance>();
+const loading = ref(false);
+const options = ref<UserBindOption[]>([]);
+const selectedMap = ref<Record<string, UserBindOption>>({});
 
 const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
   userIds: [
@@ -29,122 +29,116 @@ const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
       trigger: ['change', 'blur'],
       validator: (_, value, callback) => {
         if (Array.isArray(value) && value.length > 0) {
-          callback()
-          return
+          callback();
+          return;
         }
 
-        callback(new Error('请至少选择一个关联账号'))
+        callback(new Error('请至少选择一个关联账号'));
       }
     }
   ]
-}))
+}));
 
-const selectedUsers = computed<UserBindOption[]>(() => {
-  return (model.value.userIds || [])
-    .map((id) => selectedMap.value[id])
-    .filter((item): item is UserBindOption => Boolean(item))
-})
+const selectedUsers = computed<UserBindOption[]>(() => (model.value.userIds || [])
+  .map((id) => selectedMap.value[id])
+  .filter((item): item is UserBindOption => Boolean(item)));
 
-async function loadOptions(keyword = '') {
-  loading.value = true
+async function loadOptions (keyword = '') {
+  loading.value = true;
   try {
-    const rows = await props.fetchUsers(keyword)
-    options.value = rows
+    const rows = await props.fetchUsers(keyword);
+    options.value = rows;
 
     const patch: Record<string, UserBindOption> = {
       ...selectedMap.value
-    }
+    };
 
     rows.forEach((item) => {
-      patch[item.id] = item
-    })
+      patch[item.id] = item;
+    });
 
-    selectedMap.value = patch
+    selectedMap.value = patch;
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
-function handleRemoteSearch(keyword: string) {
-  void loadOptions(keyword.trim())
+function handleRemoteSearch (keyword: string) {
+  void loadOptions(keyword.trim());
 }
 
-function onSelectionChange(ids: string[]) {
-  const validIds = Array.isArray(ids) ? ids : []
+function onSelectionChange (ids: string[]) {
+  const validIds = Array.isArray(ids) ? ids : [];
 
-  const nextMap: Record<string, UserBindOption> = {}
+  const nextMap: Record<string, UserBindOption> = {};
   validIds.forEach((id) => {
-    const fromSelected = selectedMap.value[id]
-    const fromOptions = options.value.find((item) => item.id === id)
-    const target = fromSelected || fromOptions
+    const fromSelected = selectedMap.value[id];
+    const fromOptions = options.value.find((item) => item.id === id);
+    const target = fromSelected || fromOptions;
     if (target) {
-      nextMap[id] = target
+      nextMap[id] = target;
     }
-  })
+  });
 
   selectedMap.value = {
     ...selectedMap.value,
     ...nextMap
-  }
+  };
 
-  model.value.userIds = validIds
+  model.value.userIds = validIds;
 }
 
-function removeUser(id: string) {
-  model.value.userIds = (model.value.userIds || []).filter((item) => item !== id)
-  const nextMap = { ...selectedMap.value }
-  delete nextMap[id]
-  selectedMap.value = nextMap
+function removeUser (id: string) {
+  model.value.userIds = (model.value.userIds || []).filter((item) => item !== id);
+  const nextMap = { ...selectedMap.value };
+  delete nextMap[id];
+  selectedMap.value = nextMap;
 }
 
-watch(
-  () => model.value.userIds,
-  (ids) => {
-    if (!Array.isArray(ids)) {
-      model.value.userIds = []
-      return
-    }
+watch(() => model.value.userIds,
+      (ids) => {
+        if (!Array.isArray(ids)) {
+          model.value.userIds = [];
+          return;
+        }
 
-    const nextMap: Record<string, UserBindOption> = {}
-    ids.forEach((id) => {
-      const value = selectedMap.value[id]
-      if (value) {
-        nextMap[id] = value
-      }
-    })
-    selectedMap.value = {
-      ...selectedMap.value,
-      ...nextMap
-    }
-  },
-  { immediate: true }
-)
+        const nextMap: Record<string, UserBindOption> = {};
+        ids.forEach((id) => {
+          const value = selectedMap.value[id];
+          if (value) {
+            nextMap[id] = value;
+          }
+        });
+        selectedMap.value = {
+          ...selectedMap.value,
+          ...nextMap
+        };
+      },
+      { immediate: true });
 
 defineExpose({
   validate: (...args: Parameters<NonNullable<FormInstance['validate']>>) => {
-    const [callback] = args
+    const [callback] = args;
     if (callback) {
-      return formRef.value?.validate?.(callback)
+      return formRef.value?.validate?.(callback);
     }
-    return formRef.value?.validate?.()
+    return formRef.value?.validate?.();
   },
-  clearValidate: (...args: Parameters<NonNullable<FormInstance['clearValidate']>>) =>
-    formRef.value?.clearValidate?.(...args),
-  resetFields: (...args: Parameters<NonNullable<FormInstance['resetFields']>>) =>
-    formRef.value?.resetFields?.(...args),
+  clearValidate: (...args: Parameters<NonNullable<FormInstance['clearValidate']>>) => formRef.value?.clearValidate?.(...args),
+  resetFields: (...args: Parameters<NonNullable<FormInstance['resetFields']>>) => formRef.value?.resetFields?.(...args),
   loadOptions,
   setSelectedUsers: (users: UserBindOption[]) => {
-    const patch = { ...selectedMap.value }
+    const patch = { ...selectedMap.value };
     users.forEach((item) => {
-      patch[item.id] = item
-    })
-    selectedMap.value = patch
+      patch[item.id] = item;
+    });
+    selectedMap.value = patch;
   }
-})
+});
 </script>
 
 <template>
-  <el-form ref="formRef" label-position="top" :model="model" :rules="formRules" :disabled="props.disabled">
+  <el-form ref="formRef" label-position="top" :model :rules="formRules" :disabled="props.disabled">
     <el-form-item label="关联账号" prop="userIds">
       <el-select
         v-model="model.userIds"
@@ -158,7 +152,7 @@ defineExpose({
         collapse-tags-tooltip
         placeholder="输入姓名搜索并选择关联账号"
         :remote-method="handleRemoteSearch"
-        :loading="loading"
+        :loading
         @change="onSelectionChange"
       >
         <el-option
@@ -175,7 +169,7 @@ defineExpose({
         v-for="item in selectedUsers"
         :key="item.id"
         closable
-        @close="removeUser(item.id)"
+        @close="() => removeUser(item.id)"
       >
         {{ item.nickName }}（{{ item.userAccount || item.phone || '--' }}）
       </el-tag>

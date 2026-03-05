@@ -1,12 +1,12 @@
-import { getAppHttpClient } from '@/shared/api/http-client'
+import { getAppHttpClient } from '@/shared/api/http-client';
 
-export interface BizResponse<T> {
+export type BizResponse<T> = {
   code: number
   data: T
   message?: string
 }
 
-export interface LoginLogRecord {
+export type LoginLogRecord = {
   id: string
   userAccount: string
   nickName: string
@@ -20,56 +20,52 @@ export interface LoginLogRecord {
   createTime: string
 }
 
-export interface LoginLogListResult {
+export type LoginLogListResult = {
   records: LoginLogRecord[]
   total: number
   currentPage: number
   pageSize: number
 }
 
-export interface ClientTypeOption {
+export type ClientTypeOption = {
   key: string
   value: string
 }
 
-function getHttp() {
-  return getAppHttpClient()
+function getHttp () {
+  return getAppHttpClient();
 }
 
-function normalizeListParams(params: Record<string, unknown>) {
-  const next = { ...params }
+function normalizeListParams (params: Record<string, unknown>) {
+  const next = { ...params };
 
   if (Array.isArray(next.time) && next.time.length === 2) {
-    next.startTime = next.time[0]
-    next.endTime = next.time[1]
+    next.startTime = next.time[0];
+    next.endTime = next.time[1];
   }
 
-  delete next.time
+  delete next.time;
 
-  const currentPage = Number(next.currentPage ?? next.current ?? next.page ?? 1)
-  const pageSize = Number(next.pageSize ?? next.size ?? 10)
+  const currentPage = Number(next.currentPage ?? next.current ?? next.page ?? 1);
+  const pageSize = Number(next.pageSize ?? next.size ?? 10);
 
   return {
     ...next,
     currentPage,
     pageSize
-  }
+  };
 }
 
 export const loginLogApi = {
-  list: (params: Record<string, unknown>) =>
-    getHttp().get<BizResponse<LoginLogListResult>>('/cmict/auth/login-record/page', {
-      params: normalizeListParams(params)
-    }),
+  list: async (params: Record<string, unknown>) => getHttp().get<BizResponse<LoginLogListResult>>('/cmict/auth/login-record/page', {
+    params: normalizeListParams(params)
+  }),
 
-  getEnum: () =>
-    getHttp().get<BizResponse<ClientTypeOption[]>>('/cmict/auth/login-record/client-type/enum'),
+  getEnum: async () => getHttp().get<BizResponse<ClientTypeOption[]>>('/cmict/auth/login-record/client-type/enum'),
 
-  delete: (data: { idList: string[] }) =>
-    getHttp().post<BizResponse<null>>('/cmict/auth/login-record/delete', { data }),
+  delete: async (data: { idList: string[] }) => getHttp().post<BizResponse<null>>('/cmict/auth/login-record/delete', { data }),
 
-  detail: (params: { id: string }) =>
-    getHttp().get<BizResponse<LoginLogRecord>>('/cmict/auth/login-record/detail', { params })
-}
+  detail: async (params: { id: string }) => getHttp().get<BizResponse<LoginLogRecord>>('/cmict/auth/login-record/detail', { params })
+};
 
-export default loginLogApi
+export default loginLogApi;

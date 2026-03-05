@@ -1,4 +1,4 @@
-import type { TableColumnList } from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui';
 
 export const roleColumns: TableColumnList = [
   {
@@ -33,6 +33,6 @@ export const roleColumns: TableColumnList = [
     width: 260,
     align: 'right'
   }
-]
+];
 
-export default roleColumns
+export default roleColumns;

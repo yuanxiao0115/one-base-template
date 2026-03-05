@@ -3,7 +3,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 
-import { finalizeAuthSession, safeRedirect, useAuthStore, type LoginPayload } from '@one-base-template/core';
+import { finalizeAuthSession, type LoginPayload, safeRedirect, useAuthStore } from '@one-base-template/core';
 import { appEnv } from '@/infra/env';
 import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 import VerifySlide from '@/components/verifition-plus/VerifySlide.vue';
@@ -31,8 +31,8 @@ const route = useRoute();
 
 const authStore = useAuthStore();
 
-const backend = appEnv.backend;
-const tokenKey = appEnv.tokenKey;
+const { backend } = appEnv;
+const { tokenKey } = appEnv;
 
 const loading = ref(false);
 const formRef = ref<FormInstance>();
@@ -46,7 +46,7 @@ const form = reactive({
 const loginInfoConfig = ref<LoginPageConfig | null>(null);
 const backgroundImage = ref('');
 
-function getRedirectTarget() {
+function getRedirectTarget () {
   // 兼容老项目常用 query：redirectUrl
   const raw = route.query.redirect ?? route.query.redirectUrl;
   const fallback = backend === 'sczfw' ? DEFAULT_FALLBACK_HOME : '/';
@@ -54,15 +54,23 @@ function getRedirectTarget() {
 }
 
 const rules: FormRules = {
-  username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+  username: [{
+    required: true,
+    message: '请输入账号',
+    trigger: 'blur'
+  }],
   password: [
     {
       validator: (_rule, value: string, callback) => {
         // 密码格式应为 8-18 位：数字/字母/符号任意两种组合，且不允许中文
-        const REGEXP_PWD =
-          /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){8,18}$/;
-        if (!value) return callback(new Error('请输入密码'));
-        if (!REGEXP_PWD.test(value)) return callback(new Error('密码格式应为8-18位数字、字母、符号的任意两种组合'));
+        const REGEXP_PWD
+          = /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){8,18}$/;
+        if (!value) {
+          return callback(new Error('请输入密码'));
+        }
+        if (!REGEXP_PWD.test(value)) {
+          return callback(new Error('密码格式应为8-18位数字、字母、符号的任意两种组合'));
+        }
         callback();
       },
       trigger: 'blur'
@@ -70,10 +78,12 @@ const rules: FormRules = {
   ]
 };
 
-async function loadLoginPageConfig() {
+async function loadLoginPageConfig () {
   const res = (await getLoginPageConfig()) as BizResponse<LoginPageConfig>;
 
-  if (!res || res.code !== 200) return;
+  if (!res || res.code !== 200) {
+    return;
+  }
 
   loginInfoConfig.value = res.data ?? null;
 
@@ -83,7 +93,7 @@ async function loadLoginPageConfig() {
   }
 }
 
-async function handleDirectTokenLogin(token: string) {
+async function handleDirectTokenLogin (token: string) {
   localStorage.setItem(tokenKey, token);
   try {
     await finalizeAuthSession({ shouldFetchMe: true });
@@ -95,10 +105,13 @@ async function handleDirectTokenLogin(token: string) {
   }
 }
 
-async function doDefaultLogin() {
+async function doDefaultLogin () {
   loading.value = true;
   try {
-    await authStore.login({ username: form.username, password: form.password });
+    await authStore.login({
+      username: form.username,
+      password: form.password
+    });
     await finalizeAuthSession({ shouldFetchMe: false });
     await router.replace(getRedirectTarget());
   } catch (e: unknown) {
@@ -109,7 +122,7 @@ async function doDefaultLogin() {
   }
 }
 
-async function doSczfwLogin(captcha: { captcha: string; captchaKey: string }) {
+async function doSczfwLogin (captcha: { captcha: string; captchaKey: string }) {
   loading.value = true;
   try {
     const payload: LoginPayload = {
@@ -131,26 +144,30 @@ async function doSczfwLogin(captcha: { captcha: string; captchaKey: string }) {
   }
 }
 
-async function onSubmit() {
+async function onSubmit () {
   if (backend === 'default') {
     await doDefaultLogin();
     return;
   }
 
-  if (!formRef.value) return;
+  if (!formRef.value) {
+    return;
+  }
 
   const valid = await formRef.value
     .validate()
     .then(() => true)
     .catch(() => false);
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   // 验证码弹层
   await verifyRef.value?.show();
 }
 
-function onCaptchaSuccess(payload: { captcha: string; captchaKey: string }) {
+function onCaptchaSuccess (payload: { captcha: string; captchaKey: string }) {
   void doSczfwLogin(payload);
 }
 
@@ -164,7 +181,7 @@ onMounted(async () => {
   await loadLoginPageConfig();
 
   // 兼容老项目：/login?token=xxx 直接免密登录
-  const token = route.query.token;
+  const { token } = route.query;
   if (typeof token === 'string' && token) {
     await handleDirectTokenLogin(token);
   }
@@ -173,8 +190,8 @@ onMounted(async () => {
 
 <template>
   <!-- 默认模板：mock(/api) + 简单表单 -->
-  <div v-if="backend === 'default'" class="h-screen w-screen flex items-center justify-center bg-[var(--el-bg-color-page)] p-4">
-    <el-card class="w-full max-w-md">
+  <div v-if="backend === 'default'" class="bg-[var(--el-bg-color-page)] flex h-screen items-center justify-center p-4 w-screen">
+    <el-card class="max-w-md w-full">
       <template #header>
         <div class="font-medium">登录</div>
       </template>
@@ -186,12 +203,12 @@ onMounted(async () => {
         <el-form-item label="密码">
           <el-input v-model="form.password" type="password" autocomplete="current-password" show-password @keyup.enter="onSubmit" />
         </el-form-item>
-        <el-button class="w-full" type="primary" :loading="loading" @click="onSubmit">
+        <el-button class="w-full" type="primary" :loading @click="onSubmit">
           登录
         </el-button>
       </el-form>
 
-      <div class="mt-3 text-xs text-[var(--el-text-color-regular)]">
+      <div class="mt-3 text-[var(--el-text-color-regular)] text-xs">
         开发模式下使用 Vite middleware mock，无需后端。
       </div>
     </el-card>
@@ -209,7 +226,7 @@ onMounted(async () => {
       <div class="login-box">
         <div class="login-form">
           <div class="title">用户登录</div>
-          <el-form ref="formRef" :model="form" :rules="rules" size="large">
+          <el-form ref="formRef" :model="form" :rules size="large">
             <el-form-item prop="username" class="custom-input">
               <el-input v-model="form.username" clearable placeholder="账号" @keyup.enter="onSubmit" />
             </el-form-item>
@@ -225,7 +242,7 @@ onMounted(async () => {
               />
             </el-form-item>
 
-            <el-button class="w-full mt-4 login-btn custom-color" type="primary" :loading="loading" @click="onSubmit">
+            <el-button class="custom-color login-btn mt-4 w-full" type="primary" :loading @click="onSubmit">
               登录
             </el-button>
           </el-form>
@@ -233,7 +250,12 @@ onMounted(async () => {
       </div>
     </div>
 
-    <VerifySlide ref="verifyRef" :img-size="{ width: '350px', height: '175px' }" @success="onCaptchaSuccess" />
+    <VerifySlide
+      ref="verifyRef" :img-size="{
+        width: '350px',
+        height: '175px'
+      }" @success="onCaptchaSuccess"
+    />
   </div>
 </template>
 
@@ -265,14 +287,14 @@ onMounted(async () => {
 .login-header span {
   font-size: 40px;
   font-weight: 500;
-  color: #ffffff;
+  color: #fff;
   margin: 0 24px;
 }
 
 .login-container {
   margin-top: -5%;
-  background-color: #ffffff;
-  padding: 24px 48px 48px 48px;
+  background-color: #fff;
+  padding: 24px 48px 48px;
   border-radius: 8px;
 }
 
@@ -280,8 +302,8 @@ onMounted(async () => {
   text-align: center;
   font-size: 28px;
   height: 72px;
-  color: #333333;
-  font-weight: bold;
+  color: #333;
+  font-weight: 700;
 }
 
 .login-container .login-form {
@@ -291,7 +313,7 @@ onMounted(async () => {
 .login-container .login-btn {
   background: #0f79e9;
   height: 40px;
-  color: #fff !important;
+  color: #fff;
 }
 
 .login-box {
@@ -302,6 +324,6 @@ onMounted(async () => {
 }
 
 .custom-color {
-  border-color: transparent !important;
+  border-color: transparent;
 }
 </style>

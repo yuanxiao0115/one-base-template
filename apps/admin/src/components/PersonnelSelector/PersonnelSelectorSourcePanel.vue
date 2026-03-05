@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Folder, UserFilled } from '@element-plus/icons-vue'
-import { Icon } from '@iconify/vue'
+import { computed } from 'vue';
+import { Folder, UserFilled } from '@element-plus/icons-vue';
+import { Icon } from '@iconify/vue';
 import type {
   PersonnelBreadcrumbNode,
   PersonnelNode,
   PersonnelOrgNode,
   PersonnelUserNode
-} from './types'
+} from './types';
 
 const props = withDefaults(defineProps<{
   loading: boolean
@@ -24,46 +24,51 @@ const props = withDefaults(defineProps<{
   allowSelectOrg: false,
   searchPlaceholder: '搜索人员',
   showHierarchyIcon: true
-})
+});
 
-const emit = defineEmits<{
-  (event: 'update:search-keyword', value: string): void
-  (event: 'search'): void
-  (event: 'search-clear'): void
-  (event: 'breadcrumb-click', index: number): void
-  (event: 'enter-org', node: PersonnelOrgNode): void
-  (event: 'toggle-org', payload: { node: PersonnelOrgNode; checked: boolean }): void
-  (event: 'toggle-user', payload: { node: PersonnelUserNode; checked: boolean }): void
-}>()
+const emit = defineEmits<{(event: 'update:search-keyword', value: string): void
+                          (event: 'search'): void
+                          (event: 'search-clear'): void
+                          (event: 'breadcrumb-click', index: number): void
+                          (event: 'enter-org', node: PersonnelOrgNode): void
+                          (event: 'toggle-org', payload: { node: PersonnelOrgNode; checked: boolean }): void
+                          (event: 'toggle-user', payload: { node: PersonnelUserNode; checked: boolean }): void
+}>();
 
-const breadcrumbItems = computed(() => props.breadcrumbs.slice(1))
+const breadcrumbItems = computed(() => props.breadcrumbs.slice(1));
 
-function isOrgNode(node: PersonnelNode): node is PersonnelOrgNode {
-  return node.nodeType === 'org'
+function isOrgNode (node: PersonnelNode): node is PersonnelOrgNode {
+  return node.nodeType === 'org';
 }
 
-function isUserNode(node: PersonnelNode): node is PersonnelUserNode {
-  return node.nodeType === 'user'
+function isUserNode (node: PersonnelNode): node is PersonnelUserNode {
+  return node.nodeType === 'user';
 }
 
-function getUserId(node: PersonnelUserNode): string {
-  return node.userId || node.id
+function getUserId (node: PersonnelUserNode): string {
+  return node.userId || node.id;
 }
 
-function getUserLabel(node: PersonnelUserNode): string {
-  return `${node.nickName || node.title}（${node.phone || node.userAccount || '--'}）`
+function getUserLabel (node: PersonnelUserNode): string {
+  return `${node.nickName || node.title}（${node.phone || node.userAccount || '--'}）`;
 }
 
-function onKeywordChange(value: string) {
-  emit('update:search-keyword', value)
+function onKeywordChange (value: string) {
+  emit('update:search-keyword', value);
 }
 
-function onToggleUser(node: PersonnelUserNode, checked: boolean) {
-  emit('toggle-user', { node, checked })
+function onToggleUser (node: PersonnelUserNode, checked: boolean) {
+  emit('toggle-user', {
+    node,
+    checked
+  });
 }
 
-function onToggleOrg(node: PersonnelOrgNode, checked: boolean) {
-  emit('toggle-org', { node, checked })
+function onToggleOrg (node: PersonnelOrgNode, checked: boolean) {
+  emit('toggle-org', {
+    node,
+    checked
+  });
 }
 </script>
 
@@ -93,7 +98,7 @@ function onToggleOrg(node: PersonnelOrgNode, checked: boolean) {
         :key="item.id"
         class="personnel-selector-source__breadcrumb-item"
       >
-        <span class="personnel-selector-source__breadcrumb-title" @click="emit('breadcrumb-click', index + 1)">
+        <span class="personnel-selector-source__breadcrumb-title" @click="() => emit('breadcrumb-click', index + 1)">
           {{ item.title }}
         </span>
         <span v-if="index < breadcrumbItems.length - 1" class="personnel-selector-source__breadcrumb-separator">
@@ -121,7 +126,7 @@ function onToggleOrg(node: PersonnelOrgNode, checked: boolean) {
                 {{ node.orgName || node.title }}
               </span>
             </el-checkbox>
-            <span v-else class="personnel-selector-source__org-text" @click="emit('enter-org', node)">
+            <span v-else class="personnel-selector-source__org-text" @click="() => emit('enter-org', node)">
               {{ node.orgName || node.title }}
             </span>
             <el-button
@@ -129,7 +134,7 @@ function onToggleOrg(node: PersonnelOrgNode, checked: boolean) {
               link
               type="primary"
               class="personnel-selector-source__next-btn"
-              @click="emit('enter-org', node)"
+              @click="() => emit('enter-org', node)"
             >
               <Icon icon="mdi:sitemap-outline" width="16" height="16" />
               <span>下级</span>
@@ -206,7 +211,7 @@ function onToggleOrg(node: PersonnelOrgNode, checked: boolean) {
   min-height: 42px;
   padding: 0 12px;
   border-bottom: 1px solid var(--el-border-color-extra-light);
-  transition: background-color 0.2s ease;
+  transition: background-color .2s ease;
 }
 
 .personnel-selector-source__node-item:hover {

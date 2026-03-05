@@ -1,3 +1,14 @@
+import DemoButtonStylePage from '../pages/DemoButtonStylePage.vue';
+import DemoConfirmPage from '../pages/DemoConfirmPage.vue';
+import DemoLoginLogMigrationPage
+  from '../pages/DemoLoginLogMigrationPage.vue';
+import DemoMenuManagementMigrationPage
+  from '../pages/DemoMenuManagementMigrationPage.vue';
+import DemoOrgManagementMigrationPage
+  from '../pages/DemoOrgManagementMigrationPage.vue';
+import DemoPageA from '../pages/DemoPageA.vue';
+import DemoPageB from '../pages/DemoPageB.vue';
+import DemoPageContainer from '../pages/DemoPageContainer.vue';
 import type { RouteRecordRaw } from 'vue-router';
 
 export default [
@@ -11,7 +22,7 @@ export default [
       {
         path: 'page-a',
         name: 'DemoPageA',
-        component: () => import('../pages/DemoPageA.vue'),
+        component: DemoPageA as RouteRecordRaw['component'],
         meta: {
           title: '页面 A',
           keepAlive: true
@@ -20,27 +31,32 @@ export default [
       {
         path: '/gongshi/member',
         name: '/gongshi/member',
-        component: () => import('../pages/DemoPageA.vue'),
+        component: DemoPageA as RouteRecordRaw['component'],
         meta: {
           title: '页面 A',
           keepAlive: true
         }
       },
-      // {
-      //   path: '/system/org',
-      //   name: '/system/orgMenu',
-      //   component: () => import('../pages/DemoOrgManagementMigrationPage.vue'),
-      //   meta: {
-      //     title: '组织管理迁移',
-      //     keepAlive: true,
-      //     // 组织管理迁移样板用于演示树形表格，不依赖后端菜单。
-      //     skipMenuAuth: true
-      //   }
-      // },
+
+      /*
+       * {
+       *   path: '/system/org',
+       *   name: '/system/orgMenu',
+       *   component: () =>
+       *     import('../pages/DemoOrgManagementMigrationPage.vue'),
+       *   meta: {
+       *     title: '组织管理迁移',
+       *     keepAlive: true,
+       *     // 组织管理迁移样板用于演示树形表格，不依赖后端菜单。
+       *     skipMenuAuth: true
+       *   }
+       * },
+       */
       {
         path: '/system/permission',
         name: '/system/permissionMenu',
-        component: () => import('../pages/DemoMenuManagementMigrationPage.vue'),
+        component:
+          DemoMenuManagementMigrationPage as RouteRecordRaw['component'],
         meta: {
           title: '权限管理迁移',
           keepAlive: true,
@@ -51,18 +67,19 @@ export default [
       {
         path: 'page-b',
         name: 'DemoPageB',
-        component: () => import('../pages/DemoPageB.vue'),
+        component: DemoPageB as RouteRecordRaw['component'],
         meta: {
           title: '页面 B',
           keepAlive: true,
-          // Demo 图标页不依赖后端菜单，已登录后允许跳过菜单权限校验，避免直接访问 403。
+          // demo 图标页不依赖后端菜单，已登录后允许跳过菜单权限校验，避免直接访问 403。
           skipMenuAuth: true
         }
       },
       {
         path: 'login-log-vxe',
         name: 'DemoLoginLogMigration',
-        component: () => import('../pages/DemoLoginLogMigrationPage.vue'),
+        component:
+          DemoLoginLogMigrationPage as RouteRecordRaw['component'],
         meta: {
           title: '登录日志迁移',
           keepAlive: true,
@@ -73,7 +90,8 @@ export default [
       {
         path: 'org-management-vxe',
         name: 'DemoOrgManagementMigration',
-        component: () => import('../pages/DemoOrgManagementMigrationPage.vue'),
+        component:
+          DemoOrgManagementMigrationPage as RouteRecordRaw['component'],
         meta: {
           title: '组织管理迁移',
           keepAlive: true,
@@ -84,7 +102,8 @@ export default [
       {
         path: 'menu-management-vxe',
         name: 'DemoMenuManagementMigration',
-        component: () => import('../pages/DemoMenuManagementMigrationPage.vue'),
+        component:
+          DemoMenuManagementMigrationPage as RouteRecordRaw['component'],
         meta: {
           title: '权限管理迁移',
           keepAlive: true,
@@ -95,18 +114,18 @@ export default [
       {
         path: 'page-container',
         name: 'DemoPageContainer',
-        component: () => import('../pages/DemoPageContainer.vue'),
+        component: DemoPageContainer as RouteRecordRaw['component'],
         meta: {
           title: '容器 Demo',
           keepAlive: true,
-          // Demo 容器页用于能力演示，不依赖后端菜单。
+          // demo 容器页用于能力演示，不依赖后端菜单。
           skipMenuAuth: true
         }
       },
       {
         path: 'confirm',
         name: 'DemoConfirm',
-        component: () => import('../pages/DemoConfirmPage.vue'),
+        component: DemoConfirmPage as RouteRecordRaw['component'],
         meta: {
           title: '二次确认',
           keepAlive: true,
@@ -117,7 +136,7 @@ export default [
       {
         path: 'button-style',
         name: 'DemoButtonStyle',
-        component: () => import('../pages/DemoButtonStylePage.vue'),
+        component: DemoButtonStylePage as RouteRecordRaw['component'],
         meta: {
           title: '按钮样式',
           keepAlive: true,

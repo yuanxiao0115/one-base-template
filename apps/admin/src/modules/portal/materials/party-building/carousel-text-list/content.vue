@@ -27,7 +27,7 @@ const props = defineProps({
 const emit = defineEmits(['schemaChange']);
 
 // 定义整体数据类型
-interface ComponentData {
+type ComponentData = {
   title: TitleConfigModelType;
   dataSource: CarouselConfigModelValue;
 }
@@ -40,7 +40,7 @@ const { sectionData } = useSchemaConfig<ComponentData>({
     dataSource: {}
   },
   schema: props.schema,
-  onChange: newSchema => {
+  onChange: (newSchema) => {
     emit('schemaChange', 'content', newSchema);
   }
 });
@@ -52,9 +52,10 @@ defineOptions({
 
 <style scoped>
 .content-config {
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -63,7 +64,7 @@ defineOptions({
 .content-config :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 .content-config :deep(.el-form-item__label) {

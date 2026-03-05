@@ -1,13 +1,13 @@
-import { getHttpClient } from '@/shared/api/utils'
-import { extractList, toNumberValue, toRecord, toStringValue } from '@/shared/api/normalize'
+import { getHttpClient } from '@/shared/api/utils';
+import { extractList, toNumberValue, toRecord, toStringValue } from '@/shared/api/normalize';
 
-export interface BizResponse<T> {
+export type BizResponse<T> = {
   code: number
   data: T
   message?: string
 }
 
-export interface LoginLogRecord {
+export type LoginLogRecord = {
   id: string
   userAccount: string
   nickName: string
@@ -21,7 +21,7 @@ export interface LoginLogRecord {
   createTime: string
 }
 
-export interface LoginLogPageParams {
+export type LoginLogPageParams = {
   nickName?: string
   clientType?: string
   startTime?: string
@@ -31,23 +31,23 @@ export interface LoginLogPageParams {
   pageSize?: number
 }
 
-export interface LoginLogPageData {
+export type LoginLogPageData = {
   records: LoginLogRecord[]
   total: number
   currentPage: number
   pageSize: number
 }
 
-export interface ClientTypeOption {
+export type ClientTypeOption = {
   key: string
   value: string
 }
 
 type LoginLogRawRecord = {
-  id?: string | number | null
+  id?: number | string | null
   userAccount?: string | null
   nickName?: string | null
-  clientType?: string | number | null
+  clientType?: number | string | null
   clientTypeLabel?: string | null
   clientIp?: string | null
   location?: string | null
@@ -62,22 +62,30 @@ type LoginLogRawPageData = {
   list?: unknown[]
   rows?: unknown[]
   items?: unknown[]
-  total?: string | number | null
-  totalCount?: string | number | null
-  count?: string | number | null
-  currentPage?: string | number | null
-  current?: string | number | null
-  page?: string | number | null
-  pageSize?: string | number | null
-  size?: string | number | null
+  total?: number | string | null
+  totalCount?: number | string | null
+  count?: number | string | null
+  currentPage?: number | string | null
+  current?: number | string | null
+  page?: number | string | null
+  pageSize?: number | string | null
+  size?: number | string | null
 }
 
 type ClientTypeRawOption = {
-  key?: string | number | null
+  key?: number | string | null
   value?: string | null
 }
 
-function toLoginLogRecord(item: LoginLogRawRecord): LoginLogRecord {
+function resolveTimeRange (params: LoginLogPageParams) {
+  const [rangeStart, rangeEnd] = Array.isArray(params.time) ? params.time : [];
+  return {
+    startTime: rangeStart ?? params.startTime ?? '',
+    endTime: rangeEnd ?? params.endTime ?? ''
+  };
+}
+
+function toLoginLogRecord (item: LoginLogRawRecord): LoginLogRecord {
   return {
     id: toStringValue(item.id),
     userAccount: toStringValue(item.userAccount),
@@ -90,75 +98,68 @@ function toLoginLogRecord(item: LoginLogRawRecord): LoginLogRecord {
     browserVersion: toStringValue(item.browserVersion),
     clientOS: toStringValue(item.clientOS),
     createTime: toStringValue(item.createTime)
-  }
+  };
 }
 
-function toLoginLogPageData(data: unknown): LoginLogPageData {
-  const payload = toRecord(data) as LoginLogRawPageData
-  const records = extractList(payload).map((item) => toLoginLogRecord((item || {}) as LoginLogRawRecord))
+function toLoginLogPageData (data: unknown): LoginLogPageData {
+  const payload = toRecord(data) as LoginLogRawPageData;
+  const records = extractList(payload)
+    .map((item) => toLoginLogRecord(toRecord(item) as LoginLogRawRecord));
 
   return {
     records,
     total: toNumberValue(payload.totalCount ?? payload.total ?? payload.count, records.length),
     currentPage: toNumberValue(payload.currentPage ?? payload.current ?? payload.page, 1),
     pageSize: toNumberValue(payload.pageSize ?? payload.size, 10)
-  }
+  };
 }
 
-function toClientTypeOption(item: ClientTypeRawOption): ClientTypeOption {
+function toClientTypeOption (item: ClientTypeRawOption): ClientTypeOption {
   return {
     key: toStringValue(item.key),
     value: toStringValue(item.value)
-  }
+  };
 }
 
-function normalizeListParams(params: LoginLogPageParams) {
-  const startTime = Array.isArray(params.time) && params.time.length === 2
-    ? (params.time[0] || '')
-    : (params.startTime || '')
-  const endTime = Array.isArray(params.time) && params.time.length === 2
-    ? (params.time[1] || '')
-    : (params.endTime || '')
-
+function normalizeListParams (params: LoginLogPageParams) {
+  const { startTime, endTime } = resolveTimeRange(params);
   return {
-    nickName: (params.nickName || '').trim(),
-    clientType: params.clientType || '',
-    ...(startTime ? { startTime } : {}),
-    ...(endTime ? { endTime } : {}),
+    nickName: (params.nickName ?? '').trim(),
+    clientType: params.clientType ?? '',
+    ...(startTime.length > 0 ? { startTime } : {}),
+    ...(endTime.length > 0 ? { endTime } : {}),
     currentPage: params.currentPage,
     pageSize: params.pageSize
-  }
+  };
 }
 
 export const loginLogApi = {
-  list: (params: LoginLogPageParams) =>
-    getHttpClient()
-      .get<BizResponse<LoginLogPageData>>('/cmict/auth/login-record/page', {
-        params: normalizeListParams(params)
-      })
-      .then((response) => ({
-        ...response,
-        data: toLoginLogPageData(response.data)
-      })),
+  list: async (params: LoginLogPageParams) => getHttpClient()
+    .get<BizResponse<LoginLogPageData>>('/cmict/auth/login-record/page', {
+      params: normalizeListParams(params)
+    })
+    .then((response) => ({
+      ...response,
+      data: toLoginLogPageData(response.data)
+    })),
 
-  getEnum: () =>
-    getHttpClient()
-      .get<BizResponse<ClientTypeOption[]>>('/cmict/auth/login-record/client-type/enum')
-      .then((response) => ({
-        ...response,
-        data: extractList(response.data).map((item) => toClientTypeOption((item || {}) as ClientTypeRawOption))
-      })),
+  getEnum: async () => getHttpClient()
+    .get<BizResponse<ClientTypeOption[]>>('/cmict/auth/login-record/client-type/enum')
+    .then((response) => ({
+      ...response,
+      data: extractList(response.data)
+        .map((item) => toClientTypeOption(toRecord(item) as ClientTypeRawOption))
+    })),
 
-  remove: (data: { idList: string[] }) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/auth/login-record/delete', { data }),
+  remove: async (data: { idList: string[] }) => getHttpClient()
+    .post<BizResponse<boolean>>('/cmict/auth/login-record/delete', { data }),
 
-  detail: (params: { id: string }) =>
-    getHttpClient()
-      .get<BizResponse<LoginLogRecord>>('/cmict/auth/login-record/detail', { params })
-      .then((response) => ({
-        ...response,
-        data: toLoginLogRecord((response.data || {}) as LoginLogRawRecord)
-      }))
-}
+  detail: async (params: { id: string }) => getHttpClient()
+    .get<BizResponse<LoginLogRecord>>('/cmict/auth/login-record/detail', { params })
+    .then((response) => ({
+      ...response,
+      data: toLoginLogRecord(toRecord(response.data) as LoginLogRawRecord)
+    }))
+};
 
-export default loginLogApi
+export default loginLogApi;

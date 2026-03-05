@@ -31,20 +31,28 @@ type RouteCollectContext = {
 
 const logger = createAppLogger('router/assemble');
 
-function getNormalizedPath(path: string): string {
-  if (!path) return APP_ROOT_PATH;
+function getNormalizedPath (path: string): string {
+  if (!path) {
+    return APP_ROOT_PATH;
+  }
   const withLeadingSlash = path.startsWith('/') ? path : `/${path}`;
   return withLeadingSlash.replace(/\/{2,}/g, '/');
 }
 
-function buildRoutePath(parentPath: string, currentPath: string): string {
-  if (!currentPath) return getNormalizedPath(parentPath || APP_ROOT_PATH);
-  if (currentPath.startsWith('/')) return getNormalizedPath(currentPath);
-  if (!parentPath || parentPath === APP_ROOT_PATH) return getNormalizedPath(currentPath);
+function buildRoutePath (parentPath: string, currentPath: string): string {
+  if (!currentPath) {
+    return getNormalizedPath(parentPath || APP_ROOT_PATH);
+  }
+  if (currentPath.startsWith('/')) {
+    return getNormalizedPath(currentPath);
+  }
+  if (!parentPath || parentPath === APP_ROOT_PATH) {
+    return getNormalizedPath(currentPath);
+  }
   return getNormalizedPath(`${parentPath}/${currentPath}`);
 }
 
-function shouldSkipRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean {
+function shouldSkipRoute (route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean {
   const sourceLabel = context.source === 'layout' ? 'layout' : 'standalone';
 
   if (APP_RESERVED_ROUTE_PATHS.has(fullPath)) {
@@ -58,7 +66,9 @@ function shouldSkipRoute(route: RouteRecordRaw, fullPath: string, context: Route
   }
 
   const nameKey = toRouteNameKey(route.name);
-  if (!nameKey) return false;
+  if (!nameKey) {
+    return false;
+  }
 
   if (APP_RESERVED_ROUTE_NAMES.has(nameKey)) {
     logger.warn(`模块路由占用了保留 name：${nameKey}（source=${sourceLabel}），已跳过。`);
@@ -73,7 +83,7 @@ function shouldSkipRoute(route: RouteRecordRaw, fullPath: string, context: Route
   return false;
 }
 
-function buildModuleRoutes(routes: RouteRecordRaw[], context: RouteCollectContext): RouteRecordRaw[] {
+function buildModuleRoutes (routes: RouteRecordRaw[], context: RouteCollectContext): RouteRecordRaw[] {
   const out: RouteRecordRaw[] = [];
 
   for (const route of routes) {
@@ -110,7 +120,7 @@ function buildModuleRoutes(routes: RouteRecordRaw[], context: RouteCollectContex
   return out;
 }
 
-function getRootRedirect(): string {
+function getRootRedirect (): string {
   return getInitialPath({
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
@@ -119,33 +129,29 @@ function getRootRedirect(): string {
   });
 }
 
-export function getAppRoutes(): AppRouteAssemblyResult {
+export function getAppRoutes (): AppRouteAssemblyResult {
   const modules = getEnabledModules(appEnv.enabledModules);
   const usedPaths = new Set<string>();
   const usedNames = new Set<string>();
   const skipMenuAuthRouteNames = new Set<string>();
 
-  const standaloneRoutes = buildModuleRoutes(
-    modules.flatMap((item) => item.routes.standalone ?? []),
+  const standaloneRoutes = buildModuleRoutes(modules.flatMap((item) => item.routes.standalone ?? []),
     {
       source: 'standalone',
       parentPath: APP_ROOT_PATH,
       usedPaths,
       usedNames,
       skipMenuAuthRouteNames
-    }
-  );
+    });
 
-  const layoutRoutes = buildModuleRoutes(
-    modules.flatMap((item) => item.routes.layout),
+  const layoutRoutes = buildModuleRoutes(modules.flatMap((item) => item.routes.layout),
     {
       source: 'layout',
       parentPath: APP_ROOT_PATH,
       usedPaths,
       usedNames,
       skipMenuAuthRouteNames
-    }
-  );
+    });
 
   const routes: RouteRecordRaw[] = [
     ...standaloneRoutes,
@@ -158,26 +164,38 @@ export function getAppRoutes(): AppRouteAssemblyResult {
     {
       path: APP_LOGIN_ROUTE_PATH,
       name: 'Login',
-      component: () => import('../pages/login/LoginPage.vue'),
-      meta: { public: true, hiddenTab: true }
+      component: async () => import('../pages/login/LoginPage.vue'),
+      meta: {
+        public: true,
+        hiddenTab: true
+      }
     },
     {
       path: APP_SSO_ROUTE_PATH,
       name: 'Sso',
-      component: () => import('../pages/sso/SsoCallbackPage.vue'),
-      meta: { public: true, hiddenTab: true }
+      component: async () => import('../pages/sso/SsoCallbackPage.vue'),
+      meta: {
+        public: true,
+        hiddenTab: true
+      }
     },
     {
       path: APP_FORBIDDEN_ROUTE_PATH,
       name: 'Forbidden',
       component: ForbiddenPage,
-      meta: { public: true, hiddenTab: true }
+      meta: {
+        public: true,
+        hiddenTab: true
+      }
     },
     {
       path: APP_NOT_FOUND_ROUTE_PATH,
       name: 'NotFound',
       component: NotFoundPage,
-      meta: { public: true, hiddenTab: true }
+      meta: {
+        public: true,
+        hiddenTab: true
+      }
     },
     {
       path: APP_NOT_FOUND_CATCHALL_PATH,
@@ -186,7 +204,10 @@ export function getAppRoutes(): AppRouteAssemblyResult {
         path: APP_NOT_FOUND_ROUTE_PATH,
         replace: true
       }),
-      meta: { public: true, hiddenTab: true }
+      meta: {
+        public: true,
+        hiddenTab: true
+      }
     }
   ];
 

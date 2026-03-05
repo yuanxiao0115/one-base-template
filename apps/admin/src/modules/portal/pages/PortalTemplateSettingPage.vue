@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus';
 import { confirm } from '@/infra/confirm';
 
 import { portalService } from '../services/portal-service';
-import type { BizResponse, PortalTemplate, PortalTab } from '../types';
+import type { BizResponse, PortalTab, PortalTemplate } from '../types';
 import { calcNextSort, containsTabId, findFirstPageTabId } from '../utils/portalTree';
 
 import PortalPreviewIframe from '../components/designer/PortalPreviewIframe.vue';
@@ -13,7 +13,7 @@ import PortalTabTree from '../components/designer/PortalTabTree.vue';
 import TabAttributeDialog from '../components/designer/TabAttributeDialog.vue';
 
 defineOptions({
-  name: 'PortalDesigner',
+  name: 'PortalDesigner'
 });
 
 const route = useRoute();
@@ -39,48 +39,54 @@ const attrVisible = ref(false);
 const attrMode = ref<'create' | 'edit'>('create');
 const attrLoading = ref(false);
 const attrInitial = ref<Partial<PortalTab>>({});
-const attrParentId = ref<string | number>(0);
+const attrParentId = ref<number | string>(0);
 const editingTabId = ref('');
 const editingTabType = ref<number | null>(null);
 
-type BizResLike = Pick<BizResponse<unknown>, 'code' | 'success' | 'message'>;
+type BizResLike = Pick<BizResponse<unknown>, 'code' | 'message' | 'success'>;
 
-function normalizeBizOk(res: BizResLike | null | undefined): boolean {
+function normalizeBizOk (res: BizResLike | null | undefined): boolean {
   const code = res?.code;
   return res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
 }
 
-function getTabs(): PortalTab[] {
+function getTabs (): PortalTab[] {
   return templateInfo.value?.tabList ?? [];
 }
 
-function updateRouteTabId(tabId: string) {
+function updateRouteTabId (tabId: string) {
   const next = tabId || undefined;
   const current = routeTabId.value || undefined;
-  if (current === next) return;
+  if (current === next) {
+    return;
+  }
 
   router
     .replace({
       query: {
         ...route.query,
-        tabId: next,
-      },
+        tabId: next
+      }
     })
     .catch(() => {});
 }
 
-function setCurrentTab(tabId: string) {
+function setCurrentTab (tabId: string) {
   currentTabId.value = tabId;
   updateRouteTabId(tabId);
 }
 
-function normalizeIdLike(value: unknown): string {
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number') return String(value);
+function normalizeIdLike (value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return String(value);
+  }
   return '';
 }
 
-async function loadTemplate(preferTabId?: string) {
+async function loadTemplate (preferTabId?: string) {
   if (!templateId.value) {
     templateInfo.value = null;
     currentTabId.value = '';
@@ -113,15 +119,21 @@ async function loadTemplate(preferTabId?: string) {
   }
 }
 
-async function linkTabToTemplate(tabId: string) {
+async function linkTabToTemplate (tabId: string) {
   await loadTemplate(tabId);
-  if (containsTabId(getTabs(), tabId)) return;
+  if (containsTabId(getTabs(), tabId)) {
+    return;
+  }
 
   const tpl = templateInfo.value;
-  if (!tpl) return;
+  if (!tpl) {
+    return;
+  }
 
   const nextIds = Array.isArray(tpl.tabIds) ? [...tpl.tabIds] : [];
-  if (!nextIds.includes(tabId)) nextIds.push(tabId);
+  if (!nextIds.includes(tabId)) {
+    nextIds.push(tabId);
+  }
   tpl.tabIds = nextIds;
 
   const res = await portalService.template.update(tpl);
@@ -133,7 +145,7 @@ async function linkTabToTemplate(tabId: string) {
   await loadTemplate(tabId);
 }
 
-function openCreate(parentId: string | number, initial?: Partial<PortalTab>) {
+function openCreate (parentId: number | string, initial?: Partial<PortalTab>) {
   attrMode.value = 'create';
   attrParentId.value = parentId;
   editingTabId.value = '';
@@ -141,30 +153,38 @@ function openCreate(parentId: string | number, initial?: Partial<PortalTab>) {
   attrInitial.value = {
     tabType: 2,
     sort: calcNextSort(getTabs(), parentId),
-    ...initial,
+    ...initial
   };
   attrVisible.value = true;
 }
 
-function openCreateRoot() {
+function openCreateRoot () {
   openCreate(0, { tabType: 2 });
 }
 
-function openCreateSibling(node: PortalTab) {
+function openCreateSibling (node: PortalTab) {
   openCreate(node.parentId ?? 0, { tabType: 2 });
 }
 
-function openCreateChild(node: PortalTab) {
-  if (node.tabType !== 1) return;
+function openCreateChild (node: PortalTab) {
+  if (node.tabType !== 1) {
+    return;
+  }
   const id = normalizeIdLike(node.id);
-  if (!id) return;
+  if (!id) {
+    return;
+  }
   openCreate(id, { tabType: 2 });
 }
 
-async function openAttribute(node: PortalTab) {
+async function openAttribute (node: PortalTab) {
   const id = normalizeIdLike(node.id);
-  if (!id) return;
-  if (!templateId.value) return;
+  if (!id) {
+    return;
+  }
+  if (!templateId.value) {
+    return;
+  }
 
   attrLoading.value = true;
   try {
@@ -189,7 +209,7 @@ async function openAttribute(node: PortalTab) {
   }
 }
 
-async function onSubmitAttr(payload: {
+async function onSubmitAttr (payload: {
   tabName: string;
   tabType: number;
   sort: number;
@@ -197,8 +217,12 @@ async function onSubmitAttr(payload: {
   tabUrlOpenMode?: number;
   tabUrlSsoType?: number;
 }) {
-  if (!templateId.value) return;
-  if (creating.value) return;
+  if (!templateId.value) {
+    return;
+  }
+  if (creating.value) {
+    return;
+  }
 
   creating.value = true;
   try {
@@ -210,7 +234,7 @@ async function onSubmitAttr(payload: {
         tabType: payload.tabType,
         sort: payload.sort,
         tabIcon: '',
-        order: 0,
+        order: 0
       };
 
       if (payload.tabType === 3) {
@@ -245,7 +269,10 @@ async function onSubmitAttr(payload: {
       if (payload.tabType === 2) {
         router.push({
           path: '/portal/layout',
-          query: { templateId: templateId.value, tabId: newTabId },
+          query: {
+            templateId: templateId.value,
+            tabId: newTabId
+          }
         });
         return;
       }
@@ -257,7 +284,9 @@ async function onSubmitAttr(payload: {
 
     // 编辑：不允许修改 tabType（与老项目保持一致）
     const id = editingTabId.value;
-    if (!id) return;
+    if (!id) {
+      return;
+    }
     const tabType = editingTabType.value ?? payload.tabType;
 
     const updateData: Record<string, unknown> = {
@@ -266,7 +295,7 @@ async function onSubmitAttr(payload: {
       parentId: attrParentId.value,
       tabName: payload.tabName,
       tabType,
-      sort: payload.sort,
+      sort: payload.sort
     };
 
     if (tabType === 3) {
@@ -289,10 +318,14 @@ async function onSubmitAttr(payload: {
   }
 }
 
-async function toggleHide(node: PortalTab) {
-  if (!templateId.value) return;
+async function toggleHide (node: PortalTab) {
+  if (!templateId.value) {
+    return;
+  }
   const tabId = normalizeIdLike(node.id);
-  if (!tabId) return;
+  if (!tabId) {
+    return;
+  }
 
   const next = node.isHide === 1 ? 0 : 1;
   const text = next === 1 ? '隐藏' : '显示';
@@ -303,7 +336,11 @@ async function toggleHide(node: PortalTab) {
     return;
   }
 
-  const res = await portalService.template.hideToggle({ id: templateId.value, tabId, isHide: next });
+  const res = await portalService.template.hideToggle({
+    id: templateId.value,
+    tabId,
+    isHide: next
+  });
   if (!normalizeBizOk(res)) {
     ElMessage.error(res?.message || `${text}失败`);
     return;
@@ -313,10 +350,14 @@ async function toggleHide(node: PortalTab) {
   await loadTemplate(currentTabId.value);
 }
 
-async function deleteTab(node: PortalTab) {
-  if (!templateId.value) return;
+async function deleteTab (node: PortalTab) {
+  if (!templateId.value) {
+    return;
+  }
   const tabId = normalizeIdLike(node.id);
-  if (!tabId) return;
+  if (!tabId) {
+    return;
+  }
 
   try {
     await confirm.warn('确定要删除该页面吗？', '删除确认');
@@ -339,15 +380,20 @@ async function deleteTab(node: PortalTab) {
   }
 }
 
-function onEdit(tabId: string) {
-  if (!templateId.value) return;
+function onEdit (tabId: string) {
+  if (!templateId.value) {
+    return;
+  }
   router.push({
     path: '/portal/layout',
-    query: { templateId: templateId.value, tabId },
+    query: {
+      templateId: templateId.value,
+      tabId
+    }
   });
 }
 
-function onBack() {
+function onBack () {
   router.push('/portal/templates');
 }
 
@@ -365,7 +411,7 @@ void loadTemplate();
         </div>
       </div>
       <div class="right">
-        <el-button :loading="loading" @click="loadTemplate(currentTabId)">刷新</el-button>
+        <el-button :loading @click="loadTemplate(currentTabId)">刷新</el-button>
         <el-button type="primary" @click="openCreateRoot">新建页面</el-button>
       </div>
     </div>
@@ -374,7 +420,7 @@ void loadTemplate();
       <div class="sidebar">
         <PortalTabTree
           :tabs="templateInfo?.tabList || []"
-          :current-tab-id="currentTabId"
+          :current-tab-id
           @select="setCurrentTab"
           @edit="onEdit"
           @create-sibling="openCreateSibling"
@@ -392,7 +438,7 @@ void loadTemplate();
         <div v-else-if="!currentTabId" class="empty">
           <el-result icon="info" title="暂无可预览页面" sub-title="请先新建一个空白页" />
         </div>
-        <PortalPreviewIframe v-else :template-id="templateId" :tab-id="currentTabId" />
+        <PortalPreviewIframe v-else :template-id :tab-id="currentTabId" />
       </div>
     </div>
 

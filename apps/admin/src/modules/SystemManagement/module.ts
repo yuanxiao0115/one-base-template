@@ -1,5 +1,5 @@
-import type { AdminModuleManifest } from '@/router/types'
-import layoutRoutes from './routes'
+import type { AdminModuleManifest } from '@/router/types';
+import layoutRoutes from './routes';
 
 const systemManagementModule: AdminModuleManifest = {
   id: 'system-management',
@@ -10,6 +10,6 @@ const systemManagementModule: AdminModuleManifest = {
   routes: {
     layout: layoutRoutes
   }
-}
+};
 
-export default systemManagementModule
+export default systemManagementModule;

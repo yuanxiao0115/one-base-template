@@ -1,32 +1,32 @@
-export type PersonnelSelectMode = 'person' | 'org' | 'role' | 'position'
+export type PersonnelSelectMode = 'org' | 'person' | 'position' | 'role'
 export type PersonnelSelectionField = 'userIds' | 'orgIds' | 'roleIds' | 'positionIds'
 
 /**
  * 选择器节点类型，预留 org/role/position 扩展能力。
  * 当前角色分配已落地 org + user。
  */
-export type PersonnelNodeType = 'org' | 'user' | 'role' | 'position'
+export type PersonnelNodeType = 'org' | 'position' | 'role' | 'user'
 
-export interface PersonnelBreadcrumbNode {
+export type PersonnelBreadcrumbNode = {
   id: string
   title: string
 }
 
-export interface PersonnelNodeBase {
+export type PersonnelNodeBase = {
   id: string
   parentId: string
   title: string
   nodeType: PersonnelNodeType
 }
 
-export interface PersonnelOrgNode extends PersonnelNodeBase {
+export type PersonnelOrgNode = PersonnelNodeBase & {
   nodeType: 'org'
   companyId: string
   orgName: string
   orgType: number
 }
 
-export interface PersonnelUserNode extends PersonnelNodeBase {
+export type PersonnelUserNode = PersonnelNodeBase & {
   nodeType: 'user'
   companyId: string
   userId: string
@@ -35,21 +35,21 @@ export interface PersonnelUserNode extends PersonnelNodeBase {
   phone: string
 }
 
-export interface PersonnelRoleNode extends PersonnelNodeBase {
+export type PersonnelRoleNode = PersonnelNodeBase & {
   nodeType: 'role'
   roleId: string
   roleName: string
 }
 
-export interface PersonnelPositionNode extends PersonnelNodeBase {
+export type PersonnelPositionNode = PersonnelNodeBase & {
   nodeType: 'position'
   positionId: string
   positionName: string
 }
 
-export type PersonnelNode = PersonnelOrgNode | PersonnelUserNode | PersonnelRoleNode | PersonnelPositionNode
+export type PersonnelNode = PersonnelOrgNode | PersonnelPositionNode | PersonnelRoleNode | PersonnelUserNode
 
-export interface PersonnelSelectedItem {
+export type PersonnelSelectedItem = {
   id: string
   nodeType: PersonnelNodeType
   title: string
@@ -75,14 +75,14 @@ export type PersonnelSelectedUser = PersonnelSelectedItem & {
   phone: string
 }
 
-export interface PersonnelSelectionModel {
+export type PersonnelSelectionModel = {
   userIds?: string[]
   orgIds?: string[]
   roleIds?: string[]
   positionIds?: string[]
 }
 
-export interface OpenPersonnelSelectionResult {
+export type OpenPersonnelSelectionResult = {
   mode: PersonnelSelectMode
   selectionField: PersonnelSelectionField
   ids: string[]

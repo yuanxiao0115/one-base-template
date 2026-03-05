@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 // 定义接口类型
-export interface TitleConfigModelType {
+export type TitleConfigModelType = {
   title: string;
   titleStyle: string;
   showMore: boolean;
@@ -46,9 +46,10 @@ defineOptions({
 
 <style scoped>
 .title-content-config {
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   width: 100%;
 }
 

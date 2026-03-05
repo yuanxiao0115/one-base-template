@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 // 类型定义
-export interface ListStyleModelType {
+export type ListStyleModelType = {
   titleColor: string;
   titleFontSize: number;
   timeColor: string;

@@ -30,10 +30,15 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
   const activeName = ref<'content' | 'style'>('content');
 
   // 组件加载状态（用于骨架屏/过渡）
-  const loadingComponents = ref({ content: false, style: false });
+  const loadingComponents = ref({
+    content: false,
+    style: false
+  });
 
   const currentLayoutItem = computed(() => {
-    if (!currentLayoutItemId.value) return null;
+    if (!currentLayoutItemId.value) {
+      return null;
+    }
     return layoutItems.value.find((item) => item.i === currentLayoutItemId.value) || null;
   });
 
@@ -41,8 +46,10 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
   const styleComponentName = computed(() => configForm.value?.style?.name);
   const componentBaseName = computed(() => configForm.value?.index?.name);
 
-  function selectLayoutItem(itemId: string) {
-    if (currentLayoutItemId.value === itemId) return;
+  function selectLayoutItem (itemId: string) {
+    if (currentLayoutItemId.value === itemId) {
+      return;
+    }
 
     currentLayoutItemId.value = itemId;
     const item = layoutItems.value.find((i) => i.i === itemId);
@@ -52,49 +59,67 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
       activeName.value = 'content';
 
       // 轻量过渡：给 UI 一个“切换中”的机会
-      loadingComponents.value = { content: true, style: true };
+      loadingComponents.value = {
+        content: true,
+        style: true
+      };
       setTimeout(() => {
-        loadingComponents.value = { content: false, style: false };
+        loadingComponents.value = {
+          content: false,
+          style: false
+        };
       }, 50);
     } else {
       configForm.value = {};
     }
   }
 
-  function deselectLayoutItem() {
+  function deselectLayoutItem () {
     currentLayoutItemId.value = null;
     configForm.value = {};
   }
 
-  function updateLayoutItems(next: PortalLayoutItem[]) {
+  function updateLayoutItems (next: PortalLayoutItem[]) {
     layoutItems.value = next;
 
     // 选中项被删除时，清空选中状态
-    if (!currentLayoutItemId.value) return;
+    if (!currentLayoutItemId.value) {
+      return;
+    }
     const stillExists = next.some((i) => i.i === currentLayoutItemId.value);
-    if (!stillExists) deselectLayoutItem();
+    if (!stillExists) {
+      deselectLayoutItem();
+    }
   }
 
-  function removeLayoutItem(itemId: string) {
+  function removeLayoutItem (itemId: string) {
     updateLayoutItems(layoutItems.value.filter((i) => i.i !== itemId));
   }
 
-  function updateCurrentItemConfig(config: any) {
-    if (!currentLayoutItemId.value) return;
+  function updateCurrentItemConfig (config: any) {
+    if (!currentLayoutItemId.value) {
+      return;
+    }
 
     const cloned = deepClone(config);
     configForm.value = cloned;
 
     const idx = layoutItems.value.findIndex((i) => i.i === currentLayoutItemId.value);
-    if (idx === -1) return;
+    if (idx === -1) {
+      return;
+    }
 
     const item = layoutItems.value[idx];
-    if (!item) return;
-    if (!item.component) item.component = {};
+    if (!item) {
+      return;
+    }
+    if (!item.component) {
+      item.component = {};
+    }
     item.component.cmptConfig = deepClone(cloned);
   }
 
-  function reset() {
+  function reset () {
     layoutItems.value = [];
     deselectLayoutItem();
   }
@@ -114,6 +139,6 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     deselectLayoutItem,
     updateLayoutItems,
     removeLayoutItem,
-    updateCurrentItemConfig,
+    updateCurrentItemConfig
   };
 });

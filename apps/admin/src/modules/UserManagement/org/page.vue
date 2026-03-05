@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { Plus } from '@element-plus/icons-vue'
-import OrgSearchForm from './components/OrgSearchForm.vue'
-import OrgEditForm from './components/OrgEditForm.vue'
-import OrgManagerDialog from './components/OrgManagerDialog.vue'
-import OrgLevelManageDialog from './components/OrgLevelManageDialog.vue'
-import { orgFormRules } from './form'
-import { useOrgPageState } from './composables/useOrgPageState'
+import { Plus } from '@element-plus/icons-vue';
+import OrgSearchForm from './components/OrgSearchForm.vue';
+import OrgEditForm from './components/OrgEditForm.vue';
+import OrgManagerDialog from './components/OrgManagerDialog.vue';
+import OrgLevelManageDialog from './components/OrgLevelManageDialog.vue';
+import { orgFormRules } from './form';
+import { useOrgPageState } from './composables/useOrgPageState';
 
 defineOptions({
   name: 'OrgManagementPage'
-})
+});
 
 // 页面仅保留编排层：组织管理查询、CRUD 与树数据加载逻辑统一下沉到 composable。
-const pageState = useOrgPageState()
+const pageState = useOrgPageState();
 
-const refs = pageState.refs
+const { refs } = pageState;
 
 const {
   loading,
@@ -24,7 +24,7 @@ const {
   searchForm,
   orgCategoryLabelMap,
   institutionalTypeLabelMap
-} = pageState.table
+} = pageState.table;
 
 const {
   crud,
@@ -35,7 +35,7 @@ const {
   crudSubmitting,
   crudForm,
   checkOrgNameUnique
-} = pageState.editor
+} = pageState.editor;
 
 const {
   orgTreeOptions,
@@ -43,13 +43,13 @@ const {
   institutionalTypeOptions,
   orgLevelOptions,
   rootParentId
-} = pageState.options
+} = pageState.options;
 
 const {
   orgManagerVisible,
   orgManagerTarget,
   orgLevelDialogVisible
-} = pageState.dialogs
+} = pageState.dialogs;
 
 const {
   tableSearch,
@@ -62,7 +62,7 @@ const {
   handleDelete,
   handleOrgManagerUpdated,
   handleOrgLevelUpdated
-} = pageState.actions
+} = pageState.actions;
 </script>
 
 <template>
@@ -84,12 +84,12 @@ const {
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :loading="loading"
-          :size="size"
+          :loading
+          :size
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="false"
-          :tree-config="treeConfig"
+          :tree-config
           row-key="id"
         >
           <template #orgName="{ row }">
@@ -111,11 +111,11 @@ const {
           <template #operation="{ row, size: actionSize }">
             <div class="org-management-page__actions">
               <ObActionButtons>
-                <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)">查看</el-button>
-                <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)">编辑</el-button>
-                <el-button link type="primary" :size="actionSize" @click="openCreateChild(row)">新增下级组织</el-button>
-                <el-button link type="primary" :size="actionSize" @click="openManagerDialog(row)">创建组织管理员</el-button>
-                <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)">查看</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)">编辑</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => openCreateChild(row)">新增下级组织</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => openManagerDialog(row)">创建组织管理员</el-button>
+                <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
               </ObActionButtons>
             </div>
           </template>
@@ -135,7 +135,7 @@ const {
     :title="crudTitle"
     :loading="crudSubmitting"
     :show-cancel-button="!crudReadonly"
-    :confirm-text="'保存'"
+    confirm-text="保存"
     :drawer-size="760"
     :drawer-columns="2"
     @confirm="crud.confirm"
@@ -147,12 +147,12 @@ const {
       v-model="crudForm"
       :rules="orgFormRules"
       :disabled="crudReadonly"
-      :org-tree-options="orgTreeOptions"
-      :org-category-options="orgCategoryOptions"
-      :institutional-type-options="institutionalTypeOptions"
-      :org-level-options="orgLevelOptions"
-      :root-parent-id="rootParentId"
-      :check-org-name-unique="checkOrgNameUnique"
+      :org-tree-options
+      :org-category-options
+      :institutional-type-options
+      :org-level-options
+      :root-parent-id
+      :check-org-name-unique
     />
   </ObCrudContainer>
 

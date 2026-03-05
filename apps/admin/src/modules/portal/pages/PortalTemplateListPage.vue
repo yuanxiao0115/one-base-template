@@ -11,7 +11,7 @@ import PortalTemplateCreateDialog from '../components/template/PortalTemplateCre
 
 defineOptions({ name: 'PortalTemplateList' });
 
-type BizResLike = Pick<BizResponse<unknown>, 'code' | 'success' | 'message'>;
+type BizResLike = Pick<BizResponse<unknown>, 'code' | 'message' | 'success'>;
 
 const router = useRouter();
 
@@ -27,43 +27,53 @@ const rows = ref<PortalTemplate[]>([]);
 const createVisible = ref(false);
 const creating = ref(false);
 
-function normalizeBizOk(res: BizResLike | null | undefined): boolean {
+function normalizeBizOk (res: BizResLike | null | undefined): boolean {
   const code = res?.code;
   return res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
 }
 
-function normalizePageTotal(data: PageResult<unknown> | null | undefined): number {
+function normalizePageTotal (data: PageResult<unknown> | null | undefined): number {
   const raw = (data as Record<string, unknown> | null)?.total ?? (data as Record<string, unknown> | null)?.totalCount ?? 0;
   const val = Number(raw);
   return Number.isFinite(val) ? val : 0;
 }
 
-function normalizeRecords(data: PageResult<PortalTemplate> | null | undefined): PortalTemplate[] {
+function normalizeRecords (data: PageResult<PortalTemplate> | null | undefined): PortalTemplate[] {
   const raw = (data as PageResult<PortalTemplate> | null)?.records;
   return Array.isArray(raw) ? raw : [];
 }
 
-function isPublished(row: PortalTemplate): boolean {
+function isPublished (row: PortalTemplate): boolean {
   return Number(row.publishStatus) === 1;
 }
 
-function getPublishStatusText(row: PortalTemplate): string {
+function getPublishStatusText (row: PortalTemplate): string {
   const val = Number(row.publishStatus);
-  if (val === 1) return '已发布';
-  if (val === 0) return '草稿';
+  if (val === 1) {
+    return '已发布';
+  }
+  if (val === 0) {
+    return '草稿';
+  }
   return '未知';
 }
 
-function normalizeIdLike(value: unknown): string {
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number') return String(value);
+function normalizeIdLike (value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return String(value);
+  }
   return '';
 }
 
-function extractTemplateId(value: unknown): string {
+function extractTemplateId (value: unknown): string {
   // 尽量兼容不同环境：可能返回 string/number，或 { id } / { templateId }
   const direct = normalizeIdLike(value);
-  if (direct) return direct;
+  if (direct) {
+    return direct;
+  }
 
   if (value && typeof value === 'object') {
     const obj = value as Record<string, unknown>;
@@ -73,7 +83,7 @@ function extractTemplateId(value: unknown): string {
   return '';
 }
 
-async function queryList(page = currentPage.value) {
+async function queryList (page = currentPage.value) {
   loading.value = true;
   try {
     currentPage.value = page;
@@ -104,22 +114,24 @@ async function queryList(page = currentPage.value) {
   }
 }
 
-function onSearch() {
+function onSearch () {
   queryList(1).catch(() => {});
 }
 
-function onReset() {
+function onReset () {
   searchKey.value = '';
   publishStatus.value = -1;
   queryList(1).catch(() => {});
 }
 
-function openCreate() {
+function openCreate () {
   createVisible.value = true;
 }
 
-async function onCreateTemplate(payload: { templateName: string; description: string; templateType: number; isOpen: number }) {
-  if (creating.value) return;
+async function onCreateTemplate (payload: { templateName: string; description: string; templateType: number; isOpen: number }) {
+  if (creating.value) {
+    return;
+  }
 
   creating.value = true;
   try {
@@ -132,7 +144,7 @@ async function onCreateTemplate(payload: { templateName: string; description: st
       // 这些字段在部分环境可能存在默认值，显式传递更稳妥（后端可忽略）
       widthSize: 1280,
       widthType: 1,
-      autoWidthSize: 100,
+      autoWidthSize: 100
     });
 
     if (!normalizeBizOk(res)) {
@@ -146,7 +158,10 @@ async function onCreateTemplate(payload: { templateName: string; description: st
 
     // 创建后默认进入配置（符合老项目“创建即配置”的常用操作路径）
     if (newId) {
-      router.push({ path: '/portal/designer', query: { templateId: newId } }).catch(() => {});
+      router.push({
+        path: '/portal/designer',
+        query: { templateId: newId }
+      }).catch(() => {});
       return;
     }
 
@@ -159,15 +174,22 @@ async function onCreateTemplate(payload: { templateName: string; description: st
   }
 }
 
-function goDesigner(row: PortalTemplate) {
-  const id = row.id;
-  if (!id) return;
-  router.push({ path: '/portal/designer', query: { templateId: id } }).catch(() => {});
+function goDesigner (row: PortalTemplate) {
+  const { id } = row;
+  if (!id) {
+    return;
+  }
+  router.push({
+    path: '/portal/designer',
+    query: { templateId: id }
+  }).catch(() => {});
 }
 
-async function openPreview(row: PortalTemplate) {
-  const id = row.id;
-  if (!id) return;
+async function openPreview (row: PortalTemplate) {
+  const { id } = row;
+  if (!id) {
+    return;
+  }
 
   try {
     const res = await portalService.template.detail({ id });
@@ -191,14 +213,19 @@ async function openPreview(row: PortalTemplate) {
   }
 }
 
-async function togglePublish(row: PortalTemplate) {
-  const id = row.id;
-  if (!id) return;
+async function togglePublish (row: PortalTemplate) {
+  const { id } = row;
+  if (!id) {
+    return;
+  }
 
   const nextStatus = isPublished(row) ? 0 : 1;
   const text = nextStatus === 1 ? '发布' : '取消发布';
 
-  const res = await portalService.template.publish({ id, status: nextStatus });
+  const res = await portalService.template.publish({
+    id,
+    status: nextStatus
+  });
   if (!normalizeBizOk(res)) {
     ElMessage.error(res?.message || `${text}失败`);
     return;
@@ -208,9 +235,11 @@ async function togglePublish(row: PortalTemplate) {
   await queryList();
 }
 
-async function deleteTemplate(row: PortalTemplate) {
-  const id = row.id;
-  if (!id) return;
+async function deleteTemplate (row: PortalTemplate) {
+  const { id } = row;
+  if (!id) {
+    return;
+  }
 
   try {
     await confirm.warn('确定要删除该门户模板吗？', '删除确认');
@@ -237,7 +266,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-3 portal-template-list">
+  <div class="portal-template-list space-y-3">
     <el-card shadow="never" class="toolbar-card">
       <template #header>
         <div class="toolbar">
@@ -246,7 +275,7 @@ onMounted(() => {
             <div class="sub">创建、配置并发布门户模板</div>
           </div>
           <div class="toolbar-right">
-            <el-button :loading="loading" @click="queryList(1)">刷新</el-button>
+            <el-button :loading @click="queryList(1)">刷新</el-button>
             <el-button type="primary" @click="openCreate">新增门户</el-button>
           </div>
         </div>
@@ -281,7 +310,7 @@ onMounted(() => {
     </el-card>
 
     <el-card shadow="never" class="table-card">
-      <el-table v-loading="loading" :data="rows" row-key="id" stripe style="width: 100%">
+      <el-table v-loading="loading" :data="rows" row-key="id" stripe style="width: 100%;">
         <template #empty>
           <div class="table-empty">
             <el-empty description="暂无门户模板" :image-size="90">
@@ -305,21 +334,21 @@ onMounted(() => {
         </el-table-column>
         <el-table-column label="操作" width="320" fixed="right">
           <template #default="{ row }">
-            <div class="flex gap-2 flex-wrap">
-              <el-button link type="primary" @click="goDesigner(row)">配置</el-button>
-              <el-button link @click="openPreview(row)">预览</el-button>
-              <el-button link @click="togglePublish(row)">{{ isPublished(row) ? '取消发布' : '发布' }}</el-button>
-              <el-button link type="danger" @click="deleteTemplate(row)">删除</el-button>
+            <div class="flex flex-wrap gap-2">
+              <el-button link type="primary" @click="() => goDesigner(row)">配置</el-button>
+              <el-button link @click="() => openPreview(row)">预览</el-button>
+              <el-button link @click="() => togglePublish(row)">{{ isPublished(row) ? '取消发布' : '发布' }}</el-button>
+              <el-button link type="danger" @click="() => deleteTemplate(row)">删除</el-button>
             </div>
           </template>
         </el-table-column>
       </el-table>
 
-      <div class="mt-3 flex justify-end">
+      <div class="flex justify-end mt-3">
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
-          :total="total"
+          :total
           :page-sizes="[10, 20, 50]"
           layout="total, sizes, prev, pager, next, jumper"
           background

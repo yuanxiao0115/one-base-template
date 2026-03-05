@@ -1,21 +1,24 @@
 /* 二次确认弹窗：统一贴近设计稿（480x138、紧凑按钮、标题/内容字号）。 */
+
 .el-message-box.ob-secondary-confirm {
+
   --el-messagebox-width: 480px;
-  --el-messagebox-title-color: #333333;
-  --el-messagebox-content-color: #666666;
+
+  --el-messagebox-title-color: #333;
+
+  --el-messagebox-content-color: #666;
+
   --el-messagebox-font-size: 16px;
+
   --el-messagebox-content-font-size: 14px;
   width: var(--el-messagebox-width);
   max-width: calc(100vw - 32px);
   min-height: 138px;
   padding: 20px 24px 16px;
-  background-color: #ffffff;
+  background-color: #fff;
   border: none;
   border-radius: 8px;
-  box-shadow:
-    0px 6px 30px 5px rgba(0, 0, 0, 0.05),
-    0px 16px 24px 2px rgba(0, 0, 0, 0.04),
-    0px 8px 10px -5px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 30px rgb(0 0 0 / .12);
   position: relative;
 }
 
@@ -28,7 +31,7 @@
 }
 
 .el-message-box.ob-secondary-confirm .el-message-box__title {
-  color: #333333;
+  color: #333;
   font-size: 16px;
   font-weight: 600;
   line-height: 24px;
@@ -42,13 +45,13 @@
 }
 
 .el-message-box.ob-secondary-confirm .el-message-box__headerbtn .el-message-box__close {
-  color: #666666;
+  color: #666;
   font-size: 20px;
 }
 
 .el-message-box.ob-secondary-confirm .el-message-box__headerbtn:focus .el-message-box__close,
 .el-message-box.ob-secondary-confirm .el-message-box__headerbtn:hover .el-message-box__close {
-  color: #333333;
+  color: #333;
 }
 
 .el-message-box.ob-secondary-confirm .el-message-box__content {
@@ -70,7 +73,7 @@
 }
 
 .el-message-box.ob-secondary-confirm .el-message-box__message p {
-  color: #666666;
+  color: #666;
   font-size: 14px;
   line-height: 22px;
 }

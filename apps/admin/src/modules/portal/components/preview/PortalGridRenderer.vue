@@ -25,17 +25,17 @@ const marginX = computed(() => props.pageSettingData?.gridData?.colSpace ?? 16);
 const marginY = computed(() => props.pageSettingData?.gridData?.rowSpace ?? 16);
 const rowHeight = computed(() => 1);
 
-function getComponentName(item: PortalLayoutItem): string | undefined {
+function getComponentName (item: PortalLayoutItem): string | undefined {
   const name = item.component?.cmptConfig?.index?.name;
   return typeof name === 'string' ? name : undefined;
 }
 
-function getComponent(item: PortalLayoutItem) {
+function getComponent (item: PortalLayoutItem) {
   const name = getComponentName(item);
   return name ? props.materialsMap[name] : null;
 }
 
-function getComponentConfig(item: PortalLayoutItem) {
+function getComponentConfig (item: PortalLayoutItem) {
   return item.component?.cmptConfig || {};
 }
 </script>
@@ -43,8 +43,8 @@ function getComponentConfig(item: PortalLayoutItem) {
 <template>
   <GridLayout
     :layout="props.layoutItems"
-    :col-num="colNum"
-    :row-height="rowHeight"
+    :col-num
+    :row-height
     :margin="[marginX, marginY]"
     :is-draggable="false"
     :is-resizable="false"

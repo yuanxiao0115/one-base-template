@@ -8,7 +8,7 @@
           :key="item.id || index"
           class="card-item"
           :style="cardStyleObj"
-          @click="handleItemClick(item)"
+          @click="() => handleItemClick(item)"
         >
           <div class="card-title" :style="titleStyleObj">
             {{ formatTitle(item.articleTitle) }}
@@ -26,7 +26,7 @@ import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
 import ListEmpty from '../common/list/ListEmpty.vue';
 import cardBg from './card-bg.svg';
 
-interface CardItem {
+type CardItem = {
   id: string;
   articleTitle: string;
   linkUrl?: string;
@@ -58,31 +58,19 @@ const toNonNegativeNumber = (value: unknown, fallback: number) => {
   return Number.isFinite(num) && num >= 0 ? num : fallback;
 };
 
-const maxDisplayCount = computed(() =>
-  toPositiveNumber(dataSource.value.maxDisplayCount, 6)
-);
+const maxDisplayCount = computed(() => toPositiveNumber(dataSource.value.maxDisplayCount, 6));
 
-const cardWidth = computed(() =>
-  toPositiveNumber(dataSource.value.cardWidth, BASE_WIDTH)
-);
+const cardWidth = computed(() => toPositiveNumber(dataSource.value.cardWidth, BASE_WIDTH));
 
-const cardGap = computed(() =>
-  toNonNegativeNumber(dataSource.value.cardGap, 56)
-);
+const cardGap = computed(() => toNonNegativeNumber(dataSource.value.cardGap, 56));
 
-const titleFontSize = computed(() =>
-  toPositiveNumber(dataSource.value.titleFontSize, 14)
-);
+const titleFontSize = computed(() => toPositiveNumber(dataSource.value.titleFontSize, 14));
 
-const titleFontWeight = computed(() =>
-  toPositiveNumber(dataSource.value.titleFontWeight, 700)
-);
+const titleFontWeight = computed(() => toPositiveNumber(dataSource.value.titleFontWeight, 700));
 
 const titleColor = computed(() => dataSource.value.titleColor || '#B7724D');
 
-const titleMaxChars = computed(() =>
-  toPositiveNumber(dataSource.value.titleMaxChars, 10)
-);
+const titleMaxChars = computed(() => toPositiveNumber(dataSource.value.titleMaxChars, 10));
 
 const cardHeight = computed(() => cardWidth.value * BASE_RATIO);
 
@@ -129,14 +117,20 @@ const titleStyleObj = computed<CSSProperties>(() => ({
 const formatTitle = (title?: string) => {
   const value = title || '';
   const maxChars = titleMaxChars.value;
-  if (!maxChars) return value;
+  if (!maxChars) {
+    return value;
+  }
   const chars = Array.from(value);
-  if (chars.length <= maxChars) return value;
+  if (chars.length <= maxChars) {
+    return value;
+  }
   return `${chars.slice(0, maxChars).join('')}…`;
 };
 
 const handleItemClick = (item: CardItem) => {
-  if (!item?.id) return;
+  if (!item?.id) {
+    return;
+  }
   router.push({
     name: 'portalPreviewCmsDetail',
     query: {

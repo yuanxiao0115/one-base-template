@@ -1,18 +1,18 @@
 import { getAppHttpClient } from '@/shared/api/http-client';
 import { demoEndpoints } from './endpoints';
 
-function getHttp() {
+function getHttp () {
   return getAppHttpClient();
 }
 
 export const demoApiClient = {
-  download(fileName = 'ob-demo.txt') {
+  async download (fileName = 'ob-demo.txt') {
     return getHttp().get(demoEndpoints.downloadOk, {
       $isDownload: true,
       $downloadFileName: fileName
     });
   },
-  downloadError() {
+  async downloadError () {
     return getHttp().get(demoEndpoints.downloadError, {
       $isDownload: true
     });

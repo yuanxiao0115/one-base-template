@@ -7,9 +7,7 @@
 <script setup lang="ts">
 const props = defineProps<{ clickable?: boolean }>();
 
-const emit = defineEmits<{
-  (e: 'click'): void;
-}>();
+const emit = defineEmits<(e: 'click') => void>();
 
 const handleClick = () => {
   if (props.clickable) {
@@ -32,7 +30,8 @@ defineOptions({
 }
 
 .pb-list-item + .pb-list-item {
-  border-top: var(--list-divider-width, 0) var(--list-divider-style, dashed)
+  border-top:
+    var(--list-divider-width, 0) var(--list-divider-style, dashed)
     var(--list-divider-color, #eef0f3);
 }
 

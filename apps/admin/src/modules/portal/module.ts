@@ -13,7 +13,10 @@ const portalModule: AdminModuleManifest = {
     standalone: standaloneRoutes
   },
   compat: {
-    routeAliases: [{ from: '/portal/setting', to: '/portal/templates' }],
+    routeAliases: [{
+      from: '/portal/setting',
+      to: '/portal/templates'
+    }],
     activePathMap: {
       '/portal/designer': '/portal/setting',
       '/portal/layout': '/portal/setting',

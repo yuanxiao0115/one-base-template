@@ -1,21 +1,31 @@
 :root {
+
   --ob-button-size-large: 40px;
+
   --ob-button-size-default: 32px;
+
   --ob-button-size-small: 24px;
+
   --ob-button-icon-gap-large: 8px;
+
   --ob-button-icon-gap-default: 6px;
+
   --ob-button-icon-gap-small: 4px;
 }
 
 /* 按钮统一覆盖：尺寸基线 -> 禁用态收口 -> 变体扩展。 */
+
 .el-button,
 .el-button--primary,
 .el-button--success,
 .el-button--warning,
 .el-button--info,
 .el-button--danger {
+
   --el-button-disabled-text-color: var(--one-button-disabled-text-color);
+
   --el-button-disabled-bg-color: var(--one-button-disabled-bg-color);
+
   --el-button-disabled-border-color: var(--one-button-disabled-border-color);
 }
 
@@ -34,15 +44,15 @@
   padding: 5px 11px;
 }
 
-.el-button [class*='el-icon'] + span {
+.el-button [class*="el-icon"] + span {
   margin-left: var(--ob-button-icon-gap-default);
 }
 
-.el-button--large [class*='el-icon'] + span {
+.el-button--large [class*="el-icon"] + span {
   margin-left: var(--ob-button-icon-gap-large);
 }
 
-.el-button--small [class*='el-icon'] + span {
+.el-button--small [class*="el-icon"] + span {
   margin-left: var(--ob-button-icon-gap-small);
 }
 
@@ -59,6 +69,7 @@
 }
 
 /* 实体按钮禁用态：同一变体下跨 type 统一。 */
+
 .el-button.is-disabled,
 .el-button.is-disabled:hover,
 .el-button.is-disabled:focus,
@@ -69,6 +80,7 @@
 }
 
 /* 描边/虚线禁用态：统一边框与文字，背景保持浅底。 */
+
 .el-button.is-plain.is-disabled,
 .el-button.is-plain.is-disabled:hover,
 .el-button.is-plain.is-disabled:focus,
@@ -83,6 +95,7 @@
 }
 
 /* text/link 禁用态：仅文字置灰，保持透明底，避免偏离设计稿。 */
+
 .el-button.is-text.is-disabled,
 .el-button.is-text.is-disabled:hover,
 .el-button.is-text.is-disabled:focus,
@@ -112,27 +125,33 @@
 .el-button--danger.is-link.is-disabled:focus,
 .el-button--danger.is-link.is-disabled:active {
   color: var(--el-button-disabled-text-color);
-  background-color: transparent !important;
-  border-color: transparent !important;
+  background-color: transparent;
+  border-color: transparent;
 }
 
 /* 语义类：虚线按钮（各 type 可复用）。 */
+
 .el-button.ob-button--dashed {
   border-style: dashed;
 }
 
 /* 语义类：仅网址场景下划线，避免污染全局 link。 */
+
 .el-button.ob-link-underline {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 /* Link 按钮跟随 one link token；danger 类型保留 Element 默认 hover/active 语义。 */
+
 .el-button.is-link {
+
   --el-button-text-color: var(--one-color-link);
 }
 
 .el-button.is-link:not(.el-button--danger) {
+
   --el-button-hover-link-text-color: var(--one-color-link-light-5);
+
   --el-button-active-color: var(--one-color-link-light-7);
 }

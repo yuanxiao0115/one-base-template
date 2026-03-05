@@ -1,4 +1,6 @@
-import type { RouteRecordRaw } from 'vue-router'
+import LoginLogPage from './login-log/page.vue';
+import type { RouteRecordRaw } from 'vue-router';
+import SysLogPage from './sys-log/page.vue';
 
 export default [
   {
@@ -12,7 +14,7 @@ export default [
   {
     path: '/system/log/login-log',
     name: 'SystemLoginLogManagement',
-    component: () => import('./login-log/page.vue'),
+    component: LoginLogPage as RouteRecordRaw['component'],
     meta: {
       title: '登录日志',
       keepAlive: true
@@ -21,10 +23,10 @@ export default [
   {
     path: '/system/log/sys-log',
     name: 'SystemSysLogManagement',
-    component: () => import('./sys-log/page.vue'),
+    component: SysLogPage as RouteRecordRaw['component'],
     meta: {
       title: '操作日志',
       keepAlive: true
     }
   }
-] satisfies RouteRecordRaw[]
+] satisfies RouteRecordRaw[];

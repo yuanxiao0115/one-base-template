@@ -9,7 +9,7 @@ import type { PortalLayoutItem } from '../stores/pageLayout';
 import PortalGridRenderer from '../components/preview/PortalGridRenderer.vue';
 
 defineOptions({
-  name: 'PortalPreview',
+  name: 'PortalPreview'
 });
 
 type BizResLike = { code?: unknown; success?: unknown; message?: unknown; data?: unknown };
@@ -48,39 +48,45 @@ const pageSettingData = ref<PortalPageSettings>({
   gridData: {
     colNum: 12,
     colSpace: 16,
-    rowSpace: 16,
-  },
+    rowSpace: 16
+  }
 });
 
 const layoutItems = ref<PortalLayoutItem[]>([]);
 
-function normalizeBizOk(res: BizResLike | null | undefined): boolean {
+function normalizeBizOk (res: BizResLike | null | undefined): boolean {
   const code = res?.code;
   return res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
 }
 
-function normalizeLayoutItems(input: unknown): PortalLayoutItem[] {
-  if (!Array.isArray(input)) return [];
+function normalizeLayoutItems (input: unknown): PortalLayoutItem[] {
+  if (!Array.isArray(input)) {
+    return [];
+  }
   return input
     .map((raw) => {
-      if (!raw || typeof raw !== 'object') return null;
+      if (!raw || typeof raw !== 'object') {
+        return null;
+      }
       const item = raw as Record<string, unknown>;
       const iRaw = item.i;
       const i = typeof iRaw === 'string' || typeof iRaw === 'number' ? String(iRaw) : '';
-      if (!i) return null;
+      if (!i) {
+        return null;
+      }
       return {
         i,
         x: Number(item.x) || 0,
         y: Number(item.y) || 0,
         w: Number(item.w) || 1,
         h: Number(item.h) || 1,
-        component: item.component as PortalLayoutItem['component'],
+        component: item.component as PortalLayoutItem['component']
       } satisfies PortalLayoutItem;
     })
     .filter(Boolean) as PortalLayoutItem[];
 }
 
-async function loadTabLayout(id: string) {
+async function loadTabLayout (id: string) {
   if (!id) {
     errorMessage.value = '缺少 tabId';
     layoutItems.value = [];
@@ -108,7 +114,9 @@ async function loadTabLayout(id: string) {
 
     try {
       const parsed = JSON.parse(tab.pageLayout) as PageLayoutJson;
-      if (parsed.settings) pageSettingData.value = parsed.settings;
+      if (parsed.settings) {
+        pageSettingData.value = parsed.settings;
+      }
       layoutItems.value = normalizeLayoutItems(parsed.component);
     } catch {
       layoutItems.value = [];
@@ -121,19 +129,27 @@ async function loadTabLayout(id: string) {
   }
 }
 
-function onMessage(e: MessageEvent) {
+function onMessage (e: MessageEvent) {
   // 只接收同源消息，避免被第三方页面触发刷新
-  if (e.origin !== window.location.origin) return;
+  if (e.origin !== window.location.origin) {
+    return;
+  }
 
   const data = e.data as unknown;
-  if (!data || typeof data !== 'object') return;
+  if (!data || typeof data !== 'object') {
+    return;
+  }
 
   const msg = data as { type?: unknown; data?: unknown };
-  if (msg.type !== 'refresh-portal') return;
+  if (msg.type !== 'refresh-portal') {
+    return;
+  }
 
   const payload = msg.data as { tabId?: unknown } | undefined;
   const nextTabId = typeof payload?.tabId === 'string' ? payload.tabId : '';
-  if (!nextTabId) return;
+  if (!nextTabId) {
+    return;
+  }
 
   loadTabLayout(nextTabId).catch(() => {});
 }
@@ -163,9 +179,9 @@ void templateId.value;
 
     <div v-else class="content">
       <PortalGridRenderer
-        :layout-items="layoutItems"
-        :materials-map="materialsMap"
-        :page-setting-data="pageSettingData"
+        :layout-items
+        :materials-map
+        :page-setting-data
       />
     </div>
   </div>

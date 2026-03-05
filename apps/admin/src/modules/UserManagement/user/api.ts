@@ -1,19 +1,19 @@
-import { getHttpClient, trimText } from '@/shared/api/utils'
+import { getHttpClient, trimText } from '@/shared/api/utils';
 import {
   extractList,
   toBooleanValue,
   toNumberValue,
   toRecord,
   toStringValue
-} from '@/shared/api/normalize'
+} from '@/shared/api/normalize';
 
-export interface BizResponse<T> {
+export type BizResponse<T> = {
   code: number
   data: T
   message?: string
 }
 
-export interface UserOrgPostRecord {
+export type UserOrgPostRecord = {
   id?: string
   postId: string
   postName?: string
@@ -21,7 +21,7 @@ export interface UserOrgPostRecord {
   status: number
 }
 
-export interface UserOrgRecord {
+export type UserOrgRecord = {
   id?: string
   orgId: string
   orgName?: string
@@ -32,7 +32,7 @@ export interface UserOrgRecord {
   postVos: UserOrgPostRecord[]
 }
 
-export interface UserListRecord {
+export type UserListRecord = {
   id: string
   nickName: string
   userAccount: string
@@ -47,19 +47,19 @@ export interface UserListRecord {
   lastLoginTime: string
 }
 
-export interface UserDetailRecord extends UserListRecord {
+export type UserDetailRecord = UserListRecord & {
   avatar: string
   remark: string
   roleIds: string[]
   userOrgs: UserOrgRecord[]
 }
 
-export interface UserRoleRecord {
+export type UserRoleRecord = {
   id: string
   roleName: string
 }
 
-export interface CorporateUserRecord {
+export type CorporateUserRecord = {
   id: string
   userId: string
   userName: string
@@ -67,13 +67,13 @@ export interface CorporateUserRecord {
   phone: string
 }
 
-export interface UserDetailData {
+export type UserDetailData = {
   userInfo: UserDetailRecord
   userRoleList: UserRoleRecord[]
   corporateUserList: CorporateUserRecord[]
 }
 
-export interface UserPageParams {
+export type UserPageParams = {
   nickName?: string
   phone?: string
   userAccount?: string
@@ -86,14 +86,14 @@ export interface UserPageParams {
   pageSize?: number
 }
 
-export interface UserPageData {
+export type UserPageData = {
   records: UserListRecord[]
   total: number
   currentPage: number
   pageSize: number
 }
 
-export interface UserSavePayload {
+export type UserSavePayload = {
   id?: string
   nickName: string
   userAccount: string
@@ -109,41 +109,41 @@ export interface UserSavePayload {
   userOrgs: UserOrgRecord[]
 }
 
-export interface UserUniquePayload {
+export type UserUniquePayload = {
   userId?: string
   userAccount?: string
   phone?: string
   mail?: string
 }
 
-export interface UserStatusPayload {
+export type UserStatusPayload = {
   isEnable: boolean
   ids: string[]
 }
 
-export interface UserResetPasswordPayload {
+export type UserResetPasswordPayload = {
   id: string
 }
 
-export interface UserChangeAccountPayload {
+export type UserChangeAccountPayload = {
   userId: string
   newUsername: string
   isReset: number
   newPassword?: string
 }
 
-export interface UserBindAccountPayload {
+export type UserBindAccountPayload = {
   corporateUserId: string
   userIds: string[]
 }
 
-export interface UserSortPayload {
+export type UserSortPayload = {
   orgId: string
   id: string
   index: number
 }
 
-export interface OrgTreeNode {
+export type OrgTreeNode = {
   id: string
   orgName: string
   orgType: number
@@ -151,17 +151,17 @@ export interface OrgTreeNode {
   children: OrgTreeNode[]
 }
 
-export interface PositionItem {
+export type PositionItem = {
   id: string
   postName: string
 }
 
-export interface RoleItem {
+export type RoleItem = {
   id: string
   roleName: string
 }
 
-export interface UserBriefRecord {
+export type UserBriefRecord = {
   id: string
   nickName: string
   phone: string
@@ -169,52 +169,52 @@ export interface UserBriefRecord {
 }
 
 type UserRawOrgPost = {
-  id?: string | number | null
-  postId?: string | number | null
+  id?: number | string | null
+  postId?: number | string | null
   postName?: string | null
-  sort?: string | number | null
-  status?: string | number | null
+  sort?: number | string | null
+  status?: number | string | null
 }
 
 type UserRawOrg = {
-  id?: string | number | null
-  orgId?: string | number | null
+  id?: number | string | null
+  orgId?: number | string | null
   orgName?: string | null
-  orgRankType?: string | number | null
-  ownSort?: string | number | null
-  sort?: string | number | null
-  status?: string | number | null
+  orgRankType?: number | string | null
+  ownSort?: number | string | null
+  sort?: number | string | null
+  status?: number | string | null
   postVos?: UserRawOrgPost[] | null
 }
 
 type UserRawRecord = {
-  id?: string | number | null
+  id?: number | string | null
   nickName?: string | null
   userAccount?: string | null
   phone?: string | null
   phoneShow?: boolean | null
   mail?: string | null
-  gender?: string | number | null
+  gender?: number | string | null
   isEnable?: boolean | null
-  userType?: string | number | null
+  userType?: number | string | null
   isExternal?: boolean | null
   createTime?: string | null
   lastLoginTime?: string | null
   avatar?: string | null
   remark?: string | null
   userOrgs?: UserRawOrg[] | null
-  roleIds?: Array<string | number> | null
+  roleIds?: Array<number | string> | null
   corporateUserQueryVOS?: UserRawCorporateUser[] | null
 }
 
 type UserRawRole = {
-  id?: string | number | null
+  id?: number | string | null
   roleName?: string | null
 }
 
 type UserRawCorporateUser = {
-  id?: string | number | null
-  userId?: string | number | null
+  id?: number | string | null
+  userId?: number | string | null
   userName?: string | null
   nickName?: string | null
   phone?: string | null
@@ -225,31 +225,31 @@ type UserPageRawData = {
   list?: UserRawRecord[] | null
   rows?: UserRawRecord[] | null
   items?: UserRawRecord[] | null
-  total?: string | number | null
-  totalCount?: string | number | null
-  count?: string | number | null
-  currentPage?: string | number | null
-  current?: string | number | null
-  page?: string | number | null
-  pageSize?: string | number | null
-  size?: string | number | null
+  total?: number | string | null
+  totalCount?: number | string | null
+  count?: number | string | null
+  currentPage?: number | string | null
+  current?: number | string | null
+  page?: number | string | null
+  pageSize?: number | string | null
+  size?: number | string | null
 }
 
 type OrgTreeRawNode = {
-  id?: string | number | null
+  id?: number | string | null
   orgName?: string | null
-  orgType?: string | number | null
-  sort?: string | number | null
+  orgType?: number | string | null
+  sort?: number | string | null
   children?: OrgTreeRawNode[] | null
 }
 
 type PositionRawItem = {
-  id?: string | number | null
+  id?: number | string | null
   postName?: string | null
 }
 
 type RoleRawItem = {
-  id?: string | number | null
+  id?: number | string | null
   roleName?: string | null
 }
 
@@ -259,18 +259,18 @@ type UserDetailRawData = {
   corporateUserQueryVOS?: UserRawCorporateUser[] | null
 }
 
-function toUserOrgPost(item: UserRawOrgPost): UserOrgPostRecord {
+function toUserOrgPost (item: UserRawOrgPost): UserOrgPostRecord {
   return {
     id: toStringValue(item.id),
     postId: toStringValue(item.postId),
     postName: toStringValue(item.postName),
     sort: toNumberValue(item.sort, 1),
     status: toNumberValue(item.status, 1)
-  }
+  };
 }
 
-function toUserOrg(item: UserRawOrg): UserOrgRecord {
-  const postVos = extractList(item.postVos).map((post) => toUserOrgPost((post || {}) as UserRawOrgPost))
+function toUserOrg (item: UserRawOrg): UserOrgRecord {
+  const postVos = extractList(item.postVos).map((post) => toUserOrgPost((post || {}) as UserRawOrgPost));
 
   return {
     id: toStringValue(item.id),
@@ -284,11 +284,15 @@ function toUserOrg(item: UserRawOrg): UserOrgRecord {
     status: toNumberValue(item.status, 1),
     postVos: postVos.length > 0
       ? postVos
-      : [{ postId: '', sort: 1, status: 1 }]
-  }
+      : [{
+        postId: '',
+        sort: 1,
+        status: 1
+      }]
+  };
 }
 
-function toUserRow(item: UserRawRecord): UserListRecord {
+function toUserRow (item: UserRawRecord): UserListRecord {
   return {
     id: toStringValue(item.id),
     nickName: toStringValue(item.nickName),
@@ -302,29 +306,29 @@ function toUserRow(item: UserRawRecord): UserListRecord {
     isExternal: toBooleanValue(item.isExternal, false),
     createTime: toStringValue(item.createTime),
     lastLoginTime: toStringValue(item.lastLoginTime)
-  }
+  };
 }
 
-function toUserRole(item: UserRawRole): UserRoleRecord {
+function toUserRole (item: UserRawRole): UserRoleRecord {
   return {
     id: toStringValue(item.id),
     roleName: toStringValue(item.roleName)
-  }
+  };
 }
 
-function toCorporateUser(item: UserRawCorporateUser): CorporateUserRecord {
+function toCorporateUser (item: UserRawCorporateUser): CorporateUserRecord {
   return {
     id: toStringValue(item.id),
     userId: toStringValue(item.userId),
     userName: toStringValue(item.userName),
     nickName: toStringValue(item.nickName),
     phone: toStringValue(item.phone)
-  }
+  };
 }
 
-function toUserDetail(userInfo: UserRawRecord, userRoleList: UserRoleRecord[]): UserDetailRecord {
-  const userOrgs = extractList(userInfo.userOrgs).map((item) => toUserOrg((item || {}) as UserRawOrg))
-  const roleIds = userRoleList.map((item) => item.id).filter(Boolean)
+function toUserDetail (userInfo: UserRawRecord, userRoleList: UserRoleRecord[]): UserDetailRecord {
+  const userOrgs = extractList(userInfo.userOrgs).map((item) => toUserOrg((item || {}) as UserRawOrg));
+  const roleIds = userRoleList.map((item) => item.id).filter(Boolean);
 
   return {
     ...toUserRow(userInfo),
@@ -333,86 +337,94 @@ function toUserDetail(userInfo: UserRawRecord, userRoleList: UserRoleRecord[]): 
     roleIds,
     userOrgs: userOrgs.length > 0
       ? userOrgs
-      : [{ orgId: '', ownSort: 1, sort: 1, status: 1, postVos: [{ postId: '', sort: 1, status: 1 }] }]
-  }
+      : [{
+        orgId: '',
+        ownSort: 1,
+        sort: 1,
+        status: 1,
+        postVos: [{
+          postId: '',
+          sort: 1,
+          status: 1
+        }]
+      }]
+  };
 }
 
-function toUserPageData(data: unknown): UserPageData {
-  const payload = toRecord(data) as UserPageRawData
-  const records = extractList(payload).map((item) => toUserRow((item || {}) as UserRawRecord))
-  const total = toNumberValue(payload.totalCount ?? payload.total ?? payload.count, records.length)
-  const currentPage = toNumberValue(payload.currentPage ?? payload.current ?? payload.page, 1)
-  const pageSize = toNumberValue(payload.pageSize ?? payload.size, 10)
+function toUserPageData (data: unknown): UserPageData {
+  const payload = toRecord(data) as UserPageRawData;
+  const records = extractList(payload).map((item) => toUserRow((item || {}) as UserRawRecord));
+  const total = toNumberValue(payload.totalCount ?? payload.total ?? payload.count, records.length);
+  const currentPage = toNumberValue(payload.currentPage ?? payload.current ?? payload.page, 1);
+  const pageSize = toNumberValue(payload.pageSize ?? payload.size, 10);
 
   return {
     records,
     total,
     currentPage,
     pageSize
-  }
+  };
 }
 
-function toUserDetailData(data: unknown): UserDetailData {
-  const payload = toRecord(data) as UserDetailRawData
-  const fallbackUserInfo = (payload as unknown as UserRawRecord) || {}
-  const userInfo = ((payload.userInfo || fallbackUserInfo) || {}) as UserRawRecord
+function toUserDetailData (data: unknown): UserDetailData {
+  const payload = toRecord(data) as UserDetailRawData;
+  const fallbackUserInfo = (payload as unknown as UserRawRecord) || {};
+  const userInfo = ((payload.userInfo || fallbackUserInfo) || {});
 
-  const userRoleList = extractList(payload.userRoleList).map((item) => toUserRole((item || {}) as UserRawRole))
+  const userRoleList = extractList(payload.userRoleList).map((item) => toUserRole((item || {}) as UserRawRole));
 
-  const corporateSource = payload.corporateUserQueryVOS ?? userInfo.corporateUserQueryVOS
-  const corporateUserList = extractList(corporateSource).map((item) =>
-    toCorporateUser((item || {}) as UserRawCorporateUser)
-  )
+  const corporateSource = payload.corporateUserQueryVOS ?? userInfo.corporateUserQueryVOS;
+  const corporateUserList = extractList(corporateSource).map((item) => toCorporateUser((item || {}) as UserRawCorporateUser));
 
   return {
     userInfo: toUserDetail(userInfo, userRoleList),
     userRoleList,
     corporateUserList
-  }
+  };
 }
 
-function toOrgTree(item: OrgTreeRawNode): OrgTreeNode {
-  const children = extractList(item.children).map((child) => toOrgTree((child || {}) as OrgTreeRawNode))
+function toOrgTree (item: OrgTreeRawNode): OrgTreeNode {
+  const children = extractList(item.children).map((child) => toOrgTree((child || {}) as OrgTreeRawNode));
   return {
     id: toStringValue(item.id),
     orgName: toStringValue(item.orgName),
     orgType: toNumberValue(item.orgType, 0),
     sort: toNumberValue(item.sort, 0),
     children
-  }
+  };
 }
 
-function toPositionItem(item: PositionRawItem): PositionItem {
+function toPositionItem (item: PositionRawItem): PositionItem {
   return {
     id: toStringValue(item.id),
     postName: toStringValue(item.postName)
-  }
+  };
 }
 
-function toRoleItem(item: RoleRawItem): RoleItem {
+function toRoleItem (item: RoleRawItem): RoleItem {
   return {
     id: toStringValue(item.id),
     roleName: toStringValue(item.roleName)
-  }
+  };
 }
 
-function toUserBrief(item: UserRawRecord): UserBriefRecord {
+function toUserBrief (item: UserRawRecord): UserBriefRecord {
   return {
     id: toStringValue(item.id),
     nickName: toStringValue(item.nickName),
     phone: toStringValue(item.phone),
     userAccount: toStringValue(item.userAccount)
-  }
+  };
 }
 
-function encodeQueryValue(value: string | number): string {
-  return encodeURIComponent(String(value))
+function encodeQueryValue (value: number | string): string {
+  return encodeURIComponent(String(value));
 }
 
 export const userApi = {
-  page: (params: UserPageParams) => {
-    const startDate = trimText(params.startDate)
-    const endDate = trimText(params.endDate)
+  page: async (params: UserPageParams) => {
+    const startDate = trimText(params.startDate);
+    const endDate = trimText(params.endDate);
 
     return getHttpClient()
       .get<BizResponse<UserPageData>>('/cmict/admin/user/manage/page', {
@@ -432,107 +444,89 @@ export const userApi = {
       .then((response) => ({
         ...response,
         data: toUserPageData(response.data)
-      }))
+      }));
   },
 
-  detail: (params: { id: string }) =>
-    getHttpClient()
-      .get<BizResponse<UserDetailData>>('/cmict/admin/user/detail', {
-        params: {
-          id: params.id
-        }
-      })
-      .then((response) => ({
-        ...response,
-        data: toUserDetailData(response.data)
-      })),
+  detail: async (params: { id: string }) => getHttpClient()
+    .get<BizResponse<UserDetailData>>('/cmict/admin/user/detail', {
+      params: {
+        id: params.id
+      }
+    })
+    .then((response) => ({
+      ...response,
+      data: toUserDetailData(response.data)
+    })),
 
-  add: (data: UserSavePayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/add', { data }),
+  add: async (data: UserSavePayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/add', { data }),
 
-  update: (data: UserSavePayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/update', { data }),
+  update: async (data: UserSavePayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/update', { data }),
 
-  remove: (data: { id: string }) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/delete', { data }),
+  remove: async (data: { id: string }) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/delete', { data }),
 
-  orgList: () =>
-    getHttpClient()
-      .get<BizResponse<OrgTreeNode[]>>('/cmict/admin/org/manage/list')
-      .then((response) => ({
-        ...response,
-        data: extractList(response.data).map((item) => toOrgTree((item || {}) as OrgTreeRawNode))
-      })),
+  orgList: async () => getHttpClient()
+    .get<BizResponse<OrgTreeNode[]>>('/cmict/admin/org/manage/list')
+    .then((response) => ({
+      ...response,
+      data: extractList(response.data).map((item) => toOrgTree((item || {}) as OrgTreeRawNode))
+    })),
 
-  positionList: () =>
-    getHttpClient()
-      .get<BizResponse<PositionItem[]>>('/cmict/admin/sys-post/list')
-      .then((response) => ({
-        ...response,
-        data: extractList(response.data).map((item) => toPositionItem((item || {}) as PositionRawItem))
-      })),
+  positionList: async () => getHttpClient()
+    .get<BizResponse<PositionItem[]>>('/cmict/admin/sys-post/list')
+    .then((response) => ({
+      ...response,
+      data: extractList(response.data).map((item) => toPositionItem((item || {}) as PositionRawItem))
+    })),
 
-  roleList: () =>
-    getHttpClient()
-      .get<BizResponse<RoleItem[]>>('/cmict/admin/role/list')
-      .then((response) => ({
-        ...response,
-        data: extractList(response.data).map((item) => toRoleItem((item || {}) as RoleRawItem))
-      })),
+  roleList: async () => getHttpClient()
+    .get<BizResponse<RoleItem[]>>('/cmict/admin/role/list')
+    .then((response) => ({
+      ...response,
+      data: extractList(response.data).map((item) => toRoleItem((item || {}) as RoleRawItem))
+    })),
 
-  searchUsers: (params: { nickName?: string }) =>
-    getHttpClient()
-      .get<BizResponse<UserBriefRecord[]>>('/cmict/admin/user/list', {
-        params: {
-          nickName: trimText(params.nickName)
-        }
-      })
-      .then((response) => ({
-        ...response,
-        data: extractList(response.data).map((item) => toUserBrief((item || {}) as UserRawRecord))
-      })),
+  searchUsers: async (params: { nickName?: string }) => getHttpClient()
+    .get<BizResponse<UserBriefRecord[]>>('/cmict/admin/user/list', {
+      params: {
+        nickName: trimText(params.nickName)
+      }
+    })
+    .then((response) => ({
+      ...response,
+      data: extractList(response.data).map((item) => toUserBrief((item || {}) as UserRawRecord))
+    })),
 
-  updateStatus: (data: UserStatusPayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/state', { data }),
+  updateStatus: async (data: UserStatusPayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/state', { data }),
 
-  resetPwd: (data: UserResetPasswordPayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/password-reset', { data }),
+  resetPwd: async (data: UserResetPasswordPayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/password-reset', { data }),
 
-  changeUserAccount: (data: UserChangeAccountPayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/change-userAccount', { data }),
+  changeUserAccount: async (data: UserChangeAccountPayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/change-userAccount', { data }),
 
-  checkUnique: (data: UserUniquePayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/unique/check', { data }),
+  checkUnique: async (data: UserUniquePayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/unique/check', { data }),
 
-  adjustOrgSort: (data: UserSortPayload) =>
-    getHttpClient().post<BizResponse<boolean>>(
-      `/cmict/admin/user/adjust-org-sort?orgId=${encodeQueryValue(data.orgId)}&userId=${encodeQueryValue(data.id)}&targetSort=${encodeQueryValue(data.index)}`
-    ),
+  adjustOrgSort: async (data: UserSortPayload) => getHttpClient().post<BizResponse<boolean>>(`/cmict/admin/user/adjust-org-sort?orgId=${encodeQueryValue(data.orgId)}&userId=${encodeQueryValue(data.id)}&targetSort=${encodeQueryValue(data.index)}`),
 
-  importUser: (file: File) => {
-    const formData = new FormData()
-    formData.append('file', file)
+  importUser: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
 
     return getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/import', {
       data: formData,
       $isUpload: true
-    })
+    });
   },
 
-  manageEditPhoto: (data: FormData) =>
-    getHttpClient().post<BizResponse<{ id?: string }>>('/cmict/file/avatar/manage/upload', {
-      data,
-      $isUpload: true
-    }),
+  manageEditPhoto: async (data: FormData) => getHttpClient().post<BizResponse<{ id?: string }>>('/cmict/file/avatar/manage/upload', {
+    data,
+    $isUpload: true
+  }),
 
-  editPhoto: (data: FormData) =>
-    getHttpClient().post<BizResponse<{ id?: string }>>('/cmict/onemsg/personal/avatar/upload/user', {
-      data,
-      $isUpload: true
-    }),
+  editPhoto: async (data: FormData) => getHttpClient().post<BizResponse<{ id?: string }>>('/cmict/onemsg/personal/avatar/upload/user', {
+    data,
+    $isUpload: true
+  }),
 
-  updateCorporateUser: (data: UserBindAccountPayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/corporate-user/update', { data })
-}
+  updateCorporateUser: async (data: UserBindAccountPayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/corporate-user/update', { data })
+};
 
-export default userApi
+export default userApi;

@@ -7,10 +7,10 @@ import {
   APP_LOGIN_ROUTE_PATH
 } from '../router/constants';
 
-export function installAppRouterGuards(params: {
+export function installAppRouterGuards (params: {
   router: Router;
   skipMenuAuthRouteNames: string[];
-  onNavigationStart: () => void | Promise<void>;
+  onNavigationStart: () => Promise<void> | void;
 }) {
   const { router, skipMenuAuthRouteNames, onNavigationStart } = params;
 

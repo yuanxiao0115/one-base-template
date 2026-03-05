@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { Delete, Plus, Search } from '@element-plus/icons-vue'
-import RoleAssignMemberSelectForm from './components/RoleAssignMemberSelectForm.vue'
-import { useRoleAssignPageState } from './composables/useRoleAssignPageState'
+import { Delete, Plus, Search } from '@element-plus/icons-vue';
+import RoleAssignMemberSelectForm from './components/RoleAssignMemberSelectForm.vue';
+import { useRoleAssignPageState } from './composables/useRoleAssignPageState';
 
 defineOptions({
   name: 'RoleAssignPage'
-})
+});
 
-const pageState = useRoleAssignPageState()
+const pageState = useRoleAssignPageState();
 
-const refs = pageState.refs
+const { refs } = pageState;
 
 const {
   loading,
@@ -19,21 +19,21 @@ const {
   selectedNum,
   searchForm,
   currentRoleName
-} = pageState.table
+} = pageState.table;
 
 const {
   roleLoading,
   roleKeyword,
   roleList,
   currentRole
-} = pageState.roles
+} = pageState.roles;
 
 const {
   memberDialogVisible,
   memberDialogLoading,
   memberDialogSubmitting,
   memberForm
-} = pageState.dialogs
+} = pageState.dialogs;
 
 const {
   onRoleKeywordUpdate,
@@ -53,20 +53,22 @@ const {
   openAddMembersDialog,
   closeAddMembersDialog,
   submitAddMembersDialog
-} = pageState.actions
+} = pageState.actions;
 
-function onRoleMenuSelect(roleId: string) {
-  const target = roleList.value.find((item) => String(item.id) === roleId)
-  if (!target) return
-  void selectRole(target)
+function onRoleMenuSelect (roleId: string) {
+  const target = roleList.value.find((item) => String(item.id) === roleId);
+  if (!target) {
+    return;
+  }
+  void selectRole(target);
 }
 </script>
 
 <template>
   <ObPageContainer padding="0" overflow="hidden" left-width="248px">
     <template #left>
-      <section class="flex h-full min-h-0 flex-col">
-        <div class="mb-2 flex items-center justify-between text-sm font-medium text-[var(--el-text-color-primary)]">
+      <section class="flex flex-col h-full min-h-0">
+        <div class="flex font-medium items-center justify-between mb-2 text-[var(--el-text-color-primary)] text-sm">
           <span>角色列表</span>
           <el-tag size="small" type="info">{{ roleList.length }}</el-tag>
         </div>
@@ -82,7 +84,7 @@ function onRoleMenuSelect(roleId: string) {
           @keyup.enter="onRoleKeywordSearch"
         />
 
-        <el-scrollbar v-loading="roleLoading" class="min-h-0 flex-1">
+        <el-scrollbar v-loading="roleLoading" class="flex-1 min-h-0">
           <el-empty v-if="roleList.length === 0" description="暂无角色数据" :image-size="78" />
           <el-menu
             v-else
@@ -94,9 +96,9 @@ function onRoleMenuSelect(roleId: string) {
               v-for="item in roleList"
               :key="item.id"
               :index="String(item.id)"
-              class="mb-1 flex justify-between pr-2 text-xs"
+              class="flex justify-between mb-1 pr-2 text-xs"
             >
-              <span class="mr-2 flex-1 truncate">{{ item.roleName }}</span>
+              <span class="flex-1 mr-2 truncate">{{ item.roleName }}</span>
               <el-tag size="small" effect="plain">{{ item.userAmount || 0 }}人</el-tag>
             </el-menu-item>
           </el-menu>
@@ -109,22 +111,22 @@ function onRoleMenuSelect(roleId: string) {
       :columns="tableColumns"
       placeholder="请输入用户名搜索"
       :keyword="searchForm.keyWord"
-      :selected-num="selectedNum"
+      :selected-num
       @search="tableSearch"
       @update:keyword="onKeywordUpdate"
       @reset-form="onResetSearch"
       @selection-cancel="onSelectionCancel"
     >
       <template #buttons>
-        <el-button :icon="Delete" @click="handleRemove()">移除人员</el-button>
+        <el-button :icon="Delete" @click="handleRemove">移除人员</el-button>
         <el-button type="primary" :icon="Plus" @click="openAddMembersDialog">添加人员</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :loading="loading"
-          :size="size"
+          :loading
+          :size
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="tablePagination"
@@ -135,7 +137,7 @@ function onRoleMenuSelect(roleId: string) {
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="danger" :size="actionSize" @click="handleRemove(row)">移除</el-button>
+              <el-button link type="danger" :size="actionSize" @click="() => handleRemove(row)">移除</el-button>
             </ObActionButtons>
           </template>
         </ObVxeTable>
@@ -158,8 +160,8 @@ function onRoleMenuSelect(roleId: string) {
       :ref="refs.memberFormRef"
       v-model="memberForm"
       :disabled="memberDialogLoading || memberDialogSubmitting"
-      :fetch-contact-nodes="fetchContactNodes"
-      :search-contact-users="searchContactUsers"
+      :fetch-contact-nodes
+      :search-contact-users
     />
   </ObCrudContainer>
 </template>
@@ -172,6 +174,7 @@ function onRoleMenuSelect(roleId: string) {
 }
 
 .role-assign-page__role-menu {
+
   --el-menu-item-height: 40px;
   border-right: none;
   background: transparent;

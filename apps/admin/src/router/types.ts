@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router';
 
-export type EnabledModulesSetting = '*' | string[];
+export type EnabledModulesSetting = string[] | '*';
 export type ModuleTier = 'core' | 'optional';
 
 export type RouteAlias = {
@@ -8,7 +8,7 @@ export type RouteAlias = {
   to: string;
 };
 
-interface AdminModuleManifestBase {
+type AdminModuleManifestBase = {
   id: string;
   version: '1';
   routes: {
@@ -34,7 +34,7 @@ export type OptionalModuleManifest = AdminModuleManifestBase & {
 
 export type AdminModuleManifest = CoreModuleManifest | OptionalModuleManifest;
 
-export interface AppRouteAssemblyResult {
+export type AppRouteAssemblyResult = {
   routes: RouteRecordRaw[];
   skipMenuAuthRouteNames: string[];
 }

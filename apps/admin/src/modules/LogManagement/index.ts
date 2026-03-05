@@ -1,1 +1,1 @@
-export { default as logManagementModule } from './module'
+export { default as logManagementModule } from './module';

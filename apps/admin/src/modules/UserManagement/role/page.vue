@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { Plus } from '@element-plus/icons-vue'
-import RoleEditForm from './components/RoleEditForm.vue'
-import RolePermissionDialog from './components/RolePermissionDialog.vue'
-import RoleSearchForm from './components/RoleSearchForm.vue'
-import { roleFormRules } from './form'
-import { useRolePageState } from './composables/useRolePageState'
+import { Plus } from '@element-plus/icons-vue';
+import RoleEditForm from './components/RoleEditForm.vue';
+import RolePermissionDialog from './components/RolePermissionDialog.vue';
+import RoleSearchForm from './components/RoleSearchForm.vue';
+import { roleFormRules } from './form';
+import { useRolePageState } from './composables/useRolePageState';
 
 defineOptions({
   name: 'RoleManagementPage'
-})
+});
 
 // 页面仅保留编排层：角色管理查询、CRUD 与权限配置逻辑统一下沉到 composable。
-const pageState = useRolePageState()
+const pageState = useRolePageState();
 
-const refs = pageState.refs
+const { refs } = pageState;
 
 const {
   loading,
@@ -21,7 +21,7 @@ const {
   tablePagination,
   tableColumns,
   searchForm
-} = pageState.table
+} = pageState.table;
 
 const {
   crud,
@@ -31,13 +31,13 @@ const {
   crudReadonly,
   crudSubmitting,
   crudForm
-} = pageState.editor
+} = pageState.editor;
 
 const {
   permissionVisible,
   permissionRoleId,
   permissionRoleName
-} = pageState.dialogs
+} = pageState.dialogs;
 
 const {
   tableSearch,
@@ -48,7 +48,7 @@ const {
   handleDelete,
   openPermissionDialog,
   handlePermissionSaved
-} = pageState.actions
+} = pageState.actions;
 </script>
 
 <template>
@@ -69,8 +69,8 @@ const {
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :loading="loading"
-          :size="size"
+          :loading
+          :size
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="tablePagination"
@@ -80,10 +80,10 @@ const {
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)">编辑</el-button>
-              <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)">查看</el-button>
-              <el-button link type="primary" :size="actionSize" @click="openPermissionDialog(row)">添加权限</el-button>
-              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)">编辑</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)">查看</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => openPermissionDialog(row)">添加权限</el-button>
+              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
             </ObActionButtons>
           </template>
         </ObVxeTable>
@@ -102,7 +102,7 @@ const {
     :title="crudTitle"
     :loading="crudSubmitting"
     :show-cancel-button="!crudReadonly"
-    :confirm-text="'保存'"
+    confirm-text="保存"
     :drawer-size="420"
     @confirm="crud.confirm"
     @cancel="crud.close"

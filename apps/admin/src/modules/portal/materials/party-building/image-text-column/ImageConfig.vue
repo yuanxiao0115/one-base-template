@@ -96,11 +96,11 @@
       <el-input v-model="modelValue.moreText" placeholder="请输入按钮文字" />
     </el-form-item>
 
-    <el-form-item v-if="modelValue.showMore" label="按钮文字颜色">
+    <el-form-item v-if="modelValue.showMore" key="el-form-item-2" label="按钮文字颜色">
       <el-color-picker v-model="modelValue.moreTextColor" show-alpha />
     </el-form-item>
 
-    <el-form-item v-if="modelValue.showMore" label="按钮字体大小">
+    <el-form-item v-if="modelValue.showMore" key="el-form-item-3" label="按钮字体大小">
       <div class="input-with-unit">
         <el-input-number
           v-model="modelValue.moreFontSize"
@@ -115,11 +115,11 @@
       </div>
     </el-form-item>
 
-    <el-form-item v-if="modelValue.showMore" label="按钮背景色">
+    <el-form-item v-if="modelValue.showMore" key="el-form-item-4" label="按钮背景色">
       <el-color-picker v-model="modelValue.moreBgColor" show-alpha />
     </el-form-item>
 
-    <el-form-item v-if="modelValue.showMore" label="按钮内边距">
+    <el-form-item v-if="modelValue.showMore" key="el-form-item-5" label="按钮内边距">
       <div class="input-with-unit">
         <el-input-number
           v-model="modelValue.morePaddingX"
@@ -144,7 +144,7 @@
       </div>
     </el-form-item>
 
-    <el-form-item v-if="modelValue.showMore" label="按钮圆角">
+    <el-form-item v-if="modelValue.showMore" key="el-form-item-6" label="按钮圆角">
       <div class="input-with-unit">
         <el-input-number
           v-model="modelValue.moreBorderRadius"
@@ -159,14 +159,14 @@
       </div>
     </el-form-item>
 
-    <el-form-item v-if="modelValue.showMore" label="按钮位置">
+    <el-form-item v-if="modelValue.showMore" key="el-form-item-7" label="按钮位置">
       <el-radio-group v-model="modelValue.moreAlign">
         <el-radio label="left">左下</el-radio>
         <el-radio label="right">右下</el-radio>
       </el-radio-group>
     </el-form-item>
 
-    <el-form-item v-if="modelValue.showMore" label="按钮偏移">
+    <el-form-item v-if="modelValue.showMore" key="el-form-item-8" label="按钮偏移">
       <div class="input-with-unit">
         <el-input-number
           v-model="modelValue.moreOffsetX"
@@ -191,7 +191,7 @@
       </div>
     </el-form-item>
 
-    <el-form-item v-if="modelValue.showMore" label="按钮跳转地址">
+    <el-form-item v-if="modelValue.showMore" key="el-form-item-9" label="按钮跳转地址">
       <el-input v-model="modelValue.moreLink" placeholder="请输入链接地址" />
     </el-form-item>
   </div>
@@ -201,26 +201,16 @@
 import { ref, watch } from 'vue';
 import SelectImg from '../../SelectImg.vue';
 
-export interface ImageConfigModelType {
+export type ImageConfigModelType = {
   imageUrl?: string;
   imageWidth: number;
   imageHeight: number;
   imageBorderRadius: number;
   imagePosition: 'left' | 'right';
-  imageRepeat: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y';
-  imageSize: 'cover' | 'contain' | '100% 100%' | 'auto';
+  imageRepeat: 'no-repeat' | 'repeat-x' | 'repeat-y' | 'repeat';
+  imageSize: '100% 100%' | 'auto' | 'contain' | 'cover';
   imageBgPosition:
-    | 'center'
-    | 'top'
-    | 'bottom'
-    | 'left'
-    | 'right'
-    | 'left top'
-    | 'left center'
-    | 'left bottom'
-    | 'right top'
-    | 'right center'
-    | 'right bottom';
+    'bottom' | 'center' | 'left bottom' | 'left center' | 'left top' | 'left' | 'right bottom' | 'right center' | 'right top' | 'right' | 'top';
   showMore: boolean;
   moreText: string;
   moreLink: string;
@@ -266,7 +256,7 @@ if (modelValue.value?.imageUrl) {
   imageId.value = modelValue.value.imageUrl;
 }
 
-watch(imageId, newVal => {
+watch(imageId, (newVal) => {
   if (newVal) {
     modelValue.value.imageUrl = newVal;
   } else {
@@ -281,12 +271,16 @@ defineOptions({
 
 <style scoped>
 .image-config {
-  --config-border: #e2e8f0;
-  --config-surface: #f8fafc;
-  --config-surface-strong: #fff;
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-border: #e2e8f0;
+
+  --config-surface: #f8fafc;
+
+  --config-surface-strong: #fff;
+
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -295,7 +289,7 @@ defineOptions({
 .image-config :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 .image-config :deep(.el-form-item__label) {

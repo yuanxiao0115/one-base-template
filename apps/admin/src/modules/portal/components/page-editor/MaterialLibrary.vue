@@ -10,14 +10,16 @@ const activeNames = ref<string[]>(portalMaterialsRegistry.categories.map((c) => 
 
 const categories = computed(() => portalMaterialsRegistry.categories);
 
-function onDragStart(e: DragEvent, item: RegistryItem) {
-  if (!e.dataTransfer) return;
+function onDragStart (e: DragEvent, item: RegistryItem) {
+  if (!e.dataTransfer) {
+    return;
+  }
 
   const payload = {
     w: Number(item.cmptWidth) || 6,
     h: Math.round(Number(item.cmptHeight) || 6),
     cmptConfig: item.cmptConfig || {},
-    cmptName: item.cmptName || item.id,
+    cmptName: item.cmptName || item.id
   };
 
   e.dataTransfer.setData('application/json', JSON.stringify(payload));
@@ -112,7 +114,7 @@ function onDragStart(e: DragEvent, item: RegistryItem) {
 }
 
 .material-card:hover {
-  box-shadow: 0 8px 20px rgb(15 23 42 / 10%);
+  box-shadow: 0 8px 20px rgb(15 23 42 / .1);
   transform: translateY(-1px);
 }
 

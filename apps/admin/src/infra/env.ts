@@ -1,9 +1,9 @@
 import { getPlatformConfig } from '../config/platform-config';
 import type {
+  EnabledModulesSetting,
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
-  PlatformMenuMode,
-  EnabledModulesSetting
+  PlatformMenuMode
 } from '@one-base-template/core';
 
 export type BackendKind = PlatformBackendKind;
@@ -37,18 +37,20 @@ export type AppEnv = {
   systemHomeMap: Record<string, string>;
 };
 
-function isNonEmptyString(v: unknown): v is string {
+function isNonEmptyString (v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
 }
 
-export function resolveSczfwHeaders(params: {
+export function resolveSczfwHeaders (params: {
   backend: BackendKind;
   authorizationType: string;
   appsource: string;
   appcode: string;
 }): Record<string, string> | undefined {
   const { backend, authorizationType, appsource, appcode } = params;
-  if (backend !== 'sczfw') return undefined;
+  if (backend !== 'sczfw') {
+    return undefined;
+  }
 
   // sczfw 老项目请求头约定（由 platform-config.json 提供）。
   return {
@@ -58,33 +60,37 @@ export function resolveSczfwHeaders(params: {
   };
 }
 
-export function resolveApiBaseUrl(): string | undefined {
+export function resolveApiBaseUrl (): string | undefined {
   const raw = import.meta.env.VITE_API_BASE_URL as unknown;
   return isNonEmptyString(raw) ? raw : undefined;
 }
 
-export function resolveSczfwSystemPermissionCode(): string | undefined {
+export function resolveSczfwSystemPermissionCode (): string | undefined {
   const raw = import.meta.env.VITE_SCZFW_SYSTEM_PERMISSION_CODE as unknown;
   return isNonEmptyString(raw) ? raw : undefined;
 }
 
-export function resolveUseMock(): boolean {
+export function resolveUseMock (): boolean {
   const raw = import.meta.env.VITE_USE_MOCK as unknown;
   return raw === 'true';
 }
 
-export function resolveDefaultSystemCode(params: {
+export function resolveDefaultSystemCode (params: {
   backend: BackendKind;
   defaultSystemCode?: string;
 }): string | undefined {
   const { backend, defaultSystemCode } = params;
-  if (isNonEmptyString(defaultSystemCode)) return defaultSystemCode;
-  if (backend !== 'sczfw') return undefined;
+  if (isNonEmptyString(defaultSystemCode)) {
+    return defaultSystemCode;
+  }
+  if (backend !== 'sczfw') {
+    return undefined;
+  }
   // 与旧实现保持一致：sczfw 默认系统为 admin_server
   return 'admin_server';
 }
 
-export function resolveBuildEnv(): BuildEnv {
+export function resolveBuildEnv (): BuildEnv {
   const isProd = import.meta.env.PROD;
   const baseUrl = import.meta.env.BASE_URL;
   const apiBaseUrl = resolveApiBaseUrl();
@@ -100,30 +106,30 @@ export function resolveBuildEnv(): BuildEnv {
   };
 }
 
-export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
+export function resolveAppEnv (params: { buildEnv: BuildEnv }): AppEnv {
   const { buildEnv } = params;
   const runtime = getPlatformConfig();
 
-  const backend = runtime.backend;
-  const authMode = runtime.authMode;
-  const tokenKey = runtime.tokenKey;
-  const idTokenKey = runtime.idTokenKey;
-  const menuMode = runtime.menuMode;
-  const enabledModules = runtime.enabledModules;
+  const { backend } = runtime;
+  const { authMode } = runtime;
+  const { tokenKey } = runtime;
+  const { idTokenKey } = runtime;
+  const { menuMode } = runtime;
+  const { enabledModules } = runtime;
   const sczfwHeaders = resolveSczfwHeaders({
     backend,
     authorizationType: runtime.authorizationType,
     appsource: runtime.appsource,
     appcode: runtime.appcode
   });
-  const clientSignatureSalt = runtime.clientSignatureSalt;
-  const clientSignatureClientId = runtime.clientSignatureClientId;
+  const { clientSignatureSalt } = runtime;
+  const { clientSignatureClientId } = runtime;
   const storageNamespace = runtime.storageNamespace || runtime.appcode;
   const defaultSystemCode = resolveDefaultSystemCode({
     backend,
     defaultSystemCode: runtime.defaultSystemCode
   });
-  const systemHomeMap = runtime.systemHomeMap;
+  const { systemHomeMap } = runtime;
 
   // 菜单根 permissionCode 改由 runtime defaultSystemCode 兜底，避免继续依赖业务 env。
   const sczfwSystemPermissionCode = defaultSystemCode;

@@ -1,4 +1,4 @@
-import { ONE_BUILTIN_THEMES, type CoreOptions, type ThemePrimaryScale } from '@one-base-template/core';
+import { type CoreOptions, ONE_BUILTIN_THEMES, type ThemePrimaryScale } from '@one-base-template/core';
 
 const ADMIN_PURPLE_SCALE: ThemePrimaryScale = {
   light1: '#F3EBFF',

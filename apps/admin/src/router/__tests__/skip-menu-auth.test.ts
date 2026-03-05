@@ -11,8 +11,16 @@ describe('router/skip-menu-auth', () => {
   });
 
   it('isSkipMenuAuthRoute 仅在 meta.skipMenuAuth=true 时命中', () => {
-    const routeA = { path: '/a', component: {}, meta: { skipMenuAuth: true } } as RouteRecordRaw;
-    const routeB = { path: '/b', component: {}, meta: { skipMenuAuth: false } } as RouteRecordRaw;
+    const routeA = {
+      path: '/a',
+      component: {},
+      meta: { skipMenuAuth: true }
+    } as RouteRecordRaw;
+    const routeB = {
+      path: '/b',
+      component: {},
+      meta: { skipMenuAuth: false }
+    } as RouteRecordRaw;
 
     expect(isSkipMenuAuthRoute(routeA)).toBe(true);
     expect(isSkipMenuAuthRoute(routeB)).toBe(false);

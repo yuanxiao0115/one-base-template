@@ -1,4 +1,4 @@
-export interface ListStyleModelType {
+export type ListStyleModelType = {
   titleColor?: string;
   titleFontSize?: number;
   titleFontWeight?: string;
@@ -9,7 +9,7 @@ export interface ListStyleModelType {
   dotSize?: number;
   dotGap?: number;
   rowDividerColor?: string;
-  rowDividerStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
+  rowDividerStyle?: 'dashed' | 'dotted' | 'none' | 'solid';
   rowDividerWidth?: number;
   rowPaddingY?: number;
   imageWidth?: number;
@@ -17,7 +17,7 @@ export interface ListStyleModelType {
   imageBorderRadius?: number;
 }
 
-export interface ListDisplayConfigModelType {
+export type ListDisplayConfigModelType = {
   maxDisplayCount?: number;
   showDot?: boolean;
 }

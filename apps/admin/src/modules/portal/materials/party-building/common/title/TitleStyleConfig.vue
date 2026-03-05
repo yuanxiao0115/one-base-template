@@ -81,7 +81,7 @@
 import TitleStripeConfig from './TitleStripeConfig.vue';
 
 // 定义接口类型
-export interface TitleStyleModelType {
+export type TitleStyleModelType = {
   titleColor: string;
   titleFontSize: number;
   titleFontWeight: string;
@@ -137,7 +137,7 @@ defineOptions({
 :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text, #0f172a);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 :deep(.el-form-item__label) {

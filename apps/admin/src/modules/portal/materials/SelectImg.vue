@@ -12,9 +12,15 @@ import { computed } from 'vue';
 const modelValue = defineModel<string>({ default: '' });
 
 const previewUrl = computed(() => {
-  if (!modelValue.value) return '';
-  if (modelValue.value.startsWith('http')) return modelValue.value;
-  if (modelValue.value.startsWith('data:')) return modelValue.value;
+  if (!modelValue.value) {
+    return '';
+  }
+  if (modelValue.value.startsWith('http')) {
+    return modelValue.value;
+  }
+  if (modelValue.value.startsWith('data:')) {
+    return modelValue.value;
+  }
   return `/cmict/file/resource/show?id=${encodeURIComponent(modelValue.value)}`;
 });
 </script>

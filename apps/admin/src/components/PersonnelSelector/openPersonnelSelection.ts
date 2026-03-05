@@ -1,18 +1,18 @@
-import { createVNode, render, type AppContext } from 'vue'
-import PersonnelSelectionDialogHost from './PersonnelSelectionDialogHost.vue'
+import { type AppContext, createVNode, render } from 'vue';
+import PersonnelSelectionDialogHost from './PersonnelSelectionDialogHost.vue';
 import type {
   OpenPersonnelSelectionResult,
   PersonnelFetchNodes,
   PersonnelSearchNodes,
-  PersonnelSelectMode,
   PersonnelSelectedItem,
   PersonnelSelectedOrg,
   PersonnelSelectedPosition,
   PersonnelSelectedRole,
   PersonnelSelectedUser,
   PersonnelSelectionField,
-  PersonnelSelectionModel
-} from './types'
+  PersonnelSelectionModel,
+  PersonnelSelectMode
+} from './types';
 
 type PersonnelSelectionLegacyUser = {
   id: string
@@ -32,9 +32,9 @@ type PersonnelSelectionLegacyNode = {
   positionName?: string
 }
 
-export interface OpenPersonnelSelectionOptions {
+export type OpenPersonnelSelectionOptions = {
   title?: string
-  width?: string | number
+  width?: number | string
   mode?: PersonnelSelectMode
   selectionField?: PersonnelSelectionField
   allowSelectOrg?: boolean
@@ -53,34 +53,48 @@ export interface OpenPersonnelSelectionOptions {
   searchNodes: PersonnelSearchNodes
 }
 
-let personnelSelectionAppContext: AppContext | null = null
+let personnelSelectionAppContext: AppContext | null = null;
 
-function getSelectionFieldByMode(mode: PersonnelSelectMode): PersonnelSelectionField {
-  if (mode === 'org') return 'orgIds'
-  if (mode === 'role') return 'roleIds'
-  if (mode === 'position') return 'positionIds'
-  return 'userIds'
+function getSelectionFieldByMode (mode: PersonnelSelectMode): PersonnelSelectionField {
+  if (mode === 'org') {
+    return 'orgIds';
+  }
+  if (mode === 'role') {
+    return 'roleIds';
+  }
+  if (mode === 'position') {
+    return 'positionIds';
+  }
+  return 'userIds';
 }
 
-function getDefaultTitle(mode: PersonnelSelectMode): string {
-  if (mode === 'org') return '选择组织'
-  if (mode === 'role') return '选择角色'
-  if (mode === 'position') return '选择岗位'
-  return '选择人员'
+function getDefaultTitle (mode: PersonnelSelectMode): string {
+  if (mode === 'org') {
+    return '选择组织';
+  }
+  if (mode === 'role') {
+    return '选择角色';
+  }
+  if (mode === 'position') {
+    return '选择岗位';
+  }
+  return '选择人员';
 }
 
-function uniqueById<T extends { id: string }>(rows: T[]): T[] {
-  const map = new Map<string, T>()
+function uniqueById<T extends { id: string }> (rows: T[]): T[] {
+  const map = new Map<string, T>();
   rows.forEach((item) => {
-    if (!item.id) return
-    map.set(item.id, item)
-  })
-  return Array.from(map.values())
+    if (!item.id) {
+      return;
+    }
+    map.set(item.id, item);
+  });
+  return Array.from(map.values());
 }
 
-function toSelectedUser(item: PersonnelSelectionLegacyUser): PersonnelSelectedUser {
-  const title = item.nickName || item.title || item.userAccount || item.id
-  const subTitle = item.phone || item.userAccount || item.subTitle || '--'
+function toSelectedUser (item: PersonnelSelectionLegacyUser): PersonnelSelectedUser {
+  const title = item.nickName || item.title || item.userAccount || item.id;
+  const subTitle = item.phone || item.userAccount || item.subTitle || '--';
   return {
     id: item.id,
     nodeType: 'user',
@@ -89,125 +103,125 @@ function toSelectedUser(item: PersonnelSelectionLegacyUser): PersonnelSelectedUs
     nickName: title,
     userAccount: item.userAccount || '',
     phone: item.phone || ''
-  }
+  };
 }
 
-function toSelectedOrg(item: PersonnelSelectionLegacyNode): PersonnelSelectedOrg {
+function toSelectedOrg (item: PersonnelSelectionLegacyNode): PersonnelSelectedOrg {
   return {
     id: item.id,
     nodeType: 'org',
     title: item.title || item.orgName || '组织',
     subTitle: item.subTitle
-  }
+  };
 }
 
-function toSelectedRole(item: PersonnelSelectionLegacyNode): PersonnelSelectedRole {
+function toSelectedRole (item: PersonnelSelectionLegacyNode): PersonnelSelectedRole {
   return {
     id: item.id,
     nodeType: 'role',
     title: item.title || item.roleName || '角色',
     subTitle: item.subTitle
-  }
+  };
 }
 
-function toSelectedPosition(item: PersonnelSelectionLegacyNode): PersonnelSelectedPosition {
+function toSelectedPosition (item: PersonnelSelectionLegacyNode): PersonnelSelectedPosition {
   return {
     id: item.id,
     nodeType: 'position',
     title: item.title || item.positionName || '岗位',
     subTitle: item.subTitle
-  }
+  };
 }
 
-function normalizeSelectedItems(options: OpenPersonnelSelectionOptions): PersonnelSelectedItem[] {
+function normalizeSelectedItems (options: OpenPersonnelSelectionOptions): PersonnelSelectedItem[] {
   if (Array.isArray(options.selectedItems) && options.selectedItems.length > 0) {
-    return uniqueById(options.selectedItems)
+    return uniqueById(options.selectedItems);
   }
 
-  const users = Array.isArray(options.users) ? options.users.map(toSelectedUser) : []
-  const orgs = Array.isArray(options.orgs) ? options.orgs.map(toSelectedOrg) : []
-  const roles = Array.isArray(options.roles) ? options.roles.map(toSelectedRole) : []
-  const positions = Array.isArray(options.positions) ? options.positions.map(toSelectedPosition) : []
+  const users = Array.isArray(options.users) ? options.users.map(toSelectedUser) : [];
+  const orgs = Array.isArray(options.orgs) ? options.orgs.map(toSelectedOrg) : [];
+  const roles = Array.isArray(options.roles) ? options.roles.map(toSelectedRole) : [];
+  const positions = Array.isArray(options.positions) ? options.positions.map(toSelectedPosition) : [];
 
-  return uniqueById([...users, ...orgs, ...roles, ...positions])
+  return uniqueById([...users, ...orgs, ...roles, ...positions]);
 }
 
-function normalizeModel(
-  options: OpenPersonnelSelectionOptions,
-  selectedItems: PersonnelSelectedItem[]
-): Required<PersonnelSelectionModel> {
+function normalizeModel (options: OpenPersonnelSelectionOptions,
+  selectedItems: PersonnelSelectedItem[]): Required<PersonnelSelectionModel> {
   const model: Required<PersonnelSelectionModel> = {
     userIds: Array.from(new Set(options.model?.userIds || [])),
     orgIds: Array.from(new Set(options.model?.orgIds || [])),
     roleIds: Array.from(new Set(options.model?.roleIds || [])),
     positionIds: Array.from(new Set(options.model?.positionIds || []))
-  }
+  };
 
   if (model.userIds.length || model.orgIds.length || model.roleIds.length || model.positionIds.length) {
-    return model
+    return model;
   }
 
   selectedItems.forEach((item) => {
     if (item.nodeType === 'user') {
-      model.userIds.push(item.id)
-      return
+      model.userIds.push(item.id);
+      return;
     }
     if (item.nodeType === 'org') {
-      model.orgIds.push(item.id)
-      return
+      model.orgIds.push(item.id);
+      return;
     }
     if (item.nodeType === 'role') {
-      model.roleIds.push(item.id)
-      return
+      model.roleIds.push(item.id);
+      return;
     }
     if (item.nodeType === 'position') {
-      model.positionIds.push(item.id)
+      model.positionIds.push(item.id);
     }
-  })
+  });
 
-  return model
+  return model;
 }
 
-export function registerPersonnelSelectionAppContext(context: AppContext | null): void {
-  personnelSelectionAppContext = context
+export function registerPersonnelSelectionAppContext (context: AppContext | null): void {
+  personnelSelectionAppContext = context;
 }
 
-export function openPersonnelSelection(
-  options: OpenPersonnelSelectionOptions
-): Promise<OpenPersonnelSelectionResult> {
+export async function openPersonnelSelection (options: OpenPersonnelSelectionOptions): Promise<OpenPersonnelSelectionResult> {
   return new Promise((resolve, reject) => {
     if (typeof document === 'undefined') {
-      reject(new Error('当前环境不支持打开选人弹窗'))
-      return
+      reject(new Error('当前环境不支持打开选人弹窗'));
+      return;
     }
 
-    const mode = options.mode || 'person'
-    const selectionField = options.selectionField || getSelectionFieldByMode(mode)
-    const selectedItems = normalizeSelectedItems(options)
-    const model = normalizeModel(options, selectedItems)
+    const mode = options.mode || 'person';
+    const selectionField = options.selectionField || getSelectionFieldByMode(mode);
+    const selectedItems = normalizeSelectedItems(options);
+    const model = normalizeModel(options, selectedItems);
 
-    const host = document.createElement('div')
-    document.body.appendChild(host)
+    const host = document.createElement('div');
+    document.body.appendChild(host);
 
-    let settled = false
+    let settled = false;
 
-    function cleanup() {
-      render(null, host)
+    function cleanup () {
+      render(null, host);
       if (host.parentNode) {
-        host.parentNode.removeChild(host)
+        host.parentNode.removeChild(host);
       }
     }
 
-    function settleResolve(payload: OpenPersonnelSelectionResult) {
-      if (settled) return
-      settled = true
-      resolve(payload)
+    function settleResolve (payload: OpenPersonnelSelectionResult) {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(payload);
     }
 
-    function settleReject() {
-      if (settled) return
-      settled = true
-      reject('cancel')
+    function settleReject () {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      reject('cancel');
     }
 
     const vnode = createVNode(PersonnelSelectionDialogHost, {
@@ -227,20 +241,20 @@ export function openPersonnelSelection(
       fetchNodes: options.fetchNodes,
       searchNodes: options.searchNodes,
       onConfirm: (payload: OpenPersonnelSelectionResult) => {
-        settleResolve(payload)
+        settleResolve(payload);
       },
       onCancel: () => {
-        settleReject()
+        settleReject();
       },
       onClosed: () => {
-        cleanup()
+        cleanup();
       }
-    })
+    });
 
     if (personnelSelectionAppContext) {
-      vnode.appContext = personnelSelectionAppContext
+      vnode.appContext = personnelSelectionAppContext;
     }
 
-    render(vnode, host)
-  })
+    render(vnode, host);
+  });
 }

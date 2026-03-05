@@ -41,7 +41,7 @@ export type PortalTab = {
   tabIcon?: string;
   tabOrder?: number | null;
   order?: number | null;
-  parentId?: string | number;
+  parentId?: number | string;
   sort?: number;
   isHide?: number;
   pageLayout?: string;

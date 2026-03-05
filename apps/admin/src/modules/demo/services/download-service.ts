@@ -1,10 +1,10 @@
 import { demoApiClient } from '../api/client';
 
 export const demoDownloadService = {
-  download(fileName?: string) {
+  async download (fileName?: string) {
     return demoApiClient.download(fileName);
   },
-  downloadError() {
+  async downloadError () {
     return demoApiClient.downloadError();
   }
 };

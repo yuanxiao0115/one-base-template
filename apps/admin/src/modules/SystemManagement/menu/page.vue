@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { Plus } from '@element-plus/icons-vue'
-import MenuPermissionEditForm from './components/MenuPermissionEditForm.vue'
-import MenuPermissionSearchForm from './components/MenuPermissionSearchForm.vue'
-import { useMenuManagementPageState } from './composables/useMenuManagementPageState'
+import { Plus } from '@element-plus/icons-vue';
+import MenuPermissionEditForm from './components/MenuPermissionEditForm.vue';
+import MenuPermissionSearchForm from './components/MenuPermissionSearchForm.vue';
+import { useMenuManagementPageState } from './composables/useMenuManagementPageState';
 
 defineOptions({
   name: 'SystemMenuManagementPage'
-})
+});
 
-const pageState = useMenuManagementPageState()
+const pageState = useMenuManagementPageState();
 
-const refs = pageState.refs
+const { refs } = pageState;
 
 const {
   loading,
@@ -18,12 +18,12 @@ const {
   tableColumns,
   tableTreeConfig,
   searchForm
-} = pageState.table
+} = pageState.table;
 
 const {
   resourceTypeOptions,
   parentOptions
-} = pageState.options
+} = pageState.options;
 
 const {
   crud,
@@ -34,7 +34,7 @@ const {
   crudSubmitting,
   crudForm,
   menuPermissionFormRules
-} = pageState.editor
+} = pageState.editor;
 
 const {
   tableSearch,
@@ -45,7 +45,7 @@ const {
   handleCreateCommand,
   handleDelete,
   onConfirmCrud
-} = pageState.actions
+} = pageState.actions;
 </script>
 
 <template>
@@ -66,8 +66,8 @@ const {
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :size="size"
-          :loading="loading"
+          :size
+          :loading
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="false"
@@ -98,9 +98,9 @@ const {
                 </template>
               </el-dropdown>
 
-              <el-button link type="primary" :size="actionSize" @click="openEditDialog('edit', row)">编辑</el-button>
-              <el-button link type="primary" :size="actionSize" @click="openEditDialog('detail', row)">查看</el-button>
-              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => openEditDialog('edit', row)">编辑</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => openEditDialog('detail', row)">查看</el-button>
+              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
             </ObActionButtons>
           </template>
         </ObVxeTable>
@@ -110,7 +110,7 @@ const {
         <MenuPermissionSearchForm
           :ref="refs.searchRef"
           v-model="searchForm"
-          :resource-type-options="resourceTypeOptions"
+          :resource-type-options
         />
       </template>
     </ObTableBox>
@@ -123,7 +123,7 @@ const {
     :title="crudTitle"
     :loading="crudSubmitting"
     :show-cancel-button="!crudReadonly"
-    :confirm-text="'保存'"
+    confirm-text="保存"
     :drawer-size="760"
     :drawer-columns="2"
     @confirm="onConfirmCrud"
@@ -135,8 +135,8 @@ const {
       v-model="crudForm"
       :rules="menuPermissionFormRules"
       :disabled="crudReadonly"
-      :parent-options="parentOptions"
-      :resource-type-options="resourceTypeOptions"
+      :parent-options
+      :resource-type-options
     />
   </ObCrudContainer>
 </template>

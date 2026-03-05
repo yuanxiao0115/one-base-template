@@ -1,32 +1,32 @@
 import { getHttpClient, trimText } from '@/shared/api/utils';
 import { extractList, toBooleanValue, toNullableNumber, toNumberValue, toStringValue } from '@/shared/api/normalize';
 
-export interface BizResponse<T> {
+export type BizResponse<T> = {
   code: number;
   data: T;
   message?: string;
 }
 
-export interface DictItem {
+export type DictItem = {
   itemName: string;
   itemValue: string;
 }
 
-export interface OrgLevelItem {
+export type OrgLevelItem = {
   id: string;
   orgLevel: number;
   orgLevelName: string;
   remark?: string;
 }
 
-export interface OrgManagerRecord {
+export type OrgManagerRecord = {
   id: string;
   userId: string;
   nickName: string;
   phone: string;
 }
 
-export interface UserBriefRecord {
+export type UserBriefRecord = {
   id: string;
   nickName: string;
   phone: string;
@@ -34,7 +34,7 @@ export interface UserBriefRecord {
   parentId?: string;
 }
 
-export interface OrgRecord {
+export type OrgRecord = {
   id: string;
   parentId: string;
   orgName: string;
@@ -56,7 +56,7 @@ export interface OrgRecord {
 
 export type OrgContactNodeType = 'org' | 'user';
 
-export interface OrgContactNodeBase {
+export type OrgContactNodeBase = {
   id: string;
   parentId: string;
   companyId: string;
@@ -64,14 +64,14 @@ export interface OrgContactNodeBase {
   nodeType: OrgContactNodeType;
 }
 
-export interface OrgContactOrgNode extends OrgContactNodeBase {
+export type OrgContactOrgNode = OrgContactNodeBase & {
   nodeType: 'org';
   orgName: string;
   orgType: number;
   children: OrgContactNode[];
 }
 
-export interface OrgContactUserNode extends OrgContactNodeBase {
+export type OrgContactUserNode = OrgContactNodeBase & {
   nodeType: 'user';
   userId: string;
   nickName: string;
@@ -81,16 +81,16 @@ export interface OrgContactUserNode extends OrgContactNodeBase {
 
 export type OrgContactNode = OrgContactOrgNode | OrgContactUserNode;
 
-interface OrgRawRecord {
-  id?: string | number | null;
-  parentId?: string | number | null;
+type OrgRawRecord = {
+  id?: number | string | null;
+  parentId?: number | string | null;
   orgName?: string | null;
   briefName?: string | null;
   sort?: number | string | null;
   orgCategory?: number | string | null;
   orgLevelName?: string | null;
   orgLevel?: number | string | null;
-  orgLevelId?: string | number | null;
+  orgLevelId?: number | string | null;
   institutionalType?: number | string | null;
   uscc?: string | null;
   createTime?: string | null;
@@ -104,86 +104,86 @@ interface OrgRawRecord {
   children?: OrgRawRecord[] | null;
 }
 
-interface DictRawItem {
+type DictRawItem = {
   itemName?: string | null;
-  itemValue?: string | number | null;
+  itemValue?: number | string | null;
 }
 
-interface OrgLevelRawItem {
-  id?: string | number | null;
+type OrgLevelRawItem = {
+  id?: number | string | null;
   orgLevel?: number | string | null;
   orgLevelName?: string | null;
   remark?: string | null;
 }
 
-interface OrgManagerRawRecord {
-  id?: string | number | null;
-  userId?: string | number | null;
+type OrgManagerRawRecord = {
+  id?: number | string | null;
+  userId?: number | string | null;
   nickName?: string | null;
   phone?: string | null;
 }
 
-interface UserRawRecord {
-  id?: string | number | null;
+type UserRawRecord = {
+  id?: number | string | null;
   nickName?: string | null;
   phone?: string | null;
-  companyId?: string | number | null;
-  parentId?: string | number | null;
+  companyId?: number | string | null;
+  parentId?: number | string | null;
   userOrgs?: Array<{
-    companyId?: string | number | null;
-    orgId?: string | number | null;
+    companyId?: number | string | null;
+    orgId?: number | string | null;
     orgName?: string | null;
   }> | null;
 }
 
-interface ContactOrgRawRecord {
-  id?: string | number | null;
-  parentId?: string | number | null;
-  companyId?: string | number | null;
+type ContactOrgRawRecord = {
+  id?: number | string | null;
+  parentId?: number | string | null;
+  companyId?: number | string | null;
   name?: string | null;
   orgName?: string | null;
-  orgType?: string | number | null;
+  orgType?: number | string | null;
 }
 
-interface ContactResponseRawData {
+type ContactResponseRawData = {
   orgIndustryContactVOS?: ContactOrgRawRecord[] | null;
   orgDetailList?: ContactOrgRawRecord[] | null;
   userStructureQueryVOS?: UserRawRecord[] | null;
   userList?: UserRawRecord[] | null;
 }
 
-export interface OrgTreeParams {
+export type OrgTreeParams = {
   parentId?: string;
 }
 
-export interface OrgSearchParams {
+export type OrgSearchParams = {
   parentId?: string;
   orgName?: string;
 }
 
-export interface OrgUniqueParams {
+export type OrgUniqueParams = {
   orgName: string;
   parentId?: string;
   orgId?: string;
 }
 
-export interface OrgManagerParams {
+export type OrgManagerParams = {
   orgId: string;
 }
 
-export interface UserSearchParams {
+export type UserSearchParams = {
   nickName?: string;
 }
 
-export interface ContactLazyParams {
+export type ContactLazyParams = {
   parentId?: string;
 }
 
-export interface ContactUserSearchParams {
+export type ContactUserSearchParams = {
   search?: string;
 }
 
-export interface OrgSavePayload {
+export type OrgSavePayload = {
   id?: string;
   parentId: string;
   orgName: string;
@@ -200,27 +200,35 @@ export interface OrgSavePayload {
   remark: string;
 }
 
-export interface OrgManagerSavePayload {
+export type OrgManagerSavePayload = {
   orgId: string;
   userId: string[];
 }
 
-export interface OrgLevelSavePayload {
+export type OrgLevelSavePayload = {
   id?: string;
   orgLevel: number;
   orgLevelName: string;
   remark?: string;
 }
 
-function getHasChildren(row: OrgRawRecord, children: OrgRecord[]): boolean {
-  if (typeof row.hasChildren === 'boolean') return row.hasChildren;
-  if (children.length > 0) return true;
-  if (row.isLeaf === true || row.leaf === true || row.noLazyChildren === true) return false;
-  if (row.isLeaf === false || row.leaf === false) return true;
+function getHasChildren (row: OrgRawRecord, children: OrgRecord[]): boolean {
+  if (typeof row.hasChildren === 'boolean') {
+    return row.hasChildren;
+  }
+  if (children.length > 0) {
+    return true;
+  }
+  if (row.isLeaf === true || row.leaf === true || row.noLazyChildren === true) {
+    return false;
+  }
+  if (row.isLeaf === false || row.leaf === false) {
+    return true;
+  }
   return true;
 }
 
-function toOrgRow(row: OrgRawRecord): OrgRecord {
+function toOrgRow (row: OrgRawRecord): OrgRecord {
   const children = Array.isArray(row.children)
     ? row.children.map((item) => toOrgRow(item))
     : undefined;
@@ -246,11 +254,11 @@ function toOrgRow(row: OrgRawRecord): OrgRecord {
   };
 }
 
-export function toOrgRows(rows: unknown): OrgRecord[] {
+export function toOrgRows (rows: unknown): OrgRecord[] {
   return extractList(rows).map((row) => toOrgRow((row || {}) as OrgRawRecord));
 }
 
-function toDictItems(rows: unknown): DictItem[] {
+function toDictItems (rows: unknown): DictItem[] {
   return extractList(rows).map((row) => {
     const raw = (row || {}) as DictRawItem;
     return {
@@ -260,7 +268,7 @@ function toDictItems(rows: unknown): DictItem[] {
   });
 }
 
-function toOrgLevelItems(rows: unknown): OrgLevelItem[] {
+function toOrgLevelItems (rows: unknown): OrgLevelItem[] {
   return extractList(rows, ['records', 'list', 'rows', 'items', 'levelList']).map((row) => {
     const raw = (row || {}) as OrgLevelRawItem;
     return {
@@ -272,7 +280,7 @@ function toOrgLevelItems(rows: unknown): OrgLevelItem[] {
   });
 }
 
-function toOrgManagerItems(rows: unknown): OrgManagerRecord[] {
+function toOrgManagerItems (rows: unknown): OrgManagerRecord[] {
   return extractList(rows).map((row) => {
     const raw = (row || {}) as OrgManagerRawRecord;
     return {
@@ -284,7 +292,7 @@ function toOrgManagerItems(rows: unknown): OrgManagerRecord[] {
   });
 }
 
-function toUserBriefItems(rows: unknown): UserBriefRecord[] {
+function toUserBriefItems (rows: unknown): UserBriefRecord[] {
   return extractList(rows).map((row) => {
     const raw = (row || {}) as UserRawRecord;
     return {
@@ -297,7 +305,7 @@ function toUserBriefItems(rows: unknown): UserBriefRecord[] {
   });
 }
 
-function toContactOrgNodes(rawData: ContactResponseRawData, parentId: string): OrgContactOrgNode[] {
+function toContactOrgNodes (rawData: ContactResponseRawData, parentId: string): OrgContactOrgNode[] {
   const orgRows = Array.isArray(rawData.orgIndustryContactVOS)
     ? rawData.orgIndustryContactVOS
     : Array.isArray(rawData.orgDetailList)
@@ -316,7 +324,7 @@ function toContactOrgNodes(rawData: ContactResponseRawData, parentId: string): O
   }));
 }
 
-function toContactUserNodes(rawData: ContactResponseRawData, parentId: string): OrgContactUserNode[] {
+function toContactUserNodes (rawData: ContactResponseRawData, parentId: string): OrgContactUserNode[] {
   const userRows = Array.isArray(rawData.userStructureQueryVOS)
     ? rawData.userStructureQueryVOS
     : Array.isArray(rawData.userList)
@@ -326,7 +334,9 @@ function toContactUserNodes(rawData: ContactResponseRawData, parentId: string): 
   const users: OrgContactUserNode[] = [];
   userRows.forEach((item) => {
     const userId = toStringValue(item.id);
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     const nickName = toStringValue(item.nickName);
     const phone = toStringValue(item.phone);
@@ -363,7 +373,7 @@ function toContactUserNodes(rawData: ContactResponseRawData, parentId: string): 
   return users;
 }
 
-function toContactNodes(data: unknown, parentId = '0'): OrgContactNode[] {
+function toContactNodes (data: unknown, parentId = '0'): OrgContactNode[] {
   const rawData = (data || {}) as ContactResponseRawData;
   const orgNodes = toContactOrgNodes(rawData, parentId);
   const userNodes = toContactUserNodes(rawData, parentId);
@@ -371,140 +381,119 @@ function toContactNodes(data: unknown, parentId = '0'): OrgContactNode[] {
 }
 
 export const orgApi = {
-  getOrgTree: (params: OrgTreeParams) =>
-    getHttpClient()
-      .get<BizResponse<OrgRecord[]>>('/cmict/admin/org/children', {
-        params: {
-          parentId: params.parentId || '0'
-        }
-      })
-      .then((response) => ({
-        ...response,
-        data: toOrgRows(response.data)
-      })),
-
-  searchOrgList: (params: OrgSearchParams) =>
-    getHttpClient()
-      .get<BizResponse<OrgRecord[]>>('/cmict/admin/org/search', {
-        params: {
-          parentId: params.parentId || '0',
-          orgName: trimText(params.orgName)
-        }
-      })
-      .then((response) => ({
-        ...response,
-        data: toOrgRows(response.data)
-      })),
-
-  queryAllOrgTree: () =>
-    getHttpClient()
-      .get<BizResponse<OrgRecord[]>>('/cmict/admin/org/manage/list')
-      .then((response) => ({
-        ...response,
-        data: toOrgRows(response.data)
-      })),
-
-  addOrg: (data: OrgSavePayload) =>
-    getHttpClient().post<BizResponse<OrgRecord>>('/cmict/admin/org/add', { data }),
-
-  updateOrg: (data: OrgSavePayload) =>
-    getHttpClient().post<BizResponse<OrgRecord>>('/cmict/admin/org/update', { data }),
-
-  deleteOrg: (data: { id: string }) =>
-    getHttpClient().post<BizResponse<null>>('/cmict/admin/org/delete', { data }),
-
-  checkUnique: (params: OrgUniqueParams) =>
-    getHttpClient().get<BizResponse<boolean>>('/cmict/admin/org/unique/check', {
+  getOrgTree: async (params: OrgTreeParams) => getHttpClient()
+    .get<BizResponse<OrgRecord[]>>('/cmict/admin/org/children', {
       params: {
-        orgName: trimText(params.orgName),
-        parentId: params.parentId || '0',
-        orgId: params.orgId
+        parentId: params.parentId || '0'
       }
-    }),
+    })
+    .then((response) => ({
+      ...response,
+      data: toOrgRows(response.data)
+    })),
 
-  dictDataList: (params: { dictCode: string }) =>
-    getHttpClient()
-      .get<BizResponse<DictItem[]>>('/cmict/admin/dict-item/list', {
-        params
-      })
-      .then((response) => ({
-        ...response,
-        data: toDictItems(response.data)
-      })),
+  searchOrgList: async (params: OrgSearchParams) => getHttpClient()
+    .get<BizResponse<OrgRecord[]>>('/cmict/admin/org/search', {
+      params: {
+        parentId: params.parentId || '0',
+        orgName: trimText(params.orgName)
+      }
+    })
+    .then((response) => ({
+      ...response,
+      data: toOrgRows(response.data)
+    })),
 
-  getOrgLevelList: () =>
-    getHttpClient()
-      .get<BizResponse<OrgLevelItem[]>>('/cmict/admin/org-level/list')
-      .then((response) => ({
-        ...response,
-        data: toOrgLevelItems(response.data)
-      })),
+  queryAllOrgTree: async () => getHttpClient()
+    .get<BizResponse<OrgRecord[]>>('/cmict/admin/org/manage/list')
+    .then((response) => ({
+      ...response,
+      data: toOrgRows(response.data)
+    })),
 
-  addOrgLevel: (data: OrgLevelSavePayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-level/add', { data }),
+  addOrg: async (data: OrgSavePayload) => getHttpClient().post<BizResponse<OrgRecord>>('/cmict/admin/org/add', { data }),
 
-  updateOrgLevel: (data: OrgLevelSavePayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-level/update', { data }),
+  updateOrg: async (data: OrgSavePayload) => getHttpClient().post<BizResponse<OrgRecord>>('/cmict/admin/org/update', { data }),
 
-  deleteOrgLevel: (data: { id: string }) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-level/delete', { data }),
+  deleteOrg: async (data: { id: string }) => getHttpClient().post<BizResponse<null>>('/cmict/admin/org/delete', { data }),
 
-  queryOrgManagerList: (params: OrgManagerParams) =>
-    getHttpClient()
-      .get<BizResponse<OrgManagerRecord[]>>('/cmict/admin/org-admin/list', {
-        params
-      })
-      .then((response) => ({
-        ...response,
-        data: toOrgManagerItems(response.data)
-      })),
+  checkUnique: async (params: OrgUniqueParams) => getHttpClient().get<BizResponse<boolean>>('/cmict/admin/org/unique/check', {
+    params: {
+      orgName: trimText(params.orgName),
+      parentId: params.parentId || '0',
+      orgId: params.orgId
+    }
+  }),
 
-  searchAvailableUsers: (params: UserSearchParams) =>
-    getHttpClient()
-      .get<BizResponse<UserBriefRecord[]>>('/cmict/admin/user/list', {
-        params: {
-          nickName: trimText(params.nickName)
-        }
-      })
-      .then((response) => ({
-        ...response,
-        data: toUserBriefItems(response.data)
-      })),
+  dictDataList: async (params: { dictCode: string }) => getHttpClient()
+    .get<BizResponse<DictItem[]>>('/cmict/admin/dict-item/list', {
+      params
+    })
+    .then((response) => ({
+      ...response,
+      data: toDictItems(response.data)
+    })),
 
-  getOrgContactsLazy: (params: ContactLazyParams) =>
-    getHttpClient()
-      .get<BizResponse<unknown>>('/cmict/admin/org/contacts/lazy/tree', {
-        params: {
-          parentId: params.parentId || '0'
-        }
-      })
-      .then((response) => ({
-        ...response,
-        data: toContactNodes(response.data, params.parentId || '0')
-      })),
+  getOrgLevelList: async () => getHttpClient()
+    .get<BizResponse<OrgLevelItem[]>>('/cmict/admin/org-level/list')
+    .then((response) => ({
+      ...response,
+      data: toOrgLevelItems(response.data)
+    })),
 
-  searchContactUsers: (params: ContactUserSearchParams) =>
-    getHttpClient()
-      .get<BizResponse<unknown>>('/cmict/admin/user/structure/search/', {
-        params: {
-          search: trimText(params.search)
-        }
-      })
-      .then((response) => ({
-        ...response,
-        data: toContactUserNodes((response.data || {}) as ContactResponseRawData, '0')
-      })),
+  addOrgLevel: async (data: OrgLevelSavePayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-level/add', { data }),
 
-  getClientOwnInfo: () =>
-    getHttpClient().get<BizResponse<{ userOrgs?: Array<{ companyId?: string | number; orgCode?: string }> }>>(
-      '/cmict/admin/user/client-own-info'
-    ),
+  updateOrgLevel: async (data: OrgLevelSavePayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-level/update', { data }),
 
-  addOrgManager: (data: OrgManagerSavePayload) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-admin/add', { data }),
+  deleteOrgLevel: async (data: { id: string }) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-level/delete', { data }),
 
-  delOrgManager: (data: { id: string }) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-admin/delete', { data })
+  queryOrgManagerList: async (params: OrgManagerParams) => getHttpClient()
+    .get<BizResponse<OrgManagerRecord[]>>('/cmict/admin/org-admin/list', {
+      params
+    })
+    .then((response) => ({
+      ...response,
+      data: toOrgManagerItems(response.data)
+    })),
+
+  searchAvailableUsers: async (params: UserSearchParams) => getHttpClient()
+    .get<BizResponse<UserBriefRecord[]>>('/cmict/admin/user/list', {
+      params: {
+        nickName: trimText(params.nickName)
+      }
+    })
+    .then((response) => ({
+      ...response,
+      data: toUserBriefItems(response.data)
+    })),
+
+  getOrgContactsLazy: async (params: ContactLazyParams) => getHttpClient()
+    .get<BizResponse<unknown>>('/cmict/admin/org/contacts/lazy/tree', {
+      params: {
+        parentId: params.parentId || '0'
+      }
+    })
+    .then((response) => ({
+      ...response,
+      data: toContactNodes(response.data, params.parentId || '0')
+    })),
+
+  searchContactUsers: async (params: ContactUserSearchParams) => getHttpClient()
+    .get<BizResponse<unknown>>('/cmict/admin/user/structure/search/', {
+      params: {
+        search: trimText(params.search)
+      }
+    })
+    .then((response) => ({
+      ...response,
+      data: toContactUserNodes((response.data || {}) as ContactResponseRawData, '0')
+    })),
+
+  getClientOwnInfo: async () => getHttpClient().get<BizResponse<{ userOrgs?: Array<{ companyId?: number | string; orgCode?: string }> }>>('/cmict/admin/user/client-own-info'),
+
+  addOrgManager: async (data: OrgManagerSavePayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-admin/add', { data }),
+
+  delOrgManager: async (data: { id: string }) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/org-admin/delete', { data })
 };
 
 export default orgApi;

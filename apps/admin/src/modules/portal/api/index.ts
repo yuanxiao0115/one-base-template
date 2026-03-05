@@ -8,12 +8,12 @@ type BizResponse<T> = {
   success?: boolean;
 };
 
-function getHttp() {
+function getHttp () {
   return getAppHttpClient();
 }
 
 /**
- * CMS 接口（party-building 组件依赖）
+ * cMS 接口（party-building 组件依赖）
  *
  * 说明：
  * - 这些接口来自老项目 pc-portal/api.ts
@@ -21,17 +21,21 @@ function getHttp() {
  */
 export const cmsApi = {
   // 获取栏目分类树
-  getCategoryTree: () => getHttp().get<BizResponse<unknown>>(portalEndpoints.cms.categoryTree),
+  getCategoryTree: async () => getHttp().get<BizResponse<unknown>>(portalEndpoints.cms.categoryTree),
 
   // 用户端根据栏目分类获取文章列表
-  getUserArticlesByCategory: (category: string, params?: { pageSize?: number; currentPage?: number }) =>
-    getHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userArticleListPrefix}/${category}/article/list`, {
-      params: { pageSize: params?.pageSize ?? 20, currentPage: params?.currentPage ?? 1 }
-    }),
+  getUserArticlesByCategory: async (category: string, params?: { pageSize?: number; currentPage?: number }) => getHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userArticleListPrefix}/${category}/article/list`, {
+    params: {
+      pageSize: params?.pageSize ?? 20,
+      currentPage: params?.currentPage ?? 1
+    }
+  }),
 
   // 用户端根据栏目分类获取轮播图列表（固定 pageSize=20,currentPage=1）
-  getUserCarouselsByCategory: (category: string) =>
-    getHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userCarouselListPrefix}/${category}/carousel/list`, {
-      params: { pageSize: 20, currentPage: 1 }
-    })
+  getUserCarouselsByCategory: async (category: string) => getHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userCarouselListPrefix}/${category}/carousel/list`, {
+    params: {
+      pageSize: 20,
+      currentPage: 1
+    }
+  })
 };

@@ -66,7 +66,7 @@
           class="list-item"
           :style="{ marginBottom: `${listStyle.itemSpacing}px` }"
         >
-          <div class="item-content" @click="handleItemClick(item)">
+          <div class="item-content" @click="() => handleItemClick(item)">
             <div class="item-dot" />
             <div
               class="item-title"
@@ -88,13 +88,13 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { Picture, Loading, Warning } from '@element-plus/icons-vue';
+import { Loading, Picture, Warning } from '@element-plus/icons-vue';
 import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
 import { useRouter } from 'vue-router';
 import { cmsApi } from '../../../api';
 
 // 数据类型定义
-interface CarouselItem {
+type CarouselItem = {
   id: string;
   carouselTitle: string;
   carouselUrl: string;
@@ -102,7 +102,7 @@ interface CarouselItem {
   publishTime?: string;
 }
 
-interface ListItem {
+type ListItem = {
   id: string;
   articleTitle: string;
   linkUrl: string;
@@ -159,28 +159,24 @@ const loadDataByCategory = async (categoryId: string) => {
 
     // 处理轮播图数据
     if (
-      (carouselsRes as any).code === 200 &&
-      (carouselsRes as any).data?.records
+      (carouselsRes as any).code === 200
+      && (carouselsRes as any).data?.records
     ) {
       const maxItems = dataSource.value.maxItems || 5;
-      dynamicCarouselItems.value = (carouselsRes as any).data.records.slice(
-        0,
-        maxItems
-      );
+      dynamicCarouselItems.value = (carouselsRes as any).data.records.slice(0,
+        maxItems);
     } else {
       dynamicCarouselItems.value = [];
     }
 
     // 处理列表数据
     if (
-      (articlesRes as any).code === 200 &&
-      (articlesRes as any).data?.records
+      (articlesRes as any).code === 200
+      && (articlesRes as any).data?.records
     ) {
       const maxItems = dataSource.value.listMaxItems || 10;
-      dynamicListItems.value = (articlesRes as any).data.records.slice(
-        0,
-        maxItems
-      );
+      dynamicListItems.value = (articlesRes as any).data.records.slice(0,
+        maxItems);
     } else {
       dynamicListItems.value = [];
     }
@@ -219,14 +215,10 @@ const getTitleStyle = computed(() => ({
 }));
 
 // 轮播图数据 - 使用动态获取的数据
-const carouselItems = computed(() => {
-  return dynamicCarouselItems.value;
-});
+const carouselItems = computed(() => dynamicCarouselItems.value);
 
 // 列表数据 - 使用动态获取的数据
-const listItems = computed(() => {
-  return dynamicListItems.value;
-});
+const listItems = computed(() => dynamicListItems.value);
 
 // 列表样式
 const listStyle = computed(() => styleSchema.value?.list || {});
@@ -252,8 +244,7 @@ const handleItemClick = (item: any) => {
 };
 
 // 监听categoryId变化，自动获取数据
-watch(
-  () => dataSource.value.categoryId,
+watch(() => dataSource.value.categoryId,
   (newCategoryId, oldCategoryId) => {
     // 只有当 categoryId 真正发生变化且有效时才请求数据
     if (newCategoryId && newCategoryId !== oldCategoryId) {
@@ -265,8 +256,7 @@ watch(
       loadingCategoryId.value = null;
     }
   },
-  { immediate: true }
-);
+  { immediate: true });
 
 defineOptions({
   name: 'pb-carousel-text-list-index'
@@ -314,7 +304,7 @@ defineOptions({
 .page-indicator {
   margin-right: 4px;
   margin-left: 8px;
-  font-weight: bold;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -366,6 +356,7 @@ defineOptions({
 }
 
 /* 加载状态样式 */
+
 .loading-container,
 .error-container {
   display: flex;

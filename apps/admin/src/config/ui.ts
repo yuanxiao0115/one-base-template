@@ -1,8 +1,10 @@
 import type { CrudContainerType } from '@one-base-template/ui';
 import type { UseTableDefaults, UseTableStandardResponse } from '@one-base-template/core';
 
-function toRecord(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+function toRecord (value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
   return value as Record<string, unknown>;
 }
 
@@ -12,7 +14,7 @@ function toRecord(value: unknown): Record<string, unknown> {
  * - 兼容部分项目将分页结果放在 data.result 下
  * - 仍可在页面级通过 useTable 局部 responseAdapter 覆盖
  */
-export function appTableResponseAdapter(response: unknown): UseTableStandardResponse<unknown> {
+export function appTableResponseAdapter (response: unknown): UseTableStandardResponse<unknown> {
   if (Array.isArray(response)) {
     return {
       records: response,
@@ -27,19 +29,19 @@ export function appTableResponseAdapter(response: unknown): UseTableStandardResp
   const resultRaw = data.result;
   const result = toRecord(resultRaw);
 
-  const recordsCandidate =
-    data.records ??
-    data.list ??
-    data.rows ??
-    data.items ??
-    result.records ??
-    result.list ??
-    result.rows ??
-    result.items ??
-    root.records ??
-    root.list ??
-    root.rows ??
-    root.items;
+  const recordsCandidate
+    = data.records
+    ?? data.list
+    ?? data.rows
+    ?? data.items
+    ?? result.records
+    ?? result.list
+    ?? result.rows
+    ?? result.items
+    ?? root.records
+    ?? root.list
+    ?? root.rows
+    ?? root.items;
 
   const records = Array.isArray(recordsCandidate)
     ? recordsCandidate
@@ -47,29 +49,29 @@ export function appTableResponseAdapter(response: unknown): UseTableStandardResp
       ? dataRaw
       : Array.isArray(resultRaw)
         ? resultRaw
-    : [];
+        : [];
 
-  const totalCandidate =
-    data.totalCount ??
-    data.total ??
-    data.count ??
-    result.totalCount ??
-    result.total ??
-    result.count ??
-    root.totalCount ??
-    root.total ??
-    root.count ??
-    records.length;
-  const currentCandidate =
-    data.currentPage ??
-    data.current ??
-    data.page ??
-    result.currentPage ??
-    result.current ??
-    result.page ??
-    root.currentPage ??
-    root.current ??
-    root.page;
+  const totalCandidate
+    = data.totalCount
+    ?? data.total
+    ?? data.count
+    ?? result.totalCount
+    ?? result.total
+    ?? result.count
+    ?? root.totalCount
+    ?? root.total
+    ?? root.count
+    ?? records.length;
+  const currentCandidate
+    = data.currentPage
+    ?? data.current
+    ?? data.page
+    ?? result.currentPage
+    ?? result.current
+    ?? result.page
+    ?? root.currentPage
+    ?? root.current
+    ?? root.page;
   const pageSizeCandidate = data.pageSize ?? data.size ?? result.pageSize ?? result.size ?? root.pageSize ?? root.size;
 
   return {
@@ -82,7 +84,7 @@ export function appTableResponseAdapter(response: unknown): UseTableStandardResp
 }
 
 /**
- * CRUD 容器默认形态：
+ * cRUD 容器默认形态：
  * - 未传 container 时生效
  * - 组件 props.container 始终优先于该默认值
  */

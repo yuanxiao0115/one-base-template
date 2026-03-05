@@ -32,7 +32,7 @@ const props = defineProps({
 const emit = defineEmits(['schemaChange']);
 
 // 定义整体数据类型
-interface StyleData {
+type StyleData = {
   title: TitleStyleModelType;
   container: ContainerStyleModelType;
   links: LinkStyleModelType;
@@ -47,7 +47,7 @@ const { sectionData } = useSchemaConfig<StyleData>({
     links: {}
   },
   schema: props.schema,
-  onChange: newSchema => {
+  onChange: (newSchema) => {
     emit('schemaChange', 'style', newSchema);
   }
 });
@@ -59,12 +59,16 @@ defineOptions({
 
 <style scoped>
 .style-config {
-  --config-border: #e2e8f0;
-  --config-surface: #f8fafc;
-  --config-surface-strong: #fff;
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-border: #e2e8f0;
+
+  --config-surface: #f8fafc;
+
+  --config-surface-strong: #fff;
+
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   padding: 10px;
 }
 
@@ -76,6 +80,6 @@ defineOptions({
 .style-config :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 </style>

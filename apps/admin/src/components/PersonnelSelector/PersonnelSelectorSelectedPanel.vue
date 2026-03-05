@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
-import type Sortable from 'sortablejs'
-import { Rank } from '@element-plus/icons-vue'
-import { Icon } from '@iconify/vue'
-import type { PersonnelSelectedItem } from './types'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import type Sortable from 'sortablejs';
+import { Rank } from '@element-plus/icons-vue';
+import { Icon } from '@iconify/vue';
+import type { PersonnelSelectedItem } from './types';
 
 type SortableCtor = {
   create: (element: HTMLElement, options?: Record<string, unknown>) => Sortable
@@ -22,92 +22,104 @@ const props = withDefaults(defineProps<{
 }>(), {
   emptyText: '未选择人员',
   sortEnabled: true
-})
+});
 
-const emit = defineEmits<{
-  (event: 'remove', userId: string): void
-  (event: 'clear'): void
-  (event: 'reorder', payload: { oldIndex: number; newIndex: number }): void
-}>()
+const emit = defineEmits<{(event: 'remove', userId: string): void
+                          (event: 'clear'): void
+                          (event: 'reorder', payload: { oldIndex: number; newIndex: number }): void
+}>();
 
-const selectedListRef = ref<HTMLElement>()
-const sortableCtor = ref<SortableCtor | null>(null)
-const sortableInstance = ref<Sortable | null>(null)
-let sortableInitToken = 0
+const selectedListRef = ref<HTMLElement>();
+const sortableCtor = ref<SortableCtor | null>(null);
+const sortableInstance = ref<Sortable | null>(null);
+let sortableInitToken = 0;
 
-const selectedItemCount = computed(() => props.selectedItems.length)
-const selectedIdsKey = computed(() => props.selectedItems.map((item) => item.id).join(','))
+const selectedItemCount = computed(() => props.selectedItems.length);
+const selectedIdsKey = computed(() => props.selectedItems.map((item) => item.id).join(','));
 
-function getItemLabel(item: PersonnelSelectedItem): string {
-  if (!item.subTitle) return item.title
-  return `${item.title}（${item.subTitle}）`
+function getItemLabel (item: PersonnelSelectedItem): string {
+  if (!item.subTitle) {
+    return item.title;
+  }
+  return `${item.title}（${item.subTitle}）`;
 }
 
-function destroySortable() {
-  sortableInstance.value?.destroy()
-  sortableInstance.value = null
+function destroySortable () {
+  sortableInstance.value?.destroy();
+  sortableInstance.value = null;
 }
 
-async function ensureSortableCtor() {
-  if (sortableCtor.value) return sortableCtor.value
-
-  const imported = await import('sortablejs')
-  const importedRecord = imported as unknown as Record<string, unknown>
-  const ctor = (importedRecord.default || importedRecord) as SortableCtor
-  sortableCtor.value = ctor
-  return ctor
-}
-
-async function handleSortEnd(event: SortableEndEvent) {
-  const { oldIndex, newIndex } = event
-  if (oldIndex == null || newIndex == null || oldIndex === newIndex) return
-
-  emit('reorder', { oldIndex, newIndex })
-}
-
-async function initSortable() {
-  const currentToken = ++sortableInitToken
-  if (props.disabled || !props.sortEnabled || selectedItemCount.value <= 1) {
-    destroySortable()
-    return
+async function ensureSortableCtor () {
+  if (sortableCtor.value) {
+    return sortableCtor.value;
   }
 
-  await nextTick()
-  if (currentToken !== sortableInitToken) return
+  const imported = await import('sortablejs');
+  const importedRecord = imported as unknown as Record<string, unknown>;
+  const ctor = (importedRecord.default || importedRecord) as SortableCtor;
+  sortableCtor.value = ctor;
+  return ctor;
+}
 
-  const container = selectedListRef.value
-  if (!container) return
+async function handleSortEnd (event: SortableEndEvent) {
+  const { oldIndex, newIndex } = event;
+  if (oldIndex == null || newIndex == null || oldIndex === newIndex) {
+    return;
+  }
 
-  const ctor = await ensureSortableCtor()
-  if (currentToken !== sortableInitToken) return
+  emit('reorder', {
+    oldIndex,
+    newIndex
+  });
+}
 
-  destroySortable()
+async function initSortable () {
+  const currentToken = ++sortableInitToken;
+  if (props.disabled || !props.sortEnabled || selectedItemCount.value <= 1) {
+    destroySortable();
+    return;
+  }
+
+  await nextTick();
+  if (currentToken !== sortableInitToken) {
+    return;
+  }
+
+  const container = selectedListRef.value;
+  if (!container) {
+    return;
+  }
+
+  const ctor = await ensureSortableCtor();
+  if (currentToken !== sortableInitToken) {
+    return;
+  }
+
+  destroySortable();
   sortableInstance.value = ctor.create(container, {
     animation: 160,
     handle: '.personnel-selector-selected__drag-handle',
     ghostClass: 'personnel-selector-selected__item--ghost',
     chosenClass: 'personnel-selector-selected__item--chosen',
     onEnd: (evt: unknown) => {
-      void handleSortEnd(evt as SortableEndEvent)
+      void handleSortEnd(evt as SortableEndEvent);
     }
-  })
+  });
 }
 
-watch(
-  [
-    () => props.disabled,
-    () => props.sortEnabled,
-    selectedIdsKey
-  ],
-  () => {
-    void initSortable()
-  },
-  { immediate: true }
-)
+watch([
+  () => props.disabled,
+  () => props.sortEnabled,
+  selectedIdsKey
+],
+() => {
+  void initSortable();
+},
+{ immediate: true });
 
 onBeforeUnmount(() => {
-  destroySortable()
-})
+  destroySortable();
+});
 </script>
 
 <template>
@@ -141,7 +153,7 @@ onBeforeUnmount(() => {
             class="personnel-selector-selected__remove"
             :title="`移除 ${item.title}`"
             :disabled="props.disabled"
-            @click="emit('remove', item.id)"
+            @click="() => emit('remove', item.id)"
           >
             <Icon icon="mdi:close" width="14" height="14" />
           </button>
@@ -194,8 +206,7 @@ onBeforeUnmount(() => {
 
 .personnel-selector-selected__list {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   padding: 12px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -232,7 +243,7 @@ onBeforeUnmount(() => {
   border: 1px solid var(--el-border-color-extra-light);
   background: var(--el-bg-color);
   border-radius: 2px;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color .2s ease, background-color .2s ease;
 }
 
 .personnel-selector-selected__item:hover {
@@ -241,7 +252,7 @@ onBeforeUnmount(() => {
 }
 
 .personnel-selector-selected__item--ghost {
-  opacity: 0.65;
+  opacity: .65;
 }
 
 .personnel-selector-selected__item--chosen {
@@ -288,7 +299,7 @@ onBeforeUnmount(() => {
 
 .personnel-selector-selected__remove:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: .5;
 }
 
 .personnel-selector-selected__list::-webkit-scrollbar {
@@ -300,7 +311,8 @@ onBeforeUnmount(() => {
   background: var(--el-border-color);
 }
 
-@media (max-width: 1400px) {
+@media (width <= 1400px) {
+
   .personnel-selector-selected__list {
     grid-template-columns: minmax(0, 1fr);
   }

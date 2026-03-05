@@ -5,14 +5,14 @@ import { ElMessage } from 'element-plus';
 
 import { portalService } from '../services/portal-service';
 import { useMaterials } from '../materials/useMaterials';
-import { usePortalPageLayoutStore, type PortalLayoutItem } from '../stores/pageLayout';
+import { type PortalLayoutItem, usePortalPageLayoutStore } from '../stores/pageLayout';
 
 import GridLayoutEditor from '../components/page-editor/GridLayoutEditor.vue';
 import MaterialLibrary from '../components/page-editor/MaterialLibrary.vue';
 import PropertyPanel from '../components/page-editor/PropertyPanel.vue';
 
 defineOptions({
-  name: 'PortalPageEditor',
+  name: 'PortalPageEditor'
 });
 
 type BizResLike = { code?: unknown; success?: unknown };
@@ -58,38 +58,44 @@ const pageSettingData = ref<PortalPageSettings>({
   gridData: {
     colNum: 12,
     colSpace: 16,
-    rowSpace: 16,
-  },
+    rowSpace: 16
+  }
 });
 
-function normalizeBizOk(res: BizResLike | null | undefined): boolean {
+function normalizeBizOk (res: BizResLike | null | undefined): boolean {
   const code = res?.code;
   const ok = res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
-  return !!ok;
+  return Boolean(ok);
 }
 
-function normalizeLayoutItems(input: unknown): PortalLayoutItem[] {
-  if (!Array.isArray(input)) return [];
+function normalizeLayoutItems (input: unknown): PortalLayoutItem[] {
+  if (!Array.isArray(input)) {
+    return [];
+  }
   return input
     .map((raw) => {
-      if (!raw || typeof raw !== 'object') return null;
+      if (!raw || typeof raw !== 'object') {
+        return null;
+      }
       const item = raw as Record<string, unknown>;
       const iRaw = item.i;
       const i = typeof iRaw === 'string' || typeof iRaw === 'number' ? String(iRaw) : '';
-      if (!i) return null;
+      if (!i) {
+        return null;
+      }
       return {
         i,
         x: Number(item.x) || 0,
         y: Number(item.y) || 0,
         w: Number(item.w) || 1,
         h: Number(item.h) || 1,
-        component: item.component as PortalLayoutItem['component'],
+        component: item.component as PortalLayoutItem['component']
       } satisfies PortalLayoutItem;
     })
     .filter(Boolean) as PortalLayoutItem[];
 }
 
-async function loadTabDetail(id: string) {
+async function loadTabDetail (id: string) {
   if (!id) {
     pageLayoutStore.reset();
     tabName.value = '新建页面';
@@ -111,7 +117,9 @@ async function loadTabDetail(id: string) {
     if (tab?.pageLayout) {
       try {
         const parsed = JSON.parse(tab.pageLayout) as PageLayoutJson;
-        if (parsed.settings) pageSettingData.value = parsed.settings;
+        if (parsed.settings) {
+          pageSettingData.value = parsed.settings;
+        }
         pageLayoutStore.updateLayoutItems(normalizeLayoutItems(parsed.component));
       } catch {
         pageLayoutStore.updateLayoutItems([]);
@@ -130,25 +138,27 @@ async function loadTabDetail(id: string) {
   }
 }
 
-async function savePage() {
+async function savePage () {
   if (!tabId.value) {
     ElMessage.warning('缺少 tabId，无法保存');
     return false;
   }
 
-  if (saving.value) return false;
+  if (saving.value) {
+    return false;
+  }
   saving.value = true;
 
   try {
     const pageLayout: PageLayoutJson = {
       settings: pageSettingData.value,
-      component: pageLayoutStore.layoutItems,
+      component: pageLayoutStore.layoutItems
     };
 
     const res = await portalService.tab.update({
       id: tabId.value,
       tabName: tabName.value || '页面',
-      pageLayout: JSON.stringify(pageLayout),
+      pageLayout: JSON.stringify(pageLayout)
     });
 
     if (!normalizeBizOk(res)) {
@@ -167,23 +177,31 @@ async function savePage() {
   }
 }
 
-async function previewPage() {
+async function previewPage () {
   if (!tabId.value) {
     ElMessage.warning('缺少 tabId，无法预览');
     return;
   }
 
-  if (previewLoading.value) return;
+  if (previewLoading.value) {
+    return;
+  }
   previewLoading.value = true;
 
   try {
     const ok = await savePage();
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
 
     const resolved = router.resolve({
       name: 'PortalPreview',
       params: { tabId: tabId.value },
-      query: { templateId: templateId.value, isPreview: 'true', isInIframe: 'false' },
+      query: {
+        templateId: templateId.value,
+        isPreview: 'true',
+        isInIframe: 'false'
+      }
     });
     window.open(resolved.href, '_blank', 'noopener,noreferrer');
   } finally {
@@ -191,21 +209,25 @@ async function previewPage() {
   }
 }
 
-function onBack() {
+function onBack () {
   if (templateId.value) {
-    router.push({ path: '/portal/designer', query: { templateId: templateId.value, tabId: tabId.value } });
+    router.push({
+      path: '/portal/designer',
+      query: {
+        templateId: templateId.value,
+        tabId: tabId.value
+      }
+    });
     return;
   }
   router.push('/portal/templates');
 }
 
-watch(
-  () => tabId.value,
-  async (id) => {
-    await loadTabDetail(id);
-  },
-  { immediate: true }
-);
+watch(() => tabId.value,
+      async (id) => {
+        await loadTabDetail(id);
+      },
+      { immediate: true });
 </script>
 
 <template>
@@ -229,13 +251,13 @@ watch(
       <div class="canvas">
         <GridLayoutEditor
           class="canvas-inner"
-          :materials-map="materialsMap"
+          :materials-map
           :scale="1"
           :loaded="!loading"
-          :page-setting-data="pageSettingData"
+          :page-setting-data
         />
       </div>
-      <PropertyPanel :materials-map="materialsMap" />
+      <PropertyPanel :materials-map />
     </div>
   </div>
 </template>

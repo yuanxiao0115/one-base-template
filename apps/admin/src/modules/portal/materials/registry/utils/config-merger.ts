@@ -13,7 +13,7 @@ export const mergeDeep = (target: any, source: any): any => {
 
   const output = { ...target };
 
-  Object.keys(source).forEach(key => {
+  Object.keys(source).forEach((key) => {
     if (isObject(source[key])) {
       if (!(key in target)) {
         output[key] = source[key];
@@ -34,11 +34,11 @@ export const mergeDeep = (target: any, source: any): any => {
  * @param baseConfig 基础配置
  * @returns 合并后的配置
  */
-export const mergeWithBaseConfig = (
-  componentConfig: any,
-  baseConfig: any
-): any => {
-  if (!baseConfig) return componentConfig;
+export const mergeWithBaseConfig = (componentConfig: any,
+  baseConfig: any): any => {
+  if (!baseConfig) {
+    return componentConfig;
+  }
 
   const result = { ...componentConfig };
 
@@ -72,13 +72,11 @@ export const mergeWithBaseConfig = (
  * @param baseConfig 基础配置
  * @returns 合并后的配置映射对象
  */
-export const batchMergeConfigs = (
-  configMap: Record<string, any>,
-  baseConfig: any
-): Record<string, any> => {
+export const batchMergeConfigs = (configMap: Record<string, any>,
+  baseConfig: any): Record<string, any> => {
   const result: Record<string, any> = {};
 
-  Object.keys(configMap).forEach(key => {
+  Object.keys(configMap).forEach((key) => {
     result[key] = mergeWithBaseConfig(configMap[key], baseConfig);
   });
 

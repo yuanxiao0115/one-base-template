@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-export interface TitleStripeConfigModelType {
+export type TitleStripeConfigModelType = {
   stripeAccentColor: string;
   stripeAccentCount: number;
   stripeHeight: number;
@@ -96,7 +96,7 @@ defineOptions({ name: 'pb-title-stripe-config' });
 :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text, #0f172a);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 :deep(.el-form-item__label) {

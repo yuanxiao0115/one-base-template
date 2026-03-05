@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { Download, Lock, Plus, Rank, Unlock, Upload } from '@element-plus/icons-vue'
-import { dragHandleClass } from './utils/dragSort'
-import UserSearchForm from './components/UserSearchForm.vue'
-import UserEditForm from './components/UserEditForm.vue'
-import UserAccountForm from './components/UserAccountForm.vue'
-import UserBindAccountForm from './components/UserBindAccountForm.vue'
-import { userFormRules } from './form'
-import { useUserCrudState } from './composables/useUserCrudState'
-import { useUserDialogState } from './composables/useUserDialogState'
+import { Download, Lock, Plus, Rank, Unlock, Upload } from '@element-plus/icons-vue';
+import { dragHandleClass } from './utils/dragSort';
+import UserSearchForm from './components/UserSearchForm.vue';
+import UserEditForm from './components/UserEditForm.vue';
+import UserAccountForm from './components/UserAccountForm.vue';
+import UserBindAccountForm from './components/UserBindAccountForm.vue';
+import { userFormRules } from './form';
+import { useUserCrudState } from './composables/useUserCrudState';
+import { useUserDialogState } from './composables/useUserDialogState';
 
 defineOptions({
   name: 'UserManagementPage'
-})
+});
 
 // 页面仅保留编排层：状态与副作用分别下沉到 CRUD 状态与弹窗状态 composable。
-const pageState = useUserCrudState()
+const pageState = useUserCrudState();
 
-const refs = pageState.refs
+const { refs } = pageState;
 
 const {
   loading,
@@ -26,12 +26,12 @@ const {
   orgTreeData,
   searchForm,
   defaultTreeProps
-} = pageState.table
+} = pageState.table;
 
 const {
   positionOptions,
   roleOptions
-} = pageState.options
+} = pageState.options;
 
 const {
   crud,
@@ -43,7 +43,7 @@ const {
   crudForm,
   checkFieldUnique,
   uploadAvatar
-} = pageState.editor
+} = pageState.editor;
 
 const {
   handleSelectionChange,
@@ -62,7 +62,7 @@ const {
   importRequest,
   handleImportUploaded,
   onSearch
-} = pageState.actions
+} = pageState.actions;
 
 const {
   accountFormRef,
@@ -84,7 +84,7 @@ const {
   checkUserAccountUnique
 } = useUserDialogState({
   onSearch
-})
+});
 </script>
 
 <template>
@@ -130,8 +130,8 @@ const {
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :loading="loading"
-          :size="size"
+          :loading
+          :size
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="tablePagination"
@@ -166,17 +166,17 @@ const {
           <template #operation="{ row, size: actionSize }">
             <div class="user-management-page__actions">
               <ObActionButtons>
-                <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)">编辑</el-button>
-                <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)">查看</el-button>
-                <el-button link type="primary" :size="actionSize" @click="handleSingleStatus(row)">
+                <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)">编辑</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)">查看</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => handleSingleStatus(row)">
                   {{ row.isEnable ? '停用' : '启用' }}
                 </el-button>
-                <el-button link type="primary" :size="actionSize" @click="openAccountDialog(row)">修改账号</el-button>
-                <el-button link type="primary" :size="actionSize" @click="handleResetPassword(row)">重置密码</el-button>
-                <el-button v-if="Number(row.userType) === 1" link type="primary" :size="actionSize" @click="openBindDialog(row)">
+                <el-button link type="primary" :size="actionSize" @click="() => openAccountDialog(row)">修改账号</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => handleResetPassword(row)">重置密码</el-button>
+                <el-button v-if="Number(row.userType) === 1" link type="primary" :size="actionSize" @click="() => openBindDialog(row)">
                   关联账号
                 </el-button>
-                <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
+                <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
               </ObActionButtons>
             </div>
           </template>
@@ -196,7 +196,7 @@ const {
     :title="crudTitle"
     :loading="crudSubmitting"
     :show-cancel-button="!crudReadonly"
-    :confirm-text="'保存'"
+    confirm-text="保存"
     :drawer-size="920"
     @confirm="crud.confirm"
     @cancel="crud.close"
@@ -209,10 +209,10 @@ const {
       :rules="userFormRules"
       :disabled="crudReadonly"
       :org-tree-options="orgTreeData"
-      :position-options="positionOptions"
-      :role-options="roleOptions"
+      :position-options
+      :role-options
       :check-unique="checkFieldUnique"
-      :upload-avatar="uploadAvatar"
+      :upload-avatar
     />
   </ObCrudContainer>
 

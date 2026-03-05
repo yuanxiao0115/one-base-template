@@ -3,8 +3,8 @@
     <CmsListSourceConfig
       v-if="dataSourceType === 'dynamic'"
       v-model="modelValue.categoryId"
-      :columns="columns"
-      :columns-loading="columnsLoading"
+      :columns
+      :columns-loading
       :loading="articlesLoading"
       :items-count="articles.length"
       @change="handleCategoryChange"
@@ -26,7 +26,7 @@
               size="small"
               :icon="Delete"
               circle
-              @click="removeItem(index)"
+              @click="() => removeItem(index)"
             />
           </div>
           <el-form-item label="标题">
@@ -48,7 +48,7 @@
               placeholder="选择日期"
               format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
-              style="width: 100%"
+              style="width: 100%;"
             />
           </el-form-item>
         </el-card>
@@ -111,7 +111,7 @@ import { Delete, Plus } from '@element-plus/icons-vue';
 import CmsListSourceConfig from '../common/cms/CmsListSourceConfig.vue';
 import { useCmsListDataSource } from '../common/cms/useCmsListDataSource';
 
-export interface ListItem {
+export type ListItem = {
   id: string;
   articleTitle: string;
   coverUrl?: string;
@@ -119,7 +119,7 @@ export interface ListItem {
   publishTime?: string;
 }
 
-export interface ListConfigModelType {
+export type ListConfigModelType = {
   categoryId?: string;
   listType: 'image-text' | 'text-only';
   columnCount: 1 | 2 | 3;
@@ -141,15 +141,13 @@ const modelValue = defineModel<ListConfigModelType>({
 });
 
 // 监听列表类型变化
-watch(
-  () => modelValue.value.listType,
-  newType => {
-    if (newType === 'image-text' && modelValue.value.showDot) {
-      // 当切换到图文列表时，自动关闭圆点标记
-      modelValue.value.showDot = false;
-    }
-  }
-);
+watch(() => modelValue.value.listType,
+      (newType) => {
+        if (newType === 'image-text' && modelValue.value.showDot) {
+          // 当切换到图文列表时，自动关闭圆点标记
+          modelValue.value.showDot = false;
+        }
+      });
 
 // 动态数据源相关
 const dataSourceType = ref<string>('dynamic');
@@ -163,9 +161,8 @@ const {
 } = useCmsListDataSource(modelValue);
 
 // 生成随机ID
-const generateId = () => {
-  return Math.random().toString(36).substring(2, 15);
-};
+const generateId = () => Math.random().toString(36)
+  .substring(2, 15);
 
 // 添加新列表项
 const addItem = () => {
@@ -203,7 +200,9 @@ const addItem = () => {
 
 // 删除列表项
 const removeItem = (index: number) => {
-  if (!modelValue.value || !modelValue.value.items) return;
+  if (!modelValue.value || !modelValue.value.items) {
+    return;
+  }
   modelValue.value.items.splice(index, 1);
 };
 
@@ -214,12 +213,16 @@ defineOptions({
 
 <style scoped>
 .list-config {
-  --config-border: #e2e8f0;
-  --config-surface: #f8fafc;
-  --config-surface-strong: #fff;
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-border: #e2e8f0;
+
+  --config-surface: #f8fafc;
+
+  --config-surface-strong: #fff;
+
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -228,7 +231,7 @@ defineOptions({
 .list-config :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 .list-config :deep(.el-form-item__label) {

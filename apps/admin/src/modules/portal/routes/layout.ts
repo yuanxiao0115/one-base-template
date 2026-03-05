@@ -1,3 +1,4 @@
+import PortalTemplateListPage from '../pages/PortalTemplateListPage.vue';
 import type { RouteRecordRaw } from 'vue-router';
 
 export default [
@@ -10,9 +11,11 @@ export default [
     }
   },
   {
-    // 兼容老项目/后端菜单的历史路径：/portal/setting
-    // - 只做跳转，不在静态菜单中展示（避免出现重复菜单项）
-    // - 权限校验通过 meta.activePath 归属到该菜单路径
+    /*
+     * 兼容老项目/后端菜单的历史路径：/portal/setting
+     * - 只做跳转，不在静态菜单中展示（避免出现重复菜单项）
+     * - 权限校验通过 meta.activePath 归属到该菜单路径
+     */
     path: 'portal/setting',
     redirect: '/portal/templates',
     meta: {
@@ -23,7 +26,7 @@ export default [
   {
     path: 'portal/templates',
     name: 'PortalTemplateList',
-    component: () => import('../pages/PortalTemplateListPage.vue'),
+    component: PortalTemplateListPage as RouteRecordRaw['component'],
     meta: {
       title: '门户模板',
       keepAlive: true,

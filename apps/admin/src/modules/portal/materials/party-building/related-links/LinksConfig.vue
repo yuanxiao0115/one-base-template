@@ -13,7 +13,7 @@
             size="small"
             :icon="Delete"
             circle
-            @click="removeLink(index)"
+            @click="() => removeLink(index)"
           />
         </div>
         <el-form-item label="标题">
@@ -38,13 +38,13 @@
 <script setup lang="ts">
 import { Delete, Plus } from '@element-plus/icons-vue';
 
-export interface LinkItem {
+export type LinkItem = {
   title: string;
   url: string;
   id: string;
 }
 
-export interface LinksConfigModelType {
+export type LinksConfigModelType = {
   links: LinkItem[];
 }
 
@@ -54,9 +54,8 @@ const modelValue = defineModel<LinksConfigModelType>({
 });
 
 // 生成随机ID
-const generateId = () => {
-  return Math.random().toString(36).substring(2, 15);
-};
+const generateId = () => Math.random().toString(36)
+  .substring(2, 15);
 
 // 添加新链接 - 直接修改modelValue.links
 const addLink = () => {
@@ -84,7 +83,9 @@ const addLink = () => {
 
 // 删除链接 - 直接修改modelValue.links
 const removeLink = (index: number) => {
-  if (!modelValue.value || !modelValue.value.links) return;
+  if (!modelValue.value || !modelValue.value.links) {
+    return;
+  }
 
   // 使用解构和filter创建新数组来触发响应式更新
   modelValue.value = {
@@ -100,12 +101,16 @@ defineOptions({
 
 <style scoped>
 .links-config {
-  --config-border: #e2e8f0;
-  --config-surface: #f8fafc;
-  --config-surface-strong: #fff;
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-border: #e2e8f0;
+
+  --config-surface: #f8fafc;
+
+  --config-surface-strong: #fff;
+
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   display: flex;
   flex-direction: column;
   gap: 12px;

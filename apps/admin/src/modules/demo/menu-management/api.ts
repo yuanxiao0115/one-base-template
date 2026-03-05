@@ -1,17 +1,17 @@
-import { getAppHttpClient } from '@/shared/api/http-client'
+import { getAppHttpClient } from '@/shared/api/http-client';
 
-export interface BizResponse<T> {
+export type BizResponse<T> = {
   code: number
   data: T
   message?: string
 }
 
-export interface PermissionTypeOption {
+export type PermissionTypeOption = {
   key: string
   value: string
 }
 
-export interface MenuPermissionRecord {
+export type MenuPermissionRecord = {
   id: string
   parentId: string
   resourceType: number
@@ -31,12 +31,12 @@ export interface MenuPermissionRecord {
   children?: MenuPermissionRecord[]
 }
 
-export interface PermissionSearchParams {
+export type PermissionSearchParams = {
   resourceName?: string
-  resourceType?: string | number
+  resourceType?: number | string
 }
 
-export interface PermissionSavePayload {
+export type PermissionSavePayload = {
   id?: string
   parentId?: string
   resourceType: number
@@ -54,41 +54,35 @@ export interface PermissionSavePayload {
   remark?: string
 }
 
-function getHttp() {
-  return getAppHttpClient()
+function getHttp () {
+  return getAppHttpClient();
 }
 
-function normalizeText(value: string | undefined) {
-  return (value || '').trim()
+function normalizeText (value: string | undefined) {
+  return (value || '').trim();
 }
 
 export const menuPermissionApi = {
-  getResourceTypeEnum: () =>
-    getHttp().get<BizResponse<PermissionTypeOption[]>>('/cmict/admin/permission/resource-type/enum'),
+  getResourceTypeEnum: async () => getHttp().get<BizResponse<PermissionTypeOption[]>>('/cmict/admin/permission/resource-type/enum'),
 
-  getPermissionTree: () =>
-    getHttp().get<BizResponse<MenuPermissionRecord[]>>('/cmict/admin/permission/tree'),
+  getPermissionTree: async () => getHttp().get<BizResponse<MenuPermissionRecord[]>>('/cmict/admin/permission/tree'),
 
-  getPermissionList: (params: PermissionSearchParams) =>
-    getHttp().get<BizResponse<MenuPermissionRecord[]>>('/cmict/admin/permission/list', {
-      params: {
-        resourceName: normalizeText(params.resourceName),
-        resourceType: params.resourceType ?? ''
-      }
-    }),
+  getPermissionList: async (params: PermissionSearchParams) => getHttp().get<BizResponse<MenuPermissionRecord[]>>('/cmict/admin/permission/list', {
+    params: {
+      resourceName: normalizeText(params.resourceName),
+      resourceType: params.resourceType ?? ''
+    }
+  }),
 
-  addPermission: (data: PermissionSavePayload) =>
-    getHttp().post<BizResponse<MenuPermissionRecord>>('/cmict/admin/permission/add', { data }),
+  addPermission: async (data: PermissionSavePayload) => getHttp().post<BizResponse<MenuPermissionRecord>>('/cmict/admin/permission/add', { data }),
 
-  editPermission: (data: PermissionSavePayload) =>
-    getHttp().post<BizResponse<MenuPermissionRecord>>('/cmict/admin/permission/update', { data }),
+  editPermission: async (data: PermissionSavePayload) => getHttp().post<BizResponse<MenuPermissionRecord>>('/cmict/admin/permission/update', { data }),
 
-  deletePermission: (idList: string | string[]) =>
-    getHttp().post<BizResponse<null>>('/cmict/admin/permission/delete', {
-      data: {
-        idList
-      }
-    })
-}
+  deletePermission: async (idList: string[] | string) => getHttp().post<BizResponse<null>>('/cmict/admin/permission/delete', {
+    data: {
+      idList
+    }
+  })
+};
 
-export default menuPermissionApi
+export default menuPermissionApi;

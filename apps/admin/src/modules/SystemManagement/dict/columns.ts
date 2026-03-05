@@ -1,4 +1,4 @@
-import type { TableColumnList } from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui';
 
 export const dictColumns: TableColumnList = [
   {
@@ -33,7 +33,7 @@ export const dictColumns: TableColumnList = [
     width: 280,
     align: 'right'
   }
-]
+];
 
 export const dictItemColumns: TableColumnList = [
   {
@@ -80,6 +80,6 @@ export const dictItemColumns: TableColumnList = [
     width: 240,
     align: 'right'
   }
-]
+];
 
-export default dictColumns
+export default dictColumns;

@@ -1,7 +1,7 @@
 import { onMounted, ref, type Ref } from 'vue';
 import { cmsApi } from '../../../../api';
 
-export interface CmsListItem {
+export type CmsListItem = {
   id: string;
   articleTitle: string;
   coverUrl?: string;
@@ -9,12 +9,12 @@ export interface CmsListItem {
   publishTime?: string;
 }
 
-export interface CmsListDataSourceModel<T extends CmsListItem = CmsListItem> {
+export type CmsListDataSourceModel<T extends CmsListItem = CmsListItem> = {
   categoryId?: string;
   items: T[];
 }
 
-interface UseCmsListOptions {
+type UseCmsListOptions = {
   autoLoad?: boolean;
 }
 
@@ -26,14 +26,19 @@ export const useCmsListDataSource = <T extends CmsListItem>(
   modelValue: Ref<CmsListDataSourceModel<T> | undefined>,
   options: UseCmsListOptions = defaultOptions
 ) => {
-  const resolvedOptions = { ...defaultOptions, ...options };
+  const resolvedOptions = {
+    ...defaultOptions,
+    ...options
+  };
   const columns = ref<any[]>([]);
   const articles = ref<CmsListItem[]>([]);
   const columnsLoading = ref<boolean>(false);
   const articlesLoading = ref<boolean>(false);
 
   const updateModelData = (items: CmsListItem[]) => {
-    if (!modelValue.value) return;
+    if (!modelValue.value) {
+      return;
+    }
     modelValue.value.items = items as T[];
   };
 
@@ -52,7 +57,9 @@ export const useCmsListDataSource = <T extends CmsListItem>(
   };
 
   const loadArticlesByCategory = async (categoryId: string) => {
-    if (!categoryId) return;
+    if (!categoryId) {
+      return;
+    }
 
     articlesLoading.value = true;
     try {
@@ -70,7 +77,9 @@ export const useCmsListDataSource = <T extends CmsListItem>(
   };
 
   const handleCategoryChange = async (categoryId: string) => {
-    if (!categoryId) return;
+    if (!categoryId) {
+      return;
+    }
     await loadArticlesByCategory(categoryId);
   };
 

@@ -15,13 +15,15 @@ import {
   APP_SSO_ROUTE_PATH
 } from '../router/constants';
 
-function isHiddenTagRoute(route: unknown): boolean {
-  if (!route || typeof route !== 'object') return false;
-  const meta = (route as { meta?: Record<string, unknown> }).meta;
+function isHiddenTagRoute (route: unknown): boolean {
+  if (!route || typeof route !== 'object') {
+    return false;
+  }
+  const { meta } = (route as { meta?: Record<string, unknown> });
   return Boolean(meta?.hiddenTab || meta?.noTag);
 }
 
-export function installAppShellPlugins(params: {
+export function installAppShellPlugins (params: {
   app: App;
   pinia: Pinia;
   router: Router;
@@ -54,7 +56,7 @@ export function installAppShellPlugins(params: {
       { pathIncludes: '/redirect' },
       { pathIncludes: '/error' },
       {
-        test: route => isHiddenTagRoute(route)
+        test: (route) => isHiddenTagRoute(route)
       }
     ]
   });

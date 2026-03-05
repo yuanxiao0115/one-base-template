@@ -26,7 +26,7 @@ import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
 import type { LinkStyleModelType } from './LinkStyleConfig.vue';
 
 // 链接项接口
-interface LinkItem {
+type LinkItem = {
   title: string;
   url: string;
   id?: string;
@@ -46,21 +46,18 @@ const links = computed<LinkItem[]>(() => {
 });
 
 // 从schema中获取样式数据
-const styles = computed<LinkStyleModelType & { [key: string]: any }>(() => {
-  return props.schema?.style?.links || {};
-});
+const styles = computed<LinkStyleModelType & Record<string, any>>(() => props.schema?.style?.links || {});
 
-const linkStyleObj = computed<CSSProperties>(() => {
-  return {
-    color: styles.value.linkColor,
-    fontSize: styles.value.linkFontSize + 'px',
-    fontWeight: styles.value.linkFontWeight,
-    textDecoration: 'none',
-    paddingRight: '15px',
-    marginRight: '10px',
-    borderRight: '1px solid #ddd'
-  };
-});
+const linkStyleObj = computed<CSSProperties>(() => ({
+  color: styles.value.linkColor,
+  fontSize: `${styles.value.linkFontSize}px`,
+  fontWeight: styles.value.linkFontWeight,
+  textDecoration: 'none',
+  paddingRight: '15px',
+  marginRight: '10px',
+  borderRight: '1px solid #ddd',
+  '--link-hover-color': styles.value.hoverColor || '#d33a31'
+}));
 
 // 组件名称定义，保持与原来一致
 defineOptions({
@@ -83,15 +80,15 @@ defineOptions({
 }
 
 .link-item:first-child {
-  padding-left: 0 !important;
+  padding-left: 0;
 }
 
 .link-item:last-child a {
-  border-right: none !important;
+  border-right: none;
 }
 
 .link-item a:hover {
-  color: v-bind('styles.hoverColor || "#d33a31"');
+  color: var(--link-hover-color);
 }
 
 .empty-links-placeholder {

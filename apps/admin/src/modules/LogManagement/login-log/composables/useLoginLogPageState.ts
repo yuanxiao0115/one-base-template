@@ -1,41 +1,78 @@
-import { onMounted, reactive, ref } from 'vue'
-import { useTable } from '@one-base-template/core'
-import { message } from '@/utils/message'
-import loginLogColumns from '../columns'
+import { onMounted, reactive, ref } from 'vue';
+import { useTable } from '@one-base-template/core';
+import { message } from '@/utils/message';
+import loginLogColumns from '../columns';
 import {
-  loginLogApi,
   type ClientTypeOption,
+  loginLogApi,
   type LoginLogRecord
-} from '../../api/login-log'
+} from '../../api/login-log';
 
 type SearchRefExpose = {
   resetFields?: () => void
+};
+
+type LoginLogSearchForm = {
+  nickName: string
+  clientType: string
+  time: string[]
+};
+
+const SUCCESS_CODE = 200;
+const DETAIL_ERROR_MESSAGE = '获取登录日志详情失败';
+const DELETE_ERROR_MESSAGE = '删除登录日志失败';
+const DEFAULT_LOGIN_LOG_SEARCH_FORM: LoginLogSearchForm = {
+  nickName: '',
+  clientType: '',
+  time: []
+};
+
+function getErrorMessage (error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
-export function useLoginLogPageState() {
-  const tableRef = ref<unknown>(null)
-  const searchRef = ref<SearchRefExpose>()
+function isConfirmCanceled (error: unknown): boolean {
+  return error === 'cancel' || error === 'close';
+}
 
-  const detailVisible = ref(false)
-  const detailLoading = ref(false)
-  const detailData = ref<LoginLogRecord | null>(null)
+async function fetchLoginLogDetail (id: string): Promise<LoginLogRecord> {
+  const response = await loginLogApi.detail({ id });
+  if (response.code !== SUCCESS_CODE) {
+    throw new Error(response.message || DETAIL_ERROR_MESSAGE);
+  }
 
-  const clientTypeList = ref<ClientTypeOption[]>([])
+  return response.data;
+}
 
-  const searchForm = reactive({
-    nickName: '',
-    clientType: '',
-    time: [] as string[]
-  })
+async function deleteLoginLog (id: string): Promise<void> {
+  const response = await loginLogApi.remove({ idList: [id] });
+  if (response.code !== SUCCESS_CODE) {
+    throw new Error(response.message || DELETE_ERROR_MESSAGE);
+  }
+}
 
+async function confirmDeleteLoginLog (userAccount: string): Promise<boolean> {
+  try {
+    await obConfirm.warn(`是否确认删除登录账号为${userAccount}的这条数据`, '删除确认');
+    return true;
+  } catch (error) {
+    if (isConfirmCanceled(error)) {
+      return false;
+    }
+
+    throw error;
+  }
+}
+
+function useLoginLogTableState (tableRef: ReturnType<typeof ref>, searchRef: ReturnType<typeof ref<SearchRefExpose>>) {
+  const searchForm = reactive({ ...DEFAULT_LOGIN_LOG_SEARCH_FORM });
   const tableOpt = reactive({
     query: {
       api: loginLogApi.list,
       params: searchForm,
       pagination: true
     }
-  })
-
+  });
   const {
     loading,
     dataList,
@@ -44,76 +81,109 @@ export function useLoginLogPageState() {
     resetForm,
     handleSizeChange,
     handleCurrentChange
-  } = useTable(tableOpt, tableRef)
+  } = useTable(tableOpt, tableRef);
 
-  function tableSearch(keyword: string) {
-    searchForm.nickName = keyword
-    void onSearch()
-  }
+  const tableSearch = async (keyword: string) => {
+    searchForm.nickName = keyword;
+    await onSearch();
+  };
+  const onKeywordUpdate = (keyword: string) => {
+    searchForm.nickName = keyword;
+  };
+  const onResetSearch = () => {
+    resetForm(searchRef, 'nickName');
+  };
 
-  function onKeywordUpdate(keyword: string) {
-    searchForm.nickName = keyword
-  }
+  return {
+    loading,
+    dataList,
+    pagination,
+    tableColumns: loginLogColumns,
+    searchForm,
+    onSearch,
+    handleSizeChange,
+    handleCurrentChange,
+    tableSearch,
+    onKeywordUpdate,
+    onResetSearch
+  };
+}
 
-  function onResetSearch() {
-    resetForm(searchRef, 'nickName')
-  }
+function useLoginLogDetailState (onSearch: (resetPage?: boolean) => Promise<unknown>) {
+  const detailVisible = ref(false);
+  const detailLoading = ref(false);
+  const detailData = ref<LoginLogRecord | null>(null);
 
-  async function openDetail(row: LoginLogRecord) {
-    detailVisible.value = true
-    detailLoading.value = true
+  const openDetail = async (row: LoginLogRecord) => {
+    detailVisible.value = true;
+    detailLoading.value = true;
 
     try {
-      const response = await loginLogApi.detail({ id: row.id })
-      if (response.code !== 200) {
-        throw new Error(response.message || '获取登录日志详情失败')
-      }
-
-      detailData.value = response.data
+      detailData.value = await fetchLoginLogDetail(row.id);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '获取登录日志详情失败'
-      message.error(errorMessage)
-      detailVisible.value = false
+      message.error(getErrorMessage(error, DETAIL_ERROR_MESSAGE));
+      detailVisible.value = false;
     } finally {
-      detailLoading.value = false
+      detailLoading.value = false;
     }
-  }
+  };
 
-  async function handleDelete(row: LoginLogRecord) {
+  const handleDelete = async (row: LoginLogRecord) => {
+    const confirmed = await confirmDeleteLoginLog(row.userAccount);
+    if (!confirmed) {
+      return;
+    }
+
     try {
-      await obConfirm.warn(`是否确认删除登录账号为${row.userAccount}的这条数据`, '删除确认')
-
-      const response = await loginLogApi.remove({ idList: [row.id] })
-      if (response.code !== 200) {
-        throw new Error(response.message || '删除登录日志失败')
-      }
-
-      message.success('删除登录日志成功')
-      await onSearch(false)
+      await deleteLoginLog(row.id);
+      message.success('删除登录日志成功');
+      await onSearch(false);
     } catch (error) {
-      if (error === 'cancel' || error === 'close') return
-
-      const errorMessage = error instanceof Error ? error.message : '删除登录日志失败'
-      message.error(errorMessage)
+      message.error(getErrorMessage(error, DELETE_ERROR_MESSAGE));
     }
-  }
+  };
 
-  async function loadClientTypes() {
+  return {
+    detailVisible,
+    detailLoading,
+    detailData,
+    openDetail,
+    handleDelete
+  };
+}
+
+function useClientTypeState () {
+  const clientTypeList = ref<ClientTypeOption[]>([]);
+
+  const loadClientTypes = async () => {
     try {
-      const response = await loginLogApi.getEnum()
-      if (response.code !== 200) {
-        throw new Error(response.message || '获取客户端类型失败')
+      const response = await loginLogApi.getEnum();
+      if (response.code !== SUCCESS_CODE) {
+        throw new Error(response.message || '获取客户端类型失败');
       }
 
-      clientTypeList.value = response.data
+      clientTypeList.value = response.data;
     } catch {
-      clientTypeList.value = []
+      clientTypeList.value = [];
     }
-  }
+  };
+
+  return {
+    clientTypeList,
+    loadClientTypes
+  };
+}
+
+export function useLoginLogPageState () {
+  const tableRef = ref<unknown>(null);
+  const searchRef = ref<SearchRefExpose>();
+  const tableState = useLoginLogTableState(tableRef, searchRef);
+  const detailState = useLoginLogDetailState(tableState.onSearch);
+  const clientTypeState = useClientTypeState();
 
   onMounted(() => {
-    void loadClientTypes()
-  })
+    clientTypeState.loadClientTypes().catch(() => null);
+  });
 
   return {
     refs: {
@@ -121,26 +191,26 @@ export function useLoginLogPageState() {
       searchRef
     },
     table: {
-      loading,
-      dataList,
-      pagination,
-      tableColumns: loginLogColumns,
-      searchForm,
-      clientTypeList
+      loading: tableState.loading,
+      dataList: tableState.dataList,
+      pagination: tableState.pagination,
+      tableColumns: tableState.tableColumns,
+      searchForm: tableState.searchForm,
+      clientTypeList: clientTypeState.clientTypeList
     },
     detail: {
-      detailVisible,
-      detailLoading,
-      detailData
+      detailVisible: detailState.detailVisible,
+      detailLoading: detailState.detailLoading,
+      detailData: detailState.detailData
     },
     actions: {
-      tableSearch,
-      onKeywordUpdate,
-      onResetSearch,
-      handleSizeChange,
-      handleCurrentChange,
-      openDetail,
-      handleDelete
+      tableSearch: tableState.tableSearch,
+      onKeywordUpdate: tableState.onKeywordUpdate,
+      onResetSearch: tableState.onResetSearch,
+      handleSizeChange: tableState.handleSizeChange,
+      handleCurrentChange: tableState.handleCurrentChange,
+      openDetail: detailState.openDetail,
+      handleDelete: detailState.handleDelete
     }
-  }
+  };
 }

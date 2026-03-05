@@ -1,60 +1,62 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { useAuthStore } from '@one-base-template/core'
-import { confirm } from '@/infra/confirm'
-import { ActionButtons as ObActionButtons, VxeTable as ObVxeTable } from '@one-base-template/ui'
-import type { TableColumnList } from '@one-base-template/ui'
-import { orgColumns } from '../org-management/columns'
+import { computed, onMounted, reactive, ref } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import { useAuthStore } from '@one-base-template/core';
+import { confirm } from '@/infra/confirm';
+import { ActionButtons as ObActionButtons, VxeTable as ObVxeTable } from '@one-base-template/ui';
+import type { TableColumnList } from '@one-base-template/ui';
+import { orgColumns } from '../org-management/columns';
 import {
+  institutionalTypeLabelMap,
   orgCategoryLabelMap,
   orgDemoApi,
-  orgTypeLabelMap,
-  institutionalTypeLabelMap,
   type OrgRecord,
-  type OrgSavePayload
-} from '../org-management/api'
+  type OrgSavePayload,
+  orgTypeLabelMap
+} from '../org-management/api';
 
 defineOptions({
   name: 'DemoOrgManagementMigrationPage'
-})
+});
 
 type AuthUserWithCompanyId = {
-  companyId?: string | number | null
+  companyId?: number | string | null
 }
 
-const authStore = useAuthStore()
-const tableRef = ref<unknown>(null)
-const loading = ref(false)
-const dataList = ref<OrgRecord[]>([])
-const detailVisible = ref(false)
-const detailData = ref<OrgRecord | null>(null)
+const authStore = useAuthStore();
+const tableRef = ref<unknown>(null);
+const loading = ref(false);
+const dataList = ref<OrgRecord[]>([]);
+const detailVisible = ref(false);
+const detailData = ref<OrgRecord | null>(null);
 const searchForm = reactive({
   orgName: ''
-})
+});
 
-const treeChildrenCache = new Map<string, OrgRecord[]>()
+const treeChildrenCache = new Map<string, OrgRecord[]>();
 
-const inSearchMode = computed(() => Boolean(searchForm.orgName.trim()))
-const tableColumns = computed<TableColumnList>(() => orgColumns)
+const inSearchMode = computed(() => Boolean(searchForm.orgName.trim()));
+const tableColumns = computed<TableColumnList>(() => orgColumns);
 const rootParentId = computed(() => {
-  const user = authStore.user as AuthUserWithCompanyId | null
-  const companyId = user?.companyId
+  const user = authStore.user as AuthUserWithCompanyId | null;
+  const companyId = user?.companyId;
 
   if (typeof companyId === 'number' && Number.isFinite(companyId)) {
-    return String(companyId)
+    return String(companyId);
   }
 
   if (typeof companyId === 'string' && companyId.trim()) {
-    return companyId.trim()
+    return companyId.trim();
   }
 
-  return '0'
-})
+  return '0';
+});
 
 const treeConfig = computed<Record<string, unknown> | undefined>(() => {
-  if (inSearchMode.value) return undefined
+  if (inSearchMode.value) {
+    return undefined;
+  }
 
   return {
     lazy: true,
@@ -63,105 +65,110 @@ const treeConfig = computed<Record<string, unknown> | undefined>(() => {
     hasChildField: 'hasChildren',
     childrenField: 'children',
     loadMethod: loadTreeChildren
-  }
-})
+  };
+});
 
-function clearTreeCache() {
-  treeChildrenCache.clear()
+function clearTreeCache () {
+  treeChildrenCache.clear();
 }
 
-async function fetchRootRows() {
-  loading.value = true
+async function fetchRootRows () {
+  loading.value = true;
 
   try {
-    const parentId = rootParentId.value
+    const parentId = rootParentId.value;
     const response = inSearchMode.value
-      ? await orgDemoApi.searchOrgList({ parentId, orgName: searchForm.orgName })
-      : await orgDemoApi.getOrgTree({ parentId })
+      ? await orgDemoApi.searchOrgList({
+        parentId,
+        orgName: searchForm.orgName
+      })
+      : await orgDemoApi.getOrgTree({ parentId });
 
     if (response.code === 200) {
-      dataList.value = Array.isArray(response.data) ? response.data : []
-      return
+      dataList.value = Array.isArray(response.data) ? response.data : [];
+      return;
     }
 
-    throw new Error(response.message || '获取组织数据失败')
+    throw new Error(response.message || '获取组织数据失败');
   } catch (error) {
-    const message = error instanceof Error ? error.message : '获取组织数据失败'
-    ElMessage.error(message)
-    dataList.value = []
+    const message = error instanceof Error ? error.message : '获取组织数据失败';
+    ElMessage.error(message);
+    dataList.value = [];
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
-async function loadTreeChildren(params: { row: OrgRecord }) {
-  if (inSearchMode.value) return []
+async function loadTreeChildren (params: { row: OrgRecord }) {
+  if (inSearchMode.value) {
+    return [];
+  }
 
-  const parentId = String(params.row.id)
+  const parentId = String(params.row.id);
   if (treeChildrenCache.has(parentId)) {
-    return treeChildrenCache.get(parentId) || []
+    return treeChildrenCache.get(parentId) || [];
   }
 
-  const response = await orgDemoApi.getOrgTree({ parentId })
+  const response = await orgDemoApi.getOrgTree({ parentId });
   if (response.code !== 200) {
-    throw new Error(response.message || '加载下级组织失败')
+    throw new Error(response.message || '加载下级组织失败');
   }
 
-  const rows = Array.isArray(response.data) ? response.data : []
+  const rows = Array.isArray(response.data) ? response.data : [];
   if (!rows.length) {
-    params.row.hasChildren = false
+    params.row.hasChildren = false;
   }
-  treeChildrenCache.set(parentId, rows)
-  return rows
+  treeChildrenCache.set(parentId, rows);
+  return rows;
 }
 
-async function tableSearch(keyword: string) {
-  searchForm.orgName = keyword
-  clearTreeCache()
-  await fetchRootRows()
+async function tableSearch (keyword: string) {
+  searchForm.orgName = keyword;
+  clearTreeCache();
+  await fetchRootRows();
 }
 
-function onKeywordUpdate(keyword: string) {
-  searchForm.orgName = keyword
+function onKeywordUpdate (keyword: string) {
+  searchForm.orgName = keyword;
 }
 
-async function onResetSearch() {
-  searchForm.orgName = ''
-  clearTreeCache()
-  await fetchRootRows()
+async function onResetSearch () {
+  searchForm.orgName = '';
+  clearTreeCache();
+  await fetchRootRows();
 }
 
-function handleView(row: OrgRecord) {
-  detailData.value = row
-  detailVisible.value = true
+function handleView (row: OrgRecord) {
+  detailData.value = row;
+  detailVisible.value = true;
 }
 
-async function refreshAfterMutation() {
-  clearTreeCache()
-  await fetchRootRows()
+async function refreshAfterMutation () {
+  clearTreeCache();
+  await fetchRootRows();
 }
 
-async function createOrg(payload: OrgSavePayload) {
-  const response = await orgDemoApi.addOrg(payload)
+async function createOrg (payload: OrgSavePayload) {
+  const response = await orgDemoApi.addOrg(payload);
   if (response.code !== 200) {
-    throw new Error(response.message || '新增组织失败')
+    throw new Error(response.message || '新增组织失败');
   }
 
-  ElMessage.success('新增组织成功')
-  await refreshAfterMutation()
+  ElMessage.success('新增组织成功');
+  await refreshAfterMutation();
 }
 
-async function updateOrg(payload: OrgSavePayload) {
-  const response = await orgDemoApi.editOrg(payload)
+async function updateOrg (payload: OrgSavePayload) {
+  const response = await orgDemoApi.editOrg(payload);
   if (response.code !== 200) {
-    throw new Error(response.message || '更新组织失败')
+    throw new Error(response.message || '更新组织失败');
   }
 
-  ElMessage.success('更新组织成功')
-  await refreshAfterMutation()
+  ElMessage.success('更新组织成功');
+  await refreshAfterMutation();
 }
 
-async function handleCreateRoot() {
+async function handleCreateRoot () {
   try {
     const promptResult = await ElMessageBox.prompt('请输入组织名称', '新增组织', {
       inputPlaceholder: '例如：数字化建设部',
@@ -169,22 +176,26 @@ async function handleCreateRoot() {
       inputErrorMessage: '组织名称不能为空',
       confirmButtonText: '确认',
       cancelButtonText: '取消'
-    })
+    });
 
-    if (typeof promptResult === 'string') return
+    if (typeof promptResult === 'string') {
+      return;
+    }
 
     await createOrg({
       parentId: rootParentId.value,
       orgName: promptResult.value.trim()
-    })
+    });
   } catch (error) {
-    if (error === 'cancel') return
-    const message = error instanceof Error ? error.message : '新增组织失败'
-    ElMessage.error(message)
+    if (error === 'cancel') {
+      return;
+    }
+    const message = error instanceof Error ? error.message : '新增组织失败';
+    ElMessage.error(message);
   }
 }
 
-async function handleCreateChild(row: OrgRecord) {
+async function handleCreateChild (row: OrgRecord) {
   try {
     const promptResult = await ElMessageBox.prompt(`请输入「${row.orgName}」的下级组织名称`, '新增下级组织', {
       inputPlaceholder: '例如：平台研发室',
@@ -192,22 +203,26 @@ async function handleCreateChild(row: OrgRecord) {
       inputErrorMessage: '组织名称不能为空',
       confirmButtonText: '确认',
       cancelButtonText: '取消'
-    })
+    });
 
-    if (typeof promptResult === 'string') return
+    if (typeof promptResult === 'string') {
+      return;
+    }
 
     await createOrg({
       parentId: row.id,
       orgName: promptResult.value.trim()
-    })
+    });
   } catch (error) {
-    if (error === 'cancel') return
-    const message = error instanceof Error ? error.message : '新增下级组织失败'
-    ElMessage.error(message)
+    if (error === 'cancel') {
+      return;
+    }
+    const message = error instanceof Error ? error.message : '新增下级组织失败';
+    ElMessage.error(message);
   }
 }
 
-async function handleEdit(row: OrgRecord) {
+async function handleEdit (row: OrgRecord) {
   try {
     const promptResult = await ElMessageBox.prompt('请更新组织名称', '编辑组织', {
       inputValue: row.orgName,
@@ -215,9 +230,11 @@ async function handleEdit(row: OrgRecord) {
       inputErrorMessage: '组织名称不能为空',
       confirmButtonText: '确认',
       cancelButtonText: '取消'
-    })
+    });
 
-    if (typeof promptResult === 'string') return
+    if (typeof promptResult === 'string') {
+      return;
+    }
 
     await updateOrg({
       id: row.id,
@@ -231,38 +248,40 @@ async function handleEdit(row: OrgRecord) {
       sort: row.sort,
       orgType: row.orgType,
       isExternal: row.isExternal
-    })
+    });
   } catch (error) {
-    if (error === 'cancel') return
-    const message = error instanceof Error ? error.message : '更新组织失败'
-    ElMessage.error(message)
+    if (error === 'cancel') {
+      return;
+    }
+    const message = error instanceof Error ? error.message : '更新组织失败';
+    ElMessage.error(message);
   }
 }
 
-async function handleDelete(row: OrgRecord) {
+async function handleDelete (row: OrgRecord) {
   try {
-    await confirm.warn(
-      `确认删除组织「${row.orgName}」吗？若存在下级组织将禁止删除。`,
-      '删除确认'
-    )
+    await confirm.warn(`确认删除组织「${row.orgName}」吗？若存在下级组织将禁止删除。`,
+      '删除确认');
 
-    const response = await orgDemoApi.deleteOrg({ id: row.id })
+    const response = await orgDemoApi.deleteOrg({ id: row.id });
     if (response.code !== 200) {
-      throw new Error(response.message || '删除组织失败')
+      throw new Error(response.message || '删除组织失败');
     }
 
-    ElMessage.success('删除组织成功')
-    await refreshAfterMutation()
+    ElMessage.success('删除组织成功');
+    await refreshAfterMutation();
   } catch (error) {
-    if (error === 'cancel') return
-    const message = error instanceof Error ? error.message : '删除组织失败'
-    ElMessage.error(message)
+    if (error === 'cancel') {
+      return;
+    }
+    const message = error instanceof Error ? error.message : '删除组织失败';
+    ElMessage.error(message);
   }
 }
 
 onMounted(() => {
-  void fetchRootRows()
-})
+  void fetchRootRows();
+});
 </script>
 
 <template>
@@ -284,12 +303,12 @@ onMounted(() => {
         <template #default="{ size, dynamicColumns }">
           <ObVxeTable
             ref="tableRef"
-            :loading="loading"
-            :size="size"
+            :loading
+            :size
             :data="dataList"
             :columns="dynamicColumns"
             :pagination="false"
-            :tree-config="treeConfig"
+            :tree-config
             row-key="id"
           >
             <template #orgName="{ row }">
@@ -310,10 +329,10 @@ onMounted(() => {
 
             <template #operation="{ row }">
               <ObActionButtons>
-                <el-button link type="primary" :size="size" @click="handleView(row)">查看</el-button>
-                <el-button link type="primary" :size="size" @click="handleEdit(row)">编辑</el-button>
-                <el-button link type="primary" :size="size" @click="handleCreateChild(row)">新增下级</el-button>
-                <el-button link type="danger" :size="size" @click="handleDelete(row)">删除</el-button>
+                <el-button link type="primary" :size @click="() => handleView(row)">查看</el-button>
+                <el-button link type="primary" :size @click="() => handleEdit(row)">编辑</el-button>
+                <el-button link type="primary" :size @click="() => handleCreateChild(row)">新增下级</el-button>
+                <el-button link type="danger" :size @click="() => handleDelete(row)">删除</el-button>
               </ObActionButtons>
             </template>
           </ObVxeTable>
@@ -350,5 +369,4 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
 }
-
 </style>

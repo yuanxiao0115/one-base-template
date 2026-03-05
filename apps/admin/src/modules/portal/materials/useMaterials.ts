@@ -2,7 +2,7 @@ import type { Component } from 'vue';
 
 type MaterialModule = { default?: Component };
 
-function tryGetComponentName(mod: unknown): string | null {
+function tryGetComponentName (mod: unknown): string | null {
   const component = (mod as MaterialModule | undefined)?.default;
   const name = (component as any)?.name;
   return typeof name === 'string' && name.length > 0 ? name : null;
@@ -15,7 +15,7 @@ function tryGetComponentName(mod: unknown): string | null {
  * - 每个物料目录提供：index.vue / content.vue / style.vue
  * - defineOptions({ name }) 必须与 cmptConfig.index/content/style.name 对齐
  */
-export function useMaterials() {
+export function useMaterials () {
   const materialsMap: Record<string, Component> = {};
 
   const indexModules = import.meta.glob<MaterialModule>('./**/index.vue', { eager: true });
@@ -24,15 +24,21 @@ export function useMaterials() {
 
   for (const mod of Object.values(indexModules)) {
     const name = tryGetComponentName(mod);
-    if (name && mod.default) materialsMap[name] = mod.default;
+    if (name && mod.default) {
+      materialsMap[name] = mod.default;
+    }
   }
   for (const mod of Object.values(contentModules)) {
     const name = tryGetComponentName(mod);
-    if (name && mod.default) materialsMap[name] = mod.default;
+    if (name && mod.default) {
+      materialsMap[name] = mod.default;
+    }
   }
   for (const mod of Object.values(styleModules)) {
     const name = tryGetComponentName(mod);
-    if (name && mod.default) materialsMap[name] = mod.default;
+    if (name && mod.default) {
+      materialsMap[name] = mod.default;
+    }
   }
 
   return { materialsMap };

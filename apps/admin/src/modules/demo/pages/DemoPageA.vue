@@ -9,7 +9,7 @@ defineOptions({
 
 const router = useRouter();
 
-async function onDownloadOk() {
+async function onDownloadOk () {
   try {
     await demoDownloadService.download('ob-demo.txt');
     ElMessage.success('已触发下载');
@@ -19,7 +19,7 @@ async function onDownloadOk() {
   }
 }
 
-async function onDownloadError() {
+async function onDownloadError () {
   try {
     await demoDownloadService.downloadError();
   } catch (e: unknown) {
@@ -28,19 +28,19 @@ async function onDownloadError() {
   }
 }
 
-function onGotoSystemB() {
+function onGotoSystemB () {
   router.push('/b/demo/page-1');
 }
 
-function onGotoContainerDemo() {
+function onGotoContainerDemo () {
   router.push('/demo/page-container');
 }
 
-function onGotoLoginLogMigration() {
+function onGotoLoginLogMigration () {
   router.push('/demo/login-log-vxe');
 }
 
-function onGotoButtonStyleDemo() {
+function onGotoButtonStyleDemo () {
   router.push('/demo/button-style');
 }
 </script>
@@ -50,10 +50,10 @@ function onGotoButtonStyleDemo() {
     <template #header>
       <div class="font-medium">页面 A</div>
     </template>
-    <p class="text-sm text-[var(--el-text-color-regular)]">
+    <p class="text-[var(--el-text-color-regular)] text-sm">
       用于演示 tabs + keep-alive。切换到页面 B 再回来，观察组件是否被缓存。
     </p>
-    <div class="mt-4 flex flex-wrap gap-2">
+    <div class="flex flex-wrap gap-2 mt-4">
       <el-button type="primary" @click="onDownloadOk">下载示例文件</el-button>
       <el-button @click="onDownloadError">下载错误(JSON)示例</el-button>
       <el-button type="warning" plain @click="onGotoContainerDemo">页面容器 Demo</el-button>

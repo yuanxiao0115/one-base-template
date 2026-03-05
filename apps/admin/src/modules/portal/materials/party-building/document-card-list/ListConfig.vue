@@ -3,8 +3,8 @@
     <CmsListSourceConfig
       v-if="dataSourceType === 'dynamic'"
       v-model="modelValue.categoryId"
-      :columns="columns"
-      :columns-loading="columnsLoading"
+      :columns
+      :columns-loading
       :loading="articlesLoading"
       :items-count="articles.length"
       @change="handleCategoryChange"
@@ -25,7 +25,7 @@
               size="small"
               :icon="Delete"
               circle
-              @click="removeItem(index)"
+              @click="() => removeItem(index)"
             />
           </div>
           <el-form-item label="文章ID">
@@ -142,12 +142,12 @@ import { Delete, Plus } from '@element-plus/icons-vue';
 import CmsListSourceConfig from '../common/cms/CmsListSourceConfig.vue';
 import { useCmsListDataSource } from '../common/cms/useCmsListDataSource';
 
-export interface CardListItem {
+export type CardListItem = {
   id: string;
   articleTitle: string;
 }
 
-export interface CardListConfigModelType {
+export type CardListConfigModelType = {
   categoryId?: string;
   maxDisplayCount: number;
   cardWidth: number;
@@ -184,9 +184,8 @@ const {
   handleRefresh
 } = useCmsListDataSource(modelValue);
 
-const generateId = () => {
-  return Math.random().toString(36).substring(2, 15);
-};
+const generateId = () => Math.random().toString(36)
+  .substring(2, 15);
 
 const addItem = () => {
   if (!modelValue.value) {
@@ -214,7 +213,9 @@ const addItem = () => {
 };
 
 const removeItem = (index: number) => {
-  if (!modelValue.value || !modelValue.value.items) return;
+  if (!modelValue.value || !modelValue.value.items) {
+    return;
+  }
   modelValue.value.items.splice(index, 1);
 };
 
@@ -225,12 +226,16 @@ defineOptions({
 
 <style scoped>
 .list-config {
-  --config-border: #e2e8f0;
-  --config-surface: #f8fafc;
-  --config-surface-strong: #fff;
-  --config-text: #0f172a;
-  --config-muted: #64748b;
 
+  --config-border: #e2e8f0;
+
+  --config-surface: #f8fafc;
+
+  --config-surface-strong: #fff;
+
+  --config-text: #0f172a;
+
+  --config-muted: #64748b;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -239,7 +244,7 @@ defineOptions({
 .list-config :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 .list-config :deep(.el-form-item__label) {

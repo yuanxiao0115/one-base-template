@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
-import type { CrudFormLike } from '@one-base-template/ui'
-import type { DictItemForm } from '../form'
+import { ref } from 'vue';
+import type { FormInstance, FormRules } from 'element-plus';
+import type { CrudFormLike } from '@one-base-template/ui';
+import type { DictItemForm } from '../form';
 
 const props = defineProps<{
   rules: FormRules<DictItemForm>
   disabled: boolean
-}>()
+}>();
 
-const model = defineModel<DictItemForm>({ required: true })
-const formRef = ref<FormInstance>()
+const model = defineModel<DictItemForm>({ required: true });
+const formRef = ref<FormInstance>();
 
 defineExpose<CrudFormLike>({
   validate: (...args) => {
-    const [callback] = args
+    const [callback] = args;
     if (callback) {
-      return formRef.value?.validate?.(callback)
+      return formRef.value?.validate?.(callback);
     }
-    return formRef.value?.validate?.()
+    return formRef.value?.validate?.();
   },
   clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
   resetFields: (...args) => formRef.value?.resetFields?.(...args)
-})
+});
 </script>
 
 <template>
   <el-form
     ref="formRef"
-    :model="model"
+    :model
     :rules="props.rules"
     label-position="top"
     :disabled="props.disabled"

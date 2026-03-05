@@ -41,50 +41,57 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const categoryId = defineModel<string | undefined>();
+const props = withDefaults(defineProps<{
+                             columns?: any[];
+                             columnsLoading?: boolean;
+                             loading?: boolean;
+                             itemsCount?: number;
+                             statusText?: string;
+                             statusType?: 'danger' | 'info' | 'success' | 'warning';
+                             treeProps?: {
+                               label?: string;
+                               children?: string;
+                             };
+                           }>(),
+                           {
+                             columns: () => [],
+                             columnsLoading: false,
+                             loading: false,
+                             itemsCount: 0,
+                             statusText: undefined,
+                             statusType: undefined,
+                             treeProps: () => ({
+                               label: 'categoryName',
+                               children: 'children'
+                             })
+                           });
 
-const props = withDefaults(
-  defineProps<{
-    columns?: any[];
-    columnsLoading?: boolean;
-    loading?: boolean;
-    itemsCount?: number;
-    statusText?: string;
-    statusType?: 'success' | 'warning' | 'info' | 'danger';
-    treeProps?: {
-      label?: string;
-      children?: string;
-    };
-  }>(),
-  {
-    columns: () => [],
-    columnsLoading: false,
-    loading: false,
-    itemsCount: 0,
-    statusText: undefined,
-    statusType: undefined,
-    treeProps: () => ({
-      label: 'categoryName',
-      children: 'children'
-    })
-  }
-);
-
-const emit = defineEmits<{
-  (e: 'change', value: string): void;
-  (e: 'refresh'): void;
+const emit = defineEmits<{(e: 'change', value: string): void;
+                          (e: 'refresh'): void;
 }>();
 
+const categoryId = defineModel<string | undefined>();
+
 const statusType = computed(() => {
-  if (props.statusType) return props.statusType;
-  if (props.loading) return 'warning';
-  if (props.itemsCount > 0) return 'success';
+  if (props.statusType) {
+    return props.statusType;
+  }
+  if (props.loading) {
+    return 'warning';
+  }
+  if (props.itemsCount > 0) {
+    return 'success';
+  }
   return 'info';
 });
 
 const statusText = computed(() => {
-  if (props.statusText) return props.statusText;
-  if (props.loading) return '获取中...';
+  if (props.statusText) {
+    return props.statusText;
+  }
+  if (props.loading) {
+    return '获取中...';
+  }
   if (props.itemsCount > 0) {
     return `已获取${props.itemsCount}条数据`;
   }
@@ -106,17 +113,22 @@ defineOptions({
 
 <style scoped>
 .cms-list-source-config {
+
   --config-border: #e2e8f0;
+
   --config-surface: #f8fafc;
+
   --config-surface-strong: #fff;
+
   --config-text: #0f172a;
+
   --config-muted: #64748b;
 }
 
 .cms-list-source-config :deep(.el-divider__text) {
   font-weight: 600;
   color: var(--config-text);
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
 .cms-list-source-config :deep(.el-form-item__label) {
@@ -131,7 +143,7 @@ defineOptions({
   border-radius: 8px;
   padding: 16px;
   background-color: var(--config-surface);
-  box-shadow: 0 1px 0 rgb(15 23 42 / 2%);
+  box-shadow: 0 1px 0 rgb(15 23 42 / .02);
 }
 
 .dynamic-data-config :deep(.el-form-item) {

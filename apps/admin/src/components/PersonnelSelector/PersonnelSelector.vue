@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import PersonnelSelectorSourcePanel from './PersonnelSelectorSourcePanel.vue'
-import PersonnelSelectorSelectedPanel from './PersonnelSelectorSelectedPanel.vue'
+import { computed, ref, watch } from 'vue';
+import PersonnelSelectorSourcePanel from './PersonnelSelectorSourcePanel.vue';
+import PersonnelSelectorSelectedPanel from './PersonnelSelectorSelectedPanel.vue';
 import type {
   PersonnelBreadcrumbNode,
   PersonnelFetchNodes,
@@ -9,13 +9,13 @@ import type {
   PersonnelNodeType,
   PersonnelOrgNode,
   PersonnelSearchNodes,
-  PersonnelSelectMode,
   PersonnelSelectedItem,
   PersonnelSelectedUser,
   PersonnelSelectionField,
   PersonnelSelectionModel,
+  PersonnelSelectMode,
   PersonnelUserNode
-} from './types'
+} from './types';
 
 const props = withDefaults(defineProps<{
   disabled: boolean
@@ -28,75 +28,88 @@ const props = withDefaults(defineProps<{
   mode: 'person',
   allowSelectOrg: false,
   selectionField: 'userIds'
-})
+});
 
-const model = defineModel<PersonnelSelectionModel>({ required: true })
+const model = defineModel<PersonnelSelectionModel>({ required: true });
 
-const loading = ref(false)
-const searchKeyword = ref('')
-const isSearchMode = ref(false)
+const loading = ref(false);
+const searchKeyword = ref('');
+const isSearchMode = ref(false);
 
-const breadcrumbs = ref<PersonnelBreadcrumbNode[]>([{ id: '0', title: '组织' }])
-const currentNodes = ref<PersonnelNode[]>([])
-const rootNodes = ref<PersonnelNode[]>([])
-const nodeChildrenCache = new Map<string, PersonnelNode[]>()
-const nodeChildrenLoadingMap = new Map<string, Promise<PersonnelNode[]>>()
-const searchCache = new Map<string, PersonnelNode[]>()
-const searchLoadingMap = new Map<string, Promise<PersonnelNode[]>>()
-let dataLoadToken = 0
-let searchToken = 0
+const breadcrumbs = ref<PersonnelBreadcrumbNode[]>([{
+  id: '0',
+  title: '组织'
+}]);
+const currentNodes = ref<PersonnelNode[]>([]);
+const rootNodes = ref<PersonnelNode[]>([]);
+const nodeChildrenCache = new Map<string, PersonnelNode[]>();
+const nodeChildrenLoadingMap = new Map<string, Promise<PersonnelNode[]>>();
+const searchCache = new Map<string, PersonnelNode[]>();
+const searchLoadingMap = new Map<string, Promise<PersonnelNode[]>>();
+let dataLoadToken = 0;
+let searchToken = 0;
 
-const selectedMap = ref<Record<string, PersonnelSelectedItem>>({})
+const selectedMap = ref<Record<string, PersonnelSelectedItem>>({});
 
 const searchPlaceholder = computed(() => {
-  if (props.mode === 'org') return '搜索组织'
-  if (props.mode === 'role') return '搜索角色'
-  if (props.mode === 'position') return '搜索岗位'
-  return props.allowSelectOrg ? '搜索人员或组织' : '搜索人员'
-})
+  if (props.mode === 'org') {
+    return '搜索组织';
+  }
+  if (props.mode === 'role') {
+    return '搜索角色';
+  }
+  if (props.mode === 'position') {
+    return '搜索岗位';
+  }
+  return props.allowSelectOrg ? '搜索人员或组织' : '搜索人员';
+});
 
 const emptyText = computed(() => {
-  if (props.mode === 'org') return '未选择组织'
-  if (props.mode === 'role') return '未选择角色'
-  if (props.mode === 'position') return '未选择岗位'
-  return '未选择人员'
-})
+  if (props.mode === 'org') {
+    return '未选择组织';
+  }
+  if (props.mode === 'role') {
+    return '未选择角色';
+  }
+  if (props.mode === 'position') {
+    return '未选择岗位';
+  }
+  return '未选择人员';
+});
 
-const selectedItems = computed<PersonnelSelectedItem[]>(() => {
-  return getSelectedIds()
-    .map((id) => selectedMap.value[id])
-    .filter((item): item is PersonnelSelectedItem => Boolean(item))
-})
+const selectedItems = computed<PersonnelSelectedItem[]>(() => getSelectedIds()
+  .map((id) => selectedMap.value[id])
+  .filter((item): item is PersonnelSelectedItem => Boolean(item)));
 
-const selectedIdSet = computed(() => {
-  return new Set(getSelectedIds())
-})
+const selectedIdSet = computed(() => new Set(getSelectedIds()));
 
-function isUserNode(node: PersonnelNode): node is PersonnelUserNode {
-  return node.nodeType === 'user'
+function isUserNode (node: PersonnelNode): node is PersonnelUserNode {
+  return node.nodeType === 'user';
 }
 
-function isOrgNode(node: PersonnelNode): node is PersonnelOrgNode {
-  return node.nodeType === 'org'
+function isOrgNode (node: PersonnelNode): node is PersonnelOrgNode {
+  return node.nodeType === 'org';
 }
 
-function getUserId(node: Pick<PersonnelUserNode, 'userId' | 'id'>): string {
-  return node.userId || node.id
+function getUserId (node: Pick<PersonnelUserNode, 'id' | 'userId'>): string {
+  return node.userId || node.id;
 }
 
-function getSelectedIds(): string[] {
-  const ids = model.value?.[props.selectionField]
-  return Array.isArray(ids) ? ids.filter(Boolean) : []
+function getSelectedIds (): string[] {
+  const ids = model.value?.[props.selectionField];
+  return Array.isArray(ids) ? ids.filter(Boolean) : [];
 }
 
-function writeSelectedIds(ids: string[]) {
-  if (!model.value) return
-  model.value[props.selectionField] = Array.from(new Set(ids.filter(Boolean)))
+function writeSelectedIds (ids: string[]) {
+  if (!model.value) {
+    return;
+  }
+  model.value[props.selectionField] = Array.from(new Set(ids.filter(Boolean)));
 }
 
-function toSelectedUser(node: PersonnelUserNode): PersonnelSelectedUser {
-  const title = node.nickName || node.title || node.userAccount
-  const subTitle = node.phone || node.userAccount || '--'
+function toSelectedUser (node: PersonnelUserNode): PersonnelSelectedUser {
+  const title = node.nickName || node.title || node.userAccount;
+  const subTitle = node.phone || node.userAccount || '--';
   return {
     id: getUserId(node),
     nodeType: 'user',
@@ -105,311 +118,344 @@ function toSelectedUser(node: PersonnelUserNode): PersonnelSelectedUser {
     nickName: title,
     userAccount: node.userAccount || '',
     phone: node.phone || ''
-  }
+  };
 }
 
-function toSelectedOrg(node: PersonnelOrgNode): PersonnelSelectedItem {
+function toSelectedOrg (node: PersonnelOrgNode): PersonnelSelectedItem {
   return {
     id: node.id,
     nodeType: 'org',
     title: node.orgName || node.title || '组织'
-  }
+  };
 }
 
-function keepSelectedMap(ids: string[]) {
-  const patch: Record<string, PersonnelSelectedItem> = {}
+function keepSelectedMap (ids: string[]) {
+  const patch: Record<string, PersonnelSelectedItem> = {};
   ids.forEach((id) => {
-    const row = selectedMap.value[id]
-    if (row) patch[id] = row
-  })
+    const row = selectedMap.value[id];
+    if (row) {
+      patch[id] = row;
+    }
+  });
   selectedMap.value = {
     ...selectedMap.value,
     ...patch
-  }
+  };
 }
 
-function toggleSelectedItem(item: PersonnelSelectedItem, checked: boolean) {
-  const currentIds = new Set(getSelectedIds())
+function toggleSelectedItem (item: PersonnelSelectedItem, checked: boolean) {
+  const currentIds = new Set(getSelectedIds());
 
   if (checked) {
-    currentIds.add(item.id)
+    currentIds.add(item.id);
     selectedMap.value = {
       ...selectedMap.value,
       [item.id]: item
-    }
+    };
   } else {
-    currentIds.delete(item.id)
-    const patch = { ...selectedMap.value }
-    delete patch[item.id]
-    selectedMap.value = patch
+    currentIds.delete(item.id);
+    const patch = { ...selectedMap.value };
+    delete patch[item.id];
+    selectedMap.value = patch;
   }
 
-  writeSelectedIds(Array.from(currentIds))
+  writeSelectedIds(Array.from(currentIds));
 }
 
-async function loadNodeChildren(parentId = '0'): Promise<PersonnelNode[]> {
-  const cachedRows = nodeChildrenCache.get(parentId)
-  if (cachedRows) return cachedRows
+async function loadNodeChildren (parentId = '0'): Promise<PersonnelNode[]> {
+  const cachedRows = nodeChildrenCache.get(parentId);
+  if (cachedRows) {
+    return cachedRows;
+  }
 
-  const loadingPromise = nodeChildrenLoadingMap.get(parentId)
-  if (loadingPromise) return loadingPromise
+  const loadingPromise = nodeChildrenLoadingMap.get(parentId);
+  if (loadingPromise) {
+    return loadingPromise;
+  }
 
   const request = props.fetchNodes({
     parentId,
     mode: props.mode
   })
     .then((rows) => {
-      nodeChildrenCache.set(parentId, rows)
+      nodeChildrenCache.set(parentId, rows);
       if (parentId === '0') {
-        rootNodes.value = rows
+        rootNodes.value = rows;
       }
-      return rows
+      return rows;
     })
     .finally(() => {
-      nodeChildrenLoadingMap.delete(parentId)
-    })
+      nodeChildrenLoadingMap.delete(parentId);
+    });
 
-  nodeChildrenLoadingMap.set(parentId, request)
-  return request
+  nodeChildrenLoadingMap.set(parentId, request);
+  return request;
 }
 
-async function loadRootNodes() {
-  const currentToken = ++dataLoadToken
-  loading.value = true
-  isSearchMode.value = false
-  breadcrumbs.value = [{ id: '0', title: '组织' }]
-  searchKeyword.value = ''
+async function loadRootNodes () {
+  const currentToken = ++dataLoadToken;
+  loading.value = true;
+  isSearchMode.value = false;
+  breadcrumbs.value = [{
+    id: '0',
+    title: '组织'
+  }];
+  searchKeyword.value = '';
 
   try {
-    const rows = await loadNodeChildren('0')
-    if (currentToken !== dataLoadToken) return
-    currentNodes.value = rows
+    const rows = await loadNodeChildren('0');
+    if (currentToken !== dataLoadToken) {
+      return;
+    }
+    currentNodes.value = rows;
   } finally {
     if (currentToken === dataLoadToken) {
-      loading.value = false
+      loading.value = false;
     }
   }
 }
 
-async function enterOrgNode(node: PersonnelOrgNode) {
-  const currentToken = ++dataLoadToken
-  loading.value = true
+async function enterOrgNode (node: PersonnelOrgNode) {
+  const currentToken = ++dataLoadToken;
+  loading.value = true;
   try {
-    const rows = await loadNodeChildren(node.id)
-    if (currentToken !== dataLoadToken) return
-    currentNodes.value = rows
-    isSearchMode.value = false
+    const rows = await loadNodeChildren(node.id);
+    if (currentToken !== dataLoadToken) {
+      return;
+    }
+    currentNodes.value = rows;
+    isSearchMode.value = false;
 
-    const currentIndex = breadcrumbs.value.findIndex((item) => item.id === node.id)
+    const currentIndex = breadcrumbs.value.findIndex((item) => item.id === node.id);
     if (currentIndex >= 0) {
-      breadcrumbs.value = breadcrumbs.value.slice(0, currentIndex + 1)
-      return
+      breadcrumbs.value = breadcrumbs.value.slice(0, currentIndex + 1);
+      return;
     }
 
     breadcrumbs.value.push({
       id: node.id,
       title: node.orgName || node.title || '组织'
-    })
+    });
   } finally {
     if (currentToken === dataLoadToken) {
-      loading.value = false
+      loading.value = false;
     }
   }
 }
 
-async function gotoBreadcrumb(index: number) {
-  const target = breadcrumbs.value[index]
-  if (!target) return
+async function gotoBreadcrumb (index: number) {
+  const target = breadcrumbs.value[index];
+  if (!target) {
+    return;
+  }
 
-  const currentToken = ++dataLoadToken
-  loading.value = true
+  const currentToken = ++dataLoadToken;
+  loading.value = true;
   try {
-    const rows = await loadNodeChildren(target.id)
-    if (currentToken !== dataLoadToken) return
-    currentNodes.value = rows
-    isSearchMode.value = false
-    breadcrumbs.value = breadcrumbs.value.slice(0, index + 1)
+    const rows = await loadNodeChildren(target.id);
+    if (currentToken !== dataLoadToken) {
+      return;
+    }
+    currentNodes.value = rows;
+    isSearchMode.value = false;
+    breadcrumbs.value = breadcrumbs.value.slice(0, index + 1);
   } finally {
     if (currentToken === dataLoadToken) {
-      loading.value = false
+      loading.value = false;
     }
   }
 }
 
-function onSearchClear() {
-  searchKeyword.value = ''
-  isSearchMode.value = false
-  breadcrumbs.value = [{ id: '0', title: '组织' }]
-  currentNodes.value = rootNodes.value
+function onSearchClear () {
+  searchKeyword.value = '';
+  isSearchMode.value = false;
+  breadcrumbs.value = [{
+    id: '0',
+    title: '组织'
+  }];
+  currentNodes.value = rootNodes.value;
 }
 
-async function loadSearchRows(keyword: string): Promise<PersonnelNode[]> {
-  const cacheKey = `${props.mode}:${keyword}`
-  const cachedRows = searchCache.get(cacheKey)
-  if (cachedRows) return cachedRows
+async function loadSearchRows (keyword: string): Promise<PersonnelNode[]> {
+  const cacheKey = `${props.mode}:${keyword}`;
+  const cachedRows = searchCache.get(cacheKey);
+  if (cachedRows) {
+    return cachedRows;
+  }
 
-  const loadingPromise = searchLoadingMap.get(cacheKey)
-  if (loadingPromise) return loadingPromise
+  const loadingPromise = searchLoadingMap.get(cacheKey);
+  if (loadingPromise) {
+    return loadingPromise;
+  }
 
   const request = props.searchNodes({
     keyword,
     mode: props.mode
   })
     .then((rows) => {
-      searchCache.set(cacheKey, rows)
-      return rows
+      searchCache.set(cacheKey, rows);
+      return rows;
     })
     .finally(() => {
-      searchLoadingMap.delete(cacheKey)
-    })
+      searchLoadingMap.delete(cacheKey);
+    });
 
-  searchLoadingMap.set(cacheKey, request)
-  return request
+  searchLoadingMap.set(cacheKey, request);
+  return request;
 }
 
-async function onSearch() {
-  const currentToken = ++searchToken
-  const keyword = searchKeyword.value.trim()
+async function onSearch () {
+  const currentToken = ++searchToken;
+  const keyword = searchKeyword.value.trim();
   if (!keyword) {
-    onSearchClear()
+    onSearchClear();
     if (rootNodes.value.length === 0) {
-      await loadRootNodes()
+      await loadRootNodes();
     }
-    return
+    return;
   }
 
-  loading.value = true
-  isSearchMode.value = true
+  loading.value = true;
+  isSearchMode.value = true;
   try {
-    const rows = await loadSearchRows(keyword)
-    if (currentToken !== searchToken) return
+    const rows = await loadSearchRows(keyword);
+    if (currentToken !== searchToken) {
+      return;
+    }
 
-    const seen = new Set<string>()
+    const seen = new Set<string>();
     currentNodes.value = rows.filter((item) => {
       if (isUserNode(item)) {
-        const userId = getUserId(item)
-        if (!userId || seen.has(userId)) return false
-        seen.add(userId)
-        return true
+        const userId = getUserId(item);
+        if (!userId || seen.has(userId)) {
+          return false;
+        }
+        seen.add(userId);
+        return true;
       }
 
       if (isOrgNode(item) && props.allowSelectOrg) {
-        if (!item.id || seen.has(item.id)) return false
-        seen.add(item.id)
-        return true
+        if (!item.id || seen.has(item.id)) {
+          return false;
+        }
+        seen.add(item.id);
+        return true;
       }
 
-      return false
-    })
+      return false;
+    });
   } finally {
     if (currentToken === searchToken) {
-      loading.value = false
+      loading.value = false;
     }
   }
 }
 
-function handleToggleUser(params: { node: PersonnelUserNode; checked: boolean }) {
-  const { node, checked } = params
-  toggleSelectedItem(toSelectedUser(node), checked)
+function handleToggleUser (params: { node: PersonnelUserNode; checked: boolean }) {
+  const { node, checked } = params;
+  toggleSelectedItem(toSelectedUser(node), checked);
 }
 
-function handleToggleOrg(params: { node: PersonnelOrgNode; checked: boolean }) {
-  if (!props.allowSelectOrg) return
-  const { node, checked } = params
-  toggleSelectedItem(toSelectedOrg(node), checked)
+function handleToggleOrg (params: { node: PersonnelOrgNode; checked: boolean }) {
+  if (!props.allowSelectOrg) {
+    return;
+  }
+  const { node, checked } = params;
+  toggleSelectedItem(toSelectedOrg(node), checked);
 }
 
-function removeSelected(selectedId: string) {
-  writeSelectedIds(getSelectedIds().filter((item) => item !== selectedId))
-  const patch = { ...selectedMap.value }
-  delete patch[selectedId]
-  selectedMap.value = patch
+function removeSelected (selectedId: string) {
+  writeSelectedIds(getSelectedIds().filter((item) => item !== selectedId));
+  const patch = { ...selectedMap.value };
+  delete patch[selectedId];
+  selectedMap.value = patch;
 }
 
-function clearSelected() {
-  writeSelectedIds([])
-  selectedMap.value = {}
+function clearSelected () {
+  writeSelectedIds([]);
+  selectedMap.value = {};
 }
 
-function reorderSelected(payload: { oldIndex: number; newIndex: number }) {
-  const { oldIndex, newIndex } = payload
-  const ids = [...getSelectedIds()]
+function reorderSelected (payload: { oldIndex: number; newIndex: number }) {
+  const { oldIndex, newIndex } = payload;
+  const ids = [...getSelectedIds()];
   if (oldIndex < 0 || newIndex < 0 || oldIndex >= ids.length || newIndex >= ids.length) {
-    return
+    return;
   }
 
-  const [moved] = ids.splice(oldIndex, 1)
-  if (!moved) return
-  ids.splice(newIndex, 0, moved)
-  writeSelectedIds(ids)
+  const [moved] = ids.splice(oldIndex, 1);
+  if (!moved) {
+    return;
+  }
+  ids.splice(newIndex, 0, moved);
+  writeSelectedIds(ids);
 }
 
-watch(
-  () => props.selectionField,
+watch(() => props.selectionField,
   () => {
     if (!Array.isArray(model.value?.[props.selectionField])) {
-      writeSelectedIds([])
+      writeSelectedIds([]);
     }
   },
-  { immediate: true }
-)
+  { immediate: true });
 
-watch(
-  () => props.mode,
+watch(() => props.mode,
   () => {
-    nodeChildrenCache.clear()
-    nodeChildrenLoadingMap.clear()
-    searchCache.clear()
-    searchLoadingMap.clear()
-    currentNodes.value = []
-    rootNodes.value = []
-    isSearchMode.value = false
-    searchKeyword.value = ''
-    breadcrumbs.value = [{ id: '0', title: '组织' }]
-  }
-)
+    nodeChildrenCache.clear();
+    nodeChildrenLoadingMap.clear();
+    searchCache.clear();
+    searchLoadingMap.clear();
+    currentNodes.value = [];
+    rootNodes.value = [];
+    isSearchMode.value = false;
+    searchKeyword.value = '';
+    breadcrumbs.value = [{
+      id: '0',
+          title: '组织'
+    }];
+  });
 
-watch(
-  () => getSelectedIds().join(','),
+watch(() => getSelectedIds().join(','),
   () => {
-    keepSelectedMap(getSelectedIds())
+    keepSelectedMap(getSelectedIds());
   },
-  { immediate: true }
-)
+  { immediate: true });
 
-watch(
-  () => props.allowSelectOrg,
+watch(() => props.allowSelectOrg,
   (enabled) => {
-    if (enabled) return
+    if (enabled) {
+          return;
+        }
 
-    const currentIds = getSelectedIds()
-    const nextIds = currentIds.filter((id) => selectedMap.value[id]?.nodeType !== 'org')
-    if (nextIds.length === currentIds.length) return
+    const currentIds = getSelectedIds();
+    const nextIds = currentIds.filter((id) => selectedMap.value[id]?.nodeType !== 'org');
+    if (nextIds.length === currentIds.length) {
+          return;
+        }
 
-    writeSelectedIds(nextIds)
-    keepSelectedMap(nextIds)
-  }
-)
+    writeSelectedIds(nextIds);
+    keepSelectedMap(nextIds);
+  });
 
-function setSelectedItems(items: PersonnelSelectedItem[]) {
-  const patch = { ...selectedMap.value }
+function setSelectedItems (items: PersonnelSelectedItem[]) {
+  const patch = { ...selectedMap.value };
   items.forEach((item) => {
     patch[item.id] = {
       ...item
-    }
-  })
-  selectedMap.value = patch
-  writeSelectedIds(items.map((item) => item.id))
+    };
+  });
+  selectedMap.value = patch;
+  writeSelectedIds(items.map((item) => item.id));
 }
 
-function setSelectedUsers(users: PersonnelSelectedUser[]) {
+function setSelectedUsers (users: PersonnelSelectedUser[]) {
   const selectedUsers = users.map((item) => ({
     ...item,
     nodeType: 'user' as PersonnelNodeType,
     title: item.nickName,
     subTitle: item.phone || item.userAccount || '--'
-  }))
-  setSelectedItems(selectedUsers)
+  }));
+  setSelectedItems(selectedUsers);
 }
 
 defineExpose({
@@ -417,23 +463,23 @@ defineExpose({
   setSelectedItems,
   setSelectedUsers,
   getSelectedItems: () => [...selectedItems.value]
-})
+});
 </script>
 
 <template>
   <div class="personnel-selector">
     <div class="personnel-selector__left">
       <PersonnelSelectorSourcePanel
-        :loading="loading"
+        :loading
         :disabled="props.disabled"
-        :search-keyword="searchKeyword"
-        :search-placeholder="searchPlaceholder"
-        :is-search-mode="isSearchMode"
-        :breadcrumbs="breadcrumbs"
+        :search-keyword
+        :search-placeholder
+        :is-search-mode
+        :breadcrumbs
         :nodes="currentNodes"
-        :selected-id-set="selectedIdSet"
+        :selected-id-set
         :allow-select-org="props.allowSelectOrg"
-        @update:search-keyword="(value) => (searchKeyword = value)"
+        @update:search-keyword="(value) => searchKeyword = value"
         @search="onSearch"
         @search-clear="onSearchClear"
         @breadcrumb-click="gotoBreadcrumb"
@@ -446,8 +492,8 @@ defineExpose({
     <div class="personnel-selector__right">
       <PersonnelSelectorSelectedPanel
         :disabled="props.disabled"
-        :selected-items="selectedItems"
-        :empty-text="emptyText"
+        :selected-items
+        :empty-text
         :sort-enabled="props.mode === 'person'"
         @remove="removeSelected"
         @clear="clearSelected"
@@ -479,7 +525,8 @@ defineExpose({
   border-right: 1px solid var(--el-border-color);
 }
 
-@media (max-width: 1400px) {
+@media (width <= 1400px) {
+
   .personnel-selector {
     grid-template-columns: minmax(0, 1fr) 42%;
   }

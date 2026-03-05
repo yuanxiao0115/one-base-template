@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { FormInstance } from 'element-plus'
-import type { ClientTypeOption } from '../../api/login-log'
+import { ref } from 'vue';
+import type { FormInstance } from 'element-plus';
+import type { ClientTypeOption } from '../../api/login-log';
 
 const props = defineProps<{
   clientTypeList: ClientTypeOption[]
-}>()
+}>();
 
 const model = defineModel<{
   nickName: string
   clientType: string
   time: string[]
-}>({ required: true })
+}>({ required: true });
 
-const formRef = ref<FormInstance>()
+const formRef = ref<FormInstance>();
 
 defineExpose({
   resetFields: () => formRef.value?.resetFields?.()
-})
+});
 </script>
 
 <template>
-  <el-form ref="formRef" label-position="top" :model="model">
+  <el-form ref="formRef" label-position="top" :model>
     <el-form-item label="客户端类型" prop="clientType">
       <el-select v-model="model.clientType" class="w-full" clearable placeholder="请选择客户端类型">
         <el-option

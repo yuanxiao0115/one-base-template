@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import { confirm, type ConfirmTone } from '@/infra/confirm'
+import { computed, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import { confirm, type ConfirmTone } from '@/infra/confirm';
 
 defineOptions({
   name: 'DemoConfirmPage'
-})
+});
 
 type ConfirmDemoItem = {
   tone: ConfirmTone
@@ -14,12 +14,12 @@ type ConfirmDemoItem = {
   buttonText: string
 }
 
-const activeTone = ref<ConfirmTone | null>(null)
-const buttonTypeMap: Record<ConfirmTone, 'success' | 'danger' | 'warning'> = {
+const activeTone = ref<ConfirmTone | null>(null);
+const buttonTypeMap: Record<ConfirmTone, 'danger' | 'success' | 'warning'> = {
   success: 'success',
   error: 'danger',
   warning: 'warning'
-}
+};
 
 const demoItems: ConfirmDemoItem[] = [
   {
@@ -40,51 +40,49 @@ const demoItems: ConfirmDemoItem[] = [
     content: '该操作可能影响关联数据，是否继续？',
     buttonText: '警告弹窗'
   }
-]
+];
 
-const loadingMap = computed(() =>
-  demoItems.reduce<Record<ConfirmTone, boolean>>(
-    (result, item) => {
-      result[item.tone] = activeTone.value === item.tone
-      return result
-    },
-    {
-      warning: false,
-      success: false,
-      error: false
-    }
-  )
-)
+const loadingMap = computed(() => demoItems.reduce<Record<ConfirmTone, boolean>>((result, item) => {
+                                                                                   result[item.tone] = activeTone.value === item.tone;
+                                                                                   return result;
+                                                                                 },
+                                                                                 {
+                                                                                   warning: false,
+                                                                                   success: false,
+                                                                                   error: false
+                                                                                 }));
 
-function isCanceledAction(error: unknown) {
-  return error === 'cancel' || error === 'close'
+function isCanceledAction (error: unknown) {
+  return error === 'cancel' || error === 'close';
 }
 
-async function openConfirm(item: ConfirmDemoItem) {
-  if (activeTone.value) return
+async function openConfirm (item: ConfirmDemoItem) {
+  if (activeTone.value) {
+    return;
+  }
 
-  activeTone.value = item.tone
+  activeTone.value = item.tone;
 
   try {
     if (item.tone === 'success') {
-      await confirm.success(item.content, item.title)
+      await confirm.success(item.content, item.title);
     } else if (item.tone === 'error') {
-      await confirm.error(item.content, item.title)
+      await confirm.error(item.content, item.title);
     } else {
-      await confirm.warn(item.content, item.title)
+      await confirm.warn(item.content, item.title);
     }
 
-    ElMessage.success(`已确认：${item.title}`)
+    ElMessage.success(`已确认：${item.title}`);
   } catch (error) {
     if (isCanceledAction(error)) {
-      ElMessage.info(`已取消：${item.title}`)
-      return
+      ElMessage.info(`已取消：${item.title}`);
+      return;
     }
 
-    const message = error instanceof Error ? error.message : '打开确认框失败'
-    ElMessage.error(message)
+    const message = error instanceof Error ? error.message : '打开确认框失败';
+    ElMessage.error(message);
   } finally {
-    activeTone.value = null
+    activeTone.value = null;
   }
 }
 </script>
@@ -106,7 +104,7 @@ async function openConfirm(item: ConfirmDemoItem) {
             :key="item.tone"
             :type="buttonTypeMap[item.tone]"
             :loading="loadingMap[item.tone]"
-            @click="openConfirm(item)"
+            @click="() => openConfirm(item)"
           >
             {{ item.buttonText }}
           </el-button>
@@ -132,14 +130,14 @@ async function openConfirm(item: ConfirmDemoItem) {
 }
 
 .demo-confirm-page__title {
-  color: #333333;
+  color: #333;
   font-size: 16px;
   font-weight: 600;
   line-height: 24px;
 }
 
 .demo-confirm-page__desc {
-  color: #666666;
+  color: #666;
   font-size: 14px;
   line-height: 22px;
 }

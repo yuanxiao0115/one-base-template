@@ -7,16 +7,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = withDefaults(
-  defineProps<{
-    columnCount?: 1 | 2 | 3;
-    listType?: 'image-text' | 'text-only' | string;
-  }>(),
-  {
-    columnCount: 1,
-    listType: 'text-only'
-  }
-);
+const props = withDefaults(defineProps<{
+                             columnCount?: 1 | 2 | 3;
+                             listType?: string | 'image-text' | 'text-only';
+                           }>(),
+{
+  columnCount: 1,
+  listType: 'text-only'
+});
 
 const containerClass = computed(() => ({
   'double-column': props.columnCount === 2,

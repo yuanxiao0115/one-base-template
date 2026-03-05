@@ -5,16 +5,14 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    text?: string;
-    inline?: boolean;
-  }>(),
-  {
-    text: '',
-    inline: false
-  }
-);
+withDefaults(defineProps<{
+               text?: string;
+               inline?: boolean;
+             }>(),
+{
+  text: '',
+  inline: false
+});
 
 defineOptions({
   name: 'pb-list-date'

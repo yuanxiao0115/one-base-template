@@ -11,60 +11,69 @@ export default defineComponent({
       type: String,
       default: ''
     },
+
     type: {
       type: String,
       default: '1'
     },
+
     // 弹出式 pop，固定 fixed
     mode: {
       type: String,
       default: 'fixed'
     },
+
     vSpace: {
       type: Number,
       default: 5
     },
+
     explain: {
       type: String,
       default: '拖动滑块完成拼图'
     },
+
     imgSize: {
       type: Object as () => { width: string; height: string },
-      default() {
+      default () {
         return {
           width: '310px',
           height: '155px'
         };
       }
     },
+
     blockSize: {
       type: Object as () => { width: string; height: string },
-      default() {
+      default () {
         return {
           width: '50px',
           height: '50px'
         };
       }
     },
+
     barSize: {
       type: Object as () => { width: string; height: string },
-      default() {
+      default () {
         return {
           width: '310px',
           height: '50px '
         };
       }
     },
+
     defaultImg: {
       type: String,
       default: ''
     }
   },
+
   emits: ['ready', 'success', 'error', 'closeBox'],
-  data() {
+  data () {
     return {
       visible: false,
-      passFlag: '' as '' | boolean, // 是否通过的标识
+      passFlag: '' as boolean | '', // 是否通过的标识
       backImgBase: '', // 验证码背景图片
       blockBackImgBase: '', // 验证滑块的背景图片
       captchaKey: '', // 验证码标识
@@ -80,6 +89,7 @@ export default defineComponent({
         barHeight: '0px',
         barWidth: '0px'
       },
+
       moveBlockLeft: undefined as string | undefined,
       leftBarWidth: undefined as string | undefined,
       moveBlockClass: '',
@@ -94,29 +104,36 @@ export default defineComponent({
       onEndHandler: null as EventListener | null
     };
   },
+
   computed: {
-    barArea(): HTMLElement | null {
+    barArea (): HTMLElement | null {
       const root = this.$el as HTMLElement | undefined;
-      if (!root) return null;
+      if (!root) {
+        return null;
+      }
       return root.querySelector('.verify-bar-area');
     }
   },
-  mounted() {
+
+  mounted () {
     // 禁止拖拽选中文本
     (this.$el as HTMLElement).onselectstart = () => false;
   },
-  beforeUnmount() {
+
+  beforeUnmount () {
     this.unbindEvents();
   },
+
   methods: {
-    async show() {
+    async show () {
       await this.refresh();
       await this.init();
     },
-    init() {
+
+    init () {
       this.text = this.explain;
 
-      this.$nextTick(() => {
+      this.$nextTick().then(() => {
         const set = resetSize(this); // 重新设置宽度高度
         this.setSize.imgHeight = set.imgHeight;
         this.setSize.imgWidth = set.imgWidth;
@@ -128,7 +145,8 @@ export default defineComponent({
       this.unbindEvents();
       this.bindEvents();
     },
-    bindEvents() {
+
+    bindEvents () {
       this.onMoveHandler = (e: Event) => {
         this.move(e as MouseEvent | TouchEvent);
       };
@@ -141,7 +159,8 @@ export default defineComponent({
       window.addEventListener('touchend', this.onEndHandler);
       window.addEventListener('mouseup', this.onEndHandler);
     },
-    unbindEvents() {
+
+    unbindEvents () {
       if (this.onMoveHandler) {
         window.removeEventListener('touchmove', this.onMoveHandler);
         window.removeEventListener('mousemove', this.onMoveHandler);
@@ -153,10 +172,12 @@ export default defineComponent({
       this.onMoveHandler = null;
       this.onEndHandler = null;
     },
-    getUuid() {
+
+    getUuid () {
       return `slider-${crypto.randomUUID()}`;
     },
-    async getPictrue() {
+
+    async getPictrue () {
       const data = {
         captchaKey: this.getUuid()
       };
@@ -178,8 +199,9 @@ export default defineComponent({
         this.blockBackImgBase = '';
       }
     },
+
     // 鼠标按下
-    start(e: MouseEvent | TouchEvent) {
+    start (e: MouseEvent | TouchEvent) {
       const event = e || window.event;
 
       let x: number;
@@ -200,8 +222,9 @@ export default defineComponent({
         this.status = true;
       }
     },
+
     // 鼠标移动
-    move(e: MouseEvent | TouchEvent) {
+    move (e: MouseEvent | TouchEvent) {
       const event = e || window.event;
       let x: number;
 
@@ -216,19 +239,24 @@ export default defineComponent({
         let moveBlockLeft = x - barAreaLeft;
 
         if (this.barArea) {
-          const max =
-            this.barArea.offsetWidth - parseInt(String(parseInt(this.blockSize.width) / 2)) - 2;
+          const max
+            = this.barArea.offsetWidth - parseInt(String(parseInt(this.blockSize.width) / 2)) - 2;
           const min = parseInt(String(parseInt(this.blockSize.width) / 2));
-          if (moveBlockLeft >= max) moveBlockLeft = max;
-          if (moveBlockLeft <= 0) moveBlockLeft = min;
+          if (moveBlockLeft >= max) {
+            moveBlockLeft = max;
+          }
+          if (moveBlockLeft <= 0) {
+            moveBlockLeft = min;
+          }
         }
 
         this.moveBlockLeft = `${moveBlockLeft - this.startLeft}px`;
         this.leftBarWidth = `${moveBlockLeft - this.startLeft}px`;
       }
     },
+
     // 鼠标松开
-    async end() {
+    async end () {
       this.endMovetime = Date.now();
 
       if (this.status && this.isEnd === false) {
@@ -236,7 +264,10 @@ export default defineComponent({
         // 310 为后端验证码生成时的基准宽度，保持与老项目一致
         moveLeftDistance = (moveLeftDistance * 310) / parseInt(this.setSize.imgWidth);
 
-        const captcha = sm4EncryptBase64(JSON.stringify({ x: moveLeftDistance, y: 0 }));
+        const captcha = sm4EncryptBase64(JSON.stringify({
+          x: moveLeftDistance,
+          y: 0
+        }));
         const data = {
           captcha,
           captchaKey: this.captchaKey
@@ -259,7 +290,10 @@ export default defineComponent({
             setTimeout(() => {
               this.tipWords = '';
               this.closeBox();
-              this.$emit('success', { captcha, captchaKey: this.captchaKey });
+              this.$emit('success', {
+                captcha,
+                captchaKey: this.captchaKey
+              });
             }, 1000);
           } else {
             this.moveBlockClass = '';
@@ -287,7 +321,8 @@ export default defineComponent({
         this.status = false;
       }
     },
-    async refresh() {
+
+    async refresh () {
       this.showRefresh = true;
       this.finishText = '';
 
@@ -308,7 +343,8 @@ export default defineComponent({
         this.text = this.explain;
       }, 300);
     },
-    closeBox() {
+
+    closeBox () {
       this.$emit('closeBox');
       this.visible = false;
     }
@@ -319,19 +355,22 @@ export default defineComponent({
 <template>
   <div id="verify">
     <div v-show="visible" class="mask">
-      <div class="verifybox" :style="{ 'max-width': parseInt(imgSize.width) + 20 + 'px' }">
+      <div class="verifybox" :style="{ 'max-width': `${parseInt(imgSize.width) + 20}px` }">
         <div class="verifybox-top">
-          <div style="position: relative">
-            <div :style="{ height: parseInt(setSize.imgHeight) + vSpace + 'px' }" class="verify-img-out">
+          <div style="position: relative;">
+            <div :style="{ height: `${parseInt(setSize.imgHeight) + vSpace}px` }" class="verify-img-out">
               <div
-                :style="{ width: setSize.imgWidth, height: setSize.imgHeight }"
+                :style="{
+                  width: setSize.imgWidth,
+                  height: setSize.imgHeight
+                }"
                 class="verify-img-panel"
                 :class="blockBackImgBase ? '' : 'isDefault'"
               >
                 <img
-                  :src="backImgBase ? 'data:image/png;base64,' + backImgBase : defaultImg"
+                  :src="backImgBase ? `data:image/png;base64,${backImgBase}` : defaultImg"
                   alt=""
-                  style="display: block; width: 100%; height: 100%"
+                  style="display: block; width: 100%; height: 100%;"
                 >
                 <div class="verify-refresh" title="刷新验证" @click="refresh" />
                 <transition name="tips">
@@ -343,7 +382,11 @@ export default defineComponent({
             <div
               v-show="blockBackImgBase"
               class="verify-bar-area"
-              :style="{ width: setSize.imgWidth, height: barSize.height, 'line-height': barSize.height }"
+              :style="{
+                width: setSize.imgWidth,
+                height: barSize.height,
+                'line-height': barSize.height
+              }"
             >
               <span class="verify-msg" v-text="text" />
               <div
@@ -358,23 +401,26 @@ export default defineComponent({
                 <div
                   class="verify-move-block"
                   :class="moveBlockClass"
-                  :style="{ left: moveBlockLeft, transition: transitionLeft }"
+                  :style="{
+                    left: moveBlockLeft,
+                    transition: transitionLeft
+                  }"
                   @mousedown="start"
                   @touchstart="start"
                 >
                   <div
                     class="verify-sub-block"
                     :style="{
-                      width: Math.floor((parseInt(setSize.imgWidth) * 47) / 310) + 'px',
+                      width: `${Math.floor(parseInt(setSize.imgWidth) * 47 / 310)}px`,
                       height: setSize.imgHeight,
-                      top: '-' + (parseInt(setSize.imgHeight) + vSpace) + 'px',
-                      'background-size': setSize.imgWidth + ' ' + setSize.imgHeight
+                      top: `-${parseInt(setSize.imgHeight) + vSpace}px`,
+                      'background-size': `${setSize.imgWidth} ${setSize.imgHeight}`
                     }"
                   >
                     <img
-                      :src="'data:image/png;base64,' + blockBackImgBase"
+                      :src="`data:image/png;base64,${blockBackImgBase}`"
                       alt=""
-                      style="display: block; width: 100%; height: 100%"
+                      style="display: block; width: 100%; height: 100%;"
                     >
                   </div>
                 </div>
@@ -398,7 +444,7 @@ export default defineComponent({
   left: 50%;
   border-radius: 3px;
   background-color: #fff;
-  box-shadow: 0 0 10px rgb(0 0 0 / 30%);
+  box-shadow: 0 0 10px rgb(0 0 0 / .3);
   transform: translate(-50%, -50%);
 }
 
@@ -415,7 +461,7 @@ export default defineComponent({
   height: 24px;
   text-align: center;
   cursor: pointer;
-  background-image: url('./operation.png');
+  background-image: url(./operation.png);
   background-repeat: no-repeat;
   background-position-x: 0;
   background-position-y: -178px;
@@ -446,8 +492,8 @@ export default defineComponent({
   z-index: 1001;
   width: 100%;
   height: 100vh;
-  background: rgb(0 0 0 / 30%);
-  transition: all 0.5s;
+  background: rgb(0 0 0 / .3);
+  transition: all .5s;
 }
 
 #verify .verify-tips {
@@ -464,12 +510,12 @@ export default defineComponent({
 }
 
 #verify .suc-bg {
-  background-color: rgb(92 184 92 / 50%);
+  background-color: rgb(92 184 92 / .5);
 }
 
 #verify .err-bg {
   color: #fff;
-  background-color: rgb(217 83 79 / 50%);
+  background-color: rgb(217 83 79 / .5);
 }
 
 #verify .tips-enter,
@@ -479,7 +525,7 @@ export default defineComponent({
 
 #verify .tips-enter-active,
 #verify .tips-leave-active {
-  transition: bottom 0.5s;
+  transition: bottom .5s;
 }
 
 #verify .verify-bar-area {
@@ -494,7 +540,7 @@ export default defineComponent({
   background-position: 0 5px;
   background-repeat: no-repeat;
   background-size: 100%;
-  background-image: url('./operation.png');
+  background-image: url(./operation.png);
 }
 
 #verify .verify-bar-area .verify-move-block {
@@ -505,7 +551,7 @@ export default defineComponent({
   height: 60px;
   font-size: 0;
   cursor: pointer;
-  background-image: url('./operation.png');
+  background-image: url(./operation.png);
   background-position: -3px 360px;
   background-size: 400%;
   opacity: 1;
@@ -540,7 +586,7 @@ export default defineComponent({
   height: 24px;
   text-align: center;
   cursor: pointer;
-  background-image: url('./operation.png');
+  background-image: url(./operation.png);
   background-repeat: no-repeat;
   background-position-x: 0;
   background-position-y: -330px;

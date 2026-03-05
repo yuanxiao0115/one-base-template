@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { Link, Star } from '@element-plus/icons-vue'
+import { computed, ref } from 'vue';
+import { Link, Star } from '@element-plus/icons-vue';
 
 defineOptions({
   name: 'DemoButtonStylePage'
-})
+});
 
-type ButtonSizeMode = 'large' | 'default' | 'small'
-type ButtonType = 'primary' | 'success' | 'warning' | 'info' | 'danger'
-type StateKey = 'default' | 'hover' | 'active' | 'disabled' | 'loading'
+type ButtonSizeMode = 'default' | 'large' | 'small'
+type ButtonType = 'danger' | 'info' | 'primary' | 'success' | 'warning'
+type StateKey = 'active' | 'default' | 'disabled' | 'hover' | 'loading'
 
-type VariantKey = 'solid' | 'plain' | 'dashed' | 'text' | 'link'
+type VariantKey = 'dashed' | 'link' | 'plain' | 'solid' | 'text'
 
 type VariantConfig = {
   key: VariantKey
@@ -23,30 +23,69 @@ type VariantConfig = {
   defaultType?: ButtonType
 }
 
-const currentSize = ref<ButtonSizeMode>('default')
+const currentSize = ref<ButtonSizeMode>('default');
 
 const sizeOptions: Array<{ label: string; value: ButtonSizeMode }> = [
-  { label: '40', value: 'large' },
-  { label: '32', value: 'default' },
-  { label: '24', value: 'small' }
-]
+  {
+    label: '40',
+    value: 'large'
+  },
+  {
+    label: '32',
+    value: 'default'
+  },
+  {
+    label: '24',
+    value: 'small'
+  }
+];
 
 const stateOptions: Array<{ key: StateKey; label: string }> = [
-  { key: 'default', label: '默认' },
-  { key: 'hover', label: '悬浮（样式模拟）' },
-  { key: 'active', label: '点击（样式模拟）' },
-  { key: 'disabled', label: '禁用' },
-  { key: 'loading', label: '加载' }
-]
+  {
+    key: 'default',
+    label: '默认'
+  },
+  {
+    key: 'hover',
+    label: '悬浮（样式模拟）'
+  },
+  {
+    key: 'active',
+    label: '点击（样式模拟）'
+  },
+  {
+    key: 'disabled',
+    label: '禁用'
+  },
+  {
+    key: 'loading',
+    label: '加载'
+  }
+];
 
 const typeOptions: Array<{ label: string; type?: ButtonType }> = [
   { label: 'default' },
-  { label: 'primary', type: 'primary' },
-  { label: 'success', type: 'success' },
-  { label: 'warning', type: 'warning' },
-  { label: 'info', type: 'info' },
-  { label: 'danger', type: 'danger' }
-]
+  {
+    label: 'primary',
+    type: 'primary'
+  },
+  {
+    label: 'success',
+    type: 'success'
+  },
+  {
+    label: 'warning',
+    type: 'warning'
+  },
+  {
+    label: 'info',
+    type: 'info'
+  },
+  {
+    label: 'danger',
+    type: 'danger'
+  }
+];
 
 const variants: VariantConfig[] = [
   {
@@ -82,29 +121,35 @@ const variants: VariantConfig[] = [
     link: true,
     defaultType: 'primary'
   }
-]
+];
 
 const displaySize = computed(() => {
-  if (currentSize.value === 'default') return undefined
-  return currentSize.value
-})
+  if (currentSize.value === 'default') {
+    return undefined;
+  }
+  return currentSize.value;
+});
 
-function getStateClass(state: StateKey) {
-  if (state === 'hover') return 'ob-button-demo__state-hover'
-  if (state === 'active') return 'ob-button-demo__state-active'
-  return ''
+function getStateClass (state: StateKey) {
+  if (state === 'hover') {
+    return 'ob-button-demo__state-hover';
+  }
+  if (state === 'active') {
+    return 'ob-button-demo__state-active';
+  }
+  return '';
 }
 
-function isDisabledState(state: StateKey) {
-  return state === 'disabled'
+function isDisabledState (state: StateKey) {
+  return state === 'disabled';
 }
 
-function isLoadingState(state: StateKey) {
-  return state === 'loading'
+function isLoadingState (state: StateKey) {
+  return state === 'loading';
 }
 
-function getShowTypeLabel(type?: ButtonType) {
-  return type ?? 'default'
+function getShowTypeLabel (type?: ButtonType) {
+  return type ?? 'default';
 }
 </script>
 
@@ -388,40 +433,41 @@ function getShowTypeLabel(type?: ButtonType) {
 }
 
 .ob-button-demo__state-hover {
-  color: var(--el-button-hover-text-color) !important;
-  background-color: var(--el-button-hover-bg-color) !important;
-  border-color: var(--el-button-hover-border-color) !important;
+  color: var(--el-button-hover-text-color);
+  background-color: var(--el-button-hover-bg-color);
+  border-color: var(--el-button-hover-border-color);
 }
 
 .ob-button-demo__state-active {
-  color: var(--el-button-active-text-color) !important;
-  background-color: var(--el-button-active-bg-color) !important;
-  border-color: var(--el-button-active-border-color) !important;
+  color: var(--el-button-active-text-color);
+  background-color: var(--el-button-active-bg-color);
+  border-color: var(--el-button-active-border-color);
 }
 
 .ob-button-demo__state-hover.el-button.is-text,
 .ob-button-demo__state-hover.el-button.is-link {
-  color: var(--el-button-hover-link-text-color, var(--el-button-hover-text-color)) !important;
-  border-color: transparent !important;
-  background-color: transparent !important;
+  color: var(--el-button-hover-link-text-color, var(--el-button-hover-text-color));
+  border-color: transparent;
+  background-color: transparent;
 }
 
 .ob-button-demo__state-hover.el-button.is-text {
-  background-color: var(--el-fill-color-light) !important;
+  background-color: var(--el-fill-color-light);
 }
 
 .ob-button-demo__state-active.el-button.is-text,
 .ob-button-demo__state-active.el-button.is-link {
-  color: var(--el-button-active-color, var(--el-button-active-text-color)) !important;
-  border-color: transparent !important;
-  background-color: transparent !important;
+  color: var(--el-button-active-color, var(--el-button-active-text-color));
+  border-color: transparent;
+  background-color: transparent;
 }
 
 .ob-button-demo__state-active.el-button.is-text {
-  background-color: var(--el-fill-color) !important;
+  background-color: var(--el-fill-color);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
+
   .ob-button-demo {
     padding: 12px;
   }

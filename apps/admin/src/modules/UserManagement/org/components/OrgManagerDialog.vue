@@ -27,9 +27,8 @@ const props = defineProps<{
   orgName: string;
 }>();
 
-const emit = defineEmits<{
-  (event: 'update:modelValue', value: boolean): void;
-  (event: 'success'): void;
+const emit = defineEmits<{(event: 'update:modelValue', value: boolean): void;
+                          (event: 'success'): void;
 }>();
 
 const visible = computed({
@@ -51,15 +50,15 @@ const selectedUsers = ref<SelectedUser[]>([]);
 const originalManagers = ref<OrgManagerRecord[]>([]);
 const initDialogToken = ref(0);
 
-function isOrgNode(node: OrgContactNode): node is OrgContactOrgNode {
+function isOrgNode (node: OrgContactNode): node is OrgContactOrgNode {
   return node.nodeType === 'org';
 }
 
-function isUserNode(node: OrgContactNode): node is OrgContactUserNode {
+function isUserNode (node: OrgContactNode): node is OrgContactUserNode {
   return node.nodeType === 'user';
 }
 
-function getUserDisplay(node: OrgContactUserNode): SelectedUser {
+function getUserDisplay (node: OrgContactUserNode): SelectedUser {
   return {
     userId: node.userId,
     nickName: node.nickName,
@@ -68,15 +67,18 @@ function getUserDisplay(node: OrgContactUserNode): SelectedUser {
   };
 }
 
-function getErrorMessage(error: unknown, fallback: string): string {
+function getErrorMessage (error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
-function resetState() {
+function resetState () {
   loading.value = false;
   saving.value = false;
   searchKeyword.value = '';
-  breadcrumbs.value = [{ id: '0', title: '通讯录' }];
+  breadcrumbs.value = [{
+    id: '0',
+    title: '通讯录'
+  }];
   showBreadcrumb.value = true;
   currentNodes.value = [];
   rootNodes.value = [];
@@ -85,11 +87,13 @@ function resetState() {
   originalManagers.value = [];
 }
 
-function syncCurrentNodeChecked() {
+function syncCurrentNodeChecked () {
   const selectedIdSet = new Set(selectedUsers.value.map((item) => item.userId));
 
   currentNodes.value = currentNodes.value.map((node) => {
-    if (!isUserNode(node)) return node;
+    if (!isUserNode(node)) {
+      return node;
+    }
     return {
       ...node,
       checked: selectedIdSet.has(node.userId)
@@ -97,7 +101,7 @@ function syncCurrentNodeChecked() {
   });
 }
 
-function updateNodeChildren(orgId: string, children: OrgContactNode[]) {
+function updateNodeChildren (orgId: string, children: OrgContactNode[]) {
   nodeChildrenMap.set(orgId, children);
 
   if (orgId === '0') {
@@ -105,30 +109,33 @@ function updateNodeChildren(orgId: string, children: OrgContactNode[]) {
     return;
   }
 
-  const patch = (nodes: OrgContactNode[]): OrgContactNode[] =>
-    nodes.map((node) => {
-      if (!isOrgNode(node)) return node;
-      if (node.id === orgId) {
-        return {
-          ...node,
-          children
-        };
-      }
-      if (!Array.isArray(node.children) || node.children.length === 0) {
-        return node;
-      }
+  const patch = (nodes: OrgContactNode[]): OrgContactNode[] => nodes.map((node) => {
+    if (!isOrgNode(node)) {
+      return node;
+    }
+    if (node.id === orgId) {
       return {
         ...node,
-        children: patch(node.children)
+        children
       };
-    });
+    }
+    if (!Array.isArray(node.children) || node.children.length === 0) {
+      return node;
+    }
+    return {
+      ...node,
+      children: patch(node.children)
+    };
+  });
 
   rootNodes.value = patch(rootNodes.value);
 }
 
-async function loadNodeChildren(parentId: string): Promise<OrgContactNode[]> {
+async function loadNodeChildren (parentId: string): Promise<OrgContactNode[]> {
   const cached = nodeChildrenMap.get(parentId);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
 
   const response = await orgApi.getOrgContactsLazy({ parentId });
   if (response.code !== 200) {
@@ -140,8 +147,10 @@ async function loadNodeChildren(parentId: string): Promise<OrgContactNode[]> {
   return rows;
 }
 
-async function loadOrgManagers() {
-  if (!props.orgId) return;
+async function loadOrgManagers () {
+  if (!props.orgId) {
+    return;
+  }
 
   const response = await orgApi.queryOrgManagerList({ orgId: props.orgId });
   if (response.code !== 200) {
@@ -158,13 +167,13 @@ async function loadOrgManagers() {
   }));
 }
 
-async function loadRootNodes() {
+async function loadRootNodes () {
   const rows = await loadNodeChildren('0');
   currentNodes.value = rows;
   syncCurrentNodeChecked();
 }
 
-async function initDialog() {
+async function initDialog () {
   const currentToken = ++initDialogToken.value;
 
   if (!props.orgId) {
@@ -176,11 +185,15 @@ async function initDialog() {
   loading.value = true;
   try {
     await loadOrgManagers();
-    if (currentToken !== initDialogToken.value) return;
+    if (currentToken !== initDialogToken.value) {
+      return;
+    }
 
     await loadRootNodes();
   } catch (error) {
-    if (currentToken !== initDialogToken.value) return;
+    if (currentToken !== initDialogToken.value) {
+      return;
+    }
     message.error(getErrorMessage(error, '初始化组织管理员失败'));
   } finally {
     if (currentToken === initDialogToken.value) {
@@ -189,7 +202,7 @@ async function initDialog() {
   }
 }
 
-async function enterOrgNode(node: OrgContactOrgNode) {
+async function enterOrgNode (node: OrgContactOrgNode) {
   loading.value = true;
   try {
     const rows = await loadNodeChildren(node.id);
@@ -213,9 +226,11 @@ async function enterOrgNode(node: OrgContactOrgNode) {
   }
 }
 
-async function gotoBreadcrumb(index: number) {
+async function gotoBreadcrumb (index: number) {
   const target = breadcrumbs.value[index];
-  if (!target) return;
+  if (!target) {
+    return;
+  }
 
   loading.value = true;
   try {
@@ -230,17 +245,19 @@ async function gotoBreadcrumb(index: number) {
   }
 }
 
-function addSelectedUser(node: OrgContactUserNode) {
+function addSelectedUser (node: OrgContactUserNode) {
   const exists = selectedUsers.value.some((item) => item.userId === node.userId);
-  if (exists) return;
+  if (exists) {
+    return;
+  }
   selectedUsers.value.push(getUserDisplay(node));
 }
 
-function removeSelectedUser(node: OrgContactUserNode) {
+function removeSelectedUser (node: OrgContactUserNode) {
   selectedUsers.value = selectedUsers.value.filter((item) => item.userId !== node.userId);
 }
 
-function toggleUser(node: OrgContactUserNode, checked: boolean) {
+function toggleUser (node: OrgContactUserNode, checked: boolean) {
   if (checked) {
     addSelectedUser(node);
   } else {
@@ -249,17 +266,17 @@ function toggleUser(node: OrgContactUserNode, checked: boolean) {
   syncCurrentNodeChecked();
 }
 
-function removeSelectedById(userId: string) {
+function removeSelectedById (userId: string) {
   selectedUsers.value = selectedUsers.value.filter((item) => item.userId !== userId);
   syncCurrentNodeChecked();
 }
 
-function clearSelected() {
+function clearSelected () {
   selectedUsers.value = [];
   syncCurrentNodeChecked();
 }
 
-async function handleSearch() {
+async function handleSearch () {
   const keyword = searchKeyword.value.trim();
   if (!keyword) {
     showBreadcrumb.value = true;
@@ -285,14 +302,14 @@ async function handleSearch() {
   }
 }
 
-function handleSearchClear() {
+function handleSearchClear () {
   searchKeyword.value = '';
   showBreadcrumb.value = true;
   currentNodes.value = rootNodes.value;
   syncCurrentNodeChecked();
 }
 
-async function handleSubmit() {
+async function handleSubmit () {
   if (!props.orgId) {
     message.warning('缺少组织信息，无法设置管理员');
     return;
@@ -341,8 +358,7 @@ async function handleSubmit() {
   }
 }
 
-watch(
-  () => [props.modelValue, props.orgId] as const,
+watch(() => [props.modelValue, props.orgId] as const,
   ([visibleValue]) => {
     if (!visibleValue) {
       initDialogToken.value += 1;
@@ -352,8 +368,7 @@ watch(
 
     void initDialog();
   },
-  { immediate: true }
-);
+  { immediate: true });
 </script>
 
 <template>
@@ -382,7 +397,7 @@ watch(
             :key="item.id"
             class="org-manager-dialog__breadcrumb-item"
           >
-            <span class="org-manager-dialog__breadcrumb-title" @click="gotoBreadcrumb(index)">{{ item.title }}</span>
+            <span class="org-manager-dialog__breadcrumb-title" @click="() => gotoBreadcrumb(index)">{{ item.title }}</span>
             <span v-if="index < breadcrumbs.length - 1" class="org-manager-dialog__breadcrumb-separator">/</span>
           </span>
         </div>
@@ -396,7 +411,7 @@ watch(
             >
               <template v-if="node.nodeType === 'org'">
                 <el-icon class="org-manager-dialog__org-icon"><Folder /></el-icon>
-                <span class="org-manager-dialog__org-title" @click="enterOrgNode(node)">{{ node.title }}</span>
+                <span class="org-manager-dialog__org-title" @click="() => enterOrgNode(node)">{{ node.title }}</span>
               </template>
 
               <template v-else>
@@ -431,7 +446,7 @@ watch(
               <span>{{ user.nickName }}</span>
               <span class="org-manager-dialog__selected-phone">{{ user.phone ? `(${user.phone})` : '' }}</span>
             </div>
-            <el-button link type="danger" @click="removeSelectedById(user.userId)">移除</el-button>
+            <el-button link type="danger" @click="() => removeSelectedById(user.userId)">移除</el-button>
           </div>
 
           <el-empty v-if="selectedUsers.length === 0" description="未选择人员" :image-size="80" />

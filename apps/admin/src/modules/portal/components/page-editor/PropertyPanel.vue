@@ -17,12 +17,12 @@ const currentLayoutItem = computed(() => pageLayoutStore.currentLayoutItem);
 
 const configForm = computed<PortalSchemaSection>({
   get: () => pageLayoutStore.configForm as PortalSchemaSection,
-  set: (value) => pageLayoutStore.updateCurrentItemConfig(deepClone(value)),
+  set: (value) => pageLayoutStore.updateCurrentItemConfig(deepClone(value))
 });
 
 const activeName = computed<'content' | 'style'>({
   get: () => pageLayoutStore.activeName,
-  set: (value) => (pageLayoutStore.activeName = value),
+  set: (value) => (pageLayoutStore.activeName = value)
 });
 
 const loadingComponents = computed(() => pageLayoutStore.loadingComponents);
@@ -32,15 +32,21 @@ const styleComponentName = computed(() => pageLayoutStore.styleComponentName);
 const componentBaseName = computed(() => pageLayoutStore.componentBaseName);
 
 const componentExists = computed(() => {
-  if (!componentBaseName.value) return false;
-  return !!props.materialsMap[componentBaseName.value];
+  if (!componentBaseName.value) {
+    return false;
+  }
+  return Boolean(props.materialsMap[componentBaseName.value]);
 });
 
-function handleSchemaChange(type: 'content' | 'style', value: unknown) {
-  if (!currentLayoutItem.value) return;
+function handleSchemaChange (type: 'content' | 'style', value: unknown) {
+  if (!currentLayoutItem.value) {
+    return;
+  }
 
   const current = configForm.value?.[type];
-  if (deepEqual(current, value)) return;
+  if (deepEqual(current, value)) {
+    return;
+  }
 
   const nextConfig = deepClone(configForm.value || {});
   nextConfig[type] = deepClone(value);

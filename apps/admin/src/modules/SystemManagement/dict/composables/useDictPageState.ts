@@ -1,59 +1,59 @@
-import { computed, reactive, ref } from 'vue'
-import { useCrudPage, type CrudFormLike } from '@one-base-template/core'
-import { obConfirm } from '@/infra/confirm'
-import { message } from '@/utils/message'
-import { dictColumns, dictItemColumns } from '../columns'
+import { computed, reactive, ref } from 'vue';
+import { type CrudFormLike, useCrudPage } from '@one-base-template/core';
+import { obConfirm } from '@/infra/confirm';
+import { message } from '@/utils/message';
+import { dictColumns, dictItemColumns } from '../columns';
 import {
   dictApi,
   dictItemApi,
   type DictItemRecord,
+  type DictItemSavePayload,
   type DictRecord,
-  type DictSavePayload,
-  type DictItemSavePayload
-} from '../api'
+  type DictSavePayload
+} from '../api';
 import {
   defaultDictForm,
   defaultDictItemForm,
+  type DictForm,
   dictFormRules,
+  type DictItemForm,
   dictItemFormRules,
   toDictForm,
   toDictItemForm,
   toDictItemPayload,
-  toDictPayload,
-  type DictForm,
-  type DictItemForm
-} from '../form'
+  toDictPayload
+} from '../form';
 
 type SearchFormExpose = {
   resetFields?: () => void
 }
 
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback
+function getErrorMessage (error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
 }
 
-export function useDictPageState() {
-  const tableRef = ref<unknown>(null)
-  const searchRef = ref<SearchFormExpose>()
-  const editFormRef = ref<CrudFormLike>()
+export function useDictPageState () {
+  const tableRef = ref<unknown>(null);
+  const searchRef = ref<SearchFormExpose>();
+  const editFormRef = ref<CrudFormLike>();
 
-  const itemTableRef = ref<unknown>(null)
-  const itemSearchRef = ref<SearchFormExpose>()
-  const itemEditFormRef = ref<CrudFormLike>()
+  const itemTableRef = ref<unknown>(null);
+  const itemSearchRef = ref<SearchFormExpose>();
+  const itemEditFormRef = ref<CrudFormLike>();
 
-  const settingVisible = ref(false)
-  const currentDict = ref<DictRecord | null>(null)
+  const settingVisible = ref(false);
+  const currentDict = ref<DictRecord | null>(null);
 
   const searchForm = reactive({
     dictCode: '',
     dictName: ''
-  })
+  });
 
   const itemSearchForm = reactive({
     dictId: '',
     itemName: '',
     itemValue: ''
-  })
+  });
 
   const dictTableOpt = reactive({
     query: {
@@ -70,13 +70,13 @@ export function useDictPageState() {
         message: '是否确认删除字典「{name}」？'
       },
       onSuccess: () => {
-        message.success('删除字典成功')
+        message.success('删除字典成功');
       },
       onError: (error: unknown) => {
-        message.error(getErrorMessage(error, '删除字典失败'))
+        message.error(getErrorMessage(error, '删除字典失败'));
       }
     }
-  })
+  });
 
   const dictCrudPage = useCrudPage<DictForm, DictRecord, DictRecord, DictSavePayload>({
     table: dictTableOpt,
@@ -98,33 +98,33 @@ export function useDictPageState() {
         request: async ({ mode, payload }) => {
           const response = mode === 'create'
             ? await dictApi.add(payload)
-            : await dictApi.update(payload)
+            : await dictApi.update(payload);
 
           if (response.code !== 200) {
-            throw new Error(response.message || '保存字典失败')
+            throw new Error(response.message || '保存字典失败');
           }
 
-          return response
+          return response;
         },
         onSuccess: async ({ mode }) => {
-          message.success(mode === 'create' ? '新增字典成功' : '更新字典成功')
+          message.success(mode === 'create' ? '新增字典成功' : '更新字典成功');
         }
       }
     }
-  })
+  });
 
-  const dictTable = dictCrudPage.table
-  const dictEditor = dictCrudPage.editor
+  const dictTable = dictCrudPage.table;
+  const dictEditor = dictCrudPage.editor;
 
-  const dictColumnsRef = computed(() => dictColumns)
-  const dictPagination = computed(() => ({ ...dictTable.pagination }))
+  const dictColumnsRef = computed(() => dictColumns);
+  const dictPagination = computed(() => ({ ...dictTable.pagination }));
 
   const itemTableOpt = reactive({
     query: {
       api: async (params: Record<string, unknown>) => {
-        const dictId = String(params.dictId || '')
-        const currentPage = Number(params.currentPage || 1)
-        const pageSize = Number(params.pageSize || 10)
+        const dictId = String(params.dictId || '');
+        const currentPage = Number(params.currentPage || 1);
+        const pageSize = Number(params.pageSize || 10);
 
         if (!dictId) {
           return {
@@ -135,7 +135,7 @@ export function useDictPageState() {
               currentPage,
               pageSize
             }
-          }
+          };
         }
 
         return dictItemApi.page({
@@ -144,7 +144,7 @@ export function useDictPageState() {
           itemValue: String(params.itemValue || ''),
           currentPage,
           pageSize
-        })
+        });
       },
       params: itemSearchForm,
       pagination: true,
@@ -163,13 +163,13 @@ export function useDictPageState() {
         message: '是否确认删除字段「{name}」？'
       },
       onSuccess: () => {
-        message.success('删除字段成功')
+        message.success('删除字段成功');
       },
       onError: (error: unknown) => {
-        message.error(getErrorMessage(error, '删除字段失败'))
+        message.error(getErrorMessage(error, '删除字段失败'));
       }
     }
-  })
+  });
 
   const itemCrudPage = useCrudPage<DictItemForm, DictItemRecord, DictItemRecord, DictItemSavePayload>({
     table: itemTableOpt,
@@ -188,7 +188,7 @@ export function useDictPageState() {
       detail: {
         beforeOpen: async ({ mode, form }) => {
           if (mode === 'create') {
-            form.dictId = itemSearchForm.dictId
+            form.dictId = itemSearchForm.dictId;
           }
         },
         load: async ({ row }) => row,
@@ -199,102 +199,104 @@ export function useDictPageState() {
         request: async ({ mode, payload }) => {
           const response = mode === 'create'
             ? await dictItemApi.add(payload)
-            : await dictItemApi.update(payload)
+            : await dictItemApi.update(payload);
 
           if (response.code !== 200) {
-            throw new Error(response.message || '保存字段失败')
+            throw new Error(response.message || '保存字段失败');
           }
 
-          return response
+          return response;
         },
         onSuccess: async ({ mode }) => {
-          message.success(mode === 'create' ? '新增字段成功' : '更新字段成功')
+          message.success(mode === 'create' ? '新增字段成功' : '更新字段成功');
         }
       }
     }
-  })
+  });
 
-  const itemTable = itemCrudPage.table
-  const itemEditor = itemCrudPage.editor
+  const itemTable = itemCrudPage.table;
+  const itemEditor = itemCrudPage.editor;
 
-  const dictItemColumnsRef = computed(() => dictItemColumns)
-  const dictItemPagination = computed(() => ({ ...itemTable.pagination }))
+  const dictItemColumnsRef = computed(() => dictItemColumns);
+  const dictItemPagination = computed(() => ({ ...itemTable.pagination }));
 
   const settingTitle = computed(() => {
-    const dictName = currentDict.value?.dictName || '字典配置'
-    return `字典配置 - ${dictName}`
-  })
+    const dictName = currentDict.value?.dictName || '字典配置';
+    return `字典配置 - ${dictName}`;
+  });
 
   const currentDictInfo = computed(() => ({
     dictCode: currentDict.value?.dictCode || '--',
     dictName: currentDict.value?.dictName || '--'
-  }))
+  }));
 
-  function tableSearch(keyword: string) {
-    searchForm.dictCode = keyword
-    void dictTable.onSearch()
+  function tableSearch (keyword: string) {
+    searchForm.dictCode = keyword;
+    void dictTable.onSearch();
   }
 
-  function onKeywordUpdate(keyword: string) {
-    searchForm.dictCode = keyword
+  function onKeywordUpdate (keyword: string) {
+    searchForm.dictCode = keyword;
   }
 
-  function onResetSearch() {
-    searchForm.dictName = ''
-    dictTable.resetForm(searchRef, 'dictCode')
+  function onResetSearch () {
+    searchForm.dictName = '';
+    dictTable.resetForm(searchRef, 'dictCode');
   }
 
-  async function openSetting(row: DictRecord) {
-    currentDict.value = row
-    itemSearchForm.dictId = row.id
-    itemSearchForm.itemName = ''
-    itemSearchForm.itemValue = ''
-    settingVisible.value = true
-    await itemTable.onSearch(true)
+  async function openSetting (row: DictRecord) {
+    currentDict.value = row;
+    itemSearchForm.dictId = row.id;
+    itemSearchForm.itemName = '';
+    itemSearchForm.itemValue = '';
+    settingVisible.value = true;
+    await itemTable.onSearch(true);
   }
 
-  function closeSetting() {
-    settingVisible.value = false
-    currentDict.value = null
-    itemSearchForm.dictId = ''
-    itemSearchForm.itemName = ''
-    itemSearchForm.itemValue = ''
-    itemEditor.close()
+  function closeSetting () {
+    settingVisible.value = false;
+    currentDict.value = null;
+    itemSearchForm.dictId = '';
+    itemSearchForm.itemName = '';
+    itemSearchForm.itemValue = '';
+    itemEditor.close();
   }
 
-  function itemTableSearch(keyword: string) {
-    itemSearchForm.itemName = keyword
-    void itemTable.onSearch()
+  function itemTableSearch (keyword: string) {
+    itemSearchForm.itemName = keyword;
+    void itemTable.onSearch();
   }
 
-  function onItemKeywordUpdate(keyword: string) {
-    itemSearchForm.itemName = keyword
+  function onItemKeywordUpdate (keyword: string) {
+    itemSearchForm.itemName = keyword;
   }
 
-  function onResetItemSearch() {
-    itemSearchForm.itemValue = ''
-    itemTable.resetForm(itemSearchRef, 'itemName')
+  function onResetItemSearch () {
+    itemSearchForm.itemValue = '';
+    itemTable.resetForm(itemSearchRef, 'itemName');
   }
 
-  async function handleToggleItemStatus(row: DictItemRecord) {
+  async function handleToggleItemStatus (row: DictItemRecord) {
     try {
-      const nextEnable = row.disabled !== 0
-      await obConfirm.warn(`您确认要${nextEnable ? '启用' : '停用'}字段「${row.itemName}」吗？`, '状态确认')
+      const nextEnable = row.disabled !== 0;
+      await obConfirm.warn(`您确认要${nextEnable ? '启用' : '停用'}字段「${row.itemName}」吗？`, '状态确认');
 
       const response = await dictItemApi.toggleStatus({
         ids: row.id,
         isEnable: nextEnable
-      })
+      });
 
       if (response.code !== 200) {
-        throw new Error(response.message || '更新字段状态失败')
+        throw new Error(response.message || '更新字段状态失败');
       }
 
-      message.success(`${nextEnable ? '启用' : '停用'}字段成功`)
-      await itemTable.onSearch(false)
+      message.success(`${nextEnable ? '启用' : '停用'}字段成功`);
+      await itemTable.onSearch(false);
     } catch (error) {
-      if (error === 'cancel' || error === 'close') return
-      message.error(getErrorMessage(error, '更新字段状态失败'))
+      if (error === 'cancel' || error === 'close') {
+        return;
+      }
+      message.error(getErrorMessage(error, '更新字段状态失败'));
     }
   }
 
@@ -361,5 +363,5 @@ export function useDictPageState() {
       handleDeleteItem: itemCrudPage.actions.remove,
       handleToggleItemStatus
     }
-  }
+  };
 }

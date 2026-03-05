@@ -3,7 +3,7 @@
     <!-- 简单样式：通长下划线，标题下方加粗 -->
     <div
       v-if="titleStyle === 'simple'"
-      class="title-wrapper title-simple-wrapper"
+      class="title-simple-wrapper title-wrapper"
       :style="titleWrapperStyleObj"
     >
       <div class="title-container">
@@ -20,13 +20,13 @@
     <!-- 蓝色简约样式：左对齐标题 + 条纹线 -->
     <div
       v-else-if="titleStyle === 'blue-simple'"
-      class="title-wrapper title-blue-wrapper"
+      class="title-blue-wrapper title-wrapper"
     >
       <div class="blue-title-row">
-        <div class="title blue-title" :style="blueTitleStyleObj">
+        <div class="blue-title title" :style="blueTitleStyleObj">
           {{ title }}
         </div>
-        <div v-if="showMore" class="more-link blue-more">
+        <div v-if="showMore" class="blue-more more-link">
           <span :style="blueMoreLinkStyleObj" @click="handleMoreClick">更多</span>
         </div>
       </div>
@@ -43,11 +43,11 @@
     <!-- 装饰样式：两侧渐变线条和菱形 -->
     <div
       v-else
-      class="title-wrapper title-decorated-wrapper"
+      class="title-decorated-wrapper title-wrapper"
       :style="titleWrapperStyleObj"
     >
-      <div class="line-container left">
-        <div class="line-gradient left" :style="leftLineGradientStyle" />
+      <div class="left line-container">
+        <div class="left line-gradient" :style="leftLineGradientStyle" />
         <div class="diamond-container left">
           <div
             class="diamond diamond-small left"
@@ -85,12 +85,12 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import TitleStripeDisplay from './TitleStripeDisplay.vue';
-const router = useRouter();
+
 // 定义props - 直接接收schema对象
 const props = defineProps<{
   schema: Record<string, any>; // 接收完整的schema对象
 }>();
-
+const router = useRouter();
 // 兼容新旧schema结构
 const titleData = computed(() => {
   // 如果有content，使用老结构
@@ -129,19 +129,12 @@ const linkFontSize = computed(() => {
   const size = styleData.value?.linkFontSize;
   return size ? `${size}px` : undefined;
 });
-const stripeAccentColor = computed(
-  () =>
-    styleData.value?.stripeAccentColor ||
-    styleData.value?.borderColor ||
-    styleData.value?.titleColor ||
-    '#2B6DE5'
-);
-const stripeBaseColor = computed(
-  () => styleData.value?.stripeBaseColor || '#E2E7F0'
-);
-const blueTitleColor = computed(
-  () => styleData.value?.titleColor || stripeAccentColor.value
-);
+const stripeAccentColor = computed(() => styleData.value?.stripeAccentColor
+  || styleData.value?.borderColor
+  || styleData.value?.titleColor
+  || '#2B6DE5');
+const stripeBaseColor = computed(() => styleData.value?.stripeBaseColor || '#E2E7F0');
+const blueTitleColor = computed(() => styleData.value?.titleColor || stripeAccentColor.value);
 const lineColor = computed(() => '#BE0009');
 // 获取小菱形颜色
 const diamondSmallColor = computed(() => borderColor.value || '#eaeaea');
@@ -281,25 +274,17 @@ const stripeAccentCount = computed(() => {
   const count = Number(styleData.value?.stripeAccentCount);
   return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
 });
-const stripeHeight = computed(() =>
-  toPositiveNumber(styleData.value?.stripeHeight, 8)
-);
-const stripeWidth = computed(() =>
-  toPositiveNumber(styleData.value?.stripeWidth, 3)
-);
+const stripeHeight = computed(() => toPositiveNumber(styleData.value?.stripeHeight, 8));
+const stripeWidth = computed(() => toPositiveNumber(styleData.value?.stripeWidth, 3));
 const handleMoreClick = () => {
   const categoryId = props.schema?.content?.dataSource?.categoryId;
-  const tabId = router.currentRoute.value.params.tabId;
+  const { tabId } = router.currentRoute.value.params;
   if (!categoryId) {
     ElMessage.error('请先选择栏目');
-    return;
   } else if (moreLink.value) {
     router.push(`${moreLink.value}?categoryId=${categoryId}&tabId=${tabId}`);
-    return;
   } else {
-    router.push(
-      `/frontPortal/cms/list?categoryId=${categoryId}&tabId=${tabId}`
-    );
+    router.push(`/frontPortal/cms/list?categoryId=${categoryId}&tabId=${tabId}`);
   }
 };
 defineOptions({ name: 'pb-title-display' });

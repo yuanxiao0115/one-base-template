@@ -1,7 +1,7 @@
 <template>
   <div class="pb-list-item-image" :style="containerStyle">
     <slot>
-      <img v-if="src" :src="src" :alt="alt" :style="imgStyle">
+      <img v-if="src" :src :alt :style="imgStyle">
     </slot>
   </div>
 </template>
@@ -9,22 +9,20 @@
 <script setup lang="ts">
 import { computed, type CSSProperties } from 'vue';
 
-const props = withDefaults(
-  defineProps<{
-    src?: string;
-    alt?: string;
-    width?: number;
-    height?: number;
-    borderRadius?: number;
-  }>(),
-  {
-    src: '',
-    alt: '列表图片',
-    width: 80,
-    height: 55,
-    borderRadius: 4
-  }
-);
+const props = withDefaults(defineProps<{
+                             src?: string;
+                             alt?: string;
+                             width?: number;
+                             height?: number;
+                             borderRadius?: number;
+                           }>(),
+                           {
+                             src: '',
+                             alt: '列表图片',
+                             width: 80,
+                             height: 55,
+                             borderRadius: 4
+                           });
 
 const containerStyle = computed<CSSProperties>(() => ({
   width: `${props.width}px`,

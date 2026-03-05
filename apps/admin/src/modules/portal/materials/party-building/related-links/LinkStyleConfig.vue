@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 // 类型定义
-export interface LinkStyleModelType {
+export type LinkStyleModelType = {
   linkColor: string;
   linkFontSize: number;
   linkFontWeight: string;

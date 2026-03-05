@@ -113,7 +113,7 @@
               }"
               @click="containerStyleData.containerBorderRadius = 0"
             >
-              <div class="corner-sample" style="border-radius: 0" />
+              <div class="corner-sample" style="border-radius: 0;" />
               <div class="corner-label">无圆角</div>
             </div>
             <div
@@ -123,7 +123,7 @@
               }"
               @click="containerStyleData.containerBorderRadius = 4"
             >
-              <div class="corner-sample" style="border-radius: 4px" />
+              <div class="corner-sample" style="border-radius: 4px;" />
               <div class="corner-label">小圆角</div>
             </div>
           </div>
@@ -135,7 +135,7 @@
               }"
               @click="containerStyleData.containerBorderRadius = 8"
             >
-              <div class="corner-sample" style="border-radius: 8px" />
+              <div class="corner-sample" style="border-radius: 8px;" />
               <div class="corner-label">中圆角</div>
             </div>
             <div
@@ -145,7 +145,7 @@
               }"
               @click="containerStyleData.containerBorderRadius = 16"
             >
-              <div class="corner-sample" style="border-radius: 16px" />
+              <div class="corner-sample" style="border-radius: 16px;" />
               <div class="corner-label">大圆角</div>
             </div>
           </div>
@@ -166,7 +166,7 @@
             }"
             @click="containerStyleData.containerShadowPreset = 'none'"
           >
-            <div class="shadow-preview" style="box-shadow: none">
+            <div class="shadow-preview" style="box-shadow: none;">
               <span>无阴影</span>
             </div>
           </div>
@@ -179,7 +179,7 @@
           >
             <div
               class="shadow-preview"
-              style="box-shadow: 0 2px 4px rgb(0 0 0 / 10%)"
+              style="box-shadow: 0 2px 4px rgb(0 0 0 / .1);"
             >
               <span>浅阴影</span>
             </div>
@@ -193,7 +193,7 @@
           >
             <div
               class="shadow-preview"
-              style="box-shadow: 0 4px 8px rgb(0 0 0 / 10%)"
+              style="box-shadow: 0 4px 8px rgb(0 0 0 / .1);"
             >
               <span>中等阴影</span>
             </div>
@@ -207,7 +207,7 @@
           >
             <div
               class="shadow-preview"
-              style="box-shadow: 0 8px 16px rgb(0 0 0 / 15%)"
+              style="box-shadow: 0 8px 16px rgb(0 0 0 / .15);"
             >
               <span>深阴影</span>
             </div>
@@ -227,12 +227,12 @@
               class="border-style-option"
               :class="{
                 active:
-                  containerStyleData.containerBorderStyle === 'none' &&
-                  containerStyleData.containerBorderWidth === 0
+                  containerStyleData.containerBorderStyle === 'none'
+                  && containerStyleData.containerBorderWidth === 0
               }"
               @click="containerStyleData.containerBorderStyle = 'none'"
             >
-              <div class="border-preview" style="border: none">
+              <div class="border-preview" style="border: none;">
                 <span>无边框</span>
               </div>
             </div>
@@ -240,13 +240,13 @@
               class="border-style-option"
               :class="{
                 active:
-                  containerStyleData.containerBorderStyle === 'solid' &&
-                  (containerStyleData.containerBorderWidth === 1 ||
-                    containerStyleData.containerBorderWidth === 2)
+                  containerStyleData.containerBorderStyle === 'solid'
+                  && (containerStyleData.containerBorderWidth === 1
+                    || containerStyleData.containerBorderWidth === 2)
               }"
               @click="containerStyleData.containerBorderStyle = 'solid'"
             >
-              <div class="border-preview" style="border: 1px solid #606266">
+              <div class="border-preview" style="border: 1px solid #606266;">
                 <span>实线</span>
               </div>
             </div>
@@ -254,12 +254,12 @@
               class="border-style-option"
               :class="{
                 active:
-                  containerStyleData.containerBorderStyle === 'dashed' &&
-                  containerStyleData.containerBorderWidth === 1
+                  containerStyleData.containerBorderStyle === 'dashed'
+                  && containerStyleData.containerBorderWidth === 1
               }"
               @click="containerStyleData.containerBorderStyle = 'dashed'"
             >
-              <div class="border-preview" style="border: 1px dashed #606266">
+              <div class="border-preview" style="border: 1px dashed #606266;">
                 <span>虚线</span>
               </div>
             </div>
@@ -267,12 +267,12 @@
               class="border-style-option"
               :class="{
                 active:
-                  containerStyleData.containerBorderStyle === 'dotted' &&
-                  containerStyleData.containerBorderWidth === 1
+                  containerStyleData.containerBorderStyle === 'dotted'
+                  && containerStyleData.containerBorderWidth === 1
               }"
               @click="containerStyleData.containerBorderStyle = 'dotted'"
             >
-              <div class="border-preview" style="border: 1px dotted #606266">
+              <div class="border-preview" style="border: 1px dotted #606266;">
                 <span>点线</span>
               </div>
             </div>
@@ -429,7 +429,7 @@
 import { watch } from 'vue';
 
 // 定义接口类型
-export interface ContainerStyleModelType {
+export type ContainerStyleModelType = {
   containerBgColor: string;
   containerBgOpacity: number;
   containerPaddingTop: number;
@@ -478,23 +478,21 @@ const containerStyleData = defineModel<ContainerStyleModelType>({
 });
 
 // 根据预设更新实际阴影值
-watch(
-  () => containerStyleData.value.containerShadowPreset,
-  newPreset => {
-    if (newPreset === 'none') {
-      containerStyleData.value.containerBoxShadow = 'none';
-    } else if (newPreset === 'light') {
-      containerStyleData.value.containerBoxShadow =
-        '0 2px 4px rgba(0, 0, 0, 0.1)';
-    } else if (newPreset === 'medium') {
-      containerStyleData.value.containerBoxShadow =
-        '0 4px 8px rgba(0, 0, 0, 0.1)';
-    } else if (newPreset === 'heavy') {
-      containerStyleData.value.containerBoxShadow =
-        '0 8px 16px rgba(0, 0, 0, 0.15)';
-    }
-  }
-);
+watch(() => containerStyleData.value.containerShadowPreset,
+      (newPreset) => {
+        if (newPreset === 'none') {
+          containerStyleData.value.containerBoxShadow = 'none';
+        } else if (newPreset === 'light') {
+          containerStyleData.value.containerBoxShadow
+            = '0 2px 4px rgba(0, 0, 0, 0.1)';
+        } else if (newPreset === 'medium') {
+          containerStyleData.value.containerBoxShadow
+            = '0 4px 8px rgba(0, 0, 0, 0.1)';
+        } else if (newPreset === 'heavy') {
+          containerStyleData.value.containerBoxShadow
+            = '0 8px 16px rgba(0, 0, 0, 0.15)';
+        }
+      });
 
 defineOptions({
   name: 'pb-container-style-config'

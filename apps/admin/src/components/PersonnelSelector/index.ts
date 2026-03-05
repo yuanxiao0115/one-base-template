@@ -1,6 +1,6 @@
-export { default as PersonnelSelector } from './PersonnelSelector.vue'
-export { openPersonnelSelection } from './openPersonnelSelection'
-export type { OpenPersonnelSelectionOptions } from './openPersonnelSelection'
+export { default as PersonnelSelector } from './PersonnelSelector.vue';
+export { openPersonnelSelection } from './openPersonnelSelection';
+export type { OpenPersonnelSelectionOptions } from './openPersonnelSelection';
 export type {
   OpenPersonnelSelectionResult,
   PersonnelSelectMode,
@@ -12,4 +12,4 @@ export type {
   PersonnelSelectionModel,
   PersonnelFetchNodes,
   PersonnelSearchNodes
-} from './types'
+} from './types';

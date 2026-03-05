@@ -1,4 +1,4 @@
-import type { TableColumnList } from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui';
 
 export const columns: TableColumnList = [
   {
@@ -39,6 +39,6 @@ export const columns: TableColumnList = [
     fixed: 'right',
     slot: 'action'
   }
-]
+];
 
-export default columns
+export default columns;

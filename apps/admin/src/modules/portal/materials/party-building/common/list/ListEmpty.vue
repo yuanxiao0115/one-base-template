@@ -3,14 +3,12 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    text?: string;
-  }>(),
-  {
-    text: '暂无列表项'
-  }
-);
+withDefaults(defineProps<{
+               text?: string;
+             }>(),
+{
+  text: '暂无列表项'
+});
 
 defineOptions({
   name: 'pb-list-empty'

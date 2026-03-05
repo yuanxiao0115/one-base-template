@@ -1,5 +1,5 @@
-import type { FormRules } from 'element-plus'
-import type { MenuPermissionRecord, PermissionSavePayload } from './api'
+import type { FormRules } from 'element-plus';
+import type { MenuPermissionRecord, PermissionSavePayload } from './api';
 
 export type ParentOption = {
   value: string
@@ -40,15 +40,27 @@ export const defaultMenuPermissionForm: MenuPermissionForm = {
   hidden: 0,
   component: '',
   remark: ''
-}
+};
 
 export const menuPermissionFormRules: FormRules<MenuPermissionForm> = {
-  parentId: [{ required: true, message: '请选择上级权限', trigger: 'change' }],
-  resourceType: [{ required: true, message: '请选择权限类型', trigger: 'change' }],
-  resourceName: [{ required: true, message: '请输入权限名称', trigger: 'blur' }]
-}
+  parentId: [{
+    required: true,
+    message: '请选择上级权限',
+    trigger: 'change'
+  }],
+  resourceType: [{
+    required: true,
+    message: '请选择权限类型',
+    trigger: 'change'
+  }],
+  resourceName: [{
+    required: true,
+    message: '请输入权限名称',
+    trigger: 'blur'
+  }]
+};
 
-export function toMenuPermissionForm(row: MenuPermissionRecord): MenuPermissionForm {
+export function toMenuPermissionForm (row: MenuPermissionRecord): MenuPermissionForm {
   return {
     id: row.id,
     parentId: row.parentId || '0',
@@ -65,10 +77,10 @@ export function toMenuPermissionForm(row: MenuPermissionRecord): MenuPermissionF
     hidden: Number(row.hidden || 0),
     component: row.component || '',
     remark: row.remark || ''
-  }
+  };
 }
 
-export function toMenuPermissionPayload(form: MenuPermissionForm): PermissionSavePayload {
+export function toMenuPermissionPayload (form: MenuPermissionForm): PermissionSavePayload {
   return {
     id: form.id,
     parentId: form.parentId || '0',
@@ -85,5 +97,5 @@ export function toMenuPermissionPayload(form: MenuPermissionForm): PermissionSav
     hidden: Number(form.hidden || 0),
     component: form.component.trim(),
     remark: form.remark.trim()
-  }
+  };
 }

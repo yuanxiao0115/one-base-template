@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, type Ref } from 'vue'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { useCrudPage } from '@one-base-template/core'
-import { confirm } from '@/infra/confirm'
-import {
+import { computed, onMounted, reactive, ref, type Ref } from 'vue';
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import { useCrudPage } from '@one-base-template/core';
+import { confirm } from '@/infra/confirm';
+import type {
+  CrudErrorContext,
+  CrudFormLike,
   CrudContainer as ObCrudContainer,
   VxeTable as ObVxeTable,
-  type CrudFormLike,
-  type CrudErrorContext
-} from '@one-base-template/ui'
-import type { TableColumnList } from '@one-base-template/ui'
-import { menuColumns } from '../menu-management/columns'
+  TableColumnList
+} from '@one-base-template/ui';
+import { menuColumns } from '../menu-management/columns';
 import {
-  menuPermissionApi,
   type BizResponse,
+  menuPermissionApi,
   type MenuPermissionRecord,
   type PermissionSavePayload,
   type PermissionTypeOption
-} from '../menu-management/api'
+} from '../menu-management/api';
 
 defineOptions({
   name: 'DemoMenuManagementMigrationPage'
-})
+});
 
 type DialogMode = 'add' | 'edit' | 'view'
 
@@ -50,18 +50,18 @@ type MenuPermissionForm = {
   remark: string
 }
 
-const tableRef = ref<unknown>(null)
-const searchRef = ref<FormInstance>()
-const editFormRef = ref<FormInstance>()
-const createParentId = ref('0')
+const tableRef = ref<unknown>(null);
+const searchRef = ref<FormInstance>();
+const editFormRef = ref<FormInstance>();
+const createParentId = ref('0');
 
 const searchForm = reactive({
   resourceName: '',
   resourceType: ''
-})
+});
 
-const resourceTypeOptions = ref<PermissionTypeOption[]>([])
-const parentOptions = ref<ParentOption[]>([])
+const resourceTypeOptions = ref<PermissionTypeOption[]>([]);
+const parentOptions = ref<ParentOption[]>([]);
 
 const defaultFormState: MenuPermissionForm = {
   parentId: '0',
@@ -78,42 +78,56 @@ const defaultFormState: MenuPermissionForm = {
   hidden: 0,
   component: '',
   remark: ''
-}
+};
 
 const formRules: FormRules<MenuPermissionForm> = {
-  parentId: [{ required: true, message: '请选择上级权限', trigger: 'change' }],
-  resourceType: [{ required: true, message: '请选择权限类型', trigger: 'change' }],
-  resourceName: [{ required: true, message: '请输入权限名称', trigger: 'blur' }]
-}
+  parentId: [{
+    required: true,
+    message: '请选择上级权限',
+    trigger: 'change'
+  }],
+  resourceType: [{
+    required: true,
+    message: '请选择权限类型',
+    trigger: 'change'
+  }],
+  resourceName: [{
+    required: true,
+    message: '请输入权限名称',
+    trigger: 'blur'
+  }]
+};
 
-const inTreeMode = computed(() => !searchForm.resourceName.trim() && !searchForm.resourceType)
-const tableColumns = computed<TableColumnList>(() => menuColumns)
+const inTreeMode = computed(() => !searchForm.resourceName.trim() && !searchForm.resourceType);
+const tableColumns = computed<TableColumnList>(() => menuColumns);
 const tableTreeConfig = computed<Record<string, unknown> | undefined>(() => {
-  if (!inTreeMode.value) return undefined
+  if (!inTreeMode.value) {
+    return undefined;
+  }
 
   return {
     transform: false,
     expandAll: true,
     childrenField: 'children'
-  }
-})
+  };
+});
 
 const tableOpt = reactive({
   query: {
     api: async () => {
       if (inTreeMode.value) {
-        return menuPermissionApi.getPermissionTree()
+        return menuPermissionApi.getPermissionTree();
       }
 
       return menuPermissionApi.getPermissionList({
         resourceName: searchForm.resourceName,
         resourceType: searchForm.resourceType
-      })
+      });
     },
     params: searchForm,
     pagination: false
   }
-})
+});
 
 const crudPage = useCrudPage<
   MenuPermissionForm,
@@ -134,21 +148,21 @@ const crudPage = useCrudPage<
       ref: editFormRef as unknown as Ref<CrudFormLike | undefined>
     },
     detail: {
-      async beforeOpen({ mode, row, form }) {
-        await loadResourceTypeOptions()
+      async beforeOpen ({ mode, row, form }) {
+        await loadResourceTypeOptions();
 
         if (mode === 'create') {
-          await loadParentOptions()
-          form.parentId = createParentId.value || '0'
-          return
+          await loadParentOptions();
+          form.parentId = createParentId.value || '0';
+          return;
         }
 
         if (!row) {
-          await loadParentOptions()
-          return
+          await loadParentOptions();
+          return;
         }
 
-        await loadParentOptions(row.id)
+        await loadParentOptions(row.id);
       },
       load: async ({ row }) => row,
       mapToForm: ({ detail }) => toFormState(detail)
@@ -156,38 +170,38 @@ const crudPage = useCrudPage<
     save: {
       buildPayload: ({ form }) => toPayload(form),
       request: async ({ mode, payload }) => {
-        const response =
-          mode === 'create'
+        const response
+          = mode === 'create'
             ? await menuPermissionApi.addPermission(payload)
-            : await menuPermissionApi.editPermission(payload)
+            : await menuPermissionApi.editPermission(payload);
 
         if (response.code !== 200) {
-          throw new Error(response.message || '保存失败')
+          throw new Error(response.message || '保存失败');
         }
 
-        return response
+        return response;
       },
       onSuccess: async ({ mode }) => {
-        ElMessage.success(mode === 'create' ? '新增成功' : '更新成功')
+        ElMessage.success(mode === 'create' ? '新增成功' : '更新成功');
       }
     },
     onError: (error, context) => {
-      handleCrudError(error, context)
+      handleCrudError(error, context);
     }
   }
-})
+});
 
-const { loading, dataList, onSearch, resetForm } = crudPage.table
-const crud = crudPage.editor
+const { loading, dataList, onSearch, resetForm } = crudPage.table;
+const crud = crudPage.editor;
 
-const crudVisible = crud.visible
-const crudMode = crud.mode
-const crudTitle = crud.title
-const crudReadonly = crud.readonly
-const crudSubmitting = crud.submitting
-const crudForm = crud.form
+const crudVisible = crud.visible;
+const crudMode = crud.mode;
+const crudTitle = crud.title;
+const crudReadonly = crud.readonly;
+const crudSubmitting = crud.submitting;
+const crudForm = crud.form;
 
-function toFormState(row: MenuPermissionRecord): MenuPermissionForm {
+function toFormState (row: MenuPermissionRecord): MenuPermissionForm {
   return {
     id: row.id,
     parentId: row.parentId || '0',
@@ -204,82 +218,87 @@ function toFormState(row: MenuPermissionRecord): MenuPermissionForm {
     hidden: Number(row.hidden || 0),
     component: row.component || '',
     remark: row.remark || ''
-  }
+  };
 }
 
-function appendParentOptions(
-  rows: MenuPermissionRecord[],
-  depth: number,
-  disabledIds: Set<string>,
-  result: ParentOption[]
-) {
-  rows.forEach((row) => {
-    result.push({
-      value: row.id,
-      label: `${'--'.repeat(depth)}${depth > 0 ? ' ' : ''}${row.resourceName}`,
-      disabled: disabledIds.has(row.id)
-    })
+function appendParentOptions (rows: MenuPermissionRecord[],
+                              depth: number,
+                              disabledIds: Set<string>,
+                              result: ParentOption[]) {
+                                rows.forEach((row) => {
+                                  result.push({
+                                    value: row.id,
+                                    label: `${'--'.repeat(depth)}${depth > 0 ? ' ' : ''}${row.resourceName}`,
+                                    disabled: disabledIds.has(row.id)
+                                  });
 
-    if (Array.isArray(row.children) && row.children.length > 0) {
-      appendParentOptions(row.children, depth + 1, disabledIds, result)
-    }
-  })
-}
+                                  if (Array.isArray(row.children) && row.children.length > 0) {
+                                    appendParentOptions(row.children, depth + 1, disabledIds, result);
+                                  }
+                                });
+                              }
 
-function markDescendants(rows: MenuPermissionRecord[], targetId: string, ids: Set<string>): boolean {
+function markDescendants (rows: MenuPermissionRecord[], targetId: string, ids: Set<string>): boolean {
   for (const row of rows) {
     if (row.id === targetId) {
-      ids.add(row.id)
-      markNodeChildren(row, ids)
-      return true
+      ids.add(row.id);
+      markNodeChildren(row, ids);
+      return true;
     }
 
     if (Array.isArray(row.children) && row.children.length > 0) {
-      const found = markDescendants(row.children, targetId, ids)
-      if (found) return true
+      const found = markDescendants(row.children, targetId, ids);
+      if (found) {
+        return true;
+      }
     }
   }
 
-  return false
+  return false;
 }
 
-function markNodeChildren(row: MenuPermissionRecord, ids: Set<string>) {
-  if (!Array.isArray(row.children) || row.children.length === 0) return
+function markNodeChildren (row: MenuPermissionRecord, ids: Set<string>) {
+  if (!Array.isArray(row.children) || row.children.length === 0) {
+    return;
+  }
 
   row.children.forEach((child) => {
-    ids.add(child.id)
-    markNodeChildren(child, ids)
-  })
+    ids.add(child.id);
+    markNodeChildren(child, ids);
+  });
 }
 
-async function loadParentOptions(disabledId?: string) {
-  const response = await menuPermissionApi.getPermissionTree()
+async function loadParentOptions (disabledId?: string) {
+  const response = await menuPermissionApi.getPermissionTree();
   if (response.code !== 200) {
-    throw new Error(response.message || '获取权限树失败')
+    throw new Error(response.message || '获取权限树失败');
   }
 
-  const treeRows = Array.isArray(response.data) ? response.data : []
-  const disabledIds = new Set<string>()
+  const treeRows = Array.isArray(response.data) ? response.data : [];
+  const disabledIds = new Set<string>();
   if (disabledId) {
-    markDescendants(treeRows, disabledId, disabledIds)
+    markDescendants(treeRows, disabledId, disabledIds);
   }
 
-  const options: ParentOption[] = [{ value: '0', label: '顶级权限' }]
-  appendParentOptions(treeRows, 0, disabledIds, options)
-  parentOptions.value = options
+  const options: ParentOption[] = [{
+    value: '0',
+    label: '顶级权限'
+  }];
+  appendParentOptions(treeRows, 0, disabledIds, options);
+  parentOptions.value = options;
 }
 
-async function loadResourceTypeOptions() {
-  const response = await menuPermissionApi.getResourceTypeEnum()
+async function loadResourceTypeOptions () {
+  const response = await menuPermissionApi.getResourceTypeEnum();
   if (response.code === 200 && Array.isArray(response.data)) {
-    resourceTypeOptions.value = response.data
-    return
+    resourceTypeOptions.value = response.data;
+    return;
   }
 
-  resourceTypeOptions.value = []
+  resourceTypeOptions.value = [];
 }
 
-function toPayload(form: MenuPermissionForm): PermissionSavePayload {
+function toPayload (form: MenuPermissionForm): PermissionSavePayload {
   return {
     id: form.id,
     parentId: form.parentId || '0',
@@ -296,91 +315,89 @@ function toPayload(form: MenuPermissionForm): PermissionSavePayload {
     hidden: Number(form.hidden || 0),
     component: form.component.trim(),
     remark: form.remark.trim()
-  }
+  };
 }
 
-function tableSearch(keyword: string) {
-  searchForm.resourceName = keyword
-  void onSearch()
+function tableSearch (keyword: string) {
+  searchForm.resourceName = keyword;
+  void onSearch();
 }
 
-function onKeywordUpdate(keyword: string) {
-  searchForm.resourceName = keyword
+function onKeywordUpdate (keyword: string) {
+  searchForm.resourceName = keyword;
 }
 
-function onResetSearch() {
-  resetForm(searchRef, 'resourceName')
+function onResetSearch () {
+  resetForm(searchRef, 'resourceName');
 }
 
-async function openCreateDialog(parentId: string = '0') {
-  createParentId.value = parentId
-  await crud.openCreate()
+async function openCreateDialog (parentId = '0') {
+  createParentId.value = parentId;
+  await crud.openCreate();
 }
 
-async function openEditDialog(mode: Extract<DialogMode, 'edit' | 'view'>, row: MenuPermissionRecord) {
+async function openEditDialog (mode: Extract<DialogMode, 'edit' | 'view'>, row: MenuPermissionRecord) {
   if (mode === 'edit') {
-    await crud.openEdit(row)
-    return
+    await crud.openEdit(row);
+    return;
   }
 
-  await crud.openDetail(row)
+  await crud.openDetail(row);
 }
 
-function handleCreateCommand(command: string, row: MenuPermissionRecord) {
-  const parentId = command === 'child' ? row.id : row.parentId || '0'
-  void openCreateDialog(parentId)
+function handleCreateCommand (command: string, row: MenuPermissionRecord) {
+  const parentId = command === 'child' ? row.id : row.parentId || '0';
+  void openCreateDialog(parentId);
 }
 
-async function handleDelete(row: MenuPermissionRecord) {
+async function handleDelete (row: MenuPermissionRecord) {
   try {
-    await confirm.warn(
-      `是否确认删除权限「${row.resourceName}」？若存在下级权限会一并删除。`,
-      '删除确认'
-    )
+    await confirm.warn(`是否确认删除权限「${row.resourceName}」？若存在下级权限会一并删除。`,
+                       '删除确认');
 
-    const response = await menuPermissionApi.deletePermission(row.id)
+    const response = await menuPermissionApi.deletePermission(row.id);
     if (response.code !== 200) {
-      throw new Error(response.message || '删除失败')
+      throw new Error(response.message || '删除失败');
     }
 
-    ElMessage.success('删除成功')
-    await onSearch(false)
+    ElMessage.success('删除成功');
+    await onSearch(false);
   } catch (error) {
-    if (error === 'cancel') return
-    const message = error instanceof Error ? error.message : '删除失败'
-    ElMessage.error(message)
+    if (error === 'cancel') {
+      return;
+    }
+    const message = error instanceof Error ? error.message : '删除失败';
+    ElMessage.error(message);
   }
 }
 
-async function onConfirmCrud() {
+async function onConfirmCrud () {
   try {
-    await crud.confirm()
-  }
-  catch {
+    await crud.confirm();
+  } catch {
     // 错误消息由 onError 统一处理，避免重复提示。
   }
 }
 
-function handleCrudError(error: unknown, context: CrudErrorContext<MenuPermissionRecord>) {
-  const fallbackMessage =
-    context.stage === 'beforeOpen'
+function handleCrudError (error: unknown, context: CrudErrorContext<MenuPermissionRecord>) {
+  const fallbackMessage
+    = context.stage === 'beforeOpen'
       ? '打开弹窗失败'
       : context.stage === 'loadDetail'
         ? '加载详情失败'
-        : '保存失败'
+        : '保存失败';
 
-  const message = error instanceof Error ? error.message : fallbackMessage
-  ElMessage.error(message)
+  const message = error instanceof Error ? error.message : fallbackMessage;
+  ElMessage.error(message);
 }
 
 onMounted(async () => {
   try {
-    await loadResourceTypeOptions()
+    await loadResourceTypeOptions();
+  } catch {
+    resourceTypeOptions.value = [];
   }
-  catch {
-    resourceTypeOptions.value = []
-  }
-})
+});
 </script>
 
 <template>
@@ -402,8 +419,8 @@ onMounted(async () => {
         <template #default="{ size, dynamicColumns }">
           <ObVxeTable
             ref="tableRef"
-            :size="size"
-            :loading="loading"
+            :size
+            :loading
             :data="dataList"
             :columns="dynamicColumns"
             :pagination="false"
@@ -420,7 +437,7 @@ onMounted(async () => {
                   v-if="Number(row.resourceType) !== 3"
                   @command="(command) => handleCreateCommand(String(command), row)"
                 >
-                  <el-button link type="primary" :size="size">新建</el-button>
+                  <el-button link type="primary" :size>新建</el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item command="child">新建子级权限</el-dropdown-item>
@@ -429,9 +446,9 @@ onMounted(async () => {
                   </template>
                 </el-dropdown>
 
-                <el-button link type="primary" :size="size" @click="openEditDialog('edit', row)">编辑</el-button>
-                <el-button link type="primary" :size="size" @click="openEditDialog('view', row)">查看</el-button>
-                <el-button link type="danger" :size="size" @click="handleDelete(row)">删除</el-button>
+                <el-button link type="primary" :size @click="() => openEditDialog('edit', row)">编辑</el-button>
+                <el-button link type="primary" :size @click="() => openEditDialog('view', row)">查看</el-button>
+                <el-button link type="danger" :size @click="() => handleDelete(row)">删除</el-button>
               </div>
             </template>
           </ObVxeTable>
@@ -461,7 +478,7 @@ onMounted(async () => {
       :title="crudTitle"
       :loading="crudSubmitting"
       :show-cancel-button="!crudReadonly"
-      :confirm-text="'保存'"
+      confirm-text="保存"
       :drawer-size="760"
       :drawer-columns="2"
       @confirm="onConfirmCrud"

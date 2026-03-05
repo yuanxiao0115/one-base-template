@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { FormInstance } from 'element-plus'
+import { ref } from 'vue';
+import type { FormInstance } from 'element-plus';
 
 const model = defineModel<{
   nickName: string
@@ -9,19 +9,19 @@ const model = defineModel<{
   isEnable: boolean | null
   mail: string
   date: string[]
-}>({ required: true })
+}>({ required: true });
 
-const formRef = ref<FormInstance>()
+const formRef = ref<FormInstance>();
 
 defineExpose({
   resetFields: () => {
-    formRef.value?.resetFields?.()
+    formRef.value?.resetFields?.();
   }
-})
+});
 </script>
 
 <template>
-  <el-form ref="formRef" label-position="top" :model="model" class="user-search-form">
+  <el-form ref="formRef" label-position="top" :model class="user-search-form">
     <el-form-item label="用户名" prop="nickName">
       <el-input v-model.trim="model.nickName" placeholder="请输入用户名" clearable class="w-full" />
     </el-form-item>

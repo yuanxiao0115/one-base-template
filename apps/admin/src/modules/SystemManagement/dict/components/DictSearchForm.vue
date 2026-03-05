@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { FormInstance } from 'element-plus'
+import { ref } from 'vue';
+import type { FormInstance } from 'element-plus';
 
 const model = defineModel<{
   dictCode: string
   dictName: string
-}>({ required: true })
+}>({ required: true });
 
-const formRef = ref<FormInstance>()
+const formRef = ref<FormInstance>();
 
 defineExpose({
   resetFields: () => formRef.value?.resetFields?.()
-})
+});
 </script>
 
 <template>
-  <el-form ref="formRef" label-position="top" :model="model">
+  <el-form ref="formRef" label-position="top" :model>
     <el-form-item label="字典编码" prop="dictCode">
       <el-input
         v-model.trim="model.dictCode"

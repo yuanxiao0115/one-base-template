@@ -1,34 +1,34 @@
-import { computed, onMounted, reactive, ref, type Ref } from 'vue'
-import type { CrudFormLike } from '@one-base-template/ui'
-import { useCrudPage } from '@one-base-template/core'
-import { message } from '@/utils/message'
-import buildUserColumns from '../columns'
+import { computed, onMounted, reactive, ref } from 'vue';
+import type { CrudFormLike } from '@one-base-template/ui';
+import { useCrudPage } from '@one-base-template/core';
+import { message } from '@/utils/message';
+import buildUserColumns from '../columns';
 import {
-  userApi,
   type OrgTreeNode,
   type PositionItem,
   type RoleItem,
+  userApi,
   type UserDetailData,
   type UserListRecord,
   type UserSavePayload
-} from '../api'
+} from '../api';
 import {
   createDefaultUserForm,
   toUserForm,
   toUserPayload,
   type UserForm
-} from '../form'
-import { userTypeOptions } from '../const'
+} from '../form';
+import { userTypeOptions } from '../const';
 import {
   assertUniqueCheck,
   shouldCheckUserUnique,
   toUserUniqueSnapshot,
   type UserUniqueSnapshot
-} from '../../shared/unique'
-import buildUserListParams from '../utils/buildUserListParams'
-import { useUserStatusActions } from './useUserStatusActions'
-import { useUserDragSort } from './useUserDragSort'
-import { useUserRemoteOptions } from './useUserRemoteOptions'
+} from '../../shared/unique';
+import buildUserListParams from '../utils/buildUserListParams';
+import { useUserStatusActions } from './useUserStatusActions';
+import { useUserDragSort } from './useUserDragSort';
+import { useUserRemoteOptions } from './useUserRemoteOptions';
 
 type SearchRefExpose = {
   resetFields?: () => void
@@ -38,33 +38,33 @@ type TreeRefExpose = {
   setCurrentKey?: (key?: string | null) => void
 }
 
-function getUserTypeLabelMap(options: ReadonlyArray<{ value: number; label: string }>): Record<number, string> {
-  return Object.fromEntries(options.map((item) => [item.value, item.label]))
+function getUserTypeLabelMap (options: ReadonlyArray<{ value: number; label: string }>): Record<number, string> {
+  return Object.fromEntries(options.map((item) => [item.value, item.label]));
 }
 
-function getUserTypeLabel(value: number, labelMap: Record<number, string>): string {
-  return labelMap[value] || '--'
+function getUserTypeLabel (value: number, labelMap: Record<number, string>): string {
+  return labelMap[value] || '--';
 }
 
-function downloadUserTemplate(filename = '组织用户导入模板.xlsx') {
-  const link = document.createElement('a')
-  link.href = `/${filename}`
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+function downloadUserTemplate (filename = '组织用户导入模板.xlsx') {
+  const link = document.createElement('a');
+  link.href = `/${filename}`;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
-export function useUserCrudState() {
-  const tableRef = ref<unknown>(null)
-  const searchRef = ref<SearchRefExpose>()
-  const editFormRef = ref<CrudFormLike>()
-  const treeRef = ref<TreeRefExpose>()
-  const userUniqueSnapshot = ref<UserUniqueSnapshot | null>(null)
+export function useUserCrudState () {
+  const tableRef = ref<unknown>(null);
+  const searchRef = ref<SearchRefExpose>();
+  const editFormRef = ref<CrudFormLike>();
+  const treeRef = ref<TreeRefExpose>();
+  const userUniqueSnapshot = ref<UserUniqueSnapshot | null>(null);
 
-  const orgTreeData = ref<OrgTreeNode[]>([])
-  const positionOptions = ref<PositionItem[]>([])
-  const roleOptions = ref<RoleItem[]>([])
+  const orgTreeData = ref<OrgTreeNode[]>([]);
+  const positionOptions = ref<PositionItem[]>([]);
+  const roleOptions = ref<RoleItem[]>([]);
 
   const searchForm = reactive({
     nickName: '',
@@ -74,25 +74,25 @@ export function useUserCrudState() {
     mail: '',
     date: [] as string[],
     orgId: ''
-  })
+  });
 
   const defaultTreeProps = {
     children: 'children',
     label: 'orgName'
-  }
+  };
 
-  const canDragSort = computed(() => Boolean(searchForm.orgId))
-  const tableColumns = computed(() => buildUserColumns(canDragSort.value))
+  const canDragSort = computed(() => Boolean(searchForm.orgId));
+  const tableColumns = computed(() => buildUserColumns(canDragSort.value));
 
   const tableOpt = reactive({
     query: {
-      api: (params: Record<string, unknown>) => userApi.page(buildUserListParams(params)),
+      api: async (params: Record<string, unknown>) => userApi.page(buildUserListParams(params)),
       params: searchForm,
       pagination: true,
       immediate: false
     },
     remove: {
-      api: (payload: { id: string }) => userApi.remove(payload),
+      api: async (payload: { id: string }) => userApi.remove(payload),
       deleteConfirm: {
         nameKey: 'nickName',
         requireInput: true,
@@ -102,14 +102,14 @@ export function useUserCrudState() {
         confirmButtonText: '确认删除'
       },
       onSuccess: () => {
-        message.success('删除用户成功')
+        message.success('删除用户成功');
       },
       onError: (error: unknown) => {
-        const errorMessage = error instanceof Error ? error.message : '删除用户失败'
-        message.error(errorMessage)
+        const errorMessage = error instanceof Error ? error.message : '删除用户失败';
+        message.error(errorMessage);
       }
     }
-  })
+  });
 
   const crudPage = useCrudPage<UserForm, UserListRecord, UserDetailData, UserSavePayload>({
     table: tableOpt,
@@ -123,11 +123,11 @@ export function useUserCrudState() {
         ref: editFormRef
       },
       detail: {
-        async beforeOpen({ mode, form }) {
-          await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()])
+        async beforeOpen ({ mode, form }) {
+          await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()]);
 
           if (mode === 'create') {
-            userUniqueSnapshot.value = null
+            userUniqueSnapshot.value = null;
             form.userOrgs = [
               {
                 orgId: searchForm.orgId || '',
@@ -135,28 +135,32 @@ export function useUserCrudState() {
                 ownSort: 1,
                 sort: 1,
                 status: 1,
-                postVos: [{ postId: '', sort: 1, status: 1 }]
+                postVos: [{
+                  postId: '',
+                  sort: 1,
+                  status: 1
+                }]
               }
-            ]
+            ];
           }
         },
-        async load({ row }) {
-          const response = await userApi.detail({ id: row.id })
+        async load ({ row }) {
+          const response = await userApi.detail({ id: row.id });
           if (response.code !== 200) {
-            throw new Error(response.message || '加载用户详情失败')
+            throw new Error(response.message || '加载用户详情失败');
           }
-          return response.data
+          return response.data;
         },
         mapToForm: ({ detail }) => {
-          const mapped = toUserForm(detail)
-          userUniqueSnapshot.value = toUserUniqueSnapshot(mapped)
-          return mapped
+          const mapped = toUserForm(detail);
+          userUniqueSnapshot.value = toUserUniqueSnapshot(mapped);
+          return mapped;
         }
       },
       save: {
         buildPayload: async ({ form }) => {
-          const payload = toUserPayload(form)
-          const currentUnique = toUserUniqueSnapshot(payload)
+          const payload = toUserPayload(form);
+          const currentUnique = toUserUniqueSnapshot(payload);
 
           if (shouldCheckUserUnique(currentUnique, userUniqueSnapshot.value)) {
             const uniqueResponse = await userApi.checkUnique({
@@ -164,33 +168,33 @@ export function useUserCrudState() {
               userAccount: payload.userAccount,
               phone: payload.phone,
               mail: payload.mail
-            })
+            });
 
-            const isUnique = assertUniqueCheck(uniqueResponse, '用户唯一性校验失败')
+            const isUnique = assertUniqueCheck(uniqueResponse, '用户唯一性校验失败');
             if (!isUnique) {
-              throw new Error('登录账号、手机号或邮箱已存在')
+              throw new Error('登录账号、手机号或邮箱已存在');
             }
           }
 
-          return payload
+          return payload;
         },
         request: async ({ mode, payload }) => {
           const response = mode === 'create'
             ? await userApi.add(payload)
-            : await userApi.update(payload)
+            : await userApi.update(payload);
 
           if (response.code !== 200) {
-            throw new Error(response.message || '保存用户失败')
+            throw new Error(response.message || '保存用户失败');
           }
 
-          return response
+          return response;
         },
         onSuccess: async ({ mode }) => {
-          message.success(mode === 'create' ? '新增用户成功' : '更新用户成功')
+          message.success(mode === 'create' ? '新增用户成功' : '更新用户成功');
         }
       }
     }
-  })
+  });
 
   const {
     loading,
@@ -202,24 +206,24 @@ export function useUserCrudState() {
     handleSelectionChange,
     handleSizeChange,
     handleCurrentChange
-  } = crudPage.table
+  } = crudPage.table;
 
-  const crud = crudPage.editor
-  const { remove } = crudPage.actions
+  const crud = crudPage.editor;
+  const { remove } = crudPage.actions;
 
   const tablePagination = computed(() => ({
     ...pagination
-  }))
+  }));
 
-  const crudVisible = crud.visible
-  const crudMode = crud.mode
-  const crudTitle = crud.title
-  const crudReadonly = crud.readonly
-  const crudSubmitting = crud.submitting
-  const crudForm = crud.form
+  const crudVisible = crud.visible;
+  const crudMode = crud.mode;
+  const crudTitle = crud.title;
+  const crudReadonly = crud.readonly;
+  const crudSubmitting = crud.submitting;
+  const crudForm = crud.form;
 
-  const userTypeLabelMap = getUserTypeLabelMap(userTypeOptions)
-  const currentOrgId = computed(() => searchForm.orgId)
+  const userTypeLabelMap = getUserTypeLabelMap(userTypeOptions);
+  const currentOrgId = computed(() => searchForm.orgId);
 
   const {
     loadOrgTree,
@@ -231,35 +235,35 @@ export function useUserCrudState() {
     orgTreeData,
     positionOptions,
     roleOptions
-  })
+  });
 
-  function tableSearch(keyword: string) {
-    searchForm.nickName = keyword
-    void onSearch()
+  function tableSearch (keyword: string) {
+    searchForm.nickName = keyword;
+    void onSearch();
   }
 
-  function onKeywordUpdate(keyword: string) {
-    searchForm.nickName = keyword
+  function onKeywordUpdate (keyword: string) {
+    searchForm.nickName = keyword;
   }
 
-  function onResetSearch() {
-    searchForm.orgId = ''
-    searchForm.date = []
-    treeRef.value?.setCurrentKey?.(null)
-    resetForm(searchRef, 'nickName')
+  function onResetSearch () {
+    searchForm.orgId = '';
+    searchForm.date = [];
+    treeRef.value?.setCurrentKey?.(null);
+    resetForm(searchRef, 'nickName');
   }
 
-  function handleNodeClick(node: OrgTreeNode) {
-    searchForm.orgId = Number(node.orgType) === 1 ? '' : node.id
-    void onSearch()
+  function handleNodeClick (node: OrgTreeNode) {
+    searchForm.orgId = Number(node.orgType) === 1 ? '' : node.id;
+    void onSearch();
   }
 
-  function getCurrentUserTypeLabel(value: number): string {
-    return getUserTypeLabel(value, userTypeLabelMap)
+  function getCurrentUserTypeLabel (value: number): string {
+    return getUserTypeLabel(value, userTypeLabelMap);
   }
 
-  async function handleDelete(row: UserListRecord) {
-    await remove(row)
+  async function handleDelete (row: UserListRecord) {
+    await remove(row);
   }
 
   const {
@@ -269,39 +273,39 @@ export function useUserCrudState() {
   } = useUserStatusActions({
     selectedList,
     onSearch
-  })
+  });
 
-  function downloadTemplate() {
-    downloadUserTemplate()
+  function downloadTemplate () {
+    downloadUserTemplate();
   }
 
-  async function importRequest(file: File) {
-    return userApi.importUser(file)
+  async function importRequest (file: File) {
+    return userApi.importUser(file);
   }
 
-  async function handleImportUploaded() {
-    await onSearch(false)
+  async function handleImportUploaded () {
+    await onSearch(false);
   }
 
   useUserDragSort({
-    tableRef: tableRef as Ref<unknown>,
+    tableRef,
     canDragSort,
     dataList,
     orgId: currentOrgId,
     pagination,
     onSearch
-  })
+  });
 
   onMounted(async () => {
     try {
-      await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()])
+      await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()]);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '初始化用户管理失败'
-      message.error(errorMessage)
+      const errorMessage = error instanceof Error ? error.message : '初始化用户管理失败';
+      message.error(errorMessage);
     }
 
-    await onSearch(false)
-  })
+    await onSearch(false);
+  });
 
   return {
     refs: {
@@ -352,5 +356,5 @@ export function useUserCrudState() {
       handleImportUploaded,
       onSearch
     }
-  }
+  };
 }

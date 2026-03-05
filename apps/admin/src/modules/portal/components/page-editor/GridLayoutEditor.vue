@@ -4,7 +4,7 @@ import type { Component } from 'vue';
 import { GridItem, GridLayout } from 'grid-layout-plus';
 
 import { deepClone } from '../../utils/deep';
-import { usePortalPageLayoutStore, type PortalLayoutItem } from '../../stores/pageLayout';
+import { type PortalLayoutItem, usePortalPageLayoutStore } from '../../stores/pageLayout';
 
 type PortalPageSettings = {
   gridData?: {
@@ -16,7 +16,7 @@ type PortalPageSettings = {
 };
 
 type LayoutUpdateItem = {
-  i: string | number;
+  i: number | string;
   x: number;
   y: number;
   w: number;
@@ -46,21 +46,21 @@ const rowHeight = computed(() => 1);
 const layoutItems = computed(() => pageLayoutStore.layoutItems);
 const selectedItemId = computed(() => pageLayoutStore.currentLayoutItemId);
 
-function getComponentName(item: PortalLayoutItem): string | undefined {
+function getComponentName (item: PortalLayoutItem): string | undefined {
   const name = item.component?.cmptConfig?.index?.name;
   return typeof name === 'string' ? name : undefined;
 }
 
-function getComponent(item: PortalLayoutItem) {
+function getComponent (item: PortalLayoutItem) {
   const name = getComponentName(item);
   return name ? props.materialsMap[name] : null;
 }
 
-function getComponentConfig(item: PortalLayoutItem) {
+function getComponentConfig (item: PortalLayoutItem) {
   return item.component?.cmptConfig || {};
 }
 
-function mergeLayoutItems(next: LayoutUpdateItem[]): PortalLayoutItem[] {
+function mergeLayoutItems (next: LayoutUpdateItem[]): PortalLayoutItem[] {
   const prevMap = new Map(pageLayoutStore.layoutItems.map((i) => [i.i, i]));
 
   return next.map((raw) => {
@@ -70,58 +70,66 @@ function mergeLayoutItems(next: LayoutUpdateItem[]): PortalLayoutItem[] {
       ...(prev || {}),
       ...raw,
       i: id,
-      component: raw.component ?? prev?.component,
+      component: raw.component ?? prev?.component
     } as PortalLayoutItem;
   });
 }
 
-function handleLayoutUpdated(nextLayout: LayoutUpdateItem[]) {
+function handleLayoutUpdated (nextLayout: LayoutUpdateItem[]) {
   pageLayoutStore.updateLayoutItems(mergeLayoutItems(nextLayout));
 }
 
-function handleGridContainerClick() {
+function handleGridContainerClick () {
   pageLayoutStore.deselectLayoutItem();
 }
 
-function handleClickGridItem(itemId: string) {
+function handleClickGridItem (itemId: string) {
   pageLayoutStore.selectLayoutItem(itemId);
 }
 
-function delItem(item: PortalLayoutItem) {
+function delItem (item: PortalLayoutItem) {
   pageLayoutStore.removeLayoutItem(item.i);
 }
 
-function onDragOver(e: DragEvent) {
+function onDragOver (e: DragEvent) {
   e.preventDefault();
   isDragOver.value = true;
 }
 
-function onDragLeave() {
+function onDragLeave () {
   isDragOver.value = false;
 }
 
-function onDrop(e: DragEvent) {
+function onDrop (e: DragEvent) {
   e.preventDefault();
   isDragOver.value = false;
 
   const container = gridContainer.value;
   const dt = e.dataTransfer;
-  if (!container || !dt) return;
+  if (!container || !dt) {
+    return;
+  }
 
   const rect = container.getBoundingClientRect();
   const mouseX = e.clientX;
   const mouseY = e.clientY;
 
   // 鼠标落点不在画布内时直接忽略
-  if (mouseX < rect.left || mouseX > rect.right || mouseY < rect.top || mouseY > rect.bottom) return;
+  if (mouseX < rect.left || mouseX > rect.right || mouseY < rect.top || mouseY > rect.bottom) {
+    return;
+  }
 
   const jsonStr = dt.getData('application/json') || dt.getData('text/plain');
-  if (!jsonStr) return;
+  if (!jsonStr) {
+    return;
+  }
 
-  let payload: { w?: unknown; h?: unknown; cmptConfig?: unknown } | null = null;
+  let payload: { w?: unknown; h?: unknown; cmptConfig?: unknown };
   try {
     const parsed = JSON.parse(jsonStr) as unknown;
-    if (!parsed || typeof parsed !== 'object') return;
+    if (!parsed || typeof parsed !== 'object') {
+      return;
+    }
     payload = parsed as { w?: unknown; h?: unknown; cmptConfig?: unknown };
   } catch {
     return;
@@ -135,22 +143,28 @@ function onDrop(e: DragEvent) {
   const my = Math.max(0, Number(marginY.value) || 0);
   const rh = Math.max(1, Number(rowHeight.value) || 1);
 
-  // VueGridLayout 的列宽计算：考虑左右 margin
+  // vueGridLayout 的列宽计算：考虑左右 margin
   const colWidth = (rect.width - mx * (cols + 1)) / cols;
   const xUnit = Math.max(1, colWidth + mx);
   const yUnit = rh + my;
 
   let gridX = Math.floor((relativeX - mx) / xUnit);
   let gridY = Math.floor((relativeY - my) / yUnit);
-  if (!Number.isFinite(gridX)) gridX = 0;
-  if (!Number.isFinite(gridY)) gridY = 0;
+  if (!Number.isFinite(gridX)) {
+    gridX = 0;
+  }
+  if (!Number.isFinite(gridY)) {
+    gridY = 0;
+  }
 
   const defaultW = Math.min(Math.max(1, Number(payload?.w) || 6), cols);
   const defaultH = Math.max(1, Math.round(Number(payload?.h) || 6));
 
   gridX = Math.max(0, Math.min(gridX, cols - 1));
   gridY = Math.max(0, gridY);
-  if (gridX + defaultW > cols) gridX = Math.max(0, cols - defaultW);
+  if (gridX + defaultW > cols) {
+    gridX = Math.max(0, cols - defaultW);
+  }
 
   const itemId = `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -161,8 +175,8 @@ function onDrop(e: DragEvent) {
     h: defaultH,
     i: itemId,
     component: {
-      cmptConfig: deepClone((payload?.cmptConfig as Record<string, unknown> | undefined) || {}),
-    },
+      cmptConfig: deepClone((payload?.cmptConfig as Record<string, unknown> | undefined) || {})
+    }
   };
 
   pageLayoutStore.updateLayoutItems([...pageLayoutStore.layoutItems, newItem]);
@@ -174,7 +188,10 @@ function onDrop(e: DragEvent) {
   <div
     ref="gridContainer"
     class="grid-container"
-    :class="{ empty: !props.loaded || layoutItems.length === 0, 'drag-over': isDragOver }"
+    :class="{
+      empty: !props.loaded || layoutItems.length === 0,
+      'drag-over': isDragOver
+    }"
     @click="handleGridContainerClick"
     @dragover="onDragOver"
     @dragleave="onDragLeave"
@@ -183,8 +200,8 @@ function onDrop(e: DragEvent) {
     <GridLayout
       :layout="layoutItems"
       :transform-scale="props.scale"
-      :col-num="colNum"
-      :row-height="rowHeight"
+      :col-num
+      :row-height
       :margin="[marginX, marginY]"
       :prevent-collision="false"
       class="grid-layout"
@@ -207,12 +224,12 @@ function onDrop(e: DragEvent) {
           :i="item.i"
           class="grid-item"
           :class="{ active: selectedItemId === item.i }"
-          @click.stop="handleClickGridItem(item.i)"
+          @click.stop="() => handleClickGridItem(item.i)"
           @moved="() => handleLayoutUpdated(layoutItems)"
           @resized="() => handleLayoutUpdated(layoutItems)"
         >
           <div class="item-inner">
-            <button class="item-delete" type="button" @click.stop="delItem(item)">删除</button>
+            <button class="item-delete" type="button" @click.stop="() => delItem(item)">删除</button>
 
             <component
               :is="getComponent(item)"

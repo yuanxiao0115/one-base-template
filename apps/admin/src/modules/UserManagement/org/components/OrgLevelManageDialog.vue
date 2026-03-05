@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
-import type { TableColumnList } from '@one-base-template/ui'
-import type { FormInstance, FormRules } from 'element-plus'
-import { orgApi, type OrgLevelItem, type OrgLevelSavePayload } from '../api'
+import { computed, reactive, ref, watch } from 'vue';
+import { Plus } from '@element-plus/icons-vue';
+import type { TableColumnList } from '@one-base-template/ui';
+import type { FormInstance, FormRules } from 'element-plus';
+import { orgApi, type OrgLevelItem, type OrgLevelSavePayload } from '../api';
 
 type OrgLevelForm = {
   id?: string
@@ -14,20 +14,19 @@ type OrgLevelForm = {
 
 const props = defineProps<{
   modelValue: boolean
-}>()
+}>();
 
-const emit = defineEmits<{
-  (event: 'update:modelValue', value: boolean): void
-  (event: 'updated'): void
-}>()
+const emit = defineEmits<{(event: 'update:modelValue', value: boolean): void
+                          (event: 'updated'): void
+}>();
 
-const tableRef = ref<unknown>(null)
-const formRef = ref<FormInstance>()
+const tableRef = ref<unknown>(null);
+const formRef = ref<FormInstance>();
 
 const visible = computed({
   get: () => props.modelValue,
   set: (value: boolean) => emit('update:modelValue', value)
-})
+});
 
 const tableColumns: TableColumnList = [
   {
@@ -55,7 +54,7 @@ const tableColumns: TableColumnList = [
     align: 'right',
     width: 180
   }
-]
+];
 
 const tableOpt = reactive({
   query: {
@@ -70,27 +69,36 @@ const tableOpt = reactive({
       message: '是否确认删除等级「{name}」？'
     },
     onSuccess: () => {
-      message.success('删除等级成功')
-      emit('updated')
+      message.success('删除等级成功');
+      emit('updated');
     },
     onError: (error: unknown) => {
-      message.error(getErrorMessage(error, '删除等级失败'))
+      message.error(getErrorMessage(error, '删除等级失败'));
     }
   }
-})
+});
 
-const { loading, dataList, onSearch, deleteRow } = useTable(tableOpt, tableRef)
+const { loading, dataList, onSearch, deleteRow } = useTable(tableOpt, tableRef);
 
 const defaultLevelForm: OrgLevelForm = {
   orgLevel: 1,
   orgLevelName: '',
   remark: ''
-}
+};
 
 const levelFormRules: FormRules<OrgLevelForm> = {
-  orgLevelName: [{ required: true, message: '请输入等级名称', trigger: 'blur' }],
-  orgLevel: [{ required: true, message: '请输入级别', trigger: 'blur', type: 'number' }]
-}
+  orgLevelName: [{
+    required: true,
+    message: '请输入等级名称',
+    trigger: 'blur'
+  }],
+  orgLevel: [{
+    required: true,
+    message: '请输入级别',
+    trigger: 'blur',
+    type: 'number'
+  }]
+};
 
 const levelCrud = useEntityEditor<OrgLevelForm, OrgLevelItem, OrgLevelItem, OrgLevelSavePayload>({
   entity: {
@@ -120,45 +128,45 @@ const levelCrud = useEntityEditor<OrgLevelForm, OrgLevelItem, OrgLevelItem, OrgL
     request: async ({ mode, payload }) => {
       const response = mode === 'create'
         ? await orgApi.addOrgLevel(payload)
-        : await orgApi.updateOrgLevel(payload)
+        : await orgApi.updateOrgLevel(payload);
 
       if (response.code !== 200) {
-        throw new Error(response.message || '保存等级失败')
+        throw new Error(response.message || '保存等级失败');
       }
 
-      return response
+      return response;
     },
     onSuccess: async ({ mode }) => {
-      message.success(mode === 'create' ? '新增等级成功' : '更新等级成功')
-      await onSearch(false)
-      emit('updated')
+      message.success(mode === 'create' ? '新增等级成功' : '更新等级成功');
+      await onSearch(false);
+      emit('updated');
     }
   }
-})
+});
 
-const levelCrudVisible = levelCrud.visible
-const levelCrudMode = levelCrud.mode
-const levelCrudTitle = levelCrud.title
-const levelCrudSubmitting = levelCrud.submitting
-const levelCrudReadonly = levelCrud.readonly
-const levelCrudForm = levelCrud.form
+const levelCrudVisible = levelCrud.visible;
+const levelCrudMode = levelCrud.mode;
+const levelCrudTitle = levelCrud.title;
+const levelCrudSubmitting = levelCrud.submitting;
+const levelCrudReadonly = levelCrud.readonly;
+const levelCrudForm = levelCrud.form;
 
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback
+function getErrorMessage (error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
-async function handleDelete(row: OrgLevelItem) {
-  await deleteRow(row)
+async function handleDelete (row: OrgLevelItem) {
+  await deleteRow(row);
 }
 
-watch(
-  () => props.modelValue,
+watch(() => props.modelValue,
   (visibleValue) => {
-    if (!visibleValue) return
-    void onSearch(false)
+    if (!visibleValue) {
+          return;
+        }
+    void onSearch(false);
   },
-  { immediate: true }
-)
+  { immediate: true });
 </script>
 
 <template>
@@ -176,7 +184,7 @@ watch(
 
       <ObVxeTable
         ref="tableRef"
-        :loading="loading"
+        :loading
         :data="dataList"
         :columns="tableColumns"
         :pagination="false"
@@ -184,8 +192,8 @@ watch(
       >
         <template #operation="{ row, size }">
           <ObActionButtons>
-            <el-button link type="primary" :size="size" @click="levelCrud.openEdit(row)">编辑</el-button>
-            <el-button link type="danger" :size="size" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" :size @click="() => levelCrud.openEdit(row)">编辑</el-button>
+            <el-button link type="danger" :size @click="() => handleDelete(row)">删除</el-button>
           </ObActionButtons>
         </template>
       </ObVxeTable>
@@ -205,7 +213,7 @@ watch(
     :title="levelCrudTitle"
     :loading="levelCrudSubmitting"
     :show-cancel-button="!levelCrudReadonly"
-    :confirm-text="'保存'"
+    confirm-text="保存"
     :dialog-width="520"
     @confirm="levelCrud.confirm"
     @cancel="levelCrud.close"
@@ -250,7 +258,7 @@ watch(
   display: flex;
   flex-direction: column;
   height: 460px;
-  background: #ffffff;
+  background: #fff;
 }
 
 .org-level-dialog__toolbar {
@@ -260,7 +268,7 @@ watch(
 }
 
 .org-level-dialog :deep(.ob-vxe-table) {
-  background: #ffffff;
+  background: #fff;
 }
 
 .org-level-dialog__footer {

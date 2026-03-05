@@ -1,6 +1,6 @@
-import { ref, type ComputedRef, type Ref } from 'vue'
-import { message } from '@/utils/message'
-import { orgApi, type OrgRecord } from '../api'
+import { type ComputedRef, type Ref, ref } from 'vue';
+import { message } from '@/utils/message';
+import { orgApi, type OrgRecord } from '../api';
 
 type SearchRefExpose = {
   resetFields?: () => void
@@ -19,124 +19,128 @@ type TreeCacheEntry = {
   timestamp: number
 }
 
-const CACHE_EXPIRE_TIME = 5 * 60 * 1000
+const CACHE_EXPIRE_TIME = 5 * 60 * 1000;
 
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback
+function getErrorMessage (error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
-export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
+export function useOrgTreeQuery (options: UseOrgTreeQueryOptions) {
   const {
     inSearchMode,
     searchForm,
     searchRef,
     onSearch,
     resetForm
-  } = options
+  } = options;
 
-  const treeChildrenCache = new Map<string, TreeCacheEntry>()
-  const deletingRow = ref<OrgRecord | null>(null)
+  const treeChildrenCache = new Map<string, TreeCacheEntry>();
+  const deletingRow = ref<OrgRecord | null>(null);
 
-  function clearTreeCache() {
-    treeChildrenCache.clear()
+  function clearTreeCache () {
+    treeChildrenCache.clear();
   }
 
-  function isCacheExpired(cache: TreeCacheEntry): boolean {
-    return Date.now() - cache.timestamp > CACHE_EXPIRE_TIME
+  function isCacheExpired (cache: TreeCacheEntry): boolean {
+    return Date.now() - cache.timestamp > CACHE_EXPIRE_TIME;
   }
 
-  function getCacheRows(parentId: string): OrgRecord[] | null {
-    const cache = treeChildrenCache.get(parentId)
-    if (!cache) return null
-
-    if (isCacheExpired(cache)) {
-      treeChildrenCache.delete(parentId)
-      return null
+  function getCacheRows (parentId: string): OrgRecord[] | null {
+    const cache = treeChildrenCache.get(parentId);
+    if (!cache) {
+      return null;
     }
 
-    return cache.data
+    if (isCacheExpired(cache)) {
+      treeChildrenCache.delete(parentId);
+      return null;
+    }
+
+    return cache.data;
   }
 
-  function saveCacheRows(parentId: string, rows: OrgRecord[]) {
+  function saveCacheRows (parentId: string, rows: OrgRecord[]) {
     treeChildrenCache.set(parentId, {
       data: rows,
       timestamp: Date.now()
-    })
+    });
   }
 
-  async function loadTreeChildren(params: { row: OrgRecord }) {
-    if (inSearchMode.value) return []
+  async function loadTreeChildren (params: { row: OrgRecord }) {
+    if (inSearchMode.value) {
+      return [];
+    }
 
-    const parentId = String(params.row.id)
-    const cacheRows = getCacheRows(parentId)
+    const parentId = String(params.row.id);
+    const cacheRows = getCacheRows(parentId);
     if (cacheRows) {
-      return cacheRows
+      return cacheRows;
     }
 
     try {
-      const response = await orgApi.getOrgTree({ parentId })
+      const response = await orgApi.getOrgTree({ parentId });
       if (response.code !== 200) {
-        throw new Error(response.message || '加载下级组织失败')
+        throw new Error(response.message || '加载下级组织失败');
       }
 
-      const rows = Array.isArray(response.data) ? response.data : []
+      const rows = Array.isArray(response.data) ? response.data : [];
       if (!rows.length) {
-        params.row.hasChildren = false
+        params.row.hasChildren = false;
       }
 
-      saveCacheRows(parentId, rows)
-      return rows
+      saveCacheRows(parentId, rows);
+      return rows;
     } catch (error) {
-      message.error(getErrorMessage(error, '加载下级组织失败'))
-      return []
+      message.error(getErrorMessage(error, '加载下级组织失败'));
+      return [];
     }
   }
 
-  async function refreshTable() {
-    clearTreeCache()
-    await onSearch(false)
+  async function refreshTable () {
+    clearTreeCache();
+    await onSearch(false);
   }
 
-  function markDeletingRow(row: OrgRecord) {
-    deletingRow.value = row
+  function markDeletingRow (row: OrgRecord) {
+    deletingRow.value = row;
   }
 
-  function clearDeletingRow() {
-    deletingRow.value = null
+  function clearDeletingRow () {
+    deletingRow.value = null;
   }
 
-  function clearDeletingRowIfMatched(row: OrgRecord) {
+  function clearDeletingRowIfMatched (row: OrgRecord) {
     if (deletingRow.value?.id === row.id) {
-      deletingRow.value = null
+      deletingRow.value = null;
     }
   }
 
-  function invalidateDeletedRowCache() {
-    const row = deletingRow.value
-    deletingRow.value = null
+  function invalidateDeletedRowCache () {
+    const row = deletingRow.value;
+    deletingRow.value = null;
 
     if (!row || inSearchMode.value) {
-      clearTreeCache()
-      return
+      clearTreeCache();
+      return;
     }
 
-    treeChildrenCache.delete(String(row.id || ''))
-    treeChildrenCache.delete(String(row.parentId || ''))
+    treeChildrenCache.delete(String(row.id || ''));
+    treeChildrenCache.delete(String(row.parentId || ''));
   }
 
-  function tableSearch(keyword: string) {
-    searchForm.orgName = keyword
-    clearTreeCache()
-    void onSearch()
+  function tableSearch (keyword: string) {
+    searchForm.orgName = keyword;
+    clearTreeCache();
+    void onSearch();
   }
 
-  function onKeywordUpdate(keyword: string) {
-    searchForm.orgName = keyword
+  function onKeywordUpdate (keyword: string) {
+    searchForm.orgName = keyword;
   }
 
-  function onResetSearch() {
-    clearTreeCache()
-    resetForm(searchRef, 'orgName')
+  function onResetSearch () {
+    clearTreeCache();
+    resetForm(searchRef, 'orgName');
   }
 
   return {
@@ -150,5 +154,5 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
     tableSearch,
     onKeywordUpdate,
     onResetSearch
-  }
+  };
 }

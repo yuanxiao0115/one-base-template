@@ -1,13 +1,13 @@
-import { getHttpClient } from '@/shared/api/utils'
-import { extractList, toNumberValue, toRecord, toStringValue } from '@/shared/api/normalize'
+import { getHttpClient } from '@/shared/api/utils';
+import { extractList, toNumberValue, toRecord, toStringValue } from '@/shared/api/normalize';
 
-export interface BizResponse<T> {
+export type BizResponse<T> = {
   code: number
   data: T
   message?: string
 }
 
-export interface SysLogRecord {
+export type SysLogRecord = {
   id: string
   clientIp: string
   module: string
@@ -26,12 +26,12 @@ export interface SysLogRecord {
   tenantId: string
 }
 
-export interface SysLogPageParams {
+export type SysLogPageParams = {
   operator?: string
   clientIp?: string
   module?: string
   operationType?: string
-  operationResult?: string | number
+  operationResult?: number | string
   userAccount?: string
   nickName?: string
   browserName?: string
@@ -44,7 +44,7 @@ export interface SysLogPageParams {
   pageSize?: number
 }
 
-export interface SysLogPageData {
+export type SysLogPageData = {
   records: SysLogRecord[]
   total: number
   currentPage: number
@@ -52,22 +52,22 @@ export interface SysLogPageData {
 }
 
 type SysLogRawRecord = {
-  id?: string | number | null
+  id?: number | string | null
   clientIp?: string | null
   module?: string | null
   operationType?: string | null
-  operationResult?: string | number | null
-  httpStatus?: string | number | null
+  operationResult?: number | string | null
+  httpStatus?: number | string | null
   requestUrl?: string | null
   createTime?: string | null
-  userId?: string | number | null
+  userId?: number | string | null
   userAccount?: string | null
   nickName?: string | null
   browserName?: string | null
   browserVersion?: string | null
   clientOS?: string | null
-  clientId?: string | number | null
-  tenantId?: string | number | null
+  clientId?: number | string | null
+  tenantId?: number | string | null
 }
 
 type SysLogRawPageData = {
@@ -75,17 +75,25 @@ type SysLogRawPageData = {
   list?: unknown[]
   rows?: unknown[]
   items?: unknown[]
-  total?: string | number | null
-  totalCount?: string | number | null
-  count?: string | number | null
-  currentPage?: string | number | null
-  current?: string | number | null
-  page?: string | number | null
-  pageSize?: string | number | null
-  size?: string | number | null
+  total?: number | string | null
+  totalCount?: number | string | null
+  count?: number | string | null
+  currentPage?: number | string | null
+  current?: number | string | null
+  page?: number | string | null
+  pageSize?: number | string | null
+  size?: number | string | null
 }
 
-function toSysLogRecord(item: SysLogRawRecord): SysLogRecord {
+function resolveTimeRange (params: SysLogPageParams) {
+  const [rangeStart, rangeEnd] = Array.isArray(params.time) ? params.time : [];
+  return {
+    startTime: rangeStart ?? params.startTime ?? '',
+    endTime: rangeEnd ?? params.endTime ?? ''
+  };
+}
+
+function toSysLogRecord (item: SysLogRawRecord): SysLogRecord {
   return {
     id: toStringValue(item.id),
     clientIp: toStringValue(item.clientIp),
@@ -103,68 +111,62 @@ function toSysLogRecord(item: SysLogRawRecord): SysLogRecord {
     clientOS: toStringValue(item.clientOS),
     clientId: toStringValue(item.clientId),
     tenantId: toStringValue(item.tenantId)
-  }
+  };
 }
 
-function toSysLogPageData(data: unknown): SysLogPageData {
-  const payload = toRecord(data) as SysLogRawPageData
-  const records = extractList(payload).map((item) => toSysLogRecord((item || {}) as SysLogRawRecord))
+function toSysLogPageData (data: unknown): SysLogPageData {
+  const payload = toRecord(data) as SysLogRawPageData;
+  const records = extractList(payload)
+    .map((item) => toSysLogRecord(toRecord(item) as SysLogRawRecord));
 
   return {
     records,
     total: toNumberValue(payload.totalCount ?? payload.total ?? payload.count, records.length),
     currentPage: toNumberValue(payload.currentPage ?? payload.current ?? payload.page, 1),
     pageSize: toNumberValue(payload.pageSize ?? payload.size, 10)
-  }
+  };
 }
 
-function normalizeListParams(params: SysLogPageParams) {
-  const startTime = Array.isArray(params.time) && params.time.length === 2
-    ? (params.time[0] || '')
-    : (params.startTime || '')
-  const endTime = Array.isArray(params.time) && params.time.length === 2
-    ? (params.time[1] || '')
-    : (params.endTime || '')
+function normalizeListParams (params: SysLogPageParams) {
+  const { startTime, endTime } = resolveTimeRange(params);
 
   return {
-    operator: (params.operator || '').trim(),
-    clientIp: (params.clientIp || '').trim(),
-    module: (params.module || '').trim(),
-    operationType: params.operationType || '',
+    operator: (params.operator ?? '').trim(),
+    clientIp: (params.clientIp ?? '').trim(),
+    module: (params.module ?? '').trim(),
+    operationType: params.operationType ?? '',
     operationResult: params.operationResult ?? '',
-    userAccount: (params.userAccount || '').trim(),
-    nickName: (params.nickName || '').trim(),
-    browserName: (params.browserName || '').trim(),
-    clientOS: (params.clientOS || '').trim(),
-    tenantId: (params.tenantId || '').trim(),
-    ...(startTime ? { startTime } : {}),
-    ...(endTime ? { endTime } : {}),
+    userAccount: (params.userAccount ?? '').trim(),
+    nickName: (params.nickName ?? '').trim(),
+    browserName: (params.browserName ?? '').trim(),
+    clientOS: (params.clientOS ?? '').trim(),
+    tenantId: (params.tenantId ?? '').trim(),
+    ...(startTime.length > 0 ? { startTime } : {}),
+    ...(endTime.length > 0 ? { endTime } : {}),
     currentPage: params.currentPage,
     pageSize: params.pageSize
-  }
+  };
 }
 
 export const sysLogApi = {
-  list: (params: SysLogPageParams) =>
-    getHttpClient()
-      .get<BizResponse<SysLogPageData>>('/cmict/logstore/sys-log/page', {
-        params: normalizeListParams(params)
-      })
-      .then((response) => ({
-        ...response,
-        data: toSysLogPageData(response.data)
-      })),
+  list: async (params: SysLogPageParams) => getHttpClient()
+    .get<BizResponse<SysLogPageData>>('/cmict/logstore/sys-log/page', {
+      params: normalizeListParams(params)
+    })
+    .then((response) => ({
+      ...response,
+      data: toSysLogPageData(response.data)
+    })),
 
-  remove: (data: { idList: string[] }) =>
-    getHttpClient().post<BizResponse<boolean>>('/cmict/logstore/sys-log/delete', { data }),
+  remove: async (data: { idList: string[] }) => getHttpClient()
+    .post<BizResponse<boolean>>('/cmict/logstore/sys-log/delete', { data }),
 
-  detail: (params: { id: string }) =>
-    getHttpClient()
-      .get<BizResponse<SysLogRecord>>('/cmict/logstore/sys-log/detail', { params })
-      .then((response) => ({
-        ...response,
-        data: toSysLogRecord((response.data || {}) as SysLogRawRecord)
-      }))
-}
+  detail: async (params: { id: string }) => getHttpClient()
+    .get<BizResponse<SysLogRecord>>('/cmict/logstore/sys-log/detail', { params })
+    .then((response) => ({
+      ...response,
+      data: toSysLogRecord(toRecord(response.data) as SysLogRawRecord)
+    }))
+};
 
-export default sysLogApi
+export default sysLogApi;

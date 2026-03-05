@@ -7,14 +7,14 @@ describe('router/registry', () => {
     const modules = getEnabledModules([]);
 
     expect(modules.length).toBeGreaterThan(0);
-    expect(modules.every(item => item.moduleTier === 'core')).toBe(true);
-    expect(modules.some(item => item.id === 'demo')).toBe(false);
-    expect(modules.some(item => item.id === 'portal')).toBe(false);
+    expect(modules.every((item) => item.moduleTier === 'core')).toBe(true);
+    expect(modules.some((item) => item.id === 'demo')).toBe(false);
+    expect(modules.some((item) => item.id === 'portal')).toBe(false);
   });
 
   it('全量启用时应包含 optional 模块', () => {
     const modules = getEnabledModules('*');
-    const ids = modules.map(item => item.id);
+    const ids = modules.map((item) => item.id);
 
     expect(ids).toContain('demo');
     expect(ids).toContain('portal');

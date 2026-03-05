@@ -6,7 +6,7 @@ type ResetSizeVm = {
   barSize?: Size;
 };
 
-export function resetSize(vm: ResetSizeVm) {
+export function resetSize (vm: ResetSizeVm) {
   // 图片的宽度、高度，移动条的宽度、高度
   let imgWidth: string;
   let imgHeight: string;
@@ -17,8 +17,14 @@ export function resetSize(vm: ResetSizeVm) {
   const parentWidth = parentEl?.offsetWidth || window.innerWidth;
   const parentHeight = parentEl?.offsetHeight || window.innerHeight;
 
-  const imgSize = vm?.imgSize ?? { width: '310px', height: '155px' };
-  const barSize = vm?.barSize ?? { width: '310px', height: '50px' };
+  const imgSize = vm?.imgSize ?? {
+    width: '310px',
+    height: '155px'
+  };
+  const barSize = vm?.barSize ?? {
+    width: '310px',
+    height: '50px'
+  };
 
   if (typeof imgSize.width === 'string' && imgSize.width.includes('%')) {
     imgWidth = `${(parseInt(imgSize.width) / 100) * parentWidth}px`;

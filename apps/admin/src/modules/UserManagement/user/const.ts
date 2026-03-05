@@ -11,7 +11,7 @@ export const userTypeOptions = [
     label: '管理用户',
     value: 2
   }
-] as const
+] as const;
 
 export const genderOptions = [
   {
@@ -22,7 +22,7 @@ export const genderOptions = [
     label: '男',
     value: 1
   }
-] as const
+] as const;
 
 export const orgRankTypeOptions = [
   {
@@ -41,4 +41,4 @@ export const orgRankTypeOptions = [
     label: '借调',
     value: 4
   }
-] as const
+] as const;

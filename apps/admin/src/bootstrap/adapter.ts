@@ -3,7 +3,7 @@ import { createDefaultAdapter, createSczfwAdapter } from '@one-base-template/ada
 
 import type { BackendKind } from '../infra/env';
 
-export function createAppAdapter(params: {
+export function createAppAdapter (params: {
   backend: BackendKind;
   http: ObHttp;
   tokenKey: string;

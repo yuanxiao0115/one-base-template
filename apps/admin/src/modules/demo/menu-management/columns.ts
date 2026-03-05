@@ -1,4 +1,4 @@
-import type { TableColumnList } from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui';
 
 export const menuColumns: TableColumnList = [
   {
@@ -68,6 +68,6 @@ export const menuColumns: TableColumnList = [
     fixed: 'right',
     width: 260
   }
-]
+];
 
-export default menuColumns
+export default menuColumns;

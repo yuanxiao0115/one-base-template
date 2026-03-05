@@ -1,35 +1,44 @@
 import type { AdminModuleManifest, EnabledModulesSetting } from './types';
 import { createAppLogger } from '@/shared/logger';
 
-type RouteModule = {
-  default?: AdminModuleManifest;
-  module?: AdminModuleManifest;
-};
-
 const modules = import.meta.glob('../modules/**/module.ts', {
   eager: true
-}) as Record<string, RouteModule>;
+});
 
 const logger = createAppLogger('router/modules');
 let cachedAllModules: AdminModuleManifest[] | null = null;
 
-function warn(message: string) {
+function warn (message: string) {
   logger.warn(message);
 }
 
-function isValidManifest(input: unknown): input is AdminModuleManifest {
-  if (!input || typeof input !== 'object') return false;
+function isValidManifest (input: unknown): input is AdminModuleManifest {
+  if (!input || typeof input !== 'object') {
+    return false;
+  }
   const value = input as AdminModuleManifest;
-  if (!value.id || typeof value.id !== 'string') return false;
-  if (value.version !== '1') return false;
-  if (value.moduleTier !== 'core' && value.moduleTier !== 'optional') return false;
-  if (typeof value.enabledByDefault !== 'boolean') return false;
-  if (value.moduleTier === 'optional' && value.enabledByDefault !== false) return false;
+  if (!value.id || typeof value.id !== 'string') {
+    return false;
+  }
+  if (value.version !== '1') {
+    return false;
+  }
+  if (value.moduleTier !== 'core' && value.moduleTier !== 'optional') {
+    return false;
+  }
+  if (typeof value.enabledByDefault !== 'boolean') {
+    return false;
+  }
+  if (value.moduleTier === 'optional' && value.enabledByDefault) {
+    return false;
+  }
   return Array.isArray(value.routes?.layout);
 }
 
-function getAllModules(): AdminModuleManifest[] {
-  if (cachedAllModules) return cachedAllModules;
+function getAllModules (): AdminModuleManifest[] {
+  if (cachedAllModules) {
+    return cachedAllModules;
+  }
 
   const byId = new Map<string, AdminModuleManifest>();
 
@@ -55,7 +64,7 @@ function getAllModules(): AdminModuleManifest[] {
   return out;
 }
 
-export function getEnabledModules(enabledModules: EnabledModulesSetting): AdminModuleManifest[] {
+export function getEnabledModules (enabledModules: EnabledModulesSetting): AdminModuleManifest[] {
   const allModules = getAllModules();
 
   if (enabledModules === '*') {
@@ -88,7 +97,7 @@ export function getEnabledModules(enabledModules: EnabledModulesSetting): AdminM
   return out;
 }
 
-export function getModuleIds(): string[] {
+export function getModuleIds (): string[] {
   return getAllModules().map((item) => item.id);
 }
 

@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { Plus } from '@element-plus/icons-vue'
-import DictEditForm from './components/DictEditForm.vue'
-import DictSearchForm from './components/DictSearchForm.vue'
-import DictItemEditForm from './components/DictItemEditForm.vue'
-import DictItemSearchForm from './components/DictItemSearchForm.vue'
-import { useDictPageState } from './composables/useDictPageState'
+import { Plus } from '@element-plus/icons-vue';
+import DictEditForm from './components/DictEditForm.vue';
+import DictSearchForm from './components/DictSearchForm.vue';
+import DictItemEditForm from './components/DictItemEditForm.vue';
+import DictItemSearchForm from './components/DictItemSearchForm.vue';
+import { useDictPageState } from './composables/useDictPageState';
 
 defineOptions({
   name: 'SystemDictManagementPage'
-})
+});
 
-const pageState = useDictPageState()
+const pageState = useDictPageState();
 
-const refs = pageState.refs
+const { refs } = pageState;
 
 const {
   loading,
@@ -20,7 +20,7 @@ const {
   tableColumns,
   tablePagination,
   searchForm
-} = pageState.table
+} = pageState.table;
 
 const {
   crud,
@@ -31,7 +31,7 @@ const {
   crudSubmitting,
   crudForm,
   dictFormRules
-} = pageState.editor
+} = pageState.editor;
 
 const {
   settingVisible,
@@ -50,7 +50,7 @@ const {
   itemCrudSubmitting,
   itemCrudForm,
   dictItemFormRules
-} = pageState.setting
+} = pageState.setting;
 
 const {
   tableSearch,
@@ -70,7 +70,7 @@ const {
   handleItemCurrentChange,
   handleDeleteItem,
   handleToggleItemStatus
-} = pageState.actions
+} = pageState.actions;
 </script>
 
 <template>
@@ -91,8 +91,8 @@ const {
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :loading="loading"
-          :size="size"
+          :loading
+          :size
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="tablePagination"
@@ -103,10 +103,10 @@ const {
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)">编辑</el-button>
-              <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)">查看</el-button>
-              <el-button link type="primary" :size="actionSize" @click="openSetting(row)">字典配置</el-button>
-              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)">删除</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)">编辑</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)">查看</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => openSetting(row)">字典配置</el-button>
+              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
             </ObActionButtons>
           </template>
         </ObVxeTable>
@@ -125,7 +125,7 @@ const {
     :title="crudTitle"
     :loading="crudSubmitting"
     :show-cancel-button="!crudReadonly"
-    :confirm-text="'保存'"
+    confirm-text="保存"
     :drawer-size="640"
     :drawer-columns="2"
     @confirm="crud.confirm"
@@ -172,7 +172,7 @@ const {
           <ObVxeTable
             :ref="refs.itemTableRef"
             :loading="itemLoading"
-            :size="size"
+            :size
             :data="itemDataList"
             :columns="dynamicColumns"
             :pagination="itemTablePagination"
@@ -189,12 +189,12 @@ const {
 
             <template #itemOperation="{ row, size: actionSize }">
               <ObActionButtons>
-                <el-button link type="primary" :size="actionSize" @click="itemCrud.openEdit(row)">编辑</el-button>
-                <el-button link type="primary" :size="actionSize" @click="handleToggleItemStatus(row)">
+                <el-button link type="primary" :size="actionSize" @click="() => itemCrud.openEdit(row)">编辑</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => handleToggleItemStatus(row)">
                   {{ row.disabled === 0 ? '停用' : '启用' }}
                 </el-button>
-                <el-button link type="primary" :size="actionSize" @click="itemCrud.openDetail(row)">查看</el-button>
-                <el-button link type="danger" :size="actionSize" @click="handleDeleteItem(row)">删除</el-button>
+                <el-button link type="primary" :size="actionSize" @click="() => itemCrud.openDetail(row)">查看</el-button>
+                <el-button link type="danger" :size="actionSize" @click="() => handleDeleteItem(row)">删除</el-button>
               </ObActionButtons>
             </template>
           </ObVxeTable>
@@ -215,7 +215,7 @@ const {
     :loading="itemCrudSubmitting"
     :dialog-width="620"
     :show-cancel-button="!itemCrudReadonly"
-    :confirm-text="'保存'"
+    confirm-text="保存"
     @confirm="itemCrud.confirm"
     @cancel="itemCrud.close"
     @close="itemCrud.close"
