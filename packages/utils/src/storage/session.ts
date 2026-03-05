@@ -1,52 +1,54 @@
-import type { StorageOptions } from './local'
+import type { StorageOptions } from './local';
 
 export class SessionStorage {
-  private prefix: string
+  private readonly prefix: string;
 
   constructor(options: StorageOptions = {}) {
-    this.prefix = options.prefix || 'one_'
+    this.prefix = options.prefix || 'one_';
   }
 
   private getKey(key: string): string {
-    return this.prefix + key
+    return this.prefix + key;
   }
 
   private getAllKeys(): string[] {
-    const keys: string[] = []
+    const keys: string[] = [];
     for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i)
-      if (key && key.startsWith(this.prefix)) {
-        keys.push(key)
+      const key = sessionStorage.key(i);
+      if (key?.startsWith(this.prefix)) {
+        keys.push(key);
       }
     }
-    return keys
+    return keys;
   }
 
   set(key: string, value: any) {
-    const prefixedKey = this.getKey(key)
-    sessionStorage.setItem(prefixedKey, JSON.stringify(value))
+    const prefixedKey = this.getKey(key);
+    sessionStorage.setItem(prefixedKey, JSON.stringify(value));
   }
 
   get(key: string): any {
-    const prefixedKey = this.getKey(key)
-    const data = sessionStorage.getItem(prefixedKey)
-    if (!data) return null
+    const prefixedKey = this.getKey(key);
+    const data = sessionStorage.getItem(prefixedKey);
+    if (!data) {
+      return null;
+    }
     try {
-      return JSON.parse(data)
+      return JSON.parse(data);
     } catch {
-      return null
+      return null;
     }
   }
 
   remove(key: string) {
-    const prefixedKey = this.getKey(key)
-    sessionStorage.removeItem(prefixedKey)
+    const prefixedKey = this.getKey(key);
+    sessionStorage.removeItem(prefixedKey);
   }
 
   clear() {
-    const keys = this.getAllKeys()
+    const keys = this.getAllKeys();
     keys.forEach((key) => {
-      sessionStorage.removeItem(key)
-    })
+      sessionStorage.removeItem(key);
+    });
   }
 }

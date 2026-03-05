@@ -19,7 +19,7 @@ export function isFunction(value: any): value is Function {
   return (
     typeof value === 'function' ||
     (value !== null && typeof value === 'object' && typeof (value as any).call === 'function')
-  )
+  );
 }
 
 /**
@@ -34,7 +34,7 @@ export function isFunction(value: any): value is Function {
  * ```
  */
 export function isString(value: any): value is string {
-  return typeof value === 'string'
+  return typeof value === 'string';
 }
 
 /**
@@ -50,7 +50,7 @@ export function isString(value: any): value is string {
  * ```
  */
 export function isNumber(value: any): value is number {
-  return typeof value === 'number' && !isNaN(value) && isFinite(value)
+  return typeof value === 'number' && !Number.isNaN(value) && Number.isFinite(value);
 }
 
 /**
@@ -66,7 +66,7 @@ export function isNumber(value: any): value is number {
  * ```
  */
 export function isBoolean(value: any): value is boolean {
-  return typeof value === 'boolean'
+  return typeof value === 'boolean';
 }
 
 /**
@@ -81,7 +81,7 @@ export function isBoolean(value: any): value is boolean {
  * ```
  */
 export function isArray(value: any): value is any[] {
-  return Array.isArray(value)
+  return Array.isArray(value);
 }
 
 /**
@@ -97,7 +97,7 @@ export function isArray(value: any): value is any[] {
  * ```
  */
 export function isObject(value: any): value is Record<string, any> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 /**
@@ -113,18 +113,22 @@ export function isObject(value: any): value is Record<string, any> {
  * ```
  */
 export function isPlainObject(value: any): value is Record<string, any> {
-  if (!isObject(value)) return false
-
-  // 检查是否有原型
-  if (Object.getPrototypeOf(value) === null) return true
-
-  // 检查是否是通过Object构造函数创建的
-  let proto = value
-  while (Object.getPrototypeOf(proto) !== null) {
-    proto = Object.getPrototypeOf(proto)
+  if (!isObject(value)) {
+    return false;
   }
 
-  return Object.getPrototypeOf(value) === proto
+  // 检查是否有原型
+  if (Object.getPrototypeOf(value) === null) {
+    return true;
+  }
+
+  // 检查是否是通过Object构造函数创建的
+  let proto = value;
+  while (Object.getPrototypeOf(proto) !== null) {
+    proto = Object.getPrototypeOf(proto);
+  }
+
+  return Object.getPrototypeOf(value) === proto;
 }
 
 /**
@@ -140,7 +144,7 @@ export function isPlainObject(value: any): value is Record<string, any> {
  * ```
  */
 export function isNullOrUndefined(value: any): value is null | undefined {
-  return value === null || value === undefined
+  return value === null || value === undefined;
 }
 
 /**
@@ -158,11 +162,19 @@ export function isNullOrUndefined(value: any): value is null | undefined {
  * ```
  */
 export function isEmpty(value: any): boolean {
-  if (isNullOrUndefined(value)) return true
-  if (isString(value)) return value.trim() === ''
-  if (isArray(value)) return value.length === 0
-  if (isObject(value)) return Object.keys(value).length === 0
-  return false
+  if (isNullOrUndefined(value)) {
+    return true;
+  }
+  if (isString(value)) {
+    return value.trim() === '';
+  }
+  if (isArray(value)) {
+    return value.length === 0;
+  }
+  if (isObject(value)) {
+    return Object.keys(value).length === 0;
+  }
+  return false;
 }
 
 /**
@@ -177,7 +189,7 @@ export function isEmpty(value: any): boolean {
  * ```
  */
 export function isDate(value: any): value is Date {
-  return value instanceof Date && !isNaN(value.getTime())
+  return value instanceof Date && !Number.isNaN(value.getTime());
 }
 
 /**
@@ -192,7 +204,7 @@ export function isDate(value: any): value is Date {
  * ```
  */
 export function isRegExp(value: any): value is RegExp {
-  return value instanceof RegExp
+  return value instanceof RegExp;
 }
 
 /**
@@ -207,7 +219,7 @@ export function isRegExp(value: any): value is RegExp {
  * ```
  */
 export function isError(value: any): value is Error {
-  return value instanceof Error
+  return value instanceof Error;
 }
 
 /**
@@ -222,10 +234,7 @@ export function isError(value: any): value is Error {
  * ```
  */
 export function isPromise(value: any): value is Promise<any> {
-  return (
-    value instanceof Promise ||
-    (value !== null && typeof value === 'object' && typeof value.then === 'function')
-  )
+  return value instanceof Promise || (value !== null && typeof value === 'object' && typeof value.then === 'function');
 }
 
 /**
@@ -242,15 +251,29 @@ export function isPromise(value: any): value is Promise<any> {
  * ```
  */
 export function getType(value: any): string {
-  if (value === null) return 'null'
-  if (value === undefined) return 'undefined'
-  if (isArray(value)) return 'array'
-  if (isDate(value)) return 'date'
-  if (isRegExp(value)) return 'regexp'
-  if (isError(value)) return 'error'
-  if (isPromise(value)) return 'promise'
+  if (value === null) {
+    return 'null';
+  }
+  if (value === undefined) {
+    return 'undefined';
+  }
+  if (isArray(value)) {
+    return 'array';
+  }
+  if (isDate(value)) {
+    return 'date';
+  }
+  if (isRegExp(value)) {
+    return 'regexp';
+  }
+  if (isError(value)) {
+    return 'error';
+  }
+  if (isPromise(value)) {
+    return 'promise';
+  }
 
-  return typeof value
+  return typeof value;
 }
 
 /**
@@ -269,9 +292,9 @@ export function getType(value: any): string {
  */
 export function hasKey<T extends object, K extends string | number | symbol>(
   obj: T,
-  key: K,
+  key: K
 ): obj is T & Record<K, unknown> {
-  return key in obj
+  return key in obj;
 }
 
 /**
@@ -289,5 +312,5 @@ export function hasKey<T extends object, K extends string | number | symbol>(
  * ```
  */
 export function isArrayOf<T>(value: any, typeGuard: (item: any) => item is T): value is T[] {
-  return isArray(value) && value.every(typeGuard)
+  return isArray(value) && value.every(typeGuard);
 }

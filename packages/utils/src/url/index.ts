@@ -10,39 +10,38 @@
  * @param value - 参数值
  * @param paramStr - 自定义参数字符串（可选）
  * @returns 添加参数后的URL
- * 
+ *
  * @example
  * ```typescript
  * addUrlParam('https://example.com', 'id', '123')
  * // => 'https://example.com?id=123'
- * 
+ *
  * addUrlParam('https://example.com?name=test', 'id', '123')
  * // => 'https://example.com?name=test&id=123'
- * 
+ *
  * addUrlParam('https://example.com', undefined, undefined, 'token=abc&user=123')
  * // => 'https://example.com?token=abc&user=123'
  * ```
  */
-export function addUrlParam(
-  url: string,
-  key?: string,
-  value?: string,
-  paramStr?: string
-): string {
-  if (!url) return ''
-  
-  const str = paramStr || (key && value ? `${key}=${encodeURIComponent(value)}` : '')
-  if (!str) return url
-  
-  const sign = url.includes('?') ? '&' : '?'
-  return `${url}${sign}${str}`
+export function addUrlParam(url: string, key?: string, value?: string, paramStr?: string): string {
+  if (!url) {
+    return '';
+  }
+
+  const str = paramStr || (key && value ? `${key}=${encodeURIComponent(value)}` : '');
+  if (!str) {
+    return url;
+  }
+
+  const sign = url.includes('?') ? '&' : '?';
+  return `${url}${sign}${str}`;
 }
 
 /**
  * 解析URL参数为对象
  * @param url - 要解析的URL
  * @returns 参数对象
- * 
+ *
  * @example
  * ```typescript
  * parseUrlParams('https://example.com?name=test&id=123')
@@ -50,27 +49,27 @@ export function addUrlParam(
  * ```
  */
 export function parseUrlParams(url: string): Record<string, string> {
-  const params: Record<string, string> = {}
-  
+  const params: Record<string, string> = {};
+
   try {
-    const urlObj = new URL(url)
+    const urlObj = new URL(url);
     urlObj.searchParams.forEach((value, key) => {
-      params[key] = decodeURIComponent(value)
-    })
+      params[key] = decodeURIComponent(value);
+    });
   } catch {
     // 如果URL格式不正确，尝试从查询字符串解析
-    const queryString = url.includes('?') ? url.split('?')[1] : ''
+    const queryString = url.includes('?') ? url.split('?')[1] : '';
     if (queryString) {
-      queryString.split('&').forEach(param => {
-        const [key, value] = param.split('=')
+      queryString.split('&').forEach((param) => {
+        const [key, value] = param.split('=');
         if (key) {
-          params[decodeURIComponent(key)] = decodeURIComponent(value || '')
+          params[decodeURIComponent(key)] = decodeURIComponent(value || '');
         }
-      })
+      });
     }
   }
-  
-  return params
+
+  return params;
 }
 
 /**
@@ -78,7 +77,7 @@ export function parseUrlParams(url: string): Record<string, string> {
  * @param url - 原始URL
  * @param key - 要移除的参数键名
  * @returns 移除参数后的URL
- * 
+ *
  * @example
  * ```typescript
  * removeUrlParam('https://example.com?name=test&id=123', 'id')
@@ -86,22 +85,24 @@ export function parseUrlParams(url: string): Record<string, string> {
  * ```
  */
 export function removeUrlParam(url: string, key: string): string {
-  if (!url || !key) return url
-  
+  if (!(url && key)) {
+    return url;
+  }
+
   try {
-    const urlObj = new URL(url)
-    urlObj.searchParams.delete(key)
-    return urlObj.toString()
+    const urlObj = new URL(url);
+    urlObj.searchParams.delete(key);
+    return urlObj.toString();
   } catch {
     // 降级处理
-    const [baseUrl, queryString] = url.split('?')
-    if (!queryString) return url
-    
-    const params = queryString
-      .split('&')
-      .filter(param => !param.startsWith(`${key}=`))
-    
-    return params.length > 0 ? `${baseUrl}?${params.join('&')}` : baseUrl
+    const [baseUrl, queryString] = url.split('?');
+    if (!queryString) {
+      return url;
+    }
+
+    const params = queryString.split('&').filter((param) => !param.startsWith(`${key}=`));
+
+    return params.length > 0 ? `${baseUrl}?${params.join('&')}` : baseUrl;
   }
 }
 
@@ -111,7 +112,7 @@ export function removeUrlParam(url: string, key: string): string {
  * @param key - 参数键名
  * @param value - 新的参数值
  * @returns 更新参数后的URL
- * 
+ *
  * @example
  * ```typescript
  * updateUrlParam('https://example.com?id=123', 'id', '456')
@@ -119,17 +120,19 @@ export function removeUrlParam(url: string, key: string): string {
  * ```
  */
 export function updateUrlParam(url: string, key: string, value: string): string {
-  if (!url || !key) return url
-  
-  const urlWithoutParam = removeUrlParam(url, key)
-  return addUrlParam(urlWithoutParam, key, value)
+  if (!(url && key)) {
+    return url;
+  }
+
+  const urlWithoutParam = removeUrlParam(url, key);
+  return addUrlParam(urlWithoutParam, key, value);
 }
 
 /**
  * 构建查询字符串
  * @param params - 参数对象
  * @returns 查询字符串
- * 
+ *
  * @example
  * ```typescript
  * buildQueryString({ name: 'test', id: '123' })
@@ -137,22 +140,22 @@ export function updateUrlParam(url: string, key: string, value: string): string 
  * ```
  */
 export function buildQueryString(params: Record<string, any>): string {
-  const searchParams = new URLSearchParams()
-  
+  const searchParams = new URLSearchParams();
+
   Object.entries(params).forEach(([key, value]) => {
     if (value !== null && value !== undefined && value !== '') {
-      searchParams.append(key, String(value))
+      searchParams.append(key, String(value));
     }
-  })
-  
-  return searchParams.toString()
+  });
+
+  return searchParams.toString();
 }
 
 /**
  * 判断是否为有效的URL
  * @param url - 要验证的URL字符串
  * @returns 是否为有效URL
- * 
+ *
  * @example
  * ```typescript
  * isValidUrl('https://example.com') // => true
@@ -161,10 +164,10 @@ export function buildQueryString(params: Record<string, any>): string {
  */
 export function isValidUrl(url: string): boolean {
   try {
-    new URL(url)
-    return true
+    new URL(url);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -172,7 +175,7 @@ export function isValidUrl(url: string): boolean {
  * 获取URL的域名
  * @param url - URL字符串
  * @returns 域名
- * 
+ *
  * @example
  * ```typescript
  * getDomain('https://www.example.com/path?query=1')
@@ -181,9 +184,9 @@ export function isValidUrl(url: string): boolean {
  */
 export function getDomain(url: string): string {
   try {
-    return new URL(url).hostname
+    return new URL(url).hostname;
   } catch {
-    return ''
+    return '';
   }
 }
 
@@ -191,7 +194,7 @@ export function getDomain(url: string): string {
  * 获取URL的路径部分
  * @param url - URL字符串
  * @returns 路径
- * 
+ *
  * @example
  * ```typescript
  * getPath('https://example.com/path/to/page?query=1')
@@ -200,8 +203,8 @@ export function getDomain(url: string): string {
  */
 export function getPath(url: string): string {
   try {
-    return new URL(url).pathname
+    return new URL(url).pathname;
   } catch {
-    return ''
+    return '';
   }
 }

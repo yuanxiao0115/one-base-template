@@ -7,18 +7,18 @@
  * 树节点基础接口
  */
 export interface TreeNode {
-  id: string | number
-  children?: TreeNode[]
-  [key: string]: any
+  id: string | number;
+  children?: TreeNode[];
+  [key: string]: any;
 }
 
 /**
  * 菜单节点接口（业务特定）
  */
 export interface MenuNode extends TreeNode {
-  name: string
-  isHide: number
-  children?: MenuNode[]
+  name: string;
+  isHide: number;
+  children?: MenuNode[];
 }
 
 /**
@@ -39,19 +39,19 @@ export interface MenuNode extends TreeNode {
 export function filterTree<T extends TreeNode>(tree: T[], predicate: (node: T) => boolean): T[] {
   return tree.reduce((acc, node) => {
     if (predicate(node)) {
-      const newNode = { ...node }
+      const newNode = { ...node };
       if (node.children) {
-        newNode.children = filterTree(node.children as T[], predicate)
+        newNode.children = filterTree(node.children as T[], predicate);
       }
-      acc.push(newNode)
+      acc.push(newNode);
     } else if (node.children) {
-      const filteredChildren = filterTree(node.children as T[], predicate)
+      const filteredChildren = filterTree(node.children as T[], predicate);
       if (filteredChildren.length > 0) {
-        acc.push({ ...node, children: filteredChildren })
+        acc.push({ ...node, children: filteredChildren });
       }
     }
-    return acc
-  }, [] as T[])
+    return acc;
+  }, [] as T[]);
 }
 
 /**
@@ -69,14 +69,16 @@ export function filterTree<T extends TreeNode>(tree: T[], predicate: (node: T) =
 export function findNodeById<T extends TreeNode>(tree: T[], id: string | number): T | null {
   for (const node of tree) {
     if (node.id === id) {
-      return node
+      return node;
     }
     if (node.children) {
-      const found = findNodeById(node.children as T[], id)
-      if (found) return found
+      const found = findNodeById(node.children as T[], id);
+      if (found) {
+        return found;
+      }
     }
   }
-  return null
+  return null;
 }
 
 /**
@@ -94,16 +96,16 @@ export function findNodeById<T extends TreeNode>(tree: T[], id: string | number)
 export function findNodePath<T extends TreeNode>(tree: T[], id: string | number): T[] {
   for (const node of tree) {
     if (node.id === id) {
-      return [node]
+      return [node];
     }
     if (node.children) {
-      const path = findNodePath(node.children as T[], id)
+      const path = findNodePath(node.children as T[], id);
       if (path.length > 0) {
-        return [node, ...path]
+        return [node, ...path];
       }
     }
   }
-  return []
+  return [];
 }
 
 /**
@@ -124,14 +126,14 @@ export function traverseTree<T extends TreeNode>(
   tree: T[],
   callback: (node: T, parent?: T, level?: number) => void,
   parent?: T,
-  level = 0,
+  level = 0
 ): void {
   tree.forEach((node) => {
-    callback(node, parent, level)
+    callback(node, parent, level);
     if (node.children) {
-      traverseTree(node.children as T[], callback, node, level + 1)
+      traverseTree(node.children as T[], callback, node, level + 1);
     }
-  })
+  });
 }
 
 /**
@@ -146,24 +148,21 @@ export function traverseTree<T extends TreeNode>(
  * treeToFlat(tree) // => [{ id: 1 }, { id: 2 }]
  * ```
  */
-export function treeToFlat<T extends TreeNode>(
-  tree: T[],
-  childrenKey: string = 'children',
-): Omit<T, 'children'>[] {
-  const result: Omit<T, 'children'>[] = []
+export function treeToFlat<T extends TreeNode>(tree: T[], childrenKey = 'children'): Omit<T, 'children'>[] {
+  const result: Omit<T, 'children'>[] = [];
 
   function flatten(nodes: T[]) {
     nodes.forEach((node) => {
-      const { [childrenKey]: children, ...rest } = node
-      result.push(rest as Omit<T, 'children'>)
+      const { [childrenKey]: children, ...rest } = node;
+      result.push(rest as Omit<T, 'children'>);
       if (children && Array.isArray(children)) {
-        flatten(children as T[])
+        flatten(children as T[]);
       }
-    })
+    });
   }
 
-  flatten(tree)
-  return result
+  flatten(tree);
+  return result;
 }
 
 /**
@@ -184,43 +183,38 @@ export function treeToFlat<T extends TreeNode>(
 export function flatToTree<T extends Record<string, any>>(
   flatArray: T[],
   options: {
-    idKey?: string
-    parentIdKey?: string
-    childrenKey?: string
-    rootValue?: any
-  } = {},
+    idKey?: string;
+    parentIdKey?: string;
+    childrenKey?: string;
+    rootValue?: any;
+  } = {}
 ): T[] {
-  const {
-    idKey = 'id',
-    parentIdKey = 'parentId',
-    childrenKey = 'children',
-    rootValue = null,
-  } = options
+  const { idKey = 'id', parentIdKey = 'parentId', childrenKey = 'children', rootValue = null } = options;
 
-  const tree: T[] = []
-  const map = new Map<any, T>()
+  const tree: T[] = [];
+  const map = new Map<any, T>();
 
   // 创建映射
   flatArray.forEach((item) => {
-    map.set(item[idKey], { ...item, [childrenKey]: [] })
-  })
+    map.set(item[idKey], { ...item, [childrenKey]: [] });
+  });
 
   // 构建树形结构
   flatArray.forEach((item) => {
-    const node = map.get(item[idKey])!
-    const parentId = item[parentIdKey]
+    const node = map.get(item[idKey])!;
+    const parentId = item[parentIdKey];
 
     if (parentId === rootValue || parentId === undefined) {
-      tree.push(node)
+      tree.push(node);
     } else {
-      const parent = map.get(parentId)
+      const parent = map.get(parentId);
       if (parent) {
-        parent[childrenKey].push(node)
+        parent[childrenKey].push(node);
       }
     }
-  })
+  });
 
-  return tree
+  return tree;
 }
 
 /**
@@ -239,24 +233,24 @@ export function flatToTree<T extends Record<string, any>>(
  * ```
  */
 export function filterVisibleMenu(list: MenuNode[]): MenuNode[] {
-  const result: MenuNode[] = []
+  const result: MenuNode[] = [];
 
   function dfs(nodes: MenuNode[], target: MenuNode[]) {
     nodes?.forEach((item) => {
       if (item.isHide === 0) {
-        const newItem = { ...item }
+        const newItem = { ...item };
         if (item.children?.length) {
-          const children: MenuNode[] = []
-          dfs(item.children, children)
-          newItem.children = children
+          const children: MenuNode[] = [];
+          dfs(item.children, children);
+          newItem.children = children;
         }
-        target.push(newItem)
+        target.push(newItem);
       }
-    })
+    });
   }
 
-  dfs(list, result)
-  return result
+  dfs(list, result);
+  return result;
 }
 
 /**
@@ -271,18 +265,20 @@ export function filterVisibleMenu(list: MenuNode[]): MenuNode[] {
  * ```
  */
 export function getTreeDepth<T extends TreeNode>(tree: T[]): number {
-  if (!tree || tree.length === 0) return 0
+  if (!tree || tree.length === 0) {
+    return 0;
+  }
 
-  let maxDepth = 1
+  let maxDepth = 1;
 
   tree.forEach((node) => {
     if (node.children && node.children.length > 0) {
-      const childDepth = getTreeDepth(node.children as T[])
-      maxDepth = Math.max(maxDepth, childDepth + 1)
+      const childDepth = getTreeDepth(node.children as T[]);
+      maxDepth = Math.max(maxDepth, childDepth + 1);
     }
-  })
+  });
 
-  return maxDepth
+  return maxDepth;
 }
 
 /**
@@ -297,15 +293,15 @@ export function getTreeDepth<T extends TreeNode>(tree: T[]): number {
  * ```
  */
 export function getLeafNodes<T extends TreeNode>(tree: T[]): T[] {
-  const leafNodes: T[] = []
+  const leafNodes: T[] = [];
 
   traverseTree(tree, (node) => {
     if (!node.children || node.children.length === 0) {
-      leafNodes.push(node)
+      leafNodes.push(node);
     }
-  })
+  });
 
-  return leafNodes
+  return leafNodes;
 }
 
 /**
@@ -321,25 +317,27 @@ export function getLeafNodes<T extends TreeNode>(tree: T[]): T[] {
  */
 export function extractPathList(tree: any[]): (number | string)[] {
   if (!Array.isArray(tree)) {
-    console.warn('tree must be an array')
-    return []
+    console.warn('tree must be an array');
+    return [];
   }
-  if (!tree || tree.length === 0) return []
+  if (!tree || tree.length === 0) {
+    return [];
+  }
 
-  const expandedPaths: (number | string)[] = []
+  const expandedPaths: (number | string)[] = [];
 
   function traverse(nodes: any[]) {
     for (const node of nodes) {
-      expandedPaths.push(node.uniqueId)
-      const hasChildren = node.children && node.children.length > 0
+      expandedPaths.push(node.uniqueId);
+      const hasChildren = node.children && node.children.length > 0;
       if (hasChildren) {
-        traverse(node.children)
+        traverse(node.children);
       }
     }
   }
 
-  traverse(tree)
-  return expandedPaths
+  traverse(tree);
+  return expandedPaths;
 }
 
 /**
@@ -356,27 +354,29 @@ export function extractPathList(tree: any[]): (number | string)[] {
  */
 export function deleteChildren(tree: any[], pathList: any[] = []): any[] {
   if (!Array.isArray(tree)) {
-    console.warn('menuTree must be an array')
-    return []
+    console.warn('menuTree must be an array');
+    return [];
   }
-  if (!tree || tree.length === 0) return []
+  if (!tree || tree.length === 0) {
+    return [];
+  }
 
   for (const [key, node] of tree.entries()) {
     if (node.children && node.children.length === 1) {
-      delete node.children
+      node.children = undefined;
     }
-    node.id = key
-    node.parentId = pathList.length ? pathList[pathList.length - 1] : null
-    node.pathList = [...pathList, node.id]
-    node.uniqueId = node.pathList.length > 1 ? node.pathList.join('-') : node.pathList[0]
+    node.id = key;
+    node.parentId = pathList.length ? pathList.at(-1) : null;
+    node.pathList = [...pathList, node.id];
+    node.uniqueId = node.pathList.length > 1 ? node.pathList.join('-') : node.pathList[0];
 
-    const hasChildren = node.children && node.children.length > 0
+    const hasChildren = node.children && node.children.length > 0;
     if (hasChildren) {
-      deleteChildren(node.children, node.pathList)
+      deleteChildren(node.children, node.pathList);
     }
   }
 
-  return tree
+  return tree;
 }
 
 /**
@@ -393,23 +393,25 @@ export function deleteChildren(tree: any[], pathList: any[] = []): any[] {
  */
 export function buildHierarchyTree(tree: any[], pathList: any[] = []): any[] {
   if (!Array.isArray(tree)) {
-    console.warn('tree must be an array')
-    return []
+    console.warn('tree must be an array');
+    return [];
   }
-  if (!tree || tree.length === 0) return []
+  if (!tree || tree.length === 0) {
+    return [];
+  }
 
   for (const [key, node] of tree.entries()) {
-    node.id = key
-    node.parentId = pathList.length ? pathList[pathList.length - 1] : null
-    node.pathList = [...pathList, node.id]
+    node.id = key;
+    node.parentId = pathList.length ? pathList.at(-1) : null;
+    node.pathList = [...pathList, node.id];
 
-    const hasChildren = node.children && node.children.length > 0
+    const hasChildren = node.children && node.children.length > 0;
     if (hasChildren) {
-      buildHierarchyTree(node.children, node.pathList)
+      buildHierarchyTree(node.children, node.pathList);
     }
   }
 
-  return tree
+  return tree;
 }
 
 /**
@@ -426,20 +428,21 @@ export function buildHierarchyTree(tree: any[], pathList: any[] = []): any[] {
  */
 export function getNodeByUniqueId(tree: any[], uniqueId: number | string): any {
   if (!Array.isArray(tree)) {
-    console.warn('menuTree must be an array')
-    return null
+    console.warn('menuTree must be an array');
+    return null;
   }
-  if (!tree || tree.length === 0) return null
+  if (!tree || tree.length === 0) {
+    return null;
+  }
 
-  const item = tree.find((node) => node.uniqueId === uniqueId)
-  if (item) return item
+  const item = tree.find((node) => node.uniqueId === uniqueId);
+  if (item) {
+    return item;
+  }
 
-  const childrenList = tree
-    .filter((node) => node.children)
-    .map((i) => i.children)
-    .flat(1)
+  const childrenList = tree.filter((node) => node.children).flatMap((i) => i.children);
 
-  return getNodeByUniqueId(childrenList, uniqueId)
+  return getNodeByUniqueId(childrenList, uniqueId);
 }
 
 /**
@@ -456,31 +459,26 @@ export function getNodeByUniqueId(tree: any[], uniqueId: number | string): any {
  * // tree[0] => { uniqueId: '1', name: 'test', active: true }
  * ```
  */
-export function appendFieldByUniqueId(
-  tree: any[],
-  uniqueId: number | string,
-  fields: object,
-): any[] {
+export function appendFieldByUniqueId(tree: any[], uniqueId: number | string, fields: object): any[] {
   if (!Array.isArray(tree)) {
-    console.warn('menuTree must be an array')
-    return []
+    console.warn('menuTree must be an array');
+    return [];
   }
-  if (!tree || tree.length === 0) return []
+  if (!tree || tree.length === 0) {
+    return [];
+  }
 
   for (const node of tree) {
-    const hasChildren = node.children && node.children.length > 0
-    if (
-      node.uniqueId === uniqueId &&
-      Object.prototype.toString.call(fields) === '[object Object]'
-    ) {
-      Object.assign(node, fields)
+    const hasChildren = node.children && node.children.length > 0;
+    if (node.uniqueId === uniqueId && Object.prototype.toString.call(fields) === '[object Object]') {
+      Object.assign(node, fields);
     }
     if (hasChildren) {
-      appendFieldByUniqueId(node.children, uniqueId, fields)
+      appendFieldByUniqueId(node.children, uniqueId, fields);
     }
   }
 
-  return tree
+  return tree;
 }
 
 /**
@@ -503,52 +501,52 @@ export function appendFieldByUniqueId(
  */
 export function handleTree(data: any[], id?: string, parentId?: string, children?: string): any[] {
   if (!Array.isArray(data)) {
-    console.warn('data must be an array')
-    return []
+    console.warn('data must be an array');
+    return [];
   }
 
   const config = {
     id: id || 'id',
     parentId: parentId || 'parentId',
     childrenList: children || 'children',
-  }
+  };
 
-  const childrenListMap: any = {}
-  const nodeIds: any = {}
-  const tree = []
+  const childrenListMap: any = {};
+  const nodeIds: any = {};
+  const tree = [];
 
   for (const d of data) {
-    const parentId = d[config.parentId]
+    const parentId = d[config.parentId];
     if (childrenListMap[parentId] == null) {
-      childrenListMap[parentId] = []
+      childrenListMap[parentId] = [];
     }
-    nodeIds[d[config.id]] = d
-    childrenListMap[parentId].push(d)
+    nodeIds[d[config.id]] = d;
+    childrenListMap[parentId].push(d);
   }
 
   for (const d of data) {
-    const parentId = d[config.parentId]
+    const parentId = d[config.parentId];
     if (nodeIds[parentId] == null) {
-      tree.push(d)
+      tree.push(d);
     }
   }
 
   for (const t of tree) {
-    adaptToChildrenList(t)
+    adaptToChildrenList(t);
   }
 
   function adaptToChildrenList(o: Record<string, any>) {
     if (childrenListMap[o[config.id]] !== null) {
-      o[config.childrenList] = childrenListMap[o[config.id]]
+      o[config.childrenList] = childrenListMap[o[config.id]];
     }
     if (o[config.childrenList]) {
       for (const c of o[config.childrenList]) {
-        adaptToChildrenList(c)
+        adaptToChildrenList(c);
       }
     }
   }
 
-  return tree
+  return tree;
 }
 
 /**
@@ -566,21 +564,23 @@ export function handleTree(data: any[], id?: string, parentId?: string, children
  * recursionBuildTree(data) // 构造TreeSelect数据格式
  * ```
  */
-export function recursionBuildTree(data: any[], parentId: string = '0'): any[] {
-  if (!data.length) return []
+export function recursionBuildTree(data: any[], parentId = '0'): any[] {
+  if (!data.length) {
+    return [];
+  }
 
   for (let i = 0; i < data.length; i++) {
-    data[i].title = data[i].resourceName
-    data[i].expand = true
-    data[i]._showChildren = true // 设置 data 属性 _showChildren，默认会展开子数据
-    data[i].value = data[i].id
-    data[i].parentId = parentId // 父级部门ID
+    data[i].title = data[i].resourceName;
+    data[i].expand = true;
+    data[i]._showChildren = true; // 设置 data 属性 _showChildren，默认会展开子数据
+    data[i].value = data[i].id;
+    data[i].parentId = parentId; // 父级部门ID
     if (data[i].children.length) {
-      recursionBuildTree(data[i].children, data[i].id)
+      recursionBuildTree(data[i].children, data[i].id);
     }
   }
 
-  return data
+  return data;
 }
 
 /**
@@ -595,28 +595,28 @@ export function recursionBuildTree(data: any[], parentId: string = '0'): any[] {
  * getFlatMenu(tree) // => [{ id: 1, level: 1 }, { id: 2, level: 2 }]
  * ```
  */
-export function getFlatMenu(list: any[], level: number = 1): any[] {
-  const cList = JSON.parse(JSON.stringify(list)) // 深拷贝
-  const menu: any[] = []
+export function getFlatMenu(list: any[], level = 1): any[] {
+  const cList = JSON.parse(JSON.stringify(list)); // 深拷贝
+  const menu: any[] = [];
 
-  function dfs(cList: any[], level: number = 1, parentIdList: any[] = []) {
+  function dfs(cList: any[], level = 1, parentIdList: any[] = []) {
     cList.forEach((item) => {
       if (level === 1) {
-        item.parentIdList = [item.parentId]
+        item.parentIdList = [item.parentId];
       } else {
-        item.parentIdList = parentIdList.concat([item.parentId])
+        item.parentIdList = parentIdList.concat([item.parentId]);
       }
-      item.level = level
-      menu.push(item)
+      item.level = level;
+      menu.push(item);
       if (item?.children?.length) {
-        level++
-        dfs(item?.children || [], level, item.parentIdList)
+        level++;
+        dfs(item?.children || [], level, item.parentIdList);
       }
-    })
+    });
   }
 
-  dfs(cList, level, [])
-  return menu
+  dfs(cList, level, []);
+  return menu;
 }
 
 /**
@@ -631,22 +631,22 @@ export function getFlatMenu(list: any[], level: number = 1): any[] {
  * ```
  */
 export function getAuthedFlatMenu(list: any[]): any[] {
-  const cList = JSON.parse(JSON.stringify(list)) // 深拷贝
-  const menu: any[] = []
+  const cList = JSON.parse(JSON.stringify(list)); // 深拷贝
+  const menu: any[] = [];
 
   function dfs(cList: any[]) {
     cList.forEach((item) => {
       if (item.isHide === 0) {
-        menu.push(item)
+        menu.push(item);
         if (item?.children?.length) {
-          dfs(item?.children || [])
+          dfs(item?.children || []);
         }
       }
-    })
+    });
   }
 
-  dfs(cList)
-  return menu
+  dfs(cList);
+  return menu;
 }
 
 /**
@@ -662,19 +662,20 @@ export function getAuthedFlatMenu(list: any[]): any[] {
  * ```
  */
 export function getMenuByTabId(tabList: any[], tabId: string): any {
-  let menu: any = []
+  let menu: any = [];
 
   function dfs(arr: any[]) {
     arr.forEach((item) => {
       if (item.id === tabId) {
-        menu = item
-        return
-      } else if (item.children?.length) {
-        dfs(item.children)
+        menu = item;
+        return;
       }
-    })
+      if (item.children?.length) {
+        dfs(item.children);
+      }
+    });
   }
 
-  dfs(tabList)
-  return menu
+  dfs(tabList);
+  return menu;
 }

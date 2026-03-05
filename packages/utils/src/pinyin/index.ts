@@ -1,4 +1,4 @@
-type PinYinDict = Record<string, string>
+type PinYinDict = Record<string, string>;
 const PinYin: PinYinDict = {
   a: '\u554a\u963f\u9515',
   ai: '\u57c3\u6328\u54ce\u5509\u54c0\u7691\u764c\u853c\u77ee\u827e\u788d\u7231\u9698\u8bf6\u6371\u55f3\u55cc\u5ad2\u7477\u66a7\u7839\u953f\u972d',
@@ -42,8 +42,7 @@ const PinYin: PinYinDict = {
   chong: '\u5145\u51b2\u866b\u5d07\u5ba0\u833a\u5fe1\u61a7\u94f3\u825f',
   chou: '\u62bd\u916c\u7574\u8e0c\u7a20\u6101\u7b79\u4ec7\u7ef8\u7785\u4e11\u4fe6\u5733\u5e31\u60c6\u6eb4\u59af\u7633\u96e0\u9c8b',
   chu: '\u81ed\u521d\u51fa\u6a71\u53a8\u8e87\u9504\u96cf\u6ec1\u9664\u695a\u7840\u50a8\u77d7\u6410\u89e6\u5904\u4e8d\u520d\u61b7\u7ecc\u6775\u696e\u6a17\u870d\u8e70\u9edc',
-  chuan:
-    '\u63e3\u5ddd\u7a7f\u693d\u4f20\u8239\u5598\u4e32\u63be\u821b\u60f4\u9044\u5ddb\u6c1a\u948f\u9569\u8221',
+  chuan: '\u63e3\u5ddd\u7a7f\u693d\u4f20\u8239\u5598\u4e32\u63be\u821b\u60f4\u9044\u5ddb\u6c1a\u948f\u9569\u8221',
   chuang: '\u75ae\u7a97\u5e62\u5e8a\u95ef\u521b\u6006',
   chui: '\u5439\u708a\u6376\u9524\u5782\u9672\u68f0\u69cc',
   chun: '\u6625\u693f\u9187\u5507\u6df3\u7eaf\u8822\u4fc3\u83bc\u6c8c\u80ab\u6710\u9e51\u877d',
@@ -152,8 +151,7 @@ const PinYin: PinYinDict = {
   kua: '\u5938\u57ae\u630e\u8de8\u80ef\u4f89',
   kuai: '\u5757\u7b77\u4fa9\u5feb\u84af\u90d0\u8489\u72ef\u810d',
   kuan: '\u5bbd\u6b3e\u9acb',
-  kuang:
-    '\u5321\u7b50\u72c2\u6846\u77ff\u7736\u65f7\u51b5\u8bd3\u8bf3\u909d\u5739\u593c\u54d0\u7ea9\u8d36',
+  kuang: '\u5321\u7b50\u72c2\u6846\u77ff\u7736\u65f7\u51b5\u8bd3\u8bf3\u909d\u5739\u593c\u54d0\u7ea9\u8d36',
   kui: '\u4e8f\u76d4\u5cbf\u7aa5\u8475\u594e\u9b41\u5080\u9988\u6127\u6e83\u9997\u532e\u5914\u9697\u63c6\u55b9\u559f\u609d\u6126\u9615\u9035\u668c\u777d\u8069\u8770\u7bd1\u81fe\u8dec',
   kun: '\u5764\u6606\u6346\u56f0\u6083\u9603\u7428\u951f\u918c\u9cb2\u9ae1',
   kuo: '\u62ec\u6269\u5ed3\u9614\u86de',
@@ -168,8 +166,7 @@ const PinYin: PinYinDict = {
   leng: '\u695e\u6123',
   li: '\u5398\u68a8\u7281\u9ece\u7bf1\u72f8\u79bb\u6f13\u7406\u674e\u91cc\u9ca4\u793c\u8389\u8354\u540f\u6817\u4e3d\u5389\u52b1\u783e\u5386\u5229\u5088\u4f8b\u4fd0\u75e2\u7acb\u7c92\u6ca5\u96b6\u529b\u7483\u54e9\u4fea\u4fda\u90e6\u575c\u82c8\u8385\u84e0\u85dc\u6369\u5456\u5533\u55b1\u7301\u6ea7\u6fa7\u9026\u5a0c\u5ae0\u9a8a\u7f21\u73de\u67a5\u680e\u8f79\u623e\u783a\u8a48\u7f79\u9502\u9e42\u75a0\u75ac\u86ce\u870a\u8821\u7b20\u7be5\u7c9d\u91b4\u8dde\u96f3\u9ca1\u9ce2\u9ee7',
   lian: '\u4fe9\u8054\u83b2\u8fde\u9570\u5ec9\u601c\u6d9f\u5e18\u655b\u8138\u94fe\u604b\u70bc\u7ec3\u631b\u8539\u5941\u6f4b\u6fc2\u5a08\u740f\u695d\u6b93\u81c1\u81a6\u88e2\u880a\u9ca2',
-  liang:
-    '\u7cae\u51c9\u6881\u7cb1\u826f\u4e24\u8f86\u91cf\u667e\u4eae\u8c05\u589a\u690b\u8e09\u9753\u9b49',
+  liang: '\u7cae\u51c9\u6881\u7cb1\u826f\u4e24\u8f86\u91cf\u667e\u4eae\u8c05\u589a\u690b\u8e09\u9753\u9b49',
   liao: '\u64a9\u804a\u50da\u7597\u71ce\u5be5\u8fbd\u6f66\u4e86\u6482\u9563\u5ed6\u6599\u84fc\u5c25\u5639\u7360\u5bee\u7f2d\u948c\u9e69\u8022',
   lie: '\u5217\u88c2\u70c8\u52a3\u730e\u51bd\u57d2\u6d0c\u8d94\u8e90\u9b23',
   lin: '\u7433\u6797\u78f7\u9716\u4e34\u90bb\u9cde\u6dcb\u51db\u8d41\u541d\u853a\u5d99\u5eea\u9074\u6aa9\u8f9a\u77b5\u7cbc\u8e8f\u9e9f',
@@ -285,8 +282,7 @@ const PinYin: PinYinDict = {
   shao: '\u68a2\u634e\u7a0d\u70e7\u828d\u52fa\u97f6\u5c11\u54e8\u90b5\u7ecd\u52ad\u82d5\u6f72\u86f8\u7b24\u7b72\u8244',
   she: '\u5962\u8d4a\u86c7\u820c\u820d\u8d66\u6444\u5c04\u6151\u6d89\u793e\u8bbe\u538d\u4f58\u731e\u7572\u9e9d',
   shen: '\u7837\u7533\u547b\u4f38\u8eab\u6df1\u5a20\u7ec5\u795e\u6c88\u5ba1\u5a76\u751a\u80be\u614e\u6e17\u8bdc\u8c02\u5432\u54c2\u6e16\u6939\u77e7\u8703',
-  sheng:
-    '\u58f0\u751f\u7525\u7272\u5347\u7ef3\u7701\u76db\u5269\u80dc\u5723\u4e1e\u6e11\u5ab5\u771a\u7b19',
+  sheng: '\u58f0\u751f\u7525\u7272\u5347\u7ef3\u7701\u76db\u5269\u80dc\u5723\u4e1e\u6e11\u5ab5\u771a\u7b19',
   shi: '\u5e08\u5931\u72ee\u65bd\u6e7f\u8bd7\u5c38\u8671\u5341\u77f3\u62fe\u65f6\u4ec0\u98df\u8680\u5b9e\u8bc6\u53f2\u77e2\u4f7f\u5c4e\u9a76\u59cb\u5f0f\u793a\u58eb\u4e16\u67ff\u4e8b\u62ed\u8a93\u901d\u52bf\u662f\u55dc\u566c\u9002\u4ed5\u4f8d\u91ca\u9970\u6c0f\u5e02\u6043\u5ba4\u89c6\u8bd5\u8c25\u57d8\u83b3\u84cd\u5f11\u5511\u9963\u8f7c\u8006\u8d33\u70bb\u793b\u94c8\u94ca\u87ab\u8210\u7b6e\u8c55\u9ca5\u9cba',
   shou: '\u6536\u624b\u9996\u5b88\u5bff\u6388\u552e\u53d7\u7626\u517d\u624c\u72e9\u7ef6\u824f',
   shu: '\u852c\u67a2\u68b3\u6b8a\u6292\u8f93\u53d4\u8212\u6dd1\u758f\u4e66\u8d4e\u5b70\u719f\u85af\u6691\u66d9\u7f72\u8700\u9ecd\u9f20\u5c5e\u672f\u8ff0\u6811\u675f\u620d\u7ad6\u5885\u5eb6\u6570\u6f31\u6055\u500f\u587e\u83fd\u5fc4\u6cad\u6d91\u6f8d\u59dd\u7ebe\u6bf9\u8167\u6bb3\u956f\u79eb\u9e6c',
@@ -385,8 +381,7 @@ const PinYin: PinYinDict = {
   zheng:
     '\u84b8\u6323\u7741\u5f81\u72f0\u4e89\u6014\u6574\u62ef\u6b63\u653f\u5e27\u75c7\u90d1\u8bc1\u8be4\u5ce5\u94b2\u94ee\u7b5d',
   zhi: '\u829d\u679d\u652f\u5431\u8718\u77e5\u80a2\u8102\u6c41\u4e4b\u7ec7\u804c\u76f4\u690d\u6b96\u6267\u503c\u4f84\u5740\u6307\u6b62\u8dbe\u53ea\u65e8\u7eb8\u5fd7\u631a\u63b7\u81f3\u81f4\u7f6e\u5e1c\u5cd9\u5236\u667a\u79e9\u7a1a\u8d28\u7099\u75d4\u6ede\u6cbb\u7a92\u536e\u965f\u90c5\u57f4\u82b7\u646d\u5e19\u5fee\u5f58\u54ab\u9a98\u6809\u67b3\u6800\u684e\u8f75\u8f7e\u6534\u8d3d\u81a3\u7949\u7957\u9ef9\u96c9\u9e37\u75e3\u86ed\u7d77\u916f\u8dd6\u8e2c\u8e2f\u8c78\u89ef',
-  zhong:
-    '\u4e2d\u76c5\u5fe0\u949f\u8877\u7ec8\u79cd\u80bf\u91cd\u4ef2\u4f17\u51a2\u953a\u87bd\u8202\u822f\u8e35',
+  zhong: '\u4e2d\u76c5\u5fe0\u949f\u8877\u7ec8\u79cd\u80bf\u91cd\u4ef2\u4f17\u51a2\u953a\u87bd\u8202\u822f\u8e35',
   zhou: '\u821f\u5468\u5dde\u6d32\u8bcc\u7ca5\u8f74\u8098\u5e1a\u5492\u76b1\u5b99\u663c\u9aa4\u5544\u7740\u501c\u8bf9\u836e\u9b3b\u7ea3\u80c4\u78a1\u7c40\u8233\u914e\u9cb7',
   zhu: '\u73e0\u682a\u86db\u6731\u732a\u8bf8\u8bdb\u9010\u7af9\u70db\u716e\u62c4\u77a9\u5631\u4e3b\u8457\u67f1\u52a9\u86c0\u8d2e\u94f8\u7b51\u4f4f\u6ce8\u795d\u9a7b\u4f2b\u4f8f\u90be\u82ce\u8331\u6d19\u6e1a\u6f74\u9a7a\u677c\u69e0\u6a65\u70b7\u94e2\u75b0\u7603\u86b0\u7afa\u7bb8\u7fe5\u8e85\u9e88',
   zhua: '\u6293',
@@ -414,7 +409,7 @@ const PinYin: PinYinDict = {
   nou: '\u8028',
   fou: '\u7f36',
   bia: '\u9adf',
-}
+};
 
 /**
  * 判断字符是否为中文
@@ -422,8 +417,8 @@ const PinYin: PinYinDict = {
  * @returns 如果是中文返回 true，否则返回 false
  */
 function isChinese(str: string): boolean {
-  const cnChar = str.match(/[^\x00-\x80]/g)
-  return cnChar !== null && cnChar.length > 0
+  const cnChar = str.match(/[^\x00-\x80]/g);
+  return cnChar !== null && cnChar.length > 0;
 }
 
 /**
@@ -433,28 +428,28 @@ function isChinese(str: string): boolean {
  * @param uppercase 是否转为大写，默认为 false
  * @returns 返回拼音字符串
  */
-function getPinYin(str: string, split: string = ' ', uppercase: boolean = false): string {
-  let result = ''
-  const reg = new RegExp('[a-zA-Z0-9- ]')
+function getPinYin(str: string, split = ' ', uppercase = false): string {
+  let result = '';
+  const reg = /[a-zA-Z0-9- ]/;
 
   for (let i = 0; i < str.length; i++) {
-    const val = str.substr(i, 1)
+    const val = str.substr(i, 1);
     if (isChinese(val)) {
-      const name = arraySearch(val)
+      const name = arraySearch(val);
       if (reg.test(val)) {
-        result += split + val
+        result += split + val;
       } else if (name !== false) {
-        result += split + name
+        result += split + name;
       }
     } else {
-      result += val
+      result += val;
     }
   }
 
   if (uppercase) {
-    result = result.toUpperCase()
+    result = result.toUpperCase();
   }
-  return result.replace(split, '').trim()
+  return result.replace(split, '').trim();
 }
 
 /**
@@ -465,10 +460,10 @@ function getPinYin(str: string, split: string = ' ', uppercase: boolean = false)
 function arraySearch(str: string): string | false {
   for (const name in PinYin) {
     if (PinYin[name].indexOf(str) !== -1) {
-      return name
+      return name;
     }
   }
-  return false
+  return false;
 }
 
 /**
@@ -478,32 +473,28 @@ function arraySearch(str: string): string | false {
  * @param uppercase 是否转为大写，默认为 false
  * @returns 返回拼音首字母字符串
  */
-function getPinYinFirstCharacter(
-  str: string,
-  split: string = ' ',
-  uppercase: boolean = false,
-): string {
-  let result = ''
-  const reg = new RegExp('[a-zA-Z0-9- ]')
+function getPinYinFirstCharacter(str: string, split = ' ', uppercase = false): string {
+  let result = '';
+  const reg = /[a-zA-Z0-9- ]/;
 
   for (let i = 0; i < str.length; i++) {
-    const val = str.substr(i, 1)
+    const val = str.substr(i, 1);
     if (isChinese(val)) {
-      const name = arraySearch(val)
+      const name = arraySearch(val);
       if (reg.test(val)) {
-        result += split + val
+        result += split + val;
       } else if (name !== false) {
-        result += split + name.substring(0, 1)
+        result += split + name.substring(0, 1);
       }
     } else {
-      result += val
+      result += val;
     }
   }
 
   if (uppercase) {
-    result = result.toUpperCase()
+    result = result.toUpperCase();
   }
-  return result.replace(split, '').trim()
+  return result.replace(split, '').trim();
 }
 
-export { getPinYin, getPinYinFirstCharacter }
+export { getPinYin, getPinYinFirstCharacter };

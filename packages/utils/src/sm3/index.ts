@@ -1,4 +1,4 @@
-import { sm3 } from 'sm-crypto'
+import { sm3 } from 'sm-crypto';
 
 /**
  * SM3 哈希算法
@@ -6,5 +6,5 @@ import { sm3 } from 'sm-crypto'
  * @returns 加密后的哈希值
  */
 export function hash(data: string): string {
-  return sm3(data)
+  return sm3(data);
 }

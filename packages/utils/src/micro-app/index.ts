@@ -7,21 +7,21 @@
  * 微应用数据接口
  */
 export interface MicroAppData {
-  token: string
-  userInfo: any
-  logOutFn: () => void
-  closeActiveTag?: () => void
-  [key: string]: any
+  token: string;
+  userInfo: any;
+  logOutFn: () => void;
+  closeActiveTag?: () => void;
+  [key: string]: any;
 }
 
 /**
  * 微应用依赖接口
  */
 export interface MicroAppDependencies {
-  getToken: () => string
-  getUserInfo: () => any
-  getLogoutFn: () => () => void
-  closeActiveTag?: () => void
+  getToken: () => string;
+  getUserInfo: () => any;
+  getLogoutFn: () => () => void;
+  closeActiveTag?: () => void;
 }
 
 /**
@@ -29,7 +29,7 @@ export interface MicroAppDependencies {
  * @param otherParams - 其他参数
  * @param dependencies - 依赖对象
  * @returns 微应用数据对象
- * 
+ *
  * @example
  * ```typescript
  * const microData = getMicroData(
@@ -48,56 +48,53 @@ export interface MicroAppDependencies {
  * )
  * ```
  */
-export function getMicroData(
-  otherParams: Record<string, any> = {},
-  dependencies: MicroAppDependencies
-): MicroAppData {
+export function getMicroData(otherParams: Record<string, any>, dependencies: MicroAppDependencies): MicroAppData {
   return {
     token: dependencies.getToken(),
     userInfo: dependencies.getUserInfo(),
     logOutFn: dependencies.getLogoutFn(),
     closeActiveTag: dependencies.closeActiveTag,
-    ...otherParams
-  }
+    ...otherParams,
+  };
 }
 
 /**
  * 根据URL生成应用名称
  * @param url - 应用URL
  * @returns 应用名称
- * 
+ *
  * @example
  * ```typescript
  * getAppName('https://crm.example.com')
  * // => 'appcrmexamplecom'
- * 
+ *
  * getAppName('http://localhost:3000')
  * // => 'applocalhost'
- * 
+ *
  * getAppName('') // 空URL
  * // => 'app'
  * ```
  */
 export function getAppName(url: string): string {
-  const defaultAppName = 'app'
+  const defaultAppName = 'app';
   if (!url) {
-    console.warn('未知url')
-    return defaultAppName
+    console.warn('未知url');
+    return defaultAppName;
   }
-  
+
   try {
-    const cUrl = new URL(url)
-    const hostname = cUrl?.hostname?.replace?.(/\./g, '') || ''
-    return `${defaultAppName}${hostname}`
+    const cUrl = new URL(url);
+    const hostname = cUrl?.hostname?.replace?.(/\./g, '') || '';
+    return `${defaultAppName}${hostname}`;
   } catch {
-    return defaultAppName
+    return defaultAppName;
   }
 }
 
 /**
  * 关闭当前活跃标签页
  * @description 通过DOM操作关闭当前活跃的标签页
- * 
+ *
  * @example
  * ```typescript
  * closeActiveTag()
@@ -105,17 +102,15 @@ export function getAppName(url: string): string {
  */
 export function closeActiveTag(): void {
   try {
-    const activeTag = document.getElementsByClassName(
-      'scroll-item is-closable is-active'
-    )[0]
+    const activeTag = document.getElementsByClassName('scroll-item is-closable is-active')[0];
     if (activeTag) {
-      const closeBtn = activeTag.getElementsByClassName('el-icon-close')[0] as HTMLElement
+      const closeBtn = activeTag.getElementsByClassName('el-icon-close')[0] as HTMLElement;
       if (closeBtn) {
-        closeBtn.click()
+        closeBtn.click();
       }
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 }
 
@@ -123,20 +118,20 @@ export function closeActiveTag(): void {
  * iframe数据接口
  */
 export interface IframeData {
-  token: string
-  userInfo: any
-  href: string
-  frontAllMenu?: any[]
-  [key: string]: any
+  token: string;
+  userInfo: any;
+  href: string;
+  frontAllMenu?: any[];
+  [key: string]: any;
 }
 
 /**
  * iframe依赖接口
  */
 export interface IframeDependencies {
-  getToken: () => string
-  getUserInfo: () => any
-  getFrontAllMenu?: () => Promise<any[]>
+  getToken: () => string;
+  getUserInfo: () => any;
+  getFrontAllMenu?: () => Promise<any[]>;
 }
 
 /**
@@ -144,7 +139,7 @@ export interface IframeDependencies {
  * @param otherParams - 其他参数
  * @param dependencies - 依赖对象
  * @returns iframe数据对象
- * 
+ *
  * @example
  * ```typescript
  * const iframeData = getIframeData(
@@ -157,23 +152,20 @@ export interface IframeDependencies {
  * )
  * ```
  */
-export function getIframeData(
-  otherParams: Record<string, any> = {},
-  dependencies: IframeDependencies
-): IframeData {
+export function getIframeData(otherParams: Record<string, any>, dependencies: IframeDependencies): IframeData {
   return {
     token: dependencies.getToken(),
     userInfo: dependencies.getUserInfo(),
     href: window.location.href,
-    ...otherParams
-  }
+    ...otherParams,
+  };
 }
 
 /**
  * 发送基础信息到iframe
  * @param dom - iframe DOM元素
  * @param dependencies - 依赖对象
- * 
+ *
  * @example
  * ```typescript
  * const iframe = document.getElementById('myIframe')
@@ -184,22 +176,16 @@ export function getIframeData(
  * })
  * ```
  */
-export async function sendBaseInfo(
-  dom: HTMLIFrameElement | null,
-  dependencies: IframeDependencies
-): Promise<void> {
+export async function sendBaseInfo(dom: HTMLIFrameElement | null, dependencies: IframeDependencies): Promise<void> {
   try {
-    let frontAllMenu: any[] = []
+    let frontAllMenu: any[] = [];
     if (dependencies.getFrontAllMenu) {
-      frontAllMenu = await dependencies.getFrontAllMenu()
+      frontAllMenu = await dependencies.getFrontAllMenu();
     }
-    
-    dom?.contentWindow?.postMessage?.(
-      getIframeData({ frontAllMenu }, dependencies),
-      '*'
-    )
+
+    dom?.contentWindow?.postMessage?.(getIframeData({ frontAllMenu }, dependencies), '*');
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
 }
 
@@ -207,7 +193,7 @@ export async function sendBaseInfo(
  * iframe消息处理器
  * @param e - 事件对象
  * @param dependencies - 依赖对象
- * 
+ *
  * @example
  * ```typescript
  * const iframe = document.getElementById('myIframe')
@@ -220,20 +206,17 @@ export async function sendBaseInfo(
  * })
  * ```
  */
-export function iframeMessage(
-  e: Event,
-  dependencies: IframeDependencies
-): void {
-  const dom = e.target as HTMLIFrameElement
-  sendBaseInfo(dom, dependencies)
+export function iframeMessage(e: Event, dependencies: IframeDependencies): void {
+  const dom = e.target as HTMLIFrameElement;
+  sendBaseInfo(dom, dependencies);
 }
 
 /**
  * 系统列表配置
  */
 export interface SystemConfig {
-  name: string
-  systemId: string
+  name: string;
+  systemId: string;
 }
 
 /**
@@ -242,23 +225,23 @@ export interface SystemConfig {
 export const defaultSystemList: SystemConfig[] = [
   {
     name: '供应链',
-    systemId: 'SUbV0ZhV'
+    systemId: 'SUbV0ZhV',
   },
   {
     name: '区域净利润',
-    systemId: 'G99MnQ1D'
-  }
-]
+    systemId: 'G99MnQ1D',
+  },
+];
 
 /**
  * 微应用管理器
  */
 export class MicroAppManager {
-  private apps = new Map<string, any>()
-  private dependencies: MicroAppDependencies
+  private readonly apps = new Map<string, any>();
+  private readonly dependencies: MicroAppDependencies;
 
   constructor(dependencies: MicroAppDependencies) {
-    this.dependencies = dependencies
+    this.dependencies = dependencies;
   }
 
   /**
@@ -267,7 +250,7 @@ export class MicroAppManager {
    * @param config - 应用配置
    */
   registerApp(name: string, config: any): void {
-    this.apps.set(name, config)
+    this.apps.set(name, config);
   }
 
   /**
@@ -276,7 +259,7 @@ export class MicroAppManager {
    * @returns 应用配置
    */
   getApp(name: string): any {
-    return this.apps.get(name)
+    return this.apps.get(name);
   }
 
   /**
@@ -284,7 +267,7 @@ export class MicroAppManager {
    * @returns 所有应用配置
    */
   getAllApps(): Map<string, any> {
-    return this.apps
+    return this.apps;
   }
 
   /**
@@ -293,16 +276,16 @@ export class MicroAppManager {
    * @param data - 数据对象
    */
   setAppData(name: string, data: Record<string, any> = {}): void {
-    const microData = getMicroData(data, this.dependencies)
-    
+    const microData = getMicroData(data, this.dependencies);
+
     // 如果是micro-app框架
     if ((window as any).microApp) {
-      ;(window as any).microApp.setData(name, microData)
+      (window as any).microApp.setData(name, microData);
     }
-    
+
     // 如果是qiankun框架
     if ((window as any).qiankunGlobalState) {
-      ;(window as any).qiankunGlobalState.setGlobalState(microData)
+      (window as any).qiankunGlobalState.setGlobalState(microData);
     }
   }
 
@@ -311,6 +294,6 @@ export class MicroAppManager {
    * @param name - 应用名称
    */
   unregisterApp(name: string): void {
-    this.apps.delete(name)
+    this.apps.delete(name);
   }
 }

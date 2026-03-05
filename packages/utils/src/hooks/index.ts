@@ -10,14 +10,14 @@ export {
   setGlobalLoading,
   type UseLoadingOptions,
   type UseLoadingReturn,
-} from './useLoading'
+} from './useLoading';
 
 // 重新导入用于默认导出
-import useLoading, { getGlobalLoading, setGlobalLoading } from './useLoading'
+import useLoading, { getGlobalLoading, setGlobalLoading } from './useLoading';
 
 // 默认导出
 export default {
   useLoading,
   getGlobalLoading,
   setGlobalLoading,
-}
+};

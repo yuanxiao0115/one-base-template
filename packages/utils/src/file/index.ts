@@ -19,12 +19,12 @@ export enum FileType {
  * 文件信息接口
  */
 export interface FileInfo {
-  name: string
-  size: number
-  type: string
-  lastModified: number
-  extension: string
-  category: FileType
+  name: string;
+  size: number;
+  type: string;
+  lastModified: number;
+  extension: string;
+  category: FileType;
 }
 
 /**
@@ -39,8 +39,8 @@ export interface FileInfo {
  * ```
  */
 export function getFileInfo(file: File): FileInfo {
-  const extension = getFileExtension(file.name)
-  const category = getFileCategory(file.type, extension)
+  const extension = getFileExtension(file.name);
+  const category = getFileCategory(file.type, extension);
 
   return {
     name: file.name,
@@ -49,7 +49,7 @@ export function getFileInfo(file: File): FileInfo {
     lastModified: file.lastModified,
     extension,
     category,
-  }
+  };
 }
 
 /**
@@ -64,8 +64,8 @@ export function getFileInfo(file: File): FileInfo {
  * ```
  */
 export function getFileExtension(fileName: string): string {
-  const lastDotIndex = fileName.lastIndexOf('.')
-  return lastDotIndex > 0 ? fileName.slice(lastDotIndex + 1).toLowerCase() : ''
+  const lastDotIndex = fileName.lastIndexOf('.');
+  return lastDotIndex > 0 ? fileName.slice(lastDotIndex + 1).toLowerCase() : '';
 }
 
 /**
@@ -82,40 +82,31 @@ export function getFileExtension(fileName: string): string {
  */
 export function getFileCategory(mimeType: string, extension: string): FileType {
   // 图片类型
-  if (
-    mimeType.startsWith('image/') ||
-    ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(extension)
-  ) {
-    return FileType.IMAGE
+  if (mimeType.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(extension)) {
+    return FileType.IMAGE;
   }
 
   // 视频类型
-  if (
-    mimeType.startsWith('video/') ||
-    ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(extension)
-  ) {
-    return FileType.VIDEO
+  if (mimeType.startsWith('video/') || ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(extension)) {
+    return FileType.VIDEO;
   }
 
   // 音频类型
-  if (
-    mimeType.startsWith('audio/') ||
-    ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'].includes(extension)
-  ) {
-    return FileType.AUDIO
+  if (mimeType.startsWith('audio/') || ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'].includes(extension)) {
+    return FileType.AUDIO;
   }
 
   // 文档类型
   if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf'].includes(extension)) {
-    return FileType.DOCUMENT
+    return FileType.DOCUMENT;
   }
 
   // 压缩包类型
   if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(extension)) {
-    return FileType.ARCHIVE
+    return FileType.ARCHIVE;
   }
 
-  return FileType.OTHER
+  return FileType.OTHER;
 }
 
 /**
@@ -131,16 +122,18 @@ export function getFileCategory(mimeType: string, extension: string): FileType {
  * formatFileSize(1073741824, 2) // => '1.00 GB'
  * ```
  */
-export function formatFileSize(bytes: number, decimals: number = 1): string {
-  if (bytes === 0) return '0 Bytes'
+export function formatFileSize(bytes: number, decimals = 1): string {
+  if (bytes === 0) {
+    return '0 Bytes';
+  }
 
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  return `${Number.parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
 }
 
 /**
@@ -156,14 +149,14 @@ export function formatFileSize(bytes: number, decimals: number = 1): string {
  * ```
  */
 export function validateFileType(file: File, allowedTypes: string[]): boolean {
-  const extension = '.' + getFileExtension(file.name)
+  const extension = `.${getFileExtension(file.name)}`;
 
   return allowedTypes.some((type) => {
     if (type.startsWith('.')) {
-      return type.toLowerCase() === extension.toLowerCase()
+      return type.toLowerCase() === extension.toLowerCase();
     }
-    return file.type === type
-  })
+    return file.type === type;
+  });
 }
 
 /**
@@ -178,7 +171,7 @@ export function validateFileType(file: File, allowedTypes: string[]): boolean {
  * ```
  */
 export function validateFileSize(file: File, maxSize: number): boolean {
-  return file.size <= maxSize
+  return file.size <= maxSize;
 }
 
 /**
@@ -193,13 +186,13 @@ export function validateFileSize(file: File, maxSize: number): boolean {
  * console.log(text)
  * ```
  */
-export function readFileAsText(file: File, encoding: string = 'UTF-8'): Promise<string> {
+export function readFileAsText(file: File, encoding = 'UTF-8'): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(reader.error)
-    reader.readAsText(file, encoding)
-  })
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file, encoding);
+  });
 }
 
 /**
@@ -215,11 +208,11 @@ export function readFileAsText(file: File, encoding: string = 'UTF-8'): Promise<
  */
 export function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(reader.error)
-    reader.readAsDataURL(file)
-  })
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
 
 /**
@@ -234,11 +227,11 @@ export function readFileAsDataURL(file: File): Promise<string> {
  */
 export function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as ArrayBuffer)
-    reader.onerror = () => reject(reader.error)
-    reader.readAsArrayBuffer(file)
-  })
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as ArrayBuffer);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsArrayBuffer(file);
+  });
 }
 
 /**
@@ -255,23 +248,23 @@ export function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
  * ```
  */
 export function downloadFile(blob: Blob | string, fileName: string): void {
-  const link = document.createElement('a')
+  const link = document.createElement('a');
 
   if (typeof blob === 'string') {
-    link.href = blob
+    link.href = blob;
   } else {
-    link.href = URL.createObjectURL(blob)
+    link.href = URL.createObjectURL(blob);
   }
 
-  link.download = fileName
-  link.style.display = 'none'
+  link.download = fileName;
+  link.style.display = 'none';
 
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 
   if (typeof blob !== 'string') {
-    URL.revokeObjectURL(link.href)
+    URL.revokeObjectURL(link.href);
   }
 }
 
@@ -293,56 +286,56 @@ export function downloadFile(blob: Blob | string, fileName: string): void {
 export function compressImage(
   file: File,
   options: {
-    maxWidth?: number
-    maxHeight?: number
-    quality?: number
-    outputType?: string
-  } = {},
+    maxWidth?: number;
+    maxHeight?: number;
+    quality?: number;
+    outputType?: string;
+  } = {}
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    const { maxWidth = 1920, maxHeight = 1080, quality = 0.8, outputType = 'image/jpeg' } = options
+    const { maxWidth = 1920, maxHeight = 1080, quality = 0.8, outputType = 'image/jpeg' } = options;
 
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    const img = new Image()
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
 
     img.onload = () => {
       // 计算压缩后的尺寸
-      let { width, height } = img
+      let { width, height } = img;
 
       if (width > maxWidth) {
-        height = (height * maxWidth) / width
-        width = maxWidth
+        height = (height * maxWidth) / width;
+        width = maxWidth;
       }
 
       if (height > maxHeight) {
-        width = (width * maxHeight) / height
-        height = maxHeight
+        width = (width * maxHeight) / height;
+        height = maxHeight;
       }
 
-      canvas.width = width
-      canvas.height = height
+      canvas.width = width;
+      canvas.height = height;
 
       // 绘制图片
-      ctx?.drawImage(img, 0, 0, width, height)
+      ctx?.drawImage(img, 0, 0, width, height);
 
       // 转换为Blob
       canvas.toBlob(
         (blob) => {
           if (blob) {
-            resolve(blob)
+            resolve(blob);
           } else {
-            reject(new Error('图片压缩失败'))
+            reject(new Error('图片压缩失败'));
           }
         },
         outputType,
-        quality,
-      )
-    }
+        quality
+      );
+    };
 
-    img.onerror = () => reject(new Error('图片加载失败'))
-    img.src = URL.createObjectURL(file)
-  })
+    img.onerror = () => reject(new Error('图片加载失败'));
+    img.src = URL.createObjectURL(file);
+  });
 }
 
 /**
@@ -358,23 +351,23 @@ export function compressImage(
  */
 export function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
-    const img = new Image()
+    const img = new Image();
 
     img.onload = () => {
       resolve({
         width: img.naturalWidth,
         height: img.naturalHeight,
-      })
-      URL.revokeObjectURL(img.src)
-    }
+      });
+      URL.revokeObjectURL(img.src);
+    };
 
     img.onerror = () => {
-      reject(new Error('无法加载图片'))
-      URL.revokeObjectURL(img.src)
-    }
+      reject(new Error('无法加载图片'));
+      URL.revokeObjectURL(img.src);
+    };
 
-    img.src = URL.createObjectURL(file)
-  })
+    img.src = URL.createObjectURL(file);
+  });
 }
 
 /**
@@ -389,8 +382,8 @@ export function getImageDimensions(file: File): Promise<{ width: number; height:
  */
 export function fileToBase64(file: File): Promise<string> {
   return readFileAsDataURL(file).then((dataUrl) => {
-    return dataUrl.split(',')[1] // 移除data:image/jpeg;base64,前缀
-  })
+    return dataUrl.split(',')[1]; // 移除data:image/jpeg;base64,前缀
+  });
 }
 
 /**
@@ -404,16 +397,16 @@ export function fileToBase64(file: File): Promise<string> {
  * const blob = base64ToBlob(base64String, 'image/jpeg')
  * ```
  */
-export function base64ToBlob(base64: string, mimeType: string = ''): Blob {
-  const byteCharacters = atob(base64)
-  const byteNumbers = new Array(byteCharacters.length)
+export function base64ToBlob(base64: string, mimeType = ''): Blob {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
 
   for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i)
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
   }
 
-  const byteArray = new Uint8Array(byteNumbers)
-  return new Blob([byteArray], { type: mimeType })
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: mimeType });
 }
 
 /**
@@ -432,29 +425,31 @@ export function base64ToBlob(base64: string, mimeType: string = ''): Blob {
  * ```
  */
 export function getLinkUrl(url: string, baseUrl?: string): string {
-  if (!url) return ''
+  if (!url) {
+    return '';
+  }
 
   if (url.includes('http')) {
-    return url
+    return url;
   }
 
   // 兼容不同环境的环境变量获取
-  let envFileUrl = ''
+  let envFileUrl = '';
   try {
     // Vite环境
     if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
-      envFileUrl = (import.meta as any).env?.VITE_APP_FILE_URL || ''
+      envFileUrl = (import.meta as any).env?.VITE_APP_FILE_URL || '';
     }
     // Node.js环境
     else if (typeof process !== 'undefined' && process.env) {
-      envFileUrl = process.env.VITE_APP_FILE_URL || ''
+      envFileUrl = process.env.VITE_APP_FILE_URL || '';
     }
   } catch {
     // 忽略环境变量获取错误
   }
 
-  const base = baseUrl || envFileUrl || ''
-  return base + url
+  const base = baseUrl || envFileUrl || '';
+  return base + url;
 }
 
 /**
@@ -470,21 +465,23 @@ export function getLinkUrl(url: string, baseUrl?: string): string {
  * ```
  */
 export function getFileExtensionFromUrl(url: string): string {
-  if (!url) return ''
-
-  // 移除查询参数和锚点
-  const cleanUrl = url.split('?')[0].split('#')[0]
-
-  // 获取文件名部分
-  const fileName = cleanUrl.split('/').pop() || ''
-
-  // 获取扩展名
-  const lastDotIndex = fileName.lastIndexOf('.')
-  if (lastDotIndex === -1 || lastDotIndex === fileName.length - 1) {
-    return ''
+  if (!url) {
+    return '';
   }
 
-  return fileName.slice(lastDotIndex + 1).toLowerCase()
+  // 移除查询参数和锚点
+  const cleanUrl = url.split('?')[0].split('#')[0];
+
+  // 获取文件名部分
+  const fileName = cleanUrl.split('/').pop() || '';
+
+  // 获取扩展名
+  const lastDotIndex = fileName.lastIndexOf('.');
+  if (lastDotIndex === -1 || lastDotIndex === fileName.length - 1) {
+    return '';
+  }
+
+  return fileName.slice(lastDotIndex + 1).toLowerCase();
 }
 
 /**
@@ -499,10 +496,10 @@ export function getFileExtensionFromUrl(url: string): string {
  * ```
  */
 export function isImageFile(file: File | string): boolean {
-  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico']
-  const extension = getFileExtension(typeof file === 'string' ? file : file.name)
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'];
+  const extension = getFileExtension(typeof file === 'string' ? file : file.name);
 
-  return imageExtensions.includes(extension.toLowerCase())
+  return imageExtensions.includes(extension.toLowerCase());
 }
 
 /**
@@ -517,10 +514,10 @@ export function isImageFile(file: File | string): boolean {
  * ```
  */
 export function isVideoFile(file: File | string): boolean {
-  const videoExtensions = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv', 'm4v', '3gp']
-  const extension = getFileExtension(typeof file === 'string' ? file : file.name)
+  const videoExtensions = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv', 'm4v', '3gp'];
+  const extension = getFileExtension(typeof file === 'string' ? file : file.name);
 
-  return videoExtensions.includes(extension.toLowerCase())
+  return videoExtensions.includes(extension.toLowerCase());
 }
 
 /**
@@ -535,10 +532,10 @@ export function isVideoFile(file: File | string): boolean {
  * ```
  */
 export function isAudioFile(file: File | string): boolean {
-  const audioExtensions = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma', 'm4a']
-  const extension = getFileExtension(typeof file === 'string' ? file : file.name)
+  const audioExtensions = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma', 'm4a'];
+  const extension = getFileExtension(typeof file === 'string' ? file : file.name);
 
-  return audioExtensions.includes(extension.toLowerCase())
+  return audioExtensions.includes(extension.toLowerCase());
 }
 
 /**
@@ -553,10 +550,10 @@ export function isAudioFile(file: File | string): boolean {
  * ```
  */
 export function isDocumentFile(file: File | string): boolean {
-  const documentExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf']
-  const extension = getFileExtension(typeof file === 'string' ? file : file.name)
+  const documentExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf'];
+  const extension = getFileExtension(typeof file === 'string' ? file : file.name);
 
-  return documentExtensions.includes(extension.toLowerCase())
+  return documentExtensions.includes(extension.toLowerCase());
 }
 
 /**
@@ -571,13 +568,13 @@ export function isDocumentFile(file: File | string): boolean {
  * generateUniqueFileName('document.pdf', false) // => 'document_abc123.pdf'
  * ```
  */
-export function generateUniqueFileName(originalName: string, timestamp: boolean = true): string {
-  const extension = getFileExtension(originalName)
-  const nameWithoutExt = originalName.slice(0, originalName.lastIndexOf('.'))
+export function generateUniqueFileName(originalName: string, timestamp = true): string {
+  const extension = getFileExtension(originalName);
+  const nameWithoutExt = originalName.slice(0, originalName.lastIndexOf('.'));
 
-  const suffix = timestamp ? Date.now().toString() : Math.random().toString(36).substring(2, 8)
+  const suffix = timestamp ? Date.now().toString() : Math.random().toString(36).substring(2, 8);
 
-  return extension ? `${nameWithoutExt}_${suffix}.${extension}` : `${nameWithoutExt}_${suffix}`
+  return extension ? `${nameWithoutExt}_${suffix}.${extension}` : `${nameWithoutExt}_${suffix}`;
 }
 
 /**
@@ -594,13 +591,10 @@ export function generateUniqueFileName(originalName: string, timestamp: boolean 
  * batchDownload(files, 1000)
  * ```
  */
-export function batchDownload(
-  files: Array<{ url: string; name: string }>,
-  delay: number = 500,
-): void {
+export function batchDownload(files: Array<{ url: string; name: string }>, delay = 500): void {
   files.forEach((file, index) => {
     setTimeout(() => {
-      downloadFile(file.url, file.name)
-    }, index * delay)
-  })
+      downloadFile(file.url, file.name);
+    }, index * delay);
+  });
 }

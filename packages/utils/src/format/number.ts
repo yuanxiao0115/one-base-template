@@ -4,9 +4,11 @@
  * @param decimals 小数位数
  */
 export function formatAmount(amount: number | string, decimals = 2): string {
-  const num = Number(amount)
-  if (isNaN(num)) return '0'
-  return num.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const num = Number(amount);
+  if (Number.isNaN(num)) {
+    return '0';
+  }
+  return num.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 /**
@@ -23,21 +25,19 @@ export function formatAmount(amount: number | string, decimals = 2): string {
  * formatNumber(1234567.89, 0) // => '1,234,568'
  * ```
  */
-export function formatNumber(
-  num: number | string,
-  decimals?: number,
-  separator: string = ','
-): string {
-  const number = Number(num)
-  if (isNaN(number)) return '0'
+export function formatNumber(num: number | string, decimals?: number, separator = ','): string {
+  const number = Number(num);
+  if (Number.isNaN(number)) {
+    return '0';
+  }
 
-  const result = decimals !== undefined ? number.toFixed(decimals) : number.toString()
+  const result = decimals !== undefined ? number.toFixed(decimals) : number.toString();
 
   // 添加千分位分隔符
-  const parts = result.split('.')
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+  const parts = result.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 
-  return parts.join('.')
+  return parts.join('.');
 }
 
 /**
@@ -54,13 +54,9 @@ export function formatNumber(
  * formatCurrency(1234.56, '¥', 0) // => '¥1,235'
  * ```
  */
-export function formatCurrency(
-  amount: number | string,
-  currency: string = '¥',
-  decimals: number = 2
-): string {
-  const formattedNumber = formatNumber(amount, decimals)
-  return `${currency}${formattedNumber}`
+export function formatCurrency(amount: number | string, currency = '¥', decimals = 2): string {
+  const formattedNumber = formatNumber(amount, decimals);
+  return `${currency}${formattedNumber}`;
 }
 
 /**
@@ -76,16 +72,14 @@ export function formatCurrency(
  * formatPercentage(12.34, 1, false) // => '12.3%'
  * ```
  */
-export function formatPercentage(
-  value: number | string,
-  decimals: number = 2,
-  isDecimal: boolean = true
-): string {
-  const num = Number(value)
-  if (isNaN(num)) return '0%'
+export function formatPercentage(value: number | string, decimals = 2, isDecimal = true): string {
+  const num = Number(value);
+  if (Number.isNaN(num)) {
+    return '0%';
+  }
 
-  const percentage = isDecimal ? num * 100 : num
-  return `${percentage.toFixed(decimals)}%`
+  const percentage = isDecimal ? num * 100 : num;
+  return `${percentage.toFixed(decimals)}%`;
 }
 
 /**
@@ -93,16 +87,18 @@ export function formatPercentage(
  * @param size 文件大小（字节）
  * @param decimals 小数位数
  */
-export function formatFileSize(size: number, decimals: number = 2): string {
-  if (size === 0) return '0 Bytes'
+export function formatFileSize(size: number, decimals = 2): string {
+  if (size === 0) {
+    return '0 Bytes';
+  }
 
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
-  const i = Math.floor(Math.log(size) / Math.log(k))
+  const i = Math.floor(Math.log(size) / Math.log(k));
 
-  return parseFloat((size / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  return `${Number.parseFloat((size / k ** i).toFixed(dm))} ${sizes[i]}`;
 }
 
 /**
@@ -117,27 +113,31 @@ export function formatFileSize(size: number, decimals: number = 2): string {
  * ```
  */
 export function numberToChinese(num: number): string {
-  const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九']
-  const units = ['', '十', '百', '千', '万', '十万', '百万', '千万', '亿']
+  const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  const units = ['', '十', '百', '千', '万', '十万', '百万', '千万', '亿'];
 
-  if (num === 0) return '零'
-  if (num < 0) return '负' + numberToChinese(-num)
-
-  let result = ''
-  let unitIndex = 0
-
-  while (num > 0) {
-    const digit = num % 10
-    if (digit !== 0) {
-      result = digits[digit] + units[unitIndex] + result
-    } else if (result && !result.startsWith('零')) {
-      result = '零' + result
-    }
-    num = Math.floor(num / 10)
-    unitIndex++
+  if (num === 0) {
+    return '零';
+  }
+  if (num < 0) {
+    return `负${numberToChinese(-num)}`;
   }
 
-  return result
+  let result = '';
+  let unitIndex = 0;
+
+  while (num > 0) {
+    const digit = num % 10;
+    if (digit !== 0) {
+      result = digits[digit] + units[unitIndex] + result;
+    } else if (result && !result.startsWith('零')) {
+      result = `零${result}`;
+    }
+    num = Math.floor(num / 10);
+    unitIndex++;
+  }
+
+  return result;
 }
 
 /**
@@ -152,13 +152,13 @@ export function numberToChinese(num: number): string {
  * ```
  */
 export function formatCountdown(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
 
   if (hours > 0) {
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
-  return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }

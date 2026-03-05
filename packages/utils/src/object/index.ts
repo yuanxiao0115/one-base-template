@@ -18,32 +18,32 @@
  */
 export function deepClone<T>(obj: T): T {
   if (obj === null || typeof obj !== 'object') {
-    return obj
+    return obj;
   }
 
   if (obj instanceof Date) {
-    return new Date(obj.getTime()) as T
+    return new Date(obj.getTime()) as T;
   }
 
-  if (obj instanceof Array) {
-    return obj.map((item) => deepClone(item)) as T
+  if (Array.isArray(obj)) {
+    return obj.map((item) => deepClone(item)) as T;
   }
 
   if (obj instanceof RegExp) {
-    return new RegExp(obj.source, obj.flags) as T
+    return new RegExp(obj.source, obj.flags) as T;
   }
 
   if (typeof obj === 'object') {
-    const cloned = {} as T
+    const cloned = {} as T;
     for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        cloned[key] = deepClone(obj[key])
+      if (Object.hasOwn(obj, key)) {
+        cloned[key] = deepClone(obj[key]);
       }
     }
-    return cloned
+    return cloned;
   }
 
-  return obj
+  return obj;
 }
 
 /**
@@ -61,23 +61,29 @@ export function deepClone<T>(obj: T): T {
  * ```
  */
 export function deepMerge<T extends Record<string, any>>(target: T, ...sources: Partial<T>[]): T {
-  if (!sources.length) return target
+  if (!sources.length) {
+    return target;
+  }
 
-  const source = sources.shift()
-  if (!source) return target as T
+  const source = sources.shift();
+  if (!source) {
+    return target as T;
+  }
 
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
       if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} })
-        deepMerge(target[key] as any, source[key] as any)
+        if (!target[key]) {
+          Object.assign(target, { [key]: {} });
+        }
+        deepMerge(target[key] as any, source[key] as any);
       } else {
-        Object.assign(target, { [key]: source[key] })
+        Object.assign(target, { [key]: source[key] });
       }
     }
   }
 
-  return deepMerge(target, ...sources)
+  return deepMerge(target, ...sources);
 }
 
 /**
@@ -86,7 +92,7 @@ export function deepMerge<T extends Record<string, any>>(target: T, ...sources: 
  * @returns 是否为对象
  */
 function isObject(item: any): item is Record<string, any> {
-  return item && typeof item === 'object' && !Array.isArray(item)
+  return item && typeof item === 'object' && !Array.isArray(item);
 }
 
 /**
@@ -104,22 +110,18 @@ function isObject(item: any): item is Record<string, any> {
  * get(obj, 'a.b.d', 'default') // => 'default'
  * ```
  */
-export function get<T = any>(
-  obj: Record<string, any>,
-  path: string | string[],
-  defaultValue?: T,
-): T {
-  const keys = Array.isArray(path) ? path : path.split('.')
-  let result = obj
+export function get<T = any>(obj: Record<string, any>, path: string | string[], defaultValue?: T): T {
+  const keys = Array.isArray(path) ? path : path.split('.');
+  let result = obj;
 
   for (const key of keys) {
     if (result == null || typeof result !== 'object') {
-      return defaultValue as T
+      return defaultValue as T;
     }
-    result = result[key]
+    result = result[key];
   }
 
-  return result === undefined ? (defaultValue as T) : (result as T)
+  return result === undefined ? (defaultValue as T) : (result as T);
 }
 
 /**
@@ -137,19 +139,19 @@ export function get<T = any>(
  * ```
  */
 export function set<T extends Record<string, any>>(obj: T, path: string | string[], value: any): T {
-  const keys = Array.isArray(path) ? path : path.split('.')
-  let current: any = obj
+  const keys = Array.isArray(path) ? path : path.split('.');
+  let current: any = obj;
 
   for (let i = 0; i < keys.length - 1; i++) {
-    const key = keys[i]
+    const key = keys[i];
     if (!(key in current) || typeof current[key] !== 'object') {
-      current[key] = {}
+      current[key] = {};
     }
-    current = current[key]
+    current = current[key];
   }
 
-  current[keys[keys.length - 1]] = value
-  return obj
+  current[keys.at(-1)] = value;
+  return obj;
 }
 
 /**
@@ -166,24 +168,24 @@ export function set<T extends Record<string, any>>(obj: T, path: string | string
  * ```
  */
 export function unset<T extends Record<string, any>>(obj: T, path: string | string[]): boolean {
-  const keys = Array.isArray(path) ? path : path.split('.')
-  let current = obj
+  const keys = Array.isArray(path) ? path : path.split('.');
+  let current = obj;
 
   for (let i = 0; i < keys.length - 1; i++) {
-    const key = keys[i]
+    const key = keys[i];
     if (!(key in current) || typeof current[key] !== 'object') {
-      return false
+      return false;
     }
-    current = current[key]
+    current = current[key];
   }
 
-  const lastKey = keys[keys.length - 1]
+  const lastKey = keys.at(-1);
   if (lastKey in current) {
-    delete current[lastKey]
-    return true
+    delete current[lastKey];
+    return true;
   }
 
-  return false
+  return false;
 }
 
 /**
@@ -200,17 +202,17 @@ export function unset<T extends Record<string, any>>(obj: T, path: string | stri
  * ```
  */
 export function has(obj: Record<string, any>, path: string | string[]): boolean {
-  const keys = Array.isArray(path) ? path : path.split('.')
-  let current = obj
+  const keys = Array.isArray(path) ? path : path.split('.');
+  let current = obj;
 
   for (const key of keys) {
     if (current == null || typeof current !== 'object' || !(key in current)) {
-      return false
+      return false;
     }
-    current = current[key]
+    current = current[key];
   }
 
-  return true
+  return true;
 }
 
 /**
@@ -226,26 +228,26 @@ export function has(obj: Record<string, any>, path: string | string[]): boolean 
  * // => ['a.b', 'a.c.d']
  * ```
  */
-export function getPaths(obj: Record<string, any>, prefix: string = ''): string[] {
-  const paths: string[] = []
+export function getPaths(obj: Record<string, any>, prefix = ''): string[] {
+  const paths: string[] = [];
 
   function traverse(current: any, currentPath: string) {
     if (current && typeof current === 'object' && !Array.isArray(current)) {
       for (const key in current) {
-        if (Object.prototype.hasOwnProperty.call(current, key)) {
-          const newPath = currentPath ? `${currentPath}.${key}` : key
+        if (Object.hasOwn(current, key)) {
+          const newPath = currentPath ? `${currentPath}.${key}` : key;
           if (current[key] && typeof current[key] === 'object' && !Array.isArray(current[key])) {
-            traverse(current[key], newPath)
+            traverse(current[key], newPath);
           } else {
-            paths.push(newPath)
+            paths.push(newPath);
           }
         }
       }
     }
   }
 
-  traverse(obj, prefix)
-  return paths
+  traverse(obj, prefix);
+  return paths;
 }
 
 /**
@@ -261,13 +263,13 @@ export function getPaths(obj: Record<string, any>, prefix: string = ''): string[
  * // => { 'a.b.c': 1, 'd': 2 }
  * ```
  */
-export function flatten(obj: Record<string, any>, separator: string = '.'): Record<string, any> {
-  const result: Record<string, any> = {}
+export function flatten(obj: Record<string, any>, separator = '.'): Record<string, any> {
+  const result: Record<string, any> = {};
 
-  function flattenRecursive(current: any, prefix: string = '') {
+  function flattenRecursive(current: any, prefix = '') {
     for (const key in current) {
-      if (Object.prototype.hasOwnProperty.call(current, key)) {
-        const newKey = prefix ? `${prefix}${separator}${key}` : key
+      if (Object.hasOwn(current, key)) {
+        const newKey = prefix ? `${prefix}${separator}${key}` : key;
 
         if (
           current[key] &&
@@ -275,16 +277,16 @@ export function flatten(obj: Record<string, any>, separator: string = '.'): Reco
           !Array.isArray(current[key]) &&
           !(current[key] instanceof Date)
         ) {
-          flattenRecursive(current[key], newKey)
+          flattenRecursive(current[key], newKey);
         } else {
-          result[newKey] = current[key]
+          result[newKey] = current[key];
         }
       }
     }
   }
 
-  flattenRecursive(obj)
-  return result
+  flattenRecursive(obj);
+  return result;
 }
 
 /**
@@ -300,16 +302,16 @@ export function flatten(obj: Record<string, any>, separator: string = '.'): Reco
  * // => { a: { b: { c: 1 } }, d: 2 }
  * ```
  */
-export function unflatten(obj: Record<string, any>, separator: string = '.'): Record<string, any> {
-  const result: Record<string, any> = {}
+export function unflatten(obj: Record<string, any>, separator = '.'): Record<string, any> {
+  const result: Record<string, any> = {};
 
   for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      set(result, key.split(separator), obj[key])
+    if (Object.hasOwn(obj, key)) {
+      set(result, key.split(separator), obj[key]);
     }
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -325,19 +327,16 @@ export function unflatten(obj: Record<string, any>, separator: string = '.'): Re
  * // => { a: 1, c: 3 }
  * ```
  */
-export function pick<T extends Record<string, any>, K extends keyof T>(
-  obj: T,
-  keys: K[],
-): Pick<T, K> {
-  const result = {} as Pick<T, K>
+export function pick<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+  const result = {} as Pick<T, K>;
 
   for (const key of keys) {
     if (key in obj) {
-      result[key] = obj[key]
+      result[key] = obj[key];
     }
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -353,17 +352,14 @@ export function pick<T extends Record<string, any>, K extends keyof T>(
  * // => { a: 1, c: 3 }
  * ```
  */
-export function omit<T extends Record<string, any>, K extends keyof T>(
-  obj: T,
-  keys: K[],
-): Omit<T, K> {
-  const result = { ...obj }
+export function omit<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
+  const result = { ...obj };
 
   for (const key of keys) {
-    delete result[key]
+    delete result[key];
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -379,8 +375,8 @@ export function omit<T extends Record<string, any>, K extends keyof T>(
  * ```
  */
 export function isAllEmpty(obj: any): boolean {
-  if (!obj || typeof obj !== 'object') return true
-  return Object.keys(obj).every(
-    (key) => obj[key] === '' || obj[key] === null || obj[key] === undefined,
-  )
+  if (!obj || typeof obj !== 'object') {
+    return true;
+  }
+  return Object.keys(obj).every((key) => obj[key] === '' || obj[key] === null || obj[key] === undefined);
 }

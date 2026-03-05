@@ -14,22 +14,24 @@
  * ```
  */
 export function getAgeByIdCard(idcard: string): number | null {
-  if (!idcard || idcard.length < 14) return null
-
-  const myDate = new Date()
-  const month = myDate.getMonth() + 1
-  const day = myDate.getDate()
-
-  let age = myDate.getFullYear() - parseInt(idcard.substring(6, 10)) - 1
-
-  if (
-    parseInt(idcard.substring(10, 12)) < month ||
-    (parseInt(idcard.substring(10, 12)) === month && parseInt(idcard.substring(12, 14)) <= day)
-  ) {
-    age++
+  if (!idcard || idcard.length < 14) {
+    return null;
   }
 
-  return age
+  const myDate = new Date();
+  const month = myDate.getMonth() + 1;
+  const day = myDate.getDate();
+
+  let age = myDate.getFullYear() - Number.parseInt(idcard.substring(6, 10), 10) - 1;
+
+  if (
+    Number.parseInt(idcard.substring(10, 12), 10) < month ||
+    (Number.parseInt(idcard.substring(10, 12), 10) === month && Number.parseInt(idcard.substring(12, 14), 10) <= day)
+  ) {
+    age++;
+  }
+
+  return age;
 }
 
 /**
@@ -43,19 +45,19 @@ export function getAgeByIdCard(idcard: string): number | null {
  * ```
  */
 export function getAgeByBirthDay(birthDateString: string): number {
-  const birthDate = new Date(birthDateString)
-  const today = new Date()
+  const birthDate = new Date(birthDateString);
+  const today = new Date();
 
-  let age = today.getFullYear() - birthDate.getFullYear()
+  let age = today.getFullYear() - birthDate.getFullYear();
 
   if (
     today.getMonth() < birthDate.getMonth() ||
     (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())
   ) {
-    age--
+    age--;
   }
 
-  return age
+  return age;
 }
 
 /**
@@ -70,20 +72,20 @@ export function getAgeByBirthDay(birthDateString: string): number {
  * ```
  */
 export function filterNull<T extends Record<string, any>>(params: T): Partial<T> {
-  const result = { ...params }
+  const result = { ...params };
 
   function filter(obj: any): any {
     for (const key in obj) {
       if (obj[key] instanceof Object && !Array.isArray(obj[key])) {
-        filter(obj[key])
+        filter(obj[key]);
       } else if (obj[key] === null || obj[key] === undefined || obj[key] === '') {
-        delete obj[key]
+        delete obj[key];
       }
     }
-    return obj
+    return obj;
   }
 
-  return filter(result)
+  return filter(result);
 }
 
 /**
@@ -103,12 +105,12 @@ export function filterNull<T extends Record<string, any>>(params: T): Partial<T>
 export function addIndex<T extends Record<string, any>>(
   data: T[],
   currentPage: number,
-  pageSize: number,
+  pageSize: number
 ): (T & { index: number })[] {
   return data.map((item, index) => ({
     ...item,
     index: (currentPage - 1) * pageSize + index + 1,
-  }))
+  }));
 }
 
 /**
@@ -125,12 +127,8 @@ export function addIndex<T extends Record<string, any>>(
  * getDifferentArr(arr1, arr2) // => [{ name: 'B' }]
  * ```
  */
-export function getDifferentArr<T extends Record<string, any>>(
-  arr1: T[],
-  arr2: T[],
-  compareKey: string = 'name',
-): T[] {
-  return arr1.filter((item1) => !arr2.some((item2) => item2[compareKey] === item1[compareKey]))
+export function getDifferentArr<T extends Record<string, any>>(arr1: T[], arr2: T[], compareKey = 'name'): T[] {
+  return arr1.filter((item1) => !arr2.some((item2) => item2[compareKey] === item1[compareKey]));
 }
 
 /**
@@ -150,22 +148,22 @@ export function getDifferentArr<T extends Record<string, any>>(
  */
 export function checkBlobFile(response: any): Promise<{ json: boolean; data?: any }> {
   return new Promise((resolve) => {
-    const fileReader = new FileReader()
-    fileReader.readAsText(response)
-    fileReader.onload = function () {
+    const fileReader = new FileReader();
+    fileReader.readAsText(response);
+    fileReader.onload = () => {
       try {
-        const jsonData = JSON.parse(fileReader.result as string)
+        const jsonData = JSON.parse(fileReader.result as string);
         if (jsonData?.code) {
-          resolve({ json: true, data: jsonData })
+          resolve({ json: true, data: jsonData });
         } else {
-          resolve({ json: false })
+          resolve({ json: false });
         }
       } catch {
         // 解析成对象失败，说明是正常的文件流
-        resolve({ json: false })
+        resolve({ json: false });
       }
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -182,18 +180,18 @@ export function checkBlobFile(response: any): Promise<{ json: boolean; data?: an
 export function downloadFile(blob: Blob, fileName: string): void {
   // 兼容IE
   if ((navigator as any).msSaveBlob) {
-    ;(navigator as any).msSaveBlob(blob, fileName)
+    (navigator as any).msSaveBlob(blob, fileName);
   } else {
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.style.display = 'none'
-    link.href = url
-    link.target = '_blank'
-    link.setAttribute('download', decodeURIComponent(fileName))
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    link.href = url;
+    link.target = '_blank';
+    link.setAttribute('download', decodeURIComponent(fileName));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 }
 
@@ -209,7 +207,7 @@ export function downloadFile(blob: Blob, fileName: string): void {
 export function getCurrentTenantId(): string | null {
   // 这里需要根据实际的存储方式来实现
   // 暂时返回null，实际使用时需要替换为具体的实现
-  return null
+  return null;
 }
 
 /**
@@ -226,13 +224,13 @@ export function getCurrentTenantId(): string | null {
  */
 export function addTenantIdInData<T extends Record<string, any>>(
   data: T,
-  keyName: string = 'tenantId',
+  keyName = 'tenantId'
 ): T & Record<string, any> {
-  const tenantId = getCurrentTenantId()
+  const tenantId = getCurrentTenantId();
   if (tenantId) {
-    ;(data as any)[keyName] = tenantId
+    (data as any)[keyName] = tenantId;
   }
-  return data
+  return data;
 }
 
 /**
@@ -241,7 +239,7 @@ export function addTenantIdInData<T extends Record<string, any>>(
  * @returns 是否为图片元素
  */
 export function isImgElement(element: any): boolean {
-  return element && element.tagName && element.tagName.toLowerCase() === 'img'
+  return element?.tagName && element.tagName.toLowerCase() === 'img';
 }
 
 /**
@@ -252,24 +250,24 @@ export function addPreventDefault(): void {
   // 阻止通过键盘F12快捷键打开浏览器开发者工具面板
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'F12') {
-      ev.preventDefault()
+      ev.preventDefault();
     }
-  })
+  });
 
   // 阻止浏览器默认的右键菜单弹出
   document.addEventListener('contextmenu', (ev) => {
-    ev.preventDefault()
-  })
+    ev.preventDefault();
+  });
 
   // 阻止页面元素选中
   document.addEventListener('selectstart', (ev) => {
-    ev.preventDefault()
-  })
+    ev.preventDefault();
+  });
 
   // 阻止图片拖拽
   document.addEventListener('dragstart', (ev) => {
     if (isImgElement(ev.target)) {
-      ev.preventDefault()
+      ev.preventDefault();
     }
-  })
+  });
 }

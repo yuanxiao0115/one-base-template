@@ -3,27 +3,27 @@
  * @description 提供Vue组件、插件等相关的工具函数
  */
 
-import { reactive, toRaw, type App, type Component } from 'vue'
+import { reactive, toRaw, type App, type Component } from 'vue';
 
 function cloneState<T>(value: T): T {
   if (typeof structuredClone === 'function') {
-    return structuredClone(value)
+    return structuredClone(value);
   }
-  return JSON.parse(JSON.stringify(value)) as T
+  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 /**
  * Vue组件安装工具
  * @param components - 组件对象
  * @returns 安装插件
- * 
+ *
  * @example
  * ```typescript
  * import { withInstall } from '@one/utils/vue'
  * import MyComponent from './MyComponent.vue'
- * 
+ *
  * const MyComponentWithInstall = withInstall({ MyComponent })
- * 
+ *
  * // 在Vue应用中使用
  * app.use(MyComponentWithInstall)
  * ```
@@ -32,17 +32,17 @@ export function withInstall(components: Record<string, Component>) {
   return {
     install(app: App) {
       for (const key in components) {
-        app.component(key, components[key])
+        app.component(key, components[key]);
       }
     },
-  }
+  };
 }
 
 /**
  * 创建Vue插件
  * @param install - 安装函数
  * @returns Vue插件对象
- * 
+ *
  * @example
  * ```typescript
  * const myPlugin = createPlugin((app, options) => {
@@ -50,16 +50,14 @@ export function withInstall(components: Record<string, Component>) {
  *     console.log('Hello from plugin!')
  *   }
  * })
- * 
+ *
  * app.use(myPlugin, { option1: 'value1' })
  * ```
  */
-export function createPlugin<T = any>(
-  install: (app: App, options?: T) => void
-) {
+export function createPlugin<T = any>(install: (app: App, options?: T) => void) {
   return {
-    install
-  }
+    install,
+  };
 }
 
 /**
@@ -67,7 +65,7 @@ export function createPlugin<T = any>(
  * @param validator - 验证函数
  * @param message - 错误信息
  * @returns 属性验证器
- * 
+ *
  * @example
  * ```typescript
  * const props = {
@@ -81,71 +79,66 @@ export function createPlugin<T = any>(
  * }
  * ```
  */
-export function createValidator<T>(
-  validator: (value: T) => boolean,
-  message?: string
-) {
+export function createValidator<T>(validator: (value: T) => boolean, message?: string) {
   return (value: T): boolean => {
-    const isValid = validator(value)
+    const isValid = validator(value);
     if (!isValid && message) {
-      console.warn(message, value)
+      console.warn(message, value);
     }
-    return isValid
-  }
+    return isValid;
+  };
 }
 
 /**
  * 创建响应式状态管理
  * @param initialState - 初始状态
  * @returns 状态管理对象
- * 
+ *
  * @example
  * ```typescript
  * const { state, setState, getState } = createReactiveState({
  *   count: 0,
  *   name: 'test'
  * })
- * 
+ *
  * setState({ count: 1 })
  * console.log(getState().count) // => 1
  * ```
  */
-export function createReactiveState<T extends Record<string, any>>(
-  initialState: T
-) {
+export function createReactiveState<T extends Record<string, any>>(initialState: T) {
   // 保存一份初始快照，避免 setState 后污染入参对象，导致 reset 失效。
-  const initialSnapshot = cloneState(initialState)
-  const state = reactive(cloneState(initialState))
-  
+  const initialSnapshot = cloneState(initialState);
+  const state = reactive(cloneState(initialState));
+
   const setState = (newState: Partial<T>) => {
-    Object.assign(state, newState)
-  }
-  
+    Object.assign(state, newState);
+  };
+
   const getState = (): T => {
-    return toRaw(state) as T
-  }
-  
+    return toRaw(state) as T;
+  };
+
   const resetState = () => {
-    Object.assign(state, cloneState(initialSnapshot))
-  }
-  
+    Object.assign(state, cloneState(initialSnapshot));
+  };
+
   return {
     state,
     setState,
     getState,
-    resetState
-  }
+    resetState,
+  };
 }
 
 /**
  * 组件事件发射器
  * @param emit - Vue组件的emit函数
  * @returns 增强的事件发射器
- * 
+ *
  * @example
  * ```typescript
  * const emitter = createEmitter(emit)
- * 
+ *
  * emitter.success('操作成功')
  * emitter.error('操作失败')
  * emitter.change(newValue)
@@ -158,87 +151,80 @@ export function createEmitter(emit: (event: string, ...args: any[]) => void) {
     change: (value: any) => emit('change', value),
     update: (value: any) => emit('update:modelValue', value),
     click: (event: Event) => emit('click', event),
-    custom: (eventName: string, ...args: any[]) => emit(eventName, ...args)
-  }
+    custom: (eventName: string, ...args: any[]) => emit(eventName, ...args),
+  };
 }
 
 /**
  * 创建可组合的功能函数
  * @param setup - 设置函数
  * @returns 可组合函数
- * 
+ *
  * @example
  * ```typescript
  * const useCounter = createComposable(() => {
  *   const count = ref(0)
  *   const increment = () => count.value++
  *   const decrement = () => count.value--
- *   
+ *
  *   return { count, increment, decrement }
  * })
- * 
+ *
  * // 在组件中使用
  * const { count, increment, decrement } = useCounter()
  * ```
  */
 export function createComposable<T>(setup: () => T): () => T {
-  return setup
+  return setup;
 }
 
 /**
  * 组件生命周期钩子工具
  * @param hooks - 生命周期钩子对象
  * @returns 生命周期管理器
- * 
+ *
  * @example
  * ```typescript
  * const lifecycle = createLifecycle({
  *   onMounted: () => console.log('组件已挂载'),
  *   onUnmounted: () => console.log('组件已卸载')
  * })
- * 
+ *
  * lifecycle.mount()
  * lifecycle.unmount()
  * ```
  */
 export function createLifecycle(hooks: {
-  onMounted?: () => void
-  onUnmounted?: () => void
-  onUpdated?: () => void
-  onBeforeMount?: () => void
-  onBeforeUnmount?: () => void
-  onBeforeUpdate?: () => void
+  onMounted?: () => void;
+  onUnmounted?: () => void;
+  onUpdated?: () => void;
+  onBeforeMount?: () => void;
+  onBeforeUnmount?: () => void;
+  onBeforeUpdate?: () => void;
 }) {
-  const { 
-    onMounted, 
-    onUnmounted, 
-    onUpdated, 
-    onBeforeMount, 
-    onBeforeUnmount, 
-    onBeforeUpdate 
-  } = hooks
-  
+  const { onMounted, onUnmounted, onUpdated, onBeforeMount, onBeforeUnmount, onBeforeUpdate } = hooks;
+
   return {
     mount: () => {
-      onBeforeMount?.()
-      onMounted?.()
+      onBeforeMount?.();
+      onMounted?.();
     },
     unmount: () => {
-      onBeforeUnmount?.()
-      onUnmounted?.()
+      onBeforeUnmount?.();
+      onUnmounted?.();
     },
     update: () => {
-      onBeforeUpdate?.()
-      onUpdated?.()
-    }
-  }
+      onBeforeUpdate?.();
+      onUpdated?.();
+    },
+  };
 }
 
 /**
  * 创建表单验证器
  * @param rules - 验证规则
  * @returns 表单验证器
- * 
+ *
  * @example
  * ```typescript
  * const validator = createFormValidator({
@@ -251,58 +237,58 @@ export function createLifecycle(hooks: {
  *     { type: 'email', message: '请输入正确的邮箱格式' }
  *   ]
  * })
- * 
+ *
  * const errors = validator.validate({ name: '', email: 'invalid' })
  * ```
  */
 export function createFormValidator(rules: Record<string, any[]>) {
   const validate = (data: Record<string, any>) => {
-    const errors: Record<string, string[]> = {}
-    
+    const errors: Record<string, string[]> = {};
+
     for (const field in rules) {
-      const fieldRules = rules[field]
-      const value = data[field]
-      const fieldErrors: string[] = []
-      
+      const fieldRules = rules[field];
+      const value = data[field];
+      const fieldErrors: string[] = [];
+
       for (const rule of fieldRules) {
         if (rule.required && (!value || value === '')) {
-          fieldErrors.push(rule.message || `${field}是必填项`)
-          continue
+          fieldErrors.push(rule.message || `${field}是必填项`);
+          continue;
         }
-        
+
         if (rule.min && value && value.length < rule.min) {
-          fieldErrors.push(rule.message || `${field}最少${rule.min}个字符`)
+          fieldErrors.push(rule.message || `${field}最少${rule.min}个字符`);
         }
-        
+
         if (rule.max && value && value.length > rule.max) {
-          fieldErrors.push(rule.message || `${field}最多${rule.max}个字符`)
+          fieldErrors.push(rule.message || `${field}最多${rule.max}个字符`);
         }
-        
+
         if (rule.type === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          fieldErrors.push(rule.message || `${field}格式不正确`)
+          fieldErrors.push(rule.message || `${field}格式不正确`);
         }
-        
+
         if (rule.validator && typeof rule.validator === 'function') {
-          const result = rule.validator(value)
+          const result = rule.validator(value);
           if (result !== true) {
-            fieldErrors.push(typeof result === 'string' ? result : rule.message)
+            fieldErrors.push(typeof result === 'string' ? result : rule.message);
           }
         }
       }
-      
+
       if (fieldErrors.length > 0) {
-        errors[field] = fieldErrors
+        errors[field] = fieldErrors;
       }
     }
-    
+
     return {
       valid: Object.keys(errors).length === 0,
-      errors
-    }
-  }
-  
+      errors,
+    };
+  };
+
   return {
     validate,
-    rules
-  }
+    rules,
+  };
 }

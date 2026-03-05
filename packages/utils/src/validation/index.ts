@@ -16,8 +16,8 @@
  */
 export function isEmail(email: string): boolean {
   // 使用更严格的邮箱验证规则
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-  return emailRegex.test(email)
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email);
 }
 
 /**
@@ -32,8 +32,8 @@ export function isEmail(email: string): boolean {
  * ```
  */
 export function isPhone(phone: string): boolean {
-  const phoneRegex = /^1[3-9]\d{9}$/
-  return phoneRegex.test(phone)
+  const phoneRegex = /^1[3-9]\d{9}$/;
+  return phoneRegex.test(phone);
 }
 
 /**
@@ -48,8 +48,8 @@ export function isPhone(phone: string): boolean {
  * ```
  */
 export function isIdCard(idCard: string): boolean {
-  const idCardRegex = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
-  return idCardRegex.test(idCard)
+  const idCardRegex = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+  return idCardRegex.test(idCard);
 }
 
 /**
@@ -65,10 +65,10 @@ export function isIdCard(idCard: string): boolean {
  */
 export function isUrl(url: string): boolean {
   try {
-    new URL(url)
-    return true
+    new URL(url);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -84,9 +84,8 @@ export function isUrl(url: string): boolean {
  * ```
  */
 export function isIP(ip: string): boolean {
-  const ipRegex =
-    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-  return ipRegex.test(ip)
+  const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  return ipRegex.test(ip);
 }
 
 /**
@@ -107,17 +106,17 @@ export function isIP(ip: string): boolean {
 export function validatePassword(
   password: string,
   options: {
-    minLength?: number
-    requireUppercase?: boolean
-    requireLowercase?: boolean
-    requireNumbers?: boolean
-    requireSpecialChars?: boolean
-  } = {},
+    minLength?: number;
+    requireUppercase?: boolean;
+    requireLowercase?: boolean;
+    requireNumbers?: boolean;
+    requireSpecialChars?: boolean;
+  } = {}
 ): {
-  isValid: boolean
-  strength: 'weak' | 'medium' | 'strong'
-  score: number
-  errors: string[]
+  isValid: boolean;
+  strength: 'weak' | 'medium' | 'strong';
+  score: number;
+  errors: string[];
 } {
   const {
     minLength = 8,
@@ -125,54 +124,54 @@ export function validatePassword(
     requireLowercase = true,
     requireNumbers = true,
     requireSpecialChars = true,
-  } = options
+  } = options;
 
-  const errors: string[] = []
-  let score = 0
+  const errors: string[] = [];
+  let score = 0;
 
   // 长度检查
   if (password.length < minLength) {
-    errors.push(`密码长度至少${minLength}位`)
+    errors.push(`密码长度至少${minLength}位`);
   } else {
-    score++
+    score++;
   }
 
   // 大写字母检查
   if (requireUppercase && !/[A-Z]/.test(password)) {
-    errors.push('密码必须包含大写字母')
+    errors.push('密码必须包含大写字母');
   } else if (/[A-Z]/.test(password)) {
-    score++
+    score++;
   }
 
   // 小写字母检查
   if (requireLowercase && !/[a-z]/.test(password)) {
-    errors.push('密码必须包含小写字母')
+    errors.push('密码必须包含小写字母');
   } else if (/[a-z]/.test(password)) {
-    score++
+    score++;
   }
 
   // 数字检查
   if (requireNumbers && !/\d/.test(password)) {
-    errors.push('密码必须包含数字')
+    errors.push('密码必须包含数字');
   } else if (/\d/.test(password)) {
-    score++
+    score++;
   }
 
   // 特殊字符检查
   if (requireSpecialChars && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.push('密码必须包含特殊字符')
+    errors.push('密码必须包含特殊字符');
   } else if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    score++
+    score++;
   }
 
   // 强度评估
-  let strength: 'weak' | 'medium' | 'strong'
+  let strength: 'weak' | 'medium' | 'strong';
   if (score <= 2) {
-    strength = 'weak'
+    strength = 'weak';
   } else if (score <= 3) {
-    strength = 'medium'
+    strength = 'medium';
   } else {
-    strength = 'strong'
+    strength = 'strong';
   }
 
   return {
@@ -180,7 +179,7 @@ export function validatePassword(
     strength,
     score,
     errors,
-  }
+  };
 }
 
 /**
@@ -196,32 +195,32 @@ export function validatePassword(
  */
 export function isBankCard(cardNumber: string): boolean {
   // 移除空格和连字符
-  const cleanNumber = cardNumber.replace(/[\s-]/g, '')
+  const cleanNumber = cardNumber.replace(/[\s-]/g, '');
 
   // 长度检查（一般为16-19位）
   if (!/^\d{16,19}$/.test(cleanNumber)) {
-    return false
+    return false;
   }
 
   // Luhn算法验证
-  let sum = 0
-  let isEven = false
+  let sum = 0;
+  let isEven = false;
 
   for (let i = cleanNumber.length - 1; i >= 0; i--) {
-    let digit = parseInt(cleanNumber[i])
+    let digit = Number.parseInt(cleanNumber[i], 10);
 
     if (isEven) {
-      digit *= 2
+      digit *= 2;
       if (digit > 9) {
-        digit -= 9
+        digit -= 9;
       }
     }
 
-    sum += digit
-    isEven = !isEven
+    sum += digit;
+    isEven = !isEven;
   }
 
-  return sum % 10 === 0
+  return sum % 10 === 0;
 }
 
 /**
@@ -236,8 +235,8 @@ export function isBankCard(cardNumber: string): boolean {
  * ```
  */
 export function isChineseName(name: string): boolean {
-  const chineseNameRegex = /^[\u4e00-\u9fa5]{2,4}$/
-  return chineseNameRegex.test(name)
+  const chineseNameRegex = /^[\u4e00-\u9fa5]{2,4}$/;
+  return chineseNameRegex.test(name);
 }
 
 /**
@@ -254,12 +253,11 @@ export function isChineseName(name: string): boolean {
 export function isPlateNumber(plateNumber: string): boolean {
   // 普通车牌号
   const normalPlate =
-    /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领][A-Z][A-Z0-9]{4}[A-Z0-9挂学警港澳]$/
+    /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领][A-Z][A-Z0-9]{4}[A-Z0-9挂学警港澳]$/;
   // 新能源车牌号
-  const newEnergyPlate =
-    /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领][A-Z][A-Z0-9]{5}$/
+  const newEnergyPlate = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领][A-Z][A-Z0-9]{5}$/;
 
-  return normalPlate.test(plateNumber) || newEnergyPlate.test(plateNumber)
+  return normalPlate.test(plateNumber) || newEnergyPlate.test(plateNumber);
 }
 
 /**
@@ -274,8 +272,8 @@ export function isPlateNumber(plateNumber: string): boolean {
  * ```
  */
 export function isQQ(qq: string): boolean {
-  const qqRegex = /^[1-9][0-9]{4,10}$/
-  return qqRegex.test(qq)
+  const qqRegex = /^[1-9][0-9]{4,10}$/;
+  return qqRegex.test(qq);
 }
 
 /**
@@ -290,8 +288,8 @@ export function isQQ(qq: string): boolean {
  * ```
  */
 export function isWechat(wechat: string): boolean {
-  const wechatRegex = /^[a-zA-Z][-_a-zA-Z0-9]{5,19}$/
-  return wechatRegex.test(wechat)
+  const wechatRegex = /^[a-zA-Z][-_a-zA-Z0-9]{5,19}$/;
+  return wechatRegex.test(wechat);
 }
 
 /**
@@ -308,7 +306,7 @@ export function isWechat(wechat: string): boolean {
  * ```
  */
 export function isInRange(value: number, min: number, max: number): boolean {
-  return value >= min && value <= max
+  return value >= min && value <= max;
 }
 
 /**
@@ -325,7 +323,7 @@ export function isInRange(value: number, min: number, max: number): boolean {
  * ```
  */
 export function isLengthInRange(str: string, min: number, max: number): boolean {
-  return str.length >= min && str.length <= max
+  return str.length >= min && str.length <= max;
 }
 
 /**
@@ -344,11 +342,19 @@ export function isLengthInRange(str: string, min: number, max: number): boolean 
  * ```
  */
 export function isEmpty(value: any): boolean {
-  if (value == null) return true
-  if (typeof value === 'string') return value.trim() === ''
-  if (Array.isArray(value)) return value.length === 0
-  if (typeof value === 'object') return Object.keys(value).length === 0
-  return false
+  if (value == null) {
+    return true;
+  }
+  if (typeof value === 'string') {
+    return value.trim() === '';
+  }
+  if (Array.isArray(value)) {
+    return value.length === 0;
+  }
+  if (typeof value === 'object') {
+    return Object.keys(value).length === 0;
+  }
+  return false;
 }
 
 /**
@@ -364,7 +370,7 @@ export function isEmpty(value: any): boolean {
  * ```
  */
 export function isNumber(value: any): boolean {
-  return !isNaN(Number(value)) && isFinite(Number(value))
+  return !Number.isNaN(Number(value)) && Number.isFinite(Number(value));
 }
 
 /**
@@ -379,7 +385,7 @@ export function isNumber(value: any): boolean {
  * ```
  */
 export function isInteger(value: any): boolean {
-  return isNumber(value) && Number.isInteger(Number(value))
+  return isNumber(value) && Number.isInteger(Number(value));
 }
 
 /**
@@ -394,7 +400,7 @@ export function isInteger(value: any): boolean {
  * ```
  */
 export function isPositive(value: any): boolean {
-  return isNumber(value) && Number(value) > 0
+  return isNumber(value) && Number(value) > 0;
 }
 
 // ============ 从validate模块合并的验证规则 ============
@@ -403,10 +409,10 @@ export function isPositive(value: any): boolean {
  * 验证规则类型
  */
 export interface ValidationRule {
-  required?: boolean
-  message?: string
-  validator?: (value: any, formData?: any) => boolean | string
-  trigger?: 'blur' | 'change'
+  required?: boolean;
+  message?: string;
+  validator?: (value: any, formData?: any) => boolean | string;
+  trigger?: 'blur' | 'change';
 }
 
 /**
@@ -414,12 +420,12 @@ export interface ValidationRule {
  * @param message - 错误信息
  * @returns 验证规则
  */
-export function required(message: string = '此字段为必填项'): ValidationRule {
+export function required(message = '此字段为必填项'): ValidationRule {
   return {
     required: true,
     message,
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -427,14 +433,16 @@ export function required(message: string = '此字段为必填项'): ValidationR
  * @param message - 错误信息
  * @returns 验证规则
  */
-export function emailRule(message: string = '请输入正确的邮箱地址'): ValidationRule {
+export function emailRule(message = '请输入正确的邮箱地址'): ValidationRule {
   return {
     validator: (value: string) => {
-      if (!value) return true
-      return isEmail(value) || message
+      if (!value) {
+        return true;
+      }
+      return isEmail(value) || message;
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -442,14 +450,16 @@ export function emailRule(message: string = '请输入正确的邮箱地址'): V
  * @param message - 错误信息
  * @returns 验证规则
  */
-export function phoneRule(message: string = '请输入正确的手机号'): ValidationRule {
+export function phoneRule(message = '请输入正确的手机号'): ValidationRule {
   return {
     validator: (value: string) => {
-      if (!value) return true
-      return isPhone(value) || message
+      if (!value) {
+        return true;
+      }
+      return isPhone(value) || message;
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -457,14 +467,16 @@ export function phoneRule(message: string = '请输入正确的手机号'): Vali
  * @param message - 错误信息
  * @returns 验证规则
  */
-export function idCardRule(message: string = '请输入正确的身份证号'): ValidationRule {
+export function idCardRule(message = '请输入正确的身份证号'): ValidationRule {
   return {
     validator: (value: string) => {
-      if (!value) return true
-      return isIdCard(value) || message
+      if (!value) {
+        return true;
+      }
+      return isIdCard(value) || message;
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -472,14 +484,16 @@ export function idCardRule(message: string = '请输入正确的身份证号'): 
  * @param message - 错误信息
  * @returns 验证规则
  */
-export function urlRule(message: string = '请输入正确的URL地址'): ValidationRule {
+export function urlRule(message = '请输入正确的URL地址'): ValidationRule {
   return {
     validator: (value: string) => {
-      if (!value) return true
-      return isUrl(value) || message
+      if (!value) {
+        return true;
+      }
+      return isUrl(value) || message;
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -490,15 +504,17 @@ export function urlRule(message: string = '请输入正确的URL地址'): Valida
  * @returns 验证规则
  */
 export function lengthRule(min: number, max: number, message?: string): ValidationRule {
-  const defaultMessage = `长度应在 ${min} 到 ${max} 个字符之间`
+  const defaultMessage = `长度应在 ${min} 到 ${max} 个字符之间`;
 
   return {
     validator: (value: string) => {
-      if (!value) return true
-      return isLengthInRange(value, min, max) || message || defaultMessage
+      if (!value) {
+        return true;
+      }
+      return isLengthInRange(value, min, max) || message || defaultMessage;
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -509,15 +525,17 @@ export function lengthRule(min: number, max: number, message?: string): Validati
  * @returns 验证规则
  */
 export function rangeRule(min: number, max: number, message?: string): ValidationRule {
-  const defaultMessage = `数值应在 ${min} 到 ${max} 之间`
+  const defaultMessage = `数值应在 ${min} 到 ${max} 之间`;
 
   return {
     validator: (value: number) => {
-      if (value === null || value === undefined) return true
-      return isInRange(Number(value), min, max) || message || defaultMessage
+      if (value === null || value === undefined) {
+        return true;
+      }
+      return isInRange(Number(value), min, max) || message || defaultMessage;
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -526,20 +544,22 @@ export function rangeRule(min: number, max: number, message?: string): Validatio
  * @returns 验证规则
  */
 export function passwordRule(options?: {
-  minLength?: number
-  requireUppercase?: boolean
-  requireLowercase?: boolean
-  requireNumbers?: boolean
-  requireSpecialChars?: boolean
+  minLength?: number;
+  requireUppercase?: boolean;
+  requireLowercase?: boolean;
+  requireNumbers?: boolean;
+  requireSpecialChars?: boolean;
 }): ValidationRule {
   return {
     validator: (value: string) => {
-      if (!value) return true
-      const result = validatePassword(value, options)
-      return result.isValid || result.errors.join(', ')
+      if (!value) {
+        return true;
+      }
+      const result = validatePassword(value, options);
+      return result.isValid || result.errors.join(', ');
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -551,11 +571,13 @@ export function passwordRule(options?: {
 export function patternRule(pattern: RegExp, message: string): ValidationRule {
   return {
     validator: (value: string) => {
-      if (!value) return true
-      return pattern.test(value) || message
+      if (!value) {
+        return true;
+      }
+      return pattern.test(value) || message;
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -564,17 +586,16 @@ export function patternRule(pattern: RegExp, message: string): ValidationRule {
  * @param message - 错误信息
  * @returns 验证规则
  */
-export function confirmPasswordRule(
-  passwordField: string,
-  message: string = '两次输入的密码不一致',
-): ValidationRule {
+export function confirmPasswordRule(passwordField: string, message = '两次输入的密码不一致'): ValidationRule {
   return {
     validator: (value: string, formData: any) => {
-      if (!value) return true
-      return value === formData[passwordField] || message
+      if (!value) {
+        return true;
+      }
+      return value === formData[passwordField] || message;
     },
     trigger: 'blur',
-  }
+  };
 }
 
 /**
@@ -590,14 +611,14 @@ export function confirmPasswordRule(
  * ```
  */
 export function generateRandomPassword(
-  length: number = 12,
+  length = 12,
   options: {
-    includeUppercase?: boolean
-    includeLowercase?: boolean
-    includeNumbers?: boolean
-    includeSymbols?: boolean
-    excludeSimilar?: boolean
-  } = {},
+    includeUppercase?: boolean;
+    includeLowercase?: boolean;
+    includeNumbers?: boolean;
+    includeSymbols?: boolean;
+    excludeSimilar?: boolean;
+  } = {}
 ): string {
   const {
     includeUppercase = true,
@@ -605,37 +626,37 @@ export function generateRandomPassword(
     includeNumbers = true,
     includeSymbols = true,
     excludeSimilar = false,
-  } = options
+  } = options;
 
-  let charset = ''
+  let charset = '';
 
   if (includeUppercase) {
-    charset += excludeSimilar ? 'ABCDEFGHJKLMNPQRSTUVWXYZ' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    charset += excludeSimilar ? 'ABCDEFGHJKLMNPQRSTUVWXYZ' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   }
 
   if (includeLowercase) {
-    charset += excludeSimilar ? 'abcdefghjkmnpqrstuvwxyz' : 'abcdefghijklmnopqrstuvwxyz'
+    charset += excludeSimilar ? 'abcdefghjkmnpqrstuvwxyz' : 'abcdefghijklmnopqrstuvwxyz';
   }
 
   if (includeNumbers) {
-    charset += excludeSimilar ? '23456789' : '0123456789'
+    charset += excludeSimilar ? '23456789' : '0123456789';
   }
 
   if (includeSymbols) {
-    charset += '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
   }
 
   if (!charset) {
-    throw new Error('至少需要选择一种字符类型')
+    throw new Error('至少需要选择一种字符类型');
   }
 
-  let password = ''
+  let password = '';
   for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length)
-    password += charset[randomIndex]
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
   }
 
-  return password
+  return password;
 }
 
 /**
@@ -650,40 +671,61 @@ export function generateRandomPassword(
  * ```
  */
 export function checkPasswordStrength(password: string): {
-  score: number
-  level: 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
-  feedback: string[]
+  score: number;
+  level: 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong';
+  feedback: string[];
 } {
-  let score = 0
-  const feedback: string[] = []
+  let score = 0;
+  const feedback: string[] = [];
 
   if (!password) {
-    return { score: 0, level: 'very-weak', feedback: ['密码不能为空'] }
+    return { score: 0, level: 'very-weak', feedback: ['密码不能为空'] };
   }
 
   // 长度检查
-  if (password.length >= 8) score += 1
-  else feedback.push('密码长度至少8位')
+  if (password.length >= 8) {
+    score += 1;
+  } else {
+    feedback.push('密码长度至少8位');
+  }
 
-  if (password.length >= 12) score += 1
-  else if (password.length >= 8) feedback.push('建议密码长度12位以上')
+  if (password.length >= 12) {
+    score += 1;
+  } else if (password.length >= 8) {
+    feedback.push('建议密码长度12位以上');
+  }
 
   // 字符类型检查
-  if (/[a-z]/.test(password)) score += 1
-  else feedback.push('建议包含小写字母')
+  if (/[a-z]/.test(password)) {
+    score += 1;
+  } else {
+    feedback.push('建议包含小写字母');
+  }
 
-  if (/[A-Z]/.test(password)) score += 1
-  else feedback.push('建议包含大写字母')
+  if (/[A-Z]/.test(password)) {
+    score += 1;
+  } else {
+    feedback.push('建议包含大写字母');
+  }
 
-  if (/[0-9]/.test(password)) score += 1
-  else feedback.push('建议包含数字')
+  if (/[0-9]/.test(password)) {
+    score += 1;
+  } else {
+    feedback.push('建议包含数字');
+  }
 
-  if (/[^a-zA-Z0-9]/.test(password)) score += 1
-  else feedback.push('建议包含特殊字符')
+  if (/[^a-zA-Z0-9]/.test(password)) {
+    score += 1;
+  } else {
+    feedback.push('建议包含特殊字符');
+  }
 
   // 复杂度检查
-  if (!/(.)\1{2,}/.test(password)) score += 1
-  else feedback.push('避免连续重复字符')
+  if (/(.)\1{2,}/.test(password)) {
+    feedback.push('避免连续重复字符');
+  } else {
+    score += 1;
+  }
 
   const levels: Array<'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'> = [
     'very-weak',
@@ -691,15 +733,15 @@ export function checkPasswordStrength(password: string): {
     'medium',
     'strong',
     'very-strong',
-  ]
+  ];
 
-  const levelIndex = Math.min(Math.floor(score / 1.5), levels.length - 1)
+  const levelIndex = Math.min(Math.floor(score / 1.5), levels.length - 1);
 
   return {
     score,
     level: levels[levelIndex],
     feedback,
-  }
+  };
 }
 
 /**
@@ -715,31 +757,28 @@ export function checkPasswordStrength(password: string): {
  * generateVerificationCode(6, 'mixed') // => 'A1B2C3'
  * ```
  */
-export function generateVerificationCode(
-  length: number = 6,
-  type: 'number' | 'letter' | 'mixed' = 'number',
-): string {
-  let charset = ''
+export function generateVerificationCode(length = 6, type: 'number' | 'letter' | 'mixed' = 'number'): string {
+  let charset = '';
 
   switch (type) {
     case 'number':
-      charset = '0123456789'
-      break
+      charset = '0123456789';
+      break;
     case 'letter':
-      charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-      break
+      charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      break;
     case 'mixed':
-      charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-      break
+      charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      break;
   }
 
-  let code = ''
+  let code = '';
   for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length)
-    code += charset[randomIndex]
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    code += charset[randomIndex];
   }
 
-  return code
+  return code;
 }
 
 /**
@@ -756,16 +795,14 @@ export function generateVerificationCode(
  * verifyCode('abcd', 'ABCD', false) // => false
  * ```
  */
-export function verifyCode(
-  inputCode: string,
-  correctCode: string,
-  ignoreCase: boolean = true,
-): boolean {
-  if (!inputCode || !correctCode) return false
-
-  if (ignoreCase) {
-    return inputCode.toLowerCase() === correctCode.toLowerCase()
+export function verifyCode(inputCode: string, correctCode: string, ignoreCase = true): boolean {
+  if (!(inputCode && correctCode)) {
+    return false;
   }
 
-  return inputCode === correctCode
+  if (ignoreCase) {
+    return inputCode.toLowerCase() === correctCode.toLowerCase();
+  }
+
+  return inputCode === correctCode;
 }

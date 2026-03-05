@@ -3,7 +3,7 @@
  * @param phone 手机号
  */
 export function formatPhone(phone: string): string {
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
 }
 
 /**
@@ -18,14 +18,14 @@ export function formatPhone(phone: string): string {
  * formatPhoneWithSeparator('13812345678', '-') // => '138-1234-5678'
  * ```
  */
-export function formatPhoneWithSeparator(phone: string, separator: string = ' '): string {
-  const cleaned = phone.replace(/\D/g, '')
+export function formatPhoneWithSeparator(phone: string, separator = ' '): string {
+  const cleaned = phone.replace(/\D/g, '');
 
   if (cleaned.length === 11) {
-    return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, `$1${separator}$2${separator}$3`)
+    return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, `$1${separator}$2${separator}$3`);
   }
 
-  return phone
+  return phone;
 }
 
 /**
@@ -33,7 +33,7 @@ export function formatPhoneWithSeparator(phone: string, separator: string = ' ')
  * @param idCard 身份证号
  */
 export function formatIdCard(idCard: string): string {
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
 }
 
 /**
@@ -48,16 +48,17 @@ export function formatIdCard(idCard: string): string {
  * formatIdCardWithSeparator('110101199001011234', '-') // => '110101-19900101-1234'
  * ```
  */
-export function formatIdCardWithSeparator(idCard: string, separator: string = ' '): string {
-  const cleaned = idCard.replace(/\s/g, '')
+export function formatIdCardWithSeparator(idCard: string, separator = ' '): string {
+  const cleaned = idCard.replace(/\s/g, '');
 
   if (cleaned.length === 18) {
-    return cleaned.replace(/(\d{6})(\d{8})(\d{4})/, `$1${separator}$2${separator}$3`)
-  } else if (cleaned.length === 15) {
-    return cleaned.replace(/(\d{6})(\d{6})(\d{3})/, `$1${separator}$2${separator}$3`)
+    return cleaned.replace(/(\d{6})(\d{8})(\d{4})/, `$1${separator}$2${separator}$3`);
+  }
+  if (cleaned.length === 15) {
+    return cleaned.replace(/(\d{6})(\d{6})(\d{3})/, `$1${separator}$2${separator}$3`);
   }
 
-  return idCard
+  return idCard;
 }
 
 /**
@@ -65,7 +66,7 @@ export function formatIdCardWithSeparator(idCard: string, separator: string = ' 
  * @param cardNo 银行卡号
  */
 export function formatBankCard(cardNo: string): string {
-  return cardNo.replace(/(\d{4})\d+(\d{4})$/, '$1 **** **** $2')
+  return cardNo.replace(/(\d{4})\d+(\d{4})$/, '$1 **** **** $2');
 }
 
 /**
@@ -80,9 +81,9 @@ export function formatBankCard(cardNo: string): string {
  * formatBankCardWithSeparator('6222600260001072444', '-') // => '6222-6002-6000-1072-444'
  * ```
  */
-export function formatBankCardWithSeparator(cardNumber: string, separator: string = ' '): string {
-  const cleaned = cardNumber.replace(/\s/g, '')
-  return cleaned.replace(/(\d{4})/g, `$1${separator}`).trim()
+export function formatBankCardWithSeparator(cardNumber: string, separator = ' '): string {
+  const cleaned = cardNumber.replace(/\s/g, '');
+  return cleaned.replace(/(\d{4})/g, `$1${separator}`).trim();
 }
 
 /**
@@ -99,21 +100,16 @@ export function formatBankCardWithSeparator(cardNumber: string, separator: strin
  * hideSensitive('张三', 1, 0) // => '张*'
  * ```
  */
-export function hideSensitive(
-  str: string,
-  start: number = 3,
-  end: number = 4,
-  mask: string = '*',
-): string {
+export function hideSensitive(str: string, start = 3, end = 4, mask = '*'): string {
   if (!str || str.length <= start + end) {
-    return str
+    return str;
   }
 
-  const startStr = str.slice(0, start)
-  const endStr = end > 0 ? str.slice(-end) : ''
-  const maskStr = mask.repeat(str.length - start - end)
+  const startStr = str.slice(0, start);
+  const endStr = end > 0 ? str.slice(-end) : '';
+  const maskStr = mask.repeat(str.length - start - end);
 
-  return startStr + maskStr + endStr
+  return startStr + maskStr + endStr;
 }
 
 /**
@@ -127,8 +123,10 @@ export function hideSensitive(
  * ```
  */
 export function capitalize(str: string): string {
-  if (!str) return str
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+  if (!str) {
+    return str;
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 /**
@@ -143,11 +141,11 @@ export function capitalize(str: string): string {
  * toCamelCase('hello_world', '_') // => 'helloWorld'
  * ```
  */
-export function toCamelCase(str: string, separator: string = '-'): string {
+export function toCamelCase(str: string, separator = '-'): string {
   return str
     .split(separator)
     .map((word, index) => (index === 0 ? word.toLowerCase() : capitalize(word)))
-    .join('')
+    .join('');
 }
 
 /**
@@ -161,11 +159,11 @@ export function toCamelCase(str: string, separator: string = '-'): string {
  * toPascalCase('hello-world') // => 'HelloWorld'
  * ```
  */
-export function toPascalCase(str: string, separator: string = '-'): string {
+export function toPascalCase(str: string, separator = '-'): string {
   return str
     .split(separator)
     .map((word) => capitalize(word))
-    .join('')
+    .join('');
 }
 
 /**
@@ -180,7 +178,7 @@ export function toPascalCase(str: string, separator: string = '-'): string {
  * ```
  */
 export function toKebabCase(str: string): string {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
 /**
@@ -195,7 +193,7 @@ export function toKebabCase(str: string): string {
  * ```
  */
 export function toSnakeCase(str: string): string {
-  return str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()
+  return str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
 }
 
 /**
@@ -211,7 +209,9 @@ export function toSnakeCase(str: string): string {
  * truncate('这是一段很长的文本', 10, '***') // => '这是一段很长的文***'
  * ```
  */
-export function truncate(text: string, length: number, suffix: string = '...'): string {
-  if (text.length <= length) return text
-  return text.slice(0, length) + suffix
+export function truncate(text: string, length: number, suffix = '...'): string {
+  if (text.length <= length) {
+    return text;
+  }
+  return text.slice(0, length) + suffix;
 }

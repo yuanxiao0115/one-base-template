@@ -7,15 +7,15 @@
  * 点坐标接口
  */
 export interface Point {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 /**
  * 点坐标转换
  * @param point - 坐标点
  * @returns 转换后的坐标点
- * 
+ *
  * @example
  * ```typescript
  * const point = { x: 10, y: 20 }
@@ -27,7 +27,7 @@ export function pointTransform(point: Point): Point {
   return {
     x: point.x,
     y: point.y,
-  }
+  };
 }
 
 /**
@@ -35,7 +35,7 @@ export function pointTransform(point: Point): Point {
  * @param point1 - 第一个点
  * @param point2 - 第二个点
  * @returns 两点间的距离
- * 
+ *
  * @example
  * ```typescript
  * const distance = getDistance({ x: 0, y: 0 }, { x: 3, y: 4 })
@@ -43,9 +43,9 @@ export function pointTransform(point: Point): Point {
  * ```
  */
 export function getDistance(point1: Point, point2: Point): number {
-  const dx = point2.x - point1.x
-  const dy = point2.y - point1.y
-  return Math.sqrt(dx * dx + dy * dy)
+  const dx = point2.x - point1.x;
+  const dy = point2.y - point1.y;
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 /**
@@ -54,7 +54,7 @@ export function getDistance(point1: Point, point2: Point): number {
  * @param lineStart - 直线起点
  * @param lineEnd - 直线终点
  * @returns 点到直线的距离
- * 
+ *
  * @example
  * ```typescript
  * const distance = getDistanceToLine(
@@ -65,40 +65,40 @@ export function getDistance(point1: Point, point2: Point): number {
  * ```
  */
 export function getDistanceToLine(point: Point, lineStart: Point, lineEnd: Point): number {
-  const A = point.x - lineStart.x
-  const B = point.y - lineStart.y
-  const C = lineEnd.x - lineStart.x
-  const D = lineEnd.y - lineStart.y
+  const A = point.x - lineStart.x;
+  const B = point.y - lineStart.y;
+  const C = lineEnd.x - lineStart.x;
+  const D = lineEnd.y - lineStart.y;
 
-  const dot = A * C + B * D
-  const lenSq = C * C + D * D
-  
+  const dot = A * C + B * D;
+  const lenSq = C * C + D * D;
+
   if (lenSq === 0) {
-    return getDistance(point, lineStart)
+    return getDistance(point, lineStart);
   }
 
-  const param = dot / lenSq
-  let xx: number, yy: number
+  const param = dot / lenSq;
+  let xx: number, yy: number;
 
   if (param < 0) {
-    xx = lineStart.x
-    yy = lineStart.y
+    xx = lineStart.x;
+    yy = lineStart.y;
   } else if (param > 1) {
-    xx = lineEnd.x
-    yy = lineEnd.y
+    xx = lineEnd.x;
+    yy = lineEnd.y;
   } else {
-    xx = lineStart.x + param * C
-    yy = lineStart.y + param * D
+    xx = lineStart.x + param * C;
+    yy = lineStart.y + param * D;
   }
 
-  return getDistance(point, { x: xx, y: yy })
+  return getDistance(point, { x: xx, y: yy });
 }
 
 /**
  * 角度转弧度
  * @param degrees - 角度
  * @returns 弧度
- * 
+ *
  * @example
  * ```typescript
  * degreesToRadians(180) // => Math.PI
@@ -106,14 +106,14 @@ export function getDistanceToLine(point: Point, lineStart: Point, lineEnd: Point
  * ```
  */
 export function degreesToRadians(degrees: number): number {
-  return degrees * (Math.PI / 180)
+  return degrees * (Math.PI / 180);
 }
 
 /**
  * 弧度转角度
  * @param radians - 弧度
  * @returns 角度
- * 
+ *
  * @example
  * ```typescript
  * radiansToDegrees(Math.PI) // => 180
@@ -121,7 +121,7 @@ export function degreesToRadians(degrees: number): number {
  * ```
  */
 export function radiansToDegrees(radians: number): number {
-  return radians * (180 / Math.PI)
+  return radians * (180 / Math.PI);
 }
 
 /**
@@ -130,7 +130,7 @@ export function radiansToDegrees(radians: number): number {
  * @param min - 最小值
  * @param max - 最大值
  * @returns 限制后的值
- * 
+ *
  * @example
  * ```typescript
  * clamp(15, 0, 10) // => 10
@@ -139,7 +139,7 @@ export function radiansToDegrees(radians: number): number {
  * ```
  */
 export function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
+  return Math.min(Math.max(value, min), max);
 }
 
 /**
@@ -148,7 +148,7 @@ export function clamp(value: number, min: number, max: number): number {
  * @param end - 结束值
  * @param t - 插值参数 (0-1)
  * @returns 插值结果
- * 
+ *
  * @example
  * ```typescript
  * lerp(0, 10, 0.5) // => 5
@@ -156,7 +156,7 @@ export function clamp(value: number, min: number, max: number): number {
  * ```
  */
 export function lerp(start: number, end: number, t: number): number {
-  return start + (end - start) * t
+  return start + (end - start) * t;
 }
 
 /**
@@ -164,7 +164,7 @@ export function lerp(start: number, end: number, t: number): number {
  * @param min - 最小值
  * @param max - 最大值
  * @returns 随机数
- * 
+ *
  * @example
  * ```typescript
  * random(1, 10) // => 1到10之间的随机数
@@ -172,7 +172,7 @@ export function lerp(start: number, end: number, t: number): number {
  * ```
  */
 export function random(min: number, max: number): number {
-  return Math.random() * (max - min) + min
+  return Math.random() * (max - min) + min;
 }
 
 /**
@@ -180,7 +180,7 @@ export function random(min: number, max: number): number {
  * @param min - 最小值
  * @param max - 最大值
  * @returns 随机整数
- * 
+ *
  * @example
  * ```typescript
  * randomInt(1, 10) // => 1到10之间的随机整数
@@ -188,14 +188,14 @@ export function random(min: number, max: number): number {
  * ```
  */
 export function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
  * 计算数组的平均值
  * @param numbers - 数字数组
  * @returns 平均值
- * 
+ *
  * @example
  * ```typescript
  * average([1, 2, 3, 4, 5]) // => 3
@@ -203,15 +203,17 @@ export function randomInt(min: number, max: number): number {
  * ```
  */
 export function average(numbers: number[]): number {
-  if (numbers.length === 0) return 0
-  return numbers.reduce((sum, num) => sum + num, 0) / numbers.length
+  if (numbers.length === 0) {
+    return 0;
+  }
+  return numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
 }
 
 /**
  * 计算数组的中位数
  * @param numbers - 数字数组
  * @returns 中位数
- * 
+ *
  * @example
  * ```typescript
  * median([1, 2, 3, 4, 5]) // => 3
@@ -219,34 +221,36 @@ export function average(numbers: number[]): number {
  * ```
  */
 export function median(numbers: number[]): number {
-  if (numbers.length === 0) return 0
-  
-  const sorted = [...numbers].sort((a, b) => a - b)
-  const mid = Math.floor(sorted.length / 2)
-  
-  return sorted.length % 2 === 0
-    ? (sorted[mid - 1] + sorted[mid]) / 2
-    : sorted[mid]
+  if (numbers.length === 0) {
+    return 0;
+  }
+
+  const sorted = [...numbers].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 
 /**
  * 计算数组的标准差
  * @param numbers - 数字数组
  * @returns 标准差
- * 
+ *
  * @example
  * ```typescript
  * standardDeviation([1, 2, 3, 4, 5]) // => 约1.58
  * ```
  */
 export function standardDeviation(numbers: number[]): number {
-  if (numbers.length === 0) return 0
-  
-  const avg = average(numbers)
-  const squaredDiffs = numbers.map(num => Math.pow(num - avg, 2))
-  const avgSquaredDiff = average(squaredDiffs)
-  
-  return Math.sqrt(avgSquaredDiff)
+  if (numbers.length === 0) {
+    return 0;
+  }
+
+  const avg = average(numbers);
+  const squaredDiffs = numbers.map((num) => (num - avg) ** 2);
+  const avgSquaredDiff = average(squaredDiffs);
+
+  return Math.sqrt(avgSquaredDiff);
 }
 
 /**
@@ -254,7 +258,7 @@ export function standardDeviation(numbers: number[]): number {
  * @param a - 第一个数
  * @param b - 第二个数
  * @returns 最大公约数
- * 
+ *
  * @example
  * ```typescript
  * gcd(12, 8) // => 4
@@ -262,16 +266,16 @@ export function standardDeviation(numbers: number[]): number {
  * ```
  */
 export function gcd(a: number, b: number): number {
-  a = Math.abs(a)
-  b = Math.abs(b)
-  
+  a = Math.abs(a);
+  b = Math.abs(b);
+
   while (b !== 0) {
-    const temp = b
-    b = a % b
-    a = temp
+    const temp = b;
+    b = a % b;
+    a = temp;
   }
-  
-  return a
+
+  return a;
 }
 
 /**
@@ -279,7 +283,7 @@ export function gcd(a: number, b: number): number {
  * @param a - 第一个数
  * @param b - 第二个数
  * @returns 最小公倍数
- * 
+ *
  * @example
  * ```typescript
  * lcm(12, 8) // => 24
@@ -287,14 +291,14 @@ export function gcd(a: number, b: number): number {
  * ```
  */
 export function lcm(a: number, b: number): number {
-  return Math.abs(a * b) / gcd(a, b)
+  return Math.abs(a * b) / gcd(a, b);
 }
 
 /**
  * 判断是否为质数
  * @param num - 要判断的数
  * @returns 是否为质数
- * 
+ *
  * @example
  * ```typescript
  * isPrime(7) // => true
@@ -303,22 +307,30 @@ export function lcm(a: number, b: number): number {
  * ```
  */
 export function isPrime(num: number): boolean {
-  if (num < 2) return false
-  if (num === 2) return true
-  if (num % 2 === 0) return false
-  
-  for (let i = 3; i <= Math.sqrt(num); i += 2) {
-    if (num % i === 0) return false
+  if (num < 2) {
+    return false;
   }
-  
-  return true
+  if (num === 2) {
+    return true;
+  }
+  if (num % 2 === 0) {
+    return false;
+  }
+
+  for (let i = 3; i <= Math.sqrt(num); i += 2) {
+    if (num % i === 0) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
  * 计算阶乘
  * @param n - 要计算阶乘的数
  * @returns 阶乘结果
- * 
+ *
  * @example
  * ```typescript
  * factorial(5) // => 120
@@ -326,22 +338,26 @@ export function isPrime(num: number): boolean {
  * ```
  */
 export function factorial(n: number): number {
-  if (n < 0) return 0
-  if (n === 0 || n === 1) return 1
-  
-  let result = 1
-  for (let i = 2; i <= n; i++) {
-    result *= i
+  if (n < 0) {
+    return 0;
   }
-  
-  return result
+  if (n === 0 || n === 1) {
+    return 1;
+  }
+
+  let result = 1;
+  for (let i = 2; i <= n; i++) {
+    result *= i;
+  }
+
+  return result;
 }
 
 /**
  * 计算斐波那契数列第n项
  * @param n - 项数
  * @returns 斐波那契数
- * 
+ *
  * @example
  * ```typescript
  * fibonacci(10) // => 55
@@ -350,16 +366,23 @@ export function factorial(n: number): number {
  * ```
  */
 export function fibonacci(n: number): number {
-  if (n < 0) return 0
-  if (n === 0) return 0
-  if (n === 1) return 1
-  
-  let a = 0, b = 1
-  for (let i = 2; i <= n; i++) {
-    const temp = a + b
-    a = b
-    b = temp
+  if (n < 0) {
+    return 0;
   }
-  
-  return b
+  if (n === 0) {
+    return 0;
+  }
+  if (n === 1) {
+    return 1;
+  }
+
+  let a = 0,
+    b = 1;
+  for (let i = 2; i <= n; i++) {
+    const temp = a + b;
+    a = b;
+    b = temp;
+  }
+
+  return b;
 }
