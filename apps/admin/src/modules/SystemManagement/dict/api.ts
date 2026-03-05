@@ -123,7 +123,7 @@ function toPageData<T> (data: unknown, mapRow: (row: unknown) => T) {
 }
 
 function toDictRecord (item: unknown): DictRecord {
-  const row = (item || {}) as DictRawRecord;
+  const row = (item ?? {}) as DictRawRecord;
 
   return {
     id: toStringValue(row.id),
@@ -136,7 +136,7 @@ function toDictRecord (item: unknown): DictRecord {
 }
 
 function toDictItemRecord (item: unknown): DictItemRecord {
-  const row = (item || {}) as DictItemRawRecord;
+  const row = (item ?? {}) as DictItemRawRecord;
 
   return {
     id: toStringValue(row.id),

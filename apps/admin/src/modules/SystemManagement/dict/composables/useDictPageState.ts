@@ -122,9 +122,9 @@ export function useDictPageState () {
   const itemTableOpt = reactive({
     query: {
       api: async (params: Record<string, unknown>) => {
-        const dictId = String(params.dictId || '');
-        const currentPage = Number(params.currentPage || 1);
-        const pageSize = Number(params.pageSize || 10);
+        const dictId = String(params.dictId ?? '');
+        const currentPage = Number(params.currentPage ?? 1);
+        const pageSize = Number(params.pageSize ?? 10);
 
         if (!dictId) {
           return {
@@ -140,8 +140,8 @@ export function useDictPageState () {
 
         return dictItemApi.page({
           dictId,
-          itemName: String(params.itemName || ''),
-          itemValue: String(params.itemValue || ''),
+          itemName: String(params.itemName ?? ''),
+          itemValue: String(params.itemValue ?? ''),
           currentPage,
           pageSize
         });
