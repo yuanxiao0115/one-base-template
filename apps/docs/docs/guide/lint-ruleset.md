@@ -312,6 +312,7 @@ admin 子项目脚本：
 - ESLint 全量审计告警：`6135 -> 1872`（再减少 `4263`，error 持续 `0`）。
 - 继续收敛（2026-03-05）：LogManagement 模块迁入 `phase1` 后，全量审计告警 `1872 -> 1840`（再减少 `32`，error 持续 `0`）。
 - 第三轮收敛（2026-03-05）：针对迁移期低信噪比 warning 在团队封装层继续降噪后，全量审计告警 `1840 -> 0`（error 持续 `0`）。
+- Phase A（2026-03-05）：在 `phase1(home,b,LogManagement)` 先恢复 5 条 type-aware 高价值规则（`no-floating-promises/no-unsafe-assignment/no-unsafe-member-access/no-unsafe-return/strict-boolean-expressions`）为 warning，可见面扩大后仍保持 `0 warnings / 0 errors`。
 
 第三轮封装层调整摘要：
 

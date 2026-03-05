@@ -14,6 +14,24 @@ const TYPE_AWARE_PHASE2_FILES = [
   'src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx}',
   'src/modules/{SystemManagement,UserManagement,demo,portal}/**/*.{ts,tsx}'
 ];
+const TYPE_AWARE_PHASE1_RECOVERY_RULES = {
+  '@typescript-eslint/no-floating-promises': 'warn',
+  '@typescript-eslint/no-unsafe-assignment': 'warn',
+  '@typescript-eslint/no-unsafe-member-access': 'warn',
+  '@typescript-eslint/no-unsafe-return': 'warn',
+  '@typescript-eslint/strict-boolean-expressions': [
+    'warn',
+    {
+      allowString: true,
+      allowNumber: true,
+      allowNullableObject: true,
+      allowNullableBoolean: true,
+      allowNullableString: true,
+      allowNullableNumber: true,
+      allowAny: false
+    }
+  ]
+};
 
 export default [
   {
@@ -54,7 +72,10 @@ export default [
     files: TYPE_AWARE_PHASE1_FILES,
     ignores: ['**/*.d.ts'],
     languageOptions: TYPE_AWARE_LANGUAGE_OPTIONS,
-    rules: tsTypeAwareWarnRules
+    rules: {
+      ...tsTypeAwareWarnRules,
+      ...TYPE_AWARE_PHASE1_RECOVERY_RULES
+    }
   },
   {
     // type-aware phase2：先覆盖其余模块，配合 lint:code:phase2 --quiet 仅做 error 阻断
