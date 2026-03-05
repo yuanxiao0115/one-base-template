@@ -5,7 +5,7 @@ export type PaginationLike = {
 
 export type BuildAdjustOrgSortParams = {
   orgId: string
-  rowId: number | string
+  rowId: number | string | null | undefined
   newIndex: number
   pagination: PaginationLike
 }

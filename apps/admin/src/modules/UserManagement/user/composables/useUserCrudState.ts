@@ -1,4 +1,4 @@
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import type { CrudFormLike } from '@one-base-template/ui';
 import { useCrudPage } from '@one-base-template/core';
 import { message } from '@/utils/message';
@@ -224,6 +224,20 @@ export function useUserCrudState () {
 
   const userTypeLabelMap = getUserTypeLabelMap(userTypeOptions);
   const currentOrgId = computed(() => searchForm.orgId);
+  const safeDataList = ref<UserListRecord[]>([]);
+  const safeSelectedList = ref<UserListRecord[]>([]);
+
+  watch(() => dataList.value as unknown,
+        (rows) => {
+          safeDataList.value = Array.isArray(rows) ? (rows as UserListRecord[]) : [];
+        },
+        { immediate: true });
+
+  watch(() => selectedList.value as unknown,
+        (rows) => {
+          safeSelectedList.value = Array.isArray(rows) ? (rows as UserListRecord[]) : [];
+        },
+        { immediate: true });
 
   const {
     loadOrgTree,
@@ -271,7 +285,7 @@ export function useUserCrudState () {
     handleBatchStatus,
     handleResetPassword
   } = useUserStatusActions({
-    selectedList,
+    selectedList: safeSelectedList,
     onSearch
   });
 
@@ -290,7 +304,7 @@ export function useUserCrudState () {
   useUserDragSort({
     tableRef,
     canDragSort,
-    dataList,
+    dataList: safeDataList,
     orgId: currentOrgId,
     pagination,
     onSearch

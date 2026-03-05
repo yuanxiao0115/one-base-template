@@ -32,7 +32,7 @@ type SearchRefExpose = {
 }
 
 function getDictLabelMap (items: Array<{ itemValue?: number | string; itemName?: string }>): Record<string, string> {
-  return Object.fromEntries((items || []).map((item) => [String(item.itemValue || ''), item.itemName || '']));
+  return Object.fromEntries(items.map((item) => [String(item.itemValue ?? ''), item.itemName ?? '']));
 }
 
 function getErrorMessage (error: unknown, fallback: string): string {

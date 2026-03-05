@@ -18,7 +18,7 @@ type UseUserRemoteOptionsParams = {
 
 function getSortedOrgTree (nodes: OrgTreeNode[]): OrgTreeNode[] {
   return [...nodes]
-    .sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
+    .sort((a, b) => a.sort - b.sort)
     .map((item) => ({
       ...item,
       children: Array.isArray(item.children) ? getSortedOrgTree(item.children) : []
@@ -38,7 +38,7 @@ export function useUserRemoteOptions (params: UseUserRemoteOptionsParams) {
       throw new Error(response.message || '加载组织树失败');
     }
 
-    orgTreeData.value = getSortedOrgTree(response.data || []);
+    orgTreeData.value = getSortedOrgTree(Array.isArray(response.data) ? response.data : []);
   }
 
   async function loadPositionOptions () {
@@ -47,7 +47,7 @@ export function useUserRemoteOptions (params: UseUserRemoteOptionsParams) {
       throw new Error(response.message || '加载职位列表失败');
     }
 
-    positionOptions.value = response.data || [];
+    positionOptions.value = Array.isArray(response.data) ? response.data : [];
   }
 
   async function loadRoleOptions () {
@@ -56,7 +56,7 @@ export function useUserRemoteOptions (params: UseUserRemoteOptionsParams) {
       throw new Error(response.message || '加载角色列表失败');
     }
 
-    roleOptions.value = response.data || [];
+    roleOptions.value = Array.isArray(response.data) ? response.data : [];
   }
 
   async function checkFieldUnique (params: {

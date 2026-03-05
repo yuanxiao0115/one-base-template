@@ -50,8 +50,8 @@ function pickDateRange (value: unknown): [string, string] {
 
 export function buildUserListParams (input: Record<string, unknown>): UserPageParams {
   const [startDateFromRange, endDateFromRange] = pickDateRange(input.date);
-  const startDate = toOptionalText(input.startDate) || toOptionalText(startDateFromRange);
-  const endDate = toOptionalText(input.endDate) || toOptionalText(endDateFromRange);
+  const startDate = toOptionalText(input.startDate) ?? toOptionalText(startDateFromRange);
+  const endDate = toOptionalText(input.endDate) ?? toOptionalText(endDateFromRange);
 
   const params: UserPageParams = {
     nickName: toStringOrEmpty(input.nickName),
@@ -60,8 +60,8 @@ export function buildUserListParams (input: Record<string, unknown>): UserPagePa
     isEnable: toNullableBoolean(input.isEnable),
     mail: toStringOrEmpty(input.mail),
     orgId: toStringOrEmpty(input.orgId),
-    currentPage: Number(input.currentPage || 1),
-    pageSize: Number(input.pageSize || 10)
+    currentPage: Number(input.currentPage ?? 1),
+    pageSize: Number(input.pageSize ?? 10)
   };
 
   if (startDate) {

@@ -63,7 +63,7 @@ export function useUserDragSort (options: UseUserDragSortOptions) {
     }
     const imported = await import('sortablejs');
     const importedRecord = imported as unknown as Record<string, unknown>;
-    const ctor = (importedRecord.default || importedRecord) as SortableCtor;
+    const ctor = ('default' in importedRecord ? importedRecord.default : importedRecord) as SortableCtor;
     sortableCtor.value = ctor;
     return ctor;
   }
@@ -78,7 +78,7 @@ export function useUserDragSort (options: UseUserDragSortOptions) {
       return;
     }
 
-    const rows = dataList.value || [];
+    const rows = dataList.value;
     const currentRow = rows[oldIndex];
     if (!currentRow) {
       return;

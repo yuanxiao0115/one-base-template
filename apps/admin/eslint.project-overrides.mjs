@@ -13,11 +13,12 @@ const TYPE_AWARE_PHASE1_FILES = [
   'src/modules/home/**/*.{ts,tsx}',
   'src/modules/b/**/*.{ts,tsx}',
   'src/modules/LogManagement/**/*.{ts,tsx}',
-  'src/modules/SystemManagement/**/*.{ts,tsx}'
+  'src/modules/SystemManagement/**/*.{ts,tsx}',
+  'src/modules/UserManagement/**/*.{ts,tsx}'
 ];
 const TYPE_AWARE_PHASE2_FILES = [
   'src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx}',
-  'src/modules/{UserManagement,demo,portal}/**/*.{ts,tsx}'
+  'src/modules/{demo,portal}/**/*.{ts,tsx}'
 ];
 const TYPE_AWARE_PHASE1_RECOVERY_RULES = {
   '@typescript-eslint/no-floating-promises': 'warn',

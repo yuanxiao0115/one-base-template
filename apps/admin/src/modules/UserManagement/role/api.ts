@@ -90,7 +90,7 @@ function toRoleRecord (item: RoleRawRecord): RoleRecord {
 
 function toRolePageData (data: unknown): RolePageData {
   const payload = toRecord(data) as RolePageRawData;
-  const records = extractList(payload).map((item) => toRoleRecord((item || {}) as RoleRawRecord));
+  const records = extractList(payload).map((item) => toRoleRecord((item ?? {}) as RoleRawRecord));
 
   return {
     records,
@@ -104,7 +104,7 @@ function toPermissionTreeNode (item: PermissionTreeRawNode): PermissionTreeNode 
   return {
     id: toStringValue(item.id),
     resourceName: toStringValue(item.resourceName),
-    children: extractList(item.children).map((child) => toPermissionTreeNode((child || {}) as PermissionTreeRawNode))
+    children: extractList(item.children).map((child) => toPermissionTreeNode((child ?? {}) as PermissionTreeRawNode))
   };
 }
 
@@ -132,7 +132,7 @@ export const roleApi = {
     .get<BizResponse<PermissionTreeNode[]>>('/cmict/admin/permission/tree')
     .then((response) => ({
       ...response,
-      data: extractList(response.data).map((item) => toPermissionTreeNode((item || {}) as PermissionTreeRawNode))
+      data: extractList(response.data).map((item) => toPermissionTreeNode((item ?? {}) as PermissionTreeRawNode))
     })),
 
   getRolePermissionIds: async (params: { roleId: string }) => getHttpClient()

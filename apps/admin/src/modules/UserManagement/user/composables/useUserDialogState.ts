@@ -12,7 +12,13 @@ import {
   type UserAccountForm as UserAccountFormModel,
   type UserBindForm
 } from '../form';
-import type { UserBindOption } from '../components/UserBindAccountForm.vue';
+
+type UserBindOption = {
+  id: string
+  nickName: string
+  userAccount: string
+  phone: string
+}
 
 type BindFormExpose = CrudFormLike & {
   loadOptions?: (keyword?: string) => Promise<void>
@@ -24,9 +30,9 @@ type UseUserDialogStateOptions = {
 }
 
 function getBindOptionsFromCorporateUsers (records: CorporateUserRecord[]): UserBindOption[] {
-  return (records || []).map((item) => ({
-    id: item.userId || item.id,
-    nickName: item.userName || item.nickName,
+  return records.map((item) => ({
+    id: item.userId,
+    nickName: item.userName,
     userAccount: item.userName,
     phone: item.phone
   }));
@@ -122,7 +128,8 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
       throw new Error(response.message || '加载用户列表失败');
     }
 
-    return (response.data || []).map((item) => ({
+    const rows = Array.isArray(response.data) ? response.data : [];
+    return rows.map((item) => ({
       id: item.id,
       nickName: item.nickName,
       userAccount: item.userAccount,
@@ -142,9 +149,13 @@ export function useUserDialogState (options: UseUserDialogStateOptions) {
         throw new Error(response.message || '加载关联账号失败');
       }
 
-      const users = getBindOptionsFromCorporateUsers(response.data.corporateUserList);
+      const detail = response.data as { corporateUserList?: CorporateUserRecord[] };
+      const corporateUsers = Array.isArray(detail.corporateUserList) ? detail.corporateUserList : [];
+      const users: UserBindOption[] = getBindOptionsFromCorporateUsers(corporateUsers);
 
-      bindForm.userIds = users.map((item) => item.id).filter(Boolean);
+      bindForm.userIds = users
+        .map((item) => item.id)
+        .filter((id): id is string => typeof id === 'string' && id.length > 0);
 
       await nextTick();
       bindFormRef.value?.setSelectedUsers?.(users);

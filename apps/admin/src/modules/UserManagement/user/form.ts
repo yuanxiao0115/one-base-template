@@ -211,13 +211,14 @@ export const userAccountFormRules: FormRules<UserAccountForm> = {
   newPassword: [
     {
       validator: (_, value, callback) => {
-        if (!value) {
+        const password = typeof value === 'string' ? value : '';
+        if (!password) {
           callback(new Error('请输入新密码'));
           return;
         }
 
         const reg = /^(?![A-Za-z]+$)(?![A-Z\d]+$)(?![A-Z\W_]+$)(?![a-z\d]+$)(?![a-z\W_]+$)(?![\d\W_]+$)\S{8,20}$/;
-        if (!reg.test(value)) {
+        if (!reg.test(password)) {
           callback(new Error('长度8-20位，至少包含大小写字母、数字、特殊字符中的3种及以上。'));
           return;
         }
@@ -230,7 +231,8 @@ export const userAccountFormRules: FormRules<UserAccountForm> = {
   newPasswordRepeat: [
     {
       validator: (_, value, callback) => {
-        if (!value) {
+        const confirmPassword = typeof value === 'string' ? value : '';
+        if (!confirmPassword) {
           callback(new Error('请确认新密码'));
           return;
         }
@@ -272,7 +274,7 @@ export function toUserForm (detail: UserDetailData): UserForm {
     : [createDefaultUserOrg()];
 
   const roleIds = Array.isArray(userInfo.roleIds)
-    ? userInfo.roleIds.map((item) => String(item || '')).filter(Boolean)
+    ? userInfo.roleIds.map((item) => String(item)).filter(Boolean)
     : [];
 
   return {
@@ -304,7 +306,7 @@ function toUserOrgPostPayload (item: UserOrgPostForm): UserOrgPostRecord {
 }
 
 function toUserOrgPayload (item: UserOrgForm): UserOrgRecord {
-  const postVos = (item.postVos || [])
+  const postVos = item.postVos
     .map((post) => toUserOrgPostPayload(post))
     .filter((post) => Boolean(post.postId));
 
@@ -320,7 +322,7 @@ function toUserOrgPayload (item: UserOrgForm): UserOrgRecord {
 }
 
 export function toUserPayload (form: UserForm): UserSavePayload {
-  const userOrgs = (form.userOrgs || [])
+  const userOrgs = form.userOrgs
     .map((item) => toUserOrgPayload(item))
     .filter((item) => Boolean(item.orgId));
 
@@ -336,7 +338,7 @@ export function toUserPayload (form: UserForm): UserSavePayload {
     userType: toNaturalNumber(form.userType, 0),
     isExternal: Boolean(form.isExternal),
     remark: trimText(form.remark),
-    roleIds: (form.roleIds || []).map((item) => String(item || '')).filter(Boolean),
+    roleIds: form.roleIds.map((item) => String(item)).filter(Boolean),
     userOrgs: userOrgs.length > 0 ? userOrgs : [toUserOrgPayload(createDefaultUserOrg())]
   };
 }

@@ -270,7 +270,7 @@ function toUserOrgPost (item: UserRawOrgPost): UserOrgPostRecord {
 }
 
 function toUserOrg (item: UserRawOrg): UserOrgRecord {
-  const postVos = extractList(item.postVos).map((post) => toUserOrgPost((post || {}) as UserRawOrgPost));
+  const postVos = extractList(item.postVos).map((post) => toUserOrgPost((post ?? {}) as UserRawOrgPost));
 
   return {
     id: toStringValue(item.id),
@@ -327,7 +327,7 @@ function toCorporateUser (item: UserRawCorporateUser): CorporateUserRecord {
 }
 
 function toUserDetail (userInfo: UserRawRecord, userRoleList: UserRoleRecord[]): UserDetailRecord {
-  const userOrgs = extractList(userInfo.userOrgs).map((item) => toUserOrg((item || {}) as UserRawOrg));
+  const userOrgs = extractList(userInfo.userOrgs).map((item) => toUserOrg((item ?? {}) as UserRawOrg));
   const roleIds = userRoleList.map((item) => item.id).filter(Boolean);
 
   return {
@@ -353,7 +353,7 @@ function toUserDetail (userInfo: UserRawRecord, userRoleList: UserRoleRecord[]):
 
 function toUserPageData (data: unknown): UserPageData {
   const payload = toRecord(data) as UserPageRawData;
-  const records = extractList(payload).map((item) => toUserRow((item || {}) as UserRawRecord));
+  const records = extractList(payload).map((item) => toUserRow((item ?? {}) as UserRawRecord));
   const total = toNumberValue(payload.totalCount ?? payload.total ?? payload.count, records.length);
   const currentPage = toNumberValue(payload.currentPage ?? payload.current ?? payload.page, 1);
   const pageSize = toNumberValue(payload.pageSize ?? payload.size, 10);
@@ -368,13 +368,13 @@ function toUserPageData (data: unknown): UserPageData {
 
 function toUserDetailData (data: unknown): UserDetailData {
   const payload = toRecord(data) as UserDetailRawData;
-  const fallbackUserInfo = (payload as unknown as UserRawRecord) || {};
-  const userInfo = ((payload.userInfo || fallbackUserInfo) || {});
+  const fallbackUserInfo = payload as unknown as UserRawRecord;
+  const userInfo = payload.userInfo ?? fallbackUserInfo;
 
-  const userRoleList = extractList(payload.userRoleList).map((item) => toUserRole((item || {}) as UserRawRole));
+  const userRoleList = extractList(payload.userRoleList).map((item) => toUserRole((item ?? {}) as UserRawRole));
 
   const corporateSource = payload.corporateUserQueryVOS ?? userInfo.corporateUserQueryVOS;
-  const corporateUserList = extractList(corporateSource).map((item) => toCorporateUser((item || {}) as UserRawCorporateUser));
+  const corporateUserList = extractList(corporateSource).map((item) => toCorporateUser((item ?? {}) as UserRawCorporateUser));
 
   return {
     userInfo: toUserDetail(userInfo, userRoleList),
@@ -384,7 +384,7 @@ function toUserDetailData (data: unknown): UserDetailData {
 }
 
 function toOrgTree (item: OrgTreeRawNode): OrgTreeNode {
-  const children = extractList(item.children).map((child) => toOrgTree((child || {}) as OrgTreeRawNode));
+  const children = extractList(item.children).map((child) => toOrgTree((child ?? {}) as OrgTreeRawNode));
   return {
     id: toStringValue(item.id),
     orgName: toStringValue(item.orgName),
@@ -468,21 +468,21 @@ export const userApi = {
     .get<BizResponse<OrgTreeNode[]>>('/cmict/admin/org/manage/list')
     .then((response) => ({
       ...response,
-      data: extractList(response.data).map((item) => toOrgTree((item || {}) as OrgTreeRawNode))
+      data: extractList(response.data).map((item) => toOrgTree((item ?? {}) as OrgTreeRawNode))
     })),
 
   positionList: async () => getHttpClient()
     .get<BizResponse<PositionItem[]>>('/cmict/admin/sys-post/list')
     .then((response) => ({
       ...response,
-      data: extractList(response.data).map((item) => toPositionItem((item || {}) as PositionRawItem))
+      data: extractList(response.data).map((item) => toPositionItem((item ?? {}) as PositionRawItem))
     })),
 
   roleList: async () => getHttpClient()
     .get<BizResponse<RoleItem[]>>('/cmict/admin/role/list')
     .then((response) => ({
       ...response,
-      data: extractList(response.data).map((item) => toRoleItem((item || {}) as RoleRawItem))
+      data: extractList(response.data).map((item) => toRoleItem((item ?? {}) as RoleRawItem))
     })),
 
   searchUsers: async (params: { nickName?: string }) => getHttpClient()
@@ -493,7 +493,7 @@ export const userApi = {
     })
     .then((response) => ({
       ...response,
-      data: extractList(response.data).map((item) => toUserBrief((item || {}) as UserRawRecord))
+      data: extractList(response.data).map((item) => toUserBrief((item ?? {}) as UserRawRecord))
     })),
 
   updateStatus: async (data: UserStatusPayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/user/state', { data }),

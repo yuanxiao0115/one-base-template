@@ -155,7 +155,7 @@ function toUserOption (item: UserRawRecord): UserOption {
 
 function toRoleMemberPageData (data: unknown): RoleMemberPageData {
   const payload = toRecord(data) as RoleMemberPageRawData;
-  const records = extractList(payload).map((item) => toRoleMember((item || {}) as RoleMemberRawRecord));
+  const records = extractList(payload).map((item) => toRoleMember((item ?? {}) as RoleMemberRawRecord));
 
   return {
     records,
@@ -237,7 +237,7 @@ function toContactUserNodes (rawData: ContactResponseRawData, parentId: string):
 }
 
 function toContactNodes (data: unknown, parentId = '0'): RoleAssignContactNode[] {
-  const rawData = (data || {}) as ContactResponseRawData;
+  const rawData = (data ?? {}) as ContactResponseRawData;
   const orgNodes = toContactOrgNodes(rawData, parentId);
   const userNodes = toContactUserNodes(rawData, parentId);
   return [...orgNodes, ...userNodes];
@@ -252,7 +252,7 @@ export const roleAssignApi = {
     })
     .then((response) => ({
       ...response,
-      data: extractList(response.data).map((item) => toRoleOption((item || {}) as RoleRawRecord))
+      data: extractList(response.data).map((item) => toRoleOption((item ?? {}) as RoleRawRecord))
     })),
 
   pageMembers: async (params: RoleMemberPageParams) => getHttpClient()
@@ -275,7 +275,7 @@ export const roleAssignApi = {
     })
     .then((response) => ({
       ...response,
-      data: extractList(response.data).map((item) => toRoleMember((item || {}) as RoleMemberRawRecord))
+      data: extractList(response.data).map((item) => toRoleMember((item ?? {}) as RoleMemberRawRecord))
     })),
 
   addMembers: async (data: RoleMemberPayload) => getHttpClient().post<BizResponse<boolean>>('/cmict/admin/role/member/add', { data }),
@@ -301,7 +301,7 @@ export const roleAssignApi = {
     })
     .then((response) => ({
       ...response,
-      data: toContactUserNodes((response.data || {}) as ContactResponseRawData, '0')
+      data: toContactUserNodes((response.data ?? {}) as ContactResponseRawData, '0')
     })),
 
   searchUsers: async (params: { keyword?: string }) => getHttpClient()
@@ -312,7 +312,7 @@ export const roleAssignApi = {
     })
     .then((response) => ({
       ...response,
-      data: extractList(response.data).map((item) => toUserOption((item || {}) as UserRawRecord))
+      data: extractList(response.data).map((item) => toUserOption((item ?? {}) as UserRawRecord))
     }))
 };
 

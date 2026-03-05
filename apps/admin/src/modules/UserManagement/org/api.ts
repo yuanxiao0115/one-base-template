@@ -249,18 +249,18 @@ function toOrgRow (row: OrgRawRecord): OrgRecord {
     orgType: toNumberValue(row.orgType),
     isExternal: toBooleanValue(row.isExternal),
     remark: toStringValue(row.remark),
-    hasChildren: getHasChildren(row, children || []),
+    hasChildren: getHasChildren(row, children),
     children
   };
 }
 
 export function toOrgRows (rows: unknown): OrgRecord[] {
-  return extractList(rows).map((row) => toOrgRow((row || {}) as OrgRawRecord));
+  return extractList(rows).map((row) => toOrgRow((row ?? {}) as OrgRawRecord));
 }
 
 function toDictItems (rows: unknown): DictItem[] {
   return extractList(rows).map((row) => {
-    const raw = (row || {}) as DictRawItem;
+    const raw = (row ?? {}) as DictRawItem;
     return {
       itemName: toStringValue(raw.itemName),
       itemValue: toStringValue(raw.itemValue)
@@ -270,7 +270,7 @@ function toDictItems (rows: unknown): DictItem[] {
 
 function toOrgLevelItems (rows: unknown): OrgLevelItem[] {
   return extractList(rows, ['records', 'list', 'rows', 'items', 'levelList']).map((row) => {
-    const raw = (row || {}) as OrgLevelRawItem;
+    const raw = (row ?? {}) as OrgLevelRawItem;
     return {
       id: toStringValue(raw.id),
       orgLevel: toNumberValue(raw.orgLevel),
@@ -282,7 +282,7 @@ function toOrgLevelItems (rows: unknown): OrgLevelItem[] {
 
 function toOrgManagerItems (rows: unknown): OrgManagerRecord[] {
   return extractList(rows).map((row) => {
-    const raw = (row || {}) as OrgManagerRawRecord;
+    const raw = (row ?? {}) as OrgManagerRawRecord;
     return {
       id: toStringValue(raw.id),
       userId: toStringValue(raw.userId),
@@ -294,7 +294,7 @@ function toOrgManagerItems (rows: unknown): OrgManagerRecord[] {
 
 function toUserBriefItems (rows: unknown): UserBriefRecord[] {
   return extractList(rows).map((row) => {
-    const raw = (row || {}) as UserRawRecord;
+    const raw = (row ?? {}) as UserRawRecord;
     return {
       id: toStringValue(raw.id),
       nickName: toStringValue(raw.nickName),
@@ -374,7 +374,7 @@ function toContactUserNodes (rawData: ContactResponseRawData, parentId: string):
 }
 
 function toContactNodes (data: unknown, parentId = '0'): OrgContactNode[] {
-  const rawData = (data || {}) as ContactResponseRawData;
+  const rawData = (data ?? {}) as ContactResponseRawData;
   const orgNodes = toContactOrgNodes(rawData, parentId);
   const userNodes = toContactUserNodes(rawData, parentId);
   return [...orgNodes, ...userNodes];
@@ -486,7 +486,7 @@ export const orgApi = {
     })
     .then((response) => ({
       ...response,
-      data: toContactUserNodes((response.data || {}) as ContactResponseRawData, '0')
+      data: toContactUserNodes((response.data ?? {}) as ContactResponseRawData, '0')
     })),
 
   getClientOwnInfo: async () => getHttpClient().get<BizResponse<{ userOrgs?: Array<{ companyId?: number | string; orgCode?: string }> }>>('/cmict/admin/user/client-own-info'),

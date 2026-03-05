@@ -74,10 +74,10 @@ export function useRoleAssignPageState () {
   const tableOpt = reactive({
     query: {
       api: async (params: Record<string, unknown>) => {
-        const roleId = String(params.roleId || '');
-        const currentPage = Number(params.currentPage || 1);
-        const pageSize = Number(params.pageSize || 10);
-        const keyWord = String(params.keyWord || '');
+        const roleId = String(params.roleId ?? '');
+        const currentPage = Number(params.currentPage ?? 1);
+        const pageSize = Number(params.pageSize ?? 10);
+        const keyWord = String(params.keyWord ?? '');
 
         if (!roleId) {
           return {
@@ -133,8 +133,8 @@ export function useRoleAssignPageState () {
     originalMembers.value = [];
   }
 
-  async function selectRole (role: RoleOption) {
-    if (!role?.id) {
+async function selectRole (role: RoleOption) {
+    if (!role.id) {
       return;
     }
 
@@ -269,7 +269,7 @@ export function useRoleAssignPageState () {
       throw new Error(response.message || '加载组织通讯录失败');
     }
 
-    return response.data || [];
+    return Array.isArray(response.data) ? response.data : [];
   }
 
   async function searchContactUsers (keyword: string): Promise<RoleAssignContactUserNode[]> {
@@ -278,7 +278,7 @@ export function useRoleAssignPageState () {
       throw new Error(response.message || '搜索人员失败');
     }
 
-    return response.data || [];
+    return Array.isArray(response.data) ? response.data : [];
   }
 
   async function openAddMembersDialog () {
@@ -335,7 +335,7 @@ export function useRoleAssignPageState () {
 
     memberDialogSubmitting.value = true;
     try {
-      const selectedIds = Array.from(new Set((memberForm.userIds || []).filter(Boolean)));
+      const selectedIds = Array.from(new Set(memberForm.userIds.filter(Boolean)));
       const originalIds = Array.from(new Set(originalMembers.value.map((item) => item.id).filter(Boolean)));
 
       const originalSet = new Set(originalIds);

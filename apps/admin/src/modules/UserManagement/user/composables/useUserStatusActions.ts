@@ -54,7 +54,7 @@ export function useUserStatusActions (options: UseUserStatusActionsOptions) {
   }
 
   async function handleBatchStatus (isEnable: boolean) {
-    const rows = selectedList.value || [];
+    const rows = selectedList.value;
     if (rows.length === 0) {
       message.warning('请先选择用户');
       return;
