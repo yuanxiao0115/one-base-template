@@ -210,7 +210,7 @@
   - `@typescript-eslint/no-unnecessary-condition`
 - 模块扩面进度：
   - `SystemManagement` 已迁入 `phase1` 且保持 `0 warnings / 0 errors`；
-  - `UserManagement` 试迁入时触发 `75` 条 warning（以 `strict-boolean-expressions` 与 `no-unnecessary-condition` 为主），已按计划停在当前波次并回退扩面，待专项治理后再迁入。
+  - `UserManagement` 已完成专项治理（`75 -> 0`）并迁入 `phase1`。
 
 ## 在其他项目使用
 

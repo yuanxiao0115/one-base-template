@@ -7,7 +7,7 @@
       "category": "type-safety",
       "currentState": "warn",
       "targetState": "error",
-      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement,UserManagement)",
       "reason": "异步调用未处理会导致吞错与流程失控，属于高价值 typed safety 规则。",
       "tuning": "保留默认参数，先在 phase1 连续两轮 0 warning 后再升 error。",
       "status": "phase1-established"
@@ -17,7 +17,7 @@
       "category": "type-safety",
       "currentState": "warn",
       "targetState": "error",
-      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement,UserManagement)",
       "reason": "阻断 any/unknown 污染进入业务变量，降低类型逃逸风险。",
       "tuning": "优先改代码收敛；不得在 admin 侧同名覆盖团队规则。",
       "status": "phase1-established"
@@ -27,7 +27,7 @@
       "category": "type-safety",
       "currentState": "warn",
       "targetState": "error",
-      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement,UserManagement)",
       "reason": "防止不安全属性读取导致运行时 undefined 异常。",
       "tuning": "结合类型守卫与 schema narrowing 修复，不做本地同名覆盖。",
       "status": "phase1-established"
@@ -37,7 +37,7 @@
       "category": "type-safety",
       "currentState": "warn",
       "targetState": "error",
-      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement,UserManagement)",
       "reason": "避免不安全返回值扩散到调用链，提升边界可预测性。",
       "tuning": "优先在函数返回处补类型约束与收窄。",
       "status": "phase1-established"
@@ -47,7 +47,7 @@
       "category": "type-safety",
       "currentState": "warn",
       "targetState": "error",
-      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement)",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement,UserManagement)",
       "reason": "减少隐式 truthy/falsy 判断引发的分支偏差。",
       "tuning": "当前参数：allowString/allowNumber/allowNullable* 为 true，allowAny=false。",
       "status": "phase1-established"
@@ -57,9 +57,9 @@
       "category": "type-safety",
       "currentState": "warn (phase1) / off (phase2)",
       "targetState": "warn",
-      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement) -> phase2",
+      "scope": "apps/admin phase1 (home,b,LogManagement,SystemManagement,UserManagement) -> phase2",
       "reason": "可识别无效条件分支，但在现状代码中存在较多噪声。",
-      "tuning": "已观测 UserManagement 迁入 phase1 时产生 75 条 warning，需先分模块治理后再扩面。",
+      "tuning": "UserManagement 已完成专项治理（75 -> 0）并迁入 phase1，后续按同口径推进 demo/portal。",
       "status": "phase1-established"
     },
     {
