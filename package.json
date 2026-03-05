@@ -15,6 +15,11 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
+    "biome:format": "pnpm exec biome format --config-path ./biome.jsonc --write .",
+    "biome:lint": "pnpm exec biome lint --config-path ./biome.jsonc .",
+    "biome:check": "pnpm exec biome check --config-path ./biome.jsonc --write .",
+    "biome:unsafe": "pnpm exec biome check --config-path ./biome.jsonc --write --unsafe .",
+    "biome:ci": "pnpm exec biome ci --config-path ./biome.jsonc .",
     "changeset": "changeset",
     "version:packages": "changeset version",
     "release:packages": "changeset publish",
@@ -24,6 +29,7 @@
     "doctor": "node ./scripts/doctor.mjs"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.5",
     "@changesets/cli": "^2.29.7",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.0.2",
@@ -32,6 +38,7 @@
     "turbo": "^2.8.1",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.56.1",
+    "ultracite": "^7.2.4",
     "vue-tsc": "^2.0.0"
   }
 }

@@ -37,7 +37,6 @@ apps/
 packages/
   adapters/              # Adapter：对接后端接口/字段映射
   core/                  # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等
-  lint-ruleset/          # 可发布 lint 规则子包
   tag/                   # 主题样式与视觉资产
   ui/                    # UI 壳：Layout/Sidebar/Topbar/Tabs/KeepAlive 等
   utils/                 # 通用工具能力
@@ -63,7 +62,6 @@ packages/
 | adapters 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/adapters/AGENTS.md` | 适配层契约、字段映射、mock/真实接口边界 |
 | core 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/core/AGENTS.md` | 逻辑内核、主题 token 引擎、无 UI 依赖 |
 | ui 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/ui/AGENTS.md` | 壳组件实现、样式 token、导出边界 |
-| lint-ruleset 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/lint-ruleset/AGENTS.md` | 规则映射、双口径统计、发布校验 |
 | tag 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/tag/AGENTS.md` | 主题样式资源与导出规范 |
 | utils 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/utils/AGENTS.md` | 工具函数语义、纯函数与可复用性 |
 
