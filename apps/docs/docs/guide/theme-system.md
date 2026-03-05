@@ -302,7 +302,7 @@ await confirm.error('该操作无法撤销，是否继续？', '失败信息')
 - 默认 `type: 'warning'`，并提供“确定 / 取消”按钮与右上角关闭入口
 - 仅二次确认弹窗挂载该样式类，不影响 `ElMessageBox.prompt` 等输入类弹窗
 - 提供三色快捷命名：`confirm.warn` / `confirm.success` / `confirm.error`
-- 可在 admin 演示页访问：`/demo/confirm`
+- 可在 admin 业务页触发确认弹窗（例如 `/system/permission` 的删除操作）。
 
 ---
 
@@ -331,7 +331,7 @@ await confirm.error('该操作无法撤销，是否继续？', '失败信息')
 - 主题 token：`packages/core/src/theme/one/theme-tokens.ts`
 - Element 变量桥接：`packages/core/src/theme/one/apply-theme.ts`
 - admin 覆盖：`apps/admin/src/styles/element-plus/button-overrides.css`
-- admin 演示页：`/demo/button-style`
+- admin 按钮样式以 `apps/admin/src/styles/element-plus/button-overrides.css` 为统一落点（页面内直接生效，无独立 demo 路由）。
 
 ---
 

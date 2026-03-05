@@ -170,7 +170,7 @@ export default preset;
 
 - ESLint 基线：`apps/admin/eslint.config.mjs`（引入 `@one-base-template/lint-ruleset/eslint`）
 - ESLint 项目自定义：`apps/admin/eslint.project-overrides.mjs`（抽离 admin 约束）
-- ESLint Type-Aware 渐进：`apps/admin/eslint.project-overrides.mjs` 通过 `@one-base-template/lint-ruleset/eslint-type-aware` 按 phase1/phase2 分模块启用
+- ESLint Type-Aware：`apps/admin/eslint.project-overrides.mjs` 通过 `@one-base-template/lint-ruleset/eslint-type-aware` 统一纳入当前治理范围
 - Stylelint 基线：`apps/admin/stylelint.config.cjs`（`extends: ['@one-base-template/lint-ruleset/stylelint']`）
 - Stylelint 项目自定义：`apps/admin/stylelint.project-overrides.cjs`
 
@@ -179,13 +179,10 @@ admin 子项目脚本：
 ```json
 {
   "scripts": {
-    "lint:code:phase1": "eslint \"src/modules/{home,b,LogManagement}/**/*.{ts,tsx,vue}\"",
-    "lint:code:phase2:quiet": "eslint \"src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx,vue}\" \"src/modules/{SystemManagement,UserManagement,demo,portal}/**/*.{ts,tsx,vue}\" --quiet",
-    "lint:code": "pnpm lint:code:phase1 && pnpm lint:code:phase2:quiet",
-    "lint:style:phase1": "stylelint \"src/modules/{home,b,LogManagement,UserManagement,demo,SystemManagement,portal}/**/*.{css,scss,vue}\" --allow-empty-input",
-    "lint:style:phase2:quiet": "stylelint \"src/{styles,components,pages}/**/*.{css,scss,vue}\" --allow-empty-input --quiet",
-    "lint:style:phase2:audit": "stylelint \"src/{styles,components,pages}/**/*.{css,scss,vue}\" --allow-empty-input",
-    "lint:style": "pnpm lint:style:phase1",
+    "lint:code": "eslint \"src/modules/{home,LogManagement,SystemManagement,UserManagement}/**/*.{ts,tsx,vue}\" \"src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx,vue}\" --max-warnings=0",
+    "lint:code:audit": "eslint \"src/modules/{home,LogManagement,SystemManagement,UserManagement}/**/*.{ts,tsx,vue}\" \"src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx,vue}\"",
+    "lint:style": "stylelint \"src/modules/{home,LogManagement,UserManagement,SystemManagement}/**/*.{css,scss,vue}\" \"src/{styles,components,pages}/**/*.{css,scss,vue}\" --allow-empty-input --max-warnings=0",
+    "lint:style:audit": "stylelint \"src/modules/{home,LogManagement,UserManagement,SystemManagement}/**/*.{css,scss,vue}\" \"src/{styles,components,pages}/**/*.{css,scss,vue}\" --allow-empty-input",
     "lint": "pnpm lint:code && pnpm lint:style"
   }
 }
@@ -193,11 +190,10 @@ admin 子项目脚本：
 
 说明：
 
-- 首轮接入优先保证可执行与可落地，历史样式/语法噪音先按 warning 观察，再分模块收敛；
-- 门禁口径采用“**phase1 warning 可见、phase2 quiet 仅阻断 error**”：
-  - `phase1`：进入治理清单的模块不再加 `--quiet`，warning 对研发可见；
-  - `phase2`：未进入治理清单的模块暂时保留 `--quiet`，只保留 error 阻断；
-  - 模块治理完成后，从 `phase2` 移入 `phase1`，直到全量移除 `--quiet`；
+- 当前门禁采用**单一口径**：不再区分 phase，统一执行目标范围 lint；
+- `lint:code` 与 `lint:style` 默认启用 `--max-warnings=0`，warning 与 error 均阻断；
+- `lint:*:audit` 仅用于排查，不作为门禁命令；
+- ESLint 默认忽略测试文件：`**/__tests__/**`、`**/*.{test,spec}.{js,jsx,ts,tsx,vue,mjs,cjs}`；
 - lint 验证范围先限定在 `apps/admin`，降低全仓一次性切换风险。
 
 ## 废弃/失效规则清理（2026-03-04）
@@ -263,8 +259,8 @@ admin 子项目脚本：
 
 效果（admin 当前口径）：
 
-- `lint:style:phase2:audit`：`0 warnings, 0 errors`；
-- `lint:style`（phase1）：`0 warnings, 0 errors`；
+- `lint:style:audit`：`0 warnings, 0 errors`；
+- `lint:style`：`0 warnings, 0 errors`；
 - 维持“warning 可见、error 阻断”门禁策略不变。
 
 ### 告警降噪收敛（2026-03-05）
@@ -286,7 +282,7 @@ admin 子项目脚本：
 - 目标是先压缩历史噪声、消除循环修复冲突，再把治理精力聚焦到类型安全和真实质量问题。
 - admin 最新审计结果：Stylelint 告警已从 `41` 进一步压缩到 `0`（`declaration-no-important` 与 `declaration-property-max-values` 已完成本轮治理）。
 - admin 最新审计结果（不含 i18n）：
-  - `lint:code:phase1(home,b,LogManagement)` 告警已清零；
+  - 统一门禁范围 `lint:code` 告警已清零；
   - ESLint 全量审计告警 `6150 -> 6135`（error 保持 `0`）。
 
 ### TypeScript/JS/Vue 噪声规则参数收敛（2026-03-05）
@@ -310,11 +306,11 @@ admin 子项目脚本：
 收敛结果（不含 i18n）：
 
 - ESLint 全量审计告警：`6135 -> 1872`（再减少 `4263`，error 持续 `0`）。
-- 继续收敛（2026-03-05）：LogManagement 模块迁入 `phase1` 后，全量审计告警 `1872 -> 1840`（再减少 `32`，error 持续 `0`）。
+- 继续收敛（2026-03-05）：治理范围扩大后，全量审计告警 `1872 -> 1840`（再减少 `32`，error 持续 `0`）。
 - 第三轮收敛（2026-03-05）：针对迁移期低信噪比 warning 在团队封装层继续降噪后，全量审计告警 `1840 -> 0`（error 持续 `0`）。
-- Phase A（2026-03-05）：在 `phase1(home,b,LogManagement)` 先恢复 5 条 type-aware 高价值规则（`no-floating-promises/no-unsafe-assignment/no-unsafe-member-access/no-unsafe-return/strict-boolean-expressions`）为 warning，可见面扩大后仍保持 `0 warnings / 0 errors`。
-- Wave 1（2026-03-05）：`SystemManagement` 迁入 `phase1`，并新增 `@typescript-eslint/no-unnecessary-condition`（phase1 warn）后，仍保持 `0 warnings / 0 errors`。
-- Wave 2（2026-03-05）：完成 `UserManagement` 75 条 type-aware warning 专项治理（`75 -> 0`），并迁入 `phase1`；全量审计继续保持 `0 warnings / 0 errors`。
+- 历史首轮回收（2026-03-05）：先恢复 5 条 type-aware 高价值规则（`no-floating-promises/no-unsafe-assignment/no-unsafe-member-access/no-unsafe-return/strict-boolean-expressions`）为 warning，可见面扩大后仍保持 `0 warnings / 0 errors`。
+- 历史第二轮回收（2026-03-05）：新增 `@typescript-eslint/no-unnecessary-condition`（warn）后，仍保持 `0 warnings / 0 errors`。
+- 历史第三轮回收（2026-03-05）：完成 `UserManagement` 75 条 type-aware warning 专项治理（`75 -> 0`）；全量审计继续保持 `0 warnings / 0 errors`。
 
 第三轮封装层调整摘要：
 
@@ -341,10 +337,9 @@ admin 子项目脚本：
 当前台账关键状态（2026-03-05）：
 
 - `type-safety`：
-  - 6 条已进入 `warn`（phase1）：`no-floating-promises`、`no-unsafe-assignment`、`no-unsafe-member-access`、`no-unsafe-return`、`strict-boolean-expressions`、`no-unnecessary-condition`；
-- 模块扩面：
-  - `SystemManagement`：已迁入 phase1 且保持 `0 warnings / 0 errors`；
-  - `UserManagement`：已完成专项治理并迁入 phase1（此前试迁入回潮 `75` 条，现已清零）；
+  - 6 条已进入 `warn`：`no-floating-promises`、`no-unsafe-assignment`、`no-unsafe-member-access`、`no-unsafe-return`、`strict-boolean-expressions`、`no-unnecessary-condition`；
+- 当前治理范围：
+  - `home/LogManagement/SystemManagement/UserManagement + bootstrap/router/config/shared/infra/pages/components` 保持 `0 warnings / 0 errors`；
 - `security-correctness` 与 `maintainability-style`：已入台账，保持 `off -> warn -> error` 逐级推进，不跳级。
 
 ### 参考口径补充（2026-03-04）

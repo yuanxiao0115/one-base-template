@@ -74,14 +74,14 @@ pnpm new:module user-center --title 用户中心
 
 ```json
 {
-  "enabledModules": ["home", "b", "user-management", "log-management", "system-management"]
+  "enabledModules": ["home", "user-management", "log-management", "system-management"]
 }
 ```
 
 支持两种形式：
 
 - `"*"`：启用全部已注册模块
-- `string[]`：白名单启用（如 `['home', 'b', 'user-management']`）
+- `string[]`：白名单启用（如 `['home', 'user-management', 'log-management']`）
 - 管理端生产环境建议使用 `string[]`，避免把 demo/portal 等非主链路模块默认带入。
 - 代码层兜底：即使配置缺失或为空数组，`optional` 模块也不会被默认启用。
 

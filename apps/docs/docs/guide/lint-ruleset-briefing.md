@@ -115,7 +115,7 @@
 “可用即启动”动作：
 
 - 已把 18 条可直接启用 + 40 条可参数化启用 + 30 条 option 模板 + 63 条 `@stylistic/*` 迁移规则接入团队规则集（统一先以 `warning` 启动）；
-- TS 的 45 条 type-aware 规则已通过 `eslint-type-aware` 导出沉淀，并在 admin 中按 phase1/phase2 分模块启用；
+- TS 的 45 条 type-aware 规则已通过 `eslint-type-aware` 导出沉淀，并在 admin 统一治理范围启用；
 - ESLint 参数模板已对标 `@antfu/eslint-config`，采用“显式参数 + 渐进收敛”方式落地，避免整包替换带来的一次性噪声；
 - 对于“无同名实现”或“规则名已废弃/迁移”的项，已在 gap 清单中逐条列出并附建议库。
 
@@ -179,24 +179,23 @@
 | 风险项 | 现状 | 控制措施 |
 | --- | --- | --- |
 | `none` 已降到 14（0.7%） | 14 条全部为废弃/移除/重命名规则 | 保持“废弃并入”口径，防止把历史死规则误判为治理任务 |
-| Type-aware 规则已按模块启用 | phase1 warning 可见，phase2 仍 quiet | 按模块从 phase2 迁入 phase1，逐步放大可见 warning 面 |
+| Type-aware 规则已纳入统一门禁 | warning 与 error 都会阻断 | `lint:code` 使用 `--max-warnings=0`，避免门禁双轨 |
 | 管理层误读“official=10” | 该口径不含“移除/重命名” | 固定同时展示 `actionableNoneOfficial=10` 与 `actionableNoneMergedDeprecated=0` |
 | 多文档数字漂移 | briefing 与 guide 同时展示统计 | 统一以 `full-frontend-summary.json` 为唯一事实源 |
 
 ### 5.2 30/60/90 里程碑
 
-1. **30 天**：把 admin 的 type-aware `phase1` 范围从 `home/b` 扩到更多业务模块，持续降低 `--quiet` 范围。
+1. **30 天**：保持 admin 统一门禁范围稳定（`home/LogManagement/SystemManagement/UserManagement + bootstrap/router/config/shared/infra/pages/components`），不再使用 `--quiet`。
 2. **60 天**：把 type-aware warning 清单收敛到“可治理基线”，并按风险升级部分规则到 error。
 3. **90 天**：形成“Lint 门禁 + Sonar 语义扫描”双轨验收报告，纳入团队季度质量复盘。
 
-### 5.3 admin 门禁灰度策略（按模块推进）
+### 5.3 admin 统一门禁策略（当前）
 
-- 当前 admin 门禁采用双相位：
-  - `phase1`：`home`、`b`、`LogManagement`（ESLint）与 `home`、`b`、`LogManagement`、`UserManagement`、`demo`、`SystemManagement`、`portal`（Stylelint），**warning 可见**；
-  - `phase2`：ESLint 其余模块保留 `--quiet`；Stylelint 当前收敛到 `src/{styles,components,pages}`，仅保留 **error 阻断**。
-- Type-aware 规则已同步采用同样分相：
-  - `phase1`：`home`、`b`、`LogManagement` 的 TS/TSX 已启用 typed warning；
-  - `phase2`：`bootstrap/router/config/shared/infra/pages/components + 其余模块` 启用 typed 规则但通过 `--quiet` 暂不放大 warning。
+- 当前 admin 门禁采用单一口径：
+  - `lint:code` 覆盖 `home/LogManagement/SystemManagement/UserManagement + bootstrap/router/config/shared/infra/pages/components`；
+  - `lint:style` 覆盖 `home/LogManagement/UserManagement/SystemManagement + styles/components/pages`；
+  - 两者均使用 `--max-warnings=0`，warning 与 error 统一阻断。
+- Type-aware 规则已在上述范围统一启用，不再区分 phase。
 - Stylelint 分号格式规则已统一收口：
   - `declaration-block-semicolon-newline-before` 调整为 `never-multi-line`（保留 `newline-after=always-multi-line` 与 `trailing-semicolon=always`）；
   - 目标是“可读一致 + 降低噪声”，避免把常规 `prop: value;` 判成大规模 warning。
@@ -207,19 +206,19 @@
   - Stylelint：`selector-max-specificity` 由 `0,2,0` 放宽到 `1,3,0`，降低 Element Plus 覆盖样式误报；
   - Stylelint：`declaration-property-max-values` 的 `box-shadow` 阈值由 `3` 调整到 `4`，匹配常见阴影写法。
   - admin 实际结果：Stylelint 剩余告警从 `41` 进一步降到 `0`。
-  - admin 最新进展（不含 i18n）：`lint:code:phase1(home,b,LogManagement)` 已清零，ESLint 全量审计告警 `6150 -> 6135`（error 持续 `0`）。
+  - admin 最新进展（不含 i18n）：统一门禁范围已清零，ESLint 全量审计告警 `6150 -> 6135`（error 持续 `0`）。
 - 2026-03-05 第二轮“最佳实践参数收敛”（封装层）：
   - JS：`func-style` 调整为 `declaration + allowArrowFunctions`，`sort-imports` 放宽声明排序，`require-await/no-ternary` 关闭，`no-magic-numbers` 使用渐进模板；
   - TS：`@typescript-eslint/explicit-function-return-type` 与 `@typescript-eslint/no-magic-numbers` 关闭；
   - Type-aware：`@typescript-eslint/prefer-readonly-parameter-types` 关闭，`strict-boolean-expressions`/`prefer-nullish-coalescing` 改为渐进模板；
   - Vue：`vue/max-len` 调整为 `120` 并忽略模板文本/属性值，`vue/require-prop-comment` 关闭；
   - admin 最新结果（不含 i18n）：ESLint 全量审计告警 `6135 -> 1872`（再减少 `4263`，error 持续 `0`）。
-- 2026-03-05 继续收敛：LogManagement 模块 warning 清零后迁入 `phase1`，ESLint 全量审计告警 `1872 -> 1840`（再减少 `32`，error 持续 `0`）。
+- 2026-03-05 继续收敛：治理范围扩大后，ESLint 全量审计告警 `1872 -> 1840`（再减少 `32`，error 持续 `0`）。
 - 2026-03-05 第三轮封装层降噪：在团队规则包统一关闭迁移期低信噪比 warning（JS/TS/Vue + type-aware + Sonar/Security 部分规则）后，ESLint 全量审计告警 `1840 -> 0`（error 持续 `0`）。
-- 2026-03-05 Phase A：在 `phase1(home,b,LogManagement)` 先恢复 5 条 type-aware 高价值规则为 warning（`no-floating-promises/no-unsafe-assignment/no-unsafe-member-access/no-unsafe-return/strict-boolean-expressions`），可见面扩大后仍保持 `0 warnings / 0 errors`。
-- 2026-03-05 Wave 1：`SystemManagement` 迁入 `phase1`，并新增 `@typescript-eslint/no-unnecessary-condition`（phase1 warn）后仍为 `0 warnings / 0 errors`。
-- 2026-03-05 Wave 1 扩面阻塞：`UserManagement` 试迁入 `phase1` 时触发 `75` 条 warning（主要集中在 `strict-boolean-expressions` 与 `no-unnecessary-condition`），按“warning 回潮即停批”规则已回退扩面，保留在 phase2。
-- 2026-03-05 Wave 2：完成 `UserManagement` 75 条告警专项治理（`75 -> 0`），并迁入 `phase1`；全量审计继续保持 `0 warnings / 0 errors`。
+- 2026-03-05 历史首轮回收：先恢复 5 条 type-aware 高价值规则为 warning（`no-floating-promises/no-unsafe-assignment/no-unsafe-member-access/no-unsafe-return/strict-boolean-expressions`），可见面扩大后仍保持 `0 warnings / 0 errors`。
+- 2026-03-05 历史第二轮回收：新增 `@typescript-eslint/no-unnecessary-condition`（warn）后仍为 `0 warnings / 0 errors`。
+- 2026-03-05 历史回潮阻塞：`UserManagement` 在早期扩面时触发 `75` 条 warning（主要集中在 `strict-boolean-expressions` 与 `no-unnecessary-condition`），后续已专项治理清零。
+- 2026-03-05 历史第三轮回收：完成 `UserManagement` 75 条告警专项治理（`75 -> 0`）；全量审计继续保持 `0 warnings / 0 errors`。
 - 规则回收台账已落盘：`packages/lint-ruleset/mappings/rule-recovery-ledger.json`（固定字段：`rule/category/currentState/targetState/scope/reason/tuning/status`）。
 - 爬取规则“仅名称无参数”审计（ESLint）：
   - 最新快照时间：`2026-03-05`；
@@ -233,9 +232,9 @@
   - `selector-attribute-operator-disallowed-list` 去除冲突配置，防止与 allowed-list 对冲。
   - `stylelint-config-prettier` 在 Stylelint v15+ 场景默认不再必要，当前不引入该包。
 - 推进规则：
-  1. 每轮挑选 1~2 个模块进入 `phase1`；
-  2. `phase2` 通过 `lint:*:audit` 暴露 warning 清单，作为下轮治理输入；
-  3. 模块达到“warning 可控”后迁入 `phase1`，最终全量移除 `--quiet`。
+  1. 新增治理范围前，先通过 `lint:*:audit` 评估 warning 清单；
+  2. 达到 `0 warnings / 0 errors` 后再并入统一门禁脚本；
+  3. 保持“单一门禁 + 不使用 --quiet”的长期策略。
 
 ---
 

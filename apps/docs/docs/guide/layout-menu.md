@@ -89,7 +89,7 @@ defineOptions({ name: 'UserListPage' });
 
 - 该组件依赖“父容器可计算高度”，在本模板默认布局（`SideLayout`/`TopLayout`）下可直接使用。
 - 若页面开启 `meta.fullScreen=true`，可结合 `ObPageContainer` 管理页面内部滚动，避免整页滚动串联。
-- 管理端已提供可访问示例页：`/demo/page-container`（路由名 `DemoPageContainer`）。
+- 管理端已提供可访问示例页：`/system/permission`（菜单管理页，采用 `ObPageContainer + ObTableBox` 组合）。
 
 ## 表格布局组合（ObTableBox + ObVxeTable）
 
@@ -126,9 +126,9 @@ defineOptions({ name: 'UserListPage' });
 
 视觉默认值已对齐旧 puretable 登录日志风格：工具条默认筛选图标按钮、分页左总数右操作；表格内容超高时仅主体滚动，分页器固定在底部（表体与分页拆分渲染）。颜色全部走主题 token（`--one-*` / `--el-*`），不在组件内维护独立硬编码色值；行高 `56px`、无左右边框、最后一行不绘制底边；表格默认 `min-width: 100%` 铺满内容区并使用窄轨道纵向滚动条样式。VXE 主题变量文件位于 `packages/ui/src/styles/vxe-theme.css`，作为全局唯一主题映射入口。
 
-树形页面（如组织管理）可在 `ObVxeTable` 上直接传 `treeConfig`（`lazy + loadMethod + hasChildField`），样板页参考：`/demo/org-management-vxe`。
+树形页面（如组织管理）可在 `ObVxeTable` 上直接传 `treeConfig`（`lazy + loadMethod + hasChildField`），样板页参考：`/system/org`。
 
-菜单权限迁移页支持“树模式 + 条件筛选列表模式”切换，样板页参考：`/demo/menu-management-vxe`（兼容 `/system/permission` 访问路径）。
+菜单权限迁移页支持“树模式 + 条件筛选列表模式”切换，样板页参考：`/system/permission`。
 
 完整迁移清单与映射关系请查看：[VXE 表格迁移](/guide/table-vxe-migration)。
 
@@ -190,10 +190,10 @@ UI 行为：
 ```ts
 // 示例（伪代码）
 {
-  path: '/demo/detail/:id',
+  path: '/system/user/detail/:id',
   component: () => import('./DetailPage.vue'),
   meta: {
-    activePath: '/demo/page-a'
+    activePath: '/system/user'
   }
 }
 ```

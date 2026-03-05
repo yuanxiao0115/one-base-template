@@ -88,4 +88,4 @@ import ButtonStyleDocDemo from './components/ButtonStyleDocDemo.vue'
 - 主题 token：`packages/core/src/theme/one/theme-tokens.ts`
 - Element 变量桥接：`packages/core/src/theme/one/apply-theme.ts`
 - 按钮覆盖样式：`apps/admin/src/styles/element-plus/button-overrides.css`
-- admin 演示页：`/demo/button-style`
+- admin 页面按覆盖样式直接生效（当前无独立 demo 路由）

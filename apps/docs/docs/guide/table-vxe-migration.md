@@ -207,24 +207,24 @@ const table = useTable({
 
 ## 已落地样板页
 
-- 页面 1：`/demo/login-log-vxe`（分页表格）
-  - 路由名：`DemoLoginLogMigration`
+- 页面 1：`/system/log/login-log`（分页表格）
+  - 路由名：`SystemLoginLogManagement`
   - 代码位置：
-    - `apps/admin/src/modules/demo/pages/DemoLoginLogMigrationPage.vue`
-    - `apps/admin/src/modules/demo/login-log/columns.tsx`
-    - `apps/admin/src/modules/demo/login-log/api.ts`
-- 页面 2：`/demo/org-management-vxe`（树形组织管理）
-  - 路由名：`DemoOrgManagementMigration`
+    - `apps/admin/src/modules/LogManagement/login-log/page.vue`
+    - `apps/admin/src/modules/LogManagement/login-log/columns.tsx`
+    - `apps/admin/src/modules/LogManagement/api/login-log.ts`
+- 页面 2：`/system/org`（树形组织管理）
+  - 路由名：`SystemOrgManagement`
   - 代码位置：
-    - `apps/admin/src/modules/demo/pages/DemoOrgManagementMigrationPage.vue`
-    - `apps/admin/src/modules/demo/org-management/columns.tsx`
-    - `apps/admin/src/modules/demo/org-management/api.ts`
-- 页面 3：`/demo/menu-management-vxe`（权限管理迁移）
-  - 路由名：`DemoMenuManagementMigration`
+    - `apps/admin/src/modules/UserManagement/org/page.vue`
+    - `apps/admin/src/modules/UserManagement/org/columns.tsx`
+    - `apps/admin/src/modules/UserManagement/org/api.ts`
+- 页面 3：`/system/permission`（权限管理）
+  - 路由名：`SystemMenuManagement`
   - 代码位置：
-    - `apps/admin/src/modules/demo/pages/DemoMenuManagementMigrationPage.vue`
-    - `apps/admin/src/modules/demo/menu-management/columns.ts`
-    - `apps/admin/src/modules/demo/menu-management/api.ts`
+    - `apps/admin/src/modules/SystemManagement/menu/page.vue`
+    - `apps/admin/src/modules/SystemManagement/menu/columns.ts`
+    - `apps/admin/src/modules/SystemManagement/menu/api.ts`
 
 ## 常见迁移问题
 
