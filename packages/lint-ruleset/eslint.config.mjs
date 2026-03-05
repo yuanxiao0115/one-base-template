@@ -25,7 +25,9 @@ export default [
       '**/.turbo/**',
       '**/.vite/**',
       '**/.output/**',
-      '**/coverage/**'
+      '**/coverage/**',
+      '**/__tests__/**',
+      '**/*.{test,spec}.{js,jsx,ts,tsx,vue,mjs,cjs}'
     ]
   },
   js.configs.recommended,
@@ -118,6 +120,8 @@ export default [
       'import/no-useless-path-segments': 'warn',
       'import/no-import-module-exports': 'warn',
       'import/no-relative-packages': 'warn',
+      // 当前团队代码中动态键访问场景较多，误报远高于收益；统一关闭并在台账保留后续回收入口。
+      'security/detect-object-injection': 'off',
       'array-callback-return': 'warn',
       'default-case-last': 'warn',
       'default-param-last': 'warn',

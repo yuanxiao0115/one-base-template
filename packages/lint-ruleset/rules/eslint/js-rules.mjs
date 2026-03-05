@@ -201,23 +201,17 @@ export const jsRules = {
   ],
   radix: ['warn', 'always'],
   'no-extend-native': ['warn', { exceptions: [] }],
-  'id-denylist': ['warn', '__never_restricted_identifier__'],
+  // 限制名单需由团队提供真实清单；占位值会造成“看似启用、实则无效”的误导。
+  'id-denylist': 'off',
   'lines-around-directive': ['warn', 'always'],
   'lines-between-class-members': ['warn', 'always', { exceptAfterSingleLine: false }],
   'logical-assignment-operators': ['warn', 'always', { enforceForIfStatements: false }],
   'no-mixed-spaces-and-tabs': ['warn', false],
   'no-multiple-empty-lines': ['warn', { max: 2, maxEOF: 1, maxBOF: 0 }],
   'no-param-reassign': ['warn', { props: false }],
-  'no-restricted-globals': ['warn', '__never_restricted_global__'],
-  'no-restricted-properties': [
-    'warn',
-    {
-      object: '__never_restricted_object__',
-      property: '__never_restricted_property__',
-      message: '限制名单模板占位，待团队补充真实约束。'
-    }
-  ],
-  'no-restricted-syntax': ['warn', "CallExpression[callee.name='__never_restricted_call__']"],
+  'no-restricted-globals': 'off',
+  'no-restricted-properties': 'off',
+  'no-restricted-syntax': 'off',
   'nonblock-statement-body-position': ['warn', 'beside'],
   'object-curly-newline': ['warn', { multiline: true, consistent: true }],
   'padded-blocks': ['warn', 'never'],

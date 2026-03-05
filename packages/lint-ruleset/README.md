@@ -102,6 +102,7 @@
 - 高价值规则在语言文件中显式升阶为 `error`；
 - Vue 的 deprecated 规则自动排除，不计入整改缺口；
 - ESLint 10 场景下自动过滤“不存在规则”；主配置默认跳过 type-aware 规则，需通过 `eslint-type-aware` 导出在接入方按模块启用。
+- ESLint 默认忽略测试文件：`**/__tests__/**` 与 `**/*.{test,spec}.{js,jsx,ts,tsx,vue,mjs,cjs}`（测试质量由测试命令负责，不纳入 lint 门禁）。
 
 ### 爬取规则参数化审计（2026-03-05）
 
@@ -201,16 +202,15 @@
 ### 规则回收台账（2026-03-05）
 
 - 已新增台账：`mappings/rule-recovery-ledger.json`，统一记录 `rule/category/currentState/targetState/scope/reason/tuning/status`。
-- 已落地回收（phase1）：
+- 已落地回收（统一门禁范围）：
   - `@typescript-eslint/no-floating-promises`
   - `@typescript-eslint/no-unsafe-assignment`
   - `@typescript-eslint/no-unsafe-member-access`
   - `@typescript-eslint/no-unsafe-return`
   - `@typescript-eslint/strict-boolean-expressions`
   - `@typescript-eslint/no-unnecessary-condition`
-- 模块扩面进度：
-  - `SystemManagement` 已迁入 `phase1` 且保持 `0 warnings / 0 errors`；
-  - `UserManagement` 已完成专项治理（`75 -> 0`）并迁入 `phase1`。
+- 当前范围进度：
+  - `SystemManagement` 与 `UserManagement` 均已纳入统一门禁并保持 `0 warnings / 0 errors`。
 
 ## 在其他项目使用
 
