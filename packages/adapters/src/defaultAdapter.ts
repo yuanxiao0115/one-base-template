@@ -17,7 +17,7 @@ export function createDefaultAdapter(http: ObHttp): BackendAdapter {
       async login(payload: LoginPayload) {
         await http.post('/api/auth/login', {
           data: payload,
-          $cancelOnRouteChange: false
+          $cancelOnRouteChange: false,
         });
       },
       async logout() {
@@ -26,33 +26,33 @@ export function createDefaultAdapter(http: ObHttp): BackendAdapter {
       async fetchMe() {
         const res = await http.get('/api/auth/me', { $cancelOnRouteChange: false });
         return unwrapBizData<AppUser>(res);
-      }
+      },
     },
     menu: {
       async fetchMenuTree() {
         const res = await http.get('/api/menu/tree', { $cancelOnRouteChange: false });
         return unwrapBizData<AppMenuItem[]>(res);
-      }
+      },
     },
     sso: {
       async exchangeToken(token: string) {
         await http.post('/api/sso/exchange-token', {
           data: { token },
-          $cancelOnRouteChange: false
+          $cancelOnRouteChange: false,
         });
       },
       async exchangeTicket(payload: { ticket: string; serviceUrl?: string }) {
         await http.post('/api/sso/exchange-ticket', {
           data: payload,
-          $cancelOnRouteChange: false
+          $cancelOnRouteChange: false,
         });
       },
       async exchangeOAuthCode(payload: { code: string; state?: string; redirectUri?: string }) {
         await http.post('/api/sso/exchange-code', {
           data: payload,
-          $cancelOnRouteChange: false
+          $cancelOnRouteChange: false,
         });
-      }
-    }
+      },
+    },
   };
 }
