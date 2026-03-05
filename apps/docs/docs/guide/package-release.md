@@ -10,8 +10,7 @@
 
 ## 当前状态
 
-- 已可发布：`@one-base-template/lint-ruleset`
-- 暂不发布：其余 `private: true` 子包（仅仓库内消费）
+- 当前 `packages/*` 默认为仓库内消费（`private: true`），如需发布请按本文流程启用。
 
 如需让其他子包进入发布流程，先把对应 `package.json` 的 `private` 改为 `false`，并补齐 `name/version/exports/files/publishConfig`。
 
@@ -32,7 +31,6 @@
 
 ```bash
 pnpm verify
-pnpm -C packages/lint-ruleset lint:all
 ```
 
 ### 2) 记录版本变更意图
@@ -72,12 +70,12 @@ pnpm release:packages
 如果只发布单包，也可定向执行：
 
 ```bash
-pnpm -C packages/lint-ruleset publish --access public
+pnpm -C packages/<pkg-name> publish --access public
 ```
 
 ## Tag 与回滚建议
 
-- 发布后打 tag：`<pkg-name>@<version>`，例如 `@one-base-template/lint-ruleset@0.2.0`
+- 发布后打 tag：`<pkg-name>@<version>`，例如 `@one-base-template/utils@1.2.0`
 - 发现问题时不要覆盖旧版本，直接发修复版（`patch`）
 - 严重回滚使用“版本回退 + 新版修复说明”，避免强制删除已发布版本
 

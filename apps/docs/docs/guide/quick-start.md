@@ -42,7 +42,6 @@ pnpm typecheck
 pnpm lint
 pnpm build
 pnpm changeset
-pnpm -C packages/lint-ruleset lint:all
 ```
 
 说明：

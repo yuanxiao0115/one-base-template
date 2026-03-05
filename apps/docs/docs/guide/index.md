@@ -34,10 +34,6 @@ outline: false
     <h3>命名白名单（CLI）</h3>
     <p>统一动词+名词命名，给代码生成器提供稳定规则。</p>
   </a>
-  <a class="guide-card" href="/guide/lint-ruleset">
-    <h3>Lint 规则集（无服务端）</h3>
-    <p>沉淀可分享的 ESLint/Stylelint/Csslint 规范子包，适配无 Sonar 服务端场景。</p>
-  </a>
   <a class="guide-card" href="/guide/theme-system">
     <h3>主题系统</h3>
     <p>掌握主题 token、切换机制与扩展方式。</p>
@@ -99,10 +95,6 @@ outline: false
   <a class="guide-card" href="/guide/package-release">
     <h3>子包发布与版本控制</h3>
     <p>统一子包发布、SemVer 升级、changeset 与 tag 管理流程。</p>
-  </a>
-  <a class="guide-card" href="/guide/lint-ruleset-briefing">
-    <h3>规则治理汇报（5分钟）</h3>
-    <p>用于跨团队宣贯的一页汇报文，覆盖扒规则、映射与团队包落地。</p>
   </a>
 </div>
 

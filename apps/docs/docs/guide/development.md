@@ -14,7 +14,37 @@ pnpm doctor
 pnpm changeset
 pnpm version:packages
 pnpm release:packages
-pnpm -C packages/lint-ruleset lint:all
+```
+
+admin 常用 Biome 脚本（在仓库根目录执行）：
+
+```bash
+pnpm biome:format
+pnpm biome:lint
+pnpm biome:check
+pnpm biome:unsafe
+pnpm biome:ci
+```
+
+说明：Biome 配置统一维护在仓库根目录 `biome.jsonc`，`apps/admin` 不再单独维护 `biome.jsonc`。
+`pnpm biome:unsafe` 会启用 Biome 的不安全修复（`--unsafe`），可能引入行为变化，建议先在特性分支执行并完整回归。
+
+## Biome Monorepo 用法（Big Projects）
+
+- 统一在仓库根维护共享规则：`/biome.jsonc`
+- 根脚本直接对仓库运行，实际扫描范围由 `biome.jsonc` 的 `files.includes` 控制
+- 某个子项目需要差异规则时，再在子目录新增局部 `biome.jsonc`
+
+局部配置模板（继承根配置）：
+
+```json
+{
+  "root": false,
+  "extends": "//",
+  "files": {
+    "includes": ["src/**/*"]
+  }
+}
 ```
 
 ## 文档必须随功能演进同步更新
@@ -73,17 +103,6 @@ pnpm verify
 pnpm doctor
 ```
 
-## 无服务端 Lint 规则包（可分享）
-
-仓库内置 `@one-base-template/lint-ruleset` 子包，用于无 Sonar 服务端场景下的质量校验。
-
-- 文档：`/guide/lint-ruleset`
-- 自检命令：
-
-```bash
-pnpm -C packages/lint-ruleset lint:all
-```
-
 ## 子包发布与版本控制（Changesets）
 
 仓库已接入 `changesets`，用于管理多子包版本发布：
@@ -93,8 +112,6 @@ pnpm -C packages/lint-ruleset lint:all
 - 发布到 registry：`pnpm release:packages`
 
 详细流程见：`/guide/package-release`
-
-跨团队汇报可直接复用：`/guide/lint-ruleset-briefing`
 
 ## admin 启动与 env 约束
 

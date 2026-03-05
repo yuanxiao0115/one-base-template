@@ -16,7 +16,6 @@
   - `apps/docs/docs/.vitepress/config.ts`（nav + sidebar）
   - `apps/docs/docs/guide/index.md`（文档总览卡片）
 - 文档中涉及路径、命令、统计数字时，必须与仓库现状一致，禁止复制过期信息。
-- 涉及规则治理统计时，口径按 `packages/lint-ruleset/AGENTS.md` 执行。
 
 ## 写作与结构规范
 

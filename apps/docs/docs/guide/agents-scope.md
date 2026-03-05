@@ -19,7 +19,6 @@
 | adapters 子包 | `packages/adapters/AGENTS.md` | 后端协议适配、字段映射边界 |
 | core 子包 | `packages/core/AGENTS.md` | 逻辑契约、主题 token、核心 hooks 约束 |
 | ui 子包 | `packages/ui/AGENTS.md` | 壳组件导出边界、`ObVxeTable` 与视觉规范 |
-| lint-ruleset 子包 | `packages/lint-ruleset/AGENTS.md` | 规则映射、双口径统计、发布校验 |
 | tag 子包 | `packages/tag/AGENTS.md` | 样式资产与入口导出规范 |
 | utils 子包 | `packages/utils/AGENTS.md` | 通用工具函数语义与纯函数边界 |
 
@@ -38,11 +37,10 @@
 - Layout/TopBar/个性设置规范、UserManagement 迁移细则。
 - 表格迁移样式与结构规范（`ObPageContainer + ObTableBox + ObVxeTable`）。
 
-### 3) core/ui/lint-ruleset 专属规则（分别下沉）
+### 3) core/ui 专属规则（分别下沉）
 
 - `packages/core`：主题能力下沉、`useTable` 局部覆盖、`useEntityEditor` 保存语义。
 - `packages/ui`：内部组件禁止对外暴露、菜单激活态 token 约束、`ObVxeTable` 视觉与布局规范。
-- `packages/lint-ruleset`：规则统计双口径、`full-frontend-summary.json` 作为唯一事实源。
 
 ## 新增规则的落盘原则
 

@@ -19,7 +19,6 @@ export default defineConfig({
           { text: '目录结构与边界', link: '/guide/architecture' },
           { text: '模块系统与切割', link: '/guide/module-system' },
           { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
-          { text: 'Lint 规则集（无服务端）', link: '/guide/lint-ruleset' },
           { text: '主题系统', link: '/guide/theme-system' },
           { text: '组件样式（按钮）', link: '/guide/button-styles' },
           { text: '布局与菜单', link: '/guide/layout-menu' },
@@ -28,15 +27,15 @@ export default defineConfig({
           { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
           { text: 'Iconfont 集成', link: '/guide/iconfont' },
           { text: 'Utils 工具包', link: '/guide/utils' },
-          { text: 'Utils API 速查', link: '/guide/utils-api' }
-        ]
+          { text: 'Utils API 速查', link: '/guide/utils-api' },
+        ],
       },
       {
         text: '能力扩展',
         items: [
           { text: '门户设计器（PC）', link: '/guide/portal-designer' },
-          { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
-        ]
+          { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' },
+        ],
       },
       {
         text: '开发协作',
@@ -44,9 +43,8 @@ export default defineConfig({
           { text: '开发规范与维护', link: '/guide/development' },
           { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
           { text: '子包发布与版本控制', link: '/guide/package-release' },
-          { text: '规则治理汇报（5分钟）', link: '/guide/lint-ruleset-briefing' }
-        ]
-      }
+        ],
+      },
     ],
     sidebar: {
       '/guide/': [
@@ -55,8 +53,8 @@ export default defineConfig({
           items: [
             { text: '文档总览', link: '/guide/' },
             { text: '快速开始', link: '/guide/quick-start' },
-            { text: '环境变量', link: '/guide/env' }
-          ]
+            { text: '环境变量', link: '/guide/env' },
+          ],
         },
         {
           text: '核心能力',
@@ -64,7 +62,6 @@ export default defineConfig({
             { text: '目录结构与边界', link: '/guide/architecture' },
             { text: '模块系统与切割', link: '/guide/module-system' },
             { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
-            { text: 'Lint 规则集（无服务端）', link: '/guide/lint-ruleset' },
             { text: '主题系统', link: '/guide/theme-system' },
             { text: '组件样式（按钮）', link: '/guide/button-styles' },
             { text: '布局与菜单', link: '/guide/layout-menu' },
@@ -73,15 +70,15 @@ export default defineConfig({
             { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
             { text: 'Iconfont 集成', link: '/guide/iconfont' },
             { text: 'Utils 工具包（总览）', link: '/guide/utils' },
-            { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
-          ]
+            { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' },
+          ],
         },
         {
           text: '扩展能力',
           items: [
             { text: '门户设计器（PC）', link: '/guide/portal-designer' },
-            { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
-          ]
+            { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' },
+          ],
         },
         {
           text: '协作规范',
@@ -89,15 +86,14 @@ export default defineConfig({
             { text: '开发规范与维护', link: '/guide/development' },
             { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
             { text: '子包发布与版本控制', link: '/guide/package-release' },
-            { text: '规则治理汇报（5分钟）', link: '/guide/lint-ruleset-briefing' }
-          ]
-        }
-      ]
+          ],
+        },
+      ],
     },
     outline: { level: [2, 3] },
     search: { provider: 'local' },
     footer: {
-      message: '内部项目模板文档（随代码演进同步维护）'
-    }
-  }
+      message: '内部项目模板文档（随代码演进同步维护）',
+    },
+  },
 });
