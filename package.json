@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "pnpm -C apps/admin dev",
+    "dev:template": "pnpm -C apps/template dev",
     "dev:turbo": "turbo run dev",
     "new:module": "node ./scripts/new-module.mjs",
     "build": "turbo run build",

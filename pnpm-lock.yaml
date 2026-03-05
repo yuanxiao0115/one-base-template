@@ -121,6 +121,40 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4(@algolia/client-search@5.48.0)(@types/node@25.2.3)(async-validator@4.2.5)(axios@1.13.5)(lightningcss@1.31.1)(postcss@8.5.6)(sass@1.97.3)(search-insights@2.17.3)(sortablejs@1.15.7)(typescript@5.9.3)
 
+  apps/template:
+    dependencies:
+      '@one-base-template/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@one-base-template/tag':
+        specifier: workspace:*
+        version: link:../../packages/tag
+      '@one-base-template/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      element-plus:
+        specifier: ^2.13.2
+        version: 2.13.2(vue@3.5.28(typescript@5.9.3))
+      pinia:
+        specifier: ^3.0.4
+        version: 3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3))
+      vue:
+        specifier: ^3.5.28
+        version: 3.5.28(typescript@5.9.3)
+      vue-router:
+        specifier: ^5.0.2
+        version: 5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.4
+        version: 6.0.4(vite@8.0.0-beta.13(@types/node@25.2.3)(jiti@2.6.1)(sass@1.97.3)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
+      ultracite:
+        specifier: ^7.2.4
+        version: 7.2.4
+      vite:
+        specifier: ^8.0.0-beta.13
+        version: 8.0.0-beta.13(@types/node@25.2.3)(jiti@2.6.1)(sass@1.97.3)(yaml@2.8.2)
+
   packages/adapters:
     dependencies:
       '@one-base-template/core':
