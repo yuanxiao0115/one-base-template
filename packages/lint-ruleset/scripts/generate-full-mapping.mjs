@@ -20,6 +20,7 @@ import process from 'node:process';
 import stylelint from 'stylelint';
 import vuePlugin from 'eslint-plugin-vue';
 import eslintPreset from '../eslint.config.mjs';
+import { tsTypeAwarePlatformRuleNames } from '../eslint-type-aware.mjs';
 import { jsStandardRuleMap } from '../rules/eslint/js-standard-rule-map.mjs';
 
 const ROOT_DIR = path.resolve(new URL('..', import.meta.url).pathname);
@@ -440,7 +441,7 @@ function mapStylelintRule(base, stylelintRuleNames) {
   });
 }
 
-function mapEslintDefectRule(base, eslintRuleNames) {
+function mapEslintDefectRule(base, eslintRuleNames, typeAwareRuleNames) {
   if (eslintRuleNames.has(base.ruleName)) {
     return formatRow(base, {
       mappingStatus: 'direct',
@@ -470,6 +471,15 @@ function mapEslintDefectRule(base, eslintRuleNames) {
         note: '通过 @typescript-eslint 同名规则近似替代'
       });
     }
+  }
+
+  if (typeAwareRuleNames.has(base.ruleName)) {
+    return formatRow(base, {
+      mappingStatus: 'partial',
+      replacementTool: 'ESLint(+@typescript-eslint typed)',
+      replacementRuleOrPack: `${base.ruleName} [typed-profile]`,
+      note: '需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效'
+    });
   }
 
   return formatRow(base, {
@@ -515,7 +525,7 @@ function mapRule(item, context) {
       mapped = mapStylelintRule(base, context.stylelintRuleNames);
       break;
     case 'ESLint-缺陷':
-      mapped = mapEslintDefectRule(base, context.eslintRuleNames);
+      mapped = mapEslintDefectRule(base, context.eslintRuleNames, context.typeAwareRuleNames);
       break;
     case 'ESLint-规范':
       mapped = mapEslintStandardRule(base);
@@ -644,6 +654,7 @@ async function main() {
   const context = {
     existingMap: new Map(existingRows.map((row) => [`${row.sourceTool}:${row.ruleId}`, row])),
     eslintRuleNames: collectRuleNamesFromEslintPreset(eslintPreset),
+    typeAwareRuleNames: new Set(tsTypeAwarePlatformRuleNames),
     stylelintRuleNames: await resolveStylelintRuleNames(),
     vueRuleMetaMap: createVueRuleMetaMap()
   };

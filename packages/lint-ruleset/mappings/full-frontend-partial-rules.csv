@@ -31,7 +31,7 @@ ESLint-规范,JavaScript,6269,JS040,2,partial,ESLint(+eslint-plugin-jsdoc),jsdoc
 ESLint-规范,JavaScript,6271,JS010,1,partial,ESLint,comma-spacing + semi-spacing,逗号/分号前后空格通过组合规则近似约束,-,false,false,out-of-scope
 ESLint-规范,JavaScript,6273,JS050,2,partial,ESLint(+eslint-plugin-jsdoc),jsdoc/check-tag-names,@lends 标签语义依赖 jsdoc 插件,-,false,false,out-of-scope
 ESLint-规范,JavaScript,6279,JS030,1,partial,ESLint,camelcase,类方法/属性命名可近似约束,-,false,false,out-of-scope
-ESLint-规范,JavaScript,6287,JS014,1,partial,ESLint,one-statement-per-line,语句后换行可由 one-statement-per-line 近似约束,-,false,false,out-of-scope
+ESLint-规范,JavaScript,6287,JS014,1,partial,ESLint,max-statements-per-line(max=1),语句后换行可由 max-statements-per-line(max=1) 近似约束,-,false,false,out-of-scope
 ESLint-规范,JavaScript,6293,JS053,2,partial,ESLint(+eslint-plugin-jsdoc),jsdoc/require-param-type + jsdoc/require-param-description + jsdoc/require-returns-type + jsdoc/require-returns-description,参数/返回值注释细项依赖 jsdoc 插件,-,false,false,out-of-scope
 ESLint-规范,JavaScript,6303,JS041,1,partial,ESLint,lines-around-comment,注释前空行可近似约束,-,false,false,out-of-scope
 ESLint-规范,JavaScript,6309,JS060,2,partial,ESLint(+eslint-plugin-jsdoc),jsdoc/require-tags,@const 标签语义依赖 jsdoc 插件,-,false,false,out-of-scope
@@ -41,6 +41,75 @@ ESLint-规范,JavaScript,6395,JS110,1,partial,ESLint,constructor-super + no-this
 ESLint-规范,JavaScript,6419,JS125,1,partial,ESLint(+import),import/no-amd + import/no-dynamic-require,模块 id 合规性通过 import 生态规则近似约束,-,false,false,out-of-scope
 ESLint-规范,JavaScript,6453,JS100,1,partial,ESLint,no-restricted-syntax,禁止 for-in 遍历数组需结合 AST 选择器配置,-,false,false,out-of-scope
 ESLint-规范,JavaScript,6479,JS138,1,partial,ESLint(custom),custom:css-unit-in-js-style-object,JS 内联 style 单位约束需自定义规则,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7159,@typescript-eslint/await-thenable,3,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/await-thenable [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7175,@typescript-eslint/func-call-spacing,1,partial,ESLint core,func-call-spacing,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7201,@typescript-eslint/no-for-in-array,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-for-in-array [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7223,@typescript-eslint/no-unnecessary-qualifier,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unnecessary-qualifier [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7225,@typescript-eslint/no-unnecessary-type-assertion,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unnecessary-type-assertion [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7253,@typescript-eslint/prefer-includes,3,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-includes [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7259,@typescript-eslint/prefer-regexp-exec,3,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-regexp-exec [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7261,@typescript-eslint/prefer-string-starts-ends-with,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-string-starts-ends-with [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7267,@typescript-eslint/restrict-plus-operands,3,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/restrict-plus-operands [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7269,@typescript-eslint/dot-notation,1,partial,ESLint core,dot-notation,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7283,@typescript-eslint/quotes,1,partial,ESLint core,quotes,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7305,@typescript-eslint/no-floating-promises,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-floating-promises [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,7311,@typescript-eslint/semi,1,partial,ESLint core,semi,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11075,@typescript-eslint/no-unnecessary-condition,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unnecessary-condition [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11077,@typescript-eslint/only-throw-error,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/only-throw-error [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11078,@typescript-eslint/no-unsafe-argument,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unsafe-argument [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11079,@typescript-eslint/lines-between-class-members,1,partial,ESLint core,lines-between-class-members,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11082,@typescript-eslint/space-before-function-paren,1,partial,ESLint core,space-before-function-paren,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11083,@typescript-eslint/prefer-promise-reject-errors,1,partial,ESLint core,prefer-promise-reject-errors,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11085,@typescript-eslint/no-redundant-type-constituents,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-redundant-type-constituents [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11086,@typescript-eslint/no-base-to-string,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-base-to-string [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11087,@typescript-eslint/object-curly-spacing,1,partial,ESLint core,object-curly-spacing,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11090,@typescript-eslint/non-nullable-type-assertion-style,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/non-nullable-type-assertion-style [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11091,@typescript-eslint/require-await,1,partial,ESLint core,require-await,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11095,@typescript-eslint/return-await,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/return-await [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11098,@typescript-eslint/space-before-blocks,1,partial,ESLint core,space-before-blocks,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11099,@typescript-eslint/block-spacing,1,partial,ESLint core,block-spacing,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11100,@typescript-eslint/strict-boolean-expressions,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/strict-boolean-expressions [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11101,@typescript-eslint/prefer-nullish-coalescing,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-nullish-coalescing [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11103,@typescript-eslint/no-meaningless-void-operator,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-meaningless-void-operator [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11105,@typescript-eslint/no-throw-literal,1,partial,ESLint core,no-throw-literal,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11107,@typescript-eslint/no-unsafe-assignment,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unsafe-assignment [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11108,@typescript-eslint/key-spacing,1,partial,ESLint core,key-spacing,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11109,@typescript-eslint/prefer-optional-chain,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-optional-chain [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11110,@typescript-eslint/no-misused-promises,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-misused-promises [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11111,@typescript-eslint/indent,1,partial,ESLint core,indent,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11112,@typescript-eslint/comma-spacing,1,partial,ESLint core,comma-spacing,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11113,@typescript-eslint/promise-function-async,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/promise-function-async [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11115,@typescript-eslint/no-mixed-enums,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-mixed-enums [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11116,@typescript-eslint/no-extra-semi,1,partial,ESLint core,no-extra-semi,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11118,@typescript-eslint/no-unsafe-call,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unsafe-call [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11120,@typescript-eslint/prefer-reduce-type-parameter,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-reduce-type-parameter [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11121,@typescript-eslint/no-array-delete,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-array-delete [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11122,@typescript-eslint/no-duplicate-type-constituents,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-duplicate-type-constituents [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11123,@typescript-eslint/unbound-method,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/unbound-method [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11125,@typescript-eslint/no-unsafe-enum-comparison,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unsafe-enum-comparison [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11127,@typescript-eslint/prefer-find,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-find [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11128,@typescript-eslint/no-unnecessary-boolean-literal-compare,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unnecessary-boolean-literal-compare [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11132,@typescript-eslint/require-array-sort-compare,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/require-array-sort-compare [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11133,@typescript-eslint/no-confusing-void-expression,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-confusing-void-expression [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11134,@typescript-eslint/brace-style,1,partial,ESLint core,brace-style,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11136,@typescript-eslint/no-unsafe-return,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unsafe-return [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11137,@typescript-eslint/no-unsafe-member-access,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unsafe-member-access [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11139,@typescript-eslint/prefer-return-this-type,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-return-this-type [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11141,@typescript-eslint/space-infix-ops,1,partial,ESLint core,space-infix-ops,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11144,@typescript-eslint/comma-dangle,1,partial,ESLint core,comma-dangle,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11145,@typescript-eslint/use-unknown-in-catch-callback-variable,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/use-unknown-in-catch-callback-variable [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11146,@typescript-eslint/lines-around-comment,1,partial,ESLint core,lines-around-comment,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11149,@typescript-eslint/consistent-type-exports,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/consistent-type-exports [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11151,@typescript-eslint/prefer-readonly-parameter-types,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/prefer-readonly-parameter-types [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11153,@typescript-eslint/switch-exhaustiveness-check,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/switch-exhaustiveness-check [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11154,@typescript-eslint/keyword-spacing,1,partial,ESLint core,keyword-spacing,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11156,@typescript-eslint/restrict-template-expressions,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/restrict-template-expressions [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11163,@typescript-eslint/consistent-return,1,partial,ESLint core,consistent-return,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11164,@typescript-eslint/no-unsafe-unary-minus,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unsafe-unary-minus [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11165,@typescript-eslint/no-implied-eval,1,partial,ESLint core,no-implied-eval,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11166,@typescript-eslint/prefer-destructuring,1,partial,ESLint core,prefer-destructuring,通过同名 core 规则近似替代,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11168,@typescript-eslint/naming-convention,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/naming-convention [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
+ESLint-缺陷,TypeScript,11169,@typescript-eslint/no-unnecessary-type-arguments,1,partial,ESLint(+@typescript-eslint typed),@typescript-eslint/no-unnecessary-type-arguments [typed-profile],需在接入方启用 typed lint 配置（parserOptions.project/projectService）后生效,-,false,false,out-of-scope
 Sonar,CSS,10744,FunctionCalcNoInvalid,2,partial,Stylelint + custom,function-calc-no-invalid,Stylelint 无同名规则，需自定义规则或保留 Sonar,-,false,false,out-of-scope
 Sonar,JavaScript,8618,TryPromiseCheck,1,partial,ESLint(+plugins),@typescript-eslint / eslint-plugin-sonarjs / eslint-plugin-security (partial),无 1:1 等价规则名，建议保留 SonarScanner 作为补充,-,false,false,out-of-scope
 Sonar,JavaScript,8619,NoMixedContentCheck,1,partial,ESLint(+plugins),@typescript-eslint / eslint-plugin-sonarjs / eslint-plugin-security (partial),无 1:1 等价规则名，建议保留 SonarScanner 作为补充,-,false,false,out-of-scope
@@ -632,6 +701,7 @@ Stylelint,CSS,11776,function-whitespace-after,1,partial,Stylelint(+@stylistic),@
 Stylelint,CSS,11779,indentation,1,partial,Stylelint(+@stylistic),@stylistic/indentation,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11785,linebreaks,1,partial,Stylelint(+@stylistic),@stylistic/linebreaks,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11786,max-empty-lines,1,partial,Stylelint(+@stylistic),@stylistic/max-empty-lines,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
+Stylelint,CSS,11787,max-line-length,1,partial,Stylelint(+@stylistic),@stylistic/max-line-length,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11789,media-feature-colon-space-after,1,partial,Stylelint(+@stylistic),@stylistic/media-feature-colon-space-after,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11790,media-feature-colon-space-before,1,partial,Stylelint(+@stylistic),@stylistic/media-feature-colon-space-before,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11792,media-feature-name-case,1,partial,Stylelint(+@stylistic),@stylistic/media-feature-name-case,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
@@ -644,7 +714,9 @@ Stylelint,CSS,11803,media-query-list-comma-space-after,1,partial,Stylelint(+@sty
 Stylelint,CSS,11804,media-query-list-comma-space-before,1,partial,Stylelint(+@stylistic),@stylistic/media-query-list-comma-space-before,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11809,no-empty-first-line,1,partial,Stylelint(+@stylistic),@stylistic/no-empty-first-line,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11811,no-eol-whitespace,1,partial,Stylelint(+@stylistic),@stylistic/no-eol-whitespace,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
+Stylelint,CSS,11812,no-extra-semicolons,1,partial,Stylelint(+@stylistic),@stylistic/no-extra-semicolons,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11816,no-missing-end-of-source-newline,1,partial,Stylelint(+@stylistic),@stylistic/no-missing-end-of-source-newline,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
+Stylelint,CSS,11818,number-leading-zero,1,partial,Stylelint(+@stylistic),@stylistic/number-leading-zero,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11820,number-no-trailing-zeros,1,partial,Stylelint(+@stylistic),@stylistic/number-no-trailing-zeros,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11822,property-case,1,partial,Stylelint(+@stylistic),@stylistic/property-case,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11828,selector-attribute-brackets-space-inside,1,partial,Stylelint(+@stylistic),@stylistic/selector-attribute-brackets-space-inside,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
@@ -661,6 +733,7 @@ Stylelint,CSS,11851,selector-max-empty-lines,1,partial,Stylelint(+@stylistic),@s
 Stylelint,CSS,11862,selector-pseudo-class-case,1,partial,Stylelint(+@stylistic),@stylistic/selector-pseudo-class-case,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11865,selector-pseudo-class-parentheses-space-inside,1,partial,Stylelint(+@stylistic),@stylistic/selector-pseudo-class-parentheses-space-inside,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11867,selector-pseudo-element-case,1,partial,Stylelint(+@stylistic),@stylistic/selector-pseudo-element-case,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
+Stylelint,CSS,11875,string-quotes,1,partial,Stylelint(+@stylistic),@stylistic/string-quotes,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11877,unicode-bom,1,partial,Stylelint(+@stylistic),@stylistic/unicode-bom,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11879,unit-case,1,partial,Stylelint(+@stylistic),@stylistic/unit-case,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope
 Stylelint,CSS,11883,value-list-comma-newline-after,1,partial,Stylelint(+@stylistic),@stylistic/value-list-comma-newline-after,原规则由 @stylistic 前缀规则近似替代,-,false,false,out-of-scope

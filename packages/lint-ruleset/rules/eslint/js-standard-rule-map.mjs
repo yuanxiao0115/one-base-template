@@ -68,8 +68,8 @@ export const jsStandardRuleMap = {
   JS014: {
     mappingStatus: 'partial',
     replacementTool: 'ESLint',
-    replacementRuleOrPack: 'one-statement-per-line',
-    note: '语句后换行可由 one-statement-per-line 近似约束'
+    replacementRuleOrPack: 'max-statements-per-line(max=1)',
+    note: '语句后换行可由 max-statements-per-line(max=1) 近似约束'
   },
   JS015: {
     mappingStatus: 'partial',

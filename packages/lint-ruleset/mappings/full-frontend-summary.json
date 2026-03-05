@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-04T01:13:27.882Z",
+  "generatedAt": "2026-03-04T06:30:48.174Z",
   "input": {
     "multiPath": "/tmp/rules-out-multi/rules-20260303-211347.json",
     "cssPath": "/tmp/rules-out-css/rules-20260303-211416.json"
@@ -7,9 +7,9 @@
   "summary": {
     "total": 1968,
     "byStatus": {
-      "direct": 1295,
-      "partial": 669,
-      "none": 4
+      "direct": 1212,
+      "partial": 742,
+      "none": 14
     },
     "byTool": {
       "Csslint": {
@@ -21,36 +21,37 @@
         "partial": 28
       },
       "ESLint-缺陷": {
-        "direct": 1116,
-        "none": 4
+        "direct": 1037,
+        "partial": 69,
+        "none": 14
       },
       "Sonar": {
         "direct": 24,
         "partial": 555
       },
       "Stylelint": {
-        "direct": 123,
-        "partial": 72
+        "direct": 119,
+        "partial": 76
       }
     },
     "byLevel": {
       "1": {
-        "direct": 924,
-        "partial": 508,
-        "none": 4
+        "direct": 845,
+        "partial": 577,
+        "none": 14
       },
       "2": {
         "partial": 126,
         "direct": 17
       },
       "3": {
-        "direct": 354,
-        "partial": 35
+        "direct": 350,
+        "partial": 39
       }
     },
     "governance": {
       "excludedDeprecatedVueRules": 4,
-      "actionableNone": 0
+      "actionableNone": 10
     }
   }
 }

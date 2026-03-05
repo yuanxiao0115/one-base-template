@@ -8,7 +8,18 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "eslint ."
+    "lint:code:phase1": "eslint \"src/modules/{home,b,LogManagement}/**/*.{ts,tsx,vue}\"",
+    "lint:code:phase2:quiet": "eslint \"src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx,vue}\" \"src/modules/{SystemManagement,UserManagement,demo,portal}/**/*.{ts,tsx,vue}\" --quiet",
+    "lint:code:phase2:audit": "eslint \"src/{bootstrap,router,config,shared,infra,pages,components}/**/*.{ts,tsx,vue}\" \"src/modules/{SystemManagement,UserManagement,demo,portal}/**/*.{ts,tsx,vue}\"",
+    "lint:code": "pnpm lint:code:phase1 && pnpm lint:code:phase2:quiet",
+    "lint:code:audit": "pnpm lint:code:phase1 && pnpm lint:code:phase2:audit",
+    "lint:style:phase1": "stylelint \"src/modules/{home,b,LogManagement,UserManagement,demo,SystemManagement,portal}/**/*.{css,scss,vue}\" --allow-empty-input",
+    "lint:style:phase2:quiet": "stylelint \"src/{styles,components,pages}/**/*.{css,scss,vue}\" --allow-empty-input --quiet",
+    "lint:style:phase2:audit": "stylelint \"src/{styles,components,pages}/**/*.{css,scss,vue}\" --allow-empty-input",
+    "lint:style:backlog": "pnpm lint:style:phase2:audit",
+    "lint:style:audit": "pnpm lint:style:phase2:audit || true",
+    "lint:style": "pnpm lint:style:phase1",
+    "lint": "pnpm lint:code && pnpm lint:style"
   },
   "dependencies": {
     "@one-base-template/adapters": "workspace:*",
@@ -24,12 +35,14 @@
     "vue-router": "^5.0.2"
   },
   "devDependencies": {
+    "@one-base-template/lint-ruleset": "workspace:*",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/sortablejs": "^1.15.9",
     "@vitejs/plugin-vue": "^6.0.4",
     "autoprefixer": "^10.0.0",
     "postcss": "^8.0.0",
     "sass": "^1.93.2",
+    "stylelint": "^17.4.0",
     "tailwindcss": "^4.1.18",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^31.0.0",

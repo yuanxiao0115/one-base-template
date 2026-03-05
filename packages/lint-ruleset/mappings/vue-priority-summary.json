@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-04T01:13:27.883Z",
+  "generatedAt": "2026-03-04T06:30:48.175Z",
   "baseline": "vue3-priority",
   "input": {
     "multiPath": "/tmp/rules-out-multi/rules-20260303-211347.json",
@@ -15,8 +15,8 @@
       "vue3-essential": 82
     },
     "byMappingStatus": {
-      "direct": 235,
-      "none": 4
+      "direct": 231,
+      "none": 8
     },
     "deprecated": 4,
     "vue2LegacyExcluded": 2,

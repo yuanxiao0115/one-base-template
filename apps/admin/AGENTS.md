@@ -15,6 +15,7 @@
 ### 静态路由 + 动态菜单
 
 - 路由全部前端静态声明（`modules/**/routes.ts`），不依赖后端动态 `addRoute` 才能访问。
+- 模块路由文件（`modules/**/routes*.ts`、`modules/**/routes/*.ts`）中的页面组件当前统一使用静态 `import`，不再使用 `component: async () => import(...)`，也不额外抽离通用 lazy loader。
 - 菜单模式支持：
   - `remote`：后端返回可见菜单树。
   - `static`：基于静态路由 `meta.title` 生成菜单树。
@@ -101,6 +102,13 @@
 
 - `apps/admin/src/styles/index.css` 禁止通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/main.ts` 显式导入 `styles/element-plus/*.css`。
 - admin 全局 `v-loading` 遮罩背景统一透明（含 fullscreen 场景），并统一 loading 图标主色与文案样式，禁止回退深色蒙层。
+- 接入 `@one-base-template/lint-ruleset` 后，`stylelint.project-overrides` 禁止覆盖与团队规则集同名的规则；本地只允许补充团队规范未定义的项目专属规则。
+- ESLint warning 清理同样遵循“团队规则优先”：同名规则优先在 `packages/lint-ruleset` 收敛，`apps/admin` 仅保留项目专属补充，不做同名覆盖。
+- lint 门禁采用“按模块渐进”：
+  - `lint:code:phase1`（`home,b,LogManagement`）warning 可见；`lint:code:phase2:quiet`（`SystemManagement,UserManagement,demo,portal + bootstrap/router/config/shared/infra/pages/components`）仅 error 阻断；
+  - `lint:style:phase1`（`home,b,LogManagement,UserManagement,demo,SystemManagement,portal`）warning 可见；其余范围通过 `lint:style:phase2:audit` 建立待治理清单；
+  - 模块完成治理后，从 phase2 移入 phase1，最终目标是全量移除 `--quiet`。
+- 当前阶段 lint 治理不包含 i18n 文案约束：`vue/no-bare-strings-in-template` 不作为治理与门禁目标。
 - 命名必须“短、清楚、通用”，优先 `get/list/build/create/update/remove`。
 - 方法命名优先“动词 + 名词”结构（如 `getInitialPath`、`parseRuntimeConfig`、`clearByPrefixes`）。
 - 涉及老项目对齐时，固定参考路径：`/Users/haoqiuzhi/code/sczfw/standard-oa-web-sczfw`。

@@ -317,24 +317,17 @@ ESLint-缺陷,JavaScript,12291,implicit-arrow-linebreak,1,direct,ESLint(+plugins
 ESLint-缺陷,JavaScript,12292,lines-between-class-members,1,direct,ESLint(+plugins),lines-between-class-members,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7155,@typescript-eslint/adjacent-overload-signatures,1,direct,ESLint(+plugins),@typescript-eslint/adjacent-overload-signatures,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7157,@typescript-eslint/array-type,1,direct,ESLint(+plugins),@typescript-eslint/array-type,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7159,@typescript-eslint/await-thenable,3,direct,ESLint(+plugins),@typescript-eslint/await-thenable,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7163,@typescript-eslint/ban-types,1,direct,ESLint(+plugins),@typescript-eslint/ban-types,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7167,@typescript-eslint/consistent-type-definitions,1,direct,ESLint(+plugins),@typescript-eslint/consistent-type-definitions,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7171,@typescript-eslint/explicit-member-accessibility,1,direct,ESLint(+plugins),@typescript-eslint/explicit-member-accessibility,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7175,@typescript-eslint/func-call-spacing,1,direct,ESLint(+plugins),@typescript-eslint/func-call-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7179,@typescript-eslint/member-delimiter-style,1,direct,ESLint(+plugins),@typescript-eslint/member-delimiter-style,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7181,@typescript-eslint/member-ordering,3,direct,ESLint(+plugins),@typescript-eslint/member-ordering,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7183,@typescript-eslint/no-array-constructor,1,direct,ESLint(+plugins),@typescript-eslint/no-array-constructor,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7189,@typescript-eslint/no-empty-interface,3,direct,ESLint(+plugins),@typescript-eslint/no-empty-interface,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7197,@typescript-eslint/no-extraneous-class,1,direct,ESLint(+plugins),@typescript-eslint/no-extraneous-class,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7201,@typescript-eslint/no-for-in-array,1,direct,ESLint(+plugins),@typescript-eslint/no-for-in-array,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7207,@typescript-eslint/no-misused-new,1,direct,ESLint(+plugins),@typescript-eslint/no-misused-new,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7209,@typescript-eslint/no-namespace,1,direct,ESLint(+plugins),@typescript-eslint/no-namespace,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7213,@typescript-eslint/consistent-type-assertions,1,direct,ESLint(+plugins),@typescript-eslint/consistent-type-assertions,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7217,@typescript-eslint/no-require-imports,1,direct,ESLint(+plugins),@typescript-eslint/no-require-imports,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7219,@typescript-eslint/no-this-alias,1,direct,ESLint(+plugins),@typescript-eslint/no-this-alias,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7223,@typescript-eslint/no-unnecessary-qualifier,1,direct,ESLint(+plugins),@typescript-eslint/no-unnecessary-qualifier,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7225,@typescript-eslint/no-unnecessary-type-assertion,1,direct,ESLint(+plugins),@typescript-eslint/no-unnecessary-type-assertion,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7229,@typescript-eslint/no-unused-vars,1,direct,ESLint(+plugins),@typescript-eslint/no-unused-vars,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7233,@typescript-eslint/init-declarations,1,direct,ESLint(+plugins),@typescript-eslint/init-declarations,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7235,@typescript-eslint/no-use-before-define,1,direct,ESLint(+plugins),@typescript-eslint/no-use-before-define,ESLint 规则包可直接命中,-,false,false,out-of-scope
@@ -345,19 +338,10 @@ ESLint-缺陷,TypeScript,7245,@typescript-eslint/no-extra-non-null-assertion,1,d
 ESLint-缺陷,TypeScript,7247,@typescript-eslint/no-redeclare,1,direct,ESLint(+plugins),@typescript-eslint/no-redeclare,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7249,@typescript-eslint/prefer-for-of,1,direct,ESLint(+plugins),@typescript-eslint/prefer-for-of,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7251,@typescript-eslint/prefer-function-type,1,direct,ESLint(+plugins),@typescript-eslint/prefer-function-type,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7253,@typescript-eslint/prefer-includes,3,direct,ESLint(+plugins),@typescript-eslint/prefer-includes,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7255,@typescript-eslint/prefer-namespace-keyword,1,direct,ESLint(+plugins),@typescript-eslint/prefer-namespace-keyword,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7259,@typescript-eslint/prefer-regexp-exec,3,direct,ESLint(+plugins),@typescript-eslint/prefer-regexp-exec,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7261,@typescript-eslint/prefer-string-starts-ends-with,1,direct,ESLint(+plugins),@typescript-eslint/prefer-string-starts-ends-with,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7267,@typescript-eslint/restrict-plus-operands,3,direct,ESLint(+plugins),@typescript-eslint/restrict-plus-operands,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7269,@typescript-eslint/dot-notation,1,direct,ESLint(+plugins),@typescript-eslint/dot-notation,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7275,@typescript-eslint/triple-slash-reference,1,direct,ESLint(+plugins),@typescript-eslint/triple-slash-reference,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7277,@typescript-eslint/type-annotation-spacing,1,direct,ESLint(+plugins),@typescript-eslint/type-annotation-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7281,@typescript-eslint/unified-signatures,3,direct,ESLint(+plugins),@typescript-eslint/unified-signatures,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7283,@typescript-eslint/quotes,1,direct,ESLint(+plugins),@typescript-eslint/quotes,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7305,@typescript-eslint/no-floating-promises,1,direct,ESLint(+plugins),@typescript-eslint/no-floating-promises,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,7307,no-void,1,direct,ESLint(+plugins),no-void,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,7311,@typescript-eslint/semi,1,direct,ESLint(+plugins),@typescript-eslint/semi,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,10828,no-await-in-loop,3,direct,ESLint(+plugins),no-await-in-loop,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,10829,no-compare-neg-zero,1,direct,ESLint(+plugins),no-compare-neg-zero,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,10830,no-cond-assign,1,direct,ESLint(+plugins),no-cond-assign,ESLint 规则包可直接命中,-,false,false,out-of-scope
@@ -569,101 +553,42 @@ ESLint-缺陷,TypeScript,11035,implicit-arrow-linebreak,1,direct,ESLint(+plugins
 ESLint-缺陷,TypeScript,11036,no-spaced-func,1,direct,ESLint(+plugins),no-spaced-func,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11037,function-paren-newline,1,direct,ESLint(+plugins),function-paren-newline,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11038,function-call-argument-newline,1,direct,ESLint(+plugins),function-call-argument-newline,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11075,@typescript-eslint/no-unnecessary-condition,1,direct,ESLint(+plugins),@typescript-eslint/no-unnecessary-condition,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11076,@typescript-eslint/no-non-null-asserted-optional-chain,1,direct,ESLint(+plugins),@typescript-eslint/no-non-null-asserted-optional-chain,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11077,@typescript-eslint/only-throw-error,1,direct,ESLint(+plugins),@typescript-eslint/only-throw-error,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11078,@typescript-eslint/no-unsafe-argument,1,direct,ESLint(+plugins),@typescript-eslint/no-unsafe-argument,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11079,@typescript-eslint/lines-between-class-members,1,direct,ESLint(+plugins),@typescript-eslint/lines-between-class-members,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11080,@typescript-eslint/no-import-type-side-effects,1,direct,ESLint(+plugins),@typescript-eslint/no-import-type-side-effects,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11081,@typescript-eslint/consistent-generic-constructors,1,direct,ESLint(+plugins),@typescript-eslint/consistent-generic-constructors,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11082,@typescript-eslint/space-before-function-paren,1,direct,ESLint(+plugins),@typescript-eslint/space-before-function-paren,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11083,@typescript-eslint/prefer-promise-reject-errors,1,direct,ESLint(+plugins),@typescript-eslint/prefer-promise-reject-errors,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11084,@typescript-eslint/no-dynamic-delete,1,direct,ESLint(+plugins),@typescript-eslint/no-dynamic-delete,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11085,@typescript-eslint/no-redundant-type-constituents,1,direct,ESLint(+plugins),@typescript-eslint/no-redundant-type-constituents,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11086,@typescript-eslint/no-base-to-string,1,direct,ESLint(+plugins),@typescript-eslint/no-base-to-string,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11087,@typescript-eslint/object-curly-spacing,1,direct,ESLint(+plugins),@typescript-eslint/object-curly-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11088,@typescript-eslint/consistent-indexed-object-style,1,direct,ESLint(+plugins),@typescript-eslint/consistent-indexed-object-style,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11089,@typescript-eslint/no-shadow,1,direct,ESLint(+plugins),@typescript-eslint/no-shadow,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11090,@typescript-eslint/non-nullable-type-assertion-style,1,direct,ESLint(+plugins),@typescript-eslint/non-nullable-type-assertion-style,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11091,@typescript-eslint/require-await,1,direct,ESLint(+plugins),@typescript-eslint/require-await,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11092,@typescript-eslint/no-unused-expressions,1,direct,ESLint(+plugins),@typescript-eslint/no-unused-expressions,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11093,@typescript-eslint/no-duplicate-enum-values,1,direct,ESLint(+plugins),@typescript-eslint/no-duplicate-enum-values,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11094,@typescript-eslint/no-inferrable-types,1,direct,ESLint(+plugins),@typescript-eslint/no-inferrable-types,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11095,@typescript-eslint/return-await,1,direct,ESLint(+plugins),@typescript-eslint/return-await,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11096,@typescript-eslint/no-empty-function,1,direct,ESLint(+plugins),@typescript-eslint/no-empty-function,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11097,@typescript-eslint/class-methods-use-this,1,direct,ESLint(+plugins),@typescript-eslint/class-methods-use-this,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11098,@typescript-eslint/space-before-blocks,1,direct,ESLint(+plugins),@typescript-eslint/space-before-blocks,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11099,@typescript-eslint/block-spacing,1,direct,ESLint(+plugins),@typescript-eslint/block-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11100,@typescript-eslint/strict-boolean-expressions,1,direct,ESLint(+plugins),@typescript-eslint/strict-boolean-expressions,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11101,@typescript-eslint/prefer-nullish-coalescing,1,direct,ESLint(+plugins),@typescript-eslint/prefer-nullish-coalescing,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11102,@typescript-eslint/no-unsafe-declaration-merging,1,direct,ESLint(+plugins),@typescript-eslint/no-unsafe-declaration-merging,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11103,@typescript-eslint/no-meaningless-void-operator,1,direct,ESLint(+plugins),@typescript-eslint/no-meaningless-void-operator,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11104,@typescript-eslint/no-non-null-asserted-nullish-coalescing,1,direct,ESLint(+plugins),@typescript-eslint/no-non-null-asserted-nullish-coalescing,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11105,@typescript-eslint/no-throw-literal,1,direct,ESLint(+plugins),@typescript-eslint/no-throw-literal,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11106,@typescript-eslint/no-loss-of-precision,1,direct,ESLint(+plugins),@typescript-eslint/no-loss-of-precision,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11107,@typescript-eslint/no-unsafe-assignment,1,direct,ESLint(+plugins),@typescript-eslint/no-unsafe-assignment,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11108,@typescript-eslint/key-spacing,1,direct,ESLint(+plugins),@typescript-eslint/key-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11109,@typescript-eslint/prefer-optional-chain,1,direct,ESLint(+plugins),@typescript-eslint/prefer-optional-chain,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11110,@typescript-eslint/no-misused-promises,1,direct,ESLint(+plugins),@typescript-eslint/no-misused-promises,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11111,@typescript-eslint/indent,1,direct,ESLint(+plugins),@typescript-eslint/indent,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11112,@typescript-eslint/comma-spacing,1,direct,ESLint(+plugins),@typescript-eslint/comma-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11113,@typescript-eslint/promise-function-async,1,direct,ESLint(+plugins),@typescript-eslint/promise-function-async,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11114,@typescript-eslint/prefer-literal-enum-member,1,direct,ESLint(+plugins),@typescript-eslint/prefer-literal-enum-member,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11115,@typescript-eslint/no-mixed-enums,1,direct,ESLint(+plugins),@typescript-eslint/no-mixed-enums,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11116,@typescript-eslint/no-extra-semi,1,direct,ESLint(+plugins),@typescript-eslint/no-extra-semi,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11117,@typescript-eslint/sort-type-constituents,1,direct,ESLint(+plugins),@typescript-eslint/sort-type-constituents,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11118,@typescript-eslint/no-unsafe-call,1,direct,ESLint(+plugins),@typescript-eslint/no-unsafe-call,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11119,@typescript-eslint/no-magic-numbers,1,direct,ESLint(+plugins),@typescript-eslint/no-magic-numbers,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11120,@typescript-eslint/prefer-reduce-type-parameter,1,direct,ESLint(+plugins),@typescript-eslint/prefer-reduce-type-parameter,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11121,@typescript-eslint/no-array-delete,1,direct,ESLint(+plugins),@typescript-eslint/no-array-delete,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11122,@typescript-eslint/no-duplicate-type-constituents,1,direct,ESLint(+plugins),@typescript-eslint/no-duplicate-type-constituents,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11123,@typescript-eslint/unbound-method,1,direct,ESLint(+plugins),@typescript-eslint/unbound-method,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11124,@typescript-eslint/no-loop-func,1,direct,ESLint(+plugins),@typescript-eslint/no-loop-func,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11125,@typescript-eslint/no-unsafe-enum-comparison,1,direct,ESLint(+plugins),@typescript-eslint/no-unsafe-enum-comparison,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11126,@typescript-eslint/explicit-function-return-type,1,direct,ESLint(+plugins),@typescript-eslint/explicit-function-return-type,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11127,@typescript-eslint/prefer-find,1,direct,ESLint(+plugins),@typescript-eslint/prefer-find,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11128,@typescript-eslint/no-unnecessary-boolean-literal-compare,1,direct,ESLint(+plugins),@typescript-eslint/no-unnecessary-boolean-literal-compare,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11129,@typescript-eslint/prefer-enum-initializers,1,direct,ESLint(+plugins),@typescript-eslint/prefer-enum-initializers,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11130,@typescript-eslint/parameter-properties,1,direct,ESLint(+plugins),@typescript-eslint/parameter-properties,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11131,@typescript-eslint/padding-line-between-statements,1,direct,ESLint(+plugins),@typescript-eslint/padding-line-between-statements,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11132,@typescript-eslint/require-array-sort-compare,1,direct,ESLint(+plugins),@typescript-eslint/require-array-sort-compare,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11133,@typescript-eslint/no-confusing-void-expression,1,direct,ESLint(+plugins),@typescript-eslint/no-confusing-void-expression,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11134,@typescript-eslint/brace-style,1,direct,ESLint(+plugins),@typescript-eslint/brace-style,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11135,@typescript-eslint/typedef,1,direct,ESLint(+plugins),@typescript-eslint/typedef,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11136,@typescript-eslint/no-unsafe-return,1,direct,ESLint(+plugins),@typescript-eslint/no-unsafe-return,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11137,@typescript-eslint/no-unsafe-member-access,1,direct,ESLint(+plugins),@typescript-eslint/no-unsafe-member-access,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11138,@typescript-eslint/ban-tslint-comment,1,direct,ESLint(+plugins),@typescript-eslint/ban-tslint-comment,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11139,@typescript-eslint/prefer-return-this-type,1,direct,ESLint(+plugins),@typescript-eslint/prefer-return-this-type,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11140,@typescript-eslint/max-params,1,direct,ESLint(+plugins),@typescript-eslint/max-params,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11141,@typescript-eslint/space-infix-ops,1,direct,ESLint(+plugins),@typescript-eslint/space-infix-ops,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11142,@typescript-eslint/no-unnecessary-type-constraint,1,direct,ESLint(+plugins),@typescript-eslint/no-unnecessary-type-constraint,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11143,@typescript-eslint/consistent-type-imports,1,direct,ESLint(+plugins),@typescript-eslint/consistent-type-imports,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11144,@typescript-eslint/comma-dangle,1,direct,ESLint(+plugins),@typescript-eslint/comma-dangle,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11145,@typescript-eslint/use-unknown-in-catch-callback-variable,1,direct,ESLint(+plugins),@typescript-eslint/use-unknown-in-catch-callback-variable,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11146,@typescript-eslint/lines-around-comment,1,direct,ESLint(+plugins),@typescript-eslint/lines-around-comment,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11147,@typescript-eslint/no-invalid-this,1,direct,ESLint(+plugins),@typescript-eslint/no-invalid-this,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11148,@typescript-eslint/prefer-ts-expect-error,1,direct,ESLint(+plugins),@typescript-eslint/prefer-ts-expect-error,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11149,@typescript-eslint/consistent-type-exports,1,direct,ESLint(+plugins),@typescript-eslint/consistent-type-exports,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11150,@typescript-eslint/ban-ts-comment,1,direct,ESLint(+plugins),@typescript-eslint/ban-ts-comment,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11151,@typescript-eslint/prefer-readonly-parameter-types,1,direct,ESLint(+plugins),@typescript-eslint/prefer-readonly-parameter-types,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11152,@typescript-eslint/method-signature-style,1,direct,ESLint(+plugins),@typescript-eslint/method-signature-style,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11153,@typescript-eslint/switch-exhaustiveness-check,1,direct,ESLint(+plugins),@typescript-eslint/switch-exhaustiveness-check,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11154,@typescript-eslint/keyword-spacing,1,direct,ESLint(+plugins),@typescript-eslint/keyword-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11155,@typescript-eslint/class-literal-property-style,1,direct,ESLint(+plugins),@typescript-eslint/class-literal-property-style,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11156,@typescript-eslint/restrict-template-expressions,1,direct,ESLint(+plugins),@typescript-eslint/restrict-template-expressions,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11157,@typescript-eslint/no-explicit-any,1,direct,ESLint(+plugins),@typescript-eslint/no-explicit-any,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11158,@typescript-eslint/no-extra-parens,1,direct,ESLint(+plugins),@typescript-eslint/no-extra-parens,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11159,@typescript-eslint/no-confusing-non-null-assertion,1,direct,ESLint(+plugins),@typescript-eslint/no-confusing-non-null-assertion,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11160,@typescript-eslint/no-restricted-imports,1,direct,ESLint(+plugins),@typescript-eslint/no-restricted-imports,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11161,@typescript-eslint/no-non-null-assertion,1,direct,ESLint(+plugins),@typescript-eslint/no-non-null-assertion,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11162,@typescript-eslint/no-useless-template-literals,1,direct,ESLint(+plugins),@typescript-eslint/no-useless-template-literals,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11163,@typescript-eslint/consistent-return,1,direct,ESLint(+plugins),@typescript-eslint/consistent-return,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11164,@typescript-eslint/no-unsafe-unary-minus,1,direct,ESLint(+plugins),@typescript-eslint/no-unsafe-unary-minus,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11165,@typescript-eslint/no-implied-eval,1,direct,ESLint(+plugins),@typescript-eslint/no-implied-eval,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11166,@typescript-eslint/prefer-destructuring,1,direct,ESLint(+plugins),@typescript-eslint/prefer-destructuring,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11167,@typescript-eslint/default-param-last,1,direct,ESLint(+plugins),@typescript-eslint/default-param-last,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11168,@typescript-eslint/naming-convention,1,direct,ESLint(+plugins),@typescript-eslint/naming-convention,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,TypeScript,11169,@typescript-eslint/no-unnecessary-type-arguments,1,direct,ESLint(+plugins),@typescript-eslint/no-unnecessary-type-arguments,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11170,@typescript-eslint/prefer-as-const,1,direct,ESLint(+plugins),@typescript-eslint/prefer-as-const,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,11171,@typescript-eslint/no-invalid-void-type,1,direct,ESLint(+plugins),@typescript-eslint/no-invalid-void-type,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,TypeScript,12293,import/no-relative-packages,1,direct,ESLint(+plugins),import/no-relative-packages,ESLint 规则包可直接命中,-,false,false,out-of-scope
@@ -801,7 +726,6 @@ ESLint-缺陷,Vue,11341,vue/valid-define-emits,1,direct,ESLint(+plugins),vue/val
 ESLint-缺陷,Vue,11342,vue/no-use-v-else-with-v-for,1,direct,ESLint(+plugins),vue/no-use-v-else-with-v-for,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11343,vue/no-useless-mustaches,1,direct,ESLint(+plugins),vue/no-useless-mustaches,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11344,vue/object-property-newline,1,direct,ESLint(+plugins),vue/object-property-newline,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,Vue,11345,vue/name-property-casing,1,direct,ESLint(+plugins),vue/name-property-casing,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11346,vue/no-useless-template-attributes,1,direct,ESLint(+plugins),vue/no-useless-template-attributes,ESLint 规则包可直接命中,vue2-essential|vue3-essential,false,true,vue3-baseline
 ESLint-缺陷,Vue,11347,vue/static-class-names-order,1,direct,ESLint(+plugins),vue/static-class-names-order,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11348,vue/no-deprecated-router-link-tag-prop,1,direct,ESLint(+plugins),vue/no-deprecated-router-link-tag-prop,ESLint 规则包可直接命中,vue3-essential,false,true,vue3-baseline
@@ -835,8 +759,6 @@ ESLint-缺陷,Vue,11375,vue/camelcase,1,direct,ESLint(+plugins),vue/camelcase,ES
 ESLint-缺陷,Vue,11376,vue/require-typed-object-prop,1,direct,ESLint(+plugins),vue/require-typed-object-prop,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11377,vue/no-ref-object-reactivity-loss,1,direct,ESLint(+plugins),vue/no-ref-object-reactivity-loss,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11378,vue/key-spacing,1,direct,ESLint(+plugins),vue/key-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,Vue,11379,vue/no-unregistered-components,1,direct,ESLint(+plugins),vue/no-unregistered-components,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,Vue,11380,vue/experimental-script-setup-vars,1,direct,ESLint(+plugins),vue/experimental-script-setup-vars,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11381,vue/template-curly-spacing,1,direct,ESLint(+plugins),vue/template-curly-spacing,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11382,vue/no-undef-components,1,direct,ESLint(+plugins),vue/no-undef-components,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11383,vue/no-restricted-props,1,direct,ESLint(+plugins),vue/no-restricted-props,ESLint 规则包可直接命中,-,false,false,out-of-scope
@@ -861,7 +783,6 @@ ESLint-缺陷,Vue,11401,vue/no-restricted-static-attribute,1,direct,ESLint(+plug
 ESLint-缺陷,Vue,11402,vue/component-api-style,1,direct,ESLint(+plugins),vue/component-api-style,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11403,vue/object-shorthand,1,direct,ESLint(+plugins),vue/object-shorthand,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11404,vue/require-emit-validator,1,direct,ESLint(+plugins),vue/require-emit-validator,ESLint 规则包可直接命中,-,false,false,out-of-scope
-ESLint-缺陷,Vue,11405,vue/no-confusing-v-for-v-if,1,direct,ESLint(+plugins),vue/no-confusing-v-for-v-if,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11406,vue/enforce-style-attribute,1,direct,ESLint(+plugins),vue/enforce-style-attribute,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11407,vue/component-options-name-casing,1,direct,ESLint(+plugins),vue/component-options-name-casing,ESLint 规则包可直接命中,-,false,false,out-of-scope
 ESLint-缺陷,Vue,11408,vue/multiline-html-element-content-newline,1,direct,ESLint(+plugins),vue/multiline-html-element-content-newline,ESLint 规则包可直接命中,vue2-strongly-recommended|vue3-strongly-recommended,false,true,vue3-baseline
@@ -1228,7 +1149,6 @@ Stylelint,CSS,11781,keyframe-declaration-no-important,1,direct,Stylelint,keyfram
 Stylelint,CSS,11782,keyframe-selector-notation,1,direct,Stylelint,keyframe-selector-notation,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11783,keyframes-name-pattern,1,direct,Stylelint,keyframes-name-pattern,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11784,length-zero-no-unit,1,direct,Stylelint,length-zero-no-unit,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
-Stylelint,CSS,11787,max-line-length,1,direct,Stylelint,max-line-length,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11788,max-nesting-depth,1,direct,Stylelint,max-nesting-depth,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11791,media-feature-name-allowed-list,1,direct,Stylelint,media-feature-name-allowed-list,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11793,media-feature-name-disallowed-list,1,direct,Stylelint,media-feature-name-disallowed-list,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
@@ -1241,12 +1161,10 @@ Stylelint,CSS,11806,no-descending-specificity,1,direct,Stylelint,no-descending-s
 Stylelint,CSS,11807,no-duplicate-at-import-rules,1,direct,Stylelint,no-duplicate-at-import-rules,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11808,no-duplicate-selectors,1,direct,Stylelint,no-duplicate-selectors,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11810,no-empty-source,1,direct,Stylelint,no-empty-source,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
-Stylelint,CSS,11812,no-extra-semicolons,1,direct,Stylelint,no-extra-semicolons,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11813,no-invalid-double-slash-comments,1,direct,Stylelint,no-invalid-double-slash-comments,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11814,no-invalid-position-at-import-rule,1,direct,Stylelint,no-invalid-position-at-import-rule,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11815,no-irregular-whitespace,1,direct,Stylelint,no-irregular-whitespace,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11817,no-unknown-animations,1,direct,Stylelint,no-unknown-animations,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
-Stylelint,CSS,11818,number-leading-zero,1,direct,Stylelint,number-leading-zero,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11819,number-max-precision,1,direct,Stylelint,number-max-precision,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11821,property-allowed-list,1,direct,Stylelint,property-allowed-list,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11823,property-disallowed-list,1,direct,Stylelint,property-disallowed-list,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
@@ -1287,7 +1205,6 @@ Stylelint,CSS,11871,selector-type-case,1,direct,Stylelint,selector-type-case,sty
 Stylelint,CSS,11872,selector-type-no-unknown,1,direct,Stylelint,selector-type-no-unknown,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11873,shorthand-property-no-redundant-values,1,direct,Stylelint,shorthand-property-no-redundant-values,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11874,string-no-newline,1,direct,Stylelint,string-no-newline,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
-Stylelint,CSS,11875,string-quotes,1,direct,Stylelint,string-quotes,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11876,time-min-milliseconds,1,direct,Stylelint,time-min-milliseconds,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11878,unit-allowed-list,1,direct,Stylelint,unit-allowed-list,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
 Stylelint,CSS,11880,unit-disallowed-list,1,direct,Stylelint,unit-disallowed-list,stylelint 配置可直接命中（含 extends 后的有效规则）,-,false,false,out-of-scope
