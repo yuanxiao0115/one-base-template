@@ -2,14 +2,17 @@
   import { computed, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import { ElMessage } from "element-plus";
+  import {
+    type PortalLayoutItem,
+    GridLayoutEditor,
+    MaterialLibrary,
+    PropertyPanel,
+    usePortalPageLayoutStore,
+  } from "@one-base-template/portal-engine";
 
   import { portalService } from "../services/portal-service";
   import { useMaterials } from "../materials/useMaterials";
-  import { type PortalLayoutItem, usePortalPageLayoutStore } from "../stores/pageLayout";
-
-  import GridLayoutEditor from "../components/page-editor/GridLayoutEditor.vue";
-  import MaterialLibrary from "../components/page-editor/MaterialLibrary.vue";
-  import PropertyPanel from "../components/page-editor/PropertyPanel.vue";
+  import { portalMaterialsRegistry } from "../materials/registry/materials-registry";
 
   defineOptions({
     name: "PortalPageEditor",
@@ -40,6 +43,7 @@
   const pageLayoutStore = usePortalPageLayoutStore();
 
   const { materialsMap } = useMaterials();
+  const materialCategories = portalMaterialsRegistry.categories;
 
   const tabId = computed(() => {
     const v = route.query.tabId;
@@ -250,7 +254,7 @@
     </div>
 
     <div v-loading="loading" class="content">
-      <MaterialLibrary />
+      <MaterialLibrary :categories="materialCategories" />
       <div class="canvas">
         <GridLayoutEditor class="canvas-inner" :materials-map :scale="1" :loaded="!loading" :page-setting-data />
       </div>

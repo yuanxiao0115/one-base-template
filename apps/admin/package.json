@@ -15,6 +15,7 @@
   "dependencies": {
     "@one-base-template/adapters": "workspace:*",
     "@one-base-template/core": "workspace:*",
+    "@one-base-template/portal-engine": "workspace:*",
     "@one-base-template/tag": "workspace:*",
     "@one-base-template/ui": "workspace:*",
     "element-plus": "^2.13.2",

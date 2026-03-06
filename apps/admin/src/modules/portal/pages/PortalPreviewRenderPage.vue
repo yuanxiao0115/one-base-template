@@ -1,12 +1,10 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
+  import { type PortalLayoutItem, PortalGridRenderer } from "@one-base-template/portal-engine";
 
   import { portalService } from "../services/portal-service";
   import { useMaterials } from "../materials/useMaterials";
-  import type { PortalLayoutItem } from "../stores/pageLayout";
-
-  import PortalGridRenderer from "../components/preview/PortalGridRenderer.vue";
 
   defineOptions({
     name: "PortalPreview",

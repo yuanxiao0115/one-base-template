@@ -75,6 +75,17 @@ export default [
     },
   },
   {
+    // portal-engine 物料与注册能力迁移自老项目，当前阶段先保证跨应用复用与行为稳定
+    files: [
+      "packages/portal-engine/src/materials/**/*.{ts,tsx,vue}",
+      "packages/portal-engine/src/registry/**/*.{ts,tsx,vue}",
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "vue/component-definition-name-casing": "off",
+    },
+  },
+  {
     // utils 为历史能力迁移包，当前阶段先保证功能可用，类型/风格规则后续分模块收敛。
     files: ["packages/utils/src/**/*.{ts,tsx,vue}"],
     rules: {
