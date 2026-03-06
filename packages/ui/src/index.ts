@@ -11,8 +11,6 @@ export { default as TabsBar } from './components/tabs/TabsBar.vue';
 export { default as ThemeSwitcher } from './components/theme/ThemeSwitcher.vue';
 export { default as KeepAliveView } from './components/view/KeepAliveView.vue';
 export { default as FontIcon } from './components/icon/FontIcon.vue';
-export { default as LoginBox } from './components/auth/LoginBox.vue';
-export { default as LoginBoxV2 } from './components/auth/LoginBoxV2.vue';
 export { default as PageContainer } from './components/container/PageContainer.vue';
 export { default as CrudContainer } from './components/container/CrudContainer.vue';
 export { default as Tree } from './components/tree/Tree.vue';
@@ -20,6 +18,8 @@ export { default as ActionButtons } from './components/table/ActionButtons.vue';
 export { default as TableBox } from './components/table/TableBox.vue';
 export { default as VxeTable } from './components/table/VxeTable.vue';
 export { default as ImportUpload } from './components/upload/ImportUpload.vue';
+export { default as LoginBox } from './components/auth/LoginBox.vue';
+export { default as LoginBoxV2 } from './components/auth/LoginBoxV2.vue';
 export {
   ensureMenuIconifyCollectionsRegistered,
   getMenuIconifyNames,
