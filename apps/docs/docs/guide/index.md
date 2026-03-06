@@ -81,7 +81,7 @@ outline: false
 <div class="guide-grid">
   <a class="guide-card" href="/guide/portal-designer">
     <h3>门户设计器（PC）</h3>
-    <p>门户布局设计与组件联动方案。</p>
+    <p>管理端设计器与 portal 独立消费者渲染链路。</p>
   </a>
   <a class="guide-card" href="/guide/adapter-sczfw">
     <h3>sczfw Adapter</h3>

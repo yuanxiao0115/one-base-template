@@ -47,6 +47,41 @@ pnpm biome:ci
 }
 ```
 
+## Turborepo build.outputs 约定
+
+- 根目录 `turbo.json` 的 `build.outputs` 继续约定真实构建产物默认写到 `dist/**`
+- 如果某个 workspace 的 `build` 脚本**只做 typecheck / 无文件产物**，必须在该包内新增 `turbo.json`，通过 package-level 配置把 `build.outputs` 显式覆写为 `[]`
+- 这样可以避免 Turborepo 在 cache miss 时输出 `no output files found for task ...#build` 的误报警告
+
+示例（以 typecheck-only 子包为例）：
+
+```json
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": []
+    }
+  }
+}
+```
+
+## 构建 chunk warning 排查优先级
+
+- `admin` / `portal` / `template` 出现大 chunk warning 时，**先看 Vite 的 `manualChunks` 是否已经把 vendor / workspace shell / 重模块拆开**
+- 当前仓库优先采用“低风险拆包”策略：
+  - 在 `apps/*/vite.config.ts` 中接入共享 helper：`scripts/vite/manual-chunks.ts`
+  - 先拆 `vue`、`element-plus`、`vxe`、`iconify`、`gm-crypto` 等 vendor
+  - 再按 app feature 拆 `portal` / `UserManagement` / `SystemManagement` / `LogManagement` 等重模块
+- `portal` / `template` 不再默认引用完整 `@one-base-template/ui` 入口：
+  - 路由壳组件改走 `@one-base-template/ui/shell`
+  - 启动阶段仅按需注册 `@one-base-template/ui/lite` 中的轻量组件
+- 离线 Iconify 数据按集合拆成独立异步 chunk：
+  - `ep` / `ri` 图标集合不再直接塞进应用主入口
+  - 管理端图标选择器打开时再加载完整集合，菜单渲染只在需要时注册对应集合
+- **当前阶段不优先通过改路由懒加载来处理**，因为 `apps/admin` 的模块路由仍遵循静态 import 约束；若后续要继续压缩首包，再单独评估规则调整
+- `admin` 仍保留较高的 `chunkSizeWarningLimit`，前提是 vendor / 图标集合 / 重模块已经独立拆出；这样可以避免静态路由壳层的误报噪音
+
 ## 文档必须随功能演进同步更新
 
 本仓库约定：**更新功能后，必须同步更新文档站点**（`apps/docs`）。

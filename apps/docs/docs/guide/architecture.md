@@ -5,6 +5,7 @@
 ```text
 apps/
   admin/                 # 主应用（Vite + Vue）
+  portal/                # 门户消费者应用（独立渲染）
   template/              # 最小可用示例（静态菜单）
   docs/                  # 文档站点（VitePress）
 packages/
@@ -48,6 +49,35 @@ packages/
 - `apps/template/src/infra/mock-adapter.ts`：本地 mock 鉴权（无后端依赖）
 - `apps/template/src/router/routes.ts`：静态路由与菜单来源（`modules/**/routes.ts`）
 - `apps/template/src/bootstrap/index.ts`：安装 router + core + ui + tag + 守卫
+
+## portal 的启动分层（门户消费者）
+
+`apps/portal` 基于 template 骨架收敛为“独立渲染入口”：
+
+- `apps/portal/public/platform-config.json`：运行时配置（默认 `preset=static-single`，落地 `/portal/index`）
+- `apps/portal/src/bootstrap/index.ts`：安装 router + core + ui，并注入 `http/adapter`
+- `apps/portal/src/bootstrap/{http.ts,adapter.ts}`：复用与 admin 一致的后端鉴权接入能力
+- `apps/portal/src/pages/login/LoginPage.vue`：门户登录页；复用共享 `LoginBox.vue` / `LoginBoxV2.vue` 与 `login.ts`，但页面壳与登录后分流逻辑仍由 portal 自己维护
+- `apps/portal/src/shared/services/auth-captcha-service.ts`：门户登录页滑块验证码接口收口
+- `apps/portal/src/shared/services/auth-remote-service.ts`：登录页配置与前台首页分流接口收口（`/cmict/portal/getLoginPage`、`/cmict/admin/front-config/portal`）
+- `apps/portal/src/modules/portal/pages/PortalRenderPage.vue`：消费者渲染页（`useMaterials + PortalGridRenderer`）
+- `apps/portal/src/modules/portal/api/**`：portal/cms 接口收口（tab/templatePublic/tabPublic + cms）
+- `apps/portal/src/modules/portal/materials/useMaterials.ts`：向 `portal-engine` 注入 `cmsApi`
+
+### portal 登录与菜单边界
+
+- `admin` 与 `portal` 共享：
+  - `packages/ui/src/components/auth/LoginBox.vue`
+  - `packages/ui/src/components/auth/LoginBoxV2.vue`
+  - `packages/core/src/auth/login.ts`
+- `admin` / `portal` 各自保留 `shared/services/auth-captcha-service.ts`，只负责把验证码接口适配给共享 `LoginBoxV2.vue`
+- `admin` 登录页统一使用 `LoginBoxV2.vue`；`portal` 按各自场景决定使用 `LoginBox.vue` 或 `LoginBoxV2.vue`
+- `LoginBox.vue` 内置默认密码校验与 SM4 加密能力，可通过 props 开关/覆盖；滑动验证场景统一走 `LoginBoxV2.vue`
+- `apps/*/infra/sczfw` 继续保留请求签名能力（`Client-Signature`）；其中 admin 还保留少量业务字段加密能力
+- `admin` / `portal` **不共享整页登录页**：页面壳、背景、直登/SSO、登录后跳转继续各自维护
+- `admin` / `portal` 登录页不再保留 `backend === 'default'` 的 demo 分支，统一由各自页面壳组合共享登录组件
+- `portal` 登录成功后优先处理 `redirect`，否则再调用 `/cmict/admin/front-config/portal` 做前台首页分流
+- `portal` 继续保持前台静态应用边界：**不接菜单接口**，不依赖 `/cmict/admin/permission/*`
 
 ### 启动与路由收敛补充（2026-03）
 
