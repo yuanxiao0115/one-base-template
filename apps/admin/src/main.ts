@@ -1,14 +1,14 @@
-import "element-plus/dist/index.css";
-import "./styles/index.css";
-import "./styles/element-plus/button-overrides.css";
-import "./styles/element-plus/drawer-overrides.css";
-import "./styles/element-plus/dialog-overrides.css";
-import "./styles/element-plus/message-box-overrides.css";
-import "./styles/element-plus/loading-overrides.css";
-
-import { isPlatformConfigLoadError, loadPlatformConfig, type PlatformConfigLoadError } from "./config/platform-config";
-
 type RuntimeOs = "macos" | "windows" | "other";
+type PlatformConfigLoadErrorCode =
+  | "FALLBACK_PARSE_FAILED"
+  | "PARSE_FAILED"
+  | "REQUEST_FAILED"
+  | "REQUEST_TIMEOUT"
+  | "VALIDATION_FAILED";
+
+interface PlatformConfigLoadErrorLike extends Error {
+  code: PlatformConfigLoadErrorCode;
+}
 
 function detectRuntimeOs(): RuntimeOs {
   if (typeof navigator === "undefined") {
@@ -48,8 +48,12 @@ interface BootstrapErrorView {
   detail: string;
 }
 
+function isPlatformConfigLoadErrorLike(error: unknown): error is PlatformConfigLoadErrorLike {
+  return error instanceof Error && "code" in error && typeof error.code === "string";
+}
+
 function resolveBootstrapErrorView(error: unknown): BootstrapErrorView {
-  if (isPlatformConfigLoadError(error)) {
+  if (isPlatformConfigLoadErrorLike(error)) {
     const detail = buildErrorMessage(error);
     return buildPlatformConfigErrorView(error, detail);
   }
@@ -62,7 +66,7 @@ function resolveBootstrapErrorView(error: unknown): BootstrapErrorView {
   };
 }
 
-function buildPlatformConfigErrorView(error: PlatformConfigLoadError, detail: string): BootstrapErrorView {
+function buildPlatformConfigErrorView(error: PlatformConfigLoadErrorLike, detail: string): BootstrapErrorView {
   if (error.code === "REQUEST_TIMEOUT") {
     return {
       title: "运行时配置请求超时",
@@ -172,9 +176,15 @@ function renderBootstrapError(error: unknown) {
 
 async function bootstrap() {
   try {
-    await loadPlatformConfig();
-    const { bootstrapAdminApp } = await import("./bootstrap");
-    const { app, router } = bootstrapAdminApp();
+    const platformConfigModule = await import("./config/platform-config");
+    await platformConfigModule.loadPlatformConfig();
+    const { bootstrapAppByMode } = await import("./bootstrap/switcher");
+
+    const { app, router } = await bootstrapAppByMode({
+      pathname: window.location.pathname,
+      baseUrl: import.meta.env.BASE_URL,
+      menuMode: platformConfigModule.getPlatformConfig().menuMode,
+    });
     await router.isReady();
     app.mount("#app");
   } catch (error) {

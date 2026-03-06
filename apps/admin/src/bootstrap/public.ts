@@ -2,8 +2,6 @@ import { createApp } from "vue";
 import { createPinia, setActivePinia } from "pinia";
 
 import App from "../App.vue";
-import { getRouteAssemblyResult } from "../router";
-
 import { setObHttpClient } from "../infra/http";
 import { appEnv } from "../infra/env";
 import {
@@ -13,37 +11,25 @@ import {
   appSystemSwitchStyle,
   appTopbarHeight,
 } from "../config";
+import { getPublicRoutes } from "../router/public-routes";
 
 import { createAppRouter } from "./router";
 import { createAppHttp } from "./http";
 import { createAppAdapter } from "./adapter";
 import { installCore } from "./core";
-import { installAppShellPlugins } from "./plugins";
-import { installAppRouterGuards } from "./guards";
 import { setBootstrapMode } from "./runtime";
-import { registerMessageUtils } from "../utils/message";
-import { registerPersonnelSelectionAppContext } from "../components/PersonnelSelector/openPersonnelSelection";
 
-export function bootstrapAdminApp() {
-  setBootstrapMode("admin");
+export function bootstrapPublicApp() {
+  setBootstrapMode("public");
 
   const app = createApp(App);
-  registerMessageUtils(app);
-  registerPersonnelSelectionAppContext(app._context);
-
   const pinia = createPinia();
   app.use(pinia);
-  // 允许在路由守卫 / http hooks 等“组件外”场景安全使用 store
   setActivePinia(pinia);
 
-  const { routes, skipMenuAuthRouteNames } = getRouteAssemblyResult();
+  const routes = getPublicRoutes();
   const router = createAppRouter(routes);
   app.use(router);
-  installAppShellPlugins({
-    app,
-    pinia,
-    router,
-  });
 
   const http = createAppHttp({
     backend: appEnv.backend,
@@ -79,14 +65,6 @@ export function bootstrapAdminApp() {
     storageNamespace: appEnv.storageNamespace,
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
-  });
-
-  installAppRouterGuards({
-    router,
-    skipMenuAuthRouteNames,
-    onNavigationStart: () => {
-      http.cancelRouteRequests();
-    },
   });
 
   return {

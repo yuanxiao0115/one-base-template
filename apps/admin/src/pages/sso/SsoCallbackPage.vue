@@ -3,6 +3,7 @@
   import { ElMessage } from "element-plus";
   import { onMounted, ref } from "vue";
   import { useRouter } from "vue-router";
+  import { navigateAfterAuth } from "@/bootstrap/runtime";
   import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
   import { appEnv } from "@/infra/env";
   import {
@@ -42,6 +43,7 @@
   const { backend } = appEnv;
   const { tokenKey } = appEnv;
   const { idTokenKey } = appEnv;
+  const { baseUrl } = appEnv;
 
   function safeMessage(e: unknown, fallback: string) {
     return e instanceof Error && e.message ? e.message : fallback;
@@ -52,7 +54,11 @@
     await finalizeAuthSession({ shouldFetchMe: true });
 
     loginStatus.value = "success";
-    await router.replace(redirect);
+    await navigateAfterAuth({
+      router,
+      target: redirect,
+      baseUrl,
+    });
   }
 
   async function handleZhxt(token: string, redirect: string) {
@@ -123,7 +129,11 @@
     try {
       if (backend !== "sczfw") {
         const { redirect } = await handleSsoCallback();
-        await router.replace(redirect);
+        await navigateAfterAuth({
+          router,
+          target: redirect,
+          baseUrl,
+        });
         loginStatus.value = "success";
         return;
       }

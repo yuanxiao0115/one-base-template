@@ -1,8 +1,10 @@
 <script setup lang="ts">
   import { finalizeAuthSession, loginByPassword, safeRedirect } from "@one-base-template/core";
+  import { LoginBoxV2 as ObLoginBoxV2 } from "@one-base-template/ui/lite";
   import { ElMessage } from "element-plus";
   import { onMounted, reactive, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
+  import { navigateAfterAuth } from "@/bootstrap/runtime";
   import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
   import { appEnv } from "@/infra/env";
   import { checkCaptcha, loadCaptcha } from "@/shared/services/auth-captcha-service";
@@ -37,6 +39,7 @@
 
   const { backend } = appEnv;
   const { tokenKey } = appEnv;
+  const { baseUrl } = appEnv;
   const useVerifyLogin = backend === "sczfw";
 
   const loading = ref(false);
@@ -73,7 +76,11 @@
     localStorage.setItem(tokenKey, token);
     try {
       await finalizeAuthSession({ shouldFetchMe: true });
-      await router.replace(getRedirectTarget());
+      await navigateAfterAuth({
+        router,
+        target: getRedirectTarget(),
+        baseUrl,
+      });
     } catch (e: unknown) {
       const message = e instanceof Error && e.message ? e.message : "登录失败";
       ElMessage.error(message);
@@ -92,7 +99,11 @@
         captchaKey: payload.captchaKey,
         alreadyEncrypted: payload.encrypt === 1,
       });
-      await router.replace(getRedirectTarget());
+      await navigateAfterAuth({
+        router,
+        target: getRedirectTarget(),
+        baseUrl,
+      });
     } catch (e: unknown) {
       const message = e instanceof Error && e.message ? e.message : "登录失败";
       ElMessage.error(message);
