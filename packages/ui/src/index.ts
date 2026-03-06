@@ -11,6 +11,8 @@ export { default as TabsBar } from './components/tabs/TabsBar.vue';
 export { default as ThemeSwitcher } from './components/theme/ThemeSwitcher.vue';
 export { default as KeepAliveView } from './components/view/KeepAliveView.vue';
 export { default as FontIcon } from './components/icon/FontIcon.vue';
+export { default as LoginBox } from './components/auth/LoginBox.vue';
+export { default as LoginBoxV2 } from './components/auth/LoginBoxV2.vue';
 export { default as PageContainer } from './components/container/PageContainer.vue';
 export { default as CrudContainer } from './components/container/CrudContainer.vue';
 export { default as Tree } from './components/tree/Tree.vue';

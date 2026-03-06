@@ -89,6 +89,13 @@ export {
 
 export { createStaticMenusFromRoutes, type CreateStaticMenusOptions } from './menu/fromRoutes';
 export { finalizeAuthSession, safeRedirect, type FinalizeAuthSessionOptions } from './auth/flow';
+export {
+  loginByPassword,
+  resolvePortalLoginTarget,
+  type LoginByPasswordOptions,
+  type PortalFrontConfig,
+  type ResolvePortalLoginTargetOptions,
+} from './auth/login';
 
 export {
   useTable,

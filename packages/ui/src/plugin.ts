@@ -7,6 +7,8 @@ import TabsBar from './components/tabs/TabsBar.vue';
 import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
 import KeepAliveView from './components/view/KeepAliveView.vue';
 import FontIcon from './components/icon/FontIcon.vue';
+import LoginBox from './components/auth/LoginBox.vue';
+import LoginBoxV2 from './components/auth/LoginBoxV2.vue';
 import PageContainer from './components/container/PageContainer.vue';
 import CrudContainer from './components/container/CrudContainer.vue';
 import Tree from './components/tree/Tree.vue';
@@ -26,6 +28,8 @@ const UI_COMPONENTS = {
   ThemeSwitcher,
   KeepAliveView,
   FontIcon,
+  LoginBox,
+  LoginBoxV2,
   PageContainer,
   CrudContainer,
   Tree,

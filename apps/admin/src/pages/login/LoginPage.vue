@@ -1,12 +1,11 @@
 <script setup lang="ts">
-  import { finalizeAuthSession, type LoginPayload, safeRedirect, useAuthStore } from "@one-base-template/core";
-  import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+  import { finalizeAuthSession, loginByPassword, safeRedirect } from "@one-base-template/core";
+  import { ElMessage } from "element-plus";
   import { onMounted, reactive, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import VerifySlide from "@/components/verifition-plus/VerifySlide.vue";
   import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
   import { appEnv } from "@/infra/env";
-  import { sm4EncryptBase64 } from "@/infra/sczfw/crypto";
+  import { checkCaptcha, loadCaptcha } from "@/shared/services/auth-captcha-service";
   import { getLoginPageConfig } from "@/shared/services/auth-remote-service";
 
   defineOptions({
@@ -25,18 +24,22 @@
     [k: string]: unknown;
   }
 
+  interface VerifyLoginPayload {
+    username: string;
+    password: string;
+    captcha: string;
+    captchaKey: string;
+    encrypt?: 1;
+  }
+
   const router = useRouter();
   const route = useRoute();
 
-  const authStore = useAuthStore();
-
   const { backend } = appEnv;
   const { tokenKey } = appEnv;
+  const useVerifyLogin = backend === "sczfw";
 
   const loading = ref(false);
-  const formRef = ref<FormInstance>();
-  const verifyRef = ref<InstanceType<typeof VerifySlide> | null>(null);
-
   const form = reactive({
     username: "",
     password: "",
@@ -46,38 +49,10 @@
   const backgroundImage = ref("");
 
   function getRedirectTarget() {
-    // 兼容老项目常用 query：redirectUrl
     const raw = route.query.redirect ?? route.query.redirectUrl;
     const fallback = backend === "sczfw" ? DEFAULT_FALLBACK_HOME : "/";
     return safeRedirect(raw, fallback);
   }
-
-  const rules: FormRules = {
-    username: [
-      {
-        required: true,
-        message: "请输入账号",
-        trigger: "blur",
-      },
-    ],
-    password: [
-      {
-        validator: (_rule, value: string, callback) => {
-          // 密码格式应为 8-18 位：数字/字母/符号任意两种组合，且不允许中文
-          const REGEXP_PWD =
-            /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){8,18}$/;
-          if (!value) {
-            return callback(new Error("请输入密码"));
-          }
-          if (!REGEXP_PWD.test(value)) {
-            return callback(new Error("密码格式应为8-18位数字、字母、符号的任意两种组合"));
-          }
-          callback();
-        },
-        trigger: "blur",
-      },
-    ],
-  };
 
   async function loadLoginPageConfig() {
     const res = (await getLoginPageConfig()) as BizResponse<LoginPageConfig>;
@@ -106,14 +81,17 @@
     }
   }
 
-  async function doDefaultLogin() {
+  async function doLogin(payload: VerifyLoginPayload) {
     loading.value = true;
     try {
-      await authStore.login({
-        username: form.username,
-        password: form.password,
+      await loginByPassword({
+        backend,
+        username: payload.username,
+        password: payload.password,
+        captcha: payload.captcha,
+        captchaKey: payload.captchaKey,
+        alreadyEncrypted: payload.encrypt === 1,
       });
-      await finalizeAuthSession({ shouldFetchMe: false });
       await router.replace(getRedirectTarget());
     } catch (e: unknown) {
       const message = e instanceof Error && e.message ? e.message : "登录失败";
@@ -121,111 +99,22 @@
     } finally {
       loading.value = false;
     }
-  }
-
-  async function doSczfwLogin(captcha: { captcha: string; captchaKey: string }) {
-    loading.value = true;
-    try {
-      const payload: LoginPayload = {
-        username: sm4EncryptBase64(form.username),
-        password: sm4EncryptBase64(form.password),
-        captcha: captcha.captcha,
-        captchaKey: captcha.captchaKey,
-        encrypt: 1,
-      };
-
-      await authStore.login(payload);
-      await finalizeAuthSession({ shouldFetchMe: false });
-      await router.replace(getRedirectTarget());
-    } catch (e: unknown) {
-      const message = e instanceof Error && e.message ? e.message : "登录失败";
-      ElMessage.error(message);
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function onSubmit() {
-    if (backend === "default") {
-      await doDefaultLogin();
-      return;
-    }
-
-    if (!formRef.value) {
-      return;
-    }
-
-    const valid = await formRef.value
-      .validate()
-      .then(() => true)
-      .catch(() => false);
-
-    if (!valid) {
-      return;
-    }
-
-    // 验证码弹层
-    await verifyRef.value?.show();
-  }
-
-  function onCaptchaSuccess(payload: { captcha: string; captchaKey: string }) {
-    void doSczfwLogin(payload);
   }
 
   onMounted(async () => {
-    if (backend === "default") {
-      form.username = "demo";
-      form.password = "demo";
-      return;
-    }
+    if (useVerifyLogin) {
+      await loadLoginPageConfig();
 
-    await loadLoginPageConfig();
-
-    // 兼容老项目：/login?token=xxx 直接免密登录
-    const { token } = route.query;
-    if (typeof token === "string" && token) {
-      await handleDirectTokenLogin(token);
+      const { token } = route.query;
+      if (typeof token === "string" && token) {
+        await handleDirectTokenLogin(token);
+      }
     }
   });
 </script>
 
 <template>
-  <!-- 默认模板：mock(/api) + 简单表单 -->
-  <div
-    v-if="backend === 'default'"
-    class="bg-(--el-bg-color-page) flex h-screen items-center justify-center p-4 w-screen"
-  >
-    <el-card class="max-w-md w-full">
-      <template #header> <div class="font-medium">登录</div> </template>
-
-      <el-form label-position="top">
-        <el-form-item label="账号">
-          <el-input v-model="form.username" autocomplete="username" @keyup.enter="onSubmit" />
-        </el-form-item>
-        <el-form-item label="密码">
-          <el-input
-            v-model="form.password"
-            type="password"
-            autocomplete="current-password"
-            show-password
-            @keyup.enter="onSubmit"
-          />
-        </el-form-item>
-        <el-button class="w-full" type="primary" :loading @click="onSubmit"> 登录 </el-button>
-      </el-form>
-
-      <div class="mt-3 text-[var(--el-text-color-regular)] text-xs">
-        开发模式下使用 Vite middleware mock，无需后端。
-      </div>
-    </el-card>
-  </div>
-
-  <!-- sczfw：移植 standard-oa-web-sczfw 登录页（滑块验证码 + SM4 加密 + 动态背景） -->
-  <div
-    v-else
-    class="login-desktop"
-    :style="{ backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined }"
-  >
+  <div class="login-desktop" :style="{ backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined }">
     <div class="login-header">
       <span v-if="loginInfoConfig?.webLogoText">{{ loginInfoConfig.webLogoText }}</span>
       <el-divider v-if="loginInfoConfig?.webLogoText" direction="vertical" />
@@ -235,39 +124,24 @@
     <div class="login-container">
       <div class="login-box">
         <div class="login-form">
-          <div class="title">用户登录</div>
-          <el-form ref="formRef" :model="form" :rules size="large">
-            <el-form-item prop="username" class="custom-input">
-              <el-input v-model="form.username" clearable placeholder="账号" @keyup.enter="onSubmit" />
-            </el-form-item>
-
-            <el-form-item prop="password" class="custom-input">
-              <el-input
-                v-model="form.password"
-                clearable
-                show-password
-                placeholder="密码"
-                autocomplete="current-password"
-                @keyup.enter="onSubmit"
-              />
-            </el-form-item>
-
-            <el-button class="custom-color login-btn mt-4 w-full" type="primary" :loading @click="onSubmit">
-              登录
-            </el-button>
-          </el-form>
+          <ObLoginBoxV2
+            v-model:username="form.username"
+            v-model:password="form.password"
+            title="用户登录"
+            :loading="loading"
+            :encrypt="useVerifyLogin"
+            :load-captcha="loadCaptcha"
+            :check-captcha="checkCaptcha"
+            :validate-password="useVerifyLogin"
+            username-label=""
+            password-label=""
+            username-placeholder="账号"
+            password-placeholder="密码"
+            @submit="doLogin"
+          />
         </div>
       </div>
     </div>
-
-    <VerifySlide
-      ref="verifyRef"
-      :img-size="{
-        width: '350px',
-        height: '175px'
-      }"
-      @success="onCaptchaSuccess"
-    />
   </div>
 </template>
 
@@ -310,22 +184,8 @@
     border-radius: 8px;
   }
 
-  .login-container .title {
-    height: 72px;
-    font-size: 28px;
-    font-weight: 700;
-    color: #333;
-    text-align: center;
-  }
-
   .login-container .login-form {
     width: 360px;
-  }
-
-  .login-container .login-btn {
-    height: 40px;
-    color: #fff;
-    background: #0f79e9;
   }
 
   .login-box {
@@ -333,9 +193,5 @@
     align-items: center;
     overflow: hidden;
     text-align: center;
-  }
-
-  .custom-color {
-    border-color: transparent;
   }
 </style>

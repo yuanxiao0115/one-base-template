@@ -10,13 +10,6 @@ export function sm4EncryptBase64(plainText: string, keyHex: string = DEFAULT_SM4
   });
 }
 
-export function sm4DecryptUtf8(cipherTextBase64: string, keyHex: string = DEFAULT_SM4_KEY_HEX): string {
-  return SM4.decrypt(cipherTextBase64, keyHex, {
-    inputEncoding: "base64",
-    outputEncoding: "utf8",
-  });
-}
-
 export function sm3DigestHex(value: string): string {
   return SM3.digest(value, "utf8", "hex");
 }
