@@ -25,20 +25,26 @@ packages/
 - `apps/admin/src/config/theme.ts`：主题注册入口（复用 core 内置主题 + 项目自定义主题）
 - `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `appEnv`
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块 Manifest 扫描、白名单过滤与路由组装
+- `apps/admin/src/router/public-routes.ts`：匿名公共页路由（仅 `/login`、`/sso`）
 - `apps/admin/src/router/index.ts`：路由装配单一入口（仅暴露 `getRouteAssemblyResult()`）
-- `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫
+- `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫，并区分 `admin/public` 两条启动链路
 - `packages/core/src/storage/namespace.ts`：统一存储命名空间规则（读取兼容旧 key）
 - `packages/core/src/router/initial-path.ts`：统一根路由首次跳转决策（系统首页映射 + 菜单叶子兜底）
 
 启动顺序：
 
 1. `main.ts` 先调用 `loadPlatformConfig()`
-2. 配置加载成功后动态导入 `bootstrap`
-3. `bootstrap` 内安装 `@one-base-template/ui` 插件（`app.use(OneUiPlugin, { prefix: 'Ob' })`，自动注册全局组件）
-4. 路由由 `module-system` 基于 `modules/**/module.ts` 组装（支持 `enabledModules` 白名单）
-5. 注册 core 路由守卫（默认启用 core tabs 同步）
-6. `router.isReady()` 后 mount
-7. 配置加载失败时，应用硬失败并显示错误页（不进入业务路由）
+2. 配置加载成功后动态导入 `infra/env.ts`，根据 `menuMode + pathname` 判定启动模式
+3. 命中 `/login` 或 `/sso` 且 `menuMode=remote` 时，走 `bootstrap/public.ts`
+   - 仅注册 `public-routes`
+   - 仅注册 `@one-base-template/ui/lite` 里的轻量登录组件
+   - 仍补齐 `http + adapter + core`，保证登录/SSO 可正常完成
+4. 其他路径继续走 `bootstrap/index.ts`
+   - 安装完整 `@one-base-template/ui` 插件（`app.use(OneUiPlugin, { prefix: 'Ob' })`，自动注册全局组件）
+   - 路由由 `module-system` 基于 `modules/**/module.ts` 组装（支持 `enabledModules` 白名单）
+   - 注册 core 路由守卫（默认启用 core tabs 同步）
+5. `router.isReady()` 后 mount
+6. 配置加载失败时，应用硬失败并显示错误页（不进入业务路由）
 
 ## template 的启动分层（最小静态菜单）
 
@@ -88,6 +94,8 @@ packages/
   - **失败重试**（默认 1 次）
   - **只读快照兜底（开关控制）**：开启 `VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK=true` 时，主配置加载失败可回退本地快照
 - `router/registry.ts` 为模块清单增加内存缓存，降低重复扫描开销；HMR 时自动失效重建。
+- `bootstrap/entry.ts` 用于解析 `baseUrl + pathname + menuMode`，决定当前请求应走 `admin` 还是 `public` 启动链路。
+- `bootstrap/runtime.ts` 记录当前启动模式；当匿名页使用轻量启动时，登录成功后的跳转改为 `window.location.replace()`，从而重新进入完整 admin bootstrap，避免 public router 缺少业务路由导致的 `router.replace()` 失败。
 - `router/assemble-routes.ts` 在模块路由装配阶段增加冲突防护：
   - 禁止占用保留 path/name（`/login`、`/sso`、`/403`、`/404`、通配 404 等）
   - 检测重复 path/name，后出现的冲突路由自动跳过并告警
@@ -154,8 +162,24 @@ packages/
   - `"*"`：启用全部模块
   - `string[]`：只启用指定模块
   - 管理端生产配置建议使用 `string[]` 显式白名单，避免把实验/迁移模块一并装配进主链路
-  - `optional` 模块必须配置 `enabledByDefault=false`；若契约不合法会被注册器忽略并告警
+- `optional` 模块必须配置 `enabledByDefault=false`；若契约不合法会被注册器忽略并告警
 - API 约束：页面只能调 `services/*`，模块 HTTP 请求收敛在 `api/client.ts`
+
+## CmsManagement / Publicity 迁移落点（2026-03）
+
+- 模块入口：`apps/admin/src/modules/CmsManagement/module.ts`
+- 路由清单：`apps/admin/src/modules/CmsManagement/routes.ts`
+- 页面目录：
+  - `apps/admin/src/modules/CmsManagement/column/**`（栏目管理）
+  - `apps/admin/src/modules/CmsManagement/content/**`（内容管理）
+  - `apps/admin/src/modules/CmsManagement/audit/**`（审核管理）
+- 已迁移路径：
+  - `/publicity/column`
+  - `/publicity/content`
+  - `/publicity/audit`
+  - `/publicity/article-list/:categoryId`（隐藏菜单路由，用于栏目页“文章列表”跳转）
+- 风格基线统一为：`ObPageContainer + ObTableBox + ObVxeTable + ObCrudContainer`。
+- 迁移期菜单策略：上述路由统一开启 `meta.skipMenuAuth = true`，待后端菜单补齐后再收敛为 `meta.activePath`。
 
 ## 静态路由 + 动态菜单
 
