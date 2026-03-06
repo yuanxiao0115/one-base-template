@@ -140,7 +140,7 @@
       const targetTabId = await resolveTargetTabId();
       if (!targetTabId) {
         layoutItems.value = [];
-        if (!tabId.value && !templateId.value) {
+        if (!(tabId.value || templateId.value)) {
           emptyMessage.value = "当前首页尚未配置门户页面，请先在前台配置中设置 customUrl，或从带 templateId/tabId 的入口进入。";
           return;
         }
