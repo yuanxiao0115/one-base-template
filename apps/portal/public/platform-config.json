@@ -1,0 +1,10 @@
+{
+  "preset": "static-single",
+  "backend": "sczfw",
+  "appsource": "frame",
+  "appcode": "portal",
+  "defaultSystemCode": "admin_server",
+  "systemHomeMap": {
+    "admin_server": "/portal/index"
+  }
+}

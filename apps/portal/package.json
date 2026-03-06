@@ -1,0 +1,32 @@
+{
+  "name": "portal",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "lint": "ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src",
+    "lint:fix": "ultracite fix src",
+    "lint:doctor": "ultracite doctor"
+  },
+  "dependencies": {
+    "@one-base-template/adapters": "workspace:*",
+    "@one-base-template/core": "workspace:*",
+    "@one-base-template/portal-engine": "workspace:*",
+    "@one-base-template/tag": "workspace:*",
+    "@one-base-template/ui": "workspace:*",
+    "element-plus": "^2.13.2",
+    "gm-crypto": "^0.1.12",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.28",
+    "vue-router": "^5.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.4",
+    "ultracite": "^7.2.4",
+    "vite": "^8.0.0-beta.13"
+  }
+}
