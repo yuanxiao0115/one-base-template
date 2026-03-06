@@ -66,6 +66,22 @@ pnpm biome:ci
 
 详细分类与适用范围见：`/guide/agents-scope`。
 
+## Agent / Harness 协作实践
+
+本仓库采用“**全局运行时角色 + 仓库项目知识**”的拆分策略：
+
+- 运行时角色、模型与 system prompt 继续由 `~/.codex` 维护
+- 本仓库只维护项目规则、知识入口、验证命令与文档说明
+
+因此，进入本仓库后的推荐顺序是：
+
+1. 先确认任务是否明确针对 `one-base-template`
+2. 先读根 `AGENTS.md` 与目标目录 `AGENTS.md`
+3. 再读对应指南页与最近的 `docs/plans/*.md`
+4. 改完后同步更新 `apps/docs` 与 `.codex/*.md`
+
+详细说明见：`/guide/agent-harness`。
+
 ## 本地预览文档
 
 ```bash

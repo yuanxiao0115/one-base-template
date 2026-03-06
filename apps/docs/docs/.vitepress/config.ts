@@ -43,6 +43,7 @@ export default defineConfig({
         text: '开发协作',
         items: [
           { text: '开发规范与维护', link: '/guide/development' },
+          { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
           { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
           { text: '子包发布与版本控制', link: '/guide/package-release' },
         ],
@@ -88,6 +89,7 @@ export default defineConfig({
           text: '协作规范',
           items: [
             { text: '开发规范与维护', link: '/guide/development' },
+            { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
             { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
             { text: '子包发布与版本控制', link: '/guide/package-release' },
           ],

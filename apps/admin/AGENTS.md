@@ -46,6 +46,7 @@
 - `PageContainer` 与 `TableBox` 在 `apps/admin` 页面中统一使用全局前缀标签：`ObPageContainer` / `ObTableBox`。
 - `@one-base-template/ui` 组件在 admin 页面默认走全局注册（`Ob*` 前缀）；仅在明确说明原因时才允许局部 import。
 - `ObPageContainer` 外层禁止再包无业务意义占位 `div`，优先使用片段根节点保持结构扁平。
+- admin 登录页统一使用 `ObLoginBoxV2`，不要回退到基础版 `ObLoginBox`。
 - 涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面。
 
 ## 表格迁移（业务页侧）

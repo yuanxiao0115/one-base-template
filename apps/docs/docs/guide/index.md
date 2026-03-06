@@ -96,6 +96,10 @@ outline: false
     <h3>开发规范与维护</h3>
     <p>协作流程、提交规范与维护约定。</p>
   </a>
+  <a class="guide-card" href="/guide/agent-harness">
+    <h3>Agent Harness 与仓库知识</h3>
+    <p>了解全局角色配置与项目级知识文档的边界与落盘方式。</p>
+  </a>
   <a class="guide-card" href="/guide/agents-scope">
     <h3>AGENTS 规则分层</h3>
     <p>查看全局与子项目规则的分类、作用域和维护方式。</p>
