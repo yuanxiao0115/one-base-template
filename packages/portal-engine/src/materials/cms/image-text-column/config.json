@@ -15,7 +15,7 @@
       "imageBgPosition": "center",
       "showMore": true,
       "moreText": "更多>",
-      "moreLink": "/frontPortal/cms/list",
+      "moreLink": "",
       "moreTextColor": "#ffffff",
       "moreFontSize": 14,
       "moreBgColor": "transparent",

@@ -1,3 +1,4 @@
+import "element-plus/dist/index.css";
 import "./styles/index.css";
 
 import { isPlatformConfigLoadError, loadPlatformConfig } from "@/config/platform-config";

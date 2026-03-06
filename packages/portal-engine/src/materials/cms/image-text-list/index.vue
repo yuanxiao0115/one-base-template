@@ -60,8 +60,10 @@
 
 <script setup lang="ts">
   import { computed } from 'vue';
-  import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
+  import { ElMessage } from 'element-plus';
   import { useRouter } from 'vue-router';
+  import { navigatePortalCmsDetail } from '../../navigation';
+  import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
   import ListContainer from '../common/list/ListContainer.vue';
   import ListEmpty from '../common/list/ListEmpty.vue';
   import ListItem from '../common/list/ListItem.vue';
@@ -143,14 +145,21 @@
   const imageHeight = computed(() => toPositiveNumber(styles.value.imageHeight));
   const imageBorderRadius = computed(() => toNonNegativeNumber(styles.value.imageBorderRadius));
 
-  const handleItemClick = (item: any) => {
-    router.push({
-      name: 'portalPreviewCmsDetail',
-      query: {
-        articleId: item.id,
-        categoryId: dataSource.value.categoryId,
-      },
+  const handleItemClick = async (item: any) => {
+    if (!item?.id) {
+      return;
+    }
+
+    const rawTabId = router.currentRoute.value.params.tabId;
+    const result = await navigatePortalCmsDetail({
+      router,
+      articleId: item.id,
+      categoryId: dataSource.value.categoryId,
+      tabId: typeof rawTabId === 'string' ? rawTabId : undefined,
     });
+    if (!result.handled) {
+      ElMessage.error(result.message || '当前应用未配置 CMS 详情跳转');
+    }
   };
 
   const formatDate = (value?: string) => {

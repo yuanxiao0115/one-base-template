@@ -19,7 +19,9 @@
 
 <script setup lang="ts">
   import { computed, type CSSProperties } from 'vue';
+  import { ElMessage } from 'element-plus';
   import { useRouter } from 'vue-router';
+  import { navigatePortalCmsDetail } from '../../navigation';
   import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
   import ListEmpty from '../common/list/ListEmpty.vue';
   import cardBg from './card-bg.svg';
@@ -123,17 +125,20 @@
     return `${chars.slice(0, maxChars).join('')}…`;
   };
 
-  const handleItemClick = (item: CardItem) => {
+  const handleItemClick = async (item: CardItem) => {
     if (!item?.id) {
       return;
     }
-    router.push({
-      name: 'portalPreviewCmsDetail',
-      query: {
-        articleId: item.id,
-        categoryId: dataSource.value.categoryId,
-      },
+    const rawTabId = router.currentRoute.value.params.tabId;
+    const result = await navigatePortalCmsDetail({
+      router,
+      articleId: item.id,
+      categoryId: dataSource.value.categoryId,
+      tabId: typeof rawTabId === 'string' ? rawTabId : undefined,
     });
+    if (!result.handled) {
+      ElMessage.error(result.message || '当前应用未配置 CMS 详情跳转');
+    }
   };
 
   defineOptions({

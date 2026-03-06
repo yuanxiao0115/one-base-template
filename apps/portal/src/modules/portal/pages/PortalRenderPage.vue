@@ -47,6 +47,7 @@
 
   const loading = ref(false);
   const errorMessage = ref("");
+  const emptyMessage = ref("");
 
   const pageSettingData = ref<PortalPageSettings>({
     gridData: {
@@ -133,12 +134,17 @@
   async function loadTabLayout() {
     loading.value = true;
     errorMessage.value = "";
+    emptyMessage.value = "";
 
     try {
       const targetTabId = await resolveTargetTabId();
       if (!targetTabId) {
-        errorMessage.value = "缺少 tabId，且无法从 templateId 解析页面";
         layoutItems.value = [];
+        if (!tabId.value && !templateId.value) {
+          emptyMessage.value = "当前首页尚未配置门户页面，请先在前台配置中设置 customUrl，或从带 templateId/tabId 的入口进入。";
+          return;
+        }
+        errorMessage.value = "缺少 tabId，且无法从 templateId 解析页面";
         return;
       }
 
@@ -223,6 +229,10 @@
       </el-result>
     </div>
 
+    <div v-else-if="emptyMessage" class="empty">
+      <el-empty :description="emptyMessage" />
+    </div>
+
     <div v-else class="content">
       <PortalGridRenderer :layout-items="layoutItems" :materials-map="materialsMap" :page-setting-data="pageSettingData" />
     </div>
@@ -249,5 +259,15 @@
     min-height: calc(100vh - 32px);
     align-items: center;
     justify-content: center;
+  }
+
+  .empty {
+    display: flex;
+    min-height: calc(100vh - 32px);
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--el-border-color);
+    border-radius: 12px;
+    background: var(--el-bg-color);
   }
 </style>

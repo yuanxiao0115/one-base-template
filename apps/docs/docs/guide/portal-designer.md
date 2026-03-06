@@ -8,6 +8,22 @@
 - 预览页允许 **匿名访问**（`meta.public=true`），用于 iframe/新窗口预览。
 - **不移植**「页面模板」能力：创建时选择页面模板 / 存为模板 / 从历史模板加载等逻辑都不做。
 
+## 引擎抽包进度（2026-03-06）
+
+为后续 `apps/portal` 独立消费者应用做准备，已完成第一批基础能力下沉到 `packages/portal-engine`：
+- `src/schema/types.ts`：`BizResponse`、`PageResult`、`PortalTemplate`、`PortalTab`
+- `src/composables/useSchemaConfig.ts`
+- `src/utils/deep.ts`：`deepClone`、`deepEqual`
+- `src/stores/pageLayout.ts`
+- `src/editor/{GridLayoutEditor,PropertyPanel,MaterialLibrary}.vue`
+- `src/renderer/PortalGridRenderer.vue`
+- `src/materials/cms/**`（由 `party-building` 迁移并重命名目录）
+- `src/materials/useMaterials.ts`（扫描 `cms` 物料，内置 `pb-* <-> cms-*` 组件名别名）
+- `src/registry/materials-registry.ts`（默认注册 `cms-*`，并导出 `pb-* -> cms-*` 类型别名映射）
+
+当前 `apps/admin/src/modules/portal/types.ts`、`hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts` 保留为兼容 re-export 层，确保历史调用点不需要一次性批量改路径。
+另外 `MaterialLibrary` 已改为由页面注入 `categories`，不再直接依赖 admin 内的 registry 路径，便于 `apps/admin` 与后续 `apps/portal` 复用同一编辑器组件。
+
 ## 路由说明
 
 管理侧（挂在 `AdminLayout` 内，需要登录/菜单权限）：
@@ -18,6 +34,11 @@
 
 预览渲染（顶层路由，不挂 `AdminLayout`，允许匿名）：
 - `/portal/preview/:tabId?templateId=<id>`：渲染指定 tab 的 pageLayout（通常给 iframe / 新窗口使用）
+
+独立消费者应用（`apps/portal`）：
+- `/portal/index/:tabId?templateId=<id>`：门户前台渲染入口（默认登录后访问，`skipMenuAuth=true`）
+- `/portal/preview/:tabId?templateId=<id>`：匿名预览入口（与 admin 预览协议一致）
+- 启动命令：`pnpm dev:portal`（等价 `pnpm -C apps/portal dev`）
 
 标签栏约定（基于 core tabs 规则）：
 - `/portal/designer`、`/portal/layout`、`/portal/preview` 均通过 `meta.hiddenTab=true` 处理为“不进入顶部标签栏”
@@ -139,18 +160,29 @@ type PageLayoutJson = {
 
 ## 物料注册与动态加载
 
-物料注册表（前端维护）：
-- `apps/admin/src/modules/portal/materials/registry/materials-registry.ts`
+当前主实现在引擎包：
+- 物料目录：`packages/portal-engine/src/materials/cms/**`
+- 物料注册表：`packages/portal-engine/src/registry/materials-registry.ts`
+- 动态加载：`packages/portal-engine/src/materials/useMaterials.ts`
 
-动态加载物料组件映射：
+admin 端保留兼容入口（壳层）：
+- `apps/admin/src/modules/portal/materials/registry/materials-registry.ts`
 - `apps/admin/src/modules/portal/materials/useMaterials.ts`
-- 通过 `import.meta.glob('./**/index.vue' | './**/content.vue' | './**/style.vue', { eager: true })` 扫描物料目录
-- 以组件的 `defineOptions({ name })` 作为 key，要求与 `cmptConfig.index/content/style.name` **一致**
+- 兼容入口会把 admin 的 `cmsApi` 绑定到引擎的 `setPortalCmsApi`，保证迁移后组件数据源行为不变。
+
+动态加载策略：
+- 通过 `import.meta.glob('./cms/**/index.vue' | './cms/**/content.vue' | './cms/**/style.vue', { eager: true })` 扫描物料目录
+- 以组件的 `defineOptions({ name })` 作为 key，要求与 `cmptConfig.index/content/style.name` 一致
+- 同时为组件名注入 `pb-*` 与 `cms-*` 双向别名，兼容历史 schema 与新命名
+- `packages/portal-engine/src/materials/navigation.ts` 负责 CMS 物料点击导航注入：
+  - 共享包不再硬编码 `portalPreviewCmsDetail` / `/frontPortal/cms/list`
+  - 应用侧后续通过 `setPortalCmsNavigation()` 注入具体 target
+  - 未注入时统一阻断执行并提示，避免直接跳到不存在的路由
 
 新增一个物料的最小目录结构：
 
 ```
-apps/admin/src/modules/portal/materials/<group>/<material>/
+packages/portal-engine/src/materials/cms/<material>/
   index.vue
   content.vue
   style.vue

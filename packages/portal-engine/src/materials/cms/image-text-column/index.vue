@@ -31,6 +31,7 @@
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
   import { ElMessage } from 'element-plus';
+  import { navigatePortalCmsDetail, navigatePortalCmsList } from '../../navigation';
   import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
   import ListEmpty from '../common/list/ListEmpty.vue';
   import ListItem from '../common/list/ListItem.vue';
@@ -138,31 +139,39 @@
     return value.split(' ')[0];
   };
 
-  const handleMoreClick = () => {
+  const handleMoreClick = async () => {
     const { categoryId } = dataSource.value;
-    const { tabId } = router.currentRoute.value.params;
     if (!categoryId) {
       ElMessage.error('请先选择栏目');
       return;
     }
-    if (moreLink.value) {
-      router.push(`${moreLink.value}?categoryId=${categoryId}&tabId=${tabId}`);
-      return;
+
+    const rawTabId = router.currentRoute.value.params.tabId;
+    const result = await navigatePortalCmsList({
+      router,
+      categoryId,
+      tabId: typeof rawTabId === 'string' ? rawTabId : undefined,
+      moreLink: moreLink.value,
+    });
+    if (!result.handled) {
+      ElMessage.error(result.message || '当前应用未配置 CMS 列表跳转');
     }
-    router.push(`/frontPortal/cms/list?categoryId=${categoryId}&tabId=${tabId}`);
   };
 
-  const handleItemClick = (item: ColumnItem) => {
+  const handleItemClick = async (item: ColumnItem) => {
     if (!item?.id) {
       return;
     }
-    router.push({
-      name: 'portalPreviewCmsDetail',
-      query: {
-        articleId: item.id,
-        categoryId: dataSource.value.categoryId,
-      },
+    const rawTabId = router.currentRoute.value.params.tabId;
+    const result = await navigatePortalCmsDetail({
+      router,
+      articleId: item.id,
+      categoryId: dataSource.value.categoryId,
+      tabId: typeof rawTabId === 'string' ? rawTabId : undefined,
     });
+    if (!result.handled) {
+      ElMessage.error(result.message || '当前应用未配置 CMS 详情跳转');
+    }
   };
 
   defineOptions({

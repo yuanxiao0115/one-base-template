@@ -48,7 +48,9 @@
         </div>
         <div class="line-gradient right" :style="rightLineGradientStyle" />
       </div>
-      <div v-if="showMore" class="more-link"><a :href="moreLink" :style="moreLinkStyleObj">更多</a></div>
+      <div v-if="showMore" class="more-link">
+        <span :style="moreLinkStyleObj" @click="handleMoreClick">更多</span>
+      </div>
     </div>
   </div>
 </template>
@@ -57,6 +59,7 @@
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
   import { ElMessage } from 'element-plus';
+  import { navigatePortalCmsList } from '../../../navigation';
   import TitleStripeDisplay from './TitleStripeDisplay.vue';
 
   // 定义props - 直接接收schema对象
@@ -86,7 +89,7 @@
   // 内容属性 - 更加严格的空值检查
   const title = computed(() => titleData.value?.title || '');
   const showMore = computed(() => titleData.value?.showMore);
-  const moreLink = computed(() => titleData.value?.moreLink || '#');
+  const moreLink = computed(() => titleData.value?.moreLink || '');
   const titleStyle = computed(() => titleData.value?.titleStyle || 'simple');
 
   // 样式 - 移除大部分默认值，仅保留必要的默认值
@@ -245,15 +248,22 @@
   });
   const stripeHeight = computed(() => toPositiveNumber(styleData.value?.stripeHeight, 8));
   const stripeWidth = computed(() => toPositiveNumber(styleData.value?.stripeWidth, 3));
-  const handleMoreClick = () => {
+  const handleMoreClick = async () => {
     const categoryId = props.schema?.content?.dataSource?.categoryId;
-    const { tabId } = router.currentRoute.value.params;
     if (!categoryId) {
       ElMessage.error('请先选择栏目');
-    } else if (moreLink.value) {
-      router.push(`${moreLink.value}?categoryId=${categoryId}&tabId=${tabId}`);
-    } else {
-      router.push(`/frontPortal/cms/list?categoryId=${categoryId}&tabId=${tabId}`);
+      return;
+    }
+
+    const rawTabId = router.currentRoute.value.params.tabId;
+    const result = await navigatePortalCmsList({
+      router,
+      categoryId,
+      tabId: typeof rawTabId === 'string' ? rawTabId : undefined,
+      moreLink: moreLink.value,
+    });
+    if (!result.handled) {
+      ElMessage.error(result.message || '当前应用未配置 CMS 列表跳转');
     }
   };
   defineOptions({ name: 'PbTitleDisplay' });

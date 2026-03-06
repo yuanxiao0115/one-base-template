@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia, setActivePinia } from "pinia";
+import ElementPlus from "element-plus";
 import { ONE_BUILTIN_THEMES, createCore, createStaticMenusFromRoutes, setupRouterGuards } from "@one-base-template/core";
 import { registerOneLiteUiComponents } from "@one-base-template/ui/lite";
 import "@one-base-template/tag/style";
@@ -26,6 +27,7 @@ export function bootstrapPortalApp() {
 
   const router = createAppRouter();
   app.use(router);
+  app.use(ElementPlus);
 
   registerOneLiteUiComponents(app, {
     prefix: "Ob",

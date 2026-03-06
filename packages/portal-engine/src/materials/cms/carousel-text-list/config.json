@@ -8,7 +8,7 @@
       "title": "内容容器",
       "titleStyle": "simple",
       "showMore": false,
-      "moreLink": "/frontPortal/cms/list"
+      "moreLink": ""
     },
     "dataSource": {
       "categoryId": "",

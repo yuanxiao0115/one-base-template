@@ -8,7 +8,7 @@
       "title": "专栏模块",
       "titleStyle": "simple",
       "showMore": false,
-      "moreLink": "/frontPortal/cms/list"
+      "moreLink": ""
     },
     "layout": {
       "layout": "no-image",

@@ -72,9 +72,11 @@
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
   import { Loading, Picture, Warning } from '@element-plus/icons-vue';
+  import { ElMessage } from 'element-plus';
   import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
   import { useRouter } from 'vue-router';
   import { cmsApi } from '../../api';
+  import { navigatePortalCmsDetail } from '../../navigation';
 
   // 数据类型定义
   interface CarouselItem {
@@ -208,14 +210,21 @@
     color: listStyle.value.timeColor,
     fontSize: `${listStyle.value.timeFontSize}px`,
   }));
-  const handleItemClick = (item: any) => {
-    router.push({
-      name: 'portalPreviewCmsDetail',
-      query: {
-        articleId: item.id,
-        categoryId: dataSource.value.categoryId,
-      },
+  const handleItemClick = async (item: any) => {
+    if (!item?.id) {
+      return;
+    }
+
+    const rawTabId = router.currentRoute.value.params.tabId;
+    const result = await navigatePortalCmsDetail({
+      router,
+      articleId: item.id,
+      categoryId: dataSource.value.categoryId,
+      tabId: typeof rawTabId === 'string' ? rawTabId : undefined,
     });
+    if (!result.handled) {
+      ElMessage.error(result.message || '当前应用未配置 CMS 详情跳转');
+    }
   };
 
   // 监听categoryId变化，自动获取数据

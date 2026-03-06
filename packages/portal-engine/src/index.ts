@@ -15,6 +15,18 @@ export { useSchemaConfig } from './composables/useSchemaConfig';
 export { deepClone, deepEqual } from './utils/deep';
 export { useMaterials } from './materials/useMaterials';
 export { cmsApi, getPortalCmsApi, setPortalCmsApi } from './materials/api';
+export type {
+  PortalCmsDetailNavigationContext,
+  PortalCmsListNavigationContext,
+  PortalCmsNavigation,
+  PortalCmsNavigationResult,
+} from './materials/navigation';
+export {
+  navigatePortalCmsDetail,
+  navigatePortalCmsList,
+  resetPortalCmsNavigation,
+  setPortalCmsNavigation,
+} from './materials/navigation';
 export { portalMaterialsRegistry, portalMaterialTypeAliases, resolvePortalMaterialTypeAlias } from './registry/materials-registry';
 export type { PortalLayoutItem } from './stores/pageLayout';
 export { usePortalPageLayoutStore } from './stores/pageLayout';
