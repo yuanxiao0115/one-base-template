@@ -19,6 +19,7 @@
     "home",
     "user-management",
     "log-management",
-    "system-management"
+    "system-management",
+    "cms-management"
   ]
 }
