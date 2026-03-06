@@ -1,12 +1,65 @@
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 import crypto from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { dirname, resolve as pathResolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import vue from "@vitejs/plugin-vue";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-import { createOneAppManualChunks } from "../../scripts/vite/manual-chunks";
+import {
+  createOneAppCodeSplitting,
+  createOneAppPreloadDependenciesResolver,
+  pruneBuiltChunkPreloadMaps,
+  stripIndexHtmlUnusedStylesheets,
+} from "../../scripts/vite/manual-chunks";
+
+function pruneLoginHtmlAssets(): Plugin {
+  return {
+    name: "admin-prune-login-html-assets",
+    apply: "build",
+    enforce: "post",
+    generateBundle(_, bundle) {
+      const indexHtml = bundle["index.html"];
+      if (!indexHtml || indexHtml.type !== "asset" || typeof indexHtml.source !== "string") {
+        return;
+      }
+
+      indexHtml.source = stripIndexHtmlUnusedStylesheets(indexHtml.source, {
+        appName: "admin",
+      });
+    },
+    writeBundle(outputOptions, bundle) {
+      const outputDir =
+        typeof outputOptions.dir === "string"
+          ? outputOptions.dir
+          : outputOptions.file
+            ? dirname(outputOptions.file)
+            : fileURLToPath(new URL("./dist", import.meta.url));
+
+      Object.values(bundle).forEach((output) => {
+        if (output.type !== "chunk") {
+          return;
+        }
+
+        const chunkFile = pathResolve(outputDir, output.fileName);
+        if (!existsSync(chunkFile)) {
+          return;
+        }
+
+        const source = readFileSync(chunkFile, "utf8");
+        const nextSource = pruneBuiltChunkPreloadMaps(source, output.fileName, {
+          appName: "admin",
+        });
+
+        if (nextSource !== source) {
+          writeFileSync(chunkFile, nextSource);
+        }
+      });
+    },
+  };
+}
 
 function parseCookies(header: string | undefined): Record<string, string> {
   if (!header) {
@@ -1195,6 +1248,7 @@ export default defineConfig(({ mode }) => {
         dts: "src/components.d.ts",
         resolvers: [ElementPlusResolver({ importStyle: "css" })],
       }),
+      pruneLoginHtmlAssets(),
       ...(useMock ? [mockMiddleware({ sczfwSystemPermissionCode })] : []),
     ],
     resolve: {
@@ -1212,9 +1266,14 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       chunkSizeWarningLimit: 3000,
+      modulePreload: {
+        resolveDependencies: createOneAppPreloadDependenciesResolver({
+          appName: "admin",
+        }),
+      },
       rollupOptions: {
         output: {
-          manualChunks: createOneAppManualChunks({
+          codeSplitting: createOneAppCodeSplitting({
             appName: "admin",
             featureChunks: [
               {
