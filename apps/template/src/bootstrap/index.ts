@@ -6,7 +6,7 @@ import {
   createStaticMenusFromRoutes,
   setupRouterGuards,
 } from "@one-base-template/core";
-import { OneUiPlugin } from "@one-base-template/ui";
+import { registerOneLiteUiComponents } from "@one-base-template/ui/lite";
 import OneTag from "@one-base-template/tag";
 import "@one-base-template/tag/style";
 
@@ -42,9 +42,13 @@ export function bootstrapTemplateApp() {
   const router = createAppRouter();
   app.use(router);
 
-  app.use(OneUiPlugin, {
+  registerOneLiteUiComponents(app, {
     prefix: "Ob",
     aliases: false,
+    include: {
+      LoginBox: false,
+      LoginBoxV2: false,
+    },
   });
 
   app.use(OneTag, {

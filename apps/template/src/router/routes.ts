@@ -1,5 +1,5 @@
 import { getInitialPath } from "@one-base-template/core";
-import { AdminLayout, ForbiddenPage, NotFoundPage } from "@one-base-template/ui";
+import { AdminLayout, ForbiddenPage, NotFoundPage } from "@one-base-template/ui/shell";
 import type { RouteRecordRaw } from "vue-router";
 import { appEnv } from "@/infra/env";
 import LoginPage from "@/pages/login/LoginPage.vue";

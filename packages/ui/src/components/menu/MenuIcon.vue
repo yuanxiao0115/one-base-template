@@ -2,15 +2,15 @@
   import { computed, ref, useAttrs, watch } from 'vue';
   import { Icon } from '@iconify/vue/dist/offline';
   import { useAssetStore } from '@one-base-template/core';
-  import { ensureMenuIconifyCollectionsRegistered, isMenuIconifyValue } from '../../iconify/menu-iconify';
+  import { ensureMenuIconifyIconRegistered, isMenuIconifyValue } from '../../iconify/menu-iconify';
 
   const props = defineProps<{
     icon?: string;
   }>();
 
   const assetStore = useAssetStore();
-  ensureMenuIconifyCollectionsRegistered();
   const attrs = useAttrs();
+  const iconifyReady = ref(true);
 
   const rawIcon = computed(() => (props.icon ?? '').trim());
 
@@ -140,6 +140,34 @@
   const imgSrc = ref<string>('');
 
   watch(
+    rawIcon,
+    async (nextValue, _prevValue, onCleanup) => {
+      if (!isMenuIconifyValue(nextValue)) {
+        iconifyReady.value = true;
+        return;
+      }
+
+      let canceled = false;
+      onCleanup(() => {
+        canceled = true;
+      });
+
+      iconifyReady.value = false;
+      try {
+        await ensureMenuIconifyIconRegistered(nextValue);
+        if (!canceled) {
+          iconifyReady.value = true;
+        }
+      } catch {
+        if (!canceled) {
+          iconifyReady.value = false;
+        }
+      }
+    },
+    { immediate: true }
+  );
+
+  watch(
     () => [rawIcon.value, kind.value] as const,
     async ([raw, k]) => {
       imgSrc.value = '';
@@ -161,6 +189,13 @@
 
 <template>
   <img v-if="imgSrc" :src="imgSrc" class="w-4 h-4 object-contain" alt="" aria-hidden="true" v-bind="attrs">
-  <Icon v-else-if="kind === 'iconify'" :icon="rawIcon" width="1em" height="1em" aria-hidden="true" v-bind="attrs" />
+  <Icon
+    v-else-if="kind === 'iconify' && iconifyReady"
+    :icon="rawIcon"
+    width="1em"
+    height="1em"
+    aria-hidden="true"
+    v-bind="attrs"
+  />
   <i v-else-if="classes.length" :class="classes" aria-hidden="true" v-bind="attrs" />
 </template>

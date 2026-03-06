@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from "node:url";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
+import { createOneAppManualChunks } from "../../scripts/vite/manual-chunks";
 
 export default defineConfig({
   plugins: [vue()],
@@ -14,6 +15,26 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ["@one-base-template/ui"],
+  },
+  build: {
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks: createOneAppManualChunks({
+          appName: "template",
+          featureChunks: [
+            {
+              name: "template-home",
+              patterns: ["/apps/template/src/modules/home/"],
+            },
+            {
+              name: "template-demo",
+              patterns: ["/apps/template/src/modules/demo/"],
+            },
+          ],
+        }),
+      },
+    },
   },
   server: {
     fs: {

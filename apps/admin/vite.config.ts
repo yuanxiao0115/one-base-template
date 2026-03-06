@@ -6,6 +6,7 @@ import vue from "@vitejs/plugin-vue";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import { createOneAppManualChunks } from "../../scripts/vite/manual-chunks";
 
 function parseCookies(header: string | undefined): Record<string, string> {
   if (!header) {
@@ -1208,6 +1209,38 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       // workspace 包频繁迭代时，避免 Vite 预构建缓存导致导出项不一致（如新增组件导出后 dev 仍读旧缓存）
       exclude: ["@one-base-template/ui"],
+    },
+    build: {
+      chunkSizeWarningLimit: 3000,
+      rollupOptions: {
+        output: {
+          manualChunks: createOneAppManualChunks({
+            appName: "admin",
+            featureChunks: [
+              {
+                name: "admin-home",
+                patterns: ["/apps/admin/src/modules/home/"],
+              },
+              {
+                name: "admin-log-management",
+                patterns: ["/apps/admin/src/modules/LogManagement/"],
+              },
+              {
+                name: "admin-system-management",
+                patterns: ["/apps/admin/src/modules/SystemManagement/"],
+              },
+              {
+                name: "admin-user-management",
+                patterns: ["/apps/admin/src/modules/UserManagement/", "/apps/admin/src/components/PersonnelSelector/"],
+              },
+              {
+                name: "admin-portal",
+                patterns: ["/apps/admin/src/modules/portal/"],
+              },
+            ],
+          }),
+        },
+      },
     },
     server: {
       // 允许访问 monorepo 根目录，便于直接引用 packages/* 源码

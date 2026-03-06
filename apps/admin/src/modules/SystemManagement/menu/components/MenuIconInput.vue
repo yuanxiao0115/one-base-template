@@ -50,6 +50,10 @@
   const pageSize = ref(35);
   const dialogVisible = ref(false);
   const iconfontLoading = ref(false);
+  const iconifyLoading = reactive<Record<MenuIconifyPrefix, boolean>>({
+    ep: false,
+    ri: false,
+  });
   const activeTab = ref<MenuIconSelectorTab>("cp");
   const keyword = ref("");
   const currentPage = ref(1);
@@ -92,12 +96,14 @@
   const TAB_ABBR_HINT =
     "CP=产品 Iconfont · DJ=党建 Iconfont · OM=OM Iconfont · OD=公文 Iconfont · EP=Element Plus · RI=Remix Icon";
 
-  const iconifyCandidates: Record<MenuIconifyPrefix, MenuIconCandidate[]> = {
-    ep: createIconifyCandidates("ep"),
-    ri: createIconifyCandidates("ri"),
-  };
+  const iconifyCandidates = reactive<Record<MenuIconifyPrefix, MenuIconCandidate[]>>({
+    ep: [],
+    ri: [],
+  });
 
   const iconfontCandidateCache = new Map<MenuIconfontSourceKey, MenuIconCandidate[]>();
+  const iconifyCandidateCache = new Map<MenuIconifyPrefix, MenuIconCandidate[]>();
+  const iconifyLoadTasks = new Map<MenuIconifyPrefix, Promise<void>>();
   let iconfontLoadTask: Promise<void> | null = null;
 
   const activeCandidates = computed(() => {
@@ -128,8 +134,8 @@
     return filteredCandidates.value.slice(start, start + pageSize.value);
   });
 
-  function createIconifyCandidates(prefix: MenuIconifyPrefix): MenuIconCandidate[] {
-    return getMenuIconifyNames(prefix).map((name) => {
+  function buildIconifyCandidates(prefix: MenuIconifyPrefix, names: string[]): MenuIconCandidate[] {
+    return names.map((name) => {
       const icon = `${prefix}:${name}`;
       return {
         key: icon,
@@ -138,6 +144,35 @@
         searchText: `${name} ${icon}`.toLowerCase(),
       };
     });
+  }
+
+  async function ensureIconifyLoaded(prefix: MenuIconifyPrefix) {
+    const cached = iconifyCandidateCache.get(prefix);
+    if (cached) {
+      iconifyCandidates[prefix] = cached;
+      return;
+    }
+
+    const pending = iconifyLoadTasks.get(prefix);
+    if (pending) {
+      await pending;
+      return;
+    }
+
+    iconifyLoading[prefix] = true;
+    const task = getMenuIconifyNames(prefix)
+      .then((names) => {
+        const list = buildIconifyCandidates(prefix, names);
+        iconifyCandidateCache.set(prefix, list);
+        iconifyCandidates[prefix] = list;
+      })
+      .finally(() => {
+        iconifyLoadTasks.delete(prefix);
+        iconifyLoading[prefix] = false;
+      });
+
+    iconifyLoadTasks.set(prefix, task);
+    await task;
   }
 
   function isIconfontTab(tab: MenuIconSelectorTab): tab is MenuIconfontSourceKey {
@@ -255,6 +290,14 @@
     dialogVisible.value = true;
 
     await ensureIconfontLoaded();
+    if (!isIconfontTab(activeTab.value)) {
+      try {
+        await ensureIconifyLoaded(activeTab.value);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "加载 Iconify 图标失败";
+        message.error(errorMessage);
+      }
+    }
   }
 
   function handleDialogClose() {
@@ -296,8 +339,29 @@
     return `选择图标 ${item.name}（${item.icon}）`;
   }
 
+  function isTabLoading(tab: MenuIconSelectorTab) {
+    if (isIconfontTab(tab)) {
+      return iconfontLoading.value;
+    }
+
+    return iconifyLoading[tab];
+  }
+
   watch([activeTab, normalizedKeyword], () => {
     currentPage.value = 1;
+  });
+
+  watch([dialogVisible, activeTab], async ([visible, tab]) => {
+    if (!(visible && !isIconfontTab(tab))) {
+      return;
+    }
+
+    try {
+      await ensureIconifyLoaded(tab);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "加载 Iconify 图标失败";
+      message.error(errorMessage);
+    }
   });
 
   watch(totalPages, (nextPages) => {
@@ -352,7 +416,7 @@
 
       <el-tabs v-model="activeTab" class="menu-icon-input__tabs">
         <el-tab-pane v-for="tab in ICON_TAB_OPTIONS" :key="tab.key" :label="tab.label" :name="tab.key">
-          <div v-loading="iconfontLoading && isIconfontTab(tab.key)" class="menu-icon-input__panel">
+          <div v-loading="isTabLoading(tab.key)" class="menu-icon-input__panel">
             <template v-if="pageCandidates.length > 0">
               <button
                 v-for="item in pageCandidates"
