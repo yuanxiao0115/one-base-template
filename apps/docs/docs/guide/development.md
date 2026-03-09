@@ -76,12 +76,10 @@ pnpm biome:ci
 - `admin` / `portal` / `template` 的路由壳层都不应默认引用完整 `@one-base-template/ui` 入口：
   - 路由壳组件改走 `@one-base-template/ui/shell`
   - 登录页优先直引 `@one-base-template/ui/lite-auth`，避免再经 `ui/lite` barrel 把 `one-ui-shell` 借道带回匿名首屏
-  - 其余轻量公共组件再按需走 `@one-base-template/ui/lite`，不要回到 public bootstrap 的全局注册链路
-- `admin` 登录轻量启动的 `bootstrap/entry.ts` / `bootstrap/switcher.ts` 固定拆到独立 `bootstrap` chunk，避免 `admin-runtime` 共享 chunk 反向持有 `admin-entry` / `admin-app-shell`
-- `admin` 的构建后处理会继续收紧 `index-*` / `bootstrap-*` / `admin-auth-*` / `LoginPage-*` / `lite-*` 的 preload map，避免 `/login` 首屏把 `admin-entry` / `one-ui-shell` / `vxe` / `portal-engine` 等业务壳资源提前拉起
-- 匿名链路如果只是做状态清理或只读访问，优先补“细粒度子出口 + admin 模式动态 import”：
+- `admin` 的构建后处理会继续收紧 `index-*` / `admin-auth-*` / `LoginPage-*` / `lite-*` 的 preload map，避免登录相关页面提前拉起 `one-ui-shell` / `vxe` / `portal-engine` 等业务壳资源
+- 登录或未授权流程如果只是做状态清理或只读访问，优先补“细粒度子出口 + 动态 import”：
   - 当前 `tags` 清理固定走 `@one-base-template/tag/store`
-  - 不要在 `public` 启动链路静态 import `@one-base-template/tag` 根入口
+  - 不要静态 import `@one-base-template/tag` 根入口
 - 这类性能边界建议用源码测试固化：
   - `apps/admin/src/pages/login/LoginPage.source.test.ts`
   - `apps/admin/src/bootstrap/__tests__/http-source.test.ts`

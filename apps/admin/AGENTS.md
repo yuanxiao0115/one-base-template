@@ -27,6 +27,8 @@
 - SSO 策略优先级：`token` / `ticket` / `oauth code`。
 - exchange 成功流程：`fetchMe()` -> `fetchMenu()` -> 跳转站内安全地址。
 - 默认 Cookie(HttpOnly) 鉴权：HTTP 客户端保持 `withCredentials: true`，前端默认不读写 token。
+- `apps/admin/src/main.ts` 必须保持**单启动链路**：统一执行 `loadPlatformConfig() -> import('./bootstrap/admin-entry') -> router.isReady() -> mount`，禁止再次引入 `public/admin` 双启动分流或运行时 OS 字体切换。
+- `/login`、`/sso` 只作为主路由表中的公共路由存在；登录/SSO 成功后统一使用站内 `router.replace()` 跳转，未授权清理仅允许按需动态导入细粒度子入口（如 `@one-base-template/tag/store`），不要恢复匿名独立 bootstrap。
 
 ## 布局与主题（admin 侧）
 

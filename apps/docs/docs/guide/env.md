@@ -107,16 +107,12 @@
 ## 3) 启动顺序与失败策略
 
 - `src/main.ts` 启动时先加载 `platform-config.json`
-- 配置加载成功后，再动态导入 `infra/env.ts`；业务运行时配置改为通过 `getAppEnv()` 懒读取并缓存
-- 当 `menuMode=remote` 且当前地址命中 `/login` / `/sso` 时，优先走 `bootstrap/public.ts`
-  - 该链路先安装 `public-routes`，再补齐 `http + adapter + core`；登录页局部组件优先走 `@one-base-template/ui/lite-auth`
-  - public/admin 样式入口也会按启动分支拆开，避免 `/login` 首屏提前注入业务壳样式
-  - 未授权回跳时的 tags 清理只在 `admin` 模式动态导入 `@one-base-template/tag/store`，匿名链路不再静态依赖 tag 根入口
-- 其他路径继续走 `bootstrapAdminApp()`，保持业务 Layout / 菜单 / Tabs / 路由守卫行为不变
-- public 启动链路下，登录成功后会使用整页跳转重新进入完整 admin bootstrap，避免匿名路由表中缺少业务路由
-- 校验失败或加载失败时，应用**硬失败**（不进入业务路由），页面展示分级错误信息（网络失败/格式失败/校验失败）
+- 配置加载成功后，再动态导入 `bootstrap/admin-entry.ts`；业务运行时配置仍通过 `getAppEnv()` 懒读取并缓存
+- 所有路径统一走 `bootstrapAdminApp()`，`/login` 与 `/sso` 只保留为主路由表中的公共路由，不再维护匿名独立启动链路
+- 未授权回跳时，会按需动态导入 `@one-base-template/tag/store` 清理 tags，再统一 `router.replace('/login')`
+- 校验失败或加载失败时，应用**硬失败**（不进入业务路由），页面展示通用错误信息而不是白屏
 - 若开启 `VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK=true`，会尝试读取本地只读快照作为兜底配置
-- 只有配置加载成功后，才会进入对应的 bootstrap（`public` 或 `admin`）
+- 只有配置加载成功后，才会进入 admin bootstrap
 
 ## 4) 代码约束
 

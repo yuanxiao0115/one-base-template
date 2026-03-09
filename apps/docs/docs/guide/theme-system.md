@@ -251,19 +251,15 @@ themeStore.setGrayscale(true);        // 开启全局灰色模式
   - `--one-font-family-macos`：macOS 优先（苹方优先，包含微软雅黑与思源黑体兜底）
   - `--one-font-family-windows`：Windows 优先（微软雅黑优先，包含思源黑体兜底）
   - `--one-font-family-fallback`：其他系统兜底（思源黑体优先）
-  - `--one-font-family-base`：默认引用 macOS 栈，可被运行时覆盖
+  - `--one-font-family-base`：主题与组件统一引用的基础字体栈
 - Element Plus 桥接：`packages/core/src/theme/one/apply-theme.ts`
   - `--el-font-family` 统一映射到 `var(--one-font-family-base)`
-- admin 运行时系统识别：`apps/admin/src/main.ts`
-  - 启动时在根节点写入 `data-one-os=macos|windows|other`
-- admin 样式切换：`apps/admin/src/styles/index.css`
-  - 通过 `:root[data-one-os='windows'|'other']` 覆盖 `--one-font-family-base`
 
 这样做可以保证：
 
 1. **主题 token 与字体策略一致收口在 core**，避免业务侧重复维护字体常量。
 2. **UI 壳与 Element Plus 使用同一字体入口**，减少组件间字体不一致。
-3. **Windows/macOS 在同一套代码下自动切栈**，并保留思源黑体作为跨端备用。
+3. **业务应用无需额外维护运行时字体切换逻辑**，减少入口文件复杂度。
 
 ---
 
@@ -311,7 +307,7 @@ await confirm.error('该操作无法撤销，是否继续？', '失败信息')
 为避免 loading 状态出现深色蒙层遮挡，admin 侧统一将 Element Plus loading 遮罩改为透明背景：
 
 - 样式落点：`apps/admin/src/styles/element-plus/loading-overrides.css`
-- 引入入口：`apps/admin/src/main.ts`
+- 引入入口：`apps/admin/src/bootstrap/admin-styles.ts`
 
 规则说明：
 

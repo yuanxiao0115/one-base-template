@@ -10,4 +10,11 @@ describe('LoginPage source', () => {
     expect(source).not.toContain('from "@one-base-template/ui/lite"');
     expect(source).toContain('<ObLoginBoxV2');
   });
+
+  it('登录成功后应通过 redirect 归一化辅助函数跳转，兼容子路径部署', () => {
+    const source = readFileSync(new URL('./LoginPage.vue', import.meta.url), 'utf8');
+
+    expect(source).toContain('from "@/router/redirect"');
+    expect(source).toContain('resolveAppRedirectTarget(');
+  });
 });

@@ -12,13 +12,13 @@ describe('admin manual chunks', () => {
   const manualChunks = createOneAppManualChunks({ appName: 'admin' });
   const resolvePreloadDependencies = createOneAppPreloadDependenciesResolver({ appName: 'admin' });
 
-  it('登录轻量启动相关文件应归入 runtime/auth chunk，而不是 admin-app-shell', () => {
-    expect(manualChunks('/Users/demo/code/one-base-template/apps/admin/src/bootstrap/entry.ts')).toBe('bootstrap');
-    expect(manualChunks('/Users/demo/code/one-base-template/apps/admin/src/bootstrap/switcher.ts')).toBe('bootstrap');
+  it('单启动链路下，共享运行时与登录鉴权文件应继续落入 runtime/auth chunk', () => {
     expect(manualChunks('/Users/demo/code/one-base-template/apps/admin/src/bootstrap/core.ts')).toBe('admin-runtime');
-    expect(manualChunks('/Users/demo/code/one-base-template/apps/admin/src/bootstrap/public-entry.ts')).toBe('admin-auth');
-    expect(manualChunks('/Users/demo/code/one-base-template/apps/admin/src/bootstrap/public.ts')).toBe('admin-auth');
+    expect(manualChunks('/Users/demo/code/one-base-template/apps/admin/src/bootstrap/http.ts')).toBe('admin-runtime');
     expect(manualChunks('/Users/demo/code/one-base-template/apps/admin/src/pages/login/LoginPage.vue')).toBe('admin-auth');
+    expect(manualChunks('/Users/demo/code/one-base-template/apps/admin/src/pages/sso/SsoCallbackPage.vue')).toBe(
+      'admin-auth'
+    );
   });
 
   it('完整业务壳装配文件仍应归入 admin-app-shell', () => {
@@ -121,7 +121,6 @@ describe('admin manual chunks', () => {
       'assets/admin-runtime-demo.js',
       'assets/admin-auth-demo.js',
       'assets/LoginPage-demo.js',
-      'assets/bootstrap-demo.js',
       'assets/admin-app-shell-demo.js',
       'assets/admin-user-management-demo.js',
       'assets/vxe-demo.js',
@@ -145,7 +144,7 @@ describe('admin manual chunks', () => {
     ).toEqual(['assets/admin-runtime-demo.js', 'assets/element-plus-demo.js', 'assets/vue-vendor-demo.js']);
   });
 
-  it('public bootstrap 与 LoginPage 预加载应只保留鉴权所需依赖', () => {
+  it('单启动链路下，admin-auth 与 LoginPage 预加载应只保留鉴权所需依赖', () => {
     expect(
       resolvePreloadDependencies(
         'assets/admin-auth-demo.js',
@@ -153,13 +152,12 @@ describe('admin manual chunks', () => {
           'assets/admin-runtime-demo.js',
           'assets/LoginPage-demo.js',
           'assets/one-ui-auth-demo.js',
-          'assets/bootstrap-demo.js',
           'assets/admin-app-shell-demo.js',
           'assets/one-ui-shell-demo.js',
           'assets/vxe-demo.js',
         ],
         {
-          hostId: '/Users/demo/code/one-base-template/apps/admin/src/bootstrap/public.ts',
+          hostId: '/Users/demo/code/one-base-template/apps/admin/src/pages/login/LoginPage.vue',
           hostType: 'js',
         }
       )
@@ -180,24 +178,6 @@ describe('admin manual chunks', () => {
         }
       )
     ).toEqual(['assets/one-ui-auth-demo.js']);
-
-    expect(
-      resolvePreloadDependencies(
-        'assets/bootstrap-demo.js',
-        [
-          'assets/admin-runtime-demo.js',
-          'assets/admin-auth-demo.js',
-          'assets/admin-entry-demo.js',
-          'assets/admin-app-shell-demo.js',
-          'assets/one-ui-shell-demo.js',
-          'assets/vxe-demo.js',
-        ],
-        {
-          hostId: '/Users/demo/code/one-base-template/apps/admin/src/bootstrap/switcher.ts',
-          hostType: 'js',
-        }
-      )
-    ).toEqual(['assets/admin-runtime-demo.js', 'assets/admin-auth-demo.js']);
 
     expect(
       resolvePreloadDependencies(
@@ -224,7 +204,6 @@ describe('admin manual chunks', () => {
       '<link rel="stylesheet" crossorigin href="/assets/admin-user-management-demo.css">',
       '<link rel="stylesheet" crossorigin href="/assets/vxe-demo.css">',
       '<link rel="stylesheet" crossorigin href="/assets/one-ui-auth-demo.css">',
-      '<link rel="stylesheet" crossorigin href="/assets/bootstrap-demo.css">',
     ].join('\n');
 
     expect(stripIndexHtmlUnusedStylesheets(html, { appName: 'admin' }).trimEnd()).toBe(
@@ -243,9 +222,6 @@ describe('admin manual chunks', () => {
     );
     expect(pruneBuiltChunkPreloadMaps(code, 'assets/admin-auth-demo.js', { appName: 'admin' })).toContain(
       'assets/one-ui-shell-'
-    );
-    expect(pruneBuiltChunkPreloadMaps(code, 'assets/bootstrap-demo.js', { appName: 'admin' })).toContain(
-      'assets/admin-entry-'
     );
     expect(pruneBuiltChunkPreloadMaps(code, 'assets/lite-demo.js', { appName: 'admin' })).toContain(
       'assets/admin-entry-'
