@@ -5,7 +5,7 @@ import App from "../App.vue";
 import { getRouteAssemblyResult } from "../router";
 
 import { setObHttpClient } from "../infra/http";
-import { appEnv } from "../infra/env";
+import { getAppEnv } from "../infra/env";
 import {
   appLayoutMode,
   appSidebarCollapsedWidth,
@@ -26,6 +26,7 @@ import { registerPersonnelSelectionAppContext } from "../components/PersonnelSel
 
 export function bootstrapAdminApp() {
   setBootstrapMode("admin");
+  const appEnv = getAppEnv();
 
   const app = createApp(App);
   registerMessageUtils(app);

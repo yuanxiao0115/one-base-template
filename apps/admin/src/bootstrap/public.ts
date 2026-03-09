@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from "pinia";
 
 import App from "../App.vue";
 import { setObHttpClient } from "../infra/http";
-import { appEnv } from "../infra/env";
+import { getAppEnv } from "../infra/env";
 import {
   appLayoutMode,
   appSidebarCollapsedWidth,
@@ -21,6 +21,7 @@ import { setBootstrapMode } from "./runtime";
 
 export function bootstrapPublicApp() {
   setBootstrapMode("public");
+  const appEnv = getAppEnv();
 
   const app = createApp(App);
   const pinia = createPinia();

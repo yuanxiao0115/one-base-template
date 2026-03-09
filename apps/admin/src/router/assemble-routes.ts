@@ -1,12 +1,12 @@
 import type { RouteRecordRaw } from "vue-router";
 import { getInitialPath } from "@one-base-template/core";
-import { AdminLayout, ForbiddenPage, NotFoundPage } from "@one-base-template/ui";
+import { AdminLayout, ForbiddenPage, NotFoundPage } from "@one-base-template/ui/shell";
 import { DEFAULT_FALLBACK_HOME } from "../config/systems";
 import { createAppLogger } from "@/shared/logger";
 import type { AppRouteAssemblyResult } from "./types";
 import { getSkipMenuAuthRouteName, isSkipMenuAuthRoute, toRouteNameKey } from "./skip-menu-auth";
 
-import { appEnv } from "../infra/env";
+import { getAppEnv } from "../infra/env";
 import { getEnabledModules } from "./registry";
 import {
   APP_FORBIDDEN_ROUTE_PATH,
@@ -121,6 +121,7 @@ function buildModuleRoutes(routes: RouteRecordRaw[], context: RouteCollectContex
 }
 
 function getRootRedirect(): string {
+  const appEnv = getAppEnv();
   return getInitialPath({
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
@@ -130,6 +131,7 @@ function getRootRedirect(): string {
 }
 
 export function getAppRoutes(): AppRouteAssemblyResult {
+  const appEnv = getAppEnv();
   const modules = getEnabledModules(appEnv.enabledModules);
   const usedPaths = new Set<string>();
   const usedNames = new Set<string>();

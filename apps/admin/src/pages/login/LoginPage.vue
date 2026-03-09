@@ -1,12 +1,12 @@
 <script setup lang="ts">
   import { finalizeAuthSession, loginByPassword, safeRedirect } from "@one-base-template/core";
-  import { LoginBoxV2 as ObLoginBoxV2 } from "@one-base-template/ui/lite";
+  import { LoginBoxV2 as ObLoginBoxV2 } from "@one-base-template/ui/lite-auth";
   import { ElMessage } from "element-plus";
   import { onMounted, reactive, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import { navigateAfterAuth } from "@/bootstrap/runtime";
   import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
-  import { appEnv } from "@/infra/env";
+  import { getAppEnv } from "@/infra/env";
   import { checkCaptcha, loadCaptcha } from "@/shared/services/auth-captcha-service";
   import { getLoginPageConfig } from "@/shared/services/auth-remote-service";
 
@@ -36,6 +36,7 @@
 
   const router = useRouter();
   const route = useRoute();
+  const appEnv = getAppEnv();
 
   const { backend } = appEnv;
   const { tokenKey } = appEnv;

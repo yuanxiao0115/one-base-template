@@ -1,5 +1,8 @@
 import type { RouteRecordRaw } from "vue-router";
 
+import LoginPage from "../pages/login/LoginPage.vue";
+import SsoCallbackPage from "../pages/sso/SsoCallbackPage.vue";
+
 import { APP_LOGIN_ROUTE_PATH, APP_SSO_ROUTE_PATH } from "./constants";
 
 export function getPublicRoutes(): RouteRecordRaw[] {
@@ -7,7 +10,7 @@ export function getPublicRoutes(): RouteRecordRaw[] {
     {
       path: APP_LOGIN_ROUTE_PATH,
       name: "Login",
-      component: async () => import("../pages/login/LoginPage.vue"),
+      component: LoginPage,
       meta: {
         public: true,
         hiddenTab: true,
@@ -16,7 +19,7 @@ export function getPublicRoutes(): RouteRecordRaw[] {
     {
       path: APP_SSO_ROUTE_PATH,
       name: "Sso",
-      component: async () => import("../pages/sso/SsoCallbackPage.vue"),
+      component: SsoCallbackPage,
       meta: {
         public: true,
         hiddenTab: true,

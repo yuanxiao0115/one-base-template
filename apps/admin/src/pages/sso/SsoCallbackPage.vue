@@ -5,7 +5,7 @@
   import { useRouter } from "vue-router";
   import { navigateAfterAuth } from "@/bootstrap/runtime";
   import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
-  import { appEnv } from "@/infra/env";
+  import { getAppEnv } from "@/infra/env";
   import {
     loginByDesktop,
     loginByExternal,
@@ -18,6 +18,7 @@
     name: "SsoCallbackPage",
   });
 
+  const appEnv = getAppEnv();
   const router = useRouter();
   const loading = ref(true);
   const errorMessage = ref("");

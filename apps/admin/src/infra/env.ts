@@ -157,5 +157,14 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
 // 构建期 env 仅保留 Vite dev/proxy/mock 相关值；业务运行时配置统一来自 platform-config.json。
 export const buildEnv: BuildEnv = resolveBuildEnv();
 
-// 入口启动与页面逻辑都可能用到 env 聚合结果，集中在一个模块里避免重复实现。
-export const appEnv: AppEnv = resolveAppEnv({ buildEnv });
+let cachedAppEnv: AppEnv | null = null;
+
+// 运行时配置必须在 loadPlatformConfig() 完成后才能安全读取，这里改为按需懒加载并缓存。
+export function getAppEnv(): AppEnv {
+  if (cachedAppEnv) {
+    return cachedAppEnv;
+  }
+
+  cachedAppEnv = resolveAppEnv({ buildEnv });
+  return cachedAppEnv;
+}

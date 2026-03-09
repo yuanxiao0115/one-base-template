@@ -4,7 +4,7 @@ import type { Router } from "vue-router";
 import { OneUiPlugin } from "@one-base-template/ui";
 import OneTag from "@one-base-template/tag";
 
-import { appEnv } from "../infra/env";
+import { getAppEnv } from "../infra/env";
 import { appCrudContainerDefaultType, appTableDefaults } from "../config";
 import { DEFAULT_FALLBACK_HOME } from "../config/systems";
 import {
@@ -25,6 +25,7 @@ function isHiddenTagRoute(route: unknown): boolean {
 
 export function installAppShellPlugins(params: { app: App; pinia: Pinia; router: Router }) {
   const { app, pinia, router } = params;
+  const appEnv = getAppEnv();
 
   // 全局注册 @one-base-template/ui 组件，仅使用 Ob 前缀组件名（如 ObPageContainer / ObTableBox）。
   app.use(OneUiPlugin, {

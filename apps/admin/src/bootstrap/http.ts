@@ -2,10 +2,21 @@ import { ElMessage } from "element-plus";
 import type { Pinia } from "pinia";
 import type { Router } from "vue-router";
 import { createObHttp, type ObHttp, useAuthStore, useMenuStore, useSystemStore } from "@one-base-template/core";
-import { useTagStoreHook } from "@one-base-template/tag";
 
 import type { AuthMode, BackendKind } from "../infra/env";
 import { createClientSignature } from "../infra/sczfw/crypto";
+import { getBootstrapMode } from "./runtime";
+
+function resetTagStoreIfNeeded() {
+  if (getBootstrapMode() !== "admin") {
+    return;
+  }
+
+  // 登录匿名页不需要 tags 状态，这里改成按需动态加载，避免 public 链路提前拉起壳层 chunk。
+  void import("@one-base-template/tag/store").then(({ useTagStoreHook }) => {
+    useTagStoreHook().handleTags("equal", []);
+  });
+}
 
 export function createAppHttp(params: {
   backend: BackendKind;
@@ -86,7 +97,7 @@ export function createAppHttp(params: {
         useAuthStore(pinia).reset();
         useMenuStore(pinia).reset();
         useSystemStore(pinia).reset();
-        useTagStoreHook().handleTags("equal", []);
+        resetTagStoreIfNeeded();
         router.replace("/login");
       },
     },

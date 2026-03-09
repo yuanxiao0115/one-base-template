@@ -12,6 +12,10 @@
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./store": {
+      "types": "./src/store-entry.ts",
+      "default": "./src/store-entry.ts"
+    },
     "./style": "./src/styles/global.scss"
   },
   "scripts": {

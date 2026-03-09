@@ -18,8 +18,7 @@ export { default as ActionButtons } from './components/table/ActionButtons.vue';
 export { default as TableBox } from './components/table/TableBox.vue';
 export { default as VxeTable } from './components/table/VxeTable.vue';
 export { default as ImportUpload } from './components/upload/ImportUpload.vue';
-export { default as LoginBox } from './components/auth/LoginBox.vue';
-export { default as LoginBoxV2 } from './components/auth/LoginBoxV2.vue';
+export { LoginBox, LoginBoxV2 } from './lite-auth';
 export {
   ensureMenuIconifyCollectionsRegistered,
   getMenuIconifyNames,

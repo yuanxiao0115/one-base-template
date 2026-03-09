@@ -12,6 +12,10 @@
       "types": "./src/lite.ts",
       "default": "./src/lite.ts"
     },
+    "./lite-auth": {
+      "types": "./src/lite-auth.ts",
+      "default": "./src/lite-auth.ts"
+    },
     "./shell": {
       "types": "./src/shell.ts",
       "default": "./src/shell.ts"

@@ -24,6 +24,12 @@ interface PreloadDependencyContext {
   hostType: 'html' | 'js'
 }
 
+interface CodeSplittingGroupDefinition {
+  chunkName: string
+  patterns: string[]
+  priority: number
+}
+
 function normalizeModuleId(id: string) {
   return id.replaceAll('\\', '/')
 }
@@ -52,11 +58,19 @@ const VENDOR_CHUNK_RULES: AppFeatureChunk[] = [
   },
   {
     name: 'element-plus',
-    patterns: ['/node_modules/element-plus/', '/node_modules/@element-plus/']
+    patterns: [
+      '/node_modules/element-plus/',
+      '/node_modules/@element-plus/',
+      '/node_modules/dayjs/',
+      '/node_modules/lodash-es/',
+      '/node_modules/lodash-unified/',
+      '/node_modules/@ctrl/tinycolor/',
+      '/node_modules/async-validator/'
+    ]
   },
   {
     name: 'vxe',
-    patterns: ['/node_modules/vxe-table/', '/node_modules/vxe-pc-ui/']
+    patterns: ['/node_modules/vxe-table/', '/node_modules/vxe-pc-ui/', '/node_modules/@vxe-ui/', '/node_modules/xe-utils/']
   },
   {
     name: 'iconify-runtime',
@@ -76,7 +90,7 @@ const VENDOR_CHUNK_RULES: AppFeatureChunk[] = [
   },
   {
     name: 'sortable-grid',
-    patterns: ['/node_modules/sortablejs/', '/node_modules/grid-layout-plus/']
+    patterns: ['/node_modules/sortablejs/', '/node_modules/grid-layout-plus/', '/node_modules/interactjs/']
   }
 ]
 
@@ -88,6 +102,8 @@ const WORKSPACE_CHUNK_RULES: AppFeatureChunk[] = [
   {
     name: 'one-ui-shell',
     patterns: [
+      '/packages/ui/src/assets/',
+      '/packages/ui/src/components/icon/',
       '/packages/ui/src/layouts/',
       '/packages/ui/src/components/menu/',
       '/packages/ui/src/components/top/',
@@ -96,15 +112,17 @@ const WORKSPACE_CHUNK_RULES: AppFeatureChunk[] = [
       '/packages/ui/src/components/view/',
       '/packages/ui/src/components/container/',
       '/packages/ui/src/components/tree/',
+      '/packages/ui/src/iconify/',
       '/packages/ui/src/pages/error/',
       '/packages/ui/src/plugin.ts',
+      '/packages/ui/src/shell.ts',
       '/packages/ui/src/config.ts',
       '/packages/ui/src/index.ts'
     ]
   },
   {
     name: 'one-ui-auth',
-    patterns: ['/packages/ui/src/components/auth/']
+    patterns: ['/packages/ui/src/components/auth/', '/packages/ui/src/lite/auth.ts', '/packages/ui/src/lite-auth.ts']
   },
   {
     name: 'one-ui-table',
@@ -178,11 +196,13 @@ const ADMIN_INDEX_HTML_BLOCKED_STYLE_PREFIXES = [
 export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
   const appSegment = `/apps/${options.appName}/src/`
   const featureChunks = options.featureChunks ?? []
+  const adminBootstrapPatterns =
+    options.appName === 'admin'
+      ? [`${appSegment}bootstrap/entry.ts`, `${appSegment}bootstrap/switcher.ts`]
+      : []
   const adminRuntimePatterns =
     options.appName === 'admin'
       ? [
-          `${appSegment}bootstrap/entry.ts`,
-          `${appSegment}bootstrap/switcher.ts`,
           `${appSegment}bootstrap/runtime.ts`,
           `${appSegment}bootstrap/http.ts`,
           `${appSegment}bootstrap/adapter.ts`,
@@ -232,6 +252,10 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
       return featureRule.name
     }
 
+    if (adminBootstrapPatterns.length > 0 && includesAny(id, adminBootstrapPatterns)) {
+      return 'bootstrap'
+    }
+
     if (adminRuntimePatterns.length > 0 && includesAny(id, adminRuntimePatterns)) {
       return 'admin-runtime'
     }
@@ -253,23 +277,109 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
 }
 
 export function createOneAppCodeSplitting(options: OneAppManualChunkOptions): OneAppCodeSplittingOptions {
-  const resolveChunkName = createOneAppManualChunks(options)
+  const appSegment = `/apps/${options.appName}/src/`
+  const featureChunks = options.featureChunks ?? []
+  const codeSplittingGroups: CodeSplittingGroupDefinition[] = [
+    ...VENDOR_CHUNK_RULES.map((rule, index) => ({
+      chunkName: rule.name,
+      patterns: rule.patterns,
+      priority: 1000 - index
+    })),
+    ...WORKSPACE_CHUNK_RULES.map((rule, index) => ({
+      chunkName: rule.name,
+      patterns: rule.patterns,
+      priority:
+        {
+          'one-core': 940,
+          'one-ui-auth': 930,
+          'one-ui-table': 920,
+          'one-ui-shell': 910,
+          'one-tag': 900,
+          'portal-engine': 890,
+          'one-adapters': 880,
+          'one-utils': 870
+        }[rule.name] ?? 860 - index
+    })),
+    ...featureChunks.map((rule, index) => ({
+      chunkName: rule.name,
+      patterns: rule.patterns,
+      priority: 500 - index
+    })),
+    ...(options.appName === 'admin'
+      ? [
+          {
+            chunkName: 'bootstrap',
+            patterns: [`${appSegment}bootstrap/entry.ts`, `${appSegment}bootstrap/switcher.ts`],
+            priority: 640
+          },
+          {
+            chunkName: 'admin-runtime',
+            patterns: [
+              `${appSegment}bootstrap/runtime.ts`,
+              `${appSegment}bootstrap/http.ts`,
+              `${appSegment}bootstrap/adapter.ts`,
+              `${appSegment}bootstrap/core.ts`,
+              `${appSegment}bootstrap/router.ts`,
+              `${appSegment}config/`,
+              `${appSegment}infra/`,
+              `${appSegment}router/constants.ts`
+            ],
+            priority: 620
+          },
+          {
+            chunkName: 'admin-auth',
+            patterns: [
+              `${appSegment}bootstrap/public-entry.ts`,
+              `${appSegment}bootstrap/public.ts`,
+              `${appSegment}router/public-routes.ts`,
+              `${appSegment}pages/login/`,
+              `${appSegment}pages/sso/`,
+              `${appSegment}shared/services/auth-`,
+              `${appSegment}shared/api/http-client.ts`
+            ],
+            priority: 610
+          },
+          {
+            chunkName: 'admin-app-shell',
+            patterns: [
+              `${appSegment}bootstrap/`,
+              `${appSegment}router/`,
+              `${appSegment}infra/`,
+              `${appSegment}config/`,
+              `${appSegment}shared/`
+            ],
+            priority: 100
+          }
+        ]
+      : [
+          {
+            chunkName: `${options.appName}-app-shell`,
+            patterns: [
+              `${appSegment}bootstrap/`,
+              `${appSegment}router/`,
+              `${appSegment}infra/`,
+              `${appSegment}config/`,
+              `${appSegment}shared/`
+            ],
+            priority: 100
+          }
+        ])
+  ]
 
   return {
-    includeDependenciesRecursively: false,
+    // 让命名 chunk 递归吸纳其依赖，避免 vendor 的共享依赖被回落到 admin-entry 等业务入口 chunk。
+    includeDependenciesRecursively: true,
     minSize: 0,
     minShareCount: 1,
-    groups: [
-      {
-        name(moduleId) {
-          return resolveChunkName(moduleId) ?? null
-        },
-        test(moduleId) {
-          return resolveChunkName(moduleId) != null
-        },
-        priority: 100
-      }
-    ]
+    groups: codeSplittingGroups.map(group => ({
+      name(moduleId) {
+        return includesAny(normalizeModuleId(moduleId), group.patterns) ? group.chunkName : null
+      },
+      test(moduleId) {
+        return includesAny(normalizeModuleId(moduleId), group.patterns)
+      },
+      priority: group.priority
+    }))
   }
 }
 
@@ -287,7 +397,7 @@ export function createOneAppPreloadDependenciesResolver(options: OneAppManualChu
       return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
     }
 
-    if (matchesOutputPrefix(filename, ['assets/admin-auth-'])) {
+    if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/bootstrap-', 'assets/lite-'])) {
       return filterPreloadDependencies(deps, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES)
     }
 
@@ -330,7 +440,7 @@ export function pruneBuiltChunkPreloadMaps(code: string, filename: string, optio
     return rewriteChunkPreloadMap(code, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
   }
 
-  if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/LoginPage-'])) {
+  if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/bootstrap-', 'assets/LoginPage-', 'assets/lite-'])) {
     return rewriteChunkPreloadMap(code, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES)
   }
 
