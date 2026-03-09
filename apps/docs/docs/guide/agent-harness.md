@@ -136,6 +136,39 @@
 2. 规则不再混入无关项目或全局角色配置。
 3. 用户纠正后的规则能沉淀到仓库，而不是只存在会话历史里。
 
+## 仓库内本地技能示例：Web 性能分析
+
+仓库已新增本地 skill：`/Users/haoqiuzhi/code/one-base-template/.codex/skills/web-performance-audit`。
+
+用途：
+
+- 通过 Lighthouse 批量采集页面性能报告（JSON + HTML）
+- 自动汇总核心指标、机会项与风险项
+- 输出可执行的性能优化优先级清单
+
+常用命令：
+
+```bash
+# 若本机未安装
+npm install -g lighthouse
+
+# 采集 3 次移动端报告
+./.codex/skills/web-performance-audit/scripts/run_lighthouse.sh \
+  --url http://127.0.0.1:5173 \
+  --preset mobile \
+  --runs 3
+
+# 汇总结果
+node ./.codex/skills/web-performance-audit/scripts/summarize_lighthouse.mjs \
+  --report-dir .codex/lighthouse/<timestamp> \
+  --output .codex/lighthouse/<timestamp>/summary.md
+```
+
+补充说明：
+
+- 该 skill 除 Lighthouse 外，还内置了 bundle/runtime/network 的补充分析方法，见 skill `references/` 目录。
+- 分析结果应按固定口径复测（同 URL、同 preset、同 runs）后再下结论。
+
 ## 相关阅读
 
 - `/guide/architecture`

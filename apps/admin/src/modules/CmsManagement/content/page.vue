@@ -297,14 +297,13 @@
 
   <ObCrudContainer
     v-model="crudVisible"
-    container="drawer"
+    container="dialog"
     :mode="crudMode"
     :title="crudTitle"
     :loading="crudSubmitting"
+    :dialog-fullscreen="true"
     :show-cancel-button="!crudReadonly"
     confirm-text="保存"
-    :drawer-size="900"
-    :drawer-columns="2"
     @confirm="onConfirmCrud"
     @cancel="editor.close"
     @close="editor.close"

@@ -21,6 +21,7 @@
     confirmText?: string;
     detailConfirmText?: string;
     dialogWidth?: string | number;
+    dialogFullscreen?: boolean;
     drawerSize?: string | number;
     drawerColumns?: CrudContainerDrawerColumns;
     appendToBody?: boolean;
@@ -44,6 +45,7 @@
     confirmText: '确定',
     detailConfirmText: '我知道了',
     dialogWidth: 760,
+    dialogFullscreen: false,
     drawerSize: 400,
     drawerColumns: 1,
     appendToBody: true,
@@ -129,6 +131,7 @@
     v-model="visible"
     :title="title"
     :width="dialogWidth"
+    :fullscreen="dialogFullscreen"
     :append-to-body="appendToBody"
     :destroy-on-close="destroyOnClose"
     :close-on-click-modal="closeOnClickModal"

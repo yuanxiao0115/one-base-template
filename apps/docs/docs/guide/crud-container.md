@@ -20,6 +20,7 @@ import CrudContainerDrawerDocDemo from './components/CrudContainerDrawerDocDemo.
 ## 能力总览
 
 - 统一容器壳：`dialog / drawer` 二选一
+- dialog 支持全屏：`dialogFullscreen=true`
 - drawer 支持布局切换：`drawerColumns=1|2`（默认 `1`）
 - 统一模式：`create / edit / detail`
 - 统一提交流程：`form.validate -> save.buildPayload -> save.request -> save.onSuccess`
@@ -137,6 +138,32 @@ const crud = useEntityEditor<UserForm, { id: string; name: string; phone: string
   </ObCrudContainer>
 </template>
 ```
+
+## 1.1 dialog 全屏模式（适合富文本、大表单）
+
+当表单中包含富文本、附件列表、复杂联动时，建议使用 `dialog` 全屏：
+
+```vue
+<ObCrudContainer
+  v-model="crud.visible"
+  container="dialog"
+  :dialog-fullscreen="true"
+  :mode="crud.mode"
+  :title="crud.title"
+  :loading="crud.submitting"
+  @confirm="crud.confirm"
+  @cancel="crud.close"
+  @close="crud.close"
+>
+  <ContentEditForm v-model="crud.form" :disabled="crud.readonly" />
+</ObCrudContainer>
+```
+
+说明：
+
+- `dialogFullscreen=true` 时，Element Plus 的 `el-dialog` 进入全屏壳层；
+- 该模式下可继续复用 `mode/confirm/loading/footer` 等统一 CRUD 行为；
+- 若是标准中小表单，仍优先普通 `dialog` 或 `drawer`，避免过度放大交互。
 
 ## 2. drawer 托管模式（默认单列，可切双列）
 

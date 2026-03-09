@@ -230,8 +230,6 @@
     :loading="crudSubmitting"
     :show-cancel-button="!crudReadonly"
     confirm-text="保存"
-    :drawer-size="640"
-    :drawer-columns="2"
     @confirm="onConfirmCrud"
     @cancel="editor.close"
     @close="editor.close"

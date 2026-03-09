@@ -1,5 +1,6 @@
 import { extractList, toNumberValue, toRecord, toStringValue } from "@/shared/api/normalize";
 import { getHttpClient, trimText } from "@/shared/api/utils";
+import type { AxiosProgressEvent } from "axios";
 
 export interface BizResponse<T> {
   code: number;
@@ -74,6 +75,23 @@ export interface ContentSavePayload {
   cmsArticleAttachmentList: ContentAttachment[];
 }
 
+export interface UploadResourceResult {
+  id: string;
+  fileName: string;
+  savedPath: string;
+  bucketName: string;
+  joinUrl: string;
+}
+
+export interface UploadAttachmentResult extends ContentAttachment {
+  bucketName: string;
+  savedPath: string;
+}
+
+export interface UploadRequestOptions {
+  onProgress?: (event: AxiosProgressEvent) => void;
+}
+
 interface RawPageData {
   records?: unknown[];
   list?: unknown[];
@@ -127,6 +145,20 @@ interface RawCategoryRecord {
   categoryName?: string | null;
   name?: string | null;
   children?: unknown;
+}
+
+interface RawUploadResponse {
+  code?: number | string | null;
+  message?: string | null;
+  data?: unknown;
+}
+
+interface RawUploadData {
+  id?: number | string | null;
+  fileName?: string | null;
+  savedPath?: string | null;
+  bucketName?: string | null;
+  url?: string | null;
 }
 
 function toPageData<T>(data: unknown, mapRow: (item: unknown) => T) {
@@ -226,6 +258,47 @@ function normalizeArticleType(value: ContentPageParams["articleType"]) {
   return Number(value);
 }
 
+function unwrapUploadResponse(payload: unknown) {
+  const row = toRecord(payload) as RawUploadResponse;
+  const hasCode = Object.hasOwn(row, "code");
+
+  if (!hasCode) {
+    return {
+      code: undefined as number | undefined,
+      message: "",
+      data: payload,
+    };
+  }
+
+  return {
+    code: toNumberValue(row.code, -1),
+    message: toStringValue(row.message),
+    data: row.data,
+  };
+}
+
+function toUploadResourceResult(payload: unknown, fallbackFileName = ""): UploadResourceResult {
+  const row = toRecord(payload) as RawUploadData;
+  const id = toStringValue(row.id);
+  const savedPath = toStringValue(row.savedPath || row.url);
+
+  return {
+    id,
+    fileName: toStringValue(row.fileName) || fallbackFileName,
+    savedPath,
+    bucketName: toStringValue(row.bucketName),
+    joinUrl: id ? `/cmict/file/resource/show?id=${encodeURIComponent(id)}` : savedPath,
+  };
+}
+
+function assertUploadSuccess(code: number | undefined, message: string, fallback: string) {
+  if (code === undefined || code === 200 || code === 0) {
+    return;
+  }
+
+  throw new Error(message || fallback);
+}
+
 export const contentApi = {
   page: async (params: ContentPageParams) =>
     getHttpClient()
@@ -269,6 +342,44 @@ export const contentApi = {
       ...response,
       data: extractList(response.data).map((item) => toCategoryRecord(item)),
     })),
+
+  uploadResource: async (file: File, options?: UploadRequestOptions) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await getHttpClient().post<BizResponse<RawUploadData> | RawUploadData>("/cmict/file/resource/upload", {
+      data: formData,
+      $isUpload: true,
+      onUploadProgress: options?.onProgress,
+    });
+
+    const { code, message, data } = unwrapUploadResponse(response);
+    assertUploadSuccess(code, message, "上传资源失败");
+    return toUploadResourceResult(data, file.name);
+  },
+
+  uploadAttachment: async (file: File, options?: UploadRequestOptions): Promise<UploadAttachmentResult> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await getHttpClient().post<BizResponse<RawUploadData> | RawUploadData>("/cmict/file/upload-file", {
+      data: formData,
+      $isUpload: true,
+      onUploadProgress: options?.onProgress,
+    });
+
+    const { code, message, data } = unwrapUploadResponse(response);
+    assertUploadSuccess(code, message, "上传附件失败");
+    const result = toUploadResourceResult(data, file.name);
+
+    return {
+      id: result.id,
+      attachmentName: result.fileName || file.name,
+      attachmentUrl: result.savedPath || result.joinUrl,
+      bucketName: result.bucketName,
+      savedPath: result.savedPath,
+    };
+  },
 };
 
 export default contentApi;

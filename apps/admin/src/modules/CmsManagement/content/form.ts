@@ -158,8 +158,8 @@ export const contentFormRules: FormRules<ContentForm> = {
   coverUrl: [
     {
       required: true,
-      message: "请输入封面地址",
-      trigger: "blur",
+      message: "请上传封面图片",
+      trigger: "change",
     },
   ],
   articleSource: [

@@ -278,9 +278,29 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/api.ts`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/form.ts`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/components/UserEditForm.vue`
+
+## 12. 内容模块全屏富文本范式（publicity/content）
+
+针对 `apps/admin/src/modules/CmsManagement/content`，当需求包含“新增/编辑/查看全屏 + 正文富文本 + 附件上传”时，推荐以下落地方式：
+
+- 容器层：`ObCrudContainer` 固定 `container="dialog"` + `:dialog-fullscreen="true"`，统一覆盖新增/编辑/查看三种模式。
+- 表单层：正文字段改为独立富文本组件（如 `ObRichTextEditor`），查看态使用 `v-html` 预览，编辑态使用组件 `v-model`。
+- 布局层：全屏表单建议采用“左侧基础/发布信息（窄列）+ 右侧正文/附件（宽列）”结构，输入控件集中在左侧避免横向过宽，并在 `1100px` 以下自动收敛为单栏。
+- 上传链路：
+  - 封面上传：封面字段使用单图上传组件（`list-type="picture-card"` + `limit=1`），上传走 `/cmict/file/resource/upload`，表单值回填资源 `id`，预览地址统一用 `/cmict/file/resource/show?id=...`；
+  - 富文本图片/视频：走 `/cmict/file/resource/upload`，并使用 `/cmict/file/resource/show?id=...` 回填资源地址；
+  - 附件上传：走 `/cmict/file/upload-file`，回填 `cmsArticleAttachmentList`（`attachmentName/attachmentUrl`）。
+- API 层：在模块 `api.ts` 内封装 `uploadResource/uploadAttachment`，页面与表单不直接拼装 `FormData` 细节，避免上传逻辑散落。
+- 兼容策略：`api.ts` 上传返回值同时兼容“Biz 包裹”和“直接 data”两种返回形态，降低联调差异。
+
+推荐参考：
+
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/CmsManagement/content/page.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/CmsManagement/content/components/ContentEditForm.vue`
+- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/components/rich-text/ObRichTextEditor.vue`
 - `/Users/haoqiuzhi/code/one-base-template/packages/ui/src/components/upload/ImportUpload.vue`
 
-## 12. UserManagement 首批高优修复经验（2026-03）
+## 13. UserManagement 首批高优修复经验（2026-03）
 
 针对线上高频问题，建议优先落这 4 条“低侵入高收益”修复：
 
@@ -300,7 +320,7 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/page.vue`
 - `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/shared/unique.ts`
 
-## 13. 文件长度建议（可维护性）
+## 14. 文件长度建议（可维护性）
 
 为避免页面脚本持续膨胀，建议在 CRUD 模块默认遵循以下阈值：
 
