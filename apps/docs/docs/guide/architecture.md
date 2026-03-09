@@ -23,7 +23,7 @@ packages/
 - `packages/core/src/config/platform-config.ts`：运行时配置 schema 与校验规则（可复用）
 - `apps/admin/src/config/layout.ts`：管理端布局代码配置（`layoutMode/systemSwitchStyle/topbarHeight/sidebarWidth/sidebarCollapsedWidth`）
 - `apps/admin/src/config/theme.ts`：主题注册入口（复用 core 内置主题 + 项目自定义主题）
-- `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `appEnv`
+- `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `buildEnv` 与懒加载的 `getAppEnv()`
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块 Manifest 扫描、白名单过滤与路由组装
 - `apps/admin/src/router/public-routes.ts`：匿名公共页路由（仅 `/login`、`/sso`）
 - `apps/admin/src/router/index.ts`：路由装配单一入口（仅暴露 `getRouteAssemblyResult()`）
@@ -34,10 +34,11 @@ packages/
 启动顺序：
 
 1. `main.ts` 先调用 `loadPlatformConfig()`
-2. 配置加载成功后动态导入 `infra/env.ts`，根据 `menuMode + pathname` 判定启动模式
+2. 配置加载成功后动态导入 `infra/env.ts`；业务运行时配置通过 `getAppEnv()` 按需读取，再根据 `menuMode + pathname` 判定启动模式
 3. 命中 `/login` 或 `/sso` 且 `menuMode=remote` 时，走 `bootstrap/public.ts`
    - 仅注册 `public-routes`
-   - 仅注册 `@one-base-template/ui/lite` 里的轻量登录组件
+   - 登录页优先局部引用 `@one-base-template/ui/lite-auth`；其余轻量公共组件仍按需走 `@one-base-template/ui/lite`，不再在 public bootstrap 中做全局注册
+   - 构建阶段会继续收紧 `bootstrap-*` / `lite-*` chunk 的 preload map，避免匿名首屏误拉 `admin-entry` / `admin-app-shell` / `vxe` 等业务壳资源
    - 仍补齐 `http + adapter + core`，保证登录/SSO 可正常完成
 4. 其他路径继续走 `bootstrap/index.ts`
    - 安装完整 `@one-base-template/ui` 插件（`app.use(OneUiPlugin, { prefix: 'Ob' })`，自动注册全局组件）
@@ -87,7 +88,7 @@ packages/
 
 ### 启动与路由收敛补充（2026-03）
 
-- `bootstrap/router.ts` 使用 `createWebHistory(appEnv.baseUrl)`，由 `infra/env.ts` 统一聚合 `BASE_URL`，避免子路径部署路由错位与读取来源分散。
+- `bootstrap/router.ts` 使用 `createWebHistory(getAppEnv().baseUrl)`，由 `infra/env.ts` 统一聚合 `BASE_URL`，避免子路径部署路由错位与读取来源分散。
 - `config/platform-config.ts` 增加了：
   - **并发复用**（同一时刻只发一次配置请求）
   - **超时控制**（默认 8s）
@@ -95,7 +96,11 @@ packages/
   - **只读快照兜底（开关控制）**：开启 `VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK=true` 时，主配置加载失败可回退本地快照
 - `router/registry.ts` 为模块清单增加内存缓存，降低重复扫描开销；HMR 时自动失效重建。
 - `bootstrap/entry.ts` 用于解析 `baseUrl + pathname + menuMode`，决定当前请求应走 `admin` 还是 `public` 启动链路。
+- `bootstrap/switcher.ts` 与 `bootstrap/entry.ts` 固定拆到独立 `bootstrap` chunk，避免 public 启动共享 `admin-runtime` 时把 `admin-entry` / `admin-app-shell` 重新带回登录首屏。
 - `bootstrap/runtime.ts` 记录当前启动模式；当匿名页使用轻量启动时，登录成功后的跳转改为 `window.location.replace()`，从而重新进入完整 admin bootstrap，避免 public router 缺少业务路由导致的 `router.replace()` 失败。
+- `packages/ui` 新增 `./lite-auth` 子出口，只暴露登录框相关组件；`LoginPage.vue` 直接走该入口，避免再借道 `ui/lite` barrel 把 `one-ui-shell` 带回匿名首屏。
+- `bootstrap/http.ts` 在未授权回跳时，不再静态依赖 `@one-base-template/tag` 根入口；仅在 `admin` 模式下动态导入 `@one-base-template/tag/store` 清理 tags，避免 public 链路重新拉起 tag 壳层 chunk。
+- `router/assemble-routes.ts` 的壳层页面导入固定走 `@one-base-template/ui/shell`，避免根入口的表格样式与重组件副作用进入路由装配链路。
 - `router/assemble-routes.ts` 在模块路由装配阶段增加冲突防护：
   - 禁止占用保留 path/name（`/login`、`/sso`、`/403`、`/404`、通配 404 等）
   - 检测重复 path/name，后出现的冲突路由自动跳过并告警

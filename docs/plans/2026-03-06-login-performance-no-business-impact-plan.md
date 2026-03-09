@@ -314,3 +314,17 @@ pnpm -C apps/docs build
 - `/login` 首屏请求数显著下降。
 - `vxe-table` / `vxe-pc-ui` / `portal-engine` / portal editor / UserManagement 页面不再进入登录页冷启动。
 - 登录与 SSO 业务行为保持不变，风险集中在匿名页局部，回退成本低。
+
+## 2026-03-09（收尾结果）
+
+- 第一阶段目标已完成：`/login` 与 `/sso` 维持独立 public 启动链路，业务页主链路仍走完整 admin bootstrap，满足“**不影响业务**”前提。
+- 第二轮补强已落地：
+  - 登录页从 `@one-base-template/ui/lite` 改为直引 `@one-base-template/ui/lite-auth`，避免通过 barrel 间接持有 `one-ui-shell`
+  - 未授权回跳时的 tag 清理改为“仅 `admin` 模式动态导入 `@one-base-template/tag/store`”，匿名首屏不再静态依赖 tag 根入口
+  - `scripts/vite/manual-chunks.ts` 补强了 `one-ui-auth` / `bootstrap` / `admin-runtime` 的优先级与 preload 过滤规则
+- 最新构建预览口径下，`/login` 首屏已确认不再请求 `admin-entry`、`admin-app-shell`、`one-ui-shell`、`one-ui-table`、`vxe`、`portal-engine`、`admin-log-management` 等业务壳资源。
+- 当前保留的首屏公共依赖主要是 `element-plus`、`admin-runtime`、`admin-auth`、`one-ui-auth`、`one-core`、`one-adapters`；这是本轮在“零业务回归”约束下接受的最小公共集。
+- 暂不进入第二阶段大改：
+  - `admin-runtime` / `one-core` 的进一步细分
+  - `packages/ui/src/index.ts` 对登录组件的静态导出继续拆分
+  - 以上留待下一轮单独评估，避免本轮继续扩大回归面

@@ -73,9 +73,19 @@ pnpm biome:ci
   - 在 `apps/*/vite.config.ts` 中接入共享 helper：`scripts/vite/manual-chunks.ts`
   - 先拆 `vue`、`element-plus`、`vxe`、`iconify`、`gm-crypto` 等 vendor
   - 再按 app feature 拆 `portal` / `UserManagement` / `SystemManagement` / `LogManagement` 等重模块
-- `portal` / `template` 不再默认引用完整 `@one-base-template/ui` 入口：
+- `admin` / `portal` / `template` 的路由壳层都不应默认引用完整 `@one-base-template/ui` 入口：
   - 路由壳组件改走 `@one-base-template/ui/shell`
-  - 启动阶段仅按需注册 `@one-base-template/ui/lite` 中的轻量组件
+  - 登录页优先直引 `@one-base-template/ui/lite-auth`，避免再经 `ui/lite` barrel 把 `one-ui-shell` 借道带回匿名首屏
+  - 其余轻量公共组件再按需走 `@one-base-template/ui/lite`，不要回到 public bootstrap 的全局注册链路
+- `admin` 登录轻量启动的 `bootstrap/entry.ts` / `bootstrap/switcher.ts` 固定拆到独立 `bootstrap` chunk，避免 `admin-runtime` 共享 chunk 反向持有 `admin-entry` / `admin-app-shell`
+- `admin` 的构建后处理会继续收紧 `index-*` / `bootstrap-*` / `admin-auth-*` / `LoginPage-*` / `lite-*` 的 preload map，避免 `/login` 首屏把 `admin-entry` / `one-ui-shell` / `vxe` / `portal-engine` 等业务壳资源提前拉起
+- 匿名链路如果只是做状态清理或只读访问，优先补“细粒度子出口 + admin 模式动态 import”：
+  - 当前 `tags` 清理固定走 `@one-base-template/tag/store`
+  - 不要在 `public` 启动链路静态 import `@one-base-template/tag` 根入口
+- 这类性能边界建议用源码测试固化：
+  - `apps/admin/src/pages/login/LoginPage.source.test.ts`
+  - `apps/admin/src/bootstrap/__tests__/http-source.test.ts`
+  - `apps/admin/src/__tests__/manual-chunks.test.ts`
 - 离线 Iconify 数据按集合拆成独立异步 chunk：
   - `ep` / `ri` 图标集合不再直接塞进应用主入口
   - 管理端图标选择器打开时再加载完整集合，菜单渲染只在需要时注册对应集合
@@ -168,7 +178,7 @@ pnpm doctor
 
 为减少隐性耦合与启动链路分散，本仓库增加了两条约束（由 ESLint 强制）：
 
-- 环境变量：业务模块禁止直接读 `import.meta.env`，统一通过 `apps/admin/src/infra/env.ts` 的 `appEnv` 读取
+- 环境变量：业务模块禁止直接读 `import.meta.env`，统一通过 `apps/admin/src/infra/env.ts` 的 `getAppEnv()`（构建期仅例外使用 `buildEnv`）读取
 - 启动安装：`createApp/createPinia/createRouter` 以及 `app.use/app.component/...` 只能在 `apps/admin/src/bootstrap/` 中进行
 
 模块化阶段新增两条约束：

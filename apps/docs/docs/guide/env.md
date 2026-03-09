@@ -107,11 +107,11 @@
 ## 3) 启动顺序与失败策略
 
 - `src/main.ts` 启动时先加载 `platform-config.json`
-- 配置加载成功后，再动态导入 `infra/env.ts` 生成 `appEnv`
+- 配置加载成功后，再动态导入 `infra/env.ts`；业务运行时配置改为通过 `getAppEnv()` 懒读取并缓存
 - 当 `menuMode=remote` 且当前地址命中 `/login` / `/sso` 时，优先走 `bootstrap/public.ts`
-  - 该链路只安装 `public-routes` 与 `@one-base-template/ui/lite`
+  - 该链路先安装 `public-routes`，再补齐 `http + adapter + core`；登录页局部组件优先走 `@one-base-template/ui/lite-auth`
   - public/admin 样式入口也会按启动分支拆开，避免 `/login` 首屏提前注入业务壳样式
-  - 但仍会注入 `http + adapter + core`，保证登录、SSO、菜单拉取链路完整
+  - 未授权回跳时的 tags 清理只在 `admin` 模式动态导入 `@one-base-template/tag/store`，匿名链路不再静态依赖 tag 根入口
 - 其他路径继续走 `bootstrapAdminApp()`，保持业务 Layout / 菜单 / Tabs / 路由守卫行为不变
 - public 启动链路下，登录成功后会使用整页跳转重新进入完整 admin bootstrap，避免匿名路由表中缺少业务路由
 - 校验失败或加载失败时，应用**硬失败**（不进入业务路由），页面展示分级错误信息（网络失败/格式失败/校验失败）
@@ -121,5 +121,5 @@
 ## 4) 代码约束
 
 - 业务模块仍然**禁止**直接使用 `import.meta.env`
-- 统一通过 `apps/admin/src/infra/env.ts` 导出的 `appEnv` 读取配置
+- 统一通过 `apps/admin/src/infra/env.ts` 导出的 `getAppEnv()` 读取业务运行时配置；`buildEnv` 仅承载构建期最小集合
 - 运行时配置统一通过 `apps/admin/src/config/platform-config.ts` 加载，schema 校验规则位于 `packages/core/src/config/platform-config.ts`
