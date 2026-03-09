@@ -426,6 +426,8 @@
 
   const tableShowOverflow = computed<'tooltip' | undefined>(() => (props.showOverflowTooltip ? 'tooltip' : undefined));
 
+  const normalizedData = computed<RowRecord[]>(() => (Array.isArray(props.data) ? props.data : []));
+
   const rowConfig = computed<Record<string, unknown> | undefined>(() => {
     if (!props.rowKey) {
       return undefined;
@@ -556,7 +558,7 @@
   );
 
   watch(
-    () => [props.data.length, normalizedPagination.value?.currentPage, normalizedPagination.value?.pageSize],
+    () => [normalizedData.value.length, normalizedPagination.value?.currentPage, normalizedPagination.value?.pageSize],
     () => {
       if (props.adaptive) {
         setAdaptive();
@@ -584,7 +586,7 @@
     <div class="ob-vxe-table__main">
       <VxeGrid
         ref="gridRef"
-        :data="data"
+        :data="normalizedData"
         :columns="vxeColumns"
         :loading="loading"
         :stripe="stripe"
