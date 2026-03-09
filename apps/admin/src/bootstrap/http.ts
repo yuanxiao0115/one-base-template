@@ -5,14 +5,9 @@ import { createObHttp, type ObHttp, useAuthStore, useMenuStore, useSystemStore }
 
 import type { AuthMode, BackendKind } from "../infra/env";
 import { createClientSignature } from "../infra/sczfw/crypto";
-import { getBootstrapMode } from "./runtime";
 
-function resetTagStoreIfNeeded() {
-  if (getBootstrapMode() !== "admin") {
-    return;
-  }
-
-  // 登录匿名页不需要 tags 状态，这里改成按需动态加载，避免 public 链路提前拉起壳层 chunk。
+function resetTagStore() {
+  // 统一走单启动链路后，未授权时始终清空 tags，避免残留上一个会话的页签状态。
   void import("@one-base-template/tag/store").then(({ useTagStoreHook }) => {
     useTagStoreHook().handleTags("equal", []);
   });
@@ -97,7 +92,7 @@ export function createAppHttp(params: {
         useAuthStore(pinia).reset();
         useMenuStore(pinia).reset();
         useSystemStore(pinia).reset();
-        resetTagStoreIfNeeded();
+        resetTagStore();
         router.replace("/login");
       },
     },

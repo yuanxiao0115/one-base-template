@@ -1,11 +1,11 @@
 <script setup lang="ts">
-  import { finalizeAuthSession, handleSsoCallback, safeRedirect } from "@one-base-template/core";
+  import { finalizeAuthSession, handleSsoCallback } from "@one-base-template/core";
   import { ElMessage } from "element-plus";
   import { onMounted, ref } from "vue";
   import { useRouter } from "vue-router";
-  import { navigateAfterAuth } from "@/bootstrap/runtime";
   import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
   import { getAppEnv } from "@/infra/env";
+  import { resolveAppRedirectTarget } from "@/router/redirect";
   import {
     loginByDesktop,
     loginByExternal,
@@ -42,9 +42,9 @@
   }
 
   const { backend } = appEnv;
+  const { baseUrl } = appEnv;
   const { tokenKey } = appEnv;
   const { idTokenKey } = appEnv;
-  const { baseUrl } = appEnv;
 
   function safeMessage(e: unknown, fallback: string) {
     return e instanceof Error && e.message ? e.message : fallback;
@@ -55,11 +55,7 @@
     await finalizeAuthSession({ shouldFetchMe: true });
 
     loginStatus.value = "success";
-    await navigateAfterAuth({
-      router,
-      target: redirect,
-      baseUrl,
-    });
+    await router.replace(redirect);
   }
 
   async function handleZhxt(token: string, redirect: string) {
@@ -130,11 +126,7 @@
     try {
       if (backend !== "sczfw") {
         const { redirect } = await handleSsoCallback();
-        await navigateAfterAuth({
-          router,
-          target: redirect,
-          baseUrl,
-        });
+        await router.replace(resolveAppRedirectTarget(redirect, { fallback: DEFAULT_FALLBACK_HOME, baseUrl }));
         loginStatus.value = "success";
         return;
       }
@@ -150,7 +142,10 @@
       const sourceCode = sp.get("sourceCode");
 
       const redirectUrlRaw = sp.get("redirectUrl") ?? sp.get("redirect");
-      const redirect = safeRedirect(redirectUrlRaw, DEFAULT_FALLBACK_HOME);
+      const redirect = resolveAppRedirectTarget(redirectUrlRaw, {
+        fallback: DEFAULT_FALLBACK_HOME,
+        baseUrl,
+      });
 
       if (sourceCode === "zhxt" && token) {
         await handleZhxt(token, redirect);

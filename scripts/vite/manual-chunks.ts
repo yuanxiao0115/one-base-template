@@ -148,7 +148,6 @@ const WORKSPACE_CHUNK_RULES: AppFeatureChunk[] = [
 
 const ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES = [
   'assets/admin-entry-',
-  'assets/bootstrap-',
   'assets/admin-app-shell-',
   'assets/admin-home-',
   'assets/admin-log-management-',
@@ -174,7 +173,6 @@ const ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES = [
 ]
 
 const ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES = [
-  'assets/bootstrap-',
   'assets/admin-app-shell-',
   'assets/one-ui-shell-',
   'assets/one-ui-table-',
@@ -189,21 +187,15 @@ const ADMIN_INDEX_HTML_BLOCKED_STYLE_PREFIXES = [
   'assets/admin-portal-',
   'assets/vxe-',
   'assets/one-ui-table-',
-  'assets/one-ui-shell-',
-  'assets/bootstrap-'
+  'assets/one-ui-shell-'
 ]
 
 export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
   const appSegment = `/apps/${options.appName}/src/`
   const featureChunks = options.featureChunks ?? []
-  const adminBootstrapPatterns =
-    options.appName === 'admin'
-      ? [`${appSegment}bootstrap/entry.ts`, `${appSegment}bootstrap/switcher.ts`]
-      : []
   const adminRuntimePatterns =
     options.appName === 'admin'
       ? [
-          `${appSegment}bootstrap/runtime.ts`,
           `${appSegment}bootstrap/http.ts`,
           `${appSegment}bootstrap/adapter.ts`,
           `${appSegment}bootstrap/core.ts`,
@@ -216,9 +208,6 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
   const adminAuthPatterns =
     options.appName === 'admin'
       ? [
-          `${appSegment}bootstrap/public-entry.ts`,
-          `${appSegment}bootstrap/public.ts`,
-          `${appSegment}router/public-routes.ts`,
           `${appSegment}pages/login/`,
           `${appSegment}pages/sso/`,
           `${appSegment}shared/services/auth-`,
@@ -250,10 +239,6 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
     const featureRule = featureChunks.find(rule => includesAny(id, rule.patterns))
     if (featureRule) {
       return featureRule.name
-    }
-
-    if (adminBootstrapPatterns.length > 0 && includesAny(id, adminBootstrapPatterns)) {
-      return 'bootstrap'
     }
 
     if (adminRuntimePatterns.length > 0 && includesAny(id, adminRuntimePatterns)) {
@@ -308,14 +293,8 @@ export function createOneAppCodeSplitting(options: OneAppManualChunkOptions): On
     ...(options.appName === 'admin'
       ? [
           {
-            chunkName: 'bootstrap',
-            patterns: [`${appSegment}bootstrap/entry.ts`, `${appSegment}bootstrap/switcher.ts`],
-            priority: 640
-          },
-          {
             chunkName: 'admin-runtime',
             patterns: [
-              `${appSegment}bootstrap/runtime.ts`,
               `${appSegment}bootstrap/http.ts`,
               `${appSegment}bootstrap/adapter.ts`,
               `${appSegment}bootstrap/core.ts`,
@@ -329,9 +308,6 @@ export function createOneAppCodeSplitting(options: OneAppManualChunkOptions): On
           {
             chunkName: 'admin-auth',
             patterns: [
-              `${appSegment}bootstrap/public-entry.ts`,
-              `${appSegment}bootstrap/public.ts`,
-              `${appSegment}router/public-routes.ts`,
               `${appSegment}pages/login/`,
               `${appSegment}pages/sso/`,
               `${appSegment}shared/services/auth-`,
@@ -397,7 +373,7 @@ export function createOneAppPreloadDependenciesResolver(options: OneAppManualChu
       return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
     }
 
-    if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/bootstrap-', 'assets/lite-'])) {
+    if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/lite-'])) {
       return filterPreloadDependencies(deps, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES)
     }
 
@@ -440,7 +416,7 @@ export function pruneBuiltChunkPreloadMaps(code: string, filename: string, optio
     return rewriteChunkPreloadMap(code, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
   }
 
-  if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/bootstrap-', 'assets/LoginPage-', 'assets/lite-'])) {
+  if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/LoginPage-', 'assets/lite-'])) {
     return rewriteChunkPreloadMap(code, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES)
   }
 

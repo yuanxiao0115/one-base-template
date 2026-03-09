@@ -20,12 +20,10 @@ import { createAppAdapter } from "./adapter";
 import { installCore } from "./core";
 import { installAppShellPlugins } from "./plugins";
 import { installAppRouterGuards } from "./guards";
-import { setBootstrapMode } from "./runtime";
 import { registerMessageUtils } from "../utils/message";
 import { registerPersonnelSelectionAppContext } from "../components/PersonnelSelector/openPersonnelSelection";
 
 export function bootstrapAdminApp() {
-  setBootstrapMode("admin");
   const appEnv = getAppEnv();
 
   const app = createApp(App);
