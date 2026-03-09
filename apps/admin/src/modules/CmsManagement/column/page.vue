@@ -104,6 +104,8 @@
   const { table, editor, actions } = crudPage;
 
   const tableColumns = computed(() => columnColumns);
+  const tableLoading = computed(() => table.loading.value);
+  const tableRows = computed(() => table.dataList.value);
   const columnTreeOptions = computed<ColumnTreeOption[]>(() => toTreeOptions(table.dataList.value));
   const crudVisible = editor.visible;
   const crudMode = editor.mode;
@@ -189,8 +191,8 @@
         <ObVxeTable
           ref="tableRef"
           :size
-          :loading="table.loading"
-          :data="table.dataList"
+          :loading="tableLoading"
+          :data="tableRows"
           :columns="dynamicColumns"
           :pagination="false"
           :tree-config="tableTreeConfig"

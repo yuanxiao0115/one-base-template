@@ -147,6 +147,8 @@
 
   const tableColumns = computed(() => contentColumns);
   const tablePagination = computed(() => ({ ...table.pagination }));
+  const tableLoading = computed(() => table.loading.value);
+  const tableRows = computed(() => table.dataList.value);
   const crudVisible = editor.visible;
   const crudMode = editor.mode;
   const crudTitle = editor.title;
@@ -261,8 +263,8 @@
         <ObVxeTable
           ref="tableRef"
           :size
-          :loading="table.loading"
-          :data="table.dataList"
+          :loading="tableLoading"
+          :data="tableRows"
           :columns="dynamicColumns"
           :pagination="tablePagination"
           @page-size-change="table.handleSizeChange"
