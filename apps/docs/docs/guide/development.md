@@ -194,12 +194,14 @@ pnpm doctor
 为减少隐性耦合与启动链路分散，本仓库增加了两条约束（由 `pnpm lint:arch` 架构脚本强制，默认集成到 CI）：
 
 - 环境变量：业务模块禁止直接读 `import.meta.env`，统一通过 `apps/admin/src/infra/env.ts` 的 `getAppEnv()`（构建期仅例外使用 `buildEnv`）读取
-- 启动安装：`createApp/createPinia/createRouter` 以及 `app.use/app.component/...` 只能在 `apps/admin/src/bootstrap/` 中进行
+- 启动安装：`createApp/createPinia/createRouter` 只能在 `apps/admin/src/bootstrap/` 中进行；`app.use/app.component/...` 默认在 `bootstrap`，如需项目级扩展可在 `apps/admin/src/main.ts` 的 `beforeMount` 扩展位执行
+- 样式入口：基础样式与 Element Plus 覆盖统一在 `apps/admin/src/bootstrap/admin-styles.ts`；团队覆写样式统一放在 `apps/admin/src/styles/team-overrides.css`，并由 `apps/admin/src/main.ts` 顶部显式引入
 
 模块化阶段新增两条约束：
 
 - 模块边界：`apps/admin/src/modules/**/*` 禁止直接 import `@/modules/*`（公共能力上移到 `shared/core/ui`）
-- API 边界：页面/组件/store 禁止直接 import `@/infra/http`，必须经由 `services/*` 或 `shared/api/*`
+- API 边界：页面/组件/store 禁止直接 import `@/infra/http`；HTTP 调用统一收口到 `services/*` 与 `api.ts/api/client.ts`，并在 API 层通过 `@one-base-template/core` 的 `getObHttpClient()` 获取客户端
+- `shared` 边界：`apps/admin/src/shared` 仅承载“admin 应用内跨模块共享能力”（共享协议类型、登录/SSO 场景服务、应用级 logger）；单模块私有逻辑禁止上提到 `shared`
 - 约束脚本位置：`scripts/check-admin-arch.mjs`（可通过 `pnpm lint:arch` 或 `pnpm -C apps/admin lint:arch` 执行）
 
 ## 全局消息工具（兼容老项目 message.ts）

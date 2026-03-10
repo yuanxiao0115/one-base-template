@@ -22,8 +22,8 @@ src/
   main.ts                    # 最小入口：触发 startAdminApp（共享启动骨架）
   bootstrap/                 # 启动编排（create app/router/pinia/http/core + 插件 + 守卫）
   router/                    # 模块注册与路由装配（manifest 扫描、白名单、保留路由）
-  infra/                     # 运行时基础设施（env/http/confirm/sczfw crypto）
-  shared/                    # 业务共享能力（http client、认证 service、logger、共享 API 类型）
+  infra/                     # 运行时基础设施（env/confirm/sczfw crypto）
+  shared/                    # admin 应用内跨模块共享能力（认证/SSO service、logger、共享 API 类型）
   config/                    # admin 项目级配置（layout/theme/sso/systems/platform-config）
   modules/                   # 业务模块（User/System/Log/Cms/portal/home）
   components/                # 跨模块复用组件（如 PersonnelSelector、富文本）
@@ -48,6 +48,14 @@ src/
 - `modules/**` 直接依赖 `@/infra/http`
 - `modules/**` 直接读取 `import.meta.env`
 - 在页面/模块里创建 `createApp/createPinia/createRouter`
+- 把单模块私有逻辑（仅一处使用的 mapper/normalize/helper）上提到 `shared`
+
+`shared` 目录边界说明：
+
+- 定位：`apps/admin` 内跨模块共享层，不是跨应用公共层
+- 允许：`shared/api/types.ts`、登录/SSO 相关 `shared/services/*`、`shared/logger.ts`
+- 不允许：业务模块私有实现上提到 `shared`（仍放 `modules/<module>/**`）
+- 若形成跨应用复用价值，优先下沉 `packages/core` / `packages/adapters`
 
 这样做的目的：
 
@@ -98,7 +106,7 @@ src/
 
 已完成：
 
-1. 收敛 shared HTTP 单入口：删除 `src/shared/api/utils.ts`，统一从 `src/shared/api/http-client.ts` 获取 http
+1. HTTP 运行时访问器下沉到 core：删除 `src/shared/api/http-client.ts` 与 `src/infra/http.ts`，统一从 `@one-base-template/core` 使用 `getObHttpClient/setObHttpClient`
 2. 统一模块路由入口写法：
    - `home/module.ts` 改为从 `./routes` 导入
    - `portal/module.ts` 改为从 `./routes` 统一导入 `layout + standalone`
@@ -125,7 +133,8 @@ src/
 ## 10. 验证命令
 
 ```bash
-pnpm -C apps/admin exec vitest run src/infra/__tests__/http.unit.test.ts src/infra/__tests__/env.unit.test.ts src/bootstrap/__tests__/http.unit.test.ts
+pnpm -C packages/core exec vitest run src/http/runtime.test.ts
+pnpm -C apps/admin exec vitest run src/infra/__tests__/env.unit.test.ts src/bootstrap/__tests__/http.unit.test.ts
 pnpm -C apps/admin typecheck
 pnpm -C apps/admin lint:arch
 pnpm -C apps/admin lint

@@ -217,7 +217,7 @@ compat: {
 
 - `api/endpoints.ts`：路径常量
 - `api/contracts.ts`：请求/响应类型
-- `api/client.ts`：唯一请求实现
+- `api/client.ts`：唯一请求实现（统一从 `@one-base-template/core` 获取 `getObHttpClient()`）
 - `services/*.ts`：页面用例编排
 - `compat/*.ts`：历史字段映射（如 `whiteList -> whiteDTOS`）
 
@@ -232,12 +232,27 @@ compat: {
 
 说明：后端字段若不符合约定，优先在业务代码中显式处理，不在 API 层做隐式修正。
 
+### 4.1) `shared` 目录边界（admin 应用内）
+
+`apps/admin/src/shared` 的定位是“**admin 应用内跨模块共享层**”，不是跨应用公共层。
+
+建议固定为以下范围：
+
+- `shared/api/types.ts`：跨模块复用的通用协议类型（`ApiResponse`/`ApiPageData`）。
+- `shared/services/auth-*.ts`、`shared/services/sso-callback-strategy.ts`：登录/SSO 场景编排。
+- `shared/logger.ts`：应用级日志能力（如路由装配日志）。
+
+约束：
+
+- 单模块私有逻辑（仅一处使用的 `mapper/normalize/helper`）不要上提到 `shared`，保持在 `modules/<module>/**` 就近维护。
+- 出现跨应用复用价值时，优先下沉到 `packages/core` / `packages/adapters`。
+
 ## 5) ESLint 边界约束
 
 当前已启用两条硬约束：
 
 1. `apps/admin/src/modules/**/*` 禁止直接 `@/modules/*` 互相依赖
-2. 页面/组件/store 禁止直接引用 `@/infra/http`
+2. 页面/组件/store 禁止直接引用 `@/infra/http`（该文件已移除）；HTTP 访问统一在 `api.ts/api/client.ts` 里通过 `@one-base-template/core` 的 `getObHttpClient()` 获取
 
 这样可以减少模块间隐式耦合，确保模块可切割。
 

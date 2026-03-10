@@ -12,6 +12,16 @@
 
 ## 架构约定（必须）
 
+### shared 目录边界
+
+- `apps/admin/src/shared` 定位为 **admin 应用内跨模块共享层**（不是 `packages/core` 的跨应用共享层）。
+- `shared` 当前允许内容仅限：
+  - `shared/api/types.ts`（跨模块复用的通用协议类型，如 `ApiResponse`/`ApiPageData`）。
+  - `shared/services/auth-*.ts`、`shared/services/sso-callback-strategy.ts`（登录/SSO 场景编排能力）。
+  - `shared/logger.ts`（路由装配等应用级日志能力）。
+- 模块私有逻辑（仅单模块使用的 `mapper/normalize/helper`）禁止上提到 `shared`，保持在 `modules/<module>/**` 就近维护。
+- 能抽成跨应用能力时优先下沉到 `packages/core`/`packages/adapters`，不要把跨应用逻辑长期滞留在 `apps/admin/src/shared`。
+
 ### 静态路由 + 动态菜单
 
 - 路由全部前端静态声明（`modules/**/routes.ts`），不依赖后端动态 `addRoute` 才能访问。
@@ -28,7 +38,9 @@
 - SSO 策略优先级：`token` / `ticket` / `oauth code`。
 - exchange 成功流程：`fetchMe()` -> `fetchMenu()` -> 跳转站内安全地址。
 - 默认 Cookie(HttpOnly) 鉴权：HTTP 客户端保持 `withCredentials: true`，前端默认不读写 token。
-- `apps/admin/src/main.ts` 必须保持**单启动链路**：统一执行 `loadPlatformConfig() -> import('./bootstrap/admin-entry') -> router.isReady() -> mount`，禁止再次引入 `public/admin` 双启动分流或运行时 OS 字体切换。
+- `apps/admin/src/main.ts` 必须保持**单启动链路**：统一执行 `loadPlatformConfig() -> import('./bootstrap/index') -> router.isReady() -> mount`，禁止再次引入 `public/admin` 双启动分流或运行时 OS 字体切换。
+- 允许在 `apps/admin/src/main.ts` 通过 `startAdminApp({ beforeMount })` 安装项目级插件（`app.use(...)`）；除该扩展位外，不要在业务文件散落全局安装逻辑。
+- 样式入口约定：基础样式与 Element Plus 覆盖统一在 `apps/admin/src/bootstrap/admin-styles.ts`；团队项目覆写样式只允许在 `apps/admin/src/main.ts` 顶部通过 `import './styles/team-overrides.css'` 引入。
 - `/login`、`/sso` 只作为主路由表中的公共路由存在；登录/SSO 成功后统一使用站内 `router.replace()` 跳转，未授权清理仅允许按需动态导入细粒度子入口（如 `@one-base-template/tag/store`），不要恢复匿名独立 bootstrap。
 
 ## 布局与主题（admin 侧）
@@ -110,7 +122,8 @@
 
 ## 额外约束
 
-- `apps/admin/src/styles/index.css` 禁止通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/main.ts` 显式导入 `styles/element-plus/*.css`。
+- `apps/admin/src/styles/index.css` 禁止通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/bootstrap/admin-styles.ts` 显式导入 `styles/element-plus/*.css`（由 `bootstrap/startup.ts` 统一加载）。
+- `apps/admin/src/styles/team-overrides.css` 作为团队覆写样式唯一入口（由 `main.ts` 引入）；禁止在业务模块、页面组件里新增全局样式入口型 import。
 - admin 全局 `v-loading` 遮罩背景统一透明（含 fullscreen 场景），并统一 loading 图标主色与文案样式，禁止回退深色蒙层。
 - admin lint 已切换到 `Ultracite + Biome`（单引擎门禁，不再保留 ESLint/Stylelint 双轨脚本）。
 - lint 门禁命令：

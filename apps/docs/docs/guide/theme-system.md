@@ -302,12 +302,21 @@ await confirm.error('该操作无法撤销，是否继续？', '失败信息')
 
 ---
 
+## Admin 样式入口约定（启动链路）
+
+- 基础样式统一入口：`apps/admin/src/bootstrap/admin-styles.ts`
+- 启动加载位置：`apps/admin/src/bootstrap/startup.ts`（内部导入 `admin-styles.ts`）
+- 团队覆写样式入口：`apps/admin/src/styles/team-overrides.css`，由 `apps/admin/src/main.ts` 顶部引入
+- 约束：业务模块与页面组件不要新增全局样式入口型 import，避免样式来源分散
+
+---
+
 ## 全局 Loading 遮罩（Admin）
 
 为避免 loading 状态出现深色蒙层遮挡，admin 侧统一将 Element Plus loading 遮罩改为透明背景：
 
 - 样式落点：`apps/admin/src/styles/element-plus/loading-overrides.css`
-- 引入入口：`apps/admin/src/bootstrap/admin-styles.ts`
+- 引入入口：`apps/admin/src/bootstrap/admin-styles.ts`（由 `bootstrap/startup.ts` 统一加载）
 
 规则说明：
 

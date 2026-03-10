@@ -103,7 +103,7 @@
 ## 3) 启动顺序与失败策略
 
 - `src/main.ts` 启动时先加载 `platform-config.json`
-- 配置加载成功后，再动态导入 `bootstrap/admin-entry.ts`；业务运行时配置仍通过 `getAppEnv()` 懒读取并缓存
+- 配置加载成功后，再动态导入 `bootstrap/index.ts`；业务运行时配置仍通过 `getAppEnv()` 懒读取并缓存
 - 所有路径统一走 `bootstrapAdminApp()`，`/login` 与 `/sso` 只保留为主路由表中的公共路由，不再维护匿名独立启动链路
 - 未授权回跳时，会按需动态导入 `@one-base-template/tag/store` 清理 tags，再统一 `router.replace('/login')`
 - 校验失败或加载失败时，应用**硬失败**（不进入业务路由），页面展示通用错误信息而不是白屏

@@ -30,6 +30,8 @@ packages/
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块清单扫描、白名单过滤与按需路由组装
 - `apps/admin/src/router/assemble-routes.ts`：路由装配入口（暴露 `assembleRoutes()`）
 - `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫；所有页面统一走单启动链路
+- `apps/admin/src/bootstrap/admin-styles.ts`：基础样式统一入口（Element Plus + tag + admin 样式覆盖）
+- `apps/admin/src/styles/team-overrides.css`：团队项目覆写样式入口（仅由 `main.ts` 顶部引入）
 - `packages/core/src/storage/namespace.ts`：统一存储命名空间规则（读取兼容旧 key）
 - `packages/core/src/router/initial-path.ts`：统一根路由首次跳转决策（系统首页映射 + 菜单叶子兜底）
 
@@ -37,10 +39,13 @@ packages/
 
 1. `main.ts` 调用 `startAdminApp()`
 2. `bootstrap/startup.ts` 通过 `startAppWithRuntimeConfig()` 先加载运行时配置
-3. 配置加载成功后动态导入 `bootstrap/admin-entry.ts`
+3. 配置加载成功后动态导入 `bootstrap/index.ts`
 4. `bootstrap/index.ts` 统一创建 app/pinia/router/http/core，并安装完整业务壳插件
-5. `/login`、`/sso` 作为静态公共路由保留在 `router/assemble-routes.ts` 中，但不再维护独立启动链路
-6. `router.isReady()` 后 mount；失败时由统一错误渲染兜底
+5. 基础样式由 `bootstrap/startup.ts -> admin-styles.ts` 统一加载，避免散落多入口
+6. `main.ts` 顶部可引入 `styles/team-overrides.css` 承载团队覆写样式（不改 bootstrap 内核）
+7. `main.ts` 可通过 `startAdminApp({ beforeMount })` 在 mount 前扩展 `app.use(...)`（不改 bootstrap 内核）
+8. `/login`、`/sso` 作为静态公共路由保留在 `router/assemble-routes.ts` 中，但不再维护独立启动链路
+9. `router.isReady()` 后 mount；失败时由统一错误渲染兜底
 
 ## template 的启动分层（最小静态菜单）
 
@@ -85,7 +90,7 @@ packages/
 
 ### 启动与路由收敛补充（2026-03）
 
-- `bootstrap/router.ts` 使用 `createWebHistory(getAppEnv().baseUrl)`，由 `infra/env.ts` 统一聚合 `BASE_URL`，避免子路径部署路由错位与读取来源分散。
+- `bootstrap/index.ts` 内联使用 `createWebHistory(appEnv.baseUrl)`，由 `infra/env.ts` 统一聚合 `BASE_URL`，避免子路径部署路由错位与读取来源分散。
 - `config/platform-config.ts` 增加了：
   - **并发复用**（同一时刻只发一次配置请求）
   - **超时控制**（默认 8s）
@@ -102,7 +107,7 @@ packages/
   - 禁止占用保留 path/name（`/login`、`/sso`、`/403`、`/404`、通配 404 等）
   - 检测重复 path/name，后出现的冲突路由自动跳过并告警
   - 通配 404 改为 `replace: true`，避免非法地址回退产生历史栈污染
-- `bootstrap/index.ts` 收敛为启动编排层；插件安装与守卫安装拆分为 `bootstrap/plugins.ts` 与 `bootstrap/guards.ts`。
+- `bootstrap/index.ts` 收敛为启动编排层；插件安装保留在 `bootstrap/plugins.ts`，路由守卫在 `bootstrap/index.ts` 内联安装（减少无价值中转）。
 - `bootstrap/plugins.ts` 的 `OneTag` 配置改为：
   - `homePath` 统一复用 `DEFAULT_FALLBACK_HOME`
   - `storageKey` 加 `storageNamespace` 前缀（`${storageNamespace}:ob_tags`），避免多应用同域冲突
