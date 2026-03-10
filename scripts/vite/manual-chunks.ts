@@ -85,6 +85,13 @@ const VENDOR_CHUNK_RULES: AppFeatureChunk[] = [
     patterns: ['/node_modules/@iconify-json/ri/']
   },
   {
+    // 富文本编辑器链路体积较大，独立成单 vendor chunk：
+    // 1) 压低 page-* 业务 chunk，降低预算贴线风险；
+    // 2) 保持“单大块”而非多小块，避免 HTTP1.0 下请求排队放大。
+    name: 'wangeditor',
+    patterns: ['/node_modules/@wangeditor/', '/node_modules/slate/', '/node_modules/prismjs/']
+  },
+  {
     name: 'crypto',
     patterns: ['/node_modules/gm-crypto/', '/node_modules/crypto-js/', '/node_modules/sm-crypto/']
   },
@@ -159,6 +166,7 @@ const ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES = [
   'assets/one-ui-shell-',
   'assets/one-ui-table-',
   'assets/iconify-ri-',
+  'assets/wangeditor-',
   'assets/vxe-'
 ]
 
@@ -179,6 +187,7 @@ const ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES = [
   'assets/one-ui-shell-',
   'assets/one-ui-table-',
   'assets/iconify-ri-',
+  'assets/wangeditor-',
   'assets/vxe-'
 ]
 
