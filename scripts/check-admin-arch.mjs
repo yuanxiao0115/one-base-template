@@ -85,6 +85,13 @@ function isBootstrapScopedFile(relativePath) {
   return relativePath.startsWith('bootstrap/') || relativePath === 'infra/env.ts';
 }
 
+/**
+ * @param {string} relativePath
+ */
+function isGlobalInstallScopedFile(relativePath) {
+  return isBootstrapScopedFile(relativePath) || relativePath === 'main.ts';
+}
+
 async function main() {
   const files = await collectSourceFiles(adminSrcDir);
   /** @type {Violation[]} */
@@ -119,7 +126,7 @@ async function main() {
         absolutePath,
         content,
         /['"]@\/infra\/http['"]/g,
-        "禁止在页面/组件/store 直接引用 infra/http，请改用 service 或 shared/api。",
+        "禁止在页面/组件/store 直接引用 infra/http，请改用 service 或在 API 层通过 @one-base-template/core 的 getObHttpClient() 获取。",
         violations
       );
     }
@@ -143,14 +150,17 @@ async function main() {
         absolutePath,
         content,
         /import\s*\{[^}]*\b(createRouter|createWebHistory)\b[^}]*\}\s*from\s*['"]vue-router['"]/gs,
-        '禁止在业务模块创建 Router，请在 src/bootstrap/router.ts 中创建。',
+        '禁止在业务模块创建 Router，请在 src/bootstrap/index.ts 中集中创建。',
         violations
       );
+    }
+
+    if (!isGlobalInstallScopedFile(relativePath)) {
       pushViolations(
         absolutePath,
         content,
         /\bapp\.(use|component|directive|mixin|provide)\s*\(/g,
-        '禁止在业务模块安装全局能力，请到 src/bootstrap 中统一处理。',
+        '禁止在业务模块安装全局能力，请在 src/bootstrap 或 src/main.ts(beforeMount) 中统一处理。',
         violations
       );
     }

@@ -1,10 +1,10 @@
 import { createApp } from "vue";
 import { createPinia, setActivePinia } from "pinia";
+import { createRouter, createWebHistory } from "vue-router";
+import { setObHttpClient, setupRouterGuards } from "@one-base-template/core";
 
 import App from "../App.vue";
 import { assembleRoutes } from "../router/assemble-routes";
-
-import { setObHttpClient } from "../infra/http";
 import { getAppEnv } from "../infra/env";
 import {
   appLayoutMode,
@@ -13,13 +13,13 @@ import {
   appSystemSwitchStyle,
   appTopbarHeight,
 } from "../config";
+import { routePaths } from "../router/constants";
+import { guardPublicRoutePaths } from "../router/public-routes";
 
-import { createAppRouter } from "./router";
 import { createAppHttp } from "./http";
 import { createAppAdapter } from "./adapter";
 import { installCore } from "./core";
 import { installAppShellPlugins } from "./plugins";
-import { installAppRouterGuards } from "./guards";
 import { registerMessageUtils } from "../utils/message";
 
 export async function bootstrapAdminApp() {
@@ -40,9 +40,10 @@ export async function bootstrapAdminApp() {
     storageNamespace: appEnv.storageNamespace,
   });
   const { skipMenuAuthRouteNames } = routeAssemblyResult;
-  const router = createAppRouter({
+  const router = createRouter({
+    history: createWebHistory(appEnv.baseUrl),
     routes: routeAssemblyResult.routes,
-    baseUrl: appEnv.baseUrl,
+    strict: true,
   });
   app.use(router);
   installAppShellPlugins({
@@ -88,9 +89,12 @@ export async function bootstrapAdminApp() {
     systemHomeMap: appEnv.systemHomeMap,
   });
 
-  installAppRouterGuards({
-    router,
-    skipMenuAuthRouteNames,
+  setupRouterGuards(router, {
+    publicRoutePaths: [...guardPublicRoutePaths],
+    loginRoutePath: routePaths.login,
+    forbiddenRoutePath: routePaths.forbidden,
+    // 路由白名单由“已装配路由 + meta.skipMenuAuth”自动生成，避免手工常量与模块启停漂移。
+    allowedSkipMenuAuthRouteNames: skipMenuAuthRouteNames,
     onNavigationStart: () => {
       http.cancelRouteRequests();
     },
