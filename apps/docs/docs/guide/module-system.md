@@ -67,6 +67,52 @@ pnpm new:module user-center --title 用户中心
 
 - 顶层特例（如门户设计器）不再写在 `router/index.ts`
 - 删除模块目录后，不会残留对应路由注册
+- 模块页面路由建议使用 `component: () => import("./xx/page.vue")` 懒加载，降低首包体积与启动压力
+
+### 2.1 装配参数输入（升级友好关键）
+
+路由装配层不再直接读取 `getAppEnv()`，统一由 `bootstrap` 显式注入：
+
+```ts
+getRouteAssemblyResult({
+  enabledModules: appEnv.enabledModules,
+  defaultSystemCode: appEnv.defaultSystemCode,
+  systemHomeMap: appEnv.systemHomeMap,
+  storageNamespace: appEnv.storageNamespace,
+})
+```
+
+这样做的价值：
+
+- `router/assemble-routes.ts` 退化为纯组装逻辑，降低隐式全局依赖
+- 后续新增子项目时，只要在各自 `bootstrap` 组装参数即可复用装配器
+- 基建升级的影响面主要停留在启动编排层，不会扩散到业务模块
+
+### 2.2 compat 执行语义（已落地）
+
+`module.compat` 不再只是声明，当前装配流程会实际执行：
+
+- `compat.activePathMap`：
+  - key 为“目标路由完整 path”
+  - 当路由本身未声明 `meta.activePath` 时，自动补齐
+  - 若与路由声明冲突，保留路由声明值并输出 warn
+- `compat.routeAliases`：
+  - 为历史路径生成 `redirect` 路由（`from -> to`）
+  - 别名路由默认 `meta.hideInMenu=true`、`meta.hiddenTab=true`
+  - 若 `from` 与保留路径/已装配路径冲突，会跳过并输出 warn
+
+示例（`portal/module.ts`）：
+
+```ts
+compat: {
+  routeAliases: [{ from: "/portal/setting", to: "/portal/templates" }],
+  activePathMap: {
+    "/portal/designer": "/portal/setting",
+    "/portal/layout": "/portal/setting",
+    "/portal/templates": "/portal/setting",
+  },
+}
+```
 
 ## 3) enabledModules 运行时开关
 
@@ -105,12 +151,16 @@ pnpm new:module user-center --title 用户中心
 - `services/*.ts`：页面用例编排
 - `compat/*.ts`：历史字段映射（如 `whiteList -> whiteDTOS`）
 
-跨模块共享的“后端字段归一化”工具统一收敛到：
+对于 `apps/admin/src/modules/**` 的页面模块，建议进一步收敛为：
 
-- `apps/admin/src/shared/api/normalize.ts`
+- `api.ts`：只保留接口方法定义与请求调用，不承载业务归一化、字段兜底、格式保底
+- `types.ts`：只保留对外暴露的请求/响应类型（避免在 `api.ts` 堆叠大量类型）；实体类型优先“少字段 + 关键字段必填 + 其余可选”，不要求完整镜像后端 DTO。对于日志/审计等弱结构实体，可进一步使用“关键字段 + 索引签名”模式，减少超长字段清单维护成本。
+- 跨模块可复用的通用协议类型统一放在 `apps/admin/src/shared/api/types.ts`（如 `ApiResponse<T>`、`ApiPageData<T>`）；各模块 `types.ts` 直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增中间响应别名，业务实体继续贴近模块维护。
+- 模块内禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`，复杂业务处理统一放在页面层或 composable 层
 
-包含 `toRecord`、`toStringValue`、`toNumberValue`、`toBooleanValue`、`toNullableNumber`、`extractList`。  
-当多个模块存在相同的接口容错映射逻辑时，优先复用该文件，避免在各模块 `api.ts` 内重复维护同构函数。
+当前推荐落地范围：`CmsManagement`、`LogManagement`、`SystemManagement`、`UserManagement`。`LogManagement` 与其他模块保持一致，API 跟随子功能目录（如 `login-log/api.ts`、`sys-log/api.ts`），不再集中放在模块根 `api/` 目录。
+
+说明：后端字段若不符合约定，优先在业务代码中显式处理，不在 API 层做隐式修正。
 
 ## 5) ESLint 边界约束
 
@@ -254,12 +304,14 @@ export default [
 apps/admin/src/modules/LogManagement/
   module.ts
   routes.ts
-  api/login-log.ts
-  api/sys-log.ts
+  login-log/api.ts
+  login-log/types.ts
   login-log/page.vue
   login-log/columns.tsx
   login-log/composables/*
   login-log/components/*
+  sys-log/api.ts
+  sys-log/types.ts
   sys-log/page.vue
   sys-log/columns.tsx
   sys-log/composables/*
@@ -271,7 +323,7 @@ apps/admin/src/modules/LogManagement/
 - 路由集中：`routes.ts` 统一管理 `/system/log/login-log` 与 `/system/log/sys-log`
 - 页面编排：`page.vue` 仅保留 `ObTableBox + ObVxeTable + 详情抽屉` 编排
 - 逻辑下沉：查询、删除、详情拉取统一放在 `composables/use*PageState.ts`
-- 接口契约：`api/*` 对旧接口响应结构做标准化适配（`list/records`、`total`、分页字段）
+- 接口契约：`api.ts` 只保留请求调用；`types.ts` 保持“够用即可”，日志实体优先“关键字段 + 索引签名”以降低维护负担
 - 模块装配：`platform-config.json` 的 `enabledModules` 显式加入 `log-management`
 
 ## 11) SystemManagement 模块示例（菜单管理 + 字典管理）
