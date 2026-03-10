@@ -14,8 +14,6 @@ export interface BuildEnv {
   isProd: boolean;
   baseUrl: string;
   apiBaseUrl?: string;
-  useMock: boolean;
-  sczfwSystemPermissionCode?: string;
 }
 
 export interface AppEnv {
@@ -66,16 +64,6 @@ export function resolveApiBaseUrl(): string | undefined {
   return isNonEmptyString(raw) ? raw : undefined;
 }
 
-export function resolveSczfwSystemPermissionCode(): string | undefined {
-  const raw = import.meta.env.VITE_SCZFW_SYSTEM_PERMISSION_CODE as unknown;
-  return isNonEmptyString(raw) ? raw : undefined;
-}
-
-export function resolveUseMock(): boolean {
-  const raw = import.meta.env.VITE_USE_MOCK as unknown;
-  return raw === "true";
-}
-
 export function resolveDefaultSystemCode(params: {
   backend: BackendKind;
   defaultSystemCode?: string;
@@ -95,15 +83,11 @@ export function resolveBuildEnv(): BuildEnv {
   const isProd = import.meta.env.PROD;
   const baseUrl = import.meta.env.BASE_URL;
   const apiBaseUrl = resolveApiBaseUrl();
-  const useMock = resolveUseMock();
-  const sczfwSystemPermissionCode = resolveSczfwSystemPermissionCode();
 
   return {
     isProd,
     baseUrl,
     apiBaseUrl,
-    useMock,
-    sczfwSystemPermissionCode,
   };
 }
 
@@ -157,7 +141,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   };
 }
 
-// 构建期 env 仅保留 Vite dev/proxy/mock 相关值；业务运行时配置统一来自 platform-config.json。
+// 构建期 env 仅保留 Vite dev/proxy 相关值；业务运行时配置统一来自 platform-config.json。
 export const buildEnv: BuildEnv = resolveBuildEnv();
 
 let cachedAppEnv: AppEnv | null = null;

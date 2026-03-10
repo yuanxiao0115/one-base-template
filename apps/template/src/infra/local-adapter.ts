@@ -32,7 +32,7 @@ function clearStoredUser(storageNamespace: string) {
   localStorage.removeItem(buildUserKey(storageNamespace));
 }
 
-export function createTemplateMockAdapter(params: { storageNamespace: string; tokenKey: string }): BackendAdapter {
+export function createTemplateLocalAdapter(params: { storageNamespace: string; tokenKey: string }): BackendAdapter {
   const { storageNamespace, tokenKey } = params;
 
   return {

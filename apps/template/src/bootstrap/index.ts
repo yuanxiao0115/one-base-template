@@ -12,7 +12,7 @@ import "@one-base-template/tag/style";
 
 import App from "@/App.vue";
 import { appEnv } from "@/infra/env";
-import { createTemplateMockAdapter } from "@/infra/mock-adapter";
+import { createTemplateLocalAdapter } from "@/infra/local-adapter";
 import {
   APP_FORBIDDEN_ROUTE_PATH,
   APP_LOGIN_ROUTE_PATH,
@@ -69,7 +69,7 @@ export function bootstrapTemplateApp() {
     ],
   });
 
-  const adapter = createTemplateMockAdapter({
+  const adapter = createTemplateLocalAdapter({
     storageNamespace: appEnv.storageNamespace,
     tokenKey: appEnv.tokenKey,
   });

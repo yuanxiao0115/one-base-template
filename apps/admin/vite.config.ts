@@ -12,7 +12,6 @@ import {
   pruneBuiltChunkPreloadMaps,
   stripIndexHtmlUnusedStylesheets,
 } from "../../scripts/vite/manual-chunks";
-import { createAdminMockMiddleware } from "./build/mock/mock-middleware";
 
 function pruneLoginHtmlAssets(): Plugin {
   return {
@@ -63,8 +62,6 @@ function pruneLoginHtmlAssets(): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const apiBaseUrl = env.VITE_API_BASE_URL;
-  const useMock = env.VITE_USE_MOCK ? env.VITE_USE_MOCK === "true" : !apiBaseUrl;
-  const sczfwSystemPermissionCode = env.VITE_SCZFW_SYSTEM_PERMISSION_CODE || "admin_server";
 
   return {
     plugins: [
@@ -105,7 +102,6 @@ export default defineConfig(({ mode }) => {
         resolvers: [ElementPlusResolver({ importStyle: "css" })],
       }),
       pruneLoginHtmlAssets(),
-      ...(useMock ? [createAdminMockMiddleware({ sczfwSystemPermissionCode })] : []),
     ],
     resolve: {
       alias: {

@@ -13,7 +13,7 @@
       <ul>
         <li>运行时配置文件：`apps/template/public/platform-config.json`</li>
         <li>推荐最小配置：`{ "preset": "static-single" }`</li>
-        <li>登录数据：本地 mock adapter（无后端依赖）</li>
+        <li>登录数据：本地鉴权（无后端依赖，仅 template 示例）</li>
       </ul>
     </el-card>
   </ObPageContainer>

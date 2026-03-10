@@ -90,10 +90,10 @@ export function listSkipAuthNames(params: {
     }
 
     if (rule.level === "dev-only") {
-      if (!isProd) {
-        out.push(rule.name);
-      } else {
+      if (isProd) {
         logger.warn(`生产环境禁用 dev-only skipMenuAuth 路由：${rule.name}`);
+      } else {
+        out.push(rule.name);
       }
       continue;
     }

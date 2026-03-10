@@ -68,7 +68,6 @@ describe("infra/env", () => {
         isProd: true,
         baseUrl: "/admin/",
         apiBaseUrl: "https://api.example.com",
-        useMock: false,
       },
     });
 

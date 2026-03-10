@@ -3,7 +3,7 @@ import { createAllowlistSkipMenuAuthMeta } from "@/router/route-meta";
 
 export default [
   {
-    // 菜单分组节点（mock/后端菜单常用 /portal 作为父节点），这里做 redirect 避免访问 404
+    // 菜单分组节点（后端菜单常用 /portal 作为父节点），这里做 redirect 避免访问 404
     path: "portal",
     redirect: "/portal/templates",
     meta: {

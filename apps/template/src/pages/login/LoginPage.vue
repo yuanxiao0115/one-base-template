@@ -65,7 +65,7 @@
         <el-button class="w-full" type="primary" :loading="loading" @click="onSubmit"> 登录 </el-button>
       </el-form>
 
-      <p class="template-login__tip">此项目默认使用本地 mock 鉴权，无需后端。</p>
+      <p class="template-login__tip">template 示例默认使用本地鉴权（无后端依赖）。</p>
     </el-card>
   </div>
 </template>
