@@ -94,6 +94,7 @@
 - `tokenKey` / `idTokenKey`: token 存储键
 - `menuMode`: `remote | static`
 - `enabledModules`: `"*"` 或 `string[]`（模块白名单；例如 `["home","user-management","log-management","system-management"]`）
+- `skipMenuAuthProductionAllowList`（可选）: 生产环境 `skipMenuAuthLevel=allowlist` 的路由名白名单（`route.name[]`）
 - `authorizationType` / `appsource` / `appcode`: sczfw 请求头约定
 - `storageNamespace`（可选）: 前端持久化命名空间（主题等状态隔离）；未配置时回退为 `appcode`
 - `clientSignatureClientId` / `clientSignatureSalt`: sczfw 签名参数（公开盐值，非前端 secret）

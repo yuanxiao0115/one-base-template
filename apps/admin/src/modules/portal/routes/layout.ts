@@ -33,6 +33,7 @@ export default [
       activePath: "/portal/setting",
       // 门户模块在部分环境尚未接入菜单/权限时，允许“登录即可访问”（用于本地维护页/开发期联调）
       skipMenuAuth: true,
+      skipMenuAuthLevel: "allowlist",
     },
   },
 ] satisfies RouteRecordRaw[];

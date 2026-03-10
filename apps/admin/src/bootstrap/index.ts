@@ -22,6 +22,7 @@ import { installAppShellPlugins } from "./plugins";
 import { installAppRouterGuards } from "./guards";
 import { registerMessageUtils } from "../utils/message";
 import { registerPersonnelSelectionAppContext } from "../components/PersonnelSelector/openPersonnelSelection";
+import { resolveSkipMenuAuthRouteNamesForGuard } from "../router/skip-menu-auth";
 
 export async function bootstrapAdminApp() {
   const appEnv = getAppEnv();
@@ -35,15 +36,20 @@ export async function bootstrapAdminApp() {
   // 允许在路由守卫 / http hooks 等“组件外”场景安全使用 store
   setActivePinia(pinia);
 
-  const { routes, skipMenuAuthRouteNames } = await getRouteAssemblyResult({
+  const routeAssemblyResult = await getRouteAssemblyResult({
     enabledModules: appEnv.enabledModules,
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
     storageNamespace: appEnv.storageNamespace,
     routeConflictPolicy: appEnv.isProd ? "warn" : "fail-fast",
   });
+  const skipMenuAuthRouteNames = resolveSkipMenuAuthRouteNamesForGuard({
+    isProd: appEnv.isProd,
+    routeRules: routeAssemblyResult.skipMenuAuthRouteRules,
+    productionAllowList: appEnv.skipMenuAuthProductionAllowList,
+  });
   const router = createAppRouter({
-    routes,
+    routes: routeAssemblyResult.routes,
     baseUrl: appEnv.baseUrl,
   });
   app.use(router);
@@ -79,7 +85,7 @@ export async function bootstrapAdminApp() {
   installCore(app, {
     adapter,
     menuMode: appEnv.menuMode,
-    routes,
+    routes: routeAssemblyResult.routes,
     layoutMode: appLayoutMode,
     systemSwitchStyle: appSystemSwitchStyle,
     topbarHeight: appTopbarHeight,

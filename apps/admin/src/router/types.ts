@@ -3,6 +3,12 @@ import type { RouteRecordRaw } from "vue-router";
 export type EnabledModulesSetting = string[] | "*";
 export type ModuleTier = "core" | "optional";
 export type RouteConflictPolicy = "warn" | "fail-fast";
+export type SkipMenuAuthLevel = "stable" | "allowlist" | "dev-only";
+
+export interface SkipMenuAuthRouteRule {
+  name: string;
+  level: SkipMenuAuthLevel;
+}
 
 export interface AdminModuleManifestMeta {
   id: string;
@@ -49,6 +55,7 @@ export type AdminModuleDeclarationModule = {
 export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];
   skipMenuAuthRouteNames: string[];
+  skipMenuAuthRouteRules: SkipMenuAuthRouteRule[];
 }
 
 export interface AppRouteAssemblyOptions {

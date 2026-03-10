@@ -10,6 +10,7 @@ export default [
       keepAlive: true,
       rank: 100,
       skipMenuAuth: true,
+      skipMenuAuthLevel: "allowlist",
     },
   },
   {
@@ -21,6 +22,7 @@ export default [
       keepAlive: true,
       rank: 200,
       skipMenuAuth: true,
+      skipMenuAuthLevel: "allowlist",
     },
   },
   {
@@ -33,6 +35,7 @@ export default [
       hideInMenu: true,
       activePath: "/publicity/content",
       skipMenuAuth: true,
+      skipMenuAuthLevel: "allowlist",
     },
   },
   {
@@ -44,6 +47,7 @@ export default [
       keepAlive: true,
       rank: 300,
       skipMenuAuth: true,
+      skipMenuAuthLevel: "allowlist",
     },
   },
 ] satisfies RouteRecordRaw[];

@@ -23,6 +23,7 @@ export default [
       hiddenTab: true,
       activePath: "/portal/setting",
       skipMenuAuth: true,
+      skipMenuAuthLevel: "allowlist",
     },
   },
   {
@@ -37,6 +38,7 @@ export default [
       hiddenTab: true,
       activePath: "/portal/setting",
       skipMenuAuth: true,
+      skipMenuAuthLevel: "allowlist",
     },
   },
 ] satisfies RouteRecordRaw[];

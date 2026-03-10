@@ -1,8 +1,8 @@
 import type { RouteRecordRaw } from "vue-router";
 import { createAppLogger } from "@/shared/logger";
 import { APP_RESERVED_ROUTE_NAMES, APP_RESERVED_ROUTE_PATHS } from "./constants";
-import { getSkipMenuAuthRouteName, isSkipMenuAuthRoute, toRouteNameKey } from "./skip-menu-auth";
-import type { RouteConflictPolicy } from "./types";
+import { getSkipMenuAuthRouteRule, isSkipMenuAuthRoute, toRouteNameKey } from "./skip-menu-auth";
+import type { RouteConflictPolicy, SkipMenuAuthLevel, SkipMenuAuthRouteRule } from "./types";
 
 export type RouteSource = "layout" | "standalone";
 
@@ -18,6 +18,7 @@ export interface RouteAssemblyValidator {
   shouldSkipAliasPath(path: string, moduleId: string): boolean;
   registerAliasPath(path: string): void;
   getSkipMenuAuthRouteNames(): string[];
+  getSkipMenuAuthRouteRules(): SkipMenuAuthRouteRule[];
   warn(message: string): void;
 }
 
@@ -55,7 +56,7 @@ export function createRouteAssemblyValidator(params: { routeConflictPolicy?: Rou
   const routeConflictPolicy = params.routeConflictPolicy ?? "warn";
   const usedPaths = new Set<string>();
   const usedNames = new Set<string>();
-  const skipMenuAuthRouteNames = new Set<string>();
+  const skipMenuAuthRoutes = new Map<string, SkipMenuAuthLevel>();
 
   function reportConflict(message: string) {
     if (routeConflictPolicy === "fail-fast") {
@@ -108,14 +109,14 @@ export function createRouteAssemblyValidator(params: { routeConflictPolicy?: Rou
       usedNames.add(nameKey);
     }
 
-    const skipMenuAuthRouteName = getSkipMenuAuthRouteName(route);
-    if (isSkipMenuAuthRoute(route) && skipMenuAuthRouteName === null) {
+    const skipMenuAuthRouteRule = getSkipMenuAuthRouteRule(route);
+    if (isSkipMenuAuthRoute(route) && skipMenuAuthRouteRule === null) {
       logger.warn(
         `skipMenuAuth 路由缺少 name：${fullPath}（module=${context.moduleId} source=${context.source}），该路由不会加入守卫白名单。`
       );
     }
-    if (skipMenuAuthRouteName !== null) {
-      skipMenuAuthRouteNames.add(skipMenuAuthRouteName);
+    if (skipMenuAuthRouteRule !== null) {
+      skipMenuAuthRoutes.set(skipMenuAuthRouteRule.name, skipMenuAuthRouteRule.level);
     }
   }
 
@@ -141,7 +142,13 @@ export function createRouteAssemblyValidator(params: { routeConflictPolicy?: Rou
       usedPaths.add(path);
     },
     getSkipMenuAuthRouteNames() {
-      return [...skipMenuAuthRouteNames];
+      return [...skipMenuAuthRoutes.keys()];
+    },
+    getSkipMenuAuthRouteRules() {
+      return [...skipMenuAuthRoutes.entries()].map(([name, level]) => ({
+        name,
+        level,
+      }));
     },
     warn(message: string) {
       logger.warn(message);

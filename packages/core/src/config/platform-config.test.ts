@@ -75,4 +75,22 @@ describe('parseRuntimeConfig preset 收敛', () => {
       })
     ).toThrowError(/defaultSystemCode/)
   })
+
+  it('skipMenuAuthProductionAllowList 应去重', () => {
+    const config = parseRuntimeConfig({
+      preset: 'remote-single',
+      skipMenuAuthProductionAllowList: ['PortalDesigner', 'PortalDesigner', 'PublicityContent'],
+    })
+
+    expect(config.skipMenuAuthProductionAllowList).toEqual(['PortalDesigner', 'PublicityContent'])
+  })
+
+  it('skipMenuAuthProductionAllowList 非数组时应报错', () => {
+    expect(() =>
+      parseRuntimeConfig({
+        preset: 'remote-single',
+        skipMenuAuthProductionAllowList: 'PortalDesigner',
+      })
+    ).toThrowError(/skipMenuAuthProductionAllowList/)
+  })
 })

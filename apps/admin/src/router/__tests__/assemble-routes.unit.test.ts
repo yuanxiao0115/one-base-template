@@ -56,12 +56,22 @@ describe("router/assemble-routes", () => {
   });
 
   it("应从已装配路由自动收集 skipMenuAuth 白名单", async () => {
-    const { skipMenuAuthRouteNames } = await getAppRoutes(createRouteAssemblyOptions(["home", "portal"]));
+    const { skipMenuAuthRouteNames, skipMenuAuthRouteRules } = await getAppRoutes(
+      createRouteAssemblyOptions(["home", "portal"])
+    );
 
     expect(skipMenuAuthRouteNames).toContain("HomeIndex");
     expect(skipMenuAuthRouteNames).toContain("PortalTemplateList");
     expect(skipMenuAuthRouteNames).toContain("PortalDesigner");
     expect(skipMenuAuthRouteNames).toContain("PortalPageEditor");
     expect(skipMenuAuthRouteNames).not.toContain("PortalPreview");
+    expect(skipMenuAuthRouteRules).toEqual(
+      expect.arrayContaining([
+        { name: "HomeIndex", level: "stable" },
+        { name: "PortalTemplateList", level: "allowlist" },
+        { name: "PortalDesigner", level: "allowlist" },
+        { name: "PortalPageEditor", level: "allowlist" },
+      ])
+    );
   });
 });

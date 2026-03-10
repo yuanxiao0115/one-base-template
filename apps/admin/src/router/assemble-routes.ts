@@ -328,8 +328,11 @@ export async function getAppRoutes(options: AppRouteAssemblyOptions): Promise<Ap
     },
   ];
 
+  const skipMenuAuthRouteRules = validator.getSkipMenuAuthRouteRules();
+
   return {
     routes,
-    skipMenuAuthRouteNames: validator.getSkipMenuAuthRouteNames(),
+    skipMenuAuthRouteNames: skipMenuAuthRouteRules.map((item) => item.name),
+    skipMenuAuthRouteRules,
   };
 }

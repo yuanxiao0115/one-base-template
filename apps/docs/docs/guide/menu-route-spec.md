@@ -187,7 +187,8 @@
       "type": "string",
       "pattern": "^/"
     },
-    "skipMenuAuth": { "type": "boolean" },
+    "skipMenuAuth": { "type": ["boolean", "string"], "enum": [true, false, "stable", "allowlist", "dev-only"] },
+    "skipMenuAuthLevel": { "type": "string", "enum": ["stable", "allowlist", "dev-only"] },
     "hiddenTab": { "type": "boolean" },
     "noTag": { "type": "boolean" },
     "fullScreen": { "type": "boolean" }
@@ -302,7 +303,7 @@
 1. 路由始终静态声明，不依赖动态 `addRoute`
 2. 菜单树 path 集合 = `allowedPaths`
 3. 非菜单页（详情/编辑）用 `meta.activePath` 归属菜单
-4. 本地临时页可用 `meta.skipMenuAuth=true`，但仍需登录
+4. 本地临时页可用 `meta.skipMenuAuth=true`，但仍需登录；建议配合 `skipMenuAuthLevel`（`stable/allowlist/dev-only`）控制生产策略
 
 ## 9. 常见误区
 
