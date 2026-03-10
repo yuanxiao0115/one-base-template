@@ -4,146 +4,139 @@ outline: false
 
 # 文档总览
 
-这里按**上手顺序**组织文档入口，优先帮助你快速定位需要的能力。
+这里按“**先跑通、再理解、再扩展、最后协作交付**”组织入口。
 
-## 开始使用
+## 入门导航
+
+<p class="guide-section-intro">先完成本地可运行闭环，再进入架构与模块细节。</p>
 
 <div class="guide-grid">
   <a class="guide-card" href="/guide/quick-start">
     <h3>快速开始</h3>
-    <p>安装依赖、启动项目、完成首次运行。</p>
+    <p>安装依赖、启动 admin/portal/template/docs，并跑一轮基础验证命令。</p>
   </a>
   <a class="guide-card" href="/guide/env">
     <h3>环境变量</h3>
-    <p>了解运行时配置与环境变量约定。</p>
+    <p>区分构建期配置与运行时 platform-config，避免配置入口混乱。</p>
+  </a>
+  <a class="guide-card" href="/guide/template-static-app">
+    <h3>Template 最小静态菜单项目</h3>
+    <p>用于验证模板最小闭环，适合作为新应用的静态起点。</p>
   </a>
 </div>
 
-## 核心能力
+## 架构与运行时
+
+<p class="guide-section-intro">理解分层边界、路由装配和菜单权限模型，避免后续返工。</p>
 
 <div class="guide-grid">
   <a class="guide-card" href="/guide/architecture">
     <h3>目录结构与边界</h3>
-    <p>理解 apps / packages 分层与边界约束。</p>
+    <p>先看决策级架构摘要：分层边界、职责分工与阅读路径。</p>
+  </a>
+  <a class="guide-card" href="/guide/architecture-runtime-deep-dive">
+    <h3>启动链路细节（深度）</h3>
+    <p>查看 admin/portal/template 的启动编排、运行时配置与路由收敛细节。</p>
   </a>
   <a class="guide-card" href="/guide/module-system">
     <h3>模块系统与切割</h3>
-    <p>了解 manifest.ts + module.ts、enabledModules 与 CLI 裁剪契约。</p>
-  </a>
-  <a class="guide-card" href="/guide/template-static-app">
-    <h3>Template 最小静态菜单项目</h3>
-    <p>直接复用静态菜单最小骨架，给新项目做快速起点。</p>
-  </a>
-  <a class="guide-card" href="/guide/naming-whitelist">
-    <h3>命名白名单（CLI）</h3>
-    <p>统一动词+名词命名，给代码生成器提供稳定规则。</p>
-  </a>
-  <a class="guide-card" href="/guide/theme-system">
-    <h3>主题系统</h3>
-    <p>掌握主题 token、切换机制与扩展方式。</p>
-  </a>
-  <a class="guide-card" href="/guide/button-styles">
-    <h3>组件样式（按钮）</h3>
-    <p>查看按钮支持样式、尺寸规范与禁用态统一用法。</p>
-  </a>
-  <a class="guide-card" href="/guide/layout-menu">
-    <h3>布局与菜单</h3>
-    <p>布局模式、菜单权限与路由协同说明。</p>
+    <p>基于 manifest/module 的模块装配、白名单过滤与兼容策略。</p>
   </a>
   <a class="guide-card" href="/guide/menu-route-spec">
     <h3>菜单与路由规范（Schema）</h3>
-    <p>菜单来源、配置方式、路由约束与 JSON Schema 汇总。</p>
+    <p>统一 static/remote 两类模式及 route meta 契约。</p>
   </a>
+  <a class="guide-card" href="/guide/layout-menu">
+    <h3>布局与菜单</h3>
+    <p>布局模式、系统切换、标签栏与非菜单路由归属规则。</p>
+  </a>
+  <a class="guide-card" href="/guide/theme-system">
+    <h3>主题系统</h3>
+    <p>主题 token、运行时注入与 UI 覆盖策略。</p>
+  </a>
+</div>
+
+## 组件与工程实践
+
+<p class="guide-section-intro">以可复用组件和稳定模式推进页面开发与迁移。</p>
+
+<div class="guide-grid">
   <a class="guide-card" href="/guide/crud-container">
     <h3>CRUD 容器与 Hook</h3>
-    <p>统一新增/编辑/详情容器能力，支持 dialog/drawer 与纯容器模式。</p>
+    <p>统一弹窗/抽屉容器行为，减少页面重复编排代码。</p>
   </a>
   <a class="guide-card" href="/guide/crud-module-best-practice">
     <h3>CRUD 模块最佳实践</h3>
-    <p>基于 Position 模块沉淀目录结构、编排方式与 API/表单约定。</p>
+    <p>以 Position 模块为模板，沉淀 API、表单与状态组织方式。</p>
+  </a>
+  <a class="guide-card" href="/guide/table-vxe-migration">
+    <h3>VXE 表格迁移</h3>
+    <p>从旧表格页面迁移到 ObTableBox + ObVxeTable 的标准路径。</p>
+  </a>
+  <a class="guide-card" href="/guide/button-styles">
+    <h3>组件样式（按钮）</h3>
+    <p>按钮视觉规范、状态约束与主题变量映射。</p>
   </a>
   <a class="guide-card" href="/guide/iconfont">
     <h3>Iconfont 集成</h3>
-    <p>图标库接入、预览方式与兼容用法。</p>
+    <p>图标来源、命名约束与菜单图标兼容策略。</p>
   </a>
   <a class="guide-card" href="/guide/utils">
-    <h3>Utils 工具包（总览）</h3>
-    <p>工具包定位、常见场景与迁移策略。</p>
+    <h3>Utils 工具包</h3>
+    <p>工具包定位、使用边界与迁移建议。</p>
   </a>
   <a class="guide-card" href="/guide/utils-api">
-    <h3>Utils API 速查（按模块）</h3>
-    <p>按能力分类检索 API 与高频示例。</p>
+    <h3>Utils API 速查</h3>
+    <p>按模块检索高频工具方法与示例。</p>
   </a>
 </div>
 
 ## 扩展能力
 
+<p class="guide-section-intro">门户能力、引擎包和后端适配能力的接入入口。</p>
+
 <div class="guide-grid">
   <a class="guide-card" href="/guide/portal-designer">
     <h3>门户设计器（PC）</h3>
-    <p>管理端设计器与 portal 独立消费者渲染链路。</p>
+    <p>管理端设计器、编辑器和预览渲染链路。</p>
+  </a>
+  <a class="guide-card" href="/guide/portal-engine">
+    <h3>portal-engine 能力边界</h3>
+    <p>共享引擎包职责、导出入口与 admin/portal 复用方式。</p>
   </a>
   <a class="guide-card" href="/guide/adapter-sczfw">
     <h3>sczfw Adapter</h3>
-    <p>后端适配层约定与接入注意事项。</p>
+    <p>后端接口适配与字段映射的实现约定。</p>
   </a>
 </div>
 
-## 协作规范
+## 协作与发布
+
+<p class="guide-section-intro">变更前后该做哪些检查、规则如何落盘、版本如何发布。</p>
 
 <div class="guide-grid">
   <a class="guide-card" href="/guide/development">
     <h3>开发规范与维护</h3>
-    <p>协作流程、提交规范与维护约定。</p>
+    <p>验证命令、构建策略、文档同步与工程约束。</p>
+  </a>
+  <a class="guide-card" href="/guide/markdown-doc-style">
+    <h3>Markdown 技术文档规范</h3>
+    <p>统一页面骨架、排版细节与验收口径，提升文档可执行性。</p>
   </a>
   <a class="guide-card" href="/guide/agent-harness">
     <h3>Agent Harness 与仓库知识</h3>
-    <p>了解全局角色配置与项目级知识文档的边界与落盘方式。</p>
+    <p>明确全局运行时与仓库项目知识的分工边界。</p>
   </a>
   <a class="guide-card" href="/guide/agents-scope">
     <h3>AGENTS 规则分层</h3>
-    <p>查看全局与子项目规则的分类、作用域和维护方式。</p>
+    <p>全仓规则与子项目规则的适用范围和维护方式。</p>
+  </a>
+  <a class="guide-card" href="/guide/naming-whitelist">
+    <h3>命名白名单（CLI）</h3>
+    <p>统一动词+名词命名，保证脚手架生成物可维护。</p>
   </a>
   <a class="guide-card" href="/guide/package-release">
     <h3>子包发布与版本控制</h3>
-    <p>统一子包发布、SemVer 升级、changeset 与 tag 管理流程。</p>
+    <p>Changeset、SemVer、发包流程与回滚注意事项。</p>
   </a>
 </div>
-
-<style scoped>
-.guide-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  margin: 12px 0 24px;
-}
-
-.guide-card {
-  display: block;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 12px;
-  padding: 14px 14px 12px;
-  background: var(--vp-c-bg-soft);
-  text-decoration: none;
-  transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.guide-card:hover {
-  border-color: var(--vp-c-brand-1);
-  transform: translateY(-1px);
-}
-
-.guide-card h3 {
-  margin: 0 0 6px;
-  color: var(--vp-c-text-1);
-  font-size: 15px;
-  line-height: 1.35;
-}
-
-.guide-card p {
-  margin: 0;
-  color: var(--vp-c-text-2);
-  font-size: 13px;
-  line-height: 1.6;
-}
-</style>

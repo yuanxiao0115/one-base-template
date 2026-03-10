@@ -12,10 +12,10 @@ outline: [2, 3]
 
 参考实现：
 
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/page.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/composables/usePositionPageState.ts`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/api.ts`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/form.ts`
+- `apps/admin/src/modules/UserManagement/position/page.vue`
+- `apps/admin/src/modules/UserManagement/position/composables/usePositionPageState.ts`
+- `apps/admin/src/modules/UserManagement/position/api.ts`
+- `apps/admin/src/modules/UserManagement/position/form.ts`
 
 ## 1. 标准目录与职责分层
 
@@ -222,9 +222,9 @@ const { table, editor, actions } = crudPage
 推荐验证命令：
 
 ```bash
-pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin typecheck
-pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin lint
-pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
+pnpm -C apps/admin typecheck
+pnpm -C apps/admin lint
+pnpm -C apps/docs build
 ```
 
 ## 9. 什么时候偏离 Position 模板
@@ -250,10 +250,10 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 
 参考实现（本仓库）：
 
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/page.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgEditForm.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgLevelManageDialog.vue`
+- `apps/admin/src/modules/UserManagement/org/page.vue`
+- `apps/admin/src/modules/UserManagement/org/components/OrgEditForm.vue`
+- `apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
+- `apps/admin/src/modules/UserManagement/org/components/OrgLevelManageDialog.vue`
 
 ## 11. 用户管理完整迁移补充（UserManagement/user）
 
@@ -274,10 +274,10 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 
 参考实现（本仓库）：
 
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/page.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/api.ts`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/form.ts`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/components/UserEditForm.vue`
+- `apps/admin/src/modules/UserManagement/user/page.vue`
+- `apps/admin/src/modules/UserManagement/user/api.ts`
+- `apps/admin/src/modules/UserManagement/user/form.ts`
+- `apps/admin/src/modules/UserManagement/user/components/UserEditForm.vue`
 
 ## 12. 内容模块全屏富文本范式（publicity/content）
 
@@ -295,30 +295,30 @@ pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build
 
 推荐参考：
 
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/CmsManagement/content/page.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/CmsManagement/content/components/ContentEditForm.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/components/rich-text/ObRichTextEditor.vue`
-- `/Users/haoqiuzhi/code/one-base-template/packages/ui/src/components/upload/ImportUpload.vue`
+- `apps/admin/src/modules/CmsManagement/content/page.vue`
+- `apps/admin/src/modules/CmsManagement/content/components/ContentEditForm.vue`
+- `apps/admin/src/components/rich-text/ObRichTextEditor.vue`
+- `packages/ui/src/components/upload/ImportUpload.vue`
 
 ## 13. UserManagement 首批高优修复经验（2026-03）
 
-针对线上高频问题，建议优先落这 4 条“低侵入高收益”修复：
+针对线上高频问题，建议优先落这 5 条“低侵入高收益”修复：
 
-- **共享归一化正确性优先**：`toNullableNumber` 必须保证“非法非空值 -> null”，禁止隐式回落到 `0` 污染业务字段。
-- **布尔归一化统一**：接口映射不要直接 `Boolean(raw)`，统一走 `toBooleanValue`，避免 `'0'` 被误判为 `true`。
+- **查询参数归一化统一**：列表查询统一走 `buildUserListParams`，避免空字符串、无效布尔值和脏日期直接透传到 API。
+- **唯一性校验统一收口**：复用 `shared/unique.ts` 的快照与断言方法，禁止在页面层散落重复校验逻辑。
 - **弹窗初始化防竞态**：`modelValue + orgId` 双条件弹窗统一单 watch，并增加初始化令牌，避免重复请求与旧请求回写。
 - **首屏查询单触发**：`useTable.query.immediate` 与 `onMounted onSearch` 二选一，避免首屏双请求与闪烁。
 - **唯一性校验收敛**：保存前仅在关键字段变更时触发唯一性请求（新增必校验，编辑按差异校验），并统一错误断言逻辑。
 
 对应实现可参考：
 
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/shared/api/normalize.ts`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/api.ts`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/user/page.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/org/page.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/position/page.vue`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/modules/UserManagement/shared/unique.ts`
+- `apps/admin/src/modules/UserManagement/user/utils/buildUserListParams.ts`
+- `apps/admin/src/modules/UserManagement/org/api.ts`
+- `apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
+- `apps/admin/src/modules/UserManagement/user/page.vue`
+- `apps/admin/src/modules/UserManagement/org/page.vue`
+- `apps/admin/src/modules/UserManagement/position/page.vue`
+- `apps/admin/src/modules/UserManagement/shared/unique.ts`
 
 ## 14. 文件长度建议（可维护性）
 

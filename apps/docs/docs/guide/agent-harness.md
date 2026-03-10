@@ -2,7 +2,7 @@
 
 ## 适用范围
 
-本页适用于整个仓库：`/Users/haoqiuzhi/code/one-base-template`
+本页适用于整个仓库：`one-base-template`
 
 目标：说明本仓库如何借鉴 Harness Engineering 的思路，把“agent 需要知道的项目知识”放回仓库，而不是继续堆到全局配置里。
 
@@ -138,7 +138,7 @@
 
 ## 仓库内本地技能示例：Web 性能分析
 
-仓库已新增本地 skill：`/Users/haoqiuzhi/code/one-base-template/.codex/skills/web-performance-audit`。
+仓库已新增本地 skill：`.codex/skills/web-performance-audit`。
 
 用途：
 
@@ -168,6 +168,23 @@ node ./.codex/skills/web-performance-audit/scripts/summarize_lighthouse.mjs \
 
 - 该 skill 除 Lighthouse 外，还内置了 bundle/runtime/network 的补充分析方法，见 skill `references/` 目录。
 - 分析结果应按固定口径复测（同 URL、同 preset、同 runs）后再下结论。
+
+## 仓库内本地技能示例：Markdown 技术文档写作
+
+仓库已新增本地 skill：`.codex/skills/write-markdown-tech-docs`。
+
+用途：
+
+- 为技术文档提供固定信息架构（目标、范围、步骤、验收、回滚）
+- 统一 Markdown 排版规范（标题层级、代码块、表格、术语）
+- 提供可复用模板，降低“从零起稿”的沟通与维护成本
+
+资源入口：
+
+- 核心说明：`./.codex/skills/write-markdown-tech-docs/SKILL.md`
+- 结构规范：`./.codex/skills/write-markdown-tech-docs/references/information-architecture.md`
+- 排版规范：`./.codex/skills/write-markdown-tech-docs/references/visual-style-guide.md`
+- 模板文件：`./.codex/skills/write-markdown-tech-docs/assets/tech-doc-template.md`
 
 ## 相关阅读
 

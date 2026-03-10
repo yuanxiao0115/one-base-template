@@ -5,35 +5,64 @@ titleTemplate: false
 
 hero:
   name: one-base-template
-  text: 可拆可切的后台壳模板
-  tagline: Vue 3 + Vite 8(beta) + Element Plus + Pinia + Vue Router + pnpm(workspaces) + Turborepo
+  text: 清晰可扩展的后台模板文档
+  tagline: 覆盖 admin / portal / template / packages 的架构、模块与协作规范
   actions:
     - theme: brand
-      text: 快速开始
-      link: /guide/quick-start
+      text: 开始阅读
+      link: /guide/
     - theme: alt
-      text: 目录结构与边界
-      link: /guide/architecture
+      text: 5 分钟上手
+      link: /guide/quick-start
 
 features:
-  - title: Core/UI 解耦
-    details: core 只提供逻辑与契约，ui 只做壳与交互，apps 只做组装与样式。
-  - title: 静态路由 + 动态菜单
-    details: 路由始终静态声明；菜单树决定 allowedPaths，非菜单路由用 meta.activePath 归属权限，本地维护路由可用 meta.skipMenuAuth。
-  - title: 多系统菜单
-    details: 支持一个项目内多个系统（permissionCode），顶部切系统，侧边栏展示当前系统菜单。
-  - title: 主题引擎下沉 Core
-    details: 主题 token 由 core 统一生成与挂载（base/runtime 双 style tag），admin 仅做主题注册与组装。
-  - title: 菜单 icon(minio id) 持久化缓存
-    details: minio 资源 id -> Blob -> objectURL，写入 IndexedDB，刷新不重复拉取。
+  - title: 信息架构清晰
+    details: 导航与侧边栏按任务流组织，快速定位到“我现在该做什么”。
+  - title: 代码与文档同源
+    details: 所有关键路径、命令和边界说明都对齐当前仓库实现。
+  - title: 架构与实现并重
+    details: 不只讲概念，同时给出可复制的落地路径与文件位置。
+  - title: 支持多应用场景
+    details: 同时覆盖 admin、portal、template 以及跨包协作模式。
+  - title: 扩展能力可追踪
+    details: 门户设计器、portal-engine、adapter 接入都有独立入口。
+  - title: 协作流程可落盘
+    details: 约束、计划、验证与复盘记录在仓库内形成闭环。
 ---
 
-## 你可以用它做什么
+## 推荐阅读路径
 
-- 作为新项目的后台模板：换一个 Adapter（或注入不同后端字段映射）即可跑通登录/菜单/SSO。
-- 作为多系统平台壳：一个前端工程承载多个系统菜单，跨系统路由自动切换。
-- 作为 UI 壳组件库：把 `packages/ui` 当作可复用壳层，在多个业务 app 中复用。
+<div class="doc-quick-grid">
+  <a class="doc-quick-card" href="/guide/quick-start">
+    <h3>新成员先看</h3>
+    <p>按快速开始与环境变量完成本地启动，再进入架构页理解全局边界。</p>
+  </a>
+  <a class="doc-quick-card" href="/guide/module-system">
+    <h3>要开发功能</h3>
+    <p>先确认模块切割与路由装配规则，再查看 CRUD 与页面容器实践。</p>
+  </a>
+  <a class="doc-quick-card" href="/guide/portal-designer">
+    <h3>要做门户能力</h3>
+    <p>先读门户设计器，再看 portal-engine 的职责边界与可复用入口。</p>
+  </a>
+  <a class="doc-quick-card" href="/guide/development">
+    <h3>要提测交付</h3>
+    <p>按照开发规范执行 lint/typecheck/build，并同步文档与 .codex 记录。</p>
+  </a>
+  <a class="doc-quick-card" href="/guide/markdown-doc-style">
+    <h3>要写技术文档</h3>
+    <p>按统一 Markdown 规范组织结构、示例和验收标准，减少返工与歧义。</p>
+  </a>
+</div>
 
-## 文档与代码同步
+## 文档覆盖范围
 
-本仓库要求：**功能更新后，文档也要同步更新**（见“开发规范与维护”）。
+- **应用层**：`apps/admin`、`apps/portal`、`apps/template` 的启动、路由、菜单与业务模块实践。
+- **基础包层**：`packages/core`、`packages/ui`、`packages/tag`、`packages/portal-engine`、`packages/adapters`、`packages/utils`。
+- **协作层**：AGENTS 规则分层、验证口径、变更落盘位置与发布流程。
+
+## 维护原则
+
+1. 文档中的路径、命令、接口约定必须与当前仓库一致。
+2. 当实现发生变化时，同步更新导航入口与对应文档页面。
+3. 完成改动前至少执行 `pnpm -C apps/docs lint` 与 `pnpm -C apps/docs build`。

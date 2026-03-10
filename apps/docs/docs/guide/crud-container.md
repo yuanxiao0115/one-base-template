@@ -50,8 +50,8 @@ app.use(OneUiPlugin, {
 
 在 `apps/admin` 中，默认值已预设在：
 
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/config/ui.ts` 的 `appCrudContainerDefaultType`
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/index.ts` 安装 `OneUiPlugin` 时注入
+- `apps/admin/src/config/ui.ts` 的 `appCrudContainerDefaultType`
+- `apps/admin/src/bootstrap/index.ts` 安装 `OneUiPlugin` 时注入
 
 修改方式：
 
@@ -225,7 +225,7 @@ const crud = useEntityEditor({
 
 上述 Drawer 壳层样式已统一抽离到 admin 覆盖文件：
 
-- `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/styles/element-plus/drawer-overrides.css`
+- `apps/admin/src/styles/element-plus/drawer-overrides.css`
 
 该覆盖同时作用于：
 

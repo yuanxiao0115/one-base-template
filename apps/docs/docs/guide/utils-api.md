@@ -5,7 +5,7 @@ outline: [2]
 # Utils API 速查
 
 > 本页提供 `@one-base-template/utils` 的模块级快速索引，方便在业务开发中按需检索。  
-> 完整实现请以源码为准：`/Users/haoqiuzhi/code/one-base-template/packages/utils/src`
+> 完整实现请以源码为准：`packages/utils/src`
 
 ## 导入范式
 

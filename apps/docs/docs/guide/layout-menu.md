@@ -168,15 +168,15 @@ UI 行为：
 
 ## 标签栏（Tabs）
 
-- 组件：`packages/ui/src/components/tabs/TabsBar.vue`（UI 壳）+ `packages/core/src/stores/tabs.ts`（状态源）
-- 当前实现统一使用 core tabs：
-  - admin 启动后由 core 路由守卫在 `afterEach` 自动同步标签页
-  - TabsBar 只负责渲染与交互，不再依赖外部 tag 插件
+- 组件：`packages/ui/src/components/tabs/TabsBar.vue`（UI 壳）+ `@one-base-template/tag`（`TagComponent` + store）
+- 集成入口：`apps/admin/src/bootstrap/plugins.ts`
+  - 通过 `app.use(OneTag, { pinia, router, ... })` 注册标签能力
+  - `TabsBar` 仅负责渲染 `TagComponent`，状态由 tag 包维护
 - 保持的行为约定：
   - 点击切换、关闭当前、关闭左/右/其他/全部
   - 滚轮横向滚动标签区
   - KeepAlive include 按 `meta.keepAlive + route.name` 推导
-  - 标签状态按 `ob_tabs_state:<systemCode>` 写入 `sessionStorage`（按系统分桶）
+  - 标签状态写入 `sessionStorage`，默认 key 为 `storageNamespace + ':ob_tags'`
 - 隐藏规则：
   - `meta.hiddenTab=true` 或 `meta.noTag=true` 不进入标签栏
   - admin 默认忽略 `/login`、`/sso`、`/403`、`/404`、`/`、`/redirect*`、`/error*`
