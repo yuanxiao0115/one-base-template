@@ -43,6 +43,9 @@ apps/admin/src/modules/<module-id>/
   - `stable`（默认）：生产可用
   - `allowlist`：生产需命中 `platform-config.skipMenuAuthProductionAllowList`
   - `dev-only`：仅开发环境可用，生产自动禁用
+- 建议复用 `apps/admin/src/router/route-meta.ts` 中的工厂函数统一生成 `meta`：
+  - `createAllowlistSkipMenuAuthMeta`：减少 `skipMenuAuth + skipMenuAuthLevel` 重复声明
+  - `createCompatAliasMeta`：统一别名路由的 `hideInMenu/hiddenTab/activePath`
 
 ### 快速创建模块（推荐）
 

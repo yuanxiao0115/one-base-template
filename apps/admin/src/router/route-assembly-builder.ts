@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from "vue-router";
 import { APP_ROOT_PATH } from "./constants";
 import type { AdminModuleManifest, ModuleCompat } from "./types";
 import type { RouteAssemblyValidator, RouteCollectContext, RouteSource } from "./route-assembly-validator";
+import { createCompatAliasMeta } from "./route-meta";
 
 function getNormalizedPath(path: string): string {
   if (!path) {
@@ -143,11 +144,7 @@ function buildModuleCompatAliasRoutes(params: {
     out.push({
       path: fromPath,
       redirect: toPath,
-      meta: {
-        hideInMenu: true,
-        hiddenTab: true,
-        ...(aliasActivePath ? { activePath: aliasActivePath } : {}),
-      },
+      meta: createCompatAliasMeta(aliasActivePath),
     });
   }
 
