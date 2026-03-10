@@ -276,6 +276,27 @@
 }
 ```
 
+### 7.1 compat 字段运行语义（装配器真实行为）
+
+- `compat.activePathMap`：作为“缺省 `meta.activePath` 补丁”使用；仅当路由未显式声明 `meta.activePath` 时生效。
+- `compat.routeAliases`：会生成历史路径重定向路由（`from -> to`），用于老菜单路径兼容。
+- 冲突策略：
+  - `activePathMap` 与路由 `meta.activePath` 冲突时，保留路由声明值并告警。
+  - `routeAliases.from` 与保留路径或已装配路径冲突时，跳过该 alias 并告警。
+- 别名路由默认附带：`meta.hideInMenu=true`、`meta.hiddenTab=true`，避免污染菜单与标签页。
+
+### 7.2 路由装配输入边界（升级友好）
+
+装配层（`apps/admin/src/router/assemble-routes.ts`）不再读取运行时环境；  
+运行时参数统一由 `apps/admin/src/bootstrap/index.ts` 显式注入，最小参数为：
+
+- `enabledModules`
+- `defaultSystemCode`
+- `systemHomeMap`
+- `storageNamespace`
+
+该边界可保证：后续子项目可复用同一装配器，只需在自身 bootstrap 提供参数，不与业务模块耦合。
+
 ## 8. 权限与跳转规则（必须理解）
 
 1. 路由始终静态声明，不依赖动态 `addRoute`

@@ -212,7 +212,7 @@ const table = useTable({
   - 代码位置：
     - `apps/admin/src/modules/LogManagement/login-log/page.vue`
     - `apps/admin/src/modules/LogManagement/login-log/columns.tsx`
-    - `apps/admin/src/modules/LogManagement/api/login-log.ts`
+    - `apps/admin/src/modules/LogManagement/login-log/api.ts`
 - 页面 2：`/system/org`（树形组织管理）
   - 路由名：`SystemOrgManagement`
   - 代码位置：

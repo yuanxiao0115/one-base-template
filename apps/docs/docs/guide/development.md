@@ -80,15 +80,24 @@ pnpm biome:ci
 - 登录或未授权流程如果只是做状态清理或只读访问，优先补“细粒度子出口 + 动态 import”：
   - 当前 `tags` 清理固定走 `@one-base-template/tag/store`
   - 不要静态 import `@one-base-template/tag` 根入口
-- 这类性能边界建议用源码测试固化：
-  - `apps/admin/src/pages/login/LoginPage.source.test.ts`
-  - `apps/admin/src/bootstrap/__tests__/http-source.test.ts`
-  - `apps/admin/src/__tests__/manual-chunks.test.ts`
+- 这类性能边界建议通过“源码约束测试或构建校验”固化；当前若仓库测试资产处于清理阶段，可先以 `typecheck/lint/build` 作为临时门禁。
 - 离线 Iconify 数据按集合拆成独立异步 chunk：
   - `ep` / `ri` 图标集合不再直接塞进应用主入口
   - 管理端图标选择器打开时再加载完整集合，菜单渲染只在需要时注册对应集合
 - **当前阶段不优先通过改路由懒加载来处理**，因为 `apps/admin` 的模块路由仍遵循静态 import 约束；若后续要继续压缩首包，再单独评估规则调整
 - `admin` 仍保留较高的 `chunkSizeWarningLimit`，前提是 vendor / 图标集合 / 重模块已经独立拆出；这样可以避免静态路由壳层的误报噪音
+
+## admin Vite mock 约定（第二/第三批优化）
+
+- `apps/admin/vite.config.ts` 只保留构建/插件编排。
+- 开发态 mock 中间件实现统一放在 `apps/admin/build/mock/**`：
+  - 当前入口：`apps/admin/build/mock/mock-middleware.ts`
+  - HTTP 工具层：`apps/admin/build/mock/http-helpers.ts`
+  - 路由处理层：`apps/admin/build/mock/route-handlers.ts`
+  - 类型契约层：`apps/admin/build/mock/types.ts`
+  - 导出工厂：`createAdminMockMiddleware(options?)`
+- 新增 mock 接口时，优先改 `build/mock` 下的实现文件，避免把业务 mock 细节重新堆回 `vite.config.ts`。
+- 目标是让配置升级与 mock 迭代互不干扰，降低子项目二开时的合并冲突概率。
 
 ## 文档必须随功能演进同步更新
 

@@ -20,6 +20,7 @@
   - `remote`：后端返回可见菜单树。
   - `static`：基于静态路由 `meta.title` 生成菜单树。
 - 默认权限模型：菜单树出现过的 path 集合即 `allowedPaths`，不在集合统一拦截到 `403`。
+- admin 首页固定走本地静态路由 `/home/index`：通过首页路由 `meta.skipMenuAuth=true` 放行登录后访问；不要再在 core 守卫中新增 `/home` 与 `/home/index` 互认兼容逻辑。
 
 ### SSO 与鉴权
 
@@ -64,9 +65,15 @@
 
 ## UserManagement 与迁移规则
 
+- `apps/admin/src/modules/*Management/**` 的接口层统一采用“`api.ts + types.ts`”：`api.ts` 仅维护接口地址与请求调用，不做数据保底、归一化、字段兜底；`types.ts` 仅保留页面真实消费的对外类型，避免过度细粒度类型定义。
+- 跨模块重复的通用协议类型（如 `ApiResponse<T>`、`ApiPageData<T>`）统一维护在 `apps/admin/src/shared/api/types.ts`；模块内 `types.ts` 仅做直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增 `BizResponse`/`ApiResponseAlias` 这类中间别名，业务实体类型继续就地维护，避免“全局大而全类型池”。
+- `types.ts` 的实体类型默认只保留页面真实使用字段：仅主键与关键交互字段设为必填，其余字段优先可选，避免完整镜像后端 DTO 导致维护成本上升。
+- 对于日志、审计等“弱结构 + 字段经常变动”的列表实体，优先使用“`id` + 少量关键字段 + 索引签名”的宽松定义（如 `[key: string]: string | number | null | undefined`），避免维护超长字段清单。
+- `LogManagement` 目录结构与其他模块保持一致：`login-log/api.ts + login-log/types.ts`、`sys-log/api.ts + sys-log/types.ts`，禁止回退到集中式 `LogManagement/api/*.ts`。
 - `UserManagement`（职位/用户/组织）默认直连真实后端，禁止在 `apps/admin/vite.config.ts` 新增对应 mock 分支；仅用户明确要求 mock 时例外。
 - `UserManagement` 目录采用 feature-first（一个功能一个文件夹）；所有路由集中在模块根目录 `routes.ts`。
 - 新增/迁移 `UserManagement` 页面时，必须同次提交更新 `apps/admin/src/modules/UserManagement/routes.ts`。
+- `UserManagement` 的接口分层默认采用 `api.ts + types.ts`：`api.ts` 仅维护接口路径与请求参数透传；`types.ts` 保持“够用即可”，禁止过度细粒度类型设计；后端字段已对齐场景下，禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`。
 - UserManagement 编排层已按 composable 分层后，禁止再新增汇总式 `actions.ts`；复杂逻辑按语义归入 `useXxxState/useXxxActions/useXxxQuery` 等 composable，页面仅保留编排解构。
 - 角色域迁移必须同时包含：
   - `角色管理`：`/system/role/management`

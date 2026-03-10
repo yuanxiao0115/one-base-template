@@ -114,6 +114,23 @@ compat: {
 }
 ```
 
+### 2.3 守卫与 SSO 回调分层（第二/第三批优化）
+
+- `packages/core/src/router/guards.ts` 继续作为唯一守卫入口，但内部流程已拆为小函数：
+  - 公开路由判定（public/sso）
+  - 登录跳转判定
+  - 菜单同步与系统切换
+  - `skipMenuAuth` 严格白名单判定
+- 对应用层保持兼容：`setupRouterGuards(router, options)` 与 `RouterGuardOptions` 契约不变，admin 无需改调用方式。
+- `apps/admin/src/pages/sso/SsoCallbackPage.vue` 的参数分支匹配逻辑已下沉到
+  `apps/admin/src/shared/services/sso-callback-strategy.ts`。
+- `sso-callback-strategy` 约定优先级固定为：
+  `sourceCode=zhxt -> sourceCode=YDBG -> ticket -> type+token -> moaToken -> Usertoken`。
+- 页面层职责收敛为“状态展示 + handler 注入”，后续新增 SSO 入口优先扩展策略层并补策略单测。
+- 第三批回归补强已覆盖：
+  - `packages/core/src/router/guards.test.ts`：`remote` 模式下 `remoteSynced=false` 的两类边界（`loaded=true` 后台同步、`loaded=false` 阻塞加载）；
+  - `apps/admin/src/shared/services/__tests__/sso-callback-strategy.unit.test.ts`：`ticket` 分支 `redirectUrl` 缺省透传 `null` 与 handler 抛错透传。
+
 ## 3) enabledModules 运行时开关
 
 `apps/admin/public/platform-config.json` 新增：
