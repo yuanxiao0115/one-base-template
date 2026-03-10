@@ -12,7 +12,7 @@ vi.mock("@/shared/logger", () => ({
   }),
 }));
 
-import { getSkipMenuAuthRouteRule, resolveSkipMenuAuthRouteNamesForGuard } from "../skip-menu-auth";
+import { getSkipAuthRule, listSkipAuthNames } from "../skip-menu-auth";
 
 function createRoute(route: Partial<RouteRecordRaw>): RouteRecordRaw {
   return route as unknown as RouteRecordRaw;
@@ -24,7 +24,7 @@ describe("router/skip-menu-auth", () => {
   });
 
   it("skipMenuAuth=true 时应默认 stable 级别", () => {
-    const rule = getSkipMenuAuthRouteRule(createRoute({
+    const rule = getSkipAuthRule(createRoute({
       path: "/home/index",
       name: "HomeIndex",
       meta: {
@@ -39,7 +39,7 @@ describe("router/skip-menu-auth", () => {
   });
 
   it("应支持 skipMenuAuthLevel 显式分级", () => {
-    const allowlistRule = getSkipMenuAuthRouteRule(createRoute({
+    const allowlistRule = getSkipAuthRule(createRoute({
       path: "/portal/designer",
       name: "PortalDesigner",
       meta: {
@@ -48,7 +48,7 @@ describe("router/skip-menu-auth", () => {
       },
     }));
 
-    const devOnlyRule = getSkipMenuAuthRouteRule(createRoute({
+    const devOnlyRule = getSkipAuthRule(createRoute({
       path: "/local/dev-tool",
       name: "LocalDevTool",
       meta: {
@@ -68,7 +68,7 @@ describe("router/skip-menu-auth", () => {
   });
 
   it("skipMenuAuth 路由缺少 name 时不应生成规则", () => {
-    const rule = getSkipMenuAuthRouteRule(createRoute({
+    const rule = getSkipAuthRule(createRoute({
       path: "/anonymous",
       meta: {
         skipMenuAuth: true,
@@ -79,7 +79,7 @@ describe("router/skip-menu-auth", () => {
   });
 
   it("生产环境应按级别与白名单过滤守卫放行集合", () => {
-    const routeNames = resolveSkipMenuAuthRouteNamesForGuard({
+    const routeNames = listSkipAuthNames({
       isProd: true,
       routeRules: [
         { name: "HomeIndex", level: "stable" },
@@ -101,7 +101,7 @@ describe("router/skip-menu-auth", () => {
   });
 
   it("开发环境应放行 allowlist 与 dev-only 级别", () => {
-    const routeNames = resolveSkipMenuAuthRouteNamesForGuard({
+    const routeNames = listSkipAuthNames({
       isProd: false,
       routeRules: [
         { name: "HomeIndex", level: "stable" },

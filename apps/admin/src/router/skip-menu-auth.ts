@@ -5,7 +5,7 @@ import type { SkipMenuAuthLevel, SkipMenuAuthRouteRule } from "./types";
 const SKIP_MENU_AUTH_LEVEL_SET = new Set<SkipMenuAuthLevel>(["stable", "allowlist", "dev-only"]);
 const logger = createAppLogger("router/skip-menu-auth");
 
-export function toRouteNameKey(name: RouteRecordRaw["name"]): string | null {
+export function getRouteName(name: RouteRecordRaw["name"]): string | null {
   if (typeof name === "string") {
     return name;
   }
@@ -19,7 +19,7 @@ function isSkipMenuAuthLevel(level: unknown): level is SkipMenuAuthLevel {
   return typeof level === "string" && SKIP_MENU_AUTH_LEVEL_SET.has(level as SkipMenuAuthLevel);
 }
 
-function resolveSkipMenuAuthLevel(route: RouteRecordRaw): SkipMenuAuthLevel | null {
+function getSkipAuthLevel(route: RouteRecordRaw): SkipMenuAuthLevel | null {
   const meta = route.meta as Record<string, unknown> | undefined;
   if (!meta) {
     return null;
@@ -46,17 +46,17 @@ function resolveSkipMenuAuthLevel(route: RouteRecordRaw): SkipMenuAuthLevel | nu
   return null;
 }
 
-export function isSkipMenuAuthRoute(route: RouteRecordRaw): boolean {
-  return resolveSkipMenuAuthLevel(route) !== null;
+export function isSkipAuthRoute(route: RouteRecordRaw): boolean {
+  return getSkipAuthLevel(route) !== null;
 }
 
-export function getSkipMenuAuthRouteRule(route: RouteRecordRaw): SkipMenuAuthRouteRule | null {
-  const level = resolveSkipMenuAuthLevel(route);
+export function getSkipAuthRule(route: RouteRecordRaw): SkipMenuAuthRouteRule | null {
+  const level = getSkipAuthLevel(route);
   if (!level) {
     return null;
   }
 
-  const name = toRouteNameKey(route.name);
+  const name = getRouteName(route.name);
   if (!name) {
     return null;
   }
@@ -67,7 +67,7 @@ export function getSkipMenuAuthRouteRule(route: RouteRecordRaw): SkipMenuAuthRou
   };
 }
 
-export function resolveSkipMenuAuthRouteNamesForGuard(params: {
+export function listSkipAuthNames(params: {
   isProd: boolean;
   routeRules: SkipMenuAuthRouteRule[];
   productionAllowList: string[];

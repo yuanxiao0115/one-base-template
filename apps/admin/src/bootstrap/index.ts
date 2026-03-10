@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import { createPinia, setActivePinia } from "pinia";
 
 import App from "../App.vue";
-import { getRouteAssemblyResult } from "../router";
+import { assembleRoutes } from "../router/assemble-routes";
 
 import { setObHttpClient } from "../infra/http";
 import { getAppEnv } from "../infra/env";
@@ -21,7 +21,7 @@ import { installCore } from "./core";
 import { installAppShellPlugins } from "./plugins";
 import { installAppRouterGuards } from "./guards";
 import { registerMessageUtils } from "../utils/message";
-import { resolveSkipMenuAuthRouteNamesForGuard } from "../router/skip-menu-auth";
+import { listSkipAuthNames } from "../router/skip-menu-auth";
 
 export async function bootstrapAdminApp() {
   const appEnv = getAppEnv();
@@ -34,14 +34,14 @@ export async function bootstrapAdminApp() {
   // 允许在路由守卫 / http hooks 等“组件外”场景安全使用 store
   setActivePinia(pinia);
 
-  const routeAssemblyResult = await getRouteAssemblyResult({
+  const routeAssemblyResult = await assembleRoutes({
     enabledModules: appEnv.enabledModules,
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
     storageNamespace: appEnv.storageNamespace,
     routeConflictPolicy: appEnv.isProd ? "warn" : "fail-fast",
   });
-  const skipMenuAuthRouteNames = resolveSkipMenuAuthRouteNamesForGuard({
+  const skipMenuAuthRouteNames = listSkipAuthNames({
     isProd: appEnv.isProd,
     routeRules: routeAssemblyResult.skipMenuAuthRouteRules,
     productionAllowList: appEnv.skipMenuAuthProductionAllowList,

@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from "vue-router";
 import { createAppLogger } from "@/shared/logger";
 import { APP_RESERVED_ROUTE_NAMES, APP_RESERVED_ROUTE_PATHS } from "./constants";
-import { getSkipMenuAuthRouteRule, isSkipMenuAuthRoute, toRouteNameKey } from "./skip-menu-auth";
+import { getRouteName, getSkipAuthRule, isSkipAuthRoute } from "./skip-menu-auth";
 import type { RouteConflictPolicy, SkipMenuAuthLevel, SkipMenuAuthRouteRule } from "./types";
 
 export type RouteSource = "layout" | "standalone";
@@ -13,12 +13,11 @@ export interface RouteCollectContext {
 }
 
 export interface RouteAssemblyValidator {
-  shouldSkipRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean;
-  registerRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): void;
-  shouldSkipAliasPath(path: string, moduleId: string): boolean;
-  registerAliasPath(path: string): void;
-  getSkipMenuAuthRouteNames(): string[];
-  getSkipMenuAuthRouteRules(): SkipMenuAuthRouteRule[];
+  hasConflict(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean;
+  saveRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): void;
+  hasAliasConflict(path: string, moduleId: string): boolean;
+  saveAliasPath(path: string): void;
+  listSkipAuthRules(): SkipMenuAuthRouteRule[];
   warn(message: string): void;
 }
 
@@ -38,7 +37,7 @@ function getSkipMessageByPathConflict(params: { fullPath: string; context: Route
 
 function getSkipMessageByNameConflict(params: { route: RouteRecordRaw; context: RouteCollectContext }): string | null {
   const { route, context } = params;
-  const nameKey = toRouteNameKey(route.name);
+  const nameKey = getRouteName(route.name);
   if (!nameKey) {
     return null;
   }
@@ -65,7 +64,7 @@ export function createRouteAssemblyValidator(params: { routeConflictPolicy?: Rou
     logger.warn(message);
   }
 
-  function shouldSkipRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean {
+  function hasConflict(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean {
     const reservedPathMessage = getSkipMessageByPathConflict({
       fullPath,
       context,
@@ -91,7 +90,7 @@ export function createRouteAssemblyValidator(params: { routeConflictPolicy?: Rou
       return true;
     }
 
-    const nameKey = toRouteNameKey(route.name);
+    const nameKey = getRouteName(route.name);
     if (nameKey && usedNames.has(nameKey)) {
       reportConflict(
         `检测到重复 name：${nameKey}（module=${context.moduleId} source=${getSourceLabel(context.source)}），已跳过后出现的定义。`
@@ -102,15 +101,15 @@ export function createRouteAssemblyValidator(params: { routeConflictPolicy?: Rou
     return false;
   }
 
-  function registerRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext) {
+  function saveRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext) {
     usedPaths.add(fullPath);
-    const nameKey = toRouteNameKey(route.name);
+    const nameKey = getRouteName(route.name);
     if (nameKey) {
       usedNames.add(nameKey);
     }
 
-    const skipMenuAuthRouteRule = getSkipMenuAuthRouteRule(route);
-    if (isSkipMenuAuthRoute(route) && skipMenuAuthRouteRule === null) {
+    const skipMenuAuthRouteRule = getSkipAuthRule(route);
+    if (isSkipAuthRoute(route) && skipMenuAuthRouteRule === null) {
       logger.warn(
         `skipMenuAuth 路由缺少 name：${fullPath}（module=${context.moduleId} source=${context.source}），该路由不会加入守卫白名单。`
       );
@@ -120,7 +119,7 @@ export function createRouteAssemblyValidator(params: { routeConflictPolicy?: Rou
     }
   }
 
-  function shouldSkipAliasPath(path: string, moduleId: string): boolean {
+  function hasAliasConflict(path: string, moduleId: string): boolean {
     if (APP_RESERVED_ROUTE_PATHS.has(path)) {
       reportConflict(`compat.routeAliases 使用保留路径：${path}（module=${moduleId}），已跳过。`);
       return true;
@@ -135,16 +134,13 @@ export function createRouteAssemblyValidator(params: { routeConflictPolicy?: Rou
   }
 
   return {
-    shouldSkipRoute,
-    registerRoute,
-    shouldSkipAliasPath,
-    registerAliasPath(path: string) {
+    hasConflict,
+    saveRoute,
+    hasAliasConflict,
+    saveAliasPath(path: string) {
       usedPaths.add(path);
     },
-    getSkipMenuAuthRouteNames() {
-      return [...skipMenuAuthRoutes.keys()];
-    },
-    getSkipMenuAuthRouteRules() {
+    listSkipAuthRules() {
       return [...skipMenuAuthRoutes.entries()].map(([name, level]) => ({
         name,
         level,

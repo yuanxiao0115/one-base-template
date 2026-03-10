@@ -4,7 +4,7 @@ import { AdminLayout, ForbiddenPage, NotFoundPage } from "@one-base-template/ui/
 import { DEFAULT_FALLBACK_HOME } from "../config/systems";
 import type { AppRouteAssemblyOptions, AppRouteAssemblyResult } from "./types";
 import { createRouteAssemblyValidator } from "./route-assembly-validator";
-import { collectCompatAliasRoutes, collectModuleRoutes } from "./route-assembly-builder";
+import { buildAliasRoutes, buildRoutes } from "./route-assembly-builder";
 
 import { getEnabledModules } from "./registry";
 import {
@@ -16,7 +16,13 @@ import {
   APP_SSO_ROUTE_PATH,
 } from "./constants";
 
-function getRootRedirect(options: Pick<AppRouteAssemblyOptions, "defaultSystemCode" | "systemHomeMap" | "storageNamespace">): string {
+const PUBLIC_ROUTE_META = Object.freeze({
+  public: true,
+  hiddenTab: true,
+});
+type RouteComponent = Exclude<RouteRecordRaw["component"], null | undefined>;
+
+function getDefaultHomePath(options: Pick<AppRouteAssemblyOptions, "defaultSystemCode" | "systemHomeMap" | "storageNamespace">): string {
   const { defaultSystemCode, systemHomeMap, storageNamespace } = options;
   return getInitialPath({
     defaultSystemCode,
@@ -26,74 +32,28 @@ function getRootRedirect(options: Pick<AppRouteAssemblyOptions, "defaultSystemCo
   });
 }
 
-export async function getAppRoutes(options: AppRouteAssemblyOptions): Promise<AppRouteAssemblyResult> {
-  const modules = await getEnabledModules(options.enabledModules);
-  const validator = createRouteAssemblyValidator({
-    routeConflictPolicy: options.routeConflictPolicy,
-  });
+function createPublicRoute(path: string, name: string, component: RouteComponent): RouteRecordRaw {
+  return {
+    path,
+    name,
+    component,
+    meta: PUBLIC_ROUTE_META,
+  };
+}
 
-  const standaloneRoutes = collectModuleRoutes({
-    modules,
-    source: "standalone",
-    validator,
-  });
-
-  const compatAliasRoutes = collectCompatAliasRoutes({
-    modules,
-    validator,
-  });
-
-  const layoutRoutes = collectModuleRoutes({
-    modules,
-    source: "layout",
-    validator,
-  });
-
-  const routes: RouteRecordRaw[] = [
-    ...standaloneRoutes,
-    ...compatAliasRoutes,
+function createFixedRoutes(params: { layoutRoutes: RouteRecordRaw[]; defaultHomePath: string }): RouteRecordRaw[] {
+  const { layoutRoutes, defaultHomePath } = params;
+  return [
     {
       path: APP_ROOT_PATH,
       component: AdminLayout,
-      redirect: () => getRootRedirect(options),
+      redirect: () => defaultHomePath,
       children: layoutRoutes,
     },
-    {
-      path: APP_LOGIN_ROUTE_PATH,
-      name: "Login",
-      component: async () => import("../pages/login/LoginPage.vue"),
-      meta: {
-        public: true,
-        hiddenTab: true,
-      },
-    },
-    {
-      path: APP_SSO_ROUTE_PATH,
-      name: "Sso",
-      component: async () => import("../pages/sso/SsoCallbackPage.vue"),
-      meta: {
-        public: true,
-        hiddenTab: true,
-      },
-    },
-    {
-      path: APP_FORBIDDEN_ROUTE_PATH,
-      name: "Forbidden",
-      component: ForbiddenPage,
-      meta: {
-        public: true,
-        hiddenTab: true,
-      },
-    },
-    {
-      path: APP_NOT_FOUND_ROUTE_PATH,
-      name: "NotFound",
-      component: NotFoundPage,
-      meta: {
-        public: true,
-        hiddenTab: true,
-      },
-    },
+    createPublicRoute(APP_LOGIN_ROUTE_PATH, "Login", async () => import("../pages/login/LoginPage.vue")),
+    createPublicRoute(APP_SSO_ROUTE_PATH, "Sso", async () => import("../pages/sso/SsoCallbackPage.vue")),
+    createPublicRoute(APP_FORBIDDEN_ROUTE_PATH, "Forbidden", ForbiddenPage),
+    createPublicRoute(APP_NOT_FOUND_ROUTE_PATH, "NotFound", NotFoundPage),
     {
       path: APP_NOT_FOUND_CATCHALL_PATH,
       // 通配 404 使用 replace，避免无效地址回退后再次命中通配造成历史栈污染。
@@ -101,14 +61,45 @@ export async function getAppRoutes(options: AppRouteAssemblyOptions): Promise<Ap
         path: APP_NOT_FOUND_ROUTE_PATH,
         replace: true,
       }),
-      meta: {
-        public: true,
-        hiddenTab: true,
-      },
+      meta: PUBLIC_ROUTE_META,
     },
   ];
+}
 
-  const skipMenuAuthRouteRules = validator.getSkipMenuAuthRouteRules();
+export async function assembleRoutes(options: AppRouteAssemblyOptions): Promise<AppRouteAssemblyResult> {
+  const modules = await getEnabledModules(options.enabledModules);
+  const validator = createRouteAssemblyValidator({
+    routeConflictPolicy: options.routeConflictPolicy,
+  });
+
+  const standaloneRoutes = buildRoutes({
+    modules,
+    source: "standalone",
+    validator,
+  });
+
+  const compatAliasRoutes = buildAliasRoutes({
+    modules,
+    validator,
+  });
+
+  const layoutRoutes = buildRoutes({
+    modules,
+    source: "layout",
+    validator,
+  });
+
+  // 路由顺序保持“模块 standalone -> 历史 alias -> 固定公共路由”，与守卫白名单生成保持一致。
+  const routes: RouteRecordRaw[] = [
+    ...standaloneRoutes,
+    ...compatAliasRoutes,
+    ...createFixedRoutes({
+      layoutRoutes,
+      defaultHomePath: getDefaultHomePath(options),
+    }),
+  ];
+
+  const skipMenuAuthRouteRules = validator.listSkipAuthRules();
 
   return {
     routes,

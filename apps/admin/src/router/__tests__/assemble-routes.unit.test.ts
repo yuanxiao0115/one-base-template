@@ -13,7 +13,7 @@ import {
   APP_NOT_FOUND_ROUTE_PATH,
   APP_SSO_ROUTE_PATH,
 } from "../constants";
-import { getAppRoutes } from "../assemble-routes";
+import { assembleRoutes } from "../assemble-routes";
 import type { AppRouteAssemblyOptions } from "../types";
 
 function createRouteAssemblyOptions(
@@ -33,7 +33,7 @@ function createRouteAssemblyOptions(
 
 describe("router/assemble-routes", () => {
   it("应保留公共固定路由", async () => {
-    const { routes } = await getAppRoutes(createRouteAssemblyOptions(["home"]));
+    const { routes } = await assembleRoutes(createRouteAssemblyOptions(["home"]));
     const routePaths = routes.map((item) => item.path);
 
     expect(routePaths).toContain(APP_LOGIN_ROUTE_PATH);
@@ -44,7 +44,7 @@ describe("router/assemble-routes", () => {
   });
 
   it("portal 模块应生成 compat 别名路由并补齐 activePath", async () => {
-    const { routes } = await getAppRoutes(createRouteAssemblyOptions(["portal"]));
+    const { routes } = await assembleRoutes(createRouteAssemblyOptions(["portal"]));
     const aliasRoute = routes.find((item) => item.path === "/portal/setting");
     const meta = (aliasRoute?.meta as Record<string, unknown> | undefined) ?? {};
 
@@ -56,7 +56,7 @@ describe("router/assemble-routes", () => {
   });
 
   it("应从已装配路由自动收集 skipMenuAuth 白名单", async () => {
-    const { skipMenuAuthRouteRules } = await getAppRoutes(createRouteAssemblyOptions(["home", "portal"]));
+    const { skipMenuAuthRouteRules } = await assembleRoutes(createRouteAssemblyOptions(["home", "portal"]));
     const skipMenuAuthRouteNames = skipMenuAuthRouteRules.map((item) => item.name);
 
     expect(skipMenuAuthRouteNames).toEqual(

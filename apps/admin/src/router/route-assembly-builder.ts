@@ -4,7 +4,7 @@ import type { AdminModuleManifest, ModuleCompat } from "./types";
 import type { RouteAssemblyValidator, RouteCollectContext, RouteSource } from "./route-assembly-validator";
 import { createCompatAliasMeta } from "./route-meta";
 
-function getNormalizedPath(path: string): string {
+function normalizePath(path: string): string {
   if (!path) {
     return APP_ROOT_PATH;
   }
@@ -12,20 +12,20 @@ function getNormalizedPath(path: string): string {
   return withLeadingSlash.replace(/\/{2,}/g, "/");
 }
 
-function buildRoutePath(parentPath: string, currentPath: string): string {
+function getFullPath(parentPath: string, currentPath: string): string {
   if (!currentPath) {
-    return getNormalizedPath(parentPath || APP_ROOT_PATH);
+    return normalizePath(parentPath || APP_ROOT_PATH);
   }
   if (currentPath.startsWith("/")) {
-    return getNormalizedPath(currentPath);
+    return normalizePath(currentPath);
   }
   if (!parentPath || parentPath === APP_ROOT_PATH) {
-    return getNormalizedPath(currentPath);
+    return normalizePath(currentPath);
   }
-  return getNormalizedPath(`${parentPath}/${currentPath}`);
+  return normalizePath(`${parentPath}/${currentPath}`);
 }
 
-function buildModuleRoutes(params: {
+function buildRouteTree(params: {
   routes: RouteRecordRaw[];
   context: RouteCollectContext;
   validator: RouteAssemblyValidator;
@@ -34,16 +34,16 @@ function buildModuleRoutes(params: {
   const out: RouteRecordRaw[] = [];
 
   for (const route of routes) {
-    const fullPath = buildRoutePath(context.parentPath, route.path);
-    if (validator.shouldSkipRoute(route, fullPath, context)) {
+    const fullPath = getFullPath(context.parentPath, route.path);
+    if (validator.hasConflict(route, fullPath, context)) {
       continue;
     }
 
-    validator.registerRoute(route, fullPath, context);
+    validator.saveRoute(route, fullPath, context);
 
     const nextRoute: RouteRecordRaw = { ...route };
     if (Array.isArray(route.children) && route.children.length > 0) {
-      nextRoute.children = buildModuleRoutes({
+      nextRoute.children = buildRouteTree({
         routes: route.children,
         context: {
           ...context,
@@ -59,7 +59,7 @@ function buildModuleRoutes(params: {
   return out;
 }
 
-function applyActivePathCompat(params: {
+function applyActivePathMap(params: {
   routes: RouteRecordRaw[];
   source: RouteSource;
   moduleId: string;
@@ -74,7 +74,7 @@ function applyActivePathCompat(params: {
 
   const out: RouteRecordRaw[] = [];
   for (const route of routes) {
-    const fullPath = buildRoutePath(parentPath, route.path);
+    const fullPath = getFullPath(parentPath, route.path);
     const compatActivePath = activePathMap[fullPath];
     const nextRoute: RouteRecordRaw = { ...route };
 
@@ -93,7 +93,7 @@ function applyActivePathCompat(params: {
     }
 
     if (Array.isArray(route.children) && route.children.length > 0) {
-      nextRoute.children = applyActivePathCompat({
+      nextRoute.children = applyActivePathMap({
         routes: route.children,
         source,
         moduleId,
@@ -109,7 +109,7 @@ function applyActivePathCompat(params: {
   return out;
 }
 
-function buildModuleCompatAliasRoutes(params: {
+function buildModuleAliasRoutes(params: {
   moduleId: string;
   compat?: ModuleCompat;
   validator: RouteAssemblyValidator;
@@ -122,8 +122,8 @@ function buildModuleCompatAliasRoutes(params: {
 
   const out: RouteRecordRaw[] = [];
   for (const alias of routeAliases) {
-    const fromPath = getNormalizedPath(alias.from);
-    const toPath = getNormalizedPath(alias.to);
+    const fromPath = normalizePath(alias.from);
+    const toPath = normalizePath(alias.to);
 
     if (!(alias.from && alias.to)) {
       validator.warn(`compat.routeAliases 含空路径配置（module=${moduleId}），已跳过。`);
@@ -135,11 +135,11 @@ function buildModuleCompatAliasRoutes(params: {
       continue;
     }
 
-    if (validator.shouldSkipAliasPath(fromPath, moduleId)) {
+    if (validator.hasAliasConflict(fromPath, moduleId)) {
       continue;
     }
 
-    validator.registerAliasPath(fromPath);
+    validator.saveAliasPath(fromPath);
     const aliasActivePath = compat?.activePathMap?.[fromPath] ?? compat?.activePathMap?.[toPath];
     out.push({
       path: fromPath,
@@ -151,7 +151,7 @@ function buildModuleCompatAliasRoutes(params: {
   return out;
 }
 
-export function collectModuleRoutes(params: {
+export function buildRoutes(params: {
   modules: AdminModuleManifest[];
   source: RouteSource;
   validator: RouteAssemblyValidator;
@@ -161,7 +161,8 @@ export function collectModuleRoutes(params: {
 
   for (const module of modules) {
     const moduleRoutes = source === "layout" ? module.routes.layout : (module.routes.standalone ?? []);
-    const compatRoutes = applyActivePathCompat({
+    // 先应用兼容 activePath，再进行冲突校验，确保校验基于最终路由语义。
+    const compatRoutes = applyActivePathMap({
       routes: moduleRoutes,
       source,
       moduleId: module.id,
@@ -171,7 +172,7 @@ export function collectModuleRoutes(params: {
     });
 
     out.push(
-      ...buildModuleRoutes({
+      ...buildRouteTree({
         routes: compatRoutes,
         context: {
           source,
@@ -186,7 +187,7 @@ export function collectModuleRoutes(params: {
   return out;
 }
 
-export function collectCompatAliasRoutes(params: {
+export function buildAliasRoutes(params: {
   modules: AdminModuleManifest[];
   validator: RouteAssemblyValidator;
 }): RouteRecordRaw[] {
@@ -200,7 +201,7 @@ export function collectCompatAliasRoutes(params: {
     }
 
     out.push(
-      ...buildModuleCompatAliasRoutes({
+      ...buildModuleAliasRoutes({
         moduleId: module.id,
         compat: module.compat,
         validator,

@@ -28,7 +28,7 @@ packages/
 - `apps/admin/src/config/theme.ts`：主题注册入口（复用 core 内置主题 + 项目自定义主题）
 - `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `buildEnv` 与懒加载的 `getAppEnv()`
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块清单扫描、白名单过滤与按需路由组装
-- `apps/admin/src/router/index.ts`：路由装配单一入口（仅暴露 `getRouteAssemblyResult()`）
+- `apps/admin/src/router/assemble-routes.ts`：路由装配入口（暴露 `assembleRoutes()`）
 - `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫；所有页面统一走单启动链路
 - `packages/core/src/storage/namespace.ts`：统一存储命名空间规则（读取兼容旧 key）
 - `packages/core/src/router/initial-path.ts`：统一根路由首次跳转决策（系统首页映射 + 菜单叶子兜底）
@@ -106,7 +106,7 @@ packages/
 - `bootstrap/plugins.ts` 的 `OneTag` 配置改为：
   - `homePath` 统一复用 `DEFAULT_FALLBACK_HOME`
   - `storageKey` 加 `storageNamespace` 前缀（`${storageNamespace}:ob_tags`），避免多应用同域冲突
-- `router/index.ts` 移除 `getRoutes()` 多入口，仅保留 `getRouteAssemblyResult()`，避免路由装配结果在调用侧分叉。
+- `router/index.ts` 中转层已删除，`bootstrap/index.ts` 直接调用 `assembleRoutes()`，避免装配结果在调用侧分叉。
 
 ## 存储命名空间与首次路由
 

@@ -77,7 +77,7 @@ pnpm new:module user-center --title 用户中心
 
 这意味着：
 
-- 顶层特例（如门户设计器）不再写在 `router/index.ts`
+- 顶层特例（如门户设计器）不再写在路由中转层，统一归口 `router/assemble-routes.ts`
 - 删除模块目录后，不会残留对应路由注册
 - 模块页面路由建议使用 `component: () => import("./xx/page.vue")` 懒加载，降低首包体积与启动压力
 
@@ -86,7 +86,7 @@ pnpm new:module user-center --title 用户中心
 路由装配层不再直接读取 `getAppEnv()`，统一由 `bootstrap` 显式注入：
 
 ```ts
-await getRouteAssemblyResult({
+await assembleRoutes({
   enabledModules: appEnv.enabledModules,
   defaultSystemCode: appEnv.defaultSystemCode,
   systemHomeMap: appEnv.systemHomeMap,

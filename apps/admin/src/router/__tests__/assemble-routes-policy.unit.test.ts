@@ -23,7 +23,7 @@ vi.mock("../registry", () => ({
   getEnabledModules,
 }));
 
-import { getAppRoutes } from "../assemble-routes";
+import { assembleRoutes } from "../assemble-routes";
 
 function createMockModule(params: { id: string; path: string; name: string }): AdminModuleManifest {
   const { id, path, name } = params;
@@ -79,7 +79,7 @@ describe("router/assemble-routes policy", () => {
   it("routeConflictPolicy='fail-fast' 时应在冲突处抛错", async () => {
     getEnabledModules.mockResolvedValue(duplicatePathModules);
 
-    await expect(getAppRoutes(createRouteAssemblyOptions("fail-fast"))).rejects.toThrowError(
+    await expect(assembleRoutes(createRouteAssemblyOptions("fail-fast"))).rejects.toThrowError(
       /检测到重复 path：\/duplicate\/path/
     );
   });
@@ -87,7 +87,7 @@ describe("router/assemble-routes policy", () => {
   it("routeConflictPolicy='warn' 时应兼容 warn+skip 行为", async () => {
     getEnabledModules.mockResolvedValue(duplicatePathModules);
 
-    const { routes } = await getAppRoutes(createRouteAssemblyOptions("warn"));
+    const { routes } = await assembleRoutes(createRouteAssemblyOptions("warn"));
     const rootRoute = routes.find((item) => item.path === "/");
     const rootChildren = Array.isArray(rootRoute?.children) ? rootRoute.children : [];
 
