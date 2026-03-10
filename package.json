@@ -30,7 +30,7 @@
     "version:packages": "changeset version",
     "release:packages": "changeset publish",
     "check:naming": "node ./scripts/check-naming.mjs",
-    "verify": "pnpm typecheck && pnpm lint && pnpm check:naming && pnpm build",
+    "verify": "pnpm lint:arch && pnpm test:run && pnpm typecheck && pnpm lint && pnpm build && pnpm check:admin:bundle",
     "doctor": "node ./scripts/doctor.mjs"
   },
   "devDependencies": {

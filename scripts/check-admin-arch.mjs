@@ -58,14 +58,115 @@ function getLineColumn(text, index) {
 function pushViolations(file, content, pattern, message, violations) {
   for (const match of content.matchAll(pattern)) {
     const index = match.index ?? 0;
-    const position = getLineColumn(content, index);
-    violations.push({
-      file,
-      line: position.line,
-      column: position.column,
-      message,
+    pushViolationByIndex(file, content, index, message, violations);
+  }
+}
+
+/**
+ * @param {string} file
+ * @param {string} content
+ * @param {number} index
+ * @param {string} message
+ * @param {Violation[]} violations
+ */
+function pushViolationByIndex(file, content, index, message, violations) {
+  const position = getLineColumn(content, index);
+  violations.push({
+    file,
+    line: position.line,
+    column: position.column,
+    message,
+  });
+}
+
+const staticImportPattern = /\bimport\s+(?:type\s+)?(?:[\w*\s{},]*\s+from\s*)?['"]([^'"]+)['"]/g;
+const dynamicImportPattern = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+const trimImportExtensionPattern = /\.(?:[cm]?tsx?|jsx?|vue)$/;
+
+/**
+ * @param {string} importSource
+ */
+function normalizeImportSource(importSource) {
+  return importSource.split(/[?#]/)[0]?.replaceAll('\\', '/') ?? importSource;
+}
+
+/**
+ * @param {string} relativePath
+ * @param {string} importSource
+ */
+function resolveImportPath(relativePath, importSource) {
+  const source = normalizeImportSource(importSource);
+  if (source.startsWith('@/')) {
+    return source.slice(2);
+  }
+  if (source.startsWith('./') || source.startsWith('../')) {
+    const baseDir = path.posix.dirname(relativePath);
+    return path.posix.normalize(path.posix.join(baseDir, source));
+  }
+  return null;
+}
+
+/**
+ * @param {string} relativePath
+ */
+function normalizeResolvedPath(relativePath) {
+  return relativePath.replace(trimImportExtensionPattern, '');
+}
+
+/**
+ * @param {string} relativePath
+ */
+function resolveOwnerModuleName(relativePath) {
+  const match = relativePath.match(/^modules\/([^/]+)\//);
+  return match?.[1] ?? null;
+}
+
+/**
+ * @param {string} resolvedPath
+ */
+function resolveTargetModuleName(resolvedPath) {
+  const normalized = normalizeResolvedPath(resolvedPath);
+  const match = normalized.match(/^modules\/([^/]+)\//);
+  return match?.[1] ?? null;
+}
+
+/**
+ * @param {string} resolvedPath
+ */
+function isInfraHttpPath(resolvedPath) {
+  const normalized = normalizeResolvedPath(resolvedPath);
+  return normalized === 'infra/http' || normalized.startsWith('infra/http/');
+}
+
+/**
+ * @param {string} content
+ * @returns {Array<{ source: string; index: number }>}
+ */
+function collectImportSources(content) {
+  const imports = [];
+  for (const match of content.matchAll(staticImportPattern)) {
+    const source = match[1];
+    if (!source) {
+      continue;
+    }
+    imports.push({
+      source,
+      index: match.index ?? 0,
     });
   }
+
+  for (const match of content.matchAll(dynamicImportPattern)) {
+    const source = match[1];
+    if (!source) {
+      continue;
+    }
+    imports.push({
+      source,
+      index: match.index ?? 0,
+    });
+  }
+
+  return imports;
 }
 
 /**
@@ -100,6 +201,8 @@ async function main() {
   for (const absolutePath of files) {
     const relativePath = path.relative(adminSrcDir, absolutePath).replaceAll(path.sep, '/');
     const content = await fs.readFile(absolutePath, 'utf8');
+    const importSources = collectImportSources(content);
+    const ownerModuleName = resolveOwnerModuleName(relativePath);
 
     if (!importMetaEnvAllowList.has(relativePath)) {
       pushViolations(
@@ -111,24 +214,40 @@ async function main() {
       );
     }
 
-    if (relativePath.startsWith('modules/')) {
-      pushViolations(
-        absolutePath,
-        content,
-        /['"]@\/modules\/[^'"]+['"]/g,
-        '禁止模块间直接依赖，请通过 shared/core/ui 暴露公共能力。',
-        violations
-      );
+    if (ownerModuleName) {
+      for (const item of importSources) {
+        const resolvedPath = resolveImportPath(relativePath, item.source);
+        if (!resolvedPath) {
+          continue;
+        }
+        const targetModuleName = resolveTargetModuleName(resolvedPath);
+        if (!targetModuleName || targetModuleName === ownerModuleName) {
+          continue;
+        }
+        pushViolationByIndex(
+          absolutePath,
+          content,
+          item.index,
+          '禁止模块间直接依赖，请通过 shared/core/ui 暴露公共能力。',
+          violations
+        );
+      }
     }
 
     if (isDirectInfraHttpGuardedFile(relativePath)) {
-      pushViolations(
-        absolutePath,
-        content,
-        /['"]@\/infra\/http['"]/g,
-        "禁止在页面/组件/store 直接引用 infra/http，请改用 service 或在 API 层通过 @one-base-template/core 的 getObHttpClient() 获取。",
-        violations
-      );
+      for (const item of importSources) {
+        const resolvedPath = resolveImportPath(relativePath, item.source);
+        if (!resolvedPath || !isInfraHttpPath(resolvedPath)) {
+          continue;
+        }
+        pushViolationByIndex(
+          absolutePath,
+          content,
+          item.index,
+          "禁止在页面/组件/store 直接引用 infra/http，请改用 service 或在 API 层通过 @one-base-template/core 的 getObHttpClient() 获取。",
+          violations
+        );
+      }
     }
 
     if (!isBootstrapScopedFile(relativePath)) {

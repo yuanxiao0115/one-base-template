@@ -25,7 +25,7 @@
 ### 静态路由 + 动态菜单
 
 - 路由全部前端静态声明（`modules/**/routes.ts`），不依赖后端动态 `addRoute` 才能访问。
-- 模块路由文件（`modules/**/routes*.ts`、`modules/**/routes/*.ts`）中的页面组件当前统一使用静态 `import`，不再使用 `component: async () => import(...)`，也不额外抽离通用 lazy loader。
+- 模块路由文件（`modules/**/routes*.ts`、`modules/**/routes/*.ts`）保持“路由静态声明 + 页面组件 `component: async () => import(...)` 懒加载”模式；禁止回退到运行时动态 `addRoute` 装配，也不额外抽离通用 lazy loader。
 - 菜单模式支持：
   - `remote`：后端返回可见菜单树。
   - `static`：基于静态路由 `meta.title` 生成菜单树。
@@ -120,6 +120,15 @@
 - 图标触发器优先放在 `el-input` 右侧插槽（append/suffix），触发器高度与输入框一致，整体宽度与同页控件对齐。
 - 图标输入控件高度统一 `30px`；清空/取消交互不得引发布局宽度变化。
 
+## 并行评估与优化沉淀（用户偏好）
+
+- 用户要求“并行前端 + 多角度评价”时，默认拆分为至少 `3` 条并行评审线：`架构边界`、`工程质量`、`性能与体验`。
+- 每次 admin 大批量优化后，评价结论必须包含固定维度：`架构一致性`、`可维护性`、`质量门禁`、`性能预算`、`体验一致性`、`文档同步度`。
+- 评价输出必须给出证据链：`命令结果`（如 `typecheck/lint/build/check:admin:bundle/lint:arch`）+ `文件路径` + `风险等级`。
+- 风险列表必须按严重度排序：`严重` -> `中` -> `低`，并给出对应“可直接执行”的修复建议。
+- 完成评价后，必须将可复用结论沉淀到 `apps/admin/AGENTS.md` 或 `apps/docs/docs/guide/*`，避免同类优化反复口头沟通。
+- `check:admin:bundle` 默认执行“双门禁”：既检查大 chunk 上沿（如 `iconify-ri`/`vxe`/`wangeditor`/`element-plus`/`page`），也检查 HTTP1.0 排队风险（`startup dependency map js count`、`startup dependency map js gzip`、`tiny chunks` 数量），禁止只追求拆包导致过度碎片化。
+
 ## 额外约束
 
 - `apps/admin/src/styles/index.css` 禁止通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/bootstrap/admin-styles.ts` 显式导入 `styles/element-plus/*.css`（由 `bootstrap/startup.ts` 统一加载）。
@@ -128,7 +137,7 @@
 - admin lint 已切换到 `Ultracite + Biome`（单引擎门禁，不再保留 ESLint/Stylelint 双轨脚本）。
 - lint 门禁命令：
   - `lint`：`ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src`（按 admin 子项目 `src` 范围统一门禁，warning 与 error 同级阻断）；
-  - `lint:arch`：`node ../../scripts/check-admin-arch.mjs`（架构边界门禁，使用仓库脚本，不新增 ESLint 子配置）；
+  - `lint:arch`：`node ../../scripts/check-admin-arch.mjs`（架构边界门禁，使用仓库脚本，不新增 ESLint 子配置；检测同时覆盖 `@/` alias 与相对路径 import，避免绕过）；
   - `lint:fix`：`ultracite fix src`（按 admin 子项目 `src` 范围统一格式化与可自动修复项）；
   - `lint:doctor`：`ultracite doctor`（诊断本地配置/环境）。
 - admin 架构边界检查统一通过 `lint:arch` 脚本实现，禁止再为 admin 新增 `eslint.*` 架构门禁配置文件。

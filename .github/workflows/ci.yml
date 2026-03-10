@@ -29,20 +29,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint architecture boundary
-        run: pnpm lint:arch
-
-      - name: Run unit tests
-        run: pnpm test:run
-
-      - name: Type check
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Build
-        run: pnpm build
-
-      - name: Check admin bundle size budget
-        run: pnpm check:admin:bundle
+      - name: Verify
+        run: pnpm verify

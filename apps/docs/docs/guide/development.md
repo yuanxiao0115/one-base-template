@@ -91,11 +91,12 @@ pnpm biome:ci
   - `ep` / `ri` 图标集合不再直接塞进应用主入口
   - 管理端图标选择器打开时再加载完整集合，菜单渲染只在需要时注册对应集合
   - `ensureMenuIconifyCollectionsRegistered()` 默认只加载 `ep`，`ri` 仅在显式前缀或图标值命中时加载
-- **当前阶段不优先通过改路由懒加载来处理**，因为 `apps/admin` 的模块路由仍遵循静态 import 约束；若后续要继续压缩首包，再单独评估规则调整
+- `apps/admin` 当前采用“路由静态声明 + 页面组件异步懒加载”策略；后续继续压缩首屏时，优先调优 vendor/feature chunk 与 preload 规则，避免在 HTTP1.0 场景过度细碎分包
 - `admin` 仍保留较高的 `chunkSizeWarningLimit`，前提是 vendor / 图标集合 / 重模块已经独立拆出；这样可以避免静态路由壳层的误报噪音
 - `admin` 已增加构建体积预算门禁脚本：`pnpm check:admin:bundle`
-  - 检查对象：`iconify-ri` / `vxe` / `element-plus` / `page-*` 最大 chunk
-  - 默认上限：`1120 / 1080 / 720 / 920 KiB`
+  - 检查对象（大 chunk 上沿）：`iconify-ri` / `wangeditor` / `vxe` / `element-plus` / `page-*`
+  - 检查对象（HTTP1.0 排队风险）：`startup dependency map js count` / `startup dependency map js gzip` / `tiny chunks` 数量
+  - 默认上限：`1120 / 980 / 1080 / 720 / 920 KiB`（大 chunk）+ `22`（startup js 数）+ `820 KiB`（startup js gzip）+ `12`（tiny chunks）
   - CI 在 `pnpm build` 后自动执行，超限直接失败，避免大体积回归静默进入主分支
 
 ## admin Vite 代理约定
@@ -172,6 +173,15 @@ pnpm check:naming
 ```bash
 pnpm verify
 ```
+
+`verify` 当前与 CI 保持同口径，顺序为：
+
+- `pnpm lint:arch`
+- `pnpm test:run`
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm build`
+- `pnpm check:admin:bundle`
 
 - 环境自检（新成员首次拉仓后推荐）：
 
