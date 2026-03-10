@@ -5,7 +5,8 @@
   import { useRouter } from "vue-router";
   import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
   import { getAppEnv } from "@/infra/env";
-  import { resolveAppRedirectTarget } from "@/router/redirect";
+  import { APP_LOGIN_ROUTE_PATH } from "@/router/constants";
+  import { getAppRedirectTarget } from "@/router/redirect";
   import {
     loginByDesktop,
     loginByExternal,
@@ -23,23 +24,6 @@
   const loading = ref(true);
   const errorMessage = ref("");
   const loginStatus = ref<"" | "fail" | "success">("");
-
-  interface BizResponse<T> {
-    code?: unknown;
-    data?: T;
-    message?: string;
-  }
-
-  interface TokenResult {
-    authToken?: string;
-    token?: string;
-    [k: string]: unknown;
-  }
-
-  interface IdTokenResult {
-    idToken?: string;
-    [k: string]: unknown;
-  }
 
   const { backend } = appEnv;
   const { baseUrl } = appEnv;
@@ -59,7 +43,7 @@
   }
 
   async function handleZhxt(token: string, redirect: string) {
-    const res = (await loginByZhxt(token)) as BizResponse<TokenResult>;
+    const res = await loginByZhxt(token);
     const authToken = res.data?.authToken;
     if (!authToken) {
       throw new Error(res.message || "智慧协同单点登录失败");
@@ -68,7 +52,7 @@
   }
 
   async function handleYdbg(token: string, redirect: string) {
-    const res = (await loginByYdbg(token)) as BizResponse<TokenResult>;
+    const res = await loginByYdbg(token);
     const authToken = res.data?.authToken;
     if (!authToken) {
       throw new Error(res.message || "移动办公单点登录失败");
@@ -80,10 +64,10 @@
     // 老项目行为：serviceUrl = redirectUrl ? `${origin}/${redirectUrl}` : 当前完整 URL
     const serviceUrl = redirectUrlRaw ? `${window.location.origin}/${redirectUrlRaw}` : window.location.href;
 
-    const res = (await loginByTicket({
+    const res = await loginByTicket({
       ticket,
       serviceUrl,
-    })) as BizResponse<TokenResult>;
+    });
 
     const authToken = res.data?.authToken;
     if (!authToken) {
@@ -97,10 +81,10 @@
   }
 
   async function handleExternalSso(params: { from: "om" | "portal"; token: string; redirect: string }) {
-    const res = (await loginByExternal({
+    const res = await loginByExternal({
       from: params.from,
       token: params.token,
-    })) as BizResponse<TokenResult>;
+    });
 
     const authToken = res.data?.token ?? res.data?.authToken;
     if (!authToken) {
@@ -109,7 +93,7 @@
     localStorage.setItem(tokenKey, authToken);
 
     // 兼容老项目：额外换取 idToken（用于后续桌面统一认证场景）
-    const ssoRes = (await loginByDesktop()) as BizResponse<IdTokenResult>;
+    const ssoRes = await loginByDesktop();
     const idToken = ssoRes.data?.idToken;
     if (idToken) {
       localStorage.setItem(idTokenKey, idToken);
@@ -126,7 +110,7 @@
     try {
       if (backend !== "sczfw") {
         const { redirect } = await handleSsoCallback();
-        await router.replace(resolveAppRedirectTarget(redirect, { fallback: DEFAULT_FALLBACK_HOME, baseUrl }));
+        await router.replace(getAppRedirectTarget(redirect, { fallback: DEFAULT_FALLBACK_HOME, baseUrl }));
         loginStatus.value = "success";
         return;
       }
@@ -142,7 +126,7 @@
       const sourceCode = sp.get("sourceCode");
 
       const redirectUrlRaw = sp.get("redirectUrl") ?? sp.get("redirect");
-      const redirect = resolveAppRedirectTarget(redirectUrlRaw, {
+      const redirect = getAppRedirectTarget(redirectUrlRaw, {
         fallback: DEFAULT_FALLBACK_HOME,
         baseUrl,
       });
@@ -207,7 +191,9 @@
 
       <div v-else-if="loginStatus === 'fail'" class="text-sm">
         <p class="text-[var(--el-text-color-regular)]">{{ errorMessage || '登录失败' }}</p>
-        <div class="mt-4"><el-button type="primary" @click="router.replace('/login')">返回登录页</el-button></div>
+        <div class="mt-4">
+          <el-button type="primary" @click="router.replace(APP_LOGIN_ROUTE_PATH)">返回登录页</el-button>
+        </div>
       </div>
 
       <div v-else class="text-[var(--el-text-color-regular)] text-sm">登录成功，正在跳转...</div>

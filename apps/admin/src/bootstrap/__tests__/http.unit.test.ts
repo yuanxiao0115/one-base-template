@@ -1,0 +1,167 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { APP_LOGIN_ROUTE_PATH } from "../../router/constants";
+
+const mocks = vi.hoisted(() => ({
+  authReset: vi.fn(),
+  menuReset: vi.fn(),
+  systemReset: vi.fn(),
+  tagHandle: vi.fn(),
+  createObHttpMock: vi.fn(),
+  createClientSignatureMock: vi.fn(() => "client-signature"),
+  elMessageError: vi.fn(),
+}));
+
+vi.mock("@one-base-template/core", () => ({
+  createObHttp: mocks.createObHttpMock,
+  useAuthStore: () => ({ reset: mocks.authReset }),
+  useMenuStore: () => ({ reset: mocks.menuReset }),
+  useSystemStore: () => ({ reset: mocks.systemReset }),
+}));
+
+vi.mock("@one-base-template/tag/store", () => ({
+  useTagStoreHook: () => ({
+    handleTags: mocks.tagHandle,
+  }),
+}));
+
+vi.mock("element-plus", () => ({
+  ElMessage: {
+    error: mocks.elMessageError,
+  },
+}));
+
+vi.mock("../../infra/sczfw/crypto", () => ({
+  createClientSignature: mocks.createClientSignatureMock,
+}));
+
+import { createAppHttp } from "../http";
+
+function createStorageMock() {
+  const map = new Map<string, string>();
+
+  return {
+    clear: () => map.clear(),
+    getItem: (key: string) => (map.has(key) ? map.get(key)! : null),
+    key: (index: number) => Array.from(map.keys())[index] ?? null,
+    removeItem: (key: string) => {
+      map.delete(key);
+    },
+    setItem: (key: string, value: string) => {
+      map.set(key, String(value));
+    },
+    get length() {
+      return map.size;
+    },
+  } as Storage;
+}
+
+describe("bootstrap/http", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal("localStorage", createStorageMock());
+    mocks.createObHttpMock.mockImplementation((options: unknown) => options);
+  });
+
+  it("应按鉴权模式生成 axios 基础配置", () => {
+    createAppHttp({
+      backend: "default",
+      isProd: true,
+      apiBaseUrl: "https://api.example.com",
+      authMode: "cookie",
+      tokenKey: "token-key",
+      idTokenKey: "id-token-key",
+      pinia: {} as never,
+      router: { replace: vi.fn() } as never,
+    });
+
+    const options = mocks.createObHttpMock.mock.calls[0]?.[0] as Record<string, any>;
+    expect(options.axios.baseURL).toBe("https://api.example.com");
+    expect(options.axios.withCredentials).toBe(true);
+    expect(options.axios.timeout).toBe(30_000);
+  });
+
+  it("sczfw 场景应注入签名请求头并使用更长超时", () => {
+    createAppHttp({
+      backend: "sczfw",
+      isProd: true,
+      apiBaseUrl: "https://api.example.com",
+      authMode: "token",
+      tokenKey: "token-key",
+      idTokenKey: "id-token-key",
+      sczfwHeaders: {
+        Appcode: "admin-app",
+      },
+      clientSignatureSalt: "salt-1",
+      clientSignatureClientId: "client-1",
+      pinia: {} as never,
+      router: { replace: vi.fn() } as never,
+    });
+
+    const options = mocks.createObHttpMock.mock.calls[0]?.[0] as Record<string, any>;
+    expect(options.axios.withCredentials).toBe(false);
+    expect(options.axios.timeout).toBe(100_000);
+    expect(typeof options.beforeRequestCallback).toBe("function");
+
+    const config = {
+      headers: {},
+    };
+    options.beforeRequestCallback(config);
+
+    expect(mocks.createClientSignatureMock).toHaveBeenCalledWith({
+      salt: "salt-1",
+      clientId: "client-1",
+    });
+    expect(config.headers).toMatchObject({
+      Appcode: "admin-app",
+      "Client-Signature": "client-signature",
+    });
+  });
+
+  it("未授权时应清理状态并回到登录页", async () => {
+    const routerReplace = vi.fn();
+    const storage = globalThis.localStorage;
+    storage.setItem("token-key", "token");
+    storage.setItem("id-token-key", "id-token");
+
+    createAppHttp({
+      backend: "default",
+      isProd: false,
+      authMode: "cookie",
+      tokenKey: "token-key",
+      idTokenKey: "id-token-key",
+      pinia: {} as never,
+      router: { replace: routerReplace } as never,
+    });
+
+    const options = mocks.createObHttpMock.mock.calls[0]?.[0] as Record<string, any>;
+    options.hooks.onUnauthorized();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(storage.getItem("token-key")).toBeNull();
+    expect(storage.getItem("id-token-key")).toBeNull();
+    expect(mocks.authReset).toHaveBeenCalledTimes(1);
+    expect(mocks.menuReset).toHaveBeenCalledTimes(1);
+    expect(mocks.systemReset).toHaveBeenCalledTimes(1);
+    expect(routerReplace).toHaveBeenCalledWith(APP_LOGIN_ROUTE_PATH);
+  });
+
+  it("业务错误应触发统一错误提示", () => {
+    createAppHttp({
+      backend: "default",
+      isProd: false,
+      authMode: "cookie",
+      tokenKey: "token-key",
+      idTokenKey: "id-token-key",
+      pinia: {} as never,
+      router: { replace: vi.fn() } as never,
+    });
+
+    const options = mocks.createObHttpMock.mock.calls[0]?.[0] as Record<string, any>;
+    options.hooks.onBizError({
+      message: "请求失败",
+    });
+
+    expect(mocks.elMessageError).toHaveBeenCalledWith("请求失败");
+  });
+});

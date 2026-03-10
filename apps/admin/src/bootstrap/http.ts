@@ -5,6 +5,7 @@ import { createObHttp, type ObHttp, useAuthStore, useMenuStore, useSystemStore }
 
 import type { AuthMode, BackendKind } from "../infra/env";
 import { createClientSignature } from "../infra/sczfw/crypto";
+import { APP_LOGIN_ROUTE_PATH } from "../router/constants";
 
 function resetTagStore() {
   // 统一走单启动链路后，未授权时始终清空 tags，避免残留上一个会话的页签状态。
@@ -93,7 +94,7 @@ export function createAppHttp(params: {
         useMenuStore(pinia).reset();
         useSystemStore(pinia).reset();
         resetTagStore();
-        router.replace("/login");
+        router.replace(APP_LOGIN_ROUTE_PATH);
       },
     },
   });

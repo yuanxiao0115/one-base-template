@@ -6,25 +6,13 @@
   import { useRoute, useRouter } from "vue-router";
   import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
   import { getAppEnv } from "@/infra/env";
-  import { resolveAppRedirectTarget } from "@/router/redirect";
-  import { checkCaptcha, loadCaptcha } from "@/shared/services/auth-captcha-service";
-  import { getLoginPageConfig } from "@/shared/services/auth-remote-service";
+  import { getAppRedirectTarget } from "@/router/redirect";
+  import { fetchCaptchaCheck, loadCaptcha } from "@/shared/services/auth-captcha-service";
+  import { getLoginPageConfig, type LoginPageConfig } from "@/shared/services/auth-remote-service";
 
   defineOptions({
     name: "LoginPage",
   });
-
-  interface BizResponse<T> {
-    code?: unknown;
-    data?: T;
-    message?: string;
-  }
-
-  interface LoginPageConfig {
-    webLogoText?: string;
-    loginPageFodders?: string[];
-    [k: string]: unknown;
-  }
 
   interface VerifyLoginPayload {
     username: string;
@@ -55,13 +43,12 @@
   function getRedirectTarget() {
     const raw = route.query.redirect ?? route.query.redirectUrl;
     const fallback = backend === "sczfw" ? DEFAULT_FALLBACK_HOME : "/";
-    return resolveAppRedirectTarget(raw, { fallback, baseUrl });
+    return getAppRedirectTarget(raw, { fallback, baseUrl });
   }
 
   async function loadLoginPageConfig() {
-    const res = (await getLoginPageConfig()) as BizResponse<LoginPageConfig>;
-
-    if (!res || res.code !== 200) {
+    const res = await getLoginPageConfig();
+    if (res.code !== 200) {
       return;
     }
 
@@ -135,7 +122,7 @@
             :loading="loading"
             :encrypt="useVerifyLogin"
             :load-captcha="loadCaptcha"
-            :check-captcha="checkCaptcha"
+            :check-captcha="fetchCaptchaCheck"
             :validate-password="useVerifyLogin"
             username-label=""
             password-label=""
