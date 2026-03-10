@@ -79,6 +79,7 @@ getRouteAssemblyResult({
   defaultSystemCode: appEnv.defaultSystemCode,
   systemHomeMap: appEnv.systemHomeMap,
   storageNamespace: appEnv.storageNamespace,
+  routeConflictPolicy: appEnv.isProd ? "warn" : "fail-fast",
 })
 ```
 
@@ -87,6 +88,14 @@ getRouteAssemblyResult({
 - `router/assemble-routes.ts` 退化为纯组装逻辑，降低隐式全局依赖
 - 后续新增子项目时，只要在各自 `bootstrap` 组装参数即可复用装配器
 - 基建升级的影响面主要停留在启动编排层，不会扩散到业务模块
+
+新增约定：
+
+- `routeConflictPolicy` 支持 `warn` / `fail-fast`
+- admin 当前默认策略：
+  - 开发环境：`fail-fast`（冲突直接抛错，避免本地调试“静默跳过”）
+  - 生产环境：`warn`（兼容历史行为，冲突告警并跳过）
+- 路由冲突校验职责已从组装器拆分到 `route-assembly-validator`，实现“校验器 + 构造器”分层
 
 ### 2.2 compat 执行语义（已落地）
 
@@ -130,6 +139,19 @@ compat: {
 - 第三批回归补强已覆盖：
   - `packages/core/src/router/guards.test.ts`：`remote` 模式下 `remoteSynced=false` 的两类边界（`loaded=true` 后台同步、`loaded=false` 阻塞加载）；
   - `apps/admin/src/shared/services/__tests__/sso-callback-strategy.unit.test.ts`：`ticket` 分支 `redirectUrl` 缺省透传 `null` 与 handler 抛错透传。
+- 第四批进一步收敛：
+  - 新增 `apps/admin/src/shared/services/auth-scenario-provider.ts`，统一封装 `default/sczfw` 登录与 SSO 场景；
+  - 页面层（`LoginPage.vue` / `SsoCallbackPage.vue`）只保留 UI 状态与跳转编排，不再直接拼接后端分支细节；
+  - 新增 `auth-scenario-provider` 单测，覆盖场景分支、token 回填与异常分支。
+
+### 2.4 路由冲突策略与测试护栏（第四批续）
+
+- `assemble-routes` 已新增冲突策略单测：
+  - `routeConflictPolicy='fail-fast'`：重复 path/name 冲突直接抛错
+  - `routeConflictPolicy='warn'`：保持 `warn + skip` 兼容
+- 关键文件：
+  - `apps/admin/src/router/route-assembly-validator.ts`
+  - `apps/admin/src/router/__tests__/assemble-routes-policy.unit.test.ts`
 
 ## 3) enabledModules 运行时开关
 

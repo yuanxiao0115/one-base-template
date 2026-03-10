@@ -40,6 +40,7 @@ export function bootstrapAdminApp() {
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
     storageNamespace: appEnv.storageNamespace,
+    routeConflictPolicy: appEnv.isProd ? "warn" : "fail-fast",
   });
   const router = createAppRouter({
     routes,

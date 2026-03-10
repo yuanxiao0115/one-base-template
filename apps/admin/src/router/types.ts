@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from "vue-router";
 
 export type EnabledModulesSetting = string[] | "*";
 export type ModuleTier = "core" | "optional";
+export type RouteConflictPolicy = "warn" | "fail-fast";
 
 export interface RouteAlias {
   from: string;
@@ -46,4 +47,5 @@ export interface AppRouteAssemblyOptions {
   defaultSystemCode?: string;
   systemHomeMap: Record<string, string>;
   storageNamespace: string;
+  routeConflictPolicy?: RouteConflictPolicy;
 }

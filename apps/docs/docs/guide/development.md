@@ -77,6 +77,9 @@ pnpm biome:ci
   - 路由壳组件改走 `@one-base-template/ui/shell`
   - 登录页优先直引 `@one-base-template/ui/lite-auth`，避免再经 `ui/lite` barrel 把 `one-ui-shell` 借道带回匿名首屏
 - `admin` 的构建后处理会继续收紧 `index-*` / `admin-auth-*` / `LoginPage-*` / `lite-*` 的 preload map，避免登录相关页面提前拉起 `one-ui-shell` / `vxe` / `portal-engine` 等业务壳资源
+- 第四批补充（admin）：
+  - preload 阻断前缀新增 `iconify-ri-*`（避免登录与运行时入口预拉 Remix Icon 全量集合）
+  - `index-*` / `admin-runtime-*` 入口额外阻断 `element-plus-*` 预加载，避免非必要首屏抢占带宽
 - 登录或未授权流程如果只是做状态清理或只读访问，优先补“细粒度子出口 + 动态 import”：
   - 当前 `tags` 清理固定走 `@one-base-template/tag/store`
   - 不要静态 import `@one-base-template/tag` 根入口
@@ -84,6 +87,7 @@ pnpm biome:ci
 - 离线 Iconify 数据按集合拆成独立异步 chunk：
   - `ep` / `ri` 图标集合不再直接塞进应用主入口
   - 管理端图标选择器打开时再加载完整集合，菜单渲染只在需要时注册对应集合
+  - `ensureMenuIconifyCollectionsRegistered()` 默认只加载 `ep`，`ri` 仅在显式前缀或图标值命中时加载
 - **当前阶段不优先通过改路由懒加载来处理**，因为 `apps/admin` 的模块路由仍遵循静态 import 约束；若后续要继续压缩首包，再单独评估规则调整
 - `admin` 仍保留较高的 `chunkSizeWarningLimit`，前提是 vendor / 图标集合 / 重模块已经独立拆出；这样可以避免静态路由壳层的误报噪音
 

@@ -4,6 +4,7 @@ import type { IconifyJSON } from '@iconify/types';
 export type MenuIconifyPrefix = 'ep' | 'ri';
 
 const ICONIFY_PREFIX_SET = new Set<MenuIconifyPrefix>(['ep', 'ri']);
+const DEFAULT_ICONIFY_PREFIXES: MenuIconifyPrefix[] = ['ep'];
 
 const ICONIFY_COLLECTION_LOADERS: Record<MenuIconifyPrefix, () => Promise<IconifyJSON>> = {
   ep: async () => (await import('@iconify-json/ep/icons.json')).default as IconifyJSON,
@@ -39,7 +40,7 @@ function parseMenuIconifyValue(value: string | undefined) {
 
 function resolvePrefixes(prefix?: MenuIconifyPrefix | MenuIconifyPrefix[]): MenuIconifyPrefix[] {
   if (!prefix) {
-    return ['ep', 'ri'];
+    return DEFAULT_ICONIFY_PREFIXES;
   }
 
   return Array.isArray(prefix) ? prefix : [prefix];

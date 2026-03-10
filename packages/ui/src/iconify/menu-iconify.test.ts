@@ -62,6 +62,20 @@ describe('menu-iconify', () => {
     expect(mod.isMenuIconifyValue('plain-icon')).toBe(false)
   })
 
+  it('未指定前缀时默认只加载 ep 集合', async () => {
+    const { addCollection } = await import('@iconify/vue/dist/offline')
+    const mod = await import('./menu-iconify')
+
+    await mod.ensureMenuIconifyCollectionsRegistered()
+
+    expect(addCollection).toHaveBeenCalledTimes(1)
+    expect(addCollection).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        prefix: 'ep'
+      })
+    )
+  })
+
   it('解析前缀时会忽略两侧空白字符', async () => {
     const mod = await import('./menu-iconify')
 

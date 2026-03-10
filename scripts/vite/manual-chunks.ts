@@ -158,6 +158,7 @@ const ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES = [
   'assets/sortable-grid-',
   'assets/one-ui-shell-',
   'assets/one-ui-table-',
+  'assets/iconify-ri-',
   'assets/vxe-'
 ]
 
@@ -166,6 +167,7 @@ const ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES = [
   'assets/admin-auth-',
   'assets/LoginPage-',
   'assets/one-ui-auth-',
+  'assets/element-plus-',
   'assets/iconify-runtime-',
   'assets/arrow-left-s-line-',
   'assets/dist-web-',
@@ -176,6 +178,7 @@ const ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES = [
   'assets/admin-app-shell-',
   'assets/one-ui-shell-',
   'assets/one-ui-table-',
+  'assets/iconify-ri-',
   'assets/vxe-'
 ]
 

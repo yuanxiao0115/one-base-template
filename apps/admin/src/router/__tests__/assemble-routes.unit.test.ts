@@ -14,8 +14,12 @@ import {
   APP_SSO_ROUTE_PATH,
 } from "../constants";
 import { getAppRoutes } from "../assemble-routes";
+import type { AppRouteAssemblyOptions } from "../types";
 
-function createRouteAssemblyOptions(enabledModules: string[]) {
+function createRouteAssemblyOptions(
+  enabledModules: string[],
+  overrides: Partial<AppRouteAssemblyOptions> = {}
+): AppRouteAssemblyOptions {
   return {
     enabledModules,
     defaultSystemCode: "admin_server",
@@ -23,7 +27,8 @@ function createRouteAssemblyOptions(enabledModules: string[]) {
       admin_server: "/home/index",
     },
     storageNamespace: "admin-test",
-  } as const;
+    ...overrides,
+  };
 }
 
 describe("router/assemble-routes", () => {

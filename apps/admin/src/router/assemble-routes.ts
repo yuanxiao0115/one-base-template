@@ -2,14 +2,18 @@ import type { RouteRecordRaw } from "vue-router";
 import { getInitialPath } from "@one-base-template/core";
 import { AdminLayout, ForbiddenPage, NotFoundPage } from "@one-base-template/ui/shell";
 import { DEFAULT_FALLBACK_HOME } from "../config/systems";
-import { createAppLogger } from "@/shared/logger";
 import type {
   AdminModuleManifest,
   AppRouteAssemblyOptions,
   AppRouteAssemblyResult,
   ModuleCompat,
 } from "./types";
-import { getSkipMenuAuthRouteName, isSkipMenuAuthRoute, toRouteNameKey } from "./skip-menu-auth";
+import {
+  createRouteAssemblyValidator,
+  type RouteAssemblyValidator,
+  type RouteCollectContext,
+  type RouteSource,
+} from "./route-assembly-validator";
 
 import { getEnabledModules } from "./registry";
 import {
@@ -17,24 +21,9 @@ import {
   APP_LOGIN_ROUTE_PATH,
   APP_NOT_FOUND_CATCHALL_PATH,
   APP_NOT_FOUND_ROUTE_PATH,
-  APP_RESERVED_ROUTE_NAMES,
-  APP_RESERVED_ROUTE_PATHS,
   APP_ROOT_PATH,
   APP_SSO_ROUTE_PATH,
 } from "./constants";
-
-type RouteSource = "layout" | "standalone";
-
-interface RouteCollectContext {
-  source: RouteSource;
-  moduleId: string;
-  parentPath: string;
-  usedPaths: Set<string>;
-  usedNames: Set<string>;
-  skipMenuAuthRouteNames: Set<string>;
-}
-
-const logger = createAppLogger("router/assemble");
 
 function getNormalizedPath(path: string): string {
   if (!path) {
@@ -57,68 +46,31 @@ function buildRoutePath(parentPath: string, currentPath: string): string {
   return getNormalizedPath(`${parentPath}/${currentPath}`);
 }
 
-function shouldSkipRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean {
-  const sourceLabel = context.source === "layout" ? "layout" : "standalone";
-  const moduleLabel = context.moduleId;
-
-  if (APP_RESERVED_ROUTE_PATHS.has(fullPath)) {
-    logger.warn(`模块路由占用了保留 path：${fullPath}（module=${moduleLabel} source=${sourceLabel}），已跳过。`);
-    return true;
-  }
-
-  if (context.usedPaths.has(fullPath)) {
-    logger.warn(`检测到重复 path：${fullPath}（module=${moduleLabel} source=${sourceLabel}），已跳过后出现的定义。`);
-    return true;
-  }
-
-  const nameKey = toRouteNameKey(route.name);
-  if (!nameKey) {
-    return false;
-  }
-
-  if (APP_RESERVED_ROUTE_NAMES.has(nameKey)) {
-    logger.warn(`模块路由占用了保留 name：${nameKey}（module=${moduleLabel} source=${sourceLabel}），已跳过。`);
-    return true;
-  }
-
-  if (context.usedNames.has(nameKey)) {
-    logger.warn(`检测到重复 name：${nameKey}（module=${moduleLabel} source=${sourceLabel}），已跳过后出现的定义。`);
-    return true;
-  }
-
-  return false;
-}
-
-function buildModuleRoutes(routes: RouteRecordRaw[], context: RouteCollectContext): RouteRecordRaw[] {
+function buildModuleRoutes(params: {
+  routes: RouteRecordRaw[];
+  context: RouteCollectContext;
+  validator: RouteAssemblyValidator;
+}): RouteRecordRaw[] {
+  const { routes, context, validator } = params;
   const out: RouteRecordRaw[] = [];
 
   for (const route of routes) {
     const fullPath = buildRoutePath(context.parentPath, route.path);
-    if (shouldSkipRoute(route, fullPath, context)) {
+    if (validator.shouldSkipRoute(route, fullPath, context)) {
       continue;
     }
 
-    context.usedPaths.add(fullPath);
-    const nameKey = toRouteNameKey(route.name);
-    if (nameKey) {
-      context.usedNames.add(nameKey);
-    }
-
-    const skipMenuAuthRouteName = getSkipMenuAuthRouteName(route);
-    if (isSkipMenuAuthRoute(route) && skipMenuAuthRouteName === null) {
-      logger.warn(
-        `skipMenuAuth 路由缺少 name：${fullPath}（module=${context.moduleId} source=${context.source}），该路由不会加入守卫白名单。`
-      );
-    }
-    if (skipMenuAuthRouteName !== null) {
-      context.skipMenuAuthRouteNames.add(skipMenuAuthRouteName);
-    }
+    validator.registerRoute(route, fullPath, context);
 
     const nextRoute: RouteRecordRaw = { ...route };
     if (Array.isArray(route.children) && route.children.length > 0) {
-      nextRoute.children = buildModuleRoutes(route.children, {
-        ...context,
-        parentPath: fullPath,
+      nextRoute.children = buildModuleRoutes({
+        routes: route.children,
+        context: {
+          ...context,
+          parentPath: fullPath,
+        },
+        validator,
       });
     }
 
@@ -133,9 +85,10 @@ function applyActivePathCompat(params: {
   source: RouteSource;
   moduleId: string;
   parentPath: string;
+  validator: RouteAssemblyValidator;
   activePathMap?: Record<string, string>;
 }): RouteRecordRaw[] {
-  const { routes, source, moduleId, parentPath, activePathMap } = params;
+  const { routes, source, moduleId, parentPath, validator, activePathMap } = params;
   if (!activePathMap || Object.keys(activePathMap).length === 0) {
     return routes;
   }
@@ -154,7 +107,7 @@ function applyActivePathCompat(params: {
           activePath: compatActivePath,
         };
       } else if (meta.activePath !== compatActivePath) {
-        logger.warn(
+        validator.warn(
           `compat.activePathMap 与路由 meta.activePath 冲突：${fullPath}（module=${moduleId} source=${source}），已保留路由声明值。`
         );
       }
@@ -166,6 +119,7 @@ function applyActivePathCompat(params: {
         source,
         moduleId,
         parentPath: fullPath,
+        validator,
         activePathMap,
       });
     }
@@ -179,11 +133,9 @@ function applyActivePathCompat(params: {
 function collectModuleRoutes(params: {
   modules: AdminModuleManifest[];
   source: RouteSource;
-  usedPaths: Set<string>;
-  usedNames: Set<string>;
-  skipMenuAuthRouteNames: Set<string>;
+  validator: RouteAssemblyValidator;
 }): RouteRecordRaw[] {
-  const { modules, source, usedPaths, usedNames, skipMenuAuthRouteNames } = params;
+  const { modules, source, validator } = params;
   const out: RouteRecordRaw[] = [];
 
   for (const module of modules) {
@@ -193,17 +145,19 @@ function collectModuleRoutes(params: {
       source,
       moduleId: module.id,
       parentPath: APP_ROOT_PATH,
+      validator,
       activePathMap: module.compat?.activePathMap,
     });
 
     out.push(
-      ...buildModuleRoutes(compatRoutes, {
-        source,
-        moduleId: module.id,
-        parentPath: APP_ROOT_PATH,
-        usedPaths,
-        usedNames,
-        skipMenuAuthRouteNames,
+      ...buildModuleRoutes({
+        routes: compatRoutes,
+        context: {
+          source,
+          moduleId: module.id,
+          parentPath: APP_ROOT_PATH,
+        },
+        validator,
       })
     );
   }
@@ -213,9 +167,9 @@ function collectModuleRoutes(params: {
 
 function collectCompatAliasRoutes(params: {
   modules: AdminModuleManifest[];
-  usedPaths: Set<string>;
+  validator: RouteAssemblyValidator;
 }): RouteRecordRaw[] {
-  const { modules, usedPaths } = params;
+  const { modules, validator } = params;
   const out: RouteRecordRaw[] = [];
 
   for (const module of modules) {
@@ -228,7 +182,7 @@ function collectCompatAliasRoutes(params: {
       ...buildModuleCompatAliasRoutes({
         moduleId: module.id,
         compat: module.compat,
-        usedPaths,
+        validator,
       })
     );
   }
@@ -239,9 +193,9 @@ function collectCompatAliasRoutes(params: {
 function buildModuleCompatAliasRoutes(params: {
   moduleId: string;
   compat?: ModuleCompat;
-  usedPaths: Set<string>;
+  validator: RouteAssemblyValidator;
 }): RouteRecordRaw[] {
-  const { moduleId, compat, usedPaths } = params;
+  const { moduleId, compat, validator } = params;
   const routeAliases = compat?.routeAliases;
   if (!routeAliases || routeAliases.length === 0) {
     return [];
@@ -253,26 +207,20 @@ function buildModuleCompatAliasRoutes(params: {
     const toPath = getNormalizedPath(alias.to);
 
     if (!(alias.from && alias.to)) {
-      logger.warn(`compat.routeAliases 含空路径配置（module=${moduleId}），已跳过。`);
+      validator.warn(`compat.routeAliases 含空路径配置（module=${moduleId}），已跳过。`);
       continue;
     }
 
     if (fromPath === toPath) {
-      logger.warn(`compat.routeAliases from/to 相同：${fromPath}（module=${moduleId}），已跳过。`);
+      validator.warn(`compat.routeAliases from/to 相同：${fromPath}（module=${moduleId}），已跳过。`);
       continue;
     }
 
-    if (APP_RESERVED_ROUTE_PATHS.has(fromPath)) {
-      logger.warn(`compat.routeAliases 使用保留路径：${fromPath}（module=${moduleId}），已跳过。`);
+    if (validator.shouldSkipAliasPath(fromPath, moduleId)) {
       continue;
     }
 
-    if (usedPaths.has(fromPath)) {
-      logger.warn(`compat.routeAliases 路径与已装配路由冲突：${fromPath}（module=${moduleId}），已跳过。`);
-      continue;
-    }
-
-    usedPaths.add(fromPath);
+    validator.registerAliasPath(fromPath);
     const aliasActivePath = compat?.activePathMap?.[fromPath] ?? compat?.activePathMap?.[toPath];
     out.push({
       path: fromPath,
@@ -300,29 +248,25 @@ function getRootRedirect(options: Pick<AppRouteAssemblyOptions, "defaultSystemCo
 
 export function getAppRoutes(options: AppRouteAssemblyOptions): AppRouteAssemblyResult {
   const modules = getEnabledModules(options.enabledModules);
-  const usedPaths = new Set<string>();
-  const usedNames = new Set<string>();
-  const skipMenuAuthRouteNames = new Set<string>();
+  const validator = createRouteAssemblyValidator({
+    routeConflictPolicy: options.routeConflictPolicy,
+  });
 
   const standaloneRoutes = collectModuleRoutes({
     modules,
     source: "standalone",
-    usedPaths,
-    usedNames,
-    skipMenuAuthRouteNames,
+    validator,
   });
 
   const compatAliasRoutes = collectCompatAliasRoutes({
     modules,
-    usedPaths,
+    validator,
   });
 
   const layoutRoutes = collectModuleRoutes({
     modules,
     source: "layout",
-    usedPaths,
-    usedNames,
-    skipMenuAuthRouteNames,
+    validator,
   });
 
   const routes: RouteRecordRaw[] = [
@@ -386,6 +330,6 @@ export function getAppRoutes(options: AppRouteAssemblyOptions): AppRouteAssembly
 
   return {
     routes,
-    skipMenuAuthRouteNames: [...skipMenuAuthRouteNames],
+    skipMenuAuthRouteNames: validator.getSkipMenuAuthRouteNames(),
   };
 }
