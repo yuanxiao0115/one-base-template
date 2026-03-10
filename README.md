@@ -12,7 +12,7 @@ apps/portal           # 门户消费者应用（独立渲染）
 apps/template         # 最小可用示例（静态菜单）
 packages/core         # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等
 packages/ui           # UI 壳：布局/菜单/顶栏/tabs/keep-alive 等
-packages/adapters     # Adapter 示例（含 dev mock）
+packages/adapters     # Adapter 示例（默认/后端协议适配）
 packages/app-starter  # 跨应用启动骨架（runtime config + 统一启动编排）
 ```
 
@@ -54,14 +54,11 @@ pnpm -C apps/docs build
 
 说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `pnpm -C apps/admin dev`）；`pnpm dev:portal` 启动门户消费者应用（等价于 `pnpm -C apps/portal dev`）；`pnpm dev:template` 启动最小静态菜单示例（等价于 `pnpm -C apps/template dev`）。如需用 Turborepo 启动可尝试 `pnpm dev:turbo`（部分环境下 turbo 对 dev server 的进程托管可能不稳定）。
 
-默认 `apps/admin` 会启用 dev mock（Vite middleware），不需要后端即可跑通登录/菜单/SSO 基础流程：
+`apps/admin` 开发默认通过 Vite 代理直连后端（配置 `VITE_API_BASE_URL`）：
 
-- 未登录访问 `/` -> 自动跳转 `/login?redirect=/...`
-- 登录成功 -> 拉取 `me` + `menu` -> 进入首页
-- 多标签页（tabs）+ keep-alive 缓存
-- 主题切换（多套主题色）
-- SSO 回调：`/sso?token=xxx` / `ticket` / `code`
-- 下载演示：进入“页面 A”，点击“下载示例文件”（验证 `$isDownload` + 自动触发下载）
+- Vite dev server 会代理 `/api`、`/cmict` 到 `VITE_API_BASE_URL`
+- 登录后拉取 `me` + `menu`，进入首页并按权限展示菜单
+- `admin` 运行依赖后端登录与菜单权限接口（如 `token/verify`、`permission/my-tree`/`permissionCode`）
 
 ## 构建
 
@@ -73,7 +70,7 @@ pnpm build
 
 `apps/admin` 采用“双层配置”：
 
-- 构建期（`.env*`）：只保留 `VITE_API_BASE_URL` / `VITE_USE_MOCK` 等 dev/proxy 相关项
+- 构建期（`.env*`）：只保留 `VITE_API_BASE_URL` 等 dev/proxy 相关项
 - 运行时（`apps/admin/public/platform-config.json`）：backend/auth/menu/system/module 等业务配置
 
 `platform-config.json` 关键字段：
@@ -85,10 +82,8 @@ pnpm build
 - `skipMenuAuthProductionAllowList`: 生产环境 `skipMenuAuthLevel=allowlist` 的路由名白名单
 - `defaultSystemCode` / `systemHomeMap`: 多系统默认与首页映射
 - `VITE_API_BASE_URL=https://your-backend.example.com`
-  - 开发环境：存在时会启用 Vite 代理 `/api -> VITE_API_BASE_URL`，并默认关闭 mock
+  - 开发环境：存在时会启用 Vite 代理 `/api`、`/cmict` 到 `VITE_API_BASE_URL`
   - 生产环境：如需跨域直连，可作为 Axios `baseURL`（默认仍推荐同源 `/api`）
-- `VITE_USE_MOCK=true`
-  - 强制开启 mock（即使配置了 `VITE_API_BASE_URL`）
 
 ## 本地缓存（参考老项目）
 
@@ -131,7 +126,6 @@ pnpm build
 - Cookie(HttpOnly) 模式：
   - 登录接口需要 `Set-Cookie`
   - HTTP 客户端默认 `withCredentials: true`
-  - 开发 mock 通过 Vite middleware 模拟 `Set-Cookie`（见 `apps/admin/vite.config.ts`）
 
 ## 主题切换
 

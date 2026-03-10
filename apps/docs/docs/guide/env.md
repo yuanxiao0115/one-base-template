@@ -2,7 +2,7 @@
 
 从 2026-02-24 开始，`apps/admin` 采用“双层配置”：
 
-- **构建期配置**（`.env*`）：只保留 Vite dev/proxy/mock 必需项
+- **构建期配置**（`.env*`）：只保留 Vite dev/proxy 必需项
 - **运行时配置**（`public/platform-config.json`）：业务行为配置（backend/auth/menu/system 等）
 
 ## 1) 构建期配置（`.env*`）
@@ -14,10 +14,6 @@
 - `VITE_API_BASE_URL`
   - Vite dev server 的 `/api`、`/cmict` 代理目标
   - 生产构建时也会作为 http baseURL 的来源
-- `VITE_USE_MOCK`
-  - 仅影响 dev middleware mock 是否强制开启
-- `VITE_SCZFW_SYSTEM_PERMISSION_CODE`
-  - 仅影响 dev mock 返回菜单时的系统根 code
 - `VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK`
   - 启用启动容灾：当 `platform-config.json` 加载失败时，允许回退到浏览器本地只读快照
   - 默认关闭，建议仅在灰度/特定部署场景按需开启

@@ -49,7 +49,7 @@ packages/
 - `apps/template/public/platform-config.json`：运行时配置（推荐 `preset=static-single`）
 - `apps/template/src/config/platform-config.ts`：加载与校验配置
 - `apps/template/src/main.ts`：通过 `startAppWithRuntimeConfig()` 串联配置加载与应用挂载
-- `apps/template/src/infra/mock-adapter.ts`：本地 mock 鉴权（无后端依赖）
+- `apps/template/src/infra/local-adapter.ts`：本地鉴权适配器（local adapter，无后端依赖；仅 template 示例）
 - `apps/template/src/router/routes.ts`：静态路由与菜单来源（`modules/**/routes.ts`）
 - `apps/template/src/bootstrap/index.ts`：安装 router + core + ui + tag + 守卫
 

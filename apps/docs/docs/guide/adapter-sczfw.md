@@ -34,8 +34,6 @@
 构建期 `.env*` 仅保留：
 
 - `VITE_API_BASE_URL`
-- `VITE_USE_MOCK`（可选）
-- `VITE_SCZFW_SYSTEM_PERMISSION_CODE`（仅 dev mock 使用）
 
 运行时业务配置统一放在 `apps/admin/public/platform-config.json`：
 

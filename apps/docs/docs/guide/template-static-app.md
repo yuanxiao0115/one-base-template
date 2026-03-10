@@ -67,7 +67,7 @@ pnpm -C apps/template dev
 ## 5. 鉴权策略（模板默认）
 
 - 登录页：`/login`
-- 鉴权来源：`src/infra/mock-adapter.ts`（本地 mock，无后端依赖）
+- 鉴权来源：本地鉴权适配器（local adapter，无后端依赖；仅 `template` 示例）
 - 登录成功后执行 `finalizeAuthSession()`，统一加载用户态与菜单态
 
 ## 6. 最低验证

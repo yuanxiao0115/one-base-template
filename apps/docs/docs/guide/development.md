@@ -98,17 +98,14 @@ pnpm biome:ci
   - 默认上限：`1120 / 1080 / 720 / 920 KiB`
   - CI 在 `pnpm build` 后自动执行，超限直接失败，避免大体积回归静默进入主分支
 
-## admin Vite mock 约定（第二/第三批优化）
+## admin Vite 代理约定
 
 - `apps/admin/vite.config.ts` 只保留构建/插件编排。
-- 开发态 mock 中间件实现统一放在 `apps/admin/build/mock/**`：
-  - 当前入口：`apps/admin/build/mock/mock-middleware.ts`
-  - HTTP 工具层：`apps/admin/build/mock/http-helpers.ts`
-  - 路由处理层：`apps/admin/build/mock/route-handlers.ts`
-  - 类型契约层：`apps/admin/build/mock/types.ts`
-  - 导出工厂：`createAdminMockMiddleware(options?)`
-- 新增 mock 接口时，优先改 `build/mock` 下的实现文件，避免把业务 mock 细节重新堆回 `vite.config.ts`。
-- 目标是让配置升级与 mock 迭代互不干扰，降低子项目二开时的合并冲突概率。
+- `apps/admin` 开发默认通过 Vite 代理直连后端：
+  - 配置 `VITE_API_BASE_URL`
+  - 代理规则：`/api`、`/cmict` -> `VITE_API_BASE_URL`
+- `admin` 运行依赖后端登录与菜单权限接口（例如 `token/verify`、`permission/my-tree` 返回 `permissionCode` 菜单树）。
+- 不再内置开发态 mock 中间件，文档与配置均以“代理直连后端”为唯一口径。
 
 ## 文档必须随功能演进同步更新
 
