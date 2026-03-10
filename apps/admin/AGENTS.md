@@ -115,8 +115,10 @@
 - admin lint 已切换到 `Ultracite + Biome`（单引擎门禁，不再保留 ESLint/Stylelint 双轨脚本）。
 - lint 门禁命令：
   - `lint`：`ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src`（按 admin 子项目 `src` 范围统一门禁，warning 与 error 同级阻断）；
+  - `lint:arch`：`node ../../scripts/check-admin-arch.mjs`（架构边界门禁，使用仓库脚本，不新增 ESLint 子配置）；
   - `lint:fix`：`ultracite fix src`（按 admin 子项目 `src` 范围统一格式化与可自动修复项）；
   - `lint:doctor`：`ultracite doctor`（诊断本地配置/环境）。
+- admin 架构边界检查统一通过 `lint:arch` 脚本实现，禁止再为 admin 新增 `eslint.*` 架构门禁配置文件。
 - Biome 规则改为仓库根 `biome.jsonc` 全局维护；admin 不再保留本地 `biome.jsonc`。
 - `.vue` 文件启用 HTML-ish 全支持解析（`html.experimentalFullSupportEnabled=true`），降低模板场景误报。
 - 对于已在全局注入的能力（如 `obConfirm`），禁止为“消除 lint 未声明”而补显式 import；应在全局配置中声明 globals。
