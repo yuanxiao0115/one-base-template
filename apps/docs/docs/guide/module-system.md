@@ -104,7 +104,9 @@ await getRouteAssemblyResult({
 - admin 当前默认策略：
   - 开发环境：`fail-fast`（冲突直接抛错，避免本地调试“静默跳过”）
   - 生产环境：`warn`（兼容历史行为，冲突告警并跳过）
-- 路由冲突校验职责已从组装器拆分到 `route-assembly-validator`，实现“校验器 + 构造器”分层
+- 路由装配职责已拆为：
+  - `route-assembly-validator`：冲突校验与 skipMenuAuth 规则收集
+  - `route-assembly-builder`：递归构造模块路由、activePath 兼容与别名路由生成
 
 ### 2.2 compat 执行语义（已落地）
 
