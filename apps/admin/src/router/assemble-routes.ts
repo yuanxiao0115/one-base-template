@@ -112,7 +112,6 @@ export async function getAppRoutes(options: AppRouteAssemblyOptions): Promise<Ap
 
   return {
     routes,
-    skipMenuAuthRouteNames: skipMenuAuthRouteRules.map((item) => item.name),
     skipMenuAuthRouteRules,
   };
 }

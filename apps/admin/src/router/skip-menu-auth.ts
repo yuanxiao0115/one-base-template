@@ -50,14 +50,6 @@ export function isSkipMenuAuthRoute(route: RouteRecordRaw): boolean {
   return resolveSkipMenuAuthLevel(route) !== null;
 }
 
-export function getSkipMenuAuthRouteName(route: RouteRecordRaw): string | null {
-  const rule = getSkipMenuAuthRouteRule(route);
-  if (!rule) {
-    return null;
-  }
-  return rule.name;
-}
-
 export function getSkipMenuAuthRouteRule(route: RouteRecordRaw): SkipMenuAuthRouteRule | null {
   const level = resolveSkipMenuAuthLevel(route);
   if (!level) {

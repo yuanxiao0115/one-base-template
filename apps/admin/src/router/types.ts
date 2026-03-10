@@ -54,7 +54,6 @@ export type AdminModuleDeclarationModule = {
 
 export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];
-  skipMenuAuthRouteNames: string[];
   skipMenuAuthRouteRules: SkipMenuAuthRouteRule[];
 }
 
