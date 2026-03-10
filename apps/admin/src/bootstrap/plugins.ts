@@ -6,13 +6,7 @@ import OneTag from "@one-base-template/tag";
 
 import { appCrudContainerDefaultType, appTableDefaults } from "../config";
 import { DEFAULT_FALLBACK_HOME } from "../config/systems";
-import {
-  APP_FORBIDDEN_ROUTE_PATH,
-  APP_LOGIN_ROUTE_PATH,
-  APP_NOT_FOUND_ROUTE_PATH,
-  APP_ROOT_PATH,
-  APP_SSO_ROUTE_PATH,
-} from "../router/constants";
+import { routePaths } from "../router/constants";
 
 function isHiddenTagRoute(route: unknown): boolean {
   if (!route || typeof route !== "object") {
@@ -43,11 +37,11 @@ export function installAppShellPlugins(params: { app: App; pinia: Pinia; router:
     storageType: "session",
     storageKey: `${storageNamespace}:ob_tags`,
     ignoredRoutes: [
-      { path: APP_LOGIN_ROUTE_PATH },
-      { path: APP_SSO_ROUTE_PATH },
-      { path: APP_FORBIDDEN_ROUTE_PATH },
-      { path: APP_NOT_FOUND_ROUTE_PATH },
-      { path: APP_ROOT_PATH },
+      { path: routePaths.login },
+      { path: routePaths.sso },
+      { path: routePaths.forbidden },
+      { path: routePaths.notFound },
+      { path: routePaths.root },
       { pathIncludes: "/redirect" },
       { pathIncludes: "/error" },
       {

@@ -21,11 +21,5 @@
     "log-management",
     "system-management",
     "cms-management"
-  ],
-  "skipMenuAuthProductionAllowList": [
-    "PublicityColumn",
-    "PublicityContent",
-    "ArticleList",
-    "PublicityAudit"
   ]
 }

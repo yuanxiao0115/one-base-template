@@ -4,7 +4,7 @@
   import { onMounted, ref } from "vue";
   import { useRouter } from "vue-router";
   import { getAppEnv } from "@/infra/env";
-  import { APP_LOGIN_ROUTE_PATH } from "@/router/constants";
+  import { routePaths } from "@/router/constants";
   import { executeSsoScenario } from "@/shared/services/auth-scenario-provider";
 
   defineOptions({
@@ -71,7 +71,7 @@
       <div v-else-if="loginStatus === 'fail'" class="text-sm">
         <p class="text-[var(--el-text-color-regular)]">{{ errorMessage || '登录失败' }}</p>
         <div class="mt-4">
-          <el-button type="primary" @click="router.replace(APP_LOGIN_ROUTE_PATH)">返回登录页</el-button>
+          <el-button type="primary" @click="router.replace(routePaths.login)">返回登录页</el-button>
         </div>
       </div>
 

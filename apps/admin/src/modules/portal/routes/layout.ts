@@ -1,5 +1,4 @@
 import type { RouteRecordRaw } from "vue-router";
-import { createAllowlistSkipMenuAuthMeta } from "@/router/route-meta";
 
 export default [
   {
@@ -15,12 +14,11 @@ export default [
     name: "PortalTemplateList",
     component: async () => import("../pages/PortalTemplateListPage.vue"),
     meta: {
-      ...createAllowlistSkipMenuAuthMeta({
-        title: "门户模板",
-        keepAlive: true,
-        // 不要求后端改菜单：用老路径做权限归属（menuStore.allowedPaths 里通常是 /portal/setting）
-        activePath: "/portal/setting",
-      }),
+      title: "门户模板",
+      keepAlive: true,
+      // 不要求后端改菜单：用老路径做权限归属（menuStore.allowedPaths 里通常是 /portal/setting）
+      activePath: "/portal/setting",
+      skipMenuAuth: true,
     },
   },
 ] satisfies RouteRecordRaw[];

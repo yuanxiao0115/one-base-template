@@ -26,7 +26,6 @@ export interface AppEnv {
   idTokenKey: string;
   menuMode: MenuMode;
   enabledModules: EnabledModulesSetting;
-  skipMenuAuthProductionAllowList: string[];
   sczfwHeaders?: Record<string, string>;
   clientSignatureSalt?: string;
   clientSignatureClientId?: string;
@@ -101,7 +100,6 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   const { idTokenKey } = runtime;
   const { menuMode } = runtime;
   const { enabledModules } = runtime;
-  const skipMenuAuthProductionAllowList = runtime.skipMenuAuthProductionAllowList ?? [];
   const sczfwHeaders = resolveSczfwHeaders({
     backend,
     authorizationType: runtime.authorizationType,
@@ -130,7 +128,6 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     idTokenKey,
     menuMode,
     enabledModules,
-    skipMenuAuthProductionAllowList,
     sczfwHeaders,
     clientSignatureSalt,
     clientSignatureClientId,

@@ -1,8 +1,8 @@
-import type { AdminModuleManifest } from "@/router/types";
+import type { AppModuleManifest } from "@one-base-template/core";
 import { moduleManifest } from "./manifest";
 import layoutRoutes from "./routes";
 
-const logManagementModule: AdminModuleManifest = {
+const logManagementModule: AppModuleManifest = {
   ...moduleManifest,
   apiNamespace: "log-management",
   routes: {

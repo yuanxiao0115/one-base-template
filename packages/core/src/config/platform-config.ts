@@ -12,7 +12,6 @@ export interface RuntimeConfig {
   idTokenKey: string;
   menuMode: MenuMode;
   enabledModules: EnabledModulesSetting;
-  skipMenuAuthProductionAllowList?: string[];
   authorizationType: string;
   appsource: string;
   appcode: string;
@@ -147,24 +146,6 @@ function expectEnabledModules(raw: Record<string, unknown>, key: string, errors:
   return Array.from(new Set(modules));
 }
 
-function expectOptionalStringArray(raw: Record<string, unknown>, key: string, errors: string[]): string[] | undefined {
-  const value = raw[key];
-  if (value == null) {
-    return undefined;
-  }
-  if (!Array.isArray(value)) {
-    errors.push(`"${key}" 必须是字符串数组`);
-    return undefined;
-  }
-
-  const values = value.map((item) => (typeof item === 'string' ? item.trim() : '')).filter(Boolean);
-  if (values.length !== value.length) {
-    errors.push(`"${key}" 仅允许非空字符串数组`);
-  }
-
-  return Array.from(new Set(values));
-}
-
 function expectSystemHomeMap(
   raw: Record<string, unknown>,
   key: string,
@@ -205,11 +186,6 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   const idTokenKey = expectString(normalized, 'idTokenKey', errors);
   const menuMode = expectEnum(normalized, 'menuMode', ['remote', 'static'], errors);
   const enabledModules = expectEnabledModules(normalized, 'enabledModules', errors);
-  const skipMenuAuthProductionAllowList = expectOptionalStringArray(
-    normalized,
-    'skipMenuAuthProductionAllowList',
-    errors
-  );
   const authorizationType = expectString(normalized, 'authorizationType', errors);
   const appsource = expectString(normalized, 'appsource', errors);
   const appcode = expectString(normalized, 'appcode', errors);
@@ -246,7 +222,6 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
     idTokenKey: idTokenKey!,
     menuMode: menuMode!,
     enabledModules,
-    skipMenuAuthProductionAllowList,
     authorizationType: authorizationType!,
     appsource: appsource!,
     appcode: appcode!,

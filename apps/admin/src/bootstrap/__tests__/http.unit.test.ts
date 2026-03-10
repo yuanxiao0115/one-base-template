@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { APP_LOGIN_ROUTE_PATH } from "../../router/constants";
+import { routePaths } from "../../router/constants";
 
 const mocks = vi.hoisted(() => ({
   authReset: vi.fn(),
@@ -143,7 +143,7 @@ describe("bootstrap/http", () => {
     expect(mocks.authReset).toHaveBeenCalledTimes(1);
     expect(mocks.menuReset).toHaveBeenCalledTimes(1);
     expect(mocks.systemReset).toHaveBeenCalledTimes(1);
-    expect(routerReplace).toHaveBeenCalledWith(APP_LOGIN_ROUTE_PATH);
+    expect(routerReplace).toHaveBeenCalledWith(routePaths.login);
   });
 
   it("业务错误应触发统一错误提示", () => {

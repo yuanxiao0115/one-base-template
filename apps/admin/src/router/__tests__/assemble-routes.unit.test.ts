@@ -6,15 +6,8 @@ vi.mock("@one-base-template/ui/shell", () => ({
   NotFoundPage: {},
 }));
 
-import {
-  APP_FORBIDDEN_ROUTE_PATH,
-  APP_LOGIN_ROUTE_PATH,
-  APP_NOT_FOUND_CATCHALL_PATH,
-  APP_NOT_FOUND_ROUTE_PATH,
-  APP_SSO_ROUTE_PATH,
-} from "../constants";
-import { assembleRoutes } from "../assemble-routes";
-import type { AppRouteAssemblyOptions } from "../types";
+import { routePaths } from "../constants";
+import { assembleRoutes, type AppRouteAssemblyOptions } from "../assemble-routes";
 
 function createRouteAssemblyOptions(
   enabledModules: string[],
@@ -34,13 +27,13 @@ function createRouteAssemblyOptions(
 describe("router/assemble-routes", () => {
   it("应保留公共固定路由", async () => {
     const { routes } = await assembleRoutes(createRouteAssemblyOptions(["home"]));
-    const routePaths = routes.map((item) => item.path);
+    const routePathList = routes.map((item) => item.path);
 
-    expect(routePaths).toContain(APP_LOGIN_ROUTE_PATH);
-    expect(routePaths).toContain(APP_SSO_ROUTE_PATH);
-    expect(routePaths).toContain(APP_FORBIDDEN_ROUTE_PATH);
-    expect(routePaths).toContain(APP_NOT_FOUND_ROUTE_PATH);
-    expect(routePaths).toContain(APP_NOT_FOUND_CATCHALL_PATH);
+    expect(routePathList).toContain(routePaths.login);
+    expect(routePathList).toContain(routePaths.sso);
+    expect(routePathList).toContain(routePaths.forbidden);
+    expect(routePathList).toContain(routePaths.notFound);
+    expect(routePathList).toContain(routePaths.catchall);
   });
 
   it("portal 模块应生成 compat 别名路由并补齐 activePath", async () => {
@@ -56,20 +49,11 @@ describe("router/assemble-routes", () => {
   });
 
   it("应从已装配路由自动收集 skipMenuAuth 白名单", async () => {
-    const { skipMenuAuthRouteRules } = await assembleRoutes(createRouteAssemblyOptions(["home", "portal"]));
-    const skipMenuAuthRouteNames = skipMenuAuthRouteRules.map((item) => item.name);
+    const { skipMenuAuthRouteNames } = await assembleRoutes(createRouteAssemblyOptions(["home", "portal"]));
 
     expect(skipMenuAuthRouteNames).toEqual(
       expect.arrayContaining(["HomeIndex", "PortalTemplateList", "PortalDesigner", "PortalPageEditor"])
     );
     expect(skipMenuAuthRouteNames).not.toContain("PortalPreview");
-    expect(skipMenuAuthRouteRules).toEqual(
-      expect.arrayContaining([
-        { name: "HomeIndex", level: "stable" },
-        { name: "PortalTemplateList", level: "allowlist" },
-        { name: "PortalDesigner", level: "allowlist" },
-        { name: "PortalPageEditor", level: "allowlist" },
-      ])
-    );
   });
 });

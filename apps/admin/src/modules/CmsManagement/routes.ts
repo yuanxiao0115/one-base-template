@@ -1,5 +1,4 @@
 import type { RouteRecordRaw } from "vue-router";
-import { createAllowlistSkipMenuAuthMeta } from "@/router/route-meta";
 
 export default [
   {
@@ -7,11 +6,10 @@ export default [
     name: "PublicityColumn",
     component: async () => import("./column/page.vue"),
     meta: {
-      ...createAllowlistSkipMenuAuthMeta({
-        title: "栏目管理",
-        keepAlive: true,
-        rank: 100,
-      }),
+      title: "栏目管理",
+      keepAlive: true,
+      rank: 100,
+      skipMenuAuth: true,
     },
   },
   {
@@ -19,11 +17,10 @@ export default [
     name: "PublicityContent",
     component: async () => import("./content/page.vue"),
     meta: {
-      ...createAllowlistSkipMenuAuthMeta({
-        title: "宣传内容管理",
-        keepAlive: true,
-        rank: 200,
-      }),
+      title: "宣传内容管理",
+      keepAlive: true,
+      rank: 200,
+      skipMenuAuth: true,
     },
   },
   {
@@ -31,12 +28,11 @@ export default [
     name: "ArticleList",
     component: async () => import("./content/page.vue"),
     meta: {
-      ...createAllowlistSkipMenuAuthMeta({
-        title: "文章列表",
-        keepAlive: true,
-        hideInMenu: true,
-        activePath: "/publicity/content",
-      }),
+      title: "文章列表",
+      keepAlive: true,
+      hideInMenu: true,
+      activePath: "/publicity/content",
+      skipMenuAuth: true,
     },
   },
   {
@@ -44,11 +40,10 @@ export default [
     name: "PublicityAudit",
     component: async () => import("./audit/page.vue"),
     meta: {
-      ...createAllowlistSkipMenuAuthMeta({
-        title: "审核管理",
-        keepAlive: true,
-        rank: 300,
-      }),
+      title: "审核管理",
+      keepAlive: true,
+      rank: 300,
+      skipMenuAuth: true,
     },
   },
 ] satisfies RouteRecordRaw[];

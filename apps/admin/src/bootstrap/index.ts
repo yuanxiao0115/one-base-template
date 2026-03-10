@@ -21,7 +21,6 @@ import { installCore } from "./core";
 import { installAppShellPlugins } from "./plugins";
 import { installAppRouterGuards } from "./guards";
 import { registerMessageUtils } from "../utils/message";
-import { listSkipAuthNames } from "../router/skip-menu-auth";
 
 export async function bootstrapAdminApp() {
   const appEnv = getAppEnv();
@@ -39,13 +38,8 @@ export async function bootstrapAdminApp() {
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
     storageNamespace: appEnv.storageNamespace,
-    routeConflictPolicy: appEnv.isProd ? "warn" : "fail-fast",
   });
-  const skipMenuAuthRouteNames = listSkipAuthNames({
-    isProd: appEnv.isProd,
-    routeRules: routeAssemblyResult.skipMenuAuthRouteRules,
-    productionAllowList: appEnv.skipMenuAuthProductionAllowList,
-  });
+  const { skipMenuAuthRouteNames } = routeAssemblyResult;
   const router = createAppRouter({
     routes: routeAssemblyResult.routes,
     baseUrl: appEnv.baseUrl,

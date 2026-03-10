@@ -1,11 +1,10 @@
 <script setup lang="ts">
-  import { finalizeAuthSession, loginByPassword } from "@one-base-template/core";
+  import { finalizeAuthSession, loginByPassword, resolveAppRedirectTarget } from "@one-base-template/core";
   import { LoginBoxV2 as ObLoginBoxV2 } from "@one-base-template/ui/lite-auth";
   import { ElMessage } from "element-plus";
   import { onMounted, reactive, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import { getAppEnv } from "@/infra/env";
-  import { getAppRedirectTarget } from "@/router/redirect";
   import { fetchCaptchaCheck, loadCaptcha } from "@/shared/services/auth-captcha-service";
   import { getLoginPageConfig, type LoginPageConfig } from "@/shared/services/auth-remote-service";
   import { resolveLoginScenario } from "@/shared/services/auth-scenario-provider";
@@ -46,7 +45,7 @@
 
   function getRedirectTarget() {
     const raw = route.query.redirect ?? route.query.redirectUrl;
-    return getAppRedirectTarget(raw, { fallback: loginScenario.fallback, baseUrl });
+    return resolveAppRedirectTarget(raw, { fallback: loginScenario.fallback, baseUrl });
   }
 
   async function loadLoginPageConfig() {

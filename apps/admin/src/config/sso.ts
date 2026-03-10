@@ -1,5 +1,5 @@
 import type { CoreOptions } from "@one-base-template/core";
-import { APP_SSO_ROUTE_PATH } from "@/router/constants";
+import { routePaths } from "@/router/constants";
 
 /**
  * sSO 配置（回调路由固定为 /sso）。
@@ -10,7 +10,7 @@ import { APP_SSO_ROUTE_PATH } from "@/router/constants";
  */
 export const appSsoOptions: CoreOptions["sso"] = {
   enabled: true,
-  routePath: APP_SSO_ROUTE_PATH,
+  routePath: routePaths.sso,
   strategies: [
     {
       type: "token",

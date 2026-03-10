@@ -80,6 +80,36 @@ export { handleSsoCallback } from './router/sso';
 export { getInitialPath, type GetInitialPathOptions } from './router/initial-path';
 export { resolveAppRedirectTarget } from './router/redirect';
 export { buildRouteFullPath, normalizeRoutePath, toRouteNameKey } from './router/route-utils';
+export { buildFixedRoutes, type BuildFixedRoutesOptions, type PublicRouteDefinition } from './router/fixed-routes';
+export {
+  createModuleRouteAssemblyValidator,
+  buildModuleRoutes,
+  buildModuleAliasRoutes,
+  type RouteSource,
+  type RouteCollectContext,
+  type RouteAssemblyValidator,
+  type RouteAssemblyModule,
+} from './router/module-assembly';
+export type {
+  ModuleTier,
+  RouteAlias,
+  ModuleCompat,
+  AppModuleManifestMeta,
+  CoreAppModuleManifest,
+  OptionalAppModuleManifest,
+  AppModuleManifest,
+  AppModuleDeclarationModule,
+} from './router/module-assembly';
+export {
+  collectModuleLoadEntries,
+  pickEnabledModuleEntries,
+  resolveModuleDeclarationCandidate,
+  validateModuleDeclaration,
+  isValidAppModuleManifestMeta,
+  isValidAppModuleManifest,
+  toModuleDeclarationPath,
+  type ModuleLoadEntry,
+} from './router/module-registry';
 export {
   getCoreStorageNamespace,
   getNamespacedKey,

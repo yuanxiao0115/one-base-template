@@ -1,5 +1,4 @@
 import type { RouteRecordRaw } from "vue-router";
-import { createAllowlistSkipMenuAuthMeta } from "@/router/route-meta";
 
 export default [
   {
@@ -18,13 +17,12 @@ export default [
     name: "PortalDesigner",
     component: async () => import("../pages/PortalTemplateSettingPage.vue"),
     meta: {
-      ...createAllowlistSkipMenuAuthMeta({
-        title: "门户配置",
-        fullScreen: true,
-        hideTabsBar: true,
-        hiddenTab: true,
-        activePath: "/portal/setting",
-      }),
+      title: "门户配置",
+      fullScreen: true,
+      hideTabsBar: true,
+      hiddenTab: true,
+      activePath: "/portal/setting",
+      skipMenuAuth: true,
     },
   },
   {
@@ -33,13 +31,12 @@ export default [
     name: "PortalPageEditor",
     component: async () => import("../pages/PortalPageEditPage.vue"),
     meta: {
-      ...createAllowlistSkipMenuAuthMeta({
-        title: "页面编辑",
-        fullScreen: true,
-        hideTabsBar: true,
-        hiddenTab: true,
-        activePath: "/portal/setting",
-      }),
+      title: "页面编辑",
+      fullScreen: true,
+      hideTabsBar: true,
+      hiddenTab: true,
+      activePath: "/portal/setting",
+      skipMenuAuth: true,
     },
   },
 ] satisfies RouteRecordRaw[];

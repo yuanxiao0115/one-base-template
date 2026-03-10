@@ -1,6 +1,6 @@
+import { resolveAppRedirectTarget } from "@one-base-template/core";
 import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
 import type { BackendKind } from "@/infra/env";
-import { getAppRedirectTarget } from "@/router/redirect";
 import {
   loginByDesktop,
   loginByExternal,
@@ -90,7 +90,7 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
 
   if (backend !== "sczfw") {
     const { redirect } = await onDefaultSsoCallback();
-    const target = getAppRedirectTarget(redirect, {
+    const target = resolveAppRedirectTarget(redirect, {
       fallback: DEFAULT_FALLBACK_HOME,
       baseUrl,
     });
@@ -99,7 +99,7 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
   }
 
   const redirectUrlRaw = searchParams.get("redirectUrl") ?? searchParams.get("redirect");
-  const redirect = getAppRedirectTarget(redirectUrlRaw, {
+  const redirect = resolveAppRedirectTarget(redirectUrlRaw, {
     fallback: DEFAULT_FALLBACK_HOME,
     baseUrl,
   });
