@@ -4,6 +4,13 @@ export type EnabledModulesSetting = string[] | "*";
 export type ModuleTier = "core" | "optional";
 export type RouteConflictPolicy = "warn" | "fail-fast";
 
+export interface AdminModuleManifestMeta {
+  id: string;
+  version: "1";
+  moduleTier: ModuleTier;
+  enabledByDefault: boolean;
+}
+
 export interface RouteAlias {
   from: string;
   to: string;
@@ -14,9 +21,7 @@ export interface ModuleCompat {
   activePathMap?: Record<string, string>;
 }
 
-interface AdminModuleManifestBase {
-  id: string;
-  version: "1";
+interface AdminModuleManifestBase extends AdminModuleManifestMeta {
   routes: {
     layout: RouteRecordRaw[];
     standalone?: RouteRecordRaw[];
@@ -36,6 +41,10 @@ export type OptionalModuleManifest = AdminModuleManifestBase & {
 };
 
 export type AdminModuleManifest = CoreModuleManifest | OptionalModuleManifest;
+export type AdminModuleDeclarationModule = {
+  default?: AdminModuleManifest;
+  module?: AdminModuleManifest;
+};
 
 export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];

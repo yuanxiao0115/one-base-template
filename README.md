@@ -99,9 +99,10 @@ pnpm build
 ## 路由与模块切割
 
 - 路由全量静态声明在模块内：`apps/admin/src/modules/**/routes/*.ts`
-- 模块唯一入口：`apps/admin/src/modules/**/module.ts`（Manifest）
+- 模块轻量清单：`apps/admin/src/modules/**/manifest.ts`（仅元数据）
+- 模块声明入口：`apps/admin/src/modules/**/module.ts`（路由/API 命名空间）
 - 路由统一由 `apps/admin/src/router/assemble-routes.ts` 组装
-- 支持运行时白名单切割：`platform-config.json` 的 `enabledModules`
+- `enabledModules` 先筛清单再按需动态加载模块声明，减少可选模块的启动扫描开销
 
 ## 动态菜单 + 静态路由（核心规则）
 

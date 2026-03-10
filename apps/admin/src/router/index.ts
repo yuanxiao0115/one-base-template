@@ -1,6 +1,6 @@
 import { getAppRoutes } from "./assemble-routes";
 import type { AppRouteAssemblyOptions, AppRouteAssemblyResult } from "./types";
 
-export function getRouteAssemblyResult(options: AppRouteAssemblyOptions): AppRouteAssemblyResult {
+export async function getRouteAssemblyResult(options: AppRouteAssemblyOptions): Promise<AppRouteAssemblyResult> {
   return getAppRoutes(options);
 }

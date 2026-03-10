@@ -27,7 +27,7 @@ packages/
 - `apps/admin/src/config/layout.ts`：管理端布局代码配置（`layoutMode/systemSwitchStyle/topbarHeight/sidebarWidth/sidebarCollapsedWidth`）
 - `apps/admin/src/config/theme.ts`：主题注册入口（复用 core 内置主题 + 项目自定义主题）
 - `apps/admin/src/infra/env.ts`：聚合构建期 env + 运行时配置，导出 `buildEnv` 与懒加载的 `getAppEnv()`
-- `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块 Manifest 扫描、白名单过滤与路由组装
+- `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块清单扫描、白名单过滤与按需路由组装
 - `apps/admin/src/router/index.ts`：路由装配单一入口（仅暴露 `getRouteAssemblyResult()`）
 - `apps/admin/src/bootstrap/`：创建 app/pinia/router、初始化 http、安装 core、注册路由守卫；所有页面统一走单启动链路
 - `packages/core/src/storage/namespace.ts`：统一存储命名空间规则（读取兼容旧 key）
@@ -92,7 +92,9 @@ packages/
   - **失败重试**（默认 1 次）
   - **只读快照兜底（开关控制）**：开启 `VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK=true` 时，主配置加载失败可回退本地快照
 - `packages/app-starter` 将上述 runtime config 能力统一沉淀为共享包，`admin/portal/template` 只保留项目级参数与错误视图编排。
-- `router/registry.ts` 为模块清单增加内存缓存，降低重复扫描开销；HMR 时自动失效重建。
+- `router/registry.ts` 改为两阶段装配：
+  - 扫描 `modules/**/manifest.ts`（轻量元数据，eager）
+  - 根据 `enabledModules` 再按需动态加载 `modules/**/module.ts`（声明与路由）
 - `packages/ui` 新增 `./lite-auth` 子出口，只暴露登录框相关组件；`LoginPage.vue` 直接走该入口，避免再借道 `ui/lite` barrel 把 `one-ui-shell` 带回匿名首屏。
 - `bootstrap/http.ts` 在未授权回跳时，按需动态导入 `@one-base-template/tag/store` 清理 tags，避免静态依赖 tag 根入口。
 - `router/assemble-routes.ts` 的壳层页面导入固定走 `@one-base-template/ui/shell`，避免根入口的表格样式与重组件副作用进入路由装配链路。
@@ -153,8 +155,9 @@ packages/
 
 ## 模块 Manifest 与切割
 
-- 模块唯一入口：`apps/admin/src/modules/<module-id>/module.ts`
-- `module.ts` 必须显式声明 `moduleTier`（`core`/`optional`），用于表达主链路与非主链路模块边界
+- 模块轻量清单：`apps/admin/src/modules/<module-id>/manifest.ts`
+- 模块声明入口：`apps/admin/src/modules/<module-id>/module.ts`
+- `manifest.ts` 必须显式声明 `id/version/moduleTier/enabledByDefault`，用于表达主链路与非主链路模块边界
 - 路由分组：
   - `routes/layout.ts`：挂在 `AdminLayout` 下
   - `routes/standalone.ts`：顶层全屏/匿名路由（可选）
@@ -167,7 +170,7 @@ packages/
 
 ## CmsManagement / Publicity 迁移落点（2026-03）
 
-- 模块入口：`apps/admin/src/modules/CmsManagement/module.ts`
+- 模块入口：`apps/admin/src/modules/CmsManagement/{manifest,module}.ts`
 - 路由清单：`apps/admin/src/modules/CmsManagement/routes.ts`
 - 页面目录：
   - `apps/admin/src/modules/CmsManagement/column/**`（栏目管理）
@@ -184,7 +187,8 @@ packages/
 ## 静态路由 + 动态菜单
 
 核心约定：
-- 路由：始终静态声明（模块内 `routes/*.ts`），由 `module.ts` 统一导出给路由组装器。
+- 路由：始终静态声明（模块内 `routes/*.ts`），由 `module.ts` 导出给路由组装器。
+- 装配：`registry` 先读 `manifest.ts`，再按 `enabledModules` 动态加载 `module.ts`，避免可选模块全量 eager 扫描。
 - 菜单：
   - `remote`：后端返回“可见菜单树”
   - `static`：从静态路由生成

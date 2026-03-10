@@ -28,7 +28,7 @@ outline: false
   </a>
   <a class="guide-card" href="/guide/module-system">
     <h3>模块系统与切割</h3>
-    <p>了解 module.ts Manifest、enabledModules 与 CLI 裁剪契约。</p>
+    <p>了解 manifest.ts + module.ts、enabledModules 与 CLI 裁剪契约。</p>
   </a>
   <a class="guide-card" href="/guide/template-static-app">
     <h3>Template 最小静态菜单项目</h3>

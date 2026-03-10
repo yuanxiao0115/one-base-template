@@ -1,25 +1,38 @@
-import type { AdminModuleManifest, EnabledModulesSetting } from "./types";
+import type {
+  AdminModuleDeclarationModule,
+  AdminModuleManifest,
+  AdminModuleManifestMeta,
+  EnabledModulesSetting,
+} from "./types";
 import { createAppLogger } from "@/shared/logger";
 
-const modules = import.meta.glob<{
-  default?: AdminModuleManifest;
-  module?: AdminModuleManifest;
-}>("../modules/**/module.ts", {
+const moduleManifestDefinitions = import.meta.glob<{
+  default?: AdminModuleManifestMeta;
+  moduleManifest?: AdminModuleManifestMeta;
+}>("../modules/**/manifest.ts", {
   eager: true,
 });
 
+const moduleDeclarationLoaders = import.meta.glob<AdminModuleDeclarationModule>("../modules/**/module.ts");
+
 const logger = createAppLogger("router/modules");
-let cachedAllModules: AdminModuleManifest[] | null = null;
+let cachedAllModules: ModuleLoadEntry[] | null = null;
+const cachedModuleTasks = new Map<string, Promise<AdminModuleManifest | null>>();
+
+interface ModuleLoadEntry extends AdminModuleManifestMeta {
+  manifestPath: string;
+  modulePath: string;
+}
 
 function warn(message: string) {
   logger.warn(message);
 }
 
-function isValidManifest(input: unknown): input is AdminModuleManifest {
+function isValidManifestMeta(input: unknown): input is AdminModuleManifestMeta {
   if (!input || typeof input !== "object") {
     return false;
   }
-  const value = input as AdminModuleManifest;
+  const value = input as AdminModuleManifestMeta;
   if (!value.id || typeof value.id !== "string") {
     return false;
   }
@@ -35,29 +48,59 @@ function isValidManifest(input: unknown): input is AdminModuleManifest {
   if (value.moduleTier === "optional" && value.enabledByDefault) {
     return false;
   }
+  return true;
+}
+
+function isValidModuleManifest(input: unknown): input is AdminModuleManifest {
+  if (!isValidManifestMeta(input)) {
+    return false;
+  }
+  const value = input as AdminModuleManifest;
   return Array.isArray(value.routes?.layout);
 }
 
-function getAllModules(): AdminModuleManifest[] {
+function toModulePath(manifestPath: string): string | null {
+  if (!manifestPath.endsWith("/manifest.ts")) {
+    return null;
+  }
+  return manifestPath.replace(/\/manifest\.ts$/, "/module.ts");
+}
+
+function getAllModules(): ModuleLoadEntry[] {
   if (cachedAllModules) {
     return cachedAllModules;
   }
 
-  const byId = new Map<string, AdminModuleManifest>();
+  const byId = new Map<string, ModuleLoadEntry>();
 
-  for (const [path, mod] of Object.entries(modules)) {
-    const candidate = mod.default ?? mod.module;
-    if (!isValidManifest(candidate)) {
-      warn(`忽略无效模块声明：${path}（要求 moduleTier 必填，且 optional 模块 enabledByDefault 必须为 false）`);
+  for (const [path, mod] of Object.entries(moduleManifestDefinitions)) {
+    const candidate = mod.default ?? mod.moduleManifest;
+    if (!isValidManifestMeta(candidate)) {
+      warn(`忽略无效模块清单：${path}（要求 moduleTier 必填，且 optional 模块 enabledByDefault 必须为 false）`);
+      continue;
+    }
+
+    const modulePath = toModulePath(path);
+    if (!modulePath) {
+      warn(`忽略无效模块清单路径：${path}（要求文件名为 manifest.ts）`);
+      continue;
+    }
+
+    if (!moduleDeclarationLoaders[modulePath]) {
+      warn(`模块清单缺少对应声明文件：${modulePath}（manifest=${path}）`);
       continue;
     }
 
     if (byId.has(candidate.id)) {
-      warn(`检测到重复模块 id：${candidate.id}（忽略：${path}）`);
+      warn(`检测到重复模块 id：${candidate.id}（忽略清单：${path}）`);
       continue;
     }
 
-    byId.set(candidate.id, candidate);
+    byId.set(candidate.id, {
+      ...candidate,
+      manifestPath: path,
+      modulePath,
+    });
   }
 
   const out = [...byId.values()];
@@ -67,20 +110,67 @@ function getAllModules(): AdminModuleManifest[] {
   return out;
 }
 
-export function getEnabledModules(enabledModules: EnabledModulesSetting): AdminModuleManifest[] {
+async function loadModule(entry: ModuleLoadEntry): Promise<AdminModuleManifest | null> {
+  const cachedTask = cachedModuleTasks.get(entry.id);
+  if (cachedTask) {
+    return cachedTask;
+  }
+
+  const loader = moduleDeclarationLoaders[entry.modulePath];
+  if (!loader) {
+    warn(`模块声明加载器缺失：${entry.modulePath}（id=${entry.id}）`);
+    return null;
+  }
+
+  const task = loader()
+    .then((loaded) => {
+      const candidate = loaded.default ?? loaded.module;
+      if (!isValidModuleManifest(candidate)) {
+        warn(`忽略无效模块声明：${entry.modulePath}（id=${entry.id}）`);
+        return null;
+      }
+
+      if (
+        candidate.id !== entry.id
+        || candidate.version !== entry.version
+        || candidate.moduleTier !== entry.moduleTier
+        || candidate.enabledByDefault !== entry.enabledByDefault
+      ) {
+        warn(
+          `模块清单与声明不一致：id=${entry.id}（manifest=${entry.manifestPath} module=${entry.modulePath}）`
+        );
+        return null;
+      }
+
+      return candidate;
+    })
+    .catch((error: unknown) => {
+      const reason = error instanceof Error ? error.message : String(error);
+      warn(`加载模块声明失败：${entry.modulePath}（id=${entry.id}，reason=${reason}）`);
+      return null;
+    });
+
+  cachedModuleTasks.set(entry.id, task);
+  return task;
+}
+
+export async function getEnabledModules(enabledModules: EnabledModulesSetting): Promise<AdminModuleManifest[]> {
   const allModules = getAllModules();
 
   if (enabledModules === "*") {
-    return allModules;
+    const loaded = await Promise.all(allModules.map((entry) => loadModule(entry)));
+    return loaded.filter((item): item is AdminModuleManifest => item !== null);
   }
 
   if (enabledModules.length === 0) {
-    return allModules.filter((item) => item.enabledByDefault);
+    const defaultModules = allModules.filter((item) => item.enabledByDefault);
+    const loaded = await Promise.all(defaultModules.map((entry) => loadModule(entry)));
+    return loaded.filter((item): item is AdminModuleManifest => item !== null);
   }
 
   const byId = new Map(allModules.map((item) => [item.id, item]));
   const used = new Set<string>();
-  const out: AdminModuleManifest[] = [];
+  const out: ModuleLoadEntry[] = [];
 
   for (const id of enabledModules) {
     if (used.has(id)) {
@@ -97,7 +187,8 @@ export function getEnabledModules(enabledModules: EnabledModulesSetting): AdminM
     out.push(mod);
   }
 
-  return out;
+  const loaded = await Promise.all(out.map((entry) => loadModule(entry)));
+  return loaded.filter((item): item is AdminModuleManifest => item !== null);
 }
 
 export function getModuleIds(): string[] {
@@ -107,5 +198,6 @@ export function getModuleIds(): string[] {
 if (import.meta.hot) {
   import.meta.hot.accept(() => {
     cachedAllModules = null;
+    cachedModuleTasks.clear();
   });
 }

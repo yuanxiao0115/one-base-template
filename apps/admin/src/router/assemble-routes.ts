@@ -246,8 +246,8 @@ function getRootRedirect(options: Pick<AppRouteAssemblyOptions, "defaultSystemCo
   });
 }
 
-export function getAppRoutes(options: AppRouteAssemblyOptions): AppRouteAssemblyResult {
-  const modules = getEnabledModules(options.enabledModules);
+export async function getAppRoutes(options: AppRouteAssemblyOptions): Promise<AppRouteAssemblyResult> {
+  const modules = await getEnabledModules(options.enabledModules);
   const validator = createRouteAssemblyValidator({
     routeConflictPolicy: options.routeConflictPolicy,
   });

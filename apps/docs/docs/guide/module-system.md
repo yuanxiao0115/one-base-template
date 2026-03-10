@@ -4,10 +4,11 @@
 
 ## 1) 模块入口约定
 
-每个业务模块必须提供 `module.ts` 作为唯一入口：
+每个业务模块必须提供 `manifest.ts + module.ts` 两个入口：
 
 ```text
 apps/admin/src/modules/<module-id>/
+  manifest.ts
   module.ts
   routes.ts
   <feature-a>/
@@ -19,12 +20,15 @@ apps/admin/src/modules/<module-id>/
   compat/
 ```
 
-`module.ts` 必填字段：
+`manifest.ts` 必填字段：
 
 - `id`: 模块标识（如 `portal`）
 - `version`: 当前固定为 `'1'`
 - `moduleTier`: 模块分层（`core`/`optional`）
 - `enabledByDefault`: 是否默认启用
+
+`module.ts` 必填字段：
+
 - `routes.layout`: 挂载到 `AdminLayout` 下的路由（推荐来自 `routes.ts`）
 - `routes.standalone`（可选）: 顶层路由（全屏/匿名等）
 - `apiNamespace`: API 命名空间
@@ -59,7 +63,8 @@ pnpm new:module user-center --title 用户中心
 ## 2) 路由组装规则
 
 - 统一入口：`apps/admin/src/router/assemble-routes.ts`
-- 扫描来源：`apps/admin/src/modules/**/module.ts`
+- 清单扫描：`apps/admin/src/modules/**/manifest.ts`
+- 模块加载：按 `enabledModules` 动态加载 `apps/admin/src/modules/**/module.ts`
 - 全局固定路由仅保留：`/login`、`/sso`、`/403`、`/404`、404 兜底
 - 业务路由一律来自模块 Manifest
 
@@ -74,7 +79,7 @@ pnpm new:module user-center --title 用户中心
 路由装配层不再直接读取 `getAppEnv()`，统一由 `bootstrap` 显式注入：
 
 ```ts
-getRouteAssemblyResult({
+await getRouteAssemblyResult({
   enabledModules: appEnv.enabledModules,
   defaultSystemCode: appEnv.defaultSystemCode,
   systemHomeMap: appEnv.systemHomeMap,
@@ -249,6 +254,7 @@ CLI 生成器可按以下步骤裁剪：
 
 ```text
 apps/admin/src/modules/UserManagement/
+  manifest.ts
   module.ts
   routes.ts
   position/page.vue
@@ -341,6 +347,7 @@ export default [
 
 ```text
 apps/admin/src/modules/LogManagement/
+  manifest.ts
   module.ts
   routes.ts
   login-log/api.ts
@@ -371,6 +378,7 @@ apps/admin/src/modules/LogManagement/
 
 ```text
 apps/admin/src/modules/SystemManagement/
+  manifest.ts
   module.ts
   routes.ts
   menu/

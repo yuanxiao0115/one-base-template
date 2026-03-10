@@ -1,11 +1,9 @@
 import type { AdminModuleManifest } from "@/router/types";
+import { moduleManifest } from "./manifest";
 import layoutRoutes from "./routes";
 
 const logManagementModule: AdminModuleManifest = {
-  id: "log-management",
-  version: "1",
-  moduleTier: "core",
-  enabledByDefault: true,
+  ...moduleManifest,
   apiNamespace: "log-management",
   routes: {
     layout: layoutRoutes,

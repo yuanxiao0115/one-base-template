@@ -23,7 +23,7 @@ import { installAppRouterGuards } from "./guards";
 import { registerMessageUtils } from "../utils/message";
 import { registerPersonnelSelectionAppContext } from "../components/PersonnelSelector/openPersonnelSelection";
 
-export function bootstrapAdminApp() {
+export async function bootstrapAdminApp() {
   const appEnv = getAppEnv();
 
   const app = createApp(App);
@@ -35,7 +35,7 @@ export function bootstrapAdminApp() {
   // 允许在路由守卫 / http hooks 等“组件外”场景安全使用 store
   setActivePinia(pinia);
 
-  const { routes, skipMenuAuthRouteNames } = getRouteAssemblyResult({
+  const { routes, skipMenuAuthRouteNames } = await getRouteAssemblyResult({
     enabledModules: appEnv.enabledModules,
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,

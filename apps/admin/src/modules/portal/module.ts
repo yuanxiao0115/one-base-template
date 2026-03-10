@@ -1,11 +1,9 @@
 import type { AdminModuleManifest } from "@/router/types";
+import { moduleManifest } from "./manifest";
 import layoutRoutes, { standaloneRoutes } from "./routes";
 
 const portalModule: AdminModuleManifest = {
-  id: "portal",
-  version: "1",
-  moduleTier: "optional",
-  enabledByDefault: false,
+  ...moduleManifest,
   apiNamespace: "portal",
   routes: {
     layout: layoutRoutes,

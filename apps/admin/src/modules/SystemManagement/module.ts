@@ -1,11 +1,9 @@
 import type { AdminModuleManifest } from "@/router/types";
+import { moduleManifest } from "./manifest";
 import layoutRoutes from "./routes";
 
 const systemManagementModule: AdminModuleManifest = {
-  id: "system-management",
-  version: "1",
-  moduleTier: "core",
-  enabledByDefault: true,
+  ...moduleManifest,
   apiNamespace: "system-management",
   routes: {
     layout: layoutRoutes,

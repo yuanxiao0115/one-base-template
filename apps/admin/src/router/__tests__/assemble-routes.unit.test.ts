@@ -32,8 +32,8 @@ function createRouteAssemblyOptions(
 }
 
 describe("router/assemble-routes", () => {
-  it("应保留公共固定路由", () => {
-    const { routes } = getAppRoutes(createRouteAssemblyOptions(["home"]));
+  it("应保留公共固定路由", async () => {
+    const { routes } = await getAppRoutes(createRouteAssemblyOptions(["home"]));
     const routePaths = routes.map((item) => item.path);
 
     expect(routePaths).toContain(APP_LOGIN_ROUTE_PATH);
@@ -43,8 +43,8 @@ describe("router/assemble-routes", () => {
     expect(routePaths).toContain(APP_NOT_FOUND_CATCHALL_PATH);
   });
 
-  it("portal 模块应生成 compat 别名路由并补齐 activePath", () => {
-    const { routes } = getAppRoutes(createRouteAssemblyOptions(["portal"]));
+  it("portal 模块应生成 compat 别名路由并补齐 activePath", async () => {
+    const { routes } = await getAppRoutes(createRouteAssemblyOptions(["portal"]));
     const aliasRoute = routes.find((item) => item.path === "/portal/setting");
     const meta = (aliasRoute?.meta as Record<string, unknown> | undefined) ?? {};
 
@@ -55,8 +55,8 @@ describe("router/assemble-routes", () => {
     expect(meta.activePath).toBe("/portal/setting");
   });
 
-  it("应从已装配路由自动收集 skipMenuAuth 白名单", () => {
-    const { skipMenuAuthRouteNames } = getAppRoutes(createRouteAssemblyOptions(["home", "portal"]));
+  it("应从已装配路由自动收集 skipMenuAuth 白名单", async () => {
+    const { skipMenuAuthRouteNames } = await getAppRoutes(createRouteAssemblyOptions(["home", "portal"]));
 
     expect(skipMenuAuthRouteNames).toContain("HomeIndex");
     expect(skipMenuAuthRouteNames).toContain("PortalTemplateList");

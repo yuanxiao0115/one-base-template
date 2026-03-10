@@ -18,23 +18,23 @@ describe("router/registry", () => {
     warn.mockClear();
   });
 
-  it("enabledModules='*' 应返回全部模块", () => {
-    const all = getEnabledModules("*");
+  it("enabledModules='*' 应返回全部模块", async () => {
+    const all = await getEnabledModules("*");
 
     expect(all.length).toBeGreaterThan(0);
     expect(new Set(all.map((item) => item.id)).size).toBe(all.length);
   });
 
-  it("enabledModules 为空数组时应返回 enabledByDefault 模块", () => {
-    const all = getEnabledModules("*");
-    const defaults = getEnabledModules([]);
+  it("enabledModules 为空数组时应返回 enabledByDefault 模块", async () => {
+    const all = await getEnabledModules("*");
+    const defaults = await getEnabledModules([]);
     const expectedDefaultIds = all.filter((item) => item.enabledByDefault).map((item) => item.id);
 
     expect(defaults.map((item) => item.id)).toEqual(expectedDefaultIds);
   });
 
-  it("应过滤重复与未知模块并触发 warn", () => {
-    const enabled = getEnabledModules(["home", "home", "unknown-module", "portal"]);
+  it("应过滤重复与未知模块并触发 warn", async () => {
+    const enabled = await getEnabledModules(["home", "home", "unknown-module", "portal"]);
     const warnMessages = warn.mock.calls.map((call) => String(call[0]));
 
     expect(enabled.map((item) => item.id)).toEqual(["home", "portal"]);

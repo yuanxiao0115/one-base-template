@@ -76,20 +76,18 @@ describe("router/assemble-routes policy", () => {
     getEnabledModules.mockReset();
   });
 
-  it("routeConflictPolicy='fail-fast' 时应在冲突处抛错", () => {
-    getEnabledModules.mockReturnValue(duplicatePathModules);
+  it("routeConflictPolicy='fail-fast' 时应在冲突处抛错", async () => {
+    getEnabledModules.mockResolvedValue(duplicatePathModules);
 
-    expect(() =>
-      getAppRoutes(
-        createRouteAssemblyOptions("fail-fast")
-      )
-    ).toThrowError(/检测到重复 path：\/duplicate\/path/);
+    await expect(getAppRoutes(createRouteAssemblyOptions("fail-fast"))).rejects.toThrowError(
+      /检测到重复 path：\/duplicate\/path/
+    );
   });
 
-  it("routeConflictPolicy='warn' 时应兼容 warn+skip 行为", () => {
-    getEnabledModules.mockReturnValue(duplicatePathModules);
+  it("routeConflictPolicy='warn' 时应兼容 warn+skip 行为", async () => {
+    getEnabledModules.mockResolvedValue(duplicatePathModules);
 
-    const { routes } = getAppRoutes(createRouteAssemblyOptions("warn"));
+    const { routes } = await getAppRoutes(createRouteAssemblyOptions("warn"));
     const rootRoute = routes.find((item) => item.path === "/");
     const rootChildren = Array.isArray(rootRoute?.children) ? rootRoute.children : [];
 
