@@ -45,13 +45,9 @@ apps/admin/src/modules/<module-id>/
 - `core`：主链路模块，可按需 `enabledByDefault=true`
 - `optional`：实验/迁移模块；`enabledByDefault` 必须显式写为 `false`（类型层与注册器都会校验）
 - 若路由声明 `meta.skipMenuAuth=true`，必须提供稳定 `route.name`；应用启动时会从已装配路由自动收集白名单，未命名路由不会放行
-- `skipMenuAuthLevel` 建议按场景分级：
-  - `stable`（默认）：生产可用
-  - `allowlist`：生产需命中 `platform-config.skipMenuAuthProductionAllowList`
-  - `dev-only`：仅开发环境可用，生产自动禁用
-- 建议复用 `apps/admin/src/router/route-meta.ts` 中的工厂函数统一生成 `meta`：
-  - `createAllowlistSkipMenuAuthMeta`：减少 `skipMenuAuth + skipMenuAuthLevel` 重复声明
-  - `createCompatAliasMeta`：统一别名路由的 `hideInMenu/hiddenTab/activePath`
+- `meta` 采用就近声明：
+  - 业务路由直接在路由项内显式声明 `skipMenuAuth`
+  - compat 别名由装配器统一补齐 `hideInMenu/hiddenTab/activePath`
 
 ### 快速创建模块（推荐）
 
@@ -97,7 +93,6 @@ await assembleRoutes({
   defaultSystemCode: appEnv.defaultSystemCode,
   systemHomeMap: appEnv.systemHomeMap,
   storageNamespace: appEnv.storageNamespace,
-  routeConflictPolicy: appEnv.isProd ? "warn" : "fail-fast",
 })
 ```
 
@@ -109,13 +104,12 @@ await assembleRoutes({
 
 新增约定：
 
-- `routeConflictPolicy` 支持 `warn` / `fail-fast`
-- admin 当前默认策略：
-  - 开发环境：`fail-fast`（冲突直接抛错，避免本地调试“静默跳过”）
-  - 生产环境：`warn`（兼容历史行为，冲突告警并跳过）
+- 路由冲突统一采用 `warn + skip`，不再区分环境策略，降低心智负担
 - 路由装配职责已拆为：
-  - `route-assembly-validator`：冲突校验与 skipMenuAuth 规则收集
-  - `route-assembly-builder`：递归构造模块路由、activePath 兼容与别名路由生成
+  - `route-assembly-builder`：递归构造模块路由、activePath 兼容、别名路由生成、冲突校验与 `skipMenuAuth` 路由名收集
+  - 其中通用算法已下沉到 `packages/core/src/router/module-assembly.ts`，`apps/admin/src/router/route-assembly-builder.ts` 仅保留 admin 常量与日志适配
+  - `registry` 的 manifest 校验与 enabledModules 筛选纯逻辑已下沉到 `packages/core/src/router/module-registry.ts`，`apps/admin/src/router/registry.ts` 仅保留 `import.meta.glob` 加载与缓存编排
+  - 固定路由（layout/public/catchall）工厂已下沉到 `packages/core/src/router/fixed-routes.ts`，`apps/admin/src/router/assemble-routes.ts` 仅保留应用级参数编排
 
 ### 2.2 compat 执行语义（已落地）
 
@@ -166,12 +160,15 @@ compat: {
 
 ### 2.4 路由冲突策略与测试护栏（第四批续）
 
-- `assemble-routes` 已新增冲突策略单测：
-  - `routeConflictPolicy='fail-fast'`：重复 path/name 冲突直接抛错
-  - `routeConflictPolicy='warn'`：保持 `warn + skip` 兼容
+- `assemble-routes` 对重复 path/name、保留路径冲突统一采用 `warn + skip`。
+- 公共固定路由清单已独立到 `apps/admin/src/router/public-routes.ts`，`assemble-routes` 只负责装配。
+- 路由路径常量收敛为 `routePaths` 单对象（`apps/admin/src/router/constants.ts`），不再使用 `APP_XXX` 风格常量前缀。
+- 公共路由 name 统一使用小写语义名：`login / sso / forbidden / not-found`，避免大写英文名带来的额外记忆负担。
+- `buildFixedRoutes` 的 `notFoundPath` 已改为可选：优先取显式传参，未传时从 `publicRoutes` 自动推断（`name=not-found` 或 `path=/404`）。
 - 关键文件：
-  - `apps/admin/src/router/route-assembly-validator.ts`
-  - `apps/admin/src/router/__tests__/assemble-routes-policy.unit.test.ts`
+  - `apps/admin/src/router/route-assembly-builder.ts`
+  - `apps/admin/src/router/public-routes.ts`
+  - `apps/admin/src/router/__tests__/assemble-routes.unit.test.ts`
 
 ### 2.5 全屏路由归属与路由纯函数下沉（2026-03-10）
 

@@ -215,19 +215,13 @@ UI 行为：
   path: '/local/page',
   component: () => import('./LocalPage.vue'),
   meta: {
-    skipMenuAuth: true,
-    // stable | allowlist | dev-only，默认 stable
-    skipMenuAuthLevel: 'allowlist'
+    skipMenuAuth: true
   }
 }
 ```
 
 注意：
 - `skipMenuAuth` 只会跳过“菜单 allowedPaths 校验”，不会跳过登录校验（仍会被重定向到 `/login`）。
-- `skipMenuAuthLevel` 建议分级使用：
-  - `stable`：生产可用（默认）
-  - `allowlist`：开发可用，生产需命中 `platform-config.skipMenuAuthProductionAllowList`
-  - `dev-only`：仅开发环境可用，生产自动禁用
 - 该能力会放宽前端权限控制，应谨慎使用；**能用 `activePath` 归属到已有菜单时，优先用 `activePath`**。
 - admin 默认首页 `/home/index` 已按本地静态页处理，使用 `skipMenuAuth` 放行登录后访问，避免被远端菜单差异误拦截到 `403`。
 

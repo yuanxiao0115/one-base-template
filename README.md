@@ -79,7 +79,6 @@ pnpm build
 - `authMode`: `cookie | token | mixed`
 - `menuMode`: `remote | static`
 - `enabledModules`: `"*"` 或 `string[]`（模块白名单）
-- `skipMenuAuthProductionAllowList`: 生产环境 `skipMenuAuthLevel=allowlist` 的路由名白名单
 - `defaultSystemCode` / `systemHomeMap`: 多系统默认与首页映射
 - `VITE_API_BASE_URL=https://your-backend.example.com`
   - 开发环境：存在时会启用 Vite 代理 `/api`、`/cmict` 到 `VITE_API_BASE_URL`
