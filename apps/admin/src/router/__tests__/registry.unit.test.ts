@@ -1,0 +1,48 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const warn = vi.hoisted(() => vi.fn());
+
+vi.mock("@/shared/logger", () => ({
+  createAppLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn,
+    error: vi.fn(),
+  }),
+}));
+
+import { getEnabledModules } from "../registry";
+
+describe("router/registry", () => {
+  beforeEach(() => {
+    warn.mockClear();
+  });
+
+  it("enabledModules='*' 应返回全部模块", () => {
+    const all = getEnabledModules("*");
+
+    expect(all.length).toBeGreaterThan(0);
+    expect(new Set(all.map((item) => item.id)).size).toBe(all.length);
+  });
+
+  it("enabledModules 为空数组时应返回 enabledByDefault 模块", () => {
+    const all = getEnabledModules("*");
+    const defaults = getEnabledModules([]);
+    const expectedDefaultIds = all.filter((item) => item.enabledByDefault).map((item) => item.id);
+
+    expect(defaults.map((item) => item.id)).toEqual(expectedDefaultIds);
+  });
+
+  it("应过滤重复与未知模块并触发 warn", () => {
+    const enabled = getEnabledModules(["home", "home", "unknown-module", "portal"]);
+    const warnMessages = warn.mock.calls.map((call) => String(call[0]));
+
+    expect(enabled.map((item) => item.id)).toEqual(["home", "portal"]);
+    expect(warnMessages).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("enabledModules 包含重复模块 id：home"),
+        expect.stringContaining("enabledModules 包含未知模块 id：unknown-module"),
+      ])
+    );
+  });
+});

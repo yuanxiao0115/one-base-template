@@ -4,11 +4,11 @@
   import { ElMessage } from "element-plus";
   import { onMounted, reactive, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
   import { getAppEnv } from "@/infra/env";
   import { getAppRedirectTarget } from "@/router/redirect";
   import { fetchCaptchaCheck, loadCaptcha } from "@/shared/services/auth-captcha-service";
   import { getLoginPageConfig, type LoginPageConfig } from "@/shared/services/auth-remote-service";
+  import { resolveLoginScenario } from "@/shared/services/auth-scenario-provider";
 
   defineOptions({
     name: "LoginPage",
@@ -29,7 +29,11 @@
   const { backend } = appEnv;
   const { baseUrl } = appEnv;
   const { tokenKey } = appEnv;
-  const useVerifyLogin = backend === "sczfw";
+  const loginScenario = resolveLoginScenario({
+    backend,
+    routeQuery: route.query,
+  });
+  const { useVerifyLogin } = loginScenario;
 
   const loading = ref(false);
   const form = reactive({
@@ -42,8 +46,7 @@
 
   function getRedirectTarget() {
     const raw = route.query.redirect ?? route.query.redirectUrl;
-    const fallback = backend === "sczfw" ? DEFAULT_FALLBACK_HOME : "/";
-    return getAppRedirectTarget(raw, { fallback, baseUrl });
+    return getAppRedirectTarget(raw, { fallback: loginScenario.fallback, baseUrl });
   }
 
   async function loadLoginPageConfig() {
@@ -93,13 +96,12 @@
   }
 
   onMounted(async () => {
-    if (useVerifyLogin) {
+    if (loginScenario.shouldLoadLoginPageConfig) {
       await loadLoginPageConfig();
+    }
 
-      const { token } = route.query;
-      if (typeof token === "string" && token) {
-        await handleDirectTokenLogin(token);
-      }
+    if (loginScenario.directLoginToken) {
+      await handleDirectTokenLogin(loginScenario.directLoginToken);
     }
   });
 </script>
