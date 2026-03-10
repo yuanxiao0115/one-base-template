@@ -10,7 +10,7 @@
 apps/admin/src/modules/<module-id>/
   manifest.ts
   module.ts
-  routes.ts
+  routes.ts | routes/index.ts
   <feature-a>/
   <feature-b>/
   api/
@@ -29,10 +29,16 @@ apps/admin/src/modules/<module-id>/
 
 `module.ts` 必填字段：
 
-- `routes.layout`: 挂载到 `AdminLayout` 下的路由（推荐来自 `routes.ts`）
+- `routes.layout`: 挂载到 `AdminLayout` 下的路由（可来自 `routes.ts` 或 `routes/index.ts`）
 - `routes.standalone`（可选）: 顶层路由（全屏/匿名等）
 - `apiNamespace`: API 命名空间
 - `compat`（可选）: 历史路径/字段兼容描述
+
+路由文件组织建议：
+
+- 只有 layout 路由的简单模块：优先单文件 `routes.ts`
+- 同时有 `layout + standalone` 的模块：优先 `routes/` 目录并通过 `routes/index.ts` 统一导出
+- 避免同模块同时长期保留“顶层 `routes.ts` + `routes/` 转发壳”两套结构，减少命名噪音
 
 约束补充：
 
@@ -166,6 +172,20 @@ compat: {
 - 关键文件：
   - `apps/admin/src/router/route-assembly-validator.ts`
   - `apps/admin/src/router/__tests__/assemble-routes-policy.unit.test.ts`
+
+### 2.5 全屏路由归属与路由纯函数下沉（2026-03-10）
+
+- **全屏/不走 Layout 路由统一就近注册到业务模块 `routes.standalone`**：
+  - 例如 `portal` 的 `/portal/designer`、`/portal/layout`、`/portal/preview/:tabId?`。
+  - `router/assemble-routes.ts` 只做装配与校验，不再集中维护业务全屏路由明细。
+- `packages/core` 新增可复用路由纯函数，`admin` 直接复用：
+  - `toRouteNameKey`：统一 route.name 归一化（string/symbol）
+  - `normalizeRoutePath` + `buildRouteFullPath`：统一路径归一化与父子路径拼接
+  - `resolveAppRedirectTarget`：统一安全 redirect + baseUrl 去前缀逻辑
+- 这样做的收益：
+  - 路由业务归属更清晰（业务路由在业务模块）
+  - admin/router 与 core/router 的边界更清晰（业务装配 vs 通用算法）
+  - 避免不同应用重复维护 route.name/path/redirect 的同构实现
 
 ## 3) enabledModules 运行时开关
 
