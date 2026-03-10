@@ -21,7 +21,6 @@ import { installCore } from "./core";
 import { installAppShellPlugins } from "./plugins";
 import { installAppRouterGuards } from "./guards";
 import { registerMessageUtils } from "../utils/message";
-import { registerPersonnelSelectionAppContext } from "../components/PersonnelSelector/openPersonnelSelection";
 import { resolveSkipMenuAuthRouteNamesForGuard } from "../router/skip-menu-auth";
 
 export async function bootstrapAdminApp() {
@@ -29,7 +28,6 @@ export async function bootstrapAdminApp() {
 
   const app = createApp(App);
   registerMessageUtils(app);
-  registerPersonnelSelectionAppContext(app._context);
 
   const pinia = createPinia();
   app.use(pinia);

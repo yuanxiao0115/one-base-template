@@ -49,11 +49,10 @@ export interface OpenPersonnelSelectionOptions {
   orgs?: PersonnelSelectionLegacyNode[];
   roles?: PersonnelSelectionLegacyNode[];
   positions?: PersonnelSelectionLegacyNode[];
+  appContext?: AppContext;
   fetchNodes: PersonnelFetchNodes;
   searchNodes: PersonnelSearchNodes;
 }
-
-let personnelSelectionAppContext: AppContext | null = null;
 
 function getSelectionFieldByMode(mode: PersonnelSelectMode): PersonnelSelectionField {
   if (mode === "org") {
@@ -182,10 +181,6 @@ function normalizeModel(
   return model;
 }
 
-export function registerPersonnelSelectionAppContext(context: AppContext | null): void {
-  personnelSelectionAppContext = context;
-}
-
 export async function openPersonnelSelection(
   options: OpenPersonnelSelectionOptions
 ): Promise<OpenPersonnelSelectionResult> {
@@ -255,8 +250,8 @@ export async function openPersonnelSelection(
       },
     });
 
-    if (personnelSelectionAppContext) {
-      vnode.appContext = personnelSelectionAppContext;
+    if (options.appContext) {
+      vnode.appContext = options.appContext;
     }
 
     render(vnode, host);

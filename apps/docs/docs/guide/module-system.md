@@ -307,11 +307,15 @@ apps/admin/src/modules/UserManagement/
 
 ```ts
 import { openPersonnelSelection } from '@/components/PersonnelSelector'
+import { getCurrentInstance } from 'vue'
+
+const appContext = getCurrentInstance()?.appContext
 
 const result = await openPersonnelSelection({
   title: '添加人员',
   mode: 'person',
   users: selectedUsers,
+  appContext,
   fetchNodes: ({ parentId }) => roleAssignApi.getOrgContactsLazy({ parentId }).then((res) => res.data || []),
   searchNodes: ({ keyword }) => roleAssignApi.searchContactUsers({ search: keyword }).then((res) => res.data || [])
 })
@@ -322,6 +326,7 @@ console.log(result.userIds, result.users)
 说明：
 
 - `users/orgs/roles/positions` 为兼容老项目习惯的初始值入参（可选）
+- `appContext` 建议在组件内通过 `getCurrentInstance()?.appContext` 传入，避免依赖私有 API
 - 返回值同时提供 `model + ids + selectedItems`，便于不同业务按需消费
 
 最小路由声明示例：

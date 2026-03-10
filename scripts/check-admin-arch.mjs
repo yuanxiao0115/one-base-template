@@ -154,6 +154,14 @@ async function main() {
         violations
       );
     }
+
+    pushViolations(
+      absolutePath,
+      content,
+      /\bapp\._context\b/g,
+      "禁止依赖 Vue 私有 API app._context，请通过显式参数传递 appContext。",
+      violations
+    );
   }
 
   if (violations.length === 0) {
