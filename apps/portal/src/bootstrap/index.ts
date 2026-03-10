@@ -1,13 +1,18 @@
 import { createApp } from "vue";
 import { createPinia, setActivePinia } from "pinia";
 import ElementPlus from "element-plus";
-import { ONE_BUILTIN_THEMES, createCore, createStaticMenusFromRoutes, setupRouterGuards } from "@one-base-template/core";
+import {
+  ONE_BUILTIN_THEMES,
+  createCore,
+  createStaticMenusFromRoutes,
+  setObHttpClient,
+  setupRouterGuards,
+} from "@one-base-template/core";
 import { registerOneLiteUiComponents } from "@one-base-template/ui/lite";
 import "@one-base-template/tag/style";
 
 import App from "@/App.vue";
 import { appEnv } from "@/infra/env";
-import { setObHttpClient } from "@/infra/http";
 import {
   APP_FORBIDDEN_ROUTE_PATH,
   APP_LOGIN_ROUTE_PATH,

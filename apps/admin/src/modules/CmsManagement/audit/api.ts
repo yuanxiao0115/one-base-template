@@ -1,4 +1,4 @@
-import { getHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import type {
   ArticleAuditRecord,
   ArticleDetail,
@@ -31,29 +31,29 @@ export type {
 
 export const auditApi = {
   listArticles: async (params: ArticleListParams) =>
-    getHttpClient().get<ApiResponse<AuditPageData<ArticleAuditRecord>>>("/cmict/cms/cmsArticleManage", { params }),
+    getObHttpClient().get<ApiResponse<AuditPageData<ArticleAuditRecord>>>("/cmict/cms/cmsArticleManage", { params }),
 
   getArticleDetail: async (id: number) =>
-    getHttpClient().get<ApiResponse<ArticleDetail>>(`/cmict/cms/cmsArticleManage/${id}`),
+    getObHttpClient().get<ApiResponse<ArticleDetail>>(`/cmict/cms/cmsArticleManage/${id}`),
 
   reviewArticle: async (payload: ArticleReviewPayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/cms/cmsReview", {
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/cms/cmsReview", {
       data: payload,
     }),
 
   listComments: async (params: CommentListParams) =>
-    getHttpClient().get<ApiResponse<AuditPageData<CommentAuditRecord>>>("/cmict/cms/cmsComment/list", { params }),
+    getObHttpClient().get<ApiResponse<AuditPageData<CommentAuditRecord>>>("/cmict/cms/cmsComment/list", { params }),
 
   getCommentDetail: async (id: number) =>
-    getHttpClient().get<ApiResponse<CommentDetail>>(`/cmict/cms/cmsComment/${id}`),
+    getObHttpClient().get<ApiResponse<CommentDetail>>(`/cmict/cms/cmsComment/${id}`),
 
   reviewComment: async (payload: CommentReviewPayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/cms/cmsComment/review", {
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/cms/cmsComment/review", {
       data: payload,
     }),
 
   removeComment: async (payload: CommentDeletePayload) =>
-    getHttpClient().delete<ApiResponse<boolean>>("/cmict/cms/cmsComment", {
+    getObHttpClient().delete<ApiResponse<boolean>>("/cmict/cms/cmsComment", {
       data: payload,
     }),
 };

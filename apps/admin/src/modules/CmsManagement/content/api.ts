@@ -1,4 +1,4 @@
-import { getHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import type {
   ApiResponse,
   ContentCategoryRecord,
@@ -27,34 +27,34 @@ export type {
 
 export const contentApi = {
   page: async (params: ContentPageParams) =>
-    getHttpClient().get<ApiResponse<ContentPageData>>("/cmict/cms/cmsArticleManage", { params }),
+    getObHttpClient().get<ApiResponse<ContentPageData>>("/cmict/cms/cmsArticleManage", { params }),
 
   detail: async (id: string) =>
-    getHttpClient().get<ApiResponse<ContentDetail>>(`/cmict/cms/cmsArticleManage/${id}`),
+    getObHttpClient().get<ApiResponse<ContentDetail>>(`/cmict/cms/cmsArticleManage/${id}`),
 
   add: async (data: ContentSavePayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/cms/cmsArticleManage", {
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/cms/cmsArticleManage", {
       data,
     }),
 
   update: async (data: ContentSavePayload) =>
-    getHttpClient().put<ApiResponse<boolean>>("/cmict/cms/cmsArticleManage", {
+    getObHttpClient().put<ApiResponse<boolean>>("/cmict/cms/cmsArticleManage", {
       data,
     }),
 
   remove: async (data: { id: string }) =>
-    getHttpClient().delete<ApiResponse<boolean>>("/cmict/cms/cmsArticleManage", {
+    getObHttpClient().delete<ApiResponse<boolean>>("/cmict/cms/cmsArticleManage", {
       data,
     }),
 
   categoryTree: async () =>
-    getHttpClient().get<ApiResponse<ContentCategoryRecord[]>>("/cmict/cms/cmsCategory/tree"),
+    getObHttpClient().get<ApiResponse<ContentCategoryRecord[]>>("/cmict/cms/cmsCategory/tree"),
 
   uploadResource: async (file: File, options?: UploadRequestOptions) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await getHttpClient().post<ApiResponse<UploadResourceResult>>("/cmict/file/resource/upload", {
+    const response = await getObHttpClient().post<ApiResponse<UploadResourceResult>>("/cmict/file/resource/upload", {
       data: formData,
       $isUpload: true,
       onUploadProgress: options?.onProgress,
@@ -66,7 +66,7 @@ export const contentApi = {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await getHttpClient().post<ApiResponse<UploadAttachmentResult>>("/cmict/file/upload-file", {
+    const response = await getObHttpClient().post<ApiResponse<UploadAttachmentResult>>("/cmict/file/upload-file", {
       data: formData,
       $isUpload: true,
       onUploadProgress: options?.onProgress,

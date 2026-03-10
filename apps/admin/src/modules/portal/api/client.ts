@@ -1,11 +1,11 @@
-import { getHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import { normalizeTemplateWhiteList } from "../compat/mapper";
 import { portalEndpoints } from "./endpoints";
 import type { BizResponse, PageResult, PortalTab, PortalTemplate } from "../types";
 import type { TabListParams, TemplateListParams } from "./contracts";
 
 function getHttp() {
-  return getHttpClient();
+  return getObHttpClient();
 }
 
 export const portalApiClient = {

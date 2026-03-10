@@ -1,4 +1,4 @@
-import { getHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import type { ApiResponse } from "@/shared/api/types";
 
 interface CaptchaBlockPuzzleData {
@@ -9,7 +9,7 @@ interface CaptchaBlockPuzzleData {
 }
 
 export async function loadCaptcha(params: { captchaKey: string }) {
-  const http = getHttpClient();
+  const http = getObHttpClient();
   return http.get<ApiResponse<CaptchaBlockPuzzleData>>("/cmict/auth/captcha/block-puzzle", {
     params,
     $noErrorAlert: true,
@@ -17,7 +17,7 @@ export async function loadCaptcha(params: { captchaKey: string }) {
 }
 
 export async function fetchCaptchaCheck(params: { captcha: string; captchaKey: string }) {
-  const http = getHttpClient();
+  const http = getObHttpClient();
   return http.get<ApiResponse<unknown>>("/cmict/auth/captcha/check", {
     params,
     $noErrorAlert: true,

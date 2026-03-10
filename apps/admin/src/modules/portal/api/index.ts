@@ -1,4 +1,4 @@
-import { getHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import { portalEndpoints } from "./endpoints";
 
 interface BizResponse<T> {
@@ -9,7 +9,7 @@ interface BizResponse<T> {
 }
 
 function getHttp() {
-  return getHttpClient();
+  return getObHttpClient();
 }
 
 /**

@@ -1,9 +1,9 @@
 import type { BizResponse, PortalTab, PortalTemplate } from "@one-base-template/portal-engine";
-import { getAppHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import { portalEndpoints } from "./endpoints";
 
 function getHttp() {
-  return getAppHttpClient();
+  return getObHttpClient();
 }
 
 export const portalApiClient = {

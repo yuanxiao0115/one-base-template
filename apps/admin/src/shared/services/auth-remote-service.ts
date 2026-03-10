@@ -1,4 +1,4 @@
-import { getHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import type { ApiResponse } from "@/shared/api/types";
 
 export interface TokenResult {
@@ -19,7 +19,7 @@ export interface LoginPageConfig {
 }
 
 function getHttp() {
-  return getHttpClient();
+  return getObHttpClient();
 }
 
 export async function getLoginPageConfig() {

@@ -1,4 +1,4 @@
-import { getAppHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 
 interface BizResponse<T> {
   code?: unknown;
@@ -14,7 +14,7 @@ interface CaptchaBlockPuzzleData {
 }
 
 export async function loadCaptcha(params: { captchaKey: string }) {
-  const http = getAppHttpClient();
+  const http = getObHttpClient();
   return http.get<BizResponse<CaptchaBlockPuzzleData>>("/cmict/auth/captcha/block-puzzle", {
     params,
     $noErrorAlert: true,
@@ -22,7 +22,7 @@ export async function loadCaptcha(params: { captchaKey: string }) {
 }
 
 export async function checkCaptcha(params: { captcha: string; captchaKey: string }) {
-  const http = getAppHttpClient();
+  const http = getObHttpClient();
   return http.get<BizResponse<unknown>>("/cmict/auth/captcha/check", {
     params,
     $noErrorAlert: true,

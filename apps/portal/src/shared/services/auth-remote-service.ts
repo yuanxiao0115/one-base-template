@@ -1,4 +1,4 @@
-import { getAppHttpClient } from '@/shared/api/http-client'
+import { getObHttpClient } from '@one-base-template/core'
 import type { PortalFrontConfig } from '@one-base-template/core'
 
 interface BizResponse<T> {
@@ -16,7 +16,7 @@ interface LoginPageConfig {
 }
 
 function getHttp() {
-  return getAppHttpClient()
+  return getObHttpClient()
 }
 
 export async function getLoginPageConfig() {

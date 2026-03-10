@@ -1,4 +1,4 @@
-import { getHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import type {
   ApiResponse,
   DictItemPageData,
@@ -23,37 +23,37 @@ export type {
 
 export const dictApi = {
   page: async (params: DictPageParams) =>
-    getHttpClient().get<ApiResponse<DictPageData>>("/cmict/admin/data-dict/page", { params }),
+    getObHttpClient().get<ApiResponse<DictPageData>>("/cmict/admin/data-dict/page", { params }),
 
   add: async (data: DictSavePayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/data-dict/add", {
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/data-dict/add", {
       data,
     }),
 
   update: async (data: DictSavePayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/data-dict/update", { data }),
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/data-dict/update", { data }),
 
   remove: async (data: { idList: string[] | string }) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/data-dict/delete", { data }),
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/data-dict/delete", { data }),
 };
 
 export const dictItemApi = {
   page: async (params: DictItemPageParams) =>
-    getHttpClient().get<ApiResponse<DictItemPageData>>("/cmict/admin/dict-item/page", { params }),
+    getObHttpClient().get<ApiResponse<DictItemPageData>>("/cmict/admin/dict-item/page", { params }),
 
   add: async (data: DictItemSavePayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/dict-item/add", {
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/dict-item/add", {
       data,
     }),
 
   update: async (data: DictItemSavePayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/dict-item/update", { data }),
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/dict-item/update", { data }),
 
   remove: async (data: { idList: string[] | string }) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/dict-item/delete", { data }),
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/dict-item/delete", { data }),
 
   toggleStatus: async (data: { ids: string[] | string; isEnable: boolean }) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/dict-item/deactivate", { data }),
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/dict-item/deactivate", { data }),
 };
 
 export default dictApi;

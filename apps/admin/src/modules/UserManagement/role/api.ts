@@ -1,4 +1,4 @@
-import { getHttpClient } from "@/shared/api/http-client";
+import { getObHttpClient } from "@one-base-template/core";
 import type {
   ApiResponse,
   PermissionTreeNode,
@@ -20,33 +20,33 @@ export type {
 
 export const roleApi = {
   page: async (params: RolePageParams) =>
-    getHttpClient().get<ApiResponse<RolePageData>>("/cmict/admin/role/page", { params }),
+    getObHttpClient().get<ApiResponse<RolePageData>>("/cmict/admin/role/page", { params }),
 
   add: async (data: RoleSavePayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/role/add", {
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/role/add", {
       data,
     }),
 
   update: async (data: RoleSavePayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/role/update", {
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/role/update", {
       data,
     }),
 
   remove: async (data: { idList: string[] }) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/role/delete", {
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/role/delete", {
       data,
     }),
 
   getPermissionTree: async () =>
-    getHttpClient().get<ApiResponse<PermissionTreeNode[]>>("/cmict/admin/permission/tree"),
+    getObHttpClient().get<ApiResponse<PermissionTreeNode[]>>("/cmict/admin/permission/tree"),
 
   getRolePermissionIds: async (params: { roleId: string }) =>
-    getHttpClient().get<ApiResponse<string[]>>("/cmict/admin/permission/id/list", {
+    getObHttpClient().get<ApiResponse<string[]>>("/cmict/admin/permission/id/list", {
       params,
     }),
 
   updateRolePermissions: async (data: RolePermissionSavePayload) =>
-    getHttpClient().post<ApiResponse<boolean>>("/cmict/admin/role/permission/edit", { data }),
+    getObHttpClient().post<ApiResponse<boolean>>("/cmict/admin/role/permission/edit", { data }),
 };
 
 export default roleApi;
