@@ -1,13 +1,10 @@
-import AuditPage from "./audit/page.vue";
-import ColumnPage from "./column/page.vue";
-import ContentPage from "./content/page.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 export default [
   {
     path: "/publicity/column",
     name: "PublicityColumn",
-    component: ColumnPage,
+    component: async () => import("./column/page.vue"),
     meta: {
       title: "栏目管理",
       keepAlive: true,
@@ -18,7 +15,7 @@ export default [
   {
     path: "/publicity/content",
     name: "PublicityContent",
-    component: ContentPage,
+    component: async () => import("./content/page.vue"),
     meta: {
       title: "宣传内容管理",
       keepAlive: true,
@@ -29,7 +26,7 @@ export default [
   {
     path: "/publicity/article-list/:categoryId",
     name: "ArticleList",
-    component: ContentPage,
+    component: async () => import("./content/page.vue"),
     meta: {
       title: "文章列表",
       keepAlive: true,
@@ -41,7 +38,7 @@ export default [
   {
     path: "/publicity/audit",
     name: "PublicityAudit",
-    component: AuditPage,
+    component: async () => import("./audit/page.vue"),
     meta: {
       title: "审核管理",
       keepAlive: true,

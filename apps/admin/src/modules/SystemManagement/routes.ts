@@ -1,12 +1,10 @@
-import DictPage from "./dict/page.vue";
-import MenuPage from "./menu/page.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 export default [
   {
     path: "/system/permission",
     name: "SystemMenuManagement",
-    component: MenuPage,
+    component: async () => import("./menu/page.vue"),
     meta: {
       title: "菜单管理",
       keepAlive: true,
@@ -15,7 +13,7 @@ export default [
   {
     path: "/system/dict",
     name: "SystemDictManagement",
-    component: DictPage,
+    component: async () => import("./dict/page.vue"),
     meta: {
       title: "字典管理",
       keepAlive: true,

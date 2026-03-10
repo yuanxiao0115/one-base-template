@@ -1,4 +1,3 @@
-import PortalTemplateListPage from "../pages/PortalTemplateListPage.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 export default [
@@ -26,7 +25,7 @@ export default [
   {
     path: "portal/templates",
     name: "PortalTemplateList",
-    component: PortalTemplateListPage,
+    component: async () => import("../pages/PortalTemplateListPage.vue"),
     meta: {
       title: "门户模板",
       keepAlive: true,
