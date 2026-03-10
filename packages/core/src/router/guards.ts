@@ -3,6 +3,7 @@ import { getCoreOptions } from '../context';
 import { useAuthStore } from '../stores/auth';
 import { useMenuStore } from '../stores/menu';
 import { useSystemStore } from '../stores/system';
+import { toRouteNameKey } from './route-utils';
 
 const DEFAULT_PUBLIC_PATHS = ['/login', '/sso', '/403', '/404'] as const;
 const DEFAULT_LOGIN_PATH = '/login';
@@ -15,16 +16,6 @@ function isPublicRoute(path: string, publicPaths: Set<string>) {
 function resolveMenuKey(to: { path: string; meta: Record<string, unknown> }): string {
   const raw = to.meta.activePath;
   return typeof raw === 'string' && raw.startsWith('/') ? raw : to.path;
-}
-
-function toRouteNameKey(name: RouteLocationNormalized['name']): string | null {
-  if (typeof name === 'string') {
-    return name;
-  }
-  if (typeof name === 'symbol') {
-    return name.toString();
-  }
-  return null;
 }
 
 export interface RouterGuardOptions {

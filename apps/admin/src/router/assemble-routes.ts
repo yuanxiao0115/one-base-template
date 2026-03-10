@@ -21,6 +21,11 @@ const PUBLIC_ROUTE_META = Object.freeze({
   hiddenTab: true,
 });
 type RouteComponent = Exclude<RouteRecordRaw["component"], null | undefined>;
+type RouteAssemblyArtifacts = {
+  standaloneRoutes: RouteRecordRaw[];
+  compatAliasRoutes: RouteRecordRaw[];
+  layoutRoutes: RouteRecordRaw[];
+};
 
 function getDefaultHomePath(options: Pick<AppRouteAssemblyOptions, "defaultSystemCode" | "systemHomeMap" | "storageNamespace">): string {
   const { defaultSystemCode, systemHomeMap, storageNamespace } = options;
@@ -66,26 +71,43 @@ function createFixedRoutes(params: { layoutRoutes: RouteRecordRaw[]; defaultHome
   ];
 }
 
+/**
+ * 模块路由分三组收集：
+ * 1) standalone：不走 AdminLayout 的顶层路由（例如全屏页面）
+ * 2) compatAlias：历史路径别名（redirect）
+ * 3) layout：挂在 AdminLayout 下的业务路由
+ */
+function collectModuleRoutes(params: {
+  modules: Awaited<ReturnType<typeof getEnabledModules>>;
+  validator: ReturnType<typeof createRouteAssemblyValidator>;
+}): RouteAssemblyArtifacts {
+  const { modules, validator } = params;
+  return {
+    standaloneRoutes: buildRoutes({
+      modules,
+      source: "standalone",
+      validator,
+    }),
+    compatAliasRoutes: buildAliasRoutes({
+      modules,
+      validator,
+    }),
+    layoutRoutes: buildRoutes({
+      modules,
+      source: "layout",
+      validator,
+    }),
+  };
+}
+
 export async function assembleRoutes(options: AppRouteAssemblyOptions): Promise<AppRouteAssemblyResult> {
   const modules = await getEnabledModules(options.enabledModules);
   const validator = createRouteAssemblyValidator({
     routeConflictPolicy: options.routeConflictPolicy,
   });
 
-  const standaloneRoutes = buildRoutes({
+  const { standaloneRoutes, compatAliasRoutes, layoutRoutes } = collectModuleRoutes({
     modules,
-    source: "standalone",
-    validator,
-  });
-
-  const compatAliasRoutes = buildAliasRoutes({
-    modules,
-    validator,
-  });
-
-  const layoutRoutes = buildRoutes({
-    modules,
-    source: "layout",
     validator,
   });
 

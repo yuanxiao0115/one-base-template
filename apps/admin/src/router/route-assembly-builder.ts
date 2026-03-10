@@ -1,29 +1,9 @@
 import type { RouteRecordRaw } from "vue-router";
+import { buildRouteFullPath, normalizeRoutePath } from "@one-base-template/core";
 import { APP_ROOT_PATH } from "./constants";
 import type { AdminModuleManifest, ModuleCompat } from "./types";
 import type { RouteAssemblyValidator, RouteCollectContext, RouteSource } from "./route-assembly-validator";
 import { createCompatAliasMeta } from "./route-meta";
-
-function normalizePath(path: string): string {
-  if (!path) {
-    return APP_ROOT_PATH;
-  }
-  const withLeadingSlash = path.startsWith("/") ? path : `/${path}`;
-  return withLeadingSlash.replace(/\/{2,}/g, "/");
-}
-
-function getFullPath(parentPath: string, currentPath: string): string {
-  if (!currentPath) {
-    return normalizePath(parentPath || APP_ROOT_PATH);
-  }
-  if (currentPath.startsWith("/")) {
-    return normalizePath(currentPath);
-  }
-  if (!parentPath || parentPath === APP_ROOT_PATH) {
-    return normalizePath(currentPath);
-  }
-  return normalizePath(`${parentPath}/${currentPath}`);
-}
 
 function buildRouteTree(params: {
   routes: RouteRecordRaw[];
@@ -34,7 +14,7 @@ function buildRouteTree(params: {
   const out: RouteRecordRaw[] = [];
 
   for (const route of routes) {
-    const fullPath = getFullPath(context.parentPath, route.path);
+    const fullPath = buildRouteFullPath(context.parentPath, route.path, APP_ROOT_PATH);
     if (validator.hasConflict(route, fullPath, context)) {
       continue;
     }
@@ -74,7 +54,7 @@ function applyActivePathMap(params: {
 
   const out: RouteRecordRaw[] = [];
   for (const route of routes) {
-    const fullPath = getFullPath(parentPath, route.path);
+    const fullPath = buildRouteFullPath(parentPath, route.path, APP_ROOT_PATH);
     const compatActivePath = activePathMap[fullPath];
     const nextRoute: RouteRecordRaw = { ...route };
 
@@ -122,8 +102,8 @@ function buildModuleAliasRoutes(params: {
 
   const out: RouteRecordRaw[] = [];
   for (const alias of routeAliases) {
-    const fromPath = normalizePath(alias.from);
-    const toPath = normalizePath(alias.to);
+    const fromPath = normalizeRoutePath(alias.from, APP_ROOT_PATH);
+    const toPath = normalizeRoutePath(alias.to, APP_ROOT_PATH);
 
     if (!(alias.from && alias.to)) {
       validator.warn(`compat.routeAliases 含空路径配置（module=${moduleId}），已跳过。`);
@@ -160,6 +140,8 @@ export function buildRoutes(params: {
   const out: RouteRecordRaw[] = [];
 
   for (const module of modules) {
+    // 约定：全屏/不走 Layout 的页面应由业务模块声明在 routes.standalone，
+    // 装配层仅做收集与校验，不在 router 层集中维护业务全屏路由明细。
     const moduleRoutes = source === "layout" ? module.routes.layout : (module.routes.standalone ?? []);
     // 先应用兼容 activePath，再进行冲突校验，确保校验基于最终路由语义。
     const compatRoutes = applyActivePathMap({

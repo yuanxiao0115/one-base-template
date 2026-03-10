@@ -1,43 +1,11 @@
-import { safeRedirect } from "@one-base-template/core";
+import { resolveAppRedirectTarget } from "@one-base-template/core";
 
-function parseBasePath(baseUrl: string): string {
-  if (!baseUrl || baseUrl === "/") {
-    return "";
-  }
-
-  const trimmed = baseUrl.trim();
-  if (!trimmed || trimmed === "/") {
-    return "";
-  }
-
-  const normalized = trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
-  return normalized.startsWith("/") ? normalized : `/${normalized}`;
-}
-
-function buildPath(pathname: string, search: string, hash: string): string {
-  const safePathname = pathname || "/";
-  return `${safePathname}${search}${hash}`;
-}
-
-function removeBasePath(path: string, basePath: string): string {
-  if (!basePath) {
-    return path;
-  }
-
-  const url = new URL(path, "https://one-base-template.local");
-
-  if (url.pathname === basePath) {
-    return buildPath("/", url.search, url.hash);
-  }
-
-  const basePrefix = `${basePath}/`;
-  if (url.pathname.startsWith(basePrefix)) {
-    return buildPath(url.pathname.slice(basePath.length), url.search, url.hash);
-  }
-
-  return buildPath(url.pathname, url.search, url.hash);
-}
-
+/**
+ * admin 侧统一复用 core 的 redirect 解析：
+ * - 仅允许站内跳转
+ * - 自动剥离 baseUrl（子路径部署）
+ * - 保留 query/hash
+ */
 export function getAppRedirectTarget(
   raw: unknown,
   options: {
@@ -45,7 +13,5 @@ export function getAppRedirectTarget(
     baseUrl: string;
   }
 ): string {
-  const target = safeRedirect(raw, options.fallback);
-  const basePath = parseBasePath(options.baseUrl);
-  return removeBasePath(target, basePath);
+  return resolveAppRedirectTarget(raw, options);
 }

@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from "vue-router";
+import { toRouteNameKey } from "@one-base-template/core";
 import { createAppLogger } from "@/shared/logger";
 import type { SkipMenuAuthLevel, SkipMenuAuthRouteRule } from "./types";
 
@@ -6,13 +7,7 @@ const SKIP_MENU_AUTH_LEVEL_SET = new Set<SkipMenuAuthLevel>(["stable", "allowlis
 const logger = createAppLogger("router/skip-menu-auth");
 
 export function getRouteName(name: RouteRecordRaw["name"]): string | null {
-  if (typeof name === "string") {
-    return name;
-  }
-  if (typeof name === "symbol") {
-    return name.toString();
-  }
-  return null;
+  return toRouteNameKey(name);
 }
 
 function isSkipMenuAuthLevel(level: unknown): level is SkipMenuAuthLevel {

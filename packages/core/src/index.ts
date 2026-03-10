@@ -78,6 +78,8 @@ export type { ThemePresetKey, OneTokenMap, PrimaryScale } from './theme/one';
 export { setupRouterGuards, type RouterGuardOptions } from './router/guards';
 export { handleSsoCallback } from './router/sso';
 export { getInitialPath, type GetInitialPathOptions } from './router/initial-path';
+export { resolveAppRedirectTarget } from './router/redirect';
+export { buildRouteFullPath, normalizeRoutePath, toRouteNameKey } from './router/route-utils';
 export {
   getCoreStorageNamespace,
   getNamespacedKey,
