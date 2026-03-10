@@ -8,7 +8,7 @@
   import contentColumns, { REVIEW_STATUS_LABEL_MAP } from "./columns";
   import {
     contentApi,
-    type BizResponse,
+    type ApiResponse,
     type ContentCategoryRecord,
     type ContentDetail,
     type ContentRecord,
@@ -67,7 +67,7 @@
     }
   }
 
-  const crudPage = useCrudPage<ContentForm, ContentRecord, ContentDetail, ContentSavePayload, BizResponse<boolean>>({
+  const crudPage = useCrudPage<ContentForm, ContentRecord, ContentDetail, ContentSavePayload, ApiResponse<boolean>>({
     table: {
       query: {
         api: async (params) =>

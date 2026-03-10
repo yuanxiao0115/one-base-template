@@ -8,6 +8,11 @@ export interface RouteAlias {
   to: string;
 }
 
+export interface ModuleCompat {
+  routeAliases?: RouteAlias[];
+  activePathMap?: Record<string, string>;
+}
+
 interface AdminModuleManifestBase {
   id: string;
   version: "1";
@@ -16,10 +21,7 @@ interface AdminModuleManifestBase {
     standalone?: RouteRecordRaw[];
   };
   apiNamespace: string;
-  compat?: {
-    routeAliases?: RouteAlias[];
-    activePathMap?: Record<string, string>;
-  };
+  compat?: ModuleCompat;
 }
 
 export type CoreModuleManifest = AdminModuleManifestBase & {
@@ -37,4 +39,11 @@ export type AdminModuleManifest = CoreModuleManifest | OptionalModuleManifest;
 export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];
   skipMenuAuthRouteNames: string[];
+}
+
+export interface AppRouteAssemblyOptions {
+  enabledModules: EnabledModulesSetting;
+  defaultSystemCode?: string;
+  systemHomeMap: Record<string, string>;
+  storageNamespace: string;
 }

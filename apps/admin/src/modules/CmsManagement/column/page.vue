@@ -5,7 +5,7 @@
   import ColumnEditForm from "./components/ColumnEditForm.vue";
   import ColumnSearchForm from "./components/ColumnSearchForm.vue";
   import columnColumns from "./columns";
-  import { columnApi, type BizResponse, type ColumnRecord, type ColumnSavePayload } from "./api";
+  import { columnApi, type ApiResponse, type ColumnRecord, type ColumnSavePayload } from "./api";
   import {
     columnFormRules,
     defaultColumnForm,
@@ -42,7 +42,7 @@
     childrenField: "children",
   }));
 
-  const crudPage = useCrudPage<ColumnForm, ColumnRecord, ColumnRecord, ColumnSavePayload, BizResponse<boolean>>({
+  const crudPage = useCrudPage<ColumnForm, ColumnRecord, ColumnRecord, ColumnSavePayload, ApiResponse<boolean>>({
     table: {
       query: {
         api: async (params) =>

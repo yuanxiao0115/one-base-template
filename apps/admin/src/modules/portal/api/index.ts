@@ -1,4 +1,4 @@
-import { getAppHttpClient } from "@/shared/api/http-client";
+import { getHttpClient } from "@/shared/api/http-client";
 import { portalEndpoints } from "./endpoints";
 
 interface BizResponse<T> {
@@ -9,7 +9,7 @@ interface BizResponse<T> {
 }
 
 function getHttp() {
-  return getAppHttpClient();
+  return getHttpClient();
 }
 
 /**

@@ -35,13 +35,22 @@ export function bootstrapAdminApp() {
   // 允许在路由守卫 / http hooks 等“组件外”场景安全使用 store
   setActivePinia(pinia);
 
-  const { routes, skipMenuAuthRouteNames } = getRouteAssemblyResult();
-  const router = createAppRouter(routes);
+  const { routes, skipMenuAuthRouteNames } = getRouteAssemblyResult({
+    enabledModules: appEnv.enabledModules,
+    defaultSystemCode: appEnv.defaultSystemCode,
+    systemHomeMap: appEnv.systemHomeMap,
+    storageNamespace: appEnv.storageNamespace,
+  });
+  const router = createAppRouter({
+    routes,
+    baseUrl: appEnv.baseUrl,
+  });
   app.use(router);
   installAppShellPlugins({
     app,
     pinia,
     router,
+    storageNamespace: appEnv.storageNamespace,
   });
 
   const http = createAppHttp({

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import type { LoginLogRecord } from "../../api/login-log";
+  import type { LoginLogRecord } from "../api";
 
   const props = defineProps<{
     detail: LoginLogRecord | null;

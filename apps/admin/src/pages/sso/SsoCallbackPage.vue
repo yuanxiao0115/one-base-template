@@ -14,6 +14,7 @@
     loginByYdbg,
     loginByZhxt,
   } from "@/shared/services/auth-remote-service";
+  import { executeSsoCallbackStrategy } from "@/shared/services/sso-callback-strategy";
 
   defineOptions({
     name: "SsoCallbackPage",
@@ -118,59 +119,44 @@
       const url = new URL(window.location.href);
       const sp = url.searchParams;
 
-      const token = sp.get("token");
-      const type = sp.get("type");
-      const userToken = sp.get("Usertoken");
-      const moaToken = sp.get("moaToken");
-      const ticket = sp.get("ticket");
-      const sourceCode = sp.get("sourceCode");
-
       const redirectUrlRaw = sp.get("redirectUrl") ?? sp.get("redirect");
       const redirect = getAppRedirectTarget(redirectUrlRaw, {
         fallback: DEFAULT_FALLBACK_HOME,
         baseUrl,
       });
 
-      if (sourceCode === "zhxt" && token) {
-        await handleZhxt(token, redirect);
-        return;
-      }
-
-      if (sourceCode === "YDBG" && token) {
-        await handleYdbg(token, redirect);
-        return;
-      }
-
-      if (ticket) {
-        // ticket 流程对 serviceUrl 有特殊要求，这里保持与老项目一致，不走 core 的通用处理
-        await handleTicket(ticket, sp.get("redirectUrl"), redirect);
-        return;
-      }
-
-      if (type && token) {
-        await handleTypeToken(token, redirect);
-        return;
-      }
-
-      if (moaToken) {
-        await handleExternalSso({
-          from: "om",
-          token: moaToken,
-          redirect,
-        });
-        return;
-      }
-
-      if (userToken) {
-        await handleExternalSso({
-          from: "portal",
-          token: userToken,
-          redirect,
-        });
-        return;
-      }
-
-      throw new Error("登录参数无效");
+      await executeSsoCallbackStrategy({
+        searchParams: sp,
+        handlers: {
+          onZhxt: async ({ token: ssoToken }) => {
+            await handleZhxt(ssoToken, redirect);
+          },
+          onYdbg: async ({ token: ssoToken }) => {
+            await handleYdbg(ssoToken, redirect);
+          },
+          onTicket: async ({ ticket: ssoTicket, redirectUrlRaw: ticketRedirectUrlRaw }) => {
+            // ticket 流程对 serviceUrl 有特殊要求，这里保持与老项目一致，不走 core 的通用处理
+            await handleTicket(ssoTicket, ticketRedirectUrlRaw, redirect);
+          },
+          onTypeToken: async ({ token: ssoToken }) => {
+            await handleTypeToken(ssoToken, redirect);
+          },
+          onMoaToken: async ({ token: ssoToken }) => {
+            await handleExternalSso({
+              from: "om",
+              token: ssoToken,
+              redirect,
+            });
+          },
+          onUserToken: async ({ token: ssoToken }) => {
+            await handleExternalSso({
+              from: "portal",
+              token: ssoToken,
+              redirect,
+            });
+          },
+        },
+      });
     } catch (e: unknown) {
       loginStatus.value = "fail";
       errorMessage.value = safeMessage(e, "SSO 登录失败");

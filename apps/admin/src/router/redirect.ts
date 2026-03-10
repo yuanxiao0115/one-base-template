@@ -1,6 +1,6 @@
 import { safeRedirect } from "@one-base-template/core";
 
-function normalizeBasePath(baseUrl: string): string {
+function parseBasePath(baseUrl: string): string {
   if (!baseUrl || baseUrl === "/") {
     return "";
   }
@@ -14,12 +14,12 @@ function normalizeBasePath(baseUrl: string): string {
   return normalized.startsWith("/") ? normalized : `/${normalized}`;
 }
 
-function joinPath(pathname: string, search: string, hash: string): string {
+function buildPath(pathname: string, search: string, hash: string): string {
   const safePathname = pathname || "/";
   return `${safePathname}${search}${hash}`;
 }
 
-function stripBasePath(path: string, basePath: string): string {
+function removeBasePath(path: string, basePath: string): string {
   if (!basePath) {
     return path;
   }
@@ -27,18 +27,18 @@ function stripBasePath(path: string, basePath: string): string {
   const url = new URL(path, "https://one-base-template.local");
 
   if (url.pathname === basePath) {
-    return joinPath("/", url.search, url.hash);
+    return buildPath("/", url.search, url.hash);
   }
 
   const basePrefix = `${basePath}/`;
   if (url.pathname.startsWith(basePrefix)) {
-    return joinPath(url.pathname.slice(basePath.length), url.search, url.hash);
+    return buildPath(url.pathname.slice(basePath.length), url.search, url.hash);
   }
 
-  return joinPath(url.pathname, url.search, url.hash);
+  return buildPath(url.pathname, url.search, url.hash);
 }
 
-export function resolveAppRedirectTarget(
+export function getAppRedirectTarget(
   raw: unknown,
   options: {
     fallback: string;
@@ -46,6 +46,6 @@ export function resolveAppRedirectTarget(
   }
 ): string {
   const target = safeRedirect(raw, options.fallback);
-  const basePath = normalizeBasePath(options.baseUrl);
-  return stripBasePath(target, basePath);
+  const basePath = parseBasePath(options.baseUrl);
+  return removeBasePath(target, basePath);
 }

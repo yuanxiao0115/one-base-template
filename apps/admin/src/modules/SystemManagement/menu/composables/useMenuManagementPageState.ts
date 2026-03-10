@@ -4,7 +4,7 @@ import type { TableColumnList } from "@one-base-template/ui";
 import { obConfirm } from "@/infra/confirm";
 import { message } from "@/utils/message";
 import menuColumns from "../columns";
-import { type BizResponse, menuPermissionApi, type MenuPermissionRecord, type PermissionTypeOption } from "../api";
+import { type ApiResponse, menuPermissionApi, type MenuPermissionRecord, type PermissionTypeOption } from "../api";
 import {
   defaultMenuPermissionForm,
   type MenuPermissionForm,
@@ -70,7 +70,7 @@ export function useMenuManagementPageState() {
     MenuPermissionRecord,
     MenuPermissionRecord,
     ReturnType<typeof toMenuPermissionPayload>,
-    BizResponse<MenuPermissionRecord>
+    ApiResponse<MenuPermissionRecord>
   >({
     table: tableOpt,
     tableRef: tableRef as unknown as Ref<unknown>,

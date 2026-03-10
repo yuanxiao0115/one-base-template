@@ -1,6 +1,5 @@
 import type { AdminModuleManifest } from "@/router/types";
-import layoutRoutes from "./routes/layout";
-import standaloneRoutes from "./routes/standalone";
+import layoutRoutes, { standaloneRoutes } from "./routes";
 
 const portalModule: AdminModuleManifest = {
   id: "portal",

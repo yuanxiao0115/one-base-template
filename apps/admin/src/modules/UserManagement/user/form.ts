@@ -320,7 +320,7 @@ function toUserOrgPayload(item: UserOrgForm): UserOrgRecord {
     ownSort: toNaturalNumber(item.ownSort, 1),
     sort: toNaturalNumber(item.sort, 1),
     status: toNaturalNumber(item.status, 1),
-    postVos: postVos.length > 0 ? postVos : [createDefaultUserOrgPost()],
+    postVos: postVos.length > 0 ? postVos : [toUserOrgPostPayload(createDefaultUserOrgPost())],
   };
 }
 

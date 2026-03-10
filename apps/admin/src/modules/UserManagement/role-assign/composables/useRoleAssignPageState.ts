@@ -30,15 +30,20 @@ function getRoleMemberName(record: RoleMemberRecord): string {
 }
 
 function toRoleAssignUserOptions(records: RoleMemberRecord[]): RoleAssignUserOption[] {
-  return records.map((item) => ({
-    id: item.id,
-    nodeType: "user",
-    title: item.nickName || item.userAccount || item.id,
-    subTitle: item.userAccount || "--",
-    nickName: item.nickName,
-    userAccount: item.userAccount,
-    phone: "",
-  }));
+  return records.map((item) => {
+    const nickName = item.nickName || item.userAccount || item.id;
+    const userAccount = item.userAccount || item.id;
+
+    return {
+      id: item.id,
+      nodeType: "user",
+      title: nickName,
+      subTitle: userAccount || "--",
+      nickName,
+      userAccount,
+      phone: "",
+    };
+  });
 }
 
 function buildRemoveConfirmName(names: string[]): string {
@@ -266,7 +271,9 @@ export function useRoleAssignPageState() {
   }
 
   async function fetchContactNodes(parentId?: string): Promise<RoleAssignContactNode[]> {
-    const response = await roleAssignApi.getOrgContactsLazy({ parentId });
+    const response = await roleAssignApi.getOrgContactsLazy({
+      parentId: parentId || "0",
+    });
     if (response.code !== 200) {
       throw new Error(response.message || "加载组织通讯录失败");
     }

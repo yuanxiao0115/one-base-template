@@ -14,7 +14,6 @@
   import { message } from "@/utils/message";
   import {
     contentApi,
-    type ContentAttachment,
     type ContentCategoryRecord,
     type UploadAttachmentResult,
     type UploadResourceResult,
@@ -30,6 +29,11 @@
 
   const model = defineModel<ContentForm>({ required: true });
   const formRef = ref<FormInstance>();
+  type ContentAttachmentFormItem = ContentForm["cmsArticleAttachmentList"][number];
+  type AttachmentLike = {
+    attachmentName?: string;
+    attachmentUrl?: string;
+  };
 
   const treeProps = {
     children: "children",
@@ -57,8 +61,8 @@
     return `附件${index + 1}`;
   }
 
-  function normalizeAttachmentList(attachments: ContentAttachment[] | undefined): ContentAttachment[] {
-    const normalizedList: ContentAttachment[] = [];
+  function normalizeAttachmentList(attachments: AttachmentLike[] | undefined): ContentAttachmentFormItem[] {
+    const normalizedList: ContentAttachmentFormItem[] = [];
     (attachments || []).forEach((item, index) => {
       const attachmentUrl = String(item.attachmentUrl || "").trim();
       if (!attachmentUrl) {
@@ -66,7 +70,6 @@
       }
 
       normalizedList.push({
-        id: String(item.id || "").trim() || undefined,
         attachmentName: String(item.attachmentName || "").trim() || buildAttachmentName(attachmentUrl, index),
         attachmentUrl,
       });
@@ -75,7 +78,7 @@
     return normalizedList;
   }
 
-  function toUploadList(attachments: ContentAttachment[]): UploadUserFile[] {
+  function toUploadList(attachments: ContentAttachmentFormItem[]): UploadUserFile[] {
     return attachments.map((item, index) => ({
       uid: index + 1,
       name: item.attachmentName || buildAttachmentName(item.attachmentUrl, index),
@@ -84,16 +87,16 @@
     }));
   }
 
-  function syncAttachmentUploadList(attachments: ContentAttachment[]) {
+  function syncAttachmentUploadList(attachments: ContentAttachmentFormItem[]) {
     attachmentUploadList.value = toUploadList(attachments);
   }
 
-  function applyAttachmentList(attachments: ContentAttachment[]) {
+  function applyAttachmentList(attachments: ContentAttachmentFormItem[]) {
     model.value.cmsArticleAttachmentList = attachments;
     syncAttachmentUploadList(attachments);
   }
 
-  function findAttachmentIndex(attachments: ContentAttachment[], target: UploadUserFile): number {
+  function findAttachmentIndex(attachments: ContentAttachmentFormItem[], target: UploadUserFile): number {
     if (target.url) {
       const indexByUrl = attachments.findIndex((item) => item.attachmentUrl === target.url);
       if (indexByUrl >= 0) {
@@ -170,9 +173,13 @@
     message.warning("封面图片最多上传 1 张");
   }
 
-  async function uploadEditorResource(payload: { file: File; type: "image" | "video" }) {
+  async function uploadEditorResource(payload: { file: File; type: "image" | "video" }): Promise<string> {
     const result = await contentApi.uploadResource(payload.file);
-    return result.joinUrl || result.savedPath;
+    const url = String(result.joinUrl || result.savedPath || "").trim();
+    if (!url) {
+      throw new Error("上传成功但未返回资源地址");
+    }
+    return url;
   }
 
   type UploadAjaxErrorLike = Error & {
@@ -251,8 +258,7 @@
 
     const normalizedList = normalizeAttachmentList(model.value.cmsArticleAttachmentList);
     const attachmentName = String(row.attachmentName || uploadFile.name || "").trim() || "附件";
-    const attachment: ContentAttachment = {
-      id: String(row.id || "").trim() || undefined,
+    const attachment: ContentAttachmentFormItem = {
       attachmentName,
       attachmentUrl,
     };
@@ -459,7 +465,7 @@
                 <div v-if="attachmentPreviewList.length > 0" class="attachment-list">
                   <a
                     v-for="(item, index) in attachmentPreviewList"
-                    :key="item.id || `${item.attachmentUrl}-${index}`"
+                    :key="`${item.attachmentUrl}-${index}`"
                     class="attachment-item"
                     :href="item.attachmentUrl"
                     target="_blank"

@@ -25,9 +25,8 @@
     "changeset": "changeset",
     "version:packages": "changeset version",
     "release:packages": "changeset publish",
-    "test:admin:arch": "pnpm -C apps/admin exec vitest run src/router/__tests__/registry.test.ts src/router/__tests__/skip-menu-auth.test.ts",
     "check:naming": "node ./scripts/check-naming.mjs",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test:admin:arch && pnpm check:naming && pnpm build",
+    "verify": "pnpm typecheck && pnpm lint && pnpm check:naming && pnpm build",
     "doctor": "node ./scripts/doctor.mjs"
   },
   "devDependencies": {

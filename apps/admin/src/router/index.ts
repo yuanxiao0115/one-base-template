@@ -1,6 +1,6 @@
 import { getAppRoutes } from "./assemble-routes";
-import type { AppRouteAssemblyResult } from "./types";
+import type { AppRouteAssemblyOptions, AppRouteAssemblyResult } from "./types";
 
-export function getRouteAssemblyResult(): AppRouteAssemblyResult {
-  return getAppRoutes();
+export function getRouteAssemblyResult(options: AppRouteAssemblyOptions): AppRouteAssemblyResult {
+  return getAppRoutes(options);
 }

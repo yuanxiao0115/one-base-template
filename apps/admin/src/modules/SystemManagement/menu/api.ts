@@ -1,86 +1,28 @@
-import { getHttpClient } from "@/shared/api/utils";
+import { getHttpClient } from "@/shared/api/http-client";
+import type { ApiResponse, MenuPermissionRecord, PermissionSavePayload, PermissionSearchParams, PermissionTypeOption } from "./types";
 
-export interface BizResponse<T> {
-  code: number;
-  data: T;
-  message?: string;
-}
-
-export interface PermissionTypeOption {
-  key: string;
-  value: string;
-}
-
-export interface MenuPermissionRecord {
-  id: string;
-  parentId: string;
-  resourceType: number;
-  resourceTypeText?: string;
-  resourceName: string;
-  permissionCode: string;
-  icon: string;
-  image: string;
-  url: string;
-  openMode: number;
-  redirect: string;
-  routeCache: number;
-  sort: number;
-  hidden: number;
-  component: string;
-  remark: string;
-  children?: MenuPermissionRecord[];
-}
-
-export interface PermissionSearchParams {
-  resourceName?: string;
-  resourceType?: number | string;
-}
-
-export interface PermissionSavePayload {
-  id?: string;
-  parentId?: string;
-  resourceType: number;
-  resourceName: string;
-  permissionCode?: string;
-  icon?: string;
-  image?: string;
-  url?: string;
-  openMode?: number;
-  redirect?: string;
-  routeCache?: number;
-  sort?: number;
-  hidden?: number;
-  component?: string;
-  remark?: string;
-}
-
-function normalizeText(value: string | undefined) {
-  return (value || "").trim();
-}
+export type { ApiResponse, MenuPermissionRecord, PermissionSavePayload, PermissionSearchParams, PermissionTypeOption } from "./types";
 
 export const menuPermissionApi = {
   getResourceTypeEnum: async () =>
-    getHttpClient().get<BizResponse<PermissionTypeOption[]>>("/cmict/admin/permission/resource-type/enum"),
+    getHttpClient().get<ApiResponse<PermissionTypeOption[]>>("/cmict/admin/permission/resource-type/enum"),
 
   getPermissionTree: async () =>
-    getHttpClient().get<BizResponse<MenuPermissionRecord[]>>("/cmict/admin/permission/tree"),
+    getHttpClient().get<ApiResponse<MenuPermissionRecord[]>>("/cmict/admin/permission/tree"),
 
   getPermissionList: async (params: PermissionSearchParams) =>
-    getHttpClient().get<BizResponse<MenuPermissionRecord[]>>("/cmict/admin/permission/list", {
-      params: {
-        resourceName: normalizeText(params.resourceName),
-        resourceType: params.resourceType ?? "",
-      },
+    getHttpClient().get<ApiResponse<MenuPermissionRecord[]>>("/cmict/admin/permission/list", {
+      params,
     }),
 
   addPermission: async (data: PermissionSavePayload) =>
-    getHttpClient().post<BizResponse<MenuPermissionRecord>>("/cmict/admin/permission/add", { data }),
+    getHttpClient().post<ApiResponse<MenuPermissionRecord>>("/cmict/admin/permission/add", { data }),
 
   editPermission: async (data: PermissionSavePayload) =>
-    getHttpClient().post<BizResponse<MenuPermissionRecord>>("/cmict/admin/permission/update", { data }),
+    getHttpClient().post<ApiResponse<MenuPermissionRecord>>("/cmict/admin/permission/update", { data }),
 
   deletePermission: async (idList: string[] | string) =>
-    getHttpClient().post<BizResponse<null>>("/cmict/admin/permission/delete", {
+    getHttpClient().post<ApiResponse<null>>("/cmict/admin/permission/delete", {
       data: { idList },
     }),
 };

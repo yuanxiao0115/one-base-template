@@ -4,7 +4,6 @@ import type { Router } from "vue-router";
 import { OneUiPlugin } from "@one-base-template/ui";
 import OneTag from "@one-base-template/tag";
 
-import { getAppEnv } from "../infra/env";
 import { appCrudContainerDefaultType, appTableDefaults } from "../config";
 import { DEFAULT_FALLBACK_HOME } from "../config/systems";
 import {
@@ -23,9 +22,8 @@ function isHiddenTagRoute(route: unknown): boolean {
   return Boolean(meta?.hiddenTab || meta?.noTag);
 }
 
-export function installAppShellPlugins(params: { app: App; pinia: Pinia; router: Router }) {
-  const { app, pinia, router } = params;
-  const appEnv = getAppEnv();
+export function installAppShellPlugins(params: { app: App; pinia: Pinia; router: Router; storageNamespace: string }) {
+  const { app, pinia, router, storageNamespace } = params;
 
   // 全局注册 @one-base-template/ui 组件，仅使用 Ob 前缀组件名（如 ObPageContainer / ObTableBox）。
   app.use(OneUiPlugin, {
@@ -43,7 +41,7 @@ export function installAppShellPlugins(params: { app: App; pinia: Pinia; router:
     homePath: DEFAULT_FALLBACK_HOME,
     homeTitle: "首页",
     storageType: "session",
-    storageKey: `${appEnv.storageNamespace}:ob_tags`,
+    storageKey: `${storageNamespace}:ob_tags`,
     ignoredRoutes: [
       { path: APP_LOGIN_ROUTE_PATH },
       { path: APP_SSO_ROUTE_PATH },
