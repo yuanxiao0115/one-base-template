@@ -13,6 +13,7 @@
     "lint:doctor": "ultracite doctor"
   },
   "dependencies": {
+    "@one-base-template/app-starter": "workspace:*",
     "@one-base-template/core": "workspace:*",
     "@one-base-template/tag": "workspace:*",
     "@one-base-template/ui": "workspace:*",

@@ -1,19 +1,20 @@
-import "element-plus/dist/index.css";
-import "./styles/index.css";
+import { startAppWithRuntimeConfig } from '@one-base-template/app-starter';
+import 'element-plus/dist/index.css';
+import './styles/index.css';
 
-import { isPlatformConfigLoadError, loadPlatformConfig } from "@/config/platform-config";
+import { isPlatformConfigLoadError, loadPlatformConfig } from '@/config/platform-config';
 
 function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "未知错误";
+  return error instanceof Error ? error.message : '未知错误';
 }
 
 function renderBootstrapError(error: unknown) {
-  const appRoot = document.querySelector("#app");
+  const appRoot = document.querySelector('#app');
   if (!appRoot) {
     return;
   }
 
-  const title = isPlatformConfigLoadError(error) ? "Template 启动失败（配置错误）" : "Template 启动失败";
+  const title = isPlatformConfigLoadError(error) ? 'Template 启动失败（配置错误）' : 'Template 启动失败';
   const detail = toErrorMessage(error);
 
   appRoot.innerHTML = `
@@ -27,16 +28,11 @@ function renderBootstrapError(error: unknown) {
   `;
 }
 
-async function bootstrap() {
-  try {
-    await loadPlatformConfig();
-    const { bootstrapTemplateApp } = await import("@/bootstrap");
-    const { app, router } = bootstrapTemplateApp();
-    await router.isReady();
-    app.mount("#app");
-  } catch (error) {
-    renderBootstrapError(error);
-  }
-}
-
-void bootstrap();
+void startAppWithRuntimeConfig({
+  loadRuntimeConfig: loadPlatformConfig,
+  bootstrap: async () => {
+    const { bootstrapTemplateApp } = await import('@/bootstrap');
+    return bootstrapTemplateApp();
+  },
+  onError: renderBootstrapError,
+});

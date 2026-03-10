@@ -1,19 +1,20 @@
-import "element-plus/dist/index.css";
-import "./styles/index.css";
+import { startAppWithRuntimeConfig } from '@one-base-template/app-starter';
+import 'element-plus/dist/index.css';
+import './styles/index.css';
 
-import { isPlatformConfigLoadError, loadPlatformConfig } from "@/config/platform-config";
+import { isPlatformConfigLoadError, loadPlatformConfig } from '@/config/platform-config';
 
 function escapeHtml(input: string): string {
   return input
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
     .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    .replaceAll("'", '&#39;');
 }
 
 function renderBootstrapError(error: unknown) {
-  const app = document.querySelector<HTMLDivElement>("#app");
+  const app = document.querySelector<HTMLDivElement>('#app');
   if (!app) {
     return;
   }
@@ -23,7 +24,7 @@ function renderBootstrapError(error: unknown) {
       ? error.message
       : error instanceof Error
         ? error.message
-        : "启动失败，请联系管理员";
+        : '启动失败，请联系管理员';
 
   app.innerHTML = `
     <div style="padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;">
@@ -33,16 +34,11 @@ function renderBootstrapError(error: unknown) {
   `;
 }
 
-async function bootstrap() {
-  try {
-    await loadPlatformConfig();
-    const { bootstrapPortalApp } = await import("@/bootstrap");
-    const { app, router } = bootstrapPortalApp();
-    await router.isReady();
-    app.mount("#app");
-  } catch (error) {
-    renderBootstrapError(error);
-  }
-}
-
-void bootstrap();
+void startAppWithRuntimeConfig({
+  loadRuntimeConfig: loadPlatformConfig,
+  bootstrap: async () => {
+    const { bootstrapPortalApp } = await import('@/bootstrap');
+    return bootstrapPortalApp();
+  },
+  onError: renderBootstrapError,
+});

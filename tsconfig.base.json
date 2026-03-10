@@ -21,6 +21,7 @@
       "@one-base-template/core": ["packages/core/src/index.ts"],
       "@one-base-template/ui": ["packages/ui/src/index.ts"],
       "@one-base-template/adapters": ["packages/adapters/src/index.ts"],
+      "@one-base-template/app-starter": ["packages/app-starter/src/index.ts"],
       "@one-base-template/portal-engine": ["packages/portal-engine/src/index.ts"],
       "@one-base-template/utils": ["packages/utils/src/index.ts"],
       "@one-base-template/tag": ["packages/tag/src/index.ts"]
