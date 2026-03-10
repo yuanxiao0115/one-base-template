@@ -93,6 +93,10 @@ pnpm biome:ci
   - `ensureMenuIconifyCollectionsRegistered()` 默认只加载 `ep`，`ri` 仅在显式前缀或图标值命中时加载
 - **当前阶段不优先通过改路由懒加载来处理**，因为 `apps/admin` 的模块路由仍遵循静态 import 约束；若后续要继续压缩首包，再单独评估规则调整
 - `admin` 仍保留较高的 `chunkSizeWarningLimit`，前提是 vendor / 图标集合 / 重模块已经独立拆出；这样可以避免静态路由壳层的误报噪音
+- `admin` 已增加构建体积预算门禁脚本：`pnpm check:admin:bundle`
+  - 检查对象：`iconify-ri` / `vxe` / `element-plus` / `page-*` 最大 chunk
+  - 默认上限：`1120 / 1080 / 720 / 920 KiB`
+  - CI 在 `pnpm build` 后自动执行，超限直接失败，避免大体积回归静默进入主分支
 
 ## admin Vite mock 约定（第二/第三批优化）
 

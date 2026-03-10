@@ -18,6 +18,7 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "lint:arch": "pnpm -C apps/admin lint:arch",
+    "check:admin:bundle": "node ./scripts/check-admin-build-size.mjs",
     "test": "turbo run test",
     "test:run": "turbo run test:run",
     "biome:format": "pnpm exec biome format --config-path ./biome.jsonc --write .",
