@@ -7,6 +7,9 @@
 ```bash
 pnpm typecheck
 pnpm lint
+pnpm lint:arch
+pnpm test
+pnpm test:run
 pnpm build
 pnpm check:naming
 pnpm verify
@@ -187,7 +190,7 @@ pnpm doctor
 
 ## admin 启动与 env 约束
 
-为减少隐性耦合与启动链路分散，本仓库增加了两条约束（由 ESLint 强制）：
+为减少隐性耦合与启动链路分散，本仓库增加了两条约束（由 `pnpm lint:arch` 架构脚本强制，默认集成到 CI）：
 
 - 环境变量：业务模块禁止直接读 `import.meta.env`，统一通过 `apps/admin/src/infra/env.ts` 的 `getAppEnv()`（构建期仅例外使用 `buildEnv`）读取
 - 启动安装：`createApp/createPinia/createRouter` 以及 `app.use/app.component/...` 只能在 `apps/admin/src/bootstrap/` 中进行
@@ -196,6 +199,7 @@ pnpm doctor
 
 - 模块边界：`apps/admin/src/modules/**/*` 禁止直接 import `@/modules/*`（公共能力上移到 `shared/core/ui`）
 - API 边界：页面/组件/store 禁止直接 import `@/infra/http`，必须经由 `services/*` 或 `shared/api/*`
+- 约束脚本位置：`scripts/check-admin-arch.mjs`（可通过 `pnpm lint:arch` 或 `pnpm -C apps/admin lint:arch` 执行）
 
 ## 全局消息工具（兼容老项目 message.ts）
 

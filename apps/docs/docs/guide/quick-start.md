@@ -64,10 +64,14 @@ pnpm -C apps/docs dev
 ```bash
 pnpm typecheck
 pnpm lint
+pnpm lint:arch
+pnpm test:run
 pnpm build
 pnpm changeset
 ```
 
 说明：
+- `pnpm lint:arch` 会检查 admin 的架构边界约束（模块边界、启动边界、env 读取边界等）。
+- `pnpm test:run` 会执行工作区内已配置的单元测试任务。
 - `pnpm build` 会通过 Turborepo 构建所有 workspace 应用与子包（含 `apps/portal` 与 `apps/docs`）。
 - 子包发布与版本管理流程见：`/guide/package-release`。

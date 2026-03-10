@@ -13,6 +13,7 @@ apps/template         # 最小可用示例（静态菜单）
 packages/core         # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等
 packages/ui           # UI 壳：布局/菜单/顶栏/tabs/keep-alive 等
 packages/adapters     # Adapter 示例（含 dev mock）
+packages/app-starter  # 跨应用启动骨架（runtime config + 统一启动编排）
 ```
 
 ## 快速开始
@@ -29,6 +30,8 @@ pnpm doctor
 
 ```bash
 pnpm new:module <module-id>
+pnpm lint:arch
+pnpm test:run
 pnpm check:naming
 pnpm verify
 ```

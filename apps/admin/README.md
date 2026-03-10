@@ -19,7 +19,7 @@
 
 ```text
 src/
-  main.ts                    # 最小入口：只启动 bootstrap
+  main.ts                    # 最小入口：触发 startAdminApp（共享启动骨架）
   bootstrap/                 # 启动编排（create app/router/pinia/http/core + 插件 + 守卫）
   router/                    # 模块注册与路由装配（manifest 扫描、白名单、保留路由）
   infra/                     # 运行时基础设施（env/http/confirm/sczfw crypto）
@@ -54,6 +54,7 @@ src/
 - 基建升级主要落在 `bootstrap/router/infra/shared` 与 `packages/*`
 - 业务模块尽量不感知启动链路和底层实现细节
 - 减少“升级基建=大面积改业务文件”的连锁冲突
+- 启动链路统一复用 `@one-base-template/app-starter`，多子项目可同步升级
 
 ## 4. 为什么这套结构更易升级
 
@@ -126,6 +127,8 @@ src/
 ```bash
 pnpm -C apps/admin exec vitest run src/infra/__tests__/http.unit.test.ts src/infra/__tests__/env.unit.test.ts src/bootstrap/__tests__/http.unit.test.ts
 pnpm -C apps/admin typecheck
+pnpm -C apps/admin lint:arch
 pnpm -C apps/admin lint
+pnpm -C apps/admin test:run
 pnpm -C apps/admin build
 ```
