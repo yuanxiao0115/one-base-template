@@ -43,6 +43,7 @@
   });
 
   const dialogMode = computed<TemplateDialogMode>(() => props.mode ?? "create");
+  const crudMode = computed<"create" | "edit">(() => (dialogMode.value === "edit" ? "edit" : "create"));
 
   const dialogTitle = computed(() => {
     if (props.title) {
@@ -128,7 +129,19 @@
 </script>
 
 <template>
-  <el-dialog v-model="visible" :title="dialogTitle" width="560px" :close-on-click-modal="false">
+  <ObCrudContainer
+    v-model="visible"
+    container="dialog"
+    :mode="crudMode"
+    :title="dialogTitle"
+    :loading="Boolean(props.loading)"
+    :confirm-text="submitButtonText"
+    :dialog-width="560"
+    :close-on-click-modal="false"
+    @confirm="onSubmit"
+    @cancel="onCancel"
+    @close="onCancel"
+  >
     <el-form ref="formRef" :model="form" :rules label-position="top" class="form">
       <el-form-item label="门户名称" prop="templateName">
         <el-input
@@ -167,24 +180,11 @@
         />
       </el-form-item>
     </el-form>
-
-    <template #footer>
-      <div class="footer">
-        <el-button @click="onCancel">取消</el-button>
-        <el-button type="primary" :loading @click="onSubmit">{{ submitButtonText }}</el-button>
-      </div>
-    </template>
-  </el-dialog>
+  </ObCrudContainer>
 </template>
 
 <style scoped>
   .form {
     padding-top: 4px;
-  }
-
-  .footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
   }
 </style>

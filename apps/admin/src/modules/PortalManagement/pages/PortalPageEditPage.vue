@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { message } from "@/utils/message";
+  import { message } from "@one-base-template/ui";
   import {
     type PortalLayoutItem,
     GridLayoutEditor,
@@ -10,7 +10,7 @@
     usePortalPageLayoutStore,
   } from "@one-base-template/portal-engine";
 
-  import { portalApiClient } from "../api/client";
+  import { portalApi } from "../api";
   import { useMaterials } from "../materials/useMaterials";
   import { portalMaterialsRegistry } from "../materials/registry/materials-registry";
 
@@ -115,7 +115,7 @@
 
     loading.value = true;
     try {
-      const res = await portalApiClient.tab.detail({ id });
+      const res = await portalApi.tab.detail({ id });
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "加载页面失败");
         pageLayoutStore.reset();
@@ -166,7 +166,7 @@
         component: pageLayoutStore.layoutItems,
       };
 
-      const res = await portalApiClient.tab.update({
+      const res = await portalApi.tab.update({
         id: tabId.value,
         tabName: tabName.value || "页面",
         pageLayout: JSON.stringify(pageLayout),

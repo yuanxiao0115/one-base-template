@@ -1,10 +1,10 @@
 <script setup lang="ts">
   import { computed, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { message } from "@/utils/message";
-  import { confirm } from "@/infra/confirm";
+  import { message } from "@one-base-template/ui";
+  import { confirm } from "@one-base-template/ui";
 
-  import { portalApiClient } from "../api/client";
+  import { portalApi } from "../api";
   import type { BizResponse, PortalTab, PortalTemplate } from "../types";
   import { calcNextSort, containsTabId, findFirstPageTabId } from "../utils/portalTree";
 
@@ -101,7 +101,7 @@
 
     loading.value = true;
     try {
-      const res = await portalApiClient.template.detail({ id: templateId.value });
+      const res = await portalApi.template.detail({ id: templateId.value });
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "加载门户失败");
         templateInfo.value = null;
@@ -142,7 +142,7 @@
     }
     tpl.tabIds = nextIds;
 
-    const res = await portalApiClient.template.update(tpl);
+    const res = await portalApi.template.update(tpl);
     if (!normalizeBizOk(res)) {
       message.error(res?.message || "关联页面到模板失败");
       return;
@@ -194,7 +194,7 @@
 
     attrLoading.value = true;
     try {
-      const res = await portalApiClient.tab.detail({ id });
+      const res = await portalApi.tab.detail({ id });
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "加载页面详情失败");
         return;
@@ -258,7 +258,7 @@
           data.cmptInsts = [];
         }
 
-        const res = await portalApiClient.tab.add(data);
+        const res = await portalApi.tab.add(data);
         if (!normalizeBizOk(res)) {
           message.error(res?.message || "新建失败");
           return;
@@ -310,7 +310,7 @@
         updateData.tabUrlSsoType = payload.tabUrlSsoType ?? 1;
       }
 
-      const res = await portalApiClient.tab.update(updateData);
+      const res = await portalApi.tab.update(updateData);
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "保存失败");
         return;
@@ -342,7 +342,7 @@
       return;
     }
 
-    const res = await portalApiClient.template.hideToggle({
+    const res = await portalApi.template.hideToggle({
       id: templateId.value,
       tabId,
       isHide: next,
@@ -371,7 +371,7 @@
       return;
     }
 
-    const res = await portalApiClient.tab.delete({ id: tabId });
+    const res = await portalApi.tab.delete({ id: tabId });
     if (!normalizeBizOk(res)) {
       message.error(res?.message || "删除失败");
       return;

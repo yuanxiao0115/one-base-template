@@ -12,7 +12,7 @@ export default [
   {
     path: "portal/setting",
     name: "PortalTemplateList",
-    component: async () => import("../pages/PortalTemplateListPage.vue"),
+    component: async () => import("../template/list.vue"),
     meta: {
       title: "门户配置",
       keepAlive: true,

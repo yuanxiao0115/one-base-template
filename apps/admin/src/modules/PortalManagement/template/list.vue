@@ -2,13 +2,13 @@
   import { computed, reactive, ref } from "vue";
   import { useRouter } from "vue-router";
   import type { TableColumnList } from "@one-base-template/ui";
-  import { confirm } from "@/infra/confirm";
-  import { message } from "@/utils/message";
+  import { confirm } from "@one-base-template/ui";
+  import { message } from "@one-base-template/ui";
 
-  import { portalApiClient } from "../api/client";
-  import type { BizResponse, PageResult, PortalTemplate } from "../types";
+  import { templateApi } from "./api";
+  import type { BizResponse, PageResult, PortalTemplate } from "./types";
   import { findFirstPageTabId } from "../utils/portalTree";
-  import PortalTemplateCreateDialog from "../components/template/PortalTemplateCreateDialog.vue";
+  import PortalTemplateCreateDialog from "./components/PortalTemplateCreateDialog.vue";
 
   defineOptions({ name: "PortalTemplateList" });
 
@@ -144,7 +144,7 @@
     try {
       currentPage.value = page;
 
-      const res = await portalApiClient.template.list({
+      const res = await templateApi.list({
         currentPage: currentPage.value,
         pageSize: pageSize.value,
         searchKey: searchForm.searchKey || undefined,
@@ -213,7 +213,7 @@
 
   async function loadTemplateForDialog(id: string, fallback?: Partial<PortalTemplate>) {
     try {
-      const res = await portalApiClient.template.detail({ id });
+      const res = await templateApi.detail({ id });
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "加载门户详情失败");
         return null;
@@ -279,7 +279,7 @@
     dialogSubmitting.value = true;
     try {
       if (dialogMode.value === "create") {
-        const res = await portalApiClient.template.add({
+        const res = await templateApi.add({
           templateName: payload.templateName,
           description: payload.description || "",
           // 对齐老项目的必填字段，避免后端校验失败
@@ -307,7 +307,7 @@
               query: { id: newId },
             })
             .catch((error) => {
-              console.warn("[PortalTemplateListPage] 跳转设计页失败", error);
+              console.warn("[PortalTemplateList] 跳转设计页失败", error);
             });
           return;
         }
@@ -323,7 +323,7 @@
           return;
         }
 
-        const res = await portalApiClient.template.update({
+        const res = await templateApi.update({
           id,
           templateName: payload.templateName,
           description: payload.description || "",
@@ -348,7 +348,7 @@
         return;
       }
 
-      const res = await portalApiClient.template.copy({
+      const res = await templateApi.copy({
         id,
         templateName: payload.templateName,
       });
@@ -380,7 +380,7 @@
         query: { id },
       })
       .catch((error) => {
-        console.warn("[PortalTemplateListPage] 跳转设计页失败", error);
+        console.warn("[PortalTemplateList] 跳转设计页失败", error);
       });
   }
 
@@ -391,7 +391,7 @@
     }
 
     try {
-      const res = await portalApiClient.template.detail({ id });
+      const res = await templateApi.detail({ id });
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "获取模板详情失败");
         return;
@@ -421,7 +421,7 @@
     const nextStatus = isPublished(row) ? 0 : 1;
     const text = nextStatus === 1 ? "发布" : "取消发布";
 
-    const res = await portalApiClient.template.publish({
+    const res = await templateApi.publish({
       id,
       status: nextStatus,
     });
@@ -446,7 +446,7 @@
       return;
     }
 
-    const res = await portalApiClient.template.delete({ id });
+    const res = await templateApi.delete({ id });
     if (!normalizeBizOk(res)) {
       message.error(res?.message || "删除失败");
       return;
