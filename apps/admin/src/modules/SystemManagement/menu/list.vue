@@ -70,7 +70,7 @@
             <ObActionButtons>
               <el-dropdown
                 v-if="Number(row.resourceType) !== 3"
-                @command="(command) => handleCreateCommand(String(command), row)"
+                @command="(command: unknown) => handleCreateCommand(String(command), row)"
               >
                 <el-button link type="primary" :size="actionSize">新建</el-button>
                 <template #dropdown>

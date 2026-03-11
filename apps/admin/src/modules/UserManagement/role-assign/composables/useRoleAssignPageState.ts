@@ -4,11 +4,11 @@ import { useTable } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
 import roleAssignColumns from "../columns";
 import { roleAssignApi } from "../api";
-import {
-  type RoleAssignContactNode,
-  type RoleAssignContactUserNode,
-  type RoleMemberRecord,
-  type RoleOption,
+import type {
+  RoleAssignContactNode,
+  RoleAssignContactUserNode,
+  RoleMemberRecord,
+  RoleOption,
 } from "../types";
 import type { RoleAssignUserOption } from "../components/RoleAssignMemberSelectForm.vue";
 

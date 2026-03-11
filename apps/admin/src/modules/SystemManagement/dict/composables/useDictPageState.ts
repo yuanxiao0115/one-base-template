@@ -4,11 +4,11 @@ import { obConfirm } from "@one-base-template/ui";
 import { message } from "@one-base-template/ui";
 import { dictColumns, dictItemColumns } from "../columns";
 import { dictApi, dictItemApi } from "../api";
-import {
-  type DictItemRecord,
-  type DictItemSavePayload,
-  type DictRecord,
-  type DictSavePayload,
+import type {
+  DictItemRecord,
+  DictItemSavePayload,
+  DictRecord,
+  DictSavePayload,
 } from "../types";
 import {
   defaultDictForm,

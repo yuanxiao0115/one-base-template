@@ -107,7 +107,7 @@
               v-if="props.allowSelectOrg"
               :model-value="props.selectedIdSet.has(node.id)"
               class="personnel-selector-source__org-checkbox"
-              @update:model-value="(checked) => onToggleOrg(node, Boolean(checked))"
+              @update:model-value="(checked: unknown) => onToggleOrg(node, Boolean(checked))"
             >
               <span class="personnel-selector-source__org-text"> {{ node.orgName || node.title }} </span>
             </el-checkbox>
@@ -131,7 +131,7 @@
             <el-checkbox
               :model-value="props.selectedIdSet.has(getUserId(node))"
               class="personnel-selector-source__user-checkbox"
-              @update:model-value="(checked) => onToggleUser(node, Boolean(checked))"
+              @update:model-value="(checked: unknown) => onToggleUser(node, Boolean(checked))"
             >
               <span class="personnel-selector-source__user-text"> {{ getUserLabel(node) }} </span>
             </el-checkbox>

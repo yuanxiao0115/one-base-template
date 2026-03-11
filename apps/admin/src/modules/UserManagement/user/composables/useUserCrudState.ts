@@ -4,13 +4,13 @@ import { useCrudPage } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
 import buildUserColumns from "../columns";
 import { userApi } from "../api";
-import {
-  type OrgTreeNode,
-  type PositionItem,
-  type RoleItem,
-  type UserDetailData,
-  type UserListRecord,
-  type UserSavePayload,
+import type {
+  OrgTreeNode,
+  PositionItem,
+  RoleItem,
+  UserDetailData,
+  UserListRecord,
+  UserSavePayload,
 } from "../types";
 import { createDefaultUserForm, toUserForm, toUserPayload, type UserForm } from "../form";
 import { userTypeOptions } from "../const";

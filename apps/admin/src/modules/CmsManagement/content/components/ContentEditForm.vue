@@ -13,10 +13,10 @@
   import ObRichTextEditor from "@/components/rich-text/ObRichTextEditor.vue";
   import { message } from "@one-base-template/ui";
   import { contentApi } from "../api";
-  import {
-    type ContentCategoryRecord,
-    type UploadAttachmentResult,
-    type UploadResourceResult,
+  import type {
+    ContentCategoryRecord,
+    UploadAttachmentResult,
+    UploadResourceResult,
   } from "../types";
   import type { ContentForm } from "../form";
 

@@ -2,11 +2,11 @@
   import { computed, ref, watch } from "vue";
   import { Folder, UserFilled } from "@element-plus/icons-vue";
   import { orgApi } from "../api";
-  import {
-    type OrgContactNode,
-    type OrgContactOrgNode,
-    type OrgContactUserNode,
-    type OrgManagerRecord,
+  import type {
+    OrgContactNode,
+    OrgContactOrgNode,
+    OrgContactUserNode,
+    OrgManagerRecord,
   } from "../types";
 
   interface BreadcrumbNode {
@@ -422,7 +422,7 @@
                 <el-checkbox
                   class="org-manager-dialog__user-checkbox"
                   :model-value="selectedUsers.some((item) => item.userId === node.userId)"
-                  @update:model-value="(checked) => toggleUser(node, Boolean(checked))"
+                  @update:model-value="(checked: unknown) => toggleUser(node, Boolean(checked))"
                 />
               </template>
             </div>

@@ -7,12 +7,12 @@
   import ContentSearchForm from "./components/ContentSearchForm.vue";
   import contentColumns, { REVIEW_STATUS_LABEL_MAP } from "./columns";
   import { contentApi } from "./api";
-  import {
-    type ApiResponse,
-    type ContentCategoryRecord,
-    type ContentDetail,
-    type ContentRecord,
-    type ContentSavePayload,
+  import type {
+    ApiResponse,
+    ContentCategoryRecord,
+    ContentDetail,
+    ContentRecord,
+    ContentSavePayload,
   } from "./types";
   import { contentFormRules, defaultContentForm, type ContentForm, toContentForm, toContentPayload } from "./form";
   import { obConfirm } from "@one-base-template/ui";
