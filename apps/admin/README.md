@@ -106,7 +106,7 @@ src/
 
 已完成：
 
-1. HTTP 运行时访问器下沉到 core：删除 `src/shared/api/http-client.ts` 与 `src/infra/http.ts`，统一从 `@one-base-template/core` 使用 `getObHttpClient/setObHttpClient`
+1. HTTP 运行时访问器下沉到 core：删除 `src/shared/api/http-client.ts` 与 `src/infra/http.ts`，统一从 `@one-base-template/core` 使用 `obHttp/setObHttpClient`
 2. 统一模块路由入口写法：
    - `home/module.ts` 改为从 `./routes` 导入
    - `portal/module.ts` 改为从 `./routes` 统一导入 `layout + standalone`

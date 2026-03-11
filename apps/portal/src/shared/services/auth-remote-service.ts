@@ -1,4 +1,4 @@
-import { getObHttpClient } from '@one-base-template/core'
+import { obHttp } from '@one-base-template/core'
 import type { PortalFrontConfig } from '@one-base-template/core'
 
 interface BizResponse<T> {
@@ -15,18 +15,14 @@ interface LoginPageConfig {
   [k: string]: unknown
 }
 
-function getHttp() {
-  return getObHttpClient()
-}
-
 export async function getLoginPageConfig() {
-  return getHttp().get<BizResponse<LoginPageConfig>>('/cmict/portal/getLoginPage', {
+  return obHttp().get<BizResponse<LoginPageConfig>>('/cmict/portal/getLoginPage', {
     $noErrorAlert: true
   })
 }
 
 export async function getPortalFrontConfig() {
-  return getHttp().get<BizResponse<PortalFrontConfig>>('/cmict/admin/front-config/portal', {
+  return obHttp().get<BizResponse<PortalFrontConfig>>('/cmict/admin/front-config/portal', {
     $noErrorAlert: true
   })
 }

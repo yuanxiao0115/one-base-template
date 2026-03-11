@@ -1,4 +1,4 @@
-import { getObHttpClient } from "@one-base-template/core";
+import { obHttp } from "@one-base-template/core";
 import { portalEndpoints } from "./endpoints";
 
 interface BizResponse<T> {
@@ -8,15 +8,11 @@ interface BizResponse<T> {
   success?: boolean;
 }
 
-function getHttp() {
-  return getObHttpClient();
-}
-
 export const cmsApi = {
-  getCategoryTree: async () => getHttp().get<BizResponse<unknown>>(portalEndpoints.cms.categoryTree),
+  getCategoryTree: async () => obHttp().get<BizResponse<unknown>>(portalEndpoints.cms.categoryTree),
 
   getUserArticlesByCategory: async (category: string, params?: { pageSize?: number; currentPage?: number }) =>
-    getHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userArticleListPrefix}/${category}/article/list`, {
+    obHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userArticleListPrefix}/${category}/article/list`, {
       params: {
         pageSize: params?.pageSize ?? 20,
         currentPage: params?.currentPage ?? 1,
@@ -24,7 +20,7 @@ export const cmsApi = {
     }),
 
   getUserCarouselsByCategory: async (category: string) =>
-    getHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userCarouselListPrefix}/${category}/carousel/list`, {
+    obHttp().get<BizResponse<unknown>>(`${portalEndpoints.cms.userCarouselListPrefix}/${category}/carousel/list`, {
       params: {
         pageSize: 20,
         currentPage: 1,

@@ -1,4 +1,4 @@
-import { getObHttpClient } from "@one-base-template/core";
+import { obHttp } from "@one-base-template/core";
 import type { ApiResponse } from "@/shared/api/types";
 
 export interface TokenResult {
@@ -18,18 +18,14 @@ export interface LoginPageConfig {
   [k: string]: unknown;
 }
 
-function getHttp() {
-  return getObHttpClient();
-}
-
 export async function getLoginPageConfig() {
-  return getHttp().get<ApiResponse<LoginPageConfig>>("/cmict/portal/getLoginPage", {
+  return obHttp().get<ApiResponse<LoginPageConfig>>("/cmict/portal/getLoginPage", {
     $noErrorAlert: true,
   });
 }
 
 export async function loginByZhxt(token: string) {
-  return getHttp().get<ApiResponse<TokenResult>>("/cmict/auth/external/zhxt/sso", {
+  return obHttp().get<ApiResponse<TokenResult>>("/cmict/auth/external/zhxt/sso", {
     params: { "zhxt-token": token },
     $isAuth: true,
     $throwOnBizError: true,
@@ -37,7 +33,7 @@ export async function loginByZhxt(token: string) {
 }
 
 export async function loginByYdbg(token: string) {
-  return getHttp().get<ApiResponse<TokenResult>>("/cmict/auth/external/ydbg/sso", {
+  return obHttp().get<ApiResponse<TokenResult>>("/cmict/auth/external/ydbg/sso", {
     params: {
       "ydbg-token": token,
       appType: 2,
@@ -48,7 +44,7 @@ export async function loginByYdbg(token: string) {
 }
 
 export async function loginByTicket(payload: { ticket: string; serviceUrl: string }) {
-  return getHttp().get<ApiResponse<TokenResult>>("/cmict/auth/ticket/sso", {
+  return obHttp().get<ApiResponse<TokenResult>>("/cmict/auth/ticket/sso", {
     params: payload,
     $isAuth: true,
     $throwOnBizError: true,
@@ -56,7 +52,7 @@ export async function loginByTicket(payload: { ticket: string; serviceUrl: strin
 }
 
 export async function loginByExternal(payload: { from: "om" | "portal"; token: string }) {
-  return getHttp().get<ApiResponse<TokenResult>>(`/cmict/auth/external/${payload.from}/sso`, {
+  return obHttp().get<ApiResponse<TokenResult>>(`/cmict/auth/external/${payload.from}/sso`, {
     params: { token: payload.token },
     $isAuth: true,
     $throwOnBizError: true,
@@ -64,7 +60,7 @@ export async function loginByExternal(payload: { from: "om" | "portal"; token: s
 }
 
 export async function loginByDesktop() {
-  return getHttp().post<ApiResponse<IdTokenResult>>("/cmict/uaa/unity-desktop/sso-login", {
+  return obHttp().post<ApiResponse<IdTokenResult>>("/cmict/uaa/unity-desktop/sso-login", {
     $noErrorAlert: true,
   });
 }

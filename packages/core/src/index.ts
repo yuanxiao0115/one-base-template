@@ -28,7 +28,7 @@ export type {
 
 export { createHttpClient, type HttpClientOptions } from './http/client';
 export { createObHttp, type ObHttp } from './http/pureHttp';
-export { getObHttpClient, setObHttpClient } from './http/runtime';
+export { obHttp, setObHttpClient } from './http/runtime';
 export type {
   CreateObHttpOptions,
   ObAuthMode,
