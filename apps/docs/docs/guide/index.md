@@ -131,6 +131,10 @@ outline: false
     <h3>AGENTS 规则分层</h3>
     <p>全仓规则与子项目规则的适用范围和维护方式。</p>
   </a>
+  <a class="guide-card" href="/guide/admin-agent-redlines">
+    <h3>Admin Agent 红线</h3>
+    <p>公共组件复用、CRUD 范式与 lint:arch 门禁的强制基线。</p>
+  </a>
   <a class="guide-card" href="/guide/naming-whitelist">
     <h3>命名白名单（CLI）</h3>
     <p>统一动词+名词命名，保证脚手架生成物可维护。</p>

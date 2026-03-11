@@ -127,6 +127,8 @@ pnpm biome:ci
 
 详细分类与适用范围见：`/guide/agents-scope`。
 
+admin 业务迁移的公共组件与 CRUD 强制基线见：`/guide/admin-agent-redlines`。
+
 ## Agent / Harness 协作实践
 
 本仓库采用“**全局运行时角色 + 仓库项目知识**”的拆分策略：
@@ -216,7 +218,7 @@ pnpm doctor
 
 ## 全局消息工具（兼容老项目 message.ts）
 
-admin 已引入消息工具：`apps/admin/src/utils/message.ts`，并在启动时全局注册：
+admin 已引入消息工具：`@one-base-template/ui`（`message` / `closeAllMessage` / `registerMessageUtils`），并在启动时全局注册：
 
 - `bootstrap` 注册入口：`apps/admin/src/bootstrap/index.ts`
 - Options API 全局属性：
@@ -239,7 +241,7 @@ closeAllMessage()
 
 - 新代码优先使用 `message` / `closeAllMessage`，减少直接散落 `ElMessage` 调用。
 - `type` 语义与旧项目保持一致，适合直接平移历史页面消息逻辑。
-- `obConfirm` 已全局可用，`<script setup>` 中不再手动 `import { obConfirm } from '@/infra/confirm'`。
+- `obConfirm` 已全局可用，`<script setup>` 中不再手动 `import { obConfirm } from '@one-base-template/ui'`。
 
 ## Tailwind v4（Monorepo）注意事项
 

@@ -63,7 +63,7 @@
 
 列表交互基线（对齐 admin）：
 - 表格渲染统一使用 `ObVxeTable`（不使用 `el-table`）
-- 消息提示统一使用 `@/utils/message`（不直接使用 `ElMessage`）
+- 消息提示统一使用 `@one-base-template/ui`（不直接使用 `ElMessage`）
 
 新增门户模板字段说明（对齐老项目，避免部分环境后端校验失败）：
 - `templateType`：模板布局（0=左侧导航、1=顶部导航、2=全屏左导航），默认 0

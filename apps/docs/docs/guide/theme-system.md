@@ -267,7 +267,7 @@ themeStore.setGrayscale(true);        // 开启全局灰色模式
 
 为统一删除/高风险操作的确认体验，admin 侧新增了统一二次确认入口：
 
-- 逻辑封装：`apps/admin/src/infra/confirm.ts`
+- 逻辑封装：`packages/ui/src/feedback/confirm.ts`
 - 样式落点：`apps/admin/src/styles/element-plus/message-box-overrides.css`（类名：`.ob-secondary-confirm`）
 
 视觉规范：
@@ -286,7 +286,7 @@ themeStore.setGrayscale(true);        // 开启全局灰色模式
 使用方式（推荐）：
 
 ```ts
-import { confirm } from '@/infra/confirm'
+import { confirm } from '@one-base-template/ui'
 
 await confirm.warn('确定要删除该记录吗？', '删除确认')
 await confirm.success('操作即将生效，是否继续？', '成功信息')

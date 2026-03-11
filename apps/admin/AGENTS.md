@@ -19,6 +19,7 @@
   - `shared/api/types.ts`（跨模块复用的通用协议类型，如 `ApiResponse`/`ApiPageData`）。
   - `shared/services/auth-*.ts`、`shared/services/sso-callback-strategy.ts`（登录/SSO 场景编排能力）。
   - `shared/logger.ts`（路由装配等应用级日志能力）。
+- admin 反馈能力（`message` / `obConfirm` / `registerMessageUtils`）统一来自 `@one-base-template/ui`，禁止在 `apps/admin/src/shared` 继续新增同类实现。
 - 模块私有逻辑（仅单模块使用的 `mapper/normalize/helper`）禁止上提到 `shared`，保持在 `modules/<module>/**` 就近维护。
 - 能抽成跨应用能力时优先下沉到 `packages/core`/`packages/adapters`，不要把跨应用逻辑长期滞留在 `apps/admin/src/shared`。
 
@@ -62,10 +63,21 @@
 - `@one-base-template/ui` 组件在 admin 页面默认走全局注册（`Ob*` 前缀）；仅在明确说明原因时才允许局部 import。
 - `ObPageContainer` 外层禁止再包无业务意义占位 `div`，优先使用片段根节点保持结构扁平。
 - admin 下 CRUD 编排页文件名统一使用 `list.vue`（不再使用 `page.vue`），对应路由懒加载路径必须保持一致。
-- 门户模板列表页（`apps/admin/src/modules/PortalManagement/pages/PortalTemplateListPage.vue`）必须对齐 admin 列表基线：禁止使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 与 `@/utils/message`。
+- 门户模板列表页（`apps/admin/src/modules/PortalManagement/template/list.vue`）必须对齐 admin 列表基线：禁止使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 与 `@one-base-template/ui`。
 - 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定对齐老项目：`/portal/setting`、`/resource/portal/setting`、`/portal/page/edit`、`/portal/preview`，禁止再通过 `compat.routeAliases` 为该模块做旧路径别名兜底。
 - admin 登录页统一使用 `ObLoginBoxV2`，不要回退到基础版 `ObLoginBox`。
 - 涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面。
+
+## Agent 执行红线（公共组件优先）
+
+- 该节为 admin 场景的强制红线；后续 CRUD 迁移与重构默认按此执行，除非用户明确授权例外。
+- CRUD 列表编排页必须采用 `ObPageContainer + ObTableBox + ObVxeTable`；禁止回退 `el-table`。
+- CRUD 新增/编辑/查看容器必须使用 `ObCrudContainer`；禁止在 CRUD 场景回退 `el-dialog`/`el-drawer` 直连编排。
+- 模块业务代码（`apps/admin/src/modules/**`）的消息提示统一使用 `@one-base-template/ui`；禁止直接使用 `ElMessage`。
+- 模块业务代码（`apps/admin/src/modules/**`）的二次确认统一使用 `obConfirm`/`tryConfirmWarn`；禁止直接使用 `ElMessageBox`。
+- CRUD 目录范式固定：`list.vue + api.ts + types.ts + routes.ts`；禁止恢复 `pages/page.vue`、`services` 中转或散乱接口分层。
+- 上传能力红线：导入类上传优先使用 `ObImportUpload`（`packages/ui`）；业务型 `el-upload` 仅允许在表单/领域组件内部使用，禁止在 `list.vue` 直接编排上传控件。
+- 页面禁止重复封装同构基础能力（消息、确认、CRUD 容器、表格容器）；已有公共组件满足诉求时必须复用。
 
 ## 表格迁移（业务页侧）
 
@@ -109,6 +121,7 @@
 ## CRUD 与交互约定
 
 - CRUD 页面默认使用 `useEntityEditor` 内置错误提示，不再为每页重复编写同构 `onError`。
+- 用户已确认的 CRUD 范式为后续迁移/重构唯一基线：目录组织、`list.vue` 编排层、`api.ts + types.ts` 接口层、`routes.ts` 懒加载注册均需按该范式落地，禁止在新迁移中回退到自定义散乱结构。
 - 管理页脚本超过单屏后，优先拆分“新增/编辑表单组件”和“高级搜索组件”，页面仅保留编排逻辑。
 - `UserManagement`（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，统一使用 `obConfirm`（含输入型确认）。
 - 业务页已使用 `ObActionButtons` 时，禁止叠加手写 `el-dropdown` 操作列。
