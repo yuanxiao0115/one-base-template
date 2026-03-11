@@ -27,12 +27,6 @@
       minWidth: 220,
     },
     {
-      label: "描述",
-      prop: "description",
-      minWidth: 280,
-      slot: "description",
-    },
-    {
       label: "状态",
       prop: "publishStatus",
       width: 120,
@@ -40,7 +34,7 @@
     },
     {
       label: "操作",
-      width: 420,
+      width: 200,
       fixed: "right",
       align: "right",
       slot: "operation",

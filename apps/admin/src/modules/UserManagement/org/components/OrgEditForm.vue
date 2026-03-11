@@ -2,7 +2,7 @@
   import { computed, ref, watch } from "vue";
   import type { FormInstance, FormItemRule, FormRules } from "element-plus";
   import type { CrudFormLike } from "@one-base-template/ui";
-  import type { DictItem, OrgLevelItem } from "../api";
+  import type { DictItem, OrgLevelItem } from "../types";
   import type { OrgForm, OrgTreeOption } from "../form";
 
   const props = defineProps<{

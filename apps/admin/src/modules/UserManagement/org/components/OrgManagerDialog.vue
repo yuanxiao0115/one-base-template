@@ -1,13 +1,13 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import { Folder, UserFilled } from "@element-plus/icons-vue";
+  import { orgApi } from "../api";
   import {
-    orgApi,
     type OrgContactNode,
     type OrgContactOrgNode,
     type OrgContactUserNode,
     type OrgManagerRecord,
-  } from "../api";
+  } from "../types";
 
   interface BreadcrumbNode {
     id: string;

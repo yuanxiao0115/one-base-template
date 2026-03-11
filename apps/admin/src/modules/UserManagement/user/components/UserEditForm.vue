@@ -4,7 +4,7 @@
   import { Delete, Plus } from "@element-plus/icons-vue";
   import type { CrudFormLike } from "@one-base-template/ui";
   import { message } from "@one-base-template/ui";
-  import type { OrgTreeNode, PositionItem, RoleItem } from "../api";
+  import type { OrgTreeNode, PositionItem, RoleItem } from "../types";
   import { createDefaultUserOrg, createDefaultUserOrgPost, type UserForm } from "../form";
   import { genderOptions, orgRankTypeOptions, userTypeOptions } from "../const";
   import { tryConfirmWarn } from "../../shared/confirm";

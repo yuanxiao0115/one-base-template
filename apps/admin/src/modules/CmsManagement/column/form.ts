@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { ColumnRecord, ColumnSavePayload } from "./api";
+import type { ColumnRecord, ColumnSavePayload } from "./types";
 
 export interface ColumnTreeOption {
   value: string;

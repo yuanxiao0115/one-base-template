@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { PositionRecord, PositionSavePayload } from "./api";
+import type { PositionRecord, PositionSavePayload } from "./types";
 
 export interface PositionForm {
   id?: string;

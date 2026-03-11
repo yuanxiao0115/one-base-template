@@ -3,14 +3,13 @@ import { type CrudFormLike, useCrudPage } from "@one-base-template/core";
 import { obConfirm } from "@one-base-template/ui";
 import { message } from "@one-base-template/ui";
 import { dictColumns, dictItemColumns } from "../columns";
+import { dictApi, dictItemApi } from "../api";
 import {
-  dictApi,
-  dictItemApi,
   type DictItemRecord,
   type DictItemSavePayload,
   type DictRecord,
   type DictSavePayload,
-} from "../api";
+} from "../types";
 import {
   defaultDictForm,
   defaultDictItemForm,

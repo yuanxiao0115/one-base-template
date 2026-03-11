@@ -2,7 +2,8 @@ import { reactive, ref } from "vue";
 import { useTable } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
 import sysLogColumns from "../columns";
-import { sysLogApi, type SysLogRecord } from "../api";
+import { sysLogApi } from "../api";
+import type { SysLogRecord } from "../types";
 
 interface SearchRefExpose {
   resetFields?: () => void;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import type { FormInstance } from "element-plus";
-  import type { ClientTypeOption } from "../api";
+  import type { ClientTypeOption } from "../types";
 
   const props = defineProps<{
     clientTypeList: ClientTypeOption[];

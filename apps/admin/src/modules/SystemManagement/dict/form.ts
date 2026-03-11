@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { DictItemRecord, DictItemSavePayload, DictRecord, DictSavePayload } from "./api";
+import type { DictItemRecord, DictItemSavePayload, DictRecord, DictSavePayload } from "./types";
 
 export interface DictForm {
   id?: string;

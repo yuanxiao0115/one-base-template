@@ -3,7 +3,8 @@
   import { Plus } from "@element-plus/icons-vue";
   import type { TableColumnList } from "@one-base-template/ui";
   import type { FormInstance, FormRules } from "element-plus";
-  import { orgApi, type OrgLevelItem, type OrgLevelSavePayload } from "../api";
+  import { orgApi } from "../api";
+  import type { OrgLevelItem, OrgLevelSavePayload } from "../types";
 
   interface OrgLevelForm {
     id?: string;

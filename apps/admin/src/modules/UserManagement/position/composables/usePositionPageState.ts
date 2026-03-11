@@ -2,7 +2,8 @@ import { computed, reactive, ref } from "vue";
 import { useCrudPage } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
 import { positionColumns } from "../columns";
-import { positionApi, type PositionRecord, type PositionSavePayload } from "../api";
+import { positionApi } from "../api";
+import type { PositionRecord, PositionSavePayload } from "../types";
 import { defaultPositionForm, type PositionForm, toPositionForm, toPositionPayload } from "../form";
 import {
   assertUniqueCheck,

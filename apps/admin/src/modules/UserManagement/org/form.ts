@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { OrgRecord, OrgSavePayload } from "./api";
+import type { OrgRecord, OrgSavePayload } from "./types";
 
 export interface OrgForm {
   id?: string;

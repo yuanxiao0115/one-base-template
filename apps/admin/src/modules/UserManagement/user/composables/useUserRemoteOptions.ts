@@ -1,5 +1,6 @@
 import type { Ref } from "vue";
-import { type OrgTreeNode, type PositionItem, type RoleItem, userApi } from "../api";
+import { userApi } from "../api";
+import type { OrgTreeNode, PositionItem, RoleItem } from "../types";
 import { assertUniqueCheck, toUserUniqueSnapshot } from "../../shared/unique";
 
 interface UseUserRemoteOptionsParams {

@@ -4,7 +4,8 @@ import type { TableColumnList } from "@one-base-template/ui";
 import { obConfirm } from "@one-base-template/ui";
 import { message } from "@one-base-template/ui";
 import menuColumns from "../columns";
-import { type ApiResponse, menuPermissionApi, type MenuPermissionRecord, type PermissionTypeOption } from "../api";
+import { menuPermissionApi } from "../api";
+import type { ApiResponse, MenuPermissionRecord, PermissionTypeOption } from "../types";
 import {
   defaultMenuPermissionForm,
   type MenuPermissionForm,

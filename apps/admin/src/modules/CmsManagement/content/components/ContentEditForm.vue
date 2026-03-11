@@ -12,12 +12,12 @@
   import type { CrudFormLike } from "@one-base-template/ui";
   import ObRichTextEditor from "@/components/rich-text/ObRichTextEditor.vue";
   import { message } from "@one-base-template/ui";
+  import { contentApi } from "../api";
   import {
-    contentApi,
     type ContentCategoryRecord,
     type UploadAttachmentResult,
     type UploadResourceResult,
-  } from "../api";
+  } from "../types";
   import type { ContentForm } from "../form";
 
   const props = defineProps<{

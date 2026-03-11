@@ -1,6 +1,7 @@
 import { type ComputedRef, type Ref, ref } from "vue";
 import { message } from "@one-base-template/ui";
-import { orgApi, type OrgRecord } from "../api";
+import { orgApi } from "../api";
+import type { OrgRecord } from "../types";
 
 interface SearchRefExpose {
   resetFields?: () => void;

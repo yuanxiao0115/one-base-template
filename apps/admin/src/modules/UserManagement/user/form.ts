@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { UserDetailData, UserOrgPostRecord, UserOrgRecord, UserSavePayload } from "./api";
+import type { UserDetailData, UserOrgPostRecord, UserOrgRecord, UserSavePayload } from "./types";
 
 export interface UserOrgPostForm {
   id?: string;

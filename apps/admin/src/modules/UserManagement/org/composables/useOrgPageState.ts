@@ -2,7 +2,8 @@ import { computed, onMounted, reactive, ref } from "vue";
 import { useAuthStore, useCrudPage } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
 import { orgColumns } from "../columns";
-import { orgApi, type OrgRecord, type OrgSavePayload } from "../api";
+import { orgApi } from "../api";
+import type { OrgRecord, OrgSavePayload } from "../types";
 import { defaultOrgForm, type OrgForm, toOrgForm, toOrgPayload } from "../form";
 import {
   assertUniqueCheck,

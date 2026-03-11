@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { ContentDetail, ContentRecord, ContentSavePayload } from "./api";
+import type { ContentDetail, ContentRecord, ContentSavePayload } from "./types";
 
 export interface ContentForm {
   id?: string;

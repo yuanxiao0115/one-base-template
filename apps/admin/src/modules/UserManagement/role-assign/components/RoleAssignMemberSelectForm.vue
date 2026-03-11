@@ -8,7 +8,7 @@
     PersonnelSearchNodes,
     PersonnelSelectedUser,
   } from "@/components/PersonnelSelector/types";
-  import type { RoleAssignContactNode, RoleAssignContactUserNode } from "../api";
+  import type { RoleAssignContactNode, RoleAssignContactUserNode } from "../types";
 
   export type RoleAssignUserOption = PersonnelSelectedUser;
 

@@ -1,5 +1,5 @@
 import type { TableColumnList } from "@one-base-template/ui";
-import type { ReviewStatus } from "./api";
+import type { ReviewStatus } from "./types";
 
 export interface OptionItem<T extends number | string> {
   label: string;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import type { FormInstance } from "element-plus";
-  import type { PermissionTypeOption } from "../api";
+  import type { PermissionTypeOption } from "../types";
 
   const props = defineProps<{
     resourceTypeOptions: PermissionTypeOption[];

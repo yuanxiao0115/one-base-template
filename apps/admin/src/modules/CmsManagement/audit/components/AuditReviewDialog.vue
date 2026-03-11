@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed, reactive, ref, watch } from "vue";
   import type { FormInstance, FormRules } from "element-plus";
-  import type { ArticleDetail } from "../api";
+  import type { ArticleDetail } from "../types";
   import { formatReviewStatus, resolveReviewStatusTagType } from "../columns";
 
   interface AuditReviewForm {

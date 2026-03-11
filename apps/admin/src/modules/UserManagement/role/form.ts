@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { RoleRecord, RoleSavePayload } from "./api";
+import type { RoleRecord, RoleSavePayload } from "./types";
 
 export interface RoleForm {
   id?: string;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import type { FormInstance } from "element-plus";
-  import type { ContentCategoryRecord } from "../api";
+  import type { ContentCategoryRecord } from "../types";
 
   const props = defineProps<{
     categoryTreeOptions: ContentCategoryRecord[];

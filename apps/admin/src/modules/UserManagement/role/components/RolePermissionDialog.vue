@@ -1,7 +1,8 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import type { TreeInstance } from "element-plus";
-  import { type PermissionTreeNode, roleApi } from "../api";
+  import { roleApi } from "../api";
+  import type { PermissionTreeNode } from "../types";
 
   const props = defineProps<{
     modelValue: boolean;

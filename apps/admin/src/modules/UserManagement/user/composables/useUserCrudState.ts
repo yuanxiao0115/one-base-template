@@ -3,15 +3,15 @@ import type { CrudFormLike } from "@one-base-template/ui";
 import { useCrudPage } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
 import buildUserColumns from "../columns";
+import { userApi } from "../api";
 import {
   type OrgTreeNode,
   type PositionItem,
   type RoleItem,
-  userApi,
   type UserDetailData,
   type UserListRecord,
   type UserSavePayload,
-} from "../api";
+} from "../types";
 import { createDefaultUserForm, toUserForm, toUserPayload, type UserForm } from "../form";
 import { userTypeOptions } from "../const";
 import {

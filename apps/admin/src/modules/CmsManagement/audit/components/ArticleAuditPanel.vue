@@ -9,7 +9,8 @@
     formatReviewStatus,
     resolveReviewStatusTagType,
   } from "../columns";
-  import { auditApi, type ArticleAuditRecord, type ArticleDetail, type ArticleListParams, type ReviewStatus } from "../api";
+  import { auditApi } from "../api";
+  import type { ArticleAuditRecord, ArticleDetail, ArticleListParams, ReviewStatus } from "../types";
   import AuditReviewDialog from "./AuditReviewDialog.vue";
 
   interface SearchRefExpose {

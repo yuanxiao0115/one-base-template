@@ -5,7 +5,8 @@
   import ColumnEditForm from "./components/ColumnEditForm.vue";
   import ColumnSearchForm from "./components/ColumnSearchForm.vue";
   import columnColumns from "./columns";
-  import { columnApi, type ApiResponse, type ColumnRecord, type ColumnSavePayload } from "./api";
+  import { columnApi } from "./api";
+  import type { ApiResponse, ColumnRecord, ColumnSavePayload } from "./types";
   import {
     columnFormRules,
     defaultColumnForm,

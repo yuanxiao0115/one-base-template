@@ -10,7 +10,8 @@
     formatReviewStatus,
     resolveReviewStatusTagType,
   } from "../columns";
-  import { auditApi, type CommentAuditRecord, type CommentDetail, type CommentListParams, type ReviewStatus } from "../api";
+  import { auditApi } from "../api";
+  import type { CommentAuditRecord, CommentDetail, CommentListParams, ReviewStatus } from "../types";
 
   interface SearchRefExpose {
     resetFields?: () => void;

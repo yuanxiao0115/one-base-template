@@ -2,7 +2,7 @@
   import { ref } from "vue";
   import type { FormInstance, FormRules } from "element-plus";
   import type { CrudFormLike } from "@one-base-template/ui";
-  import type { PermissionTypeOption } from "../api";
+  import type { PermissionTypeOption } from "../types";
   import type { MenuPermissionForm, ParentOption } from "../form";
   import MenuIconInput from "./MenuIconInput.vue";
 

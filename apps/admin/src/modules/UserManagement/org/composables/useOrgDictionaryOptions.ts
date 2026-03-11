@@ -1,5 +1,6 @@
 import { ref } from "vue";
-import { type DictItem, orgApi, type OrgLevelItem } from "../api";
+import { orgApi } from "../api";
+import type { DictItem, OrgLevelItem } from "../types";
 
 export function useOrgDictionaryOptions() {
   const orgCategoryOptions = ref<DictItem[]>([]);

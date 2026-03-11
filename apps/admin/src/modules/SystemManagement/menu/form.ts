@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { MenuPermissionRecord, PermissionSavePayload } from "./api";
+import type { MenuPermissionRecord, PermissionSavePayload } from "./types";
 
 export interface ParentOption {
   value: string;

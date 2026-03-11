@@ -1,6 +1,7 @@
 import type { Ref } from "vue";
 import { message } from "@one-base-template/ui";
-import { userApi, type UserListRecord } from "../api";
+import { userApi } from "../api";
+import type { UserListRecord } from "../types";
 import { confirmWarn, isConfirmCancelled } from "../../shared/confirm";
 
 interface UseUserStatusActionsOptions {

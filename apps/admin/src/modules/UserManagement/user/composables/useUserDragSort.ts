@@ -1,6 +1,7 @@
 import { nextTick, onBeforeUnmount, ref, type Ref, watch } from "vue";
 import type Sortable from "sortablejs";
-import { userApi, type UserListRecord } from "../api";
+import { userApi } from "../api";
+import type { UserListRecord } from "../types";
 import { buildAdjustOrgSortPayload, buildSortableOptions, moveArrayItem, type PaginationLike } from "../utils/dragSort";
 
 interface SortableCtor {

@@ -1,4 +1,4 @@
-import type { UserPageParams } from "../api";
+import type { UserPageParams } from "../types";
 
 export interface UserSearchForm {
   nickName: string;

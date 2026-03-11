@@ -2,7 +2,8 @@ import { onMounted, reactive, ref } from "vue";
 import { useTable } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
 import loginLogColumns from "../columns";
-import { type ClientTypeOption, loginLogApi, type LoginLogRecord } from "../api";
+import { loginLogApi } from "../api";
+import type { ClientTypeOption, LoginLogRecord } from "../types";
 
 interface SearchRefExpose {
   resetFields?: () => void;

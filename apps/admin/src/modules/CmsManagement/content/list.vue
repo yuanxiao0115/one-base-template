@@ -6,14 +6,14 @@
   import ContentEditForm from "./components/ContentEditForm.vue";
   import ContentSearchForm from "./components/ContentSearchForm.vue";
   import contentColumns, { REVIEW_STATUS_LABEL_MAP } from "./columns";
+  import { contentApi } from "./api";
   import {
-    contentApi,
     type ApiResponse,
     type ContentCategoryRecord,
     type ContentDetail,
     type ContentRecord,
     type ContentSavePayload,
-  } from "./api";
+  } from "./types";
   import { contentFormRules, defaultContentForm, type ContentForm, toContentForm, toContentPayload } from "./form";
   import { obConfirm } from "@one-base-template/ui";
   import { message } from "@one-base-template/ui";

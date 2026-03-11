@@ -1,5 +1,6 @@
 import { type Ref, ref } from "vue";
-import { orgApi, type OrgRecord } from "../api";
+import { orgApi } from "../api";
+import type { OrgRecord } from "../types";
 import type { OrgTreeOption } from "../form";
 
 interface UseOrgTreeOptionsParams {

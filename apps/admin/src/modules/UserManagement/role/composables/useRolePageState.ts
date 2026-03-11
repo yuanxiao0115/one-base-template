@@ -3,7 +3,8 @@ import type { CrudFormLike } from "@one-base-template/ui";
 import { useCrudPage } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
 import roleColumns from "../columns";
-import { roleApi, type RoleRecord, type RoleSavePayload } from "../api";
+import { roleApi } from "../api";
+import type { RoleRecord, RoleSavePayload } from "../types";
 import { defaultRoleForm, type RoleForm, toRoleForm, toRolePayload } from "../form";
 
 interface SearchRefExpose {
