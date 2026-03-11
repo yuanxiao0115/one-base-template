@@ -1,5 +1,5 @@
 import type { Ref } from "vue";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import { userApi, type UserListRecord } from "../api";
 import { confirmWarn, isConfirmCancelled } from "../../shared/confirm";
 

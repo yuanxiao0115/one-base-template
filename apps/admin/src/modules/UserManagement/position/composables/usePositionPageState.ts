@@ -1,6 +1,6 @@
 import { computed, reactive, ref } from "vue";
 import { useCrudPage } from "@one-base-template/core";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import { positionColumns } from "../columns";
 import { positionApi, type PositionRecord, type PositionSavePayload } from "../api";
 import { defaultPositionForm, type PositionForm, toPositionForm, toPositionPayload } from "../form";

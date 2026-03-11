@@ -1,7 +1,7 @@
 import { computed, reactive, ref } from "vue";
 import type { CrudFormLike } from "@one-base-template/ui";
 import { useCrudPage } from "@one-base-template/core";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import roleColumns from "../columns";
 import { roleApi, type RoleRecord, type RoleSavePayload } from "../api";
 import { defaultRoleForm, type RoleForm, toRoleForm, toRolePayload } from "../form";

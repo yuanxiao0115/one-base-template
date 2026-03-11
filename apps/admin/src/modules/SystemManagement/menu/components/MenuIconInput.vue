@@ -2,7 +2,7 @@
   import { computed, reactive, ref, watch } from "vue";
   import { Grid } from "@element-plus/icons-vue";
   import { getMenuIconifyNames, type MenuIconifyPrefix } from "@one-base-template/ui";
-  import { message } from "@/utils/message";
+  import { message } from "@one-base-template/ui";
   import {
     buildMenuIconfontValue,
     MENU_ICONFONT_SOURCES,

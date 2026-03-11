@@ -1,7 +1,7 @@
 import { computed, reactive, ref } from "vue";
 import { type CrudFormLike, useCrudPage } from "@one-base-template/core";
-import { obConfirm } from "@/infra/confirm";
-import { message } from "@/utils/message";
+import { obConfirm } from "@one-base-template/ui";
+import { message } from "@one-base-template/ui";
 import { dictColumns, dictItemColumns } from "../columns";
 import {
   dictApi,

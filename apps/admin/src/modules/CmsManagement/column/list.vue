@@ -14,7 +14,7 @@
     toColumnForm,
     toColumnPayload,
   } from "./form";
-  import { message } from "@/utils/message";
+  import { message } from "@one-base-template/ui";
   import { useRouter } from "vue-router";
 
   interface SearchRefExpose {

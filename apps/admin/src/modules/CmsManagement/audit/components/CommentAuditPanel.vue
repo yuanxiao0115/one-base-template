@@ -3,7 +3,7 @@
   import { Delete } from "@element-plus/icons-vue";
   import { useTable } from "@one-base-template/core";
   import type { FormInstance, FormRules } from "element-plus";
-  import { message } from "@/utils/message";
+  import { message } from "@one-base-template/ui";
   import {
     REVIEW_STATUS_OPTIONS,
     commentAuditColumns,

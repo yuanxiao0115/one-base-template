@@ -2,6 +2,7 @@ import { createApp } from "vue";
 import { createPinia, setActivePinia } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 import { setObHttpClient, setupRouterGuards } from "@one-base-template/core";
+import { registerMessageUtils } from "@one-base-template/ui";
 
 import App from "../App.vue";
 import { assembleRoutes } from "../router/assemble-routes";
@@ -20,7 +21,6 @@ import { createAppHttp } from "./http";
 import { createAppAdapter } from "./adapter";
 import { installCore } from "./core";
 import { installAppShellPlugins } from "./plugins";
-import { registerMessageUtils } from "../utils/message";
 
 export async function bootstrapAdminApp() {
   const appEnv = getAppEnv();

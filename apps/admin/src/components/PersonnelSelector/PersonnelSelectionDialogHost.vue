@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { computed, nextTick, reactive, ref, watch } from "vue";
-  import { message } from "@/utils/message";
+  import { message } from "@one-base-template/ui";
   import PersonnelSelector from "./PersonnelSelector.vue";
   import type {
     OpenPersonnelSelectionResult,

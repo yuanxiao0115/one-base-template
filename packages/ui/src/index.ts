@@ -39,6 +39,19 @@ export type {
 } from './components/table/types';
 export { default as ForbiddenPage } from './pages/error/ForbiddenPage.vue';
 export { default as NotFoundPage } from './pages/error/NotFoundPage.vue';
+export {
+  confirm,
+  obConfirm,
+  openSecondaryConfirm,
+  type ConfirmTone,
+} from './feedback/confirm';
+export {
+  closeAllMessage,
+  message,
+  registerMessageUtils,
+  type MessageParams,
+  type ObMessageFn,
+} from './feedback/message';
 export type { CrudContainerGlobalConfig, OneUiGlobalConfig } from './config';
 export {
   useEntityEditor,

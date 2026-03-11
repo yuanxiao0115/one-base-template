@@ -1,8 +1,9 @@
 <script setup lang="ts">
   import { computed, ref } from "vue";
-  import { ElMessage, type FormInstance, type FormItemRule, type FormRules, type UploadProps } from "element-plus";
+  import type { FormInstance, FormItemRule, FormRules, UploadProps } from "element-plus";
   import { Delete, Plus } from "@element-plus/icons-vue";
   import type { CrudFormLike } from "@one-base-template/ui";
+  import { message } from "@one-base-template/ui";
   import type { OrgTreeNode, PositionItem, RoleItem } from "../api";
   import { createDefaultUserOrg, createDefaultUserOrgPost, type UserForm } from "../form";
   import { genderOptions, orgRankTypeOptions, userTypeOptions } from "../const";
@@ -156,7 +157,7 @@
 
   async function removeOrg(index: number) {
     if (!Array.isArray(model.value.userOrgs) || model.value.userOrgs.length <= 1) {
-      ElMessage.warning("至少保留一个部门");
+      message.warning("至少保留一个部门");
       return;
     }
 
@@ -195,7 +196,7 @@
 
     const posts = Array.isArray(org.postVos) ? org.postVos : [];
     if (posts.length <= 1) {
-      ElMessage.warning("至少保留一个职位");
+      message.warning("至少保留一个职位");
       return;
     }
 
@@ -218,7 +219,7 @@
 
   const beforeUploadAvatar: UploadProps["beforeUpload"] = async (file) => {
     if (!model.value.id) {
-      ElMessage.warning("请先保存用户后再上传头像");
+      message.warning("请先保存用户后再上传头像");
       return false;
     }
 
@@ -231,11 +232,11 @@
       const success = await props.uploadAvatar(file, model.value.id);
       if (success) {
         avatarTimestamp.value = Date.now();
-        ElMessage.success("头像更新成功");
+        message.success("头像更新成功");
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "头像上传失败";
-      ElMessage.error(errorMessage);
+      message.error(errorMessage);
     } finally {
       uploadLoading.value = false;
     }

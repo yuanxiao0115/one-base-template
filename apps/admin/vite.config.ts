@@ -75,13 +75,7 @@ export default defineConfig(({ mode }) => {
             "@one-base-template/core": ["useTable", "useCrudPage"],
           },
           {
-            "@/infra/confirm": ["obConfirm"],
-          },
-          {
-            "@/utils/message": ["message", "closeAllMessage"],
-          },
-          {
-            "@one-base-template/ui": ["useEntityEditor"],
+            "@one-base-template/ui": ["obConfirm", "message", "closeAllMessage", "useEntityEditor"],
           },
           {
             from: "@one-base-template/core",

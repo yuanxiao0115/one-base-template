@@ -1,8 +1,8 @@
 import { computed, onMounted, reactive, ref, type Ref } from "vue";
 import { type CrudErrorContext, type CrudFormLike, useCrudPage } from "@one-base-template/core";
 import type { TableColumnList } from "@one-base-template/ui";
-import { obConfirm } from "@/infra/confirm";
-import { message } from "@/utils/message";
+import { obConfirm } from "@one-base-template/ui";
+import { message } from "@one-base-template/ui";
 import menuColumns from "../columns";
 import { type ApiResponse, menuPermissionApi, type MenuPermissionRecord, type PermissionTypeOption } from "../api";
 import {

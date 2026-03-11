@@ -1,7 +1,7 @@
 import { nextTick, reactive, ref } from "vue";
 import type { CrudFormLike } from "@one-base-template/ui";
 import { sm4EncryptBase64 } from "@/infra/sczfw/crypto";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import { type CorporateUserRecord, userApi, type UserListRecord } from "../api";
 import { defaultUserAccountForm, type UserAccountForm as UserAccountFormModel, type UserBindForm } from "../form";
 

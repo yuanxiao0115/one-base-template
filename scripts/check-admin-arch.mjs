@@ -193,6 +193,20 @@ function isGlobalInstallScopedFile(relativePath) {
   return isBootstrapScopedFile(relativePath) || relativePath === 'main.ts';
 }
 
+/**
+ * @param {string} relativePath
+ */
+function isModuleSourceFile(relativePath) {
+  return relativePath.startsWith('modules/');
+}
+
+/**
+ * @param {string} relativePath
+ */
+function isCrudListPage(relativePath) {
+  return /^modules\/[^/]+(?:\/[^/]+)*\/list\.vue$/.test(relativePath);
+}
+
 async function main() {
   const files = await collectSourceFiles(adminSrcDir);
   /** @type {Violation[]} */
@@ -291,6 +305,47 @@ async function main() {
       "禁止依赖 Vue 私有 API app._context，请通过显式参数传递 appContext。",
       violations
     );
+
+    if (isModuleSourceFile(relativePath)) {
+      pushViolations(
+        absolutePath,
+        content,
+        /import\s*\{[^}]*\bElMessage\b[^}]*\}\s*from\s*['"]element-plus['"]/gs,
+        "modules 业务代码禁止直接使用 ElMessage，请改为 '@one-base-template/ui' 的 message 封装。",
+        violations
+      );
+      pushViolations(
+        absolutePath,
+        content,
+        /import\s*\{[^}]*\bElMessageBox\b[^}]*\}\s*from\s*['"]element-plus['"]/gs,
+        "modules 业务代码禁止直接使用 ElMessageBox，请改为 '@one-base-template/ui' 的 obConfirm 封装。",
+        violations
+      );
+    }
+
+    if (isCrudListPage(relativePath)) {
+      pushViolations(
+        absolutePath,
+        content,
+        /<\s*el-table\b/gi,
+        'CRUD list.vue 禁止使用 el-table，请统一使用 ObVxeTable。',
+        violations
+      );
+      pushViolations(
+        absolutePath,
+        content,
+        /<\s*el-dialog\b/gi,
+        'CRUD list.vue 禁止直接使用 el-dialog，请统一使用 ObCrudContainer。',
+        violations
+      );
+      pushViolations(
+        absolutePath,
+        content,
+        /<\s*el-upload\b/gi,
+        'CRUD list.vue 禁止直接编排 el-upload，请将上传能力下沉到表单/领域组件或复用 ObImportUpload。',
+        violations
+      );
+    }
   }
 
   if (violations.length === 0) {

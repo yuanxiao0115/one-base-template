@@ -11,7 +11,7 @@
   import { Plus } from "@element-plus/icons-vue";
   import type { CrudFormLike } from "@one-base-template/ui";
   import ObRichTextEditor from "@/components/rich-text/ObRichTextEditor.vue";
-  import { message } from "@/utils/message";
+  import { message } from "@one-base-template/ui";
   import {
     contentApi,
     type ContentCategoryRecord,

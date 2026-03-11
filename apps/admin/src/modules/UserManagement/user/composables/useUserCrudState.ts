@@ -1,7 +1,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import type { CrudFormLike } from "@one-base-template/ui";
 import { useCrudPage } from "@one-base-template/core";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import buildUserColumns from "../columns";
 import {
   type OrgTreeNode,

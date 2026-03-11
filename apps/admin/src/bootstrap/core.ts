@@ -8,7 +8,7 @@ import {
   type MenuMode,
   type SystemSwitchStyle,
 } from "@one-base-template/core";
-import { obConfirm } from "@/infra/confirm";
+import { obConfirm } from "@one-base-template/ui";
 
 import { appSsoOptions, appThemeOptions, createSystemsOptions } from "../config";
 

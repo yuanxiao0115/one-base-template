@@ -1,4 +1,4 @@
-import type { closeAllMessage, ObMessageFn } from "@/utils/message";
+import type { closeAllMessage, ObMessageFn } from "@one-base-template/ui";
 
 declare module "vue" {
   interface ComponentCustomProperties {

@@ -1,6 +1,6 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import { useAuthStore, useCrudPage } from "@one-base-template/core";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import { orgColumns } from "../columns";
 import { orgApi, type OrgRecord, type OrgSavePayload } from "../api";
 import { defaultOrgForm, type OrgForm, toOrgForm, toOrgPayload } from "../form";

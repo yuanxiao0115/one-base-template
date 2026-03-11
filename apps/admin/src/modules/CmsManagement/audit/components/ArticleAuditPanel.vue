@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { reactive, ref } from "vue";
   import { useTable } from "@one-base-template/core";
-  import { message } from "@/utils/message";
+  import { message } from "@one-base-template/ui";
   import {
     ARTICLE_TYPE_OPTIONS,
     REVIEW_STATUS_OPTIONS,

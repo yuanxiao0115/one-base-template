@@ -1,6 +1,6 @@
 import { onMounted, reactive, ref } from "vue";
 import { useTable } from "@one-base-template/core";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import loginLogColumns from "../columns";
 import { type ClientTypeOption, loginLogApi, type LoginLogRecord } from "../api";
 

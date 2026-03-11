@@ -1,5 +1,5 @@
 import { type ComputedRef, type Ref, ref } from "vue";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import { orgApi, type OrgRecord } from "../api";
 
 interface SearchRefExpose {

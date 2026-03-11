@@ -4,7 +4,7 @@
   import type { IDomEditor, IEditorConfig, IToolbarConfig } from "@wangeditor/editor";
   import { Editor as WangEditor, Toolbar as WangToolbar } from "@wangeditor/editor-for-vue";
   import "@wangeditor/editor/dist/css/style.css";
-  import { message } from "@/utils/message";
+  import { message } from "@one-base-template/ui";
 
   interface RichTextUploadPayload {
     file: File;

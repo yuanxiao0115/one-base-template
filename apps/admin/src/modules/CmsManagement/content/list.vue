@@ -15,8 +15,8 @@
     type ContentSavePayload,
   } from "./api";
   import { contentFormRules, defaultContentForm, type ContentForm, toContentForm, toContentPayload } from "./form";
-  import { obConfirm } from "@/infra/confirm";
-  import { message } from "@/utils/message";
+  import { obConfirm } from "@one-base-template/ui";
+  import { message } from "@one-base-template/ui";
 
   interface SearchRefExpose {
     resetFields?: () => void;

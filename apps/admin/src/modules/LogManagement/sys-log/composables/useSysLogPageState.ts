@@ -1,6 +1,6 @@
 import { reactive, ref } from "vue";
 import { useTable } from "@one-base-template/core";
-import { message } from "@/utils/message";
+import { message } from "@one-base-template/ui";
 import sysLogColumns from "../columns";
 import { sysLogApi, type SysLogRecord } from "../api";
 
