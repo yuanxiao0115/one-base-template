@@ -109,8 +109,8 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 
 当前工作台（2026-03-11）布局口径：
 - 页面采用「左侧结构树 + 右侧编辑工作台」双栏模型。
-- 顶部为窄条信息头（返回 / 模板名 / 刷新），不再使用厚头部或多层卡片。
-- 右侧首行是“当前页面动作条”，主动作固定为“进入编辑”，并支持“页面属性 / 页面权限 / 隐藏 / 预览 / 删除”；预览模式/视口/缩放控件与动作按钮同一行。
+- 顶部为窄条信息头（返回 / 模板名 / 页眉页脚配置 / 刷新），不再使用厚头部或多层卡片。
+- 右侧首行是“当前页面动作条”，仅承载页面级操作：进入编辑、页面属性、页面权限、隐藏、预览、删除；预览模式/视口/缩放控件与动作按钮同一行。
 - 右侧预览区使用“设备画框 + iframe”结构，支持按目标视口等比缩放预览（先完成框架，不改数据链路）。
 - `preview-host-frame` 尺寸变化（拖动窗口、打开/收起 DevTools）会触发重新计算缩放，预览区会随容器自适应。
 - `tree-header` 与 `preview-head` 均已移除，整体保持白底、低边框、直角风格。
@@ -155,6 +155,17 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 
 当前 Designer 继续使用 `template.update`，不新增后端接口；页眉页脚配置统一维护在 `template.details` JSON（字符串）中。
 
+入口层级约定：
+- **门户级** 页眉页脚配置入口放在 Designer 顶部栏（HeaderBar）。
+- 页面工具栏（ActionStrip）仅保留页面级动作，不再放置壳层配置入口。
+
+配置方式约定（本次优化）：
+- 配置以“可视化表单项”为主，不要求直接编辑 JSON 文本。
+- 对话框提供「查看数据结构」功能：可只读查看“当前 details JSON”与“结构示例 JSON”，便于联调与排错。
+- 对话框打开后，表单改动会实时同步到右侧预览（仅预览态，不落库）。
+- 保存时前端会将表单配置规范化后再序列化为 `details`。
+- 手工导航与友情链接均采用“行编辑”交互（新增/删除行 + 字段输入），不再通过 JSON 文本框录入。
+
 数据结构（关键字段）：
 - `pageHeader` / `pageFooter`：门户级开关（`1` 启用，`0` 关闭）
 - `shell.header`：门户默认页眉
@@ -166,28 +177,57 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 - `mode=customComponent`：使用独立页眉组件（通过 `customComponentKey` 从注册表渲染）
 - 已内置示例：`news-government-v1`（新闻门户-政务红）
 
+通用页眉增强字段（面向新项目）：
+- 标题信息：`title`、`subTitle`
+- 标题布局：`titleLayout=stack|divider`（支持“主标题 | 副标题”）
+- 标题位置：`titlePosition=logoRight|leftEdge`
+- 字号控制：`titleFontSize`、`subTitleFontSize`
+- 内容宽度：支持“固定像素”与 `100%` 铺满两种模式（header/footer）
+- 运营位：`showActionButton/actionButtonText/actionButtonUrl`
+- 样式 token：`noticeBgColor/noticeTextColor`、`actionBgColor/actionTextColor/actionBorderColor`
+- Logo 支持上传图片：上传接口 `POST /cmict/file/resource/upload`，值写入 `shell.header.tokens.logo`（资源 id 或 URL）
+- 配置分组建议：`基础布局`、`品牌与标题`、`导航模块`、`顶部公告模块`、`行动按钮与用户区`（颜色跟随各模块就近配置）
+
 页脚策略：
-- 支持 `simple/gov/enterprise` 三种预设风格
 - 支持备案信息、版权、描述、多链接、固定页脚模式等参数
+
+通用页脚增强字段（面向新项目）：
+- 联系区：`servicePhone`、`serviceEmail`、`address`
+- 分区开关：`showLinks`、`showRecord`、`showContact`
+- 样式 token：`mutedTextColor`
+- 配置分组建议：`基础布局`、`友情链接模块`、`备案与版权模块`、`联系模块`（颜色项跟随对应模块）
 
 预览渲染策略：
 - 预览面板先解析 `details` 为门户默认壳层；
 - 再按当前 `tabId` 应用 `pageOverrides`；
 - 最终得到当前页面的实际页眉/页脚渲染结果。
+- `safe/live` 的差异收敛到**物料组件层**：壳层（页眉/页脚/容器）在两种模式保持一致。
 
 ## pageLayout JSON 结构
 
 后端 `tab.pageLayout` 存的是 JSON 字符串，结构约定如下：
 
 ```ts
-type PortalPageSettings = {
-  gridData: {
-    colNum: number;     // 列数（默认 12）
-    colSpace: number;   // 列间距（默认 16）
-    rowSpace: number;   // 行间距（默认 16）
+type PortalPageSettingsV2 = {
+  version: "2.0";
+  basic: {
+    pageTitle: string; // 页面标题
+    slug?: string; // 页面别名
+    isVisible: boolean; // 页面可见性
   };
-  // 后续可扩展：背景色、最大宽、边距等
-  [k: string]: unknown;
+  layout: {
+    colNum: number; // 列数（默认 12）
+    colSpace: number; // 列间距（默认 16）
+    rowSpace: number; // 行间距（默认 16）
+  };
+  access: {
+    mode: "public" | "login" | "role"; // 访问方式
+    roleIds: string[]; // mode=role 时生效
+  };
+  publishGuard: {
+    requireContent: boolean; // 发布时要求有组件内容
+    requireTitle: boolean; // 发布时要求有页面标题
+  };
 };
 
 type PortalLayoutItem = {
@@ -208,14 +248,22 @@ type PortalLayoutItem = {
 };
 
 type PageLayoutJson = {
-  settings?: PortalPageSettings;
+  settings?: PortalPageSettingsV2 | Record<string, unknown>; // 兼容历史 V1
   component?: PortalLayoutItem[];
 };
 ```
 
-编辑器保存时会写回：
-- `settings = pageSettingData`
-- `component = layoutItems`
+页面设置 V2 的读写策略（2026-03-11）：
+- **读旧**：渲染与编辑统一通过 `normalizePortalPageSettingsV2` 读取 `settings`，兼容旧结构 `settings.gridData`。
+- **写新**：编辑器保存统一通过 `buildPortalPageLayoutForSave` 写回 `version=2.0` 的 `settings`。
+- **网格读取统一**：渲染器和编辑器都通过 `getPortalGridSettings` 读取网格参数，避免新旧字段分叉。
+
+保存/发布前校验：
+- 统一使用 `validatePortalPageSettingsV2`。
+- 默认校验项：
+  - `publishGuard.requireTitle=true` 时，`basic.pageTitle` 必填；
+  - `access.mode=role` 时，`access.roleIds` 不能为空；
+  - `publishGuard.requireContent=true` 时，页面至少存在一个组件。
 
 ## 匿名预览与消息刷新
 
@@ -231,6 +279,7 @@ type PageLayoutJson = {
   - `vw` / `vh`（预览目标视口，供设计器设备画框使用）
 - 监听 `postMessage`（同源校验 `e.origin === window.location.origin`）：
   - 接收 `{ type: 'refresh-portal', data: { tabId } }` 后刷新渲染
+  - 接收 `{ type: 'preview-shell-details', data: { details, templateId, tabId } }` 后仅覆盖预览壳层配置，不触发接口请求
 
 ## 物料注册与动态加载
 

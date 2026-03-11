@@ -66,6 +66,10 @@
 - 门户模板列表页（`apps/admin/src/modules/PortalManagement/template/list.vue`）必须对齐 admin 列表基线：禁止使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 与 `@one-base-template/ui`。
 - 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定为：`/portal/setting`、`/portal/design`、`/portal/page/edit`、`/portal/preview`（`/resource/portal/setting` 仅作为兼容 alias），禁止再通过 `compat.routeAliases` 为该模块做旧路径别名兜底。
 - `PortalManagement` 下的设计能力目录必须按业务域拆分为 `portal-design`（门户设计）与 `page-design`（页面设计）；禁止再把两个业务页面/组件混放在同一层目录，也不要新增 `designer` 中间层。
+- `PortalManagement/portal-design` 中涉及壳层（门户级）能力时，入口必须放在顶部栏（`PortalDesignerHeaderBar`）；页面工具栏（`PortalDesignerActionStrip`）只允许放页面级动作，禁止放门户级页眉页脚配置入口。
+- `PortalManagement/portal-design` 的页眉页脚配置必须以可视化表单项为主，不允许把“手工编辑 JSON 文本”作为主配置方式；仅可提供“只读 JSON 结构查看/复制”能力用于联调与排错。
+- `PortalManagement/portal-design` 的页眉页脚配置在弹窗编辑过程中必须实时驱动右侧预览（仅前端预览态，不直接落库）；`safe/live` 差异必须下沉到物料组件层，禁止在壳层（页眉/页脚/容器）做模式分叉。
+- `PortalManagement/portal-design` 的页脚配置基线不包含“风格变体”和“联系二维码”；面板必须按功能区分组，并保持颜色项在对应功能区就近配置。
 - admin 登录页统一使用 `ObLoginBoxV2`，不要回退到基础版 `ObLoginBox`。
 - 涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面。
 
