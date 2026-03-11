@@ -129,7 +129,7 @@ await assembleRoutes({
 ```ts
 compat: {
   activePathMap: {
-    "/resource/portal/setting": "/portal/setting",
+    "/portal/design": "/portal/setting",
     "/portal/page/edit": "/portal/setting",
   },
 }
@@ -171,7 +171,7 @@ compat: {
 ### 2.5 全屏路由归属与路由纯函数下沉（2026-03-10）
 
 - **全屏/不走 Layout 路由统一就近注册到业务模块 `routes.standalone`**：
-  - 例如 `PortalManagement` 的 `/resource/portal/setting`、`/portal/page/edit`、`/portal/preview`。
+  - 例如 `PortalManagement` 的 `/portal/design`、`/portal/page/edit`、`/portal/preview`。
   - `router/assemble-routes.ts` 只做装配与校验，不再集中维护业务全屏路由明细。
 - `packages/core` 新增可复用路由纯函数，`admin` 直接复用：
   - `toRouteNameKey`：统一 route.name 归一化（string/symbol）
