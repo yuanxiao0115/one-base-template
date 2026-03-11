@@ -22,6 +22,8 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - 业务消息提示统一使用 `@one-base-template/ui`，禁止在模块业务代码中直接使用 `ElMessage`。
 - 业务确认交互统一使用 `@one-base-template/ui` 的 `obConfirm`/`tryConfirmWarn`，禁止直接使用 `ElMessageBox`。
 - CRUD 目录范式固定为 `list.vue + api.ts + types.ts + routes.ts`，禁止回退到 `page.vue` 与散乱接口分层。
+- `api.ts` 禁止从 `./types` 做类型中转导出（`export type {...} from './types'`）；业务文件需要类型时直接从 `types.ts` 导入。
+- `api.ts` / `api/client.ts` 禁止 `const http = obHttp()` 与 `getHttp` 包装；统一直接调用 `obHttp().get/post/...`。
 - 导入上传优先使用 `ObImportUpload`；业务型 `el-upload` 仅允许在表单/领域组件内部使用，禁止在 `list.vue` 直接编排上传控件。
 
 ## 门禁脚本（可执行）
@@ -32,6 +34,8 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - `modules/**/list.vue` 禁止出现 `<el-table>`
 - `modules/**/list.vue` 禁止出现 `<el-dialog>`
 - `modules/**/list.vue` 禁止出现 `<el-upload>`
+- `modules/**/api.ts` 禁止 `export type {...} from './types'` 类型中转
+- `modules/**/api.ts` 禁止 `const http = obHttp()` 与 `getHttp(){ return obHttp() }` 包装写法
 
 ## 例外处理
 

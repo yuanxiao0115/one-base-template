@@ -212,7 +212,7 @@ pnpm doctor
 模块化阶段新增两条约束：
 
 - 模块边界：`apps/admin/src/modules/**/*` 禁止直接 import `@/modules/*`（公共能力上移到 `shared/core/ui`）
-- API 边界：页面/组件/store 禁止直接 import `@/infra/http`；HTTP 调用统一收口到 `services/*` 与 `api.ts/api/client.ts`，并在 API 层通过 `@one-base-template/core` 的 `getObHttpClient()` 获取客户端
+- API 边界：页面/组件/store 禁止直接 import `@/infra/http`；HTTP 调用统一收口到 `services/*` 与 `api.ts/api/client.ts`，并在 API 层通过 `@one-base-template/core` 的 `obHttp()` 获取客户端
 - `shared` 边界：`apps/admin/src/shared` 仅承载“admin 应用内跨模块共享能力”（共享协议类型、登录/SSO 场景服务、应用级 logger）；单模块私有逻辑禁止上提到 `shared`
 - 约束脚本位置：`scripts/check-admin-arch.mjs`（可通过 `pnpm lint:arch` 或 `pnpm -C apps/admin lint:arch` 执行）
 

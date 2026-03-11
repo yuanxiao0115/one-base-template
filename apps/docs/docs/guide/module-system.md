@@ -215,7 +215,7 @@ compat: {
 
 - `api/endpoints.ts`：路径常量
 - `api/contracts.ts`：请求/响应类型
-- `api/client.ts`：唯一请求实现（统一从 `@one-base-template/core` 获取 `getObHttpClient()`）
+- `api/client.ts`：唯一请求实现（统一从 `@one-base-template/core` 获取 `obHttp()`）
 - `services/*.ts`：页面用例编排
 - `compat/*.ts`：历史字段映射（如 `whiteList -> whiteDTOS`）
 
@@ -250,7 +250,7 @@ compat: {
 当前已启用两条硬约束：
 
 1. `apps/admin/src/modules/**/*` 禁止直接 `@/modules/*` 互相依赖
-2. 页面/组件/store 禁止直接引用 `@/infra/http`（该文件已移除）；HTTP 访问统一在 `api.ts/api/client.ts` 里通过 `@one-base-template/core` 的 `getObHttpClient()` 获取
+2. 页面/组件/store 禁止直接引用 `@/infra/http`（该文件已移除）；HTTP 访问统一在 `api.ts/api/client.ts` 里通过 `@one-base-template/core` 的 `obHttp()` 获取
 
 这样可以减少模块间隐式耦合，确保模块可切割。
 

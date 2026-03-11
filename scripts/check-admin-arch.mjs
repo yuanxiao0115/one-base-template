@@ -207,6 +207,13 @@ function isCrudListPage(relativePath) {
   return /^modules\/[^/]+(?:\/[^/]+)*\/list\.vue$/.test(relativePath);
 }
 
+/**
+ * @param {string} relativePath
+ */
+function isModuleApiFile(relativePath) {
+  return /^modules\/[^/]+(?:\/[^/]+)*\/api\.ts$/.test(relativePath);
+}
+
 async function main() {
   const files = await collectSourceFiles(adminSrcDir);
   /** @type {Violation[]} */
@@ -258,7 +265,7 @@ async function main() {
           absolutePath,
           content,
           item.index,
-          "禁止在页面/组件/store 直接引用 infra/http，请改用 service 或在 API 层通过 @one-base-template/core 的 getObHttpClient() 获取。",
+          "禁止在页面/组件/store 直接引用 infra/http，请改用 service 或在 API 层通过 @one-base-template/core 的 obHttp() 获取。",
           violations
         );
       }
@@ -343,6 +350,37 @@ async function main() {
         content,
         /<\s*el-upload\b/gi,
         'CRUD list.vue 禁止直接编排 el-upload，请将上传能力下沉到表单/领域组件或复用 ObImportUpload。',
+        violations
+      );
+    }
+
+    if (isModuleApiFile(relativePath)) {
+      pushViolations(
+        absolutePath,
+        content,
+        /export\s+type\s*\{[^}]+\}\s*from\s*['"]\.\/types['"]/gs,
+        'api.ts 禁止从 ./types 做类型中转导出；请在业务文件中直接从 types.ts 导入类型。',
+        violations
+      );
+      pushViolations(
+        absolutePath,
+        content,
+        /\b(?:const|let|var)\s+\w+\s*=\s*obHttp\(\)\s*;?/g,
+        'api.ts 禁止 `const http = obHttp()` 这类中间变量；请直接使用 obHttp().get/post/...。',
+        violations
+      );
+      pushViolations(
+        absolutePath,
+        content,
+        /\bfunction\s+\w+\s*\([^)]*\)\s*\{\s*return\s+obHttp\(\)\s*;?\s*\}/gs,
+        'api.ts 禁止封装 getHttp() 返回 obHttp()；请直接使用 obHttp().get/post/...。',
+        violations
+      );
+      pushViolations(
+        absolutePath,
+        content,
+        /\b(?:const|let|var)\s+\w+\s*=\s*\([^)]*\)\s*=>\s*obHttp\(\)\s*;?/g,
+        'api.ts 禁止箭头函数包装 obHttp()；请直接使用 obHttp().get/post/...。',
         violations
       );
     }

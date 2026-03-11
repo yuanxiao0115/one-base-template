@@ -93,6 +93,8 @@
 ## UserManagement 与迁移规则
 
 - `apps/admin/src/modules/*Management/**` 的接口层统一采用“`api.ts + types.ts`”：`api.ts` 仅维护接口地址与请求调用，不做数据保底、归一化、字段兜底；`types.ts` 仅保留页面真实消费的对外类型，避免过度细粒度类型定义。
+- `api.ts` 禁止同源类型中转：禁止出现 `import type {...} from "./types"` 后再 `export type {...} from "./types"`；业务文件需直接从 `types.ts` 引用类型。
+- `api.ts` / `api/client.ts` 禁止 `const http = obHttp()` 与 `getHttp` 包装函数；HTTP 请求必须直接写为 `obHttp().get/post/...`，避免无意义中间层。
 - 跨模块重复的通用协议类型（如 `ApiResponse<T>`、`ApiPageData<T>`）统一维护在 `apps/admin/src/shared/api/types.ts`；模块内 `types.ts` 仅做直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增 `BizResponse`/`ApiResponseAlias` 这类中间别名，业务实体类型继续就地维护，避免“全局大而全类型池”。
 - `types.ts` 的实体类型默认只保留页面真实使用字段：仅主键与关键交互字段设为必填，其余字段优先可选，避免完整镜像后端 DTO 导致维护成本上升。
 - 对于日志、审计等“弱结构 + 字段经常变动”的列表实体，优先使用“`id` + 少量关键字段 + 索引签名”的宽松定义（如 `[key: string]: string | number | null | undefined`），避免维护超长字段清单。

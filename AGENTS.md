@@ -130,6 +130,8 @@ docs/
 - **禁止过度封装**：若只是单点使用、没有稳定复用价值或不能显著降低复杂度，不要新增 helper / mapper / adapter 包装层。
 - **抽象前先证明收益**：至少满足“多处重复 + 语义稳定 + 能显著降低维护成本”再抽象；否则保留在业务就近实现。
 - **冗余逻辑及时删除**：发现历史包装函数/兜底转换与当前后端契约不再匹配时，优先删减而不是继续叠加兼容。
+- **禁止类型中转导出**：禁止在同一文件里出现“从同一路径 `import type` 后再 `export type`”的中转写法（尤其 `api.ts -> ./types`）；类型应由源 `types.ts` 直接导入。
+- **HTTP 调用禁止中间变量包装**：在 `api.ts` / `api/client.ts` 中禁止 `const http = obHttp()`、`function getHttp(){ return obHttp() }` 这类中转；统一直接使用 `obHttp().get/post/...`。
 
 ---
 
