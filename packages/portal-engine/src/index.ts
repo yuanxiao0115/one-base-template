@@ -10,6 +10,25 @@ export function createPortalEngine(options: PortalEngineOptions = {}) {
 }
 
 export type { BizResponse, PageResult, PortalTab, PortalTemplate } from './schema/types';
+export type {
+  PortalPageAccessMode,
+  PortalPageAccessSettings,
+  PortalPageBasicSettings,
+  PortalPageGridSettings,
+  PortalPageLayoutPayload,
+  PortalPagePublishGuardSettings,
+  PortalPageSettingIssue,
+  PortalPageSettingsV2,
+} from './schema/page-settings';
+export {
+  buildPortalPageLayoutForSave,
+  createDefaultPortalPageSettingsV2,
+  getPortalGridSettings,
+  isPortalPageSettingsV2,
+  normalizePortalPageSettingsV2,
+  PORTAL_PAGE_SETTINGS_V2_VERSION,
+  validatePortalPageSettingsV2,
+} from './schema/page-settings';
 export type { SchemaConfigOptions, SchemaConfigResult, SectionConfig } from './composables/useSchemaConfig';
 export { useSchemaConfig } from './composables/useSchemaConfig';
 export { deepClone, deepEqual } from './utils/deep';

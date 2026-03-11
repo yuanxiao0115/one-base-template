@@ -2,6 +2,7 @@ import type { Ref } from "vue";
 import type { Router } from "vue-router";
 
 import type { PortalTab } from "../../types";
+import { isPortalTabEditable } from "../../utils/portalTree";
 import type { PortalPreviewMode } from "../../utils/preview";
 
 interface UsePortalCurrentTabActionsOptions {
@@ -21,7 +22,9 @@ interface UsePortalCurrentTabActionsOptions {
 export function usePortalCurrentTabActions(options: UsePortalCurrentTabActionsOptions) {
   function editCurrentTab() {
     const tabId = options.currentTabId.value;
-    if (!tabId) {
+    const tab = options.currentTab.value;
+    if (!(tabId && tab && isPortalTabEditable(tab.tabType))) {
+      options.notifyWarning("请先选择可编辑页面");
       return;
     }
     options.onEditTab(tabId);

@@ -32,6 +32,37 @@ describe("PortalManagement/utils/templateDetails", () => {
     expect(parsed.shell.footer.enabled).toBe(true);
   });
 
+  it("应支持页眉页脚内容宽度配置为100%", () => {
+    const parsed = parsePortalTemplateDetails({
+      shell: {
+        header: {
+          tokens: {
+            containerWidth: "100%",
+          },
+        },
+        footer: {
+          tokens: {
+            containerWidth: "100%",
+          },
+        },
+      },
+      pageOverrides: {
+        pageA: {
+          headerOverrideEnabled: true,
+          header: {
+            tokens: {
+              containerWidth: "100%",
+            },
+          },
+        },
+      },
+    });
+
+    expect(parsed.shell.header.tokens.containerWidth).toBe("100%");
+    expect(parsed.shell.footer.tokens.containerWidth).toBe("100%");
+    expect(resolvePortalShellForTab(parsed, "pageA").header.tokens.containerWidth).toBe("100%");
+  });
+
   it("应按页面覆盖优先级解析 header/footer", () => {
     const details = parsePortalTemplateDetails({
       pageHeader: 1,
@@ -39,7 +70,14 @@ describe("PortalManagement/utils/templateDetails", () => {
       shell: {
         header: {
           enabled: true,
-          variant: "classic",
+          behavior: {
+            title: "默认标题",
+            subTitle: "默认副标题",
+            titleLayout: "stack",
+            titlePosition: "logoRight",
+            titleFontSize: 18,
+            subTitleFontSize: 12,
+          },
           tokens: { bgColor: "#111111" },
         },
       },
@@ -47,7 +85,14 @@ describe("PortalManagement/utils/templateDetails", () => {
         pageA: {
           headerOverrideEnabled: true,
           header: {
-            variant: "newsRed",
+            behavior: {
+              title: "页面A标题",
+              subTitle: "页面A副标题",
+              titleLayout: "divider",
+              titlePosition: "leftEdge",
+              titleFontSize: 22,
+              subTitleFontSize: 14,
+            },
             tokens: { bgColor: "#cc0000" },
           },
         },
@@ -57,10 +102,34 @@ describe("PortalManagement/utils/templateDetails", () => {
     const resolvedA = resolvePortalShellForTab(details, "pageA");
     const resolvedB = resolvePortalShellForTab(details, "pageB");
 
-    expect(resolvedA.header.variant).toBe("newsRed");
+    expect(resolvedA.header.behavior.title).toBe("页面A标题");
+    expect(resolvedA.header.behavior.subTitle).toBe("页面A副标题");
+    expect(resolvedA.header.behavior.titleLayout).toBe("divider");
+    expect(resolvedA.header.behavior.titlePosition).toBe("leftEdge");
+    expect(resolvedA.header.behavior.titleFontSize).toBe(22);
     expect(resolvedA.header.tokens.bgColor).toBe("#cc0000");
-    expect(resolvedB.header.variant).toBe("classic");
+    expect(resolvedB.header.behavior.title).toBe("默认标题");
+    expect(resolvedB.header.behavior.subTitle).toBe("默认副标题");
+    expect(resolvedB.header.behavior.titleLayout).toBe("stack");
+    expect(resolvedB.header.behavior.titlePosition).toBe("logoRight");
+    expect(resolvedB.header.behavior.subTitleFontSize).toBe(12);
     expect(resolvedB.header.tokens.bgColor).toBe("#111111");
+  });
+
+  it("应兼容旧字段 brandName/brandSubTitle 映射到新字段", () => {
+    const details = parsePortalTemplateDetails({
+      shell: {
+        header: {
+          behavior: {
+            brandName: "旧品牌",
+            brandSubTitle: "旧副标题",
+          },
+        },
+      },
+    });
+
+    expect(details.shell.header.behavior.title).toBe("旧品牌");
+    expect(details.shell.header.behavior.subTitle).toBe("旧副标题");
   });
 
   it("应从页面树提取可用于页眉导航的可见页面与链接", () => {

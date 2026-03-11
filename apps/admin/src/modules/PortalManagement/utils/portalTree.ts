@@ -1,5 +1,9 @@
 import type { PortalTab } from "../types";
 
+export function isPortalTabEditable(tabType: unknown): boolean {
+  return Number(tabType) === 2;
+}
+
 export function normalizeIdLike(value: unknown): string {
   if (typeof value === "string") {
     return value;
@@ -38,7 +42,7 @@ export function normalizeTabName(value: unknown, fallback: string): string {
 }
 
 export function findTabById(tabs: PortalTab[] | undefined, tabId: string): PortalTab | null {
-  if (!tabId || !Array.isArray(tabs)) {
+  if (!(tabId && Array.isArray(tabs))) {
     return null;
   }
   for (const tab of tabs) {

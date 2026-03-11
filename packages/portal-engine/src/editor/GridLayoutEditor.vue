@@ -3,17 +3,9 @@
   import type { Component } from 'vue';
   import { GridItem, GridLayout } from 'grid-layout-plus';
 
+  import { getPortalGridSettings } from '../schema/page-settings';
   import { deepClone } from '../utils/deep';
   import { type PortalLayoutItem, usePortalPageLayoutStore } from '../stores/pageLayout';
-
-  interface PortalPageSettings {
-    gridData?: {
-      colNum?: number;
-      colSpace?: number;
-      rowSpace?: number;
-    };
-    [k: string]: unknown;
-  }
 
   interface LayoutUpdateItem {
     i: number | string;
@@ -29,7 +21,7 @@
     materialsMap: Record<string, Component>;
     scale: number;
     loaded: boolean;
-    pageSettingData: PortalPageSettings;
+    pageSettingData: unknown;
   }>();
 
   const pageLayoutStore = usePortalPageLayoutStore();
@@ -37,9 +29,10 @@
   const isDragOver = ref(false);
   const gridContainer = ref<HTMLDivElement>();
 
-  const colNum = computed(() => props.pageSettingData?.gridData?.colNum || 12);
-  const marginX = computed(() => props.pageSettingData?.gridData?.colSpace ?? 16);
-  const marginY = computed(() => props.pageSettingData?.gridData?.rowSpace ?? 16);
+  const gridSettings = computed(() => getPortalGridSettings(props.pageSettingData));
+  const colNum = computed(() => gridSettings.value.colNum);
+  const marginX = computed(() => gridSettings.value.colSpace);
+  const marginY = computed(() => gridSettings.value.rowSpace);
 
   const rowHeight = computed(() => 1);
 

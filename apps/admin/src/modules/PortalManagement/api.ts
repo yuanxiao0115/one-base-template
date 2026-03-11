@@ -7,6 +7,20 @@ export { templateApi } from "./template/api";
 export const portalApi = {
   template: templateApi,
 
+  resource: {
+    upload: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return obHttp().post<BizResponse<{ id?: string; savedPath?: string; joinUrl?: string }>>(
+        "/cmict/file/resource/upload",
+        {
+          data: formData,
+          $isUpload: true,
+        }
+      );
+    },
+  },
+
   tab: {
     list: async (params: TabListParams) =>
       obHttp().get<BizResponse<unknown>>("/cmict/portal/tab/page", { params }),

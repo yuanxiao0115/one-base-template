@@ -3,6 +3,7 @@
   import { Document, Edit, Folder, Link, MoreFilled, Plus } from "@element-plus/icons-vue";
 
   import type { PortalTab } from "../../types";
+  import { isPortalTabEditable } from "../../utils/portalTree";
 
   const props = defineProps<{
     tabs: PortalTab[];
@@ -48,7 +49,7 @@
     }
     return tabs.map((tab) => ({
       ...tab,
-      disabled: tab.tabType !== 2,
+      disabled: !isPortalTabEditable(tab.tabType),
       children: mapTabs(tab.children),
     }));
   }
@@ -74,7 +75,7 @@
 
   const sourceTree = computed(() => mapTabs(props.tabs));
   const treeData = computed(() => filterTree(sourceTree.value, props.keyword ?? ""));
-  const dragEnabled = computed(() => !props.sorting && !(props.keyword ?? "").trim());
+  const dragEnabled = computed(() => !(props.sorting || (props.keyword ?? "").trim()));
   const emptyDescription = computed(() => {
     if ((props.keyword ?? "").trim()) {
       return "未找到匹配节点";
@@ -119,7 +120,7 @@
   }
 
   function onNodeClick(data: PortalTab) {
-    if (data.tabType !== 2) {
+    if (!isPortalTabEditable(data.tabType)) {
       return;
     }
     const id = normalizeId(data.id);
@@ -175,12 +176,12 @@
     }
     const draggingData = extractNodeData(draggingNode);
     const dropData = extractNodeData(dropNode);
-    if (!draggingData || !dropData) {
+    if (!(draggingData && dropData)) {
       return false;
     }
     const draggingId = normalizeId(draggingData.id);
     const dropId = normalizeId(dropData.id);
-    if (!draggingId || !dropId || draggingId === dropId) {
+    if (!(draggingId && dropId) || draggingId === dropId) {
       return false;
     }
 
@@ -201,13 +202,13 @@
 
     const draggingData = extractNodeData(draggingNode);
     const dropData = extractNodeData(dropNode);
-    if (!draggingData || !dropData) {
+    if (!(draggingData && dropData)) {
       return;
     }
 
     const draggingId = normalizeId(draggingData.id);
     const dropId = normalizeId(dropData.id);
-    if (!draggingId || !dropId || draggingId === dropId) {
+    if (!(draggingId && dropId) || draggingId === dropId) {
       return;
     }
 
@@ -250,7 +251,7 @@
           </div>
 
           <div class="actions" @click.stop>
-            <el-tooltip v-if="data.tabType === 2" content="编辑页面" placement="top">
+            <el-tooltip v-if="isPortalTabEditable(data.tabType)" content="编辑页面" placement="top">
               <el-button
                 class="icon-action"
                 link

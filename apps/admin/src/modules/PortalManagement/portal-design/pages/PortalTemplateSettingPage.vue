@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import { computed, ref } from "vue";
+  import { computed, nextTick, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import { message } from "@one-base-template/ui";
   import { confirm } from "@one-base-template/ui";
+  import { buildPortalPageLayoutForSave, createDefaultPortalPageSettingsV2 } from "@one-base-template/portal-engine";
 
   import { portalApi } from "../../api";
   import type { BizResponse, PortalTab, PortalTemplate } from "../../types";
@@ -17,6 +18,7 @@
     containsTabId,
     findFirstPageTabId,
     findTabById,
+    isPortalTabEditable,
     normalizeIdLike,
     normalizeParentId,
     normalizeTabName,
@@ -71,10 +73,18 @@
   const permissionInitial = ref<Partial<PortalTab>>({});
   const shellSettingVisible = ref(false);
   const shellSettingSaving = ref(false);
+  const shellSettingSavedInThisRound = ref(false);
   const sortingTabs = ref(false);
   const previewMode = ref<PortalPreviewMode>(PREVIEW_MODE_SAFE);
   const previewViewport = ref<PortalPreviewViewport>(PREVIEW_VIEWPORT_DEFAULT);
   const previewScale = ref(1);
+  const shellPreviewDetailsDraft = ref("");
+
+  interface PreviewFrameExpose {
+    postMessageToFrame: (message: unknown) => boolean;
+  }
+
+  const previewFrameRef = ref<PreviewFrameExpose | null>(null);
 
   type BizResLike = Pick<BizResponse<unknown>, "code" | "message" | "success">;
 
@@ -124,6 +134,24 @@
       },
     }).href;
   });
+
+  function postShellPreviewDetails(details: string) {
+    if (!templateId.value) {
+      return;
+    }
+    if (!currentTabId.value) {
+      return;
+    }
+
+    previewFrameRef.value?.postMessageToFrame({
+      type: "preview-shell-details",
+      data: {
+        details,
+        templateId: templateId.value,
+        tabId: currentTabId.value,
+      },
+    });
+  }
 
   function updateRouteTabId(tabId: string) {
     const next = tabId || undefined;
@@ -409,7 +437,9 @@
         }
 
         if (payload.tabType === 2) {
-          data.pageLayout = JSON.stringify({ component: [] });
+          data.pageLayout = JSON.stringify(
+            buildPortalPageLayoutForSave(createDefaultPortalPageSettingsV2(), [])
+          );
           data.cmptInsts = [];
         }
 
@@ -648,6 +678,11 @@
     if (!templateId.value) {
       return;
     }
+    const tab = findTabById(getTabs(), tabId);
+    if (!(tab && isPortalTabEditable(tab.tabType))) {
+      message.warning("仅空白页支持编辑");
+      return;
+    }
     router.push({
       path: "/portal/page/edit",
       query: {
@@ -725,12 +760,24 @@
     previewViewport.value = payload.viewport;
   }
 
+  function onPreviewFrameLoad() {
+    if (!(shellSettingVisible.value && shellPreviewDetailsDraft.value)) {
+      return;
+    }
+    postShellPreviewDetails(shellPreviewDetailsDraft.value);
+  }
+
   function openShellSettings() {
     if (!templateInfo.value) {
       message.warning("请先选择门户模板");
       return;
     }
     shellSettingVisible.value = true;
+  }
+
+  function onShellPreviewChange(payload: { details: string }) {
+    shellPreviewDetailsDraft.value = payload.details;
+    postShellPreviewDetails(payload.details);
   }
 
   async function onSubmitShellSetting(payload: { details: string }) {
@@ -752,6 +799,8 @@
       }
 
       message.success("页眉页脚配置保存成功");
+      shellSettingSavedInThisRound.value = true;
+      shellPreviewDetailsDraft.value = payload.details;
       shellSettingVisible.value = false;
       await loadTemplate(currentTabId.value);
     } catch (e: unknown) {
@@ -761,6 +810,35 @@
       shellSettingSaving.value = false;
     }
   }
+
+  watch(
+    shellSettingVisible,
+    (opened) => {
+      if (opened) {
+        shellPreviewDetailsDraft.value = "";
+        shellSettingSavedInThisRound.value = false;
+        return;
+      }
+      if (shellSettingSavedInThisRound.value) {
+        shellSettingSavedInThisRound.value = false;
+        return;
+      }
+      const persistedDetails = templateInfo.value?.details || "";
+      shellPreviewDetailsDraft.value = "";
+      postShellPreviewDetails(persistedDetails);
+    }
+  );
+
+  watch(
+    () => [previewFrameSrc.value, currentTabId.value, shellSettingVisible.value, shellPreviewDetailsDraft.value] as const,
+    async ([, tabId, opened, draftDetails]) => {
+      if (!(opened && draftDetails && tabId)) {
+        return;
+      }
+      await nextTick();
+      postShellPreviewDetails(draftDetails);
+    }
+  );
 
   void loadTemplate();
 </script>
@@ -773,6 +851,7 @@
       :loading="loading"
       @back="onBack"
       @refresh="loadTemplate(currentTabId)"
+      @shell-settings="openShellSettings"
     />
 
     <div v-loading="loading" class="layout">
@@ -796,7 +875,6 @@
 
       <section class="editor-pane">
         <PortalDesignerActionStrip
-          :template-id="templateId"
           :current-tab="currentTab"
           :preview-scale="previewScale"
           @edit="editCurrentTab"
@@ -806,10 +884,10 @@
           @preview="openPreviewWindow"
           @delete="deleteCurrentTab"
           @preview-change="onPreviewChange"
-          @shell-settings="openShellSettings"
         />
 
         <PortalDesignerPreviewFrame
+          ref="previewFrameRef"
           :template-id="templateId"
           :current-tab-id="currentTabId"
           :preview-frame-src="previewFrameSrc"
@@ -817,6 +895,7 @@
           :viewport-height="previewViewport.height"
           @create-root="openCreateRoot"
           @scale-change="onPreviewScaleChange"
+          @frame-load="onPreviewFrameLoad"
         />
       </section>
     </div>
@@ -842,6 +921,7 @@
       :details="templateInfo?.details || ''"
       :tabs="templateInfo?.tabList || []"
       @submit="onSubmitShellSetting"
+      @preview-change="onShellPreviewChange"
     />
   </div>
 </template>

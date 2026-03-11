@@ -13,11 +13,12 @@
   }>();
 
   const emit = defineEmits<{
-    (e: "create-root"): void;
+    (e: "create-root" | "frame-load"): void;
     (e: "scale-change", value: number): void;
   }>();
 
   const previewHostRef = ref<HTMLElement | null>(null);
+  const previewIframeRef = ref<HTMLIFrameElement | null>(null);
   const previewScale = ref(1);
   let previewHostResizeObserver: ResizeObserver | null = null;
   let previewRecalcRaf = 0;
@@ -82,6 +83,19 @@
 
   function onPreviewFrameLoad() {
     schedulePreviewScaleRecalc();
+    emit("frame-load");
+  }
+
+  function postMessageToFrame(message: unknown) {
+    if (!message) {
+      return false;
+    }
+    const targetWindow = previewIframeRef.value?.contentWindow;
+    if (!targetWindow) {
+      return false;
+    }
+    targetWindow.postMessage(message, window.location.origin);
+    return true;
   }
 
   watch(
@@ -114,6 +128,10 @@
     window.visualViewport?.removeEventListener("resize", schedulePreviewScaleRecalc);
     cancelPreviewScaleTask();
   });
+
+  defineExpose({
+    postMessageToFrame,
+  });
 </script>
 
 <template>
@@ -132,6 +150,7 @@
       <div class="preview-stage" :style="previewStageStyle">
         <div class="preview-device" :style="previewDeviceStyle">
           <iframe
+            ref="previewIframeRef"
             :key="props.previewFrameSrc"
             class="preview-iframe"
             :src="props.previewFrameSrc"

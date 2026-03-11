@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
-  import { Delete as DeleteIcon, EditPen, Hide, Lock, Operation, Setting, View } from "@element-plus/icons-vue";
+  import { Delete as DeleteIcon, EditPen, Hide, Lock, Setting, View } from "@element-plus/icons-vue";
 
   import {
     PREVIEW_MODE_SAFE,
@@ -28,14 +28,13 @@
   ];
 
   const props = defineProps<{
-    templateId: string;
     currentTab: PortalTab | null;
     previewScale: number;
   }>();
 
   const emit = defineEmits<{
     (e: "preview-change", payload: PreviewChangePayload): void;
-    (e: "shell-settings" | "edit" | "attribute" | "permission" | "toggle-hide" | "preview" | "delete"): void;
+    (e: "edit" | "attribute" | "permission" | "toggle-hide" | "preview" | "delete"): void;
   }>();
 
   const previewModeModel = ref<PortalPreviewMode>(PREVIEW_MODE_SAFE);
@@ -80,17 +79,6 @@
     </div>
     <div class="action-strip-right">
       <div class="preview-inline-controls">
-        <el-tooltip content="页眉页脚配置" placement="top">
-          <el-button
-            class="action-icon"
-            text
-            size="small"
-            :icon="Operation"
-            aria-label="页眉页脚配置"
-            :disabled="!props.templateId"
-            @click="emit('shell-settings')"
-          />
-        </el-tooltip>
         <el-select v-model="previewModeModel" size="small" class="preview-mode-select">
           <el-option label="安全预览（骨架）" value="safe" />
           <el-option label="真数据预览（骨架）" value="live" />

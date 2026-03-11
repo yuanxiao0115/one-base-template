@@ -9,9 +9,7 @@
     activeTabId: string;
   }>();
 
-  const emit = defineEmits<{
-    (e: "navigate", item: PortalShellNavItem): void;
-  }>();
+  const emit = defineEmits<(e: "navigate", item: PortalShellNavItem) => void>();
 
   const barStyle = computed(() => ({
     "--news-header-bg": props.config.tokens.bgColor || "#b91c1c",

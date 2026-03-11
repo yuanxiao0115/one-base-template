@@ -3,26 +3,20 @@
   import type { Component } from 'vue';
   import { GridItem, GridLayout } from 'grid-layout-plus';
 
+  import { getPortalGridSettings } from '../schema/page-settings';
   import type { PortalLayoutItem } from '../stores/pageLayout';
-
-  interface PortalPageSettings {
-    gridData?: {
-      colNum?: number;
-      colSpace?: number;
-      rowSpace?: number;
-    };
-    [k: string]: unknown;
-  }
 
   const props = defineProps<{
     layoutItems: PortalLayoutItem[];
     materialsMap: Record<string, Component>;
-    pageSettingData: PortalPageSettings;
+    pageSettingData: unknown;
+    previewMode?: 'safe' | 'live';
   }>();
 
-  const colNum = computed(() => props.pageSettingData?.gridData?.colNum || 12);
-  const marginX = computed(() => props.pageSettingData?.gridData?.colSpace ?? 16);
-  const marginY = computed(() => props.pageSettingData?.gridData?.rowSpace ?? 16);
+  const gridSettings = computed(() => getPortalGridSettings(props.pageSettingData));
+  const colNum = computed(() => gridSettings.value.colNum);
+  const marginX = computed(() => gridSettings.value.colSpace);
+  const marginY = computed(() => gridSettings.value.rowSpace);
   const rowHeight = computed(() => 1);
 
   function getComponentName(item: PortalLayoutItem): string | undefined {
@@ -66,6 +60,7 @@
         v-if="getComponentName(item)"
         :id="item.i"
         :schema="getComponentConfig(item)"
+        :preview-mode="props.previewMode"
       />
       <div v-else class="component-debug-placeholder">
         <div class="debug-header">组件缺失：{{ getComponentName(item) || '未知组件' }}</div>

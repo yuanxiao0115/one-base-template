@@ -1,7 +1,13 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { type PortalLayoutItem, PortalGridRenderer } from "@one-base-template/portal-engine";
+  import {
+    createDefaultPortalPageSettingsV2,
+    normalizePortalPageSettingsV2,
+    type PortalLayoutItem,
+    type PortalPageSettingsV2,
+    PortalGridRenderer,
+  } from "@one-base-template/portal-engine";
 
   import { portalApi } from "../../api";
   import { useMaterials } from "../../materials/useMaterials";
@@ -24,17 +30,8 @@
     data?: unknown;
   }
 
-  interface PortalPageSettings {
-    gridData: {
-      colNum: number;
-      colSpace: number;
-      rowSpace: number;
-    };
-    [k: string]: unknown;
-  }
-
   interface PageLayoutJson {
-    settings?: PortalPageSettings;
+    settings?: unknown;
     component?: PortalLayoutItem[];
   }
 
@@ -79,12 +76,13 @@
 
   const loading = ref(false);
   const errorMessage = ref("");
-  const pageSettingData = ref<PortalPageSettings>(createDefaultPageSettingData());
+  const pageSettingData = ref<PortalPageSettingsV2>(createDefaultPortalPageSettingsV2());
   const layoutItems = ref<PortalLayoutItem[]>([]);
 
   const templateInfo = ref<TemplateInfoLike | null>(null);
   const templateDetails = ref(createDefaultPortalTemplateDetails());
   const loadedTemplateId = ref("");
+  const previewShellDetailsOverride = ref<string | null>(null);
 
   const hasFixedViewport = computed(() => props.viewportWidth > 0 && props.viewportHeight > 0);
   const previewShellStyle = computed(() => {
@@ -119,7 +117,7 @@
 
   const isFixedFooter = computed(() => resolvedShell.value.footer.behavior.fixedMode === "fixed");
   const contentStyle = computed(() => {
-    if (!showFooter.value || !isFixedFooter.value) {
+    if (!(showFooter.value && isFixedFooter.value)) {
       return undefined;
     }
     const footerHeight = Math.max(56, resolvedShell.value.footer.tokens.height);
@@ -127,16 +125,6 @@
       paddingBottom: `${footerHeight + 8}px`,
     };
   });
-
-  function createDefaultPageSettingData(): PortalPageSettings {
-    return {
-      gridData: {
-        colNum: 12,
-        colSpace: 16,
-        rowSpace: 16,
-      },
-    };
-  }
 
   function normalizeBizOk(res: BizResLike | null | undefined): boolean {
     const code = res?.code;
@@ -193,7 +181,8 @@
 
     const data = (res?.data ?? {}) as TemplateInfoLike;
     templateInfo.value = data;
-    templateDetails.value = parsePortalTemplateDetails(data.details);
+    const nextDetails = previewShellDetailsOverride.value ?? data.details ?? "";
+    templateDetails.value = parsePortalTemplateDetails(nextDetails);
     loadedTemplateId.value = String(data.id ?? templateId);
   }
 
@@ -201,13 +190,13 @@
     if (!id) {
       errorMessage.value = "缺少 tabId";
       layoutItems.value = [];
-      pageSettingData.value = createDefaultPageSettingData();
+      pageSettingData.value = createDefaultPortalPageSettingsV2();
       return;
     }
 
     loading.value = true;
     errorMessage.value = "";
-    pageSettingData.value = createDefaultPageSettingData();
+    pageSettingData.value = createDefaultPortalPageSettingsV2();
 
     try {
       // 优先匿名接口；失败再兜底鉴权接口（用户可能已登录）
@@ -233,11 +222,10 @@
 
       try {
         const parsed = JSON.parse(pageLayout) as PageLayoutJson;
-        if (parsed.settings) {
-          pageSettingData.value = parsed.settings;
-        }
+        pageSettingData.value = normalizePortalPageSettingsV2(parsed.settings);
         layoutItems.value = normalizeLayoutItems(parsed.component);
       } catch {
+        pageSettingData.value = createDefaultPortalPageSettingsV2();
         layoutItems.value = [];
       }
     } catch (e: unknown) {
@@ -266,6 +254,18 @@
     }
 
     const msg = data as { type?: unknown; data?: unknown };
+    if (msg.type === "preview-shell-details") {
+      const payload = msg.data as { details?: unknown; templateId?: unknown } | undefined;
+      const details = typeof payload?.details === "string" ? payload.details : "";
+      const payloadTemplateId = typeof payload?.templateId === "string" ? payload.templateId : "";
+      if (payloadTemplateId && payloadTemplateId !== props.templateId && payloadTemplateId !== loadedTemplateId.value) {
+        return;
+      }
+      previewShellDetailsOverride.value = details;
+      templateDetails.value = parsePortalTemplateDetails(details);
+      return;
+    }
+
     if (msg.type !== "refresh-portal") {
       return;
     }
@@ -310,6 +310,7 @@
   watch(
     () => props.templateId,
     (id) => {
+      previewShellDetailsOverride.value = null;
       if (!id) {
         return;
       }
@@ -328,9 +329,6 @@
     },
     { immediate: true }
   );
-
-  // 预留 previewMode：后续在 safe/live 模式接入不同数据链路
-  void props.previewMode;
 
   onBeforeUnmount(() => {
     window.removeEventListener("message", onMessage);
@@ -380,7 +378,13 @@
             </el-empty>
           </div>
 
-          <PortalGridRenderer v-else :layout-items :materials-map :page-setting-data />
+          <PortalGridRenderer
+            v-else
+            :layout-items
+            :materials-map
+            :page-setting-data
+            :preview-mode="props.previewMode"
+          />
         </div>
 
         <ConfigurablePortalFooter v-if="showFooter" :config="resolvedShell.footer" />
@@ -393,7 +397,6 @@
   .preview-page {
     min-height: 100vh;
     background: var(--el-bg-color);
-    padding: 8px;
   }
 
   .preview-page--embedded {

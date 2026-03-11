@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ArrowLeft, RefreshRight } from "@element-plus/icons-vue";
+  import { ArrowLeft, Operation, RefreshRight } from "@element-plus/icons-vue";
 
   const props = defineProps<{
     title: string;
@@ -7,10 +7,7 @@
     loading?: boolean;
   }>();
 
-  const emit = defineEmits<{
-    (e: "back"): void;
-    (e: "refresh"): void;
-  }>();
+  const emit = defineEmits<(e: "back" | "refresh" | "shell-settings") => void>();
 </script>
 
 <template>
@@ -20,6 +17,15 @@
       <div class="head-title">{{ props.title || "门户配置工作台" }}</div>
       <div class="head-meta">ID {{ props.templateId || "-" }}</div>
     </div>
+    <el-button
+      class="head-btn"
+      size="small"
+      :icon="Operation"
+      :disabled="!props.templateId"
+      @click="emit('shell-settings')"
+    >
+      页眉页脚配置
+    </el-button>
     <el-button class="head-btn" size="small" :icon="RefreshRight" :loading="Boolean(props.loading)" @click="emit('refresh')">
       刷新
     </el-button>

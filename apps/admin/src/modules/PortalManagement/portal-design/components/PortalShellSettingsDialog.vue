@@ -1,17 +1,23 @@
 <script setup lang="ts">
-  import { computed, ref, watch } from "vue";
-  import type { FormInstance } from "element-plus";
+  import { computed, onBeforeUnmount, ref, watch } from "vue";
+  import { CopyDocument } from "@element-plus/icons-vue";
+  import { message } from "@one-base-template/ui";
 
   import type { PortalTab } from "../../types";
   import {
+    buildPortalTemplateDetailsSchemaPreview,
     createDefaultPortalTemplateDetails,
     parsePortalTemplateDetails,
-    PORTAL_CUSTOM_HEADER_OPTIONS,
-    PORTAL_FOOTER_VARIANT_OPTIONS,
-    PORTAL_HEADER_VARIANT_OPTIONS,
     stringifyPortalTemplateDetails,
     type PortalTemplateDetails,
   } from "../../utils/templateDetails";
+  import PortalShellFooterSettingsForm from "./shell-settings/PortalShellFooterSettingsForm.vue";
+  import PortalShellHeaderSettingsForm from "./shell-settings/PortalShellHeaderSettingsForm.vue";
+
+  interface SelectOption {
+    label: string;
+    value: string;
+  }
 
   const props = withDefaults(
     defineProps<{
@@ -29,7 +35,7 @@
 
   const emit = defineEmits<{
     (e: "update:modelValue", value: boolean): void;
-    (e: "submit", payload: { details: string }): void;
+    (e: "submit" | "preview-change", payload: { details: string }): void;
   }>();
 
   defineOptions({
@@ -41,85 +47,125 @@
     set: (value: boolean) => emit("update:modelValue", value),
   });
 
-  const formRef = ref<FormInstance>();
   const formState = ref<PortalTemplateDetails>(createDefaultPortalTemplateDetails());
+  const activeTab = ref<"header" | "footer">("header");
+  const jsonViewerVisible = ref(false);
+  const syncingFromProps = ref(false);
 
-  const activeTab = ref<"header" | "footer" | "advanced">("header");
-
-  const manualNavJson = ref("[]");
-  const footerLinksJson = ref("[]");
-  const advancedJson = ref("");
-  const advancedDirty = ref(false);
-  const syncingAdvanced = ref(false);
+  let previewTimer: ReturnType<typeof setTimeout> | null = null;
+  const PREVIEW_DEBOUNCE_MS = 120;
 
   const previewTabCount = computed(() => (Array.isArray(props.tabs) ? props.tabs.length : 0));
 
-  function hydrateFromDetails(rawDetails?: string) {
-    syncingAdvanced.value = true;
-    const parsed = parsePortalTemplateDetails(rawDetails || "");
-    formState.value = parsed;
-    manualNavJson.value = JSON.stringify(parsed.shell.header.behavior.manualNavItems, null, 2);
-    footerLinksJson.value = JSON.stringify(parsed.shell.footer.content.links, null, 2);
-    advancedJson.value = JSON.stringify(parsed, null, 2);
-    advancedDirty.value = false;
-    syncingAdvanced.value = false;
+  const pageTabOptions = computed<SelectOption[]>(() => {
+    const options: SelectOption[] = [];
+
+    const walk = (nodes: PortalTab[], parentNames: string[]) => {
+      for (const node of nodes) {
+        if (!node || typeof node !== "object") {
+          continue;
+        }
+        const tabName = typeof node.tabName === "string" ? node.tabName.trim() : "";
+        const nextParents = tabName ? [...parentNames, tabName] : parentNames;
+
+        if (node.tabType === 2) {
+          const tabId = typeof node.id === "string" || typeof node.id === "number" ? String(node.id) : "";
+          if (tabId && tabName) {
+            options.push({
+              value: tabId,
+              label: nextParents.join(" / "),
+            });
+          }
+        }
+
+        if (Array.isArray(node.children) && node.children.length > 0) {
+          walk(node.children, nextParents);
+        }
+      }
+    };
+
+    walk(Array.isArray(props.tabs) ? props.tabs : [], []);
+    return options;
+  });
+
+  function normalizeFormState(source: PortalTemplateDetails): PortalTemplateDetails {
+    const normalized = parsePortalTemplateDetails(source);
+    normalized.pageHeader = normalized.shell.header.enabled ? 1 : 0;
+    normalized.pageFooter = normalized.shell.footer.enabled ? 1 : 0;
+    normalized.shell.header.enabled = normalized.pageHeader === 1;
+    normalized.shell.footer.enabled = normalized.pageFooter === 1;
+    return normalized;
   }
 
-  function syncAdvancedJsonByForm() {
-    syncingAdvanced.value = true;
-    advancedJson.value = JSON.stringify(formState.value, null, 2);
-    advancedDirty.value = false;
-    syncingAdvanced.value = false;
+  function buildDetailsByFormState(): string {
+    return stringifyPortalTemplateDetails(normalizeFormState(formState.value));
   }
 
-  function parseJsonArray<T>(jsonText: string, fallback: T[]): T[] {
+  const currentDetailsPrettyJson = computed(() => {
     try {
-      const raw = JSON.parse(jsonText) as unknown;
-      return Array.isArray(raw) ? (raw as T[]) : fallback;
+      return JSON.stringify(JSON.parse(buildDetailsByFormState()) as unknown, null, 2);
     } catch {
-      return fallback;
+      return "{}";
     }
+  });
+
+  const schemaDetailsPrettyJson = computed(() => JSON.stringify(buildPortalTemplateDetailsSchemaPreview(), null, 2));
+
+  function clearPreviewTimer() {
+    if (!previewTimer) {
+      return;
+    }
+    clearTimeout(previewTimer);
+    previewTimer = null;
   }
 
-  function applyManualJsonToForm() {
-    formState.value.shell.header.behavior.manualNavItems = parseJsonArray(manualNavJson.value, []);
-    formState.value.shell.footer.content.links = parseJsonArray(footerLinksJson.value, []);
+  function emitPreviewChange() {
+    emit("preview-change", { details: buildDetailsByFormState() });
+  }
+
+  function schedulePreviewChange() {
+    if (!visible.value || syncingFromProps.value) {
+      return;
+    }
+    clearPreviewTimer();
+    previewTimer = setTimeout(() => {
+      emitPreviewChange();
+      previewTimer = null;
+    }, PREVIEW_DEBOUNCE_MS);
+  }
+
+  function hydrateFromDetails(rawDetails?: string) {
+    syncingFromProps.value = true;
+    formState.value = parsePortalTemplateDetails(rawDetails || "");
+    syncingFromProps.value = false;
   }
 
   function onCancel() {
     visible.value = false;
   }
 
-  async function onSubmit() {
-    const form = formRef.value;
-    if (form) {
-      const valid = await form.validate().catch(() => false);
-      if (!valid) {
-        return;
-      }
+  function onSubmit() {
+    emit("submit", { details: buildDetailsByFormState() });
+  }
+
+  async function copyJson(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      message.success("已复制到剪贴板");
+    } catch {
+      message.error("复制失败，请手动复制");
     }
-
-    applyManualJsonToForm();
-
-    let next = parsePortalTemplateDetails(formState.value);
-    if (advancedDirty.value) {
-      next = parsePortalTemplateDetails(advancedJson.value);
-      formState.value = next;
-    }
-
-    next.pageHeader = next.shell.header.enabled ? 1 : 0;
-    next.pageFooter = next.shell.footer.enabled ? 1 : 0;
-
-    const details = stringifyPortalTemplateDetails(next);
-    emit("submit", { details });
   }
 
   watch(
     () => visible.value,
     (opened) => {
       if (!opened) {
+        clearPreviewTimer();
+        jsonViewerVisible.value = false;
         return;
       }
+      activeTab.value = "header";
       hydrateFromDetails(props.details);
     },
     { immediate: true }
@@ -136,271 +182,194 @@
   );
 
   watch(
-    () => formState.value.shell.header.enabled,
-    (enabled) => {
-      formState.value.pageHeader = enabled ? 1 : 0;
-    }
-  );
-
-  watch(
-    () => formState.value.shell.footer.enabled,
-    (enabled) => {
-      formState.value.pageFooter = enabled ? 1 : 0;
-    }
-  );
-
-  watch(
-    () => advancedJson.value,
+    () => formState.value,
     () => {
-      if (visible.value && !syncingAdvanced.value) {
-        advancedDirty.value = true;
-      }
-    }
+      schedulePreviewChange();
+    },
+    { deep: true }
   );
+
+  onBeforeUnmount(() => {
+    clearPreviewTimer();
+  });
 </script>
 
 <template>
   <el-dialog
     v-model="visible"
-    title="页眉页脚配置"
-    width="980px"
+    class="shell-settings-dialog"
+    title="门户页眉页脚配置"
+    width="1120px"
     :close-on-click-modal="false"
     destroy-on-close
   >
-    <div class="tips">当前模板页面数：{{ previewTabCount }}。所有配置保存到 `details`，并通过 `template/update` 持久化。</div>
+    <section class="dialog-top">
+      <div class="top-main">
+        <div class="top-title">门户级壳层设置</div>
+        <div class="top-sub-title">
+          当前模板页面数：{{ previewTabCount }}。配置编辑时会实时驱动右侧预览，保存后统一写入 `details`。
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <el-button size="small" :icon="CopyDocument" @click="jsonViewerVisible = true">查看数据结构</el-button>
+      </div>
+    </section>
 
     <el-tabs v-model="activeTab" class="tabs">
-      <el-tab-pane name="header" label="页眉">
-        <el-form ref="formRef" :model="formState" label-width="120px" class="form">
-          <el-form-item label="启用页眉">
-            <el-switch v-model="formState.shell.header.enabled" />
-          </el-form-item>
-
-          <el-form-item label="页眉模式">
-            <el-radio-group v-model="formState.shell.header.mode">
-              <el-radio value="configurable">通用可配置</el-radio>
-              <el-radio value="customComponent">独立组件</el-radio>
-            </el-radio-group>
-          </el-form-item>
-
-          <el-form-item v-if="formState.shell.header.mode === 'configurable'" label="预设风格">
-            <el-select v-model="formState.shell.header.variant" class="w-280">
-              <el-option
-                v-for="item in PORTAL_HEADER_VARIANT_OPTIONS"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item v-else label="独立组件">
-            <el-select v-model="formState.shell.header.customComponentKey" class="w-280" placeholder="请选择组件">
-              <el-option
-                v-for="item in PORTAL_CUSTOM_HEADER_OPTIONS"
-                :key="item.key"
-                :label="item.label"
-                :value="item.key"
-              />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="背景色">
-            <el-color-picker v-model="formState.shell.header.tokens.bgColor" />
-          </el-form-item>
-
-          <el-form-item label="文字色">
-            <el-color-picker v-model="formState.shell.header.tokens.textColor" />
-          </el-form-item>
-
-          <el-form-item label="激活背景">
-            <el-color-picker v-model="formState.shell.header.tokens.activeBgColor" />
-          </el-form-item>
-
-          <el-form-item label="激活文字">
-            <el-color-picker v-model="formState.shell.header.tokens.activeTextColor" />
-          </el-form-item>
-
-          <el-form-item label="高度(px)">
-            <el-input-number v-model="formState.shell.header.tokens.height" :min="40" :max="200" />
-          </el-form-item>
-
-          <el-form-item label="Logo URL">
-            <el-input v-model="formState.shell.header.tokens.logo" placeholder="可选，输入图片地址" />
-          </el-form-item>
-
-          <el-form-item label="Logo宽度(px)">
-            <el-input-number v-model="formState.shell.header.tokens.logoWidth" :min="40" :max="420" />
-          </el-form-item>
-
-          <el-form-item label="内容宽度(px)">
-            <el-input-number v-model="formState.shell.header.tokens.containerWidth" :min="320" :max="1920" />
-          </el-form-item>
-
-          <el-form-item label="吸顶">
-            <el-switch v-model="formState.shell.header.tokens.sticky" />
-          </el-form-item>
-
-          <el-form-item label="导航来源">
-            <el-radio-group v-model="formState.shell.header.behavior.navSource">
-              <el-radio value="tabTree">页面树</el-radio>
-              <el-radio value="manual">手工导航</el-radio>
-            </el-radio-group>
-          </el-form-item>
-
-          <el-form-item v-if="formState.shell.header.behavior.navSource === 'manual'" label="导航JSON">
-            <el-input
-              v-model="manualNavJson"
-              type="textarea"
-              :rows="5"
-              placeholder='例如：[ {"label":"首页","tabId":"xxx"}, {"label":"外链","url":"https://..."} ]'
-            />
-          </el-form-item>
-
-          <el-form-item label="显示用户区">
-            <el-switch v-model="formState.shell.header.behavior.showUserCenter" />
-          </el-form-item>
-
-          <el-form-item label="顶部公告">
-            <el-switch v-model="formState.shell.header.behavior.showTopNotice" />
-          </el-form-item>
-
-          <el-form-item v-if="formState.shell.header.behavior.showTopNotice" label="公告文案">
-            <el-input v-model="formState.shell.header.behavior.topNoticeText" maxlength="120" show-word-limit />
-          </el-form-item>
-        </el-form>
-      </el-tab-pane>
-
-      <el-tab-pane name="footer" label="页脚">
-        <el-form :model="formState" label-width="120px" class="form">
-          <el-form-item label="启用页脚">
-            <el-switch v-model="formState.shell.footer.enabled" />
-          </el-form-item>
-
-          <el-form-item label="预设风格">
-            <el-select v-model="formState.shell.footer.variant" class="w-280">
-              <el-option
-                v-for="item in PORTAL_FOOTER_VARIANT_OPTIONS"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="背景色">
-            <el-color-picker v-model="formState.shell.footer.tokens.bgColor" />
-          </el-form-item>
-
-          <el-form-item label="文字色">
-            <el-color-picker v-model="formState.shell.footer.tokens.textColor" />
-          </el-form-item>
-
-          <el-form-item label="链接色">
-            <el-color-picker v-model="formState.shell.footer.tokens.linkColor" />
-          </el-form-item>
-
-          <el-form-item label="顶部分割线">
-            <el-color-picker v-model="formState.shell.footer.tokens.borderTopColor" />
-          </el-form-item>
-
-          <el-form-item label="高度(px)">
-            <el-input-number v-model="formState.shell.footer.tokens.height" :min="48" :max="260" />
-          </el-form-item>
-
-          <el-form-item label="内容宽度(px)">
-            <el-input-number v-model="formState.shell.footer.tokens.containerWidth" :min="320" :max="1920" />
-          </el-form-item>
-
-          <el-form-item label="固定模式">
-            <el-radio-group v-model="formState.shell.footer.behavior.fixedMode">
-              <el-radio value="static">静态</el-radio>
-              <el-radio value="fixed">吸底</el-radio>
-            </el-radio-group>
-          </el-form-item>
-
-          <el-form-item label="固定时可滚动">
-            <el-switch v-model="formState.shell.footer.behavior.scrollableWhenFixed" />
-          </el-form-item>
-
-          <el-form-item label="说明文案">
-            <el-input v-model="formState.shell.footer.content.description" />
-          </el-form-item>
-
-          <el-form-item label="版权信息">
-            <el-input v-model="formState.shell.footer.content.copyright" />
-          </el-form-item>
-
-          <el-form-item label="ICP备案号">
-            <el-input v-model="formState.shell.footer.content.icp" />
-          </el-form-item>
-
-          <el-form-item label="公安备案号">
-            <el-input v-model="formState.shell.footer.content.policeRecord" />
-          </el-form-item>
-
-          <el-form-item label="友情链接JSON">
-            <el-input
-              v-model="footerLinksJson"
-              type="textarea"
-              :rows="5"
-              placeholder='例如：[ {"label":"网站地图","url":"/sitemap"} ]'
-            />
-          </el-form-item>
-        </el-form>
-      </el-tab-pane>
-
-      <el-tab-pane name="advanced" label="高级JSON">
-        <div class="advanced-toolbar">
-          <el-button size="small" @click="syncAdvancedJsonByForm">从当前表单刷新JSON</el-button>
+      <el-tab-pane name="header" label="页眉组件">
+        <div class="tab-content">
+          <PortalShellHeaderSettingsForm :form-state="formState" :page-tab-options="pageTabOptions" />
         </div>
-        <el-input v-model="advancedJson" type="textarea" :rows="20" class="advanced-input" />
+      </el-tab-pane>
+
+      <el-tab-pane name="footer" label="页脚组件">
+        <div class="tab-content">
+          <PortalShellFooterSettingsForm :form-state="formState" />
+        </div>
       </el-tab-pane>
     </el-tabs>
 
     <template #footer>
-      <div class="footer">
+      <div class="footer-actions">
         <el-button @click="onCancel">取消</el-button>
         <el-button type="primary" :loading="props.loading" @click="onSubmit">保存配置</el-button>
       </div>
     </template>
   </el-dialog>
+
+  <el-drawer v-model="jsonViewerVisible" title="details 数据结构（只读）" size="56%" append-to-body destroy-on-close>
+    <div class="json-panel-list">
+      <section class="json-panel">
+        <header class="json-header">
+          <span>当前配置 JSON（即将写入 details）</span>
+          <el-button text size="small" :icon="CopyDocument" @click="copyJson(currentDetailsPrettyJson)">复制</el-button>
+        </header>
+        <pre class="json-block">{{ currentDetailsPrettyJson }}</pre>
+      </section>
+
+      <section class="json-panel">
+        <header class="json-header">
+          <span>结构示例 JSON</span>
+          <el-button text size="small" :icon="CopyDocument" @click="copyJson(schemaDetailsPrettyJson)">复制</el-button>
+        </header>
+        <pre class="json-block">{{ schemaDetailsPrettyJson }}</pre>
+      </section>
+    </div>
+  </el-drawer>
 </template>
 
 <style scoped>
-  .tips {
+  .dialog-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
     margin-bottom: 10px;
+    padding: 12px 14px;
+    border: 1px solid #dbe6f5;
+    background: linear-gradient(128deg, #f7fbff 0%, #f4f8ff 48%, #ffffff 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 8px 24px -20px rgba(30, 64, 175, 0.35);
+  }
+
+  .top-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .top-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    letter-spacing: 0.02em;
+  }
+
+  .top-sub-title {
     font-size: 12px;
-    color: var(--el-text-color-secondary);
+    line-height: 1.6;
+    color: #475569;
+  }
+
+  .top-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .tabs {
-    min-height: 480px;
+    min-height: 560px;
   }
 
-  .form {
-    padding: 4px 6px 0;
-    max-height: 56vh;
+  .tab-content {
+    max-height: 58vh;
     overflow: auto;
+    padding-right: 4px;
   }
 
-  .w-280 {
-    width: 280px;
-  }
-
-  .advanced-toolbar {
-    margin-bottom: 10px;
-  }
-
-  .advanced-input :deep(textarea) {
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  .footer {
+  .footer-actions {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     gap: 8px;
+  }
+
+  .json-panel-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding-bottom: 12px;
+  }
+
+  .json-panel {
+    border: 1px solid #d8e4f3;
+    background: #f8fbff;
+    overflow: hidden;
+  }
+
+  .json-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #d8e4f3;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    background: linear-gradient(180deg, #ffffff 0%, #f3f8ff 100%);
+  }
+
+  .json-block {
+    margin: 0;
+    padding: 12px;
+    max-height: 34vh;
+    overflow: auto;
+    background: #f8fbff;
+    color: #0f172a;
+    font-size: 12px;
+    line-height: 1.6;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  }
+
+  @media (max-width: 1200px) {
+    .tab-content {
+      max-height: 54vh;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .dialog-top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .top-actions {
+      justify-content: flex-start;
+    }
   }
 </style>

@@ -1,7 +1,14 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { type PortalLayoutItem, type PortalTab, PortalGridRenderer } from "@one-base-template/portal-engine";
+  import {
+    createDefaultPortalPageSettingsV2,
+    normalizePortalPageSettingsV2,
+    type PortalLayoutItem,
+    type PortalPageSettingsV2,
+    type PortalTab,
+    PortalGridRenderer,
+  } from "@one-base-template/portal-engine";
   import { useMaterials } from "../materials/useMaterials";
   import { portalService } from "../services/portal-service";
   import { findFirstPageTabId } from "../utils/portalTree";
@@ -17,17 +24,8 @@
     data?: unknown;
   }
 
-  interface PortalPageSettings {
-    gridData: {
-      colNum: number;
-      colSpace: number;
-      rowSpace: number;
-    };
-    [k: string]: unknown;
-  }
-
   interface PageLayoutJson {
-    settings?: PortalPageSettings;
+    settings?: unknown;
     component?: PortalLayoutItem[];
   }
 
@@ -49,13 +47,7 @@
   const errorMessage = ref("");
   const emptyMessage = ref("");
 
-  const pageSettingData = ref<PortalPageSettings>({
-    gridData: {
-      colNum: 12,
-      colSpace: 16,
-      rowSpace: 16,
-    },
-  });
+  const pageSettingData = ref<PortalPageSettingsV2>(createDefaultPortalPageSettingsV2());
 
   const layoutItems = ref<PortalLayoutItem[]>([]);
 
@@ -135,6 +127,7 @@
     loading.value = true;
     errorMessage.value = "";
     emptyMessage.value = "";
+    pageSettingData.value = createDefaultPortalPageSettingsV2();
 
     try {
       const targetTabId = await resolveTargetTabId();
@@ -164,11 +157,10 @@
 
       try {
         const parsed = JSON.parse(tab.pageLayout) as PageLayoutJson;
-        if (parsed.settings) {
-          pageSettingData.value = parsed.settings;
-        }
+        pageSettingData.value = normalizePortalPageSettingsV2(parsed.settings);
         layoutItems.value = normalizeLayoutItems(parsed.component);
       } catch {
+        pageSettingData.value = createDefaultPortalPageSettingsV2();
         layoutItems.value = [];
       }
     } catch (e: unknown) {
@@ -234,7 +226,12 @@
     </div>
 
     <div v-else class="content">
-      <PortalGridRenderer :layout-items="layoutItems" :materials-map="materialsMap" :page-setting-data="pageSettingData" />
+      <PortalGridRenderer
+        :layout-items="layoutItems"
+        :materials-map="materialsMap"
+        :page-setting-data="pageSettingData"
+        preview-mode="live"
+      />
     </div>
   </div>
 </template>

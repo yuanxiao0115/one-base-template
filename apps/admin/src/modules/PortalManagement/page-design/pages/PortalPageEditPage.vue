@@ -3,14 +3,19 @@
   import { useRoute, useRouter } from "vue-router";
   import { message } from "@one-base-template/ui";
   import {
+    buildPortalPageLayoutForSave,
+    createDefaultPortalPageSettingsV2,
     type PortalLayoutItem,
+    type PortalPageSettingsV2,
     GridLayoutEditor,
     MaterialLibrary,
+    normalizePortalPageSettingsV2,
     PropertyPanel,
     usePortalPageLayoutStore,
+    validatePortalPageSettingsV2,
   } from "@one-base-template/portal-engine";
 
-  import { portalApi } from "../../api";
+  import { portalApi, portalAuthorityApi } from "../../api";
   import { useMaterials } from "../../materials/useMaterials";
   import { portalMaterialsRegistry } from "../../materials/registry/materials-registry";
 
@@ -23,18 +28,14 @@
     success?: unknown;
   }
 
-  interface PortalPageSettings {
-    gridData: {
-      colNum: number;
-      colSpace: number;
-      rowSpace: number;
-    };
-    [k: string]: unknown;
+  interface PageLayoutJson {
+    settings?: unknown;
+    component?: PortalLayoutItem[];
   }
 
-  interface PageLayoutJson {
-    settings?: PortalPageSettings;
-    component?: PortalLayoutItem[];
+  interface RoleOption {
+    label: string;
+    value: string;
   }
 
   const route = useRoute();
@@ -62,16 +63,13 @@
   const loading = ref(false);
   const saving = ref(false);
   const previewLoading = ref(false);
+  const roleLoading = ref(false);
+  const settingTab = ref<"settings" | "component">("settings");
 
   const tabName = ref("");
+  const roleOptions = ref<RoleOption[]>([]);
 
-  const pageSettingData = ref<PortalPageSettings>({
-    gridData: {
-      colNum: 12,
-      colSpace: 16,
-      rowSpace: 16,
-    },
-  });
+  const pageSettingData = ref<PortalPageSettingsV2>(createDefaultPortalPageSettingsV2());
 
   function normalizeBizOk(res: BizResLike | null | undefined): boolean {
     const code = res?.code;
@@ -106,6 +104,55 @@
       .filter(Boolean) as PortalLayoutItem[];
   }
 
+  function applyPageSettings(input: unknown, fallbackTitle: string): PortalPageSettingsV2 {
+    const normalized = normalizePortalPageSettingsV2(input);
+    if (!normalized.basic.pageTitle.trim()) {
+      normalized.basic.pageTitle = fallbackTitle || "页面";
+    }
+    return normalized;
+  }
+
+  async function loadRoleOptions() {
+    if (roleLoading.value || roleOptions.value.length > 0) {
+      return;
+    }
+
+    roleLoading.value = true;
+    try {
+      const res = await portalAuthorityApi.listRoles();
+      if (!normalizeBizOk(res)) {
+        return;
+      }
+      const list = Array.isArray(res?.data) ? res.data : [];
+      roleOptions.value = list
+        .map((item) => {
+          const value = typeof item?.id === "string" ? item.id : "";
+          const label = typeof item?.roleName === "string" ? item.roleName : typeof item?.name === "string" ? item.name : "";
+          if (!(value && label)) {
+            return null;
+          }
+          return { label, value };
+        })
+        .filter(Boolean) as RoleOption[];
+    } catch {
+      roleOptions.value = [];
+    } finally {
+      roleLoading.value = false;
+    }
+  }
+
+  function validateBeforeSave(): boolean {
+    const issues = validatePortalPageSettingsV2(pageSettingData.value, {
+      componentCount: pageLayoutStore.layoutItems.length,
+    });
+    if (issues.length === 0) {
+      return true;
+    }
+    settingTab.value = "settings";
+    message.warning(issues[0]?.message || "页面设置校验失败");
+    return false;
+  }
+
   async function loadTabDetail(id: string) {
     if (!id) {
       pageLayoutStore.reset();
@@ -128,14 +175,14 @@
       if (tab?.pageLayout) {
         try {
           const parsed = JSON.parse(tab.pageLayout) as PageLayoutJson;
-          if (parsed.settings) {
-            pageSettingData.value = parsed.settings;
-          }
+          pageSettingData.value = applyPageSettings(parsed.settings, tabName.value);
           pageLayoutStore.updateLayoutItems(normalizeLayoutItems(parsed.component));
         } catch {
+          pageSettingData.value = applyPageSettings(null, tabName.value);
           pageLayoutStore.updateLayoutItems([]);
         }
       } else {
+        pageSettingData.value = applyPageSettings(null, tabName.value);
         pageLayoutStore.updateLayoutItems([]);
       }
 
@@ -143,6 +190,7 @@
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "加载页面失败";
       message.error(msg);
+      pageSettingData.value = applyPageSettings(null, tabName.value);
       pageLayoutStore.reset();
     } finally {
       loading.value = false;
@@ -161,10 +209,12 @@
     saving.value = true;
 
     try {
-      const pageLayout: PageLayoutJson = {
-        settings: pageSettingData.value,
-        component: pageLayoutStore.layoutItems,
-      };
+      pageSettingData.value = applyPageSettings(pageSettingData.value, tabName.value);
+      if (!validateBeforeSave()) {
+        return false;
+      }
+
+      const pageLayout = buildPortalPageLayoutForSave(pageSettingData.value, pageLayoutStore.layoutItems);
 
       const res = await portalApi.tab.update({
         id: tabId.value,
@@ -240,6 +290,16 @@
     },
     { immediate: true }
   );
+
+  watch(
+    () => pageSettingData.value.access.mode,
+    (mode) => {
+      if (mode === "role") {
+        void loadRoleOptions();
+      }
+    },
+    { immediate: true }
+  );
 </script>
 
 <template>
@@ -261,7 +321,86 @@
       <div class="canvas">
         <GridLayoutEditor class="canvas-inner" :materials-map :scale="1" :loaded="!loading" :page-setting-data />
       </div>
-      <PropertyPanel :materials-map />
+      <div class="right-panel">
+        <el-tabs v-model="settingTab" class="right-tabs">
+          <el-tab-pane label="页面设置" name="settings">
+            <div class="settings-scroll">
+              <section class="settings-group">
+                <div class="group-title">基础信息</div>
+                <el-form label-position="top">
+                  <el-form-item label="页面标题">
+                    <el-input v-model="pageSettingData.basic.pageTitle" maxlength="80" show-word-limit placeholder="请输入页面标题" />
+                  </el-form-item>
+                  <el-form-item label="页面别名（slug）">
+                    <el-input v-model="pageSettingData.basic.slug" maxlength="80" show-word-limit placeholder="如：workbench-home" />
+                  </el-form-item>
+                  <el-form-item label="页面可见性">
+                    <el-switch v-model="pageSettingData.basic.isVisible" active-text="显示" inactive-text="隐藏" />
+                  </el-form-item>
+                </el-form>
+              </section>
+
+              <section class="settings-group">
+                <div class="group-title">布局网格</div>
+                <el-form label-position="top">
+                  <el-form-item label="栅格列数">
+                    <el-input-number v-model="pageSettingData.layout.colNum" :min="1" :max="48" controls-position="right" />
+                  </el-form-item>
+                  <el-form-item label="列间距">
+                    <el-input-number v-model="pageSettingData.layout.colSpace" :min="0" :max="200" controls-position="right" />
+                  </el-form-item>
+                  <el-form-item label="行间距">
+                    <el-input-number v-model="pageSettingData.layout.rowSpace" :min="0" :max="200" controls-position="right" />
+                  </el-form-item>
+                </el-form>
+              </section>
+
+              <section class="settings-group">
+                <div class="group-title">访问控制</div>
+                <el-form label-position="top">
+                  <el-form-item label="访问方式">
+                    <el-radio-group v-model="pageSettingData.access.mode">
+                      <el-radio value="public">公开</el-radio>
+                      <el-radio value="login">登录可见</el-radio>
+                      <el-radio value="role">角色可见</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                  <el-form-item v-if="pageSettingData.access.mode === 'role'" label="可访问角色">
+                    <el-select
+                      v-model="pageSettingData.access.roleIds"
+                      multiple
+                      clearable
+                      filterable
+                      collapse-tags
+                      collapse-tags-tooltip
+                      placeholder="请选择角色"
+                      :loading="roleLoading"
+                    >
+                      <el-option v-for="role in roleOptions" :key="role.value" :label="role.label" :value="role.value" />
+                    </el-select>
+                  </el-form-item>
+                </el-form>
+              </section>
+
+              <section class="settings-group">
+                <div class="group-title">发布校验</div>
+                <el-form label-position="top">
+                  <el-form-item label="发布时要求页面标题">
+                    <el-switch v-model="pageSettingData.publishGuard.requireTitle" active-text="开启" inactive-text="关闭" />
+                  </el-form-item>
+                  <el-form-item label="发布时要求页面有组件内容">
+                    <el-switch v-model="pageSettingData.publishGuard.requireContent" active-text="开启" inactive-text="关闭" />
+                  </el-form-item>
+                </el-form>
+              </section>
+            </div>
+          </el-tab-pane>
+
+          <el-tab-pane label="组件属性" name="component">
+            <PropertyPanel :materials-map />
+          </el-tab-pane>
+        </el-tabs>
+      </div>
     </div>
   </div>
 </template>
@@ -332,5 +471,51 @@
   .canvas-inner {
     flex: 1;
     min-width: 0;
+  }
+
+  .right-panel {
+    width: 380px;
+    min-width: 380px;
+    border-left: 1px solid var(--el-border-color-lighter);
+    background: var(--el-bg-color-overlay);
+  }
+
+  .right-tabs {
+    height: 100%;
+  }
+
+  .right-tabs :deep(.el-tabs__header) {
+    margin: 0;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+  }
+
+  .right-tabs :deep(.el-tabs__content) {
+    height: calc(100% - 49px);
+  }
+
+  .right-tabs :deep(.el-tab-pane) {
+    height: 100%;
+  }
+
+  .settings-scroll {
+    overflow: auto;
+    height: 100%;
+    padding: 12px;
+  }
+
+  .settings-group {
+    border: 1px solid var(--el-border-color-lighter);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 10px 12px 2px;
+    background: var(--el-bg-color);
+  }
+
+  .group-title {
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--el-text-color-primary);
   }
 </style>
