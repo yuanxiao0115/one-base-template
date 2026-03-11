@@ -10,9 +10,9 @@
     usePortalPageLayoutStore,
   } from "@one-base-template/portal-engine";
 
-  import { portalApi } from "../api";
-  import { useMaterials } from "../materials/useMaterials";
-  import { portalMaterialsRegistry } from "../materials/registry/materials-registry";
+  import { portalApi } from "../../api";
+  import { useMaterials } from "../../materials/useMaterials";
+  import { portalMaterialsRegistry } from "../../materials/registry/materials-registry";
 
   defineOptions({
     name: "PortalPageEditor",
@@ -210,8 +210,7 @@
         query: {
           tabId: tabId.value,
           templateId: templateId.value,
-          isPreview: "true",
-          isInIframe: "false",
+          previewMode: "live",
         },
       });
       window.open(resolved.href, "_blank", "noopener,noreferrer");
@@ -223,7 +222,7 @@
   function onBack() {
     if (templateId.value) {
       router.push({
-        path: "/resource/portal/setting",
+        path: "/portal/design",
         query: {
           id: templateId.value,
           tabId: tabId.value,

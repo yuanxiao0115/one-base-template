@@ -8,6 +8,7 @@
   import { templateApi } from "./api";
   import type { BizResponse, PageResult, PortalTemplate } from "./types";
   import { findFirstPageTabId } from "../utils/portalTree";
+  import PortalAuthorityDialog from "./components/PortalAuthorityDialog.vue";
   import PortalTemplateCreateDialog from "./components/PortalTemplateCreateDialog.vue";
 
   defineOptions({ name: "PortalTemplateList" });
@@ -34,7 +35,7 @@
     },
     {
       label: "操作",
-      width: 200,
+      width: 300,
       fixed: "right",
       align: "right",
       slot: "operation",
@@ -77,6 +78,31 @@
   });
   const activeTemplateId = ref("");
 
+  interface PortalAuthorityPayload {
+    authType: "person" | "role";
+    whiteDTOS: Array<{ typeId: string; type: number; typeName: string }>;
+    blackDTOS: Array<{ typeId: string; type: number; typeName: string }>;
+    userIds: string[];
+    whiteList: Array<{ typeId: string; type: number; typeName: string }>;
+    blackList: Array<{ typeId: string; type: number; typeName: string }>;
+    editUsers: Array<{ typeId: string; type: number; typeName: string }>;
+    allowRole: { roleIds: string[] };
+    forbiddenRole: { roleIds: string[] };
+    configRole: { roleIds: string[] };
+  }
+
+  interface PortalAuthorityUpdatePayload extends PortalAuthorityPayload {
+    id: string;
+    templateName: string;
+    templateType: number;
+    isOpen: number;
+  }
+
+  const authorityVisible = ref(false);
+  const authoritySubmitting = ref(false);
+  const authorityInitial = ref<Partial<PortalTemplate>>({});
+  const authorityTemplateId = ref("");
+
   function normalizeBizOk(res: BizResLike | null | undefined): boolean {
     const code = res?.code;
     return res?.success === true || code === 0 || code === 200 || String(code) === "0" || String(code) === "200";
@@ -117,6 +143,15 @@
       return String(value);
     }
     return "";
+  }
+
+  function normalizeIntegerLike(value: unknown, fallback = 0): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+
+  function normalizeTemplateName(value: unknown): string {
+    return typeof value === "string" ? value.trim() : "";
   }
 
   function extractTemplateId(value: unknown): string {
@@ -297,7 +332,7 @@
         if (newId) {
           router
             .push({
-              path: "/resource/portal/setting",
+              path: "/portal/design",
               query: { id: newId },
             })
             .catch((error) => {
@@ -370,7 +405,7 @@
     }
     router
       .push({
-        path: "/resource/portal/setting",
+        path: "/portal/design",
         query: { id },
       })
       .catch((error) => {
@@ -399,11 +434,83 @@
         return;
       }
 
-      window.open(`/portal/preview?templateId=${id}&tabId=${tabId}`, "_blank");
+      window.open(`/portal/preview?templateId=${id}&tabId=${tabId}&previewMode=live`, "_blank");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "预览失败";
       message.error(msg);
     }
+  }
+
+  async function openAuthority(row: PortalTemplate) {
+    const id = normalizeIdLike(row.id);
+    if (!id) {
+      return;
+    }
+
+    const detail = await loadTemplateForDialog(id, row);
+    if (!detail) {
+      return;
+    }
+
+    authorityTemplateId.value = id;
+    authorityInitial.value = detail;
+    authorityVisible.value = true;
+  }
+
+  async function onSubmitAuthority(payload: PortalAuthorityPayload) {
+    const id = authorityTemplateId.value;
+    if (!id || authoritySubmitting.value) {
+      return;
+    }
+
+    authoritySubmitting.value = true;
+    try {
+      const updatePayload = await buildAuthorityUpdatePayload(id, payload);
+      if (!updatePayload) {
+        return;
+      }
+
+      const res = await templateApi.update(updatePayload as unknown as Partial<PortalTemplate>);
+      if (!normalizeBizOk(res)) {
+        message.error(res?.message || "门户权限保存失败");
+        return;
+      }
+
+      message.success("门户权限保存成功");
+      authorityVisible.value = false;
+      await queryList(currentPage.value);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "门户权限保存失败";
+      message.error(msg);
+    } finally {
+      authoritySubmitting.value = false;
+    }
+  }
+
+  async function buildAuthorityUpdatePayload(
+    id: string,
+    payload: PortalAuthorityPayload
+  ): Promise<PortalAuthorityUpdatePayload | null> {
+    const detail = await loadTemplateForDialog(id, authorityInitial.value);
+    if (!detail) {
+      return null;
+    }
+
+    authorityInitial.value = detail;
+
+    const templateName = normalizeTemplateName(detail.templateName);
+    if (!templateName) {
+      message.error("门户名称为空，无法保存权限");
+      return null;
+    }
+
+    return {
+      id: normalizeIdLike(detail.id) || id,
+      templateName,
+      templateType: normalizeIntegerLike(detail.templateType, 0),
+      isOpen: normalizeIntegerLike(detail.isOpen, 0),
+      ...payload,
+    };
   }
 
   async function togglePublish(row: PortalTemplate) {
@@ -498,6 +605,7 @@
             <ObActionButtons>
               <el-button link type="primary" :size="actionSize" @click="() => openEdit(row)">编辑</el-button>
               <el-button link :size="actionSize" @click="() => openCopy(row)">复制</el-button>
+              <el-button link :size="actionSize" @click="() => openAuthority(row)">门户权限</el-button>
               <el-button link type="primary" :size="actionSize" @click="() => goDesigner(row)">配置</el-button>
               <el-button link :size="actionSize" @click="() => openPreview(row)">预览</el-button>
               <el-button link :size="actionSize" @click="() => togglePublish(row)">
@@ -530,6 +638,13 @@
     :submit-text="dialogSubmitText"
     :initial-value="dialogInitialValue"
     @submit="onSubmitTemplate"
+  />
+
+  <PortalAuthorityDialog
+    v-model="authorityVisible"
+    :loading="authoritySubmitting"
+    :initial="authorityInitial"
+    @submit="onSubmitAuthority"
   />
 </template>
 

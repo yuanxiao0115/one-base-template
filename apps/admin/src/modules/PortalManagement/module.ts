@@ -11,7 +11,7 @@ const portalModule: AppModuleManifest = {
   },
   compat: {
     activePathMap: {
-      "/resource/portal/setting": "/portal/setting",
+      "/portal/design": "/portal/setting",
       "/portal/page/edit": "/portal/setting",
     },
   },

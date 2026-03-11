@@ -52,6 +52,28 @@ interface CmsBizResponse<T> {
   success?: boolean;
 }
 
+interface PortalRoleRow {
+  id?: string;
+  name?: string;
+  roleName?: string;
+  [key: string]: unknown;
+}
+
+interface PortalContactRow {
+  id?: string;
+  parentId?: string;
+  companyId?: string;
+  title?: string;
+  nodeType?: string;
+  orgName?: string;
+  orgType?: number;
+  userId?: string;
+  nickName?: string;
+  userAccount?: string;
+  phone?: string;
+  [key: string]: unknown;
+}
+
 /**
  * cMS 接口（party-building 组件依赖）
  */
@@ -73,4 +95,20 @@ export const cmsApi = {
         currentPage: 1,
       },
     }),
+};
+
+/**
+ * 门户权限配置依赖接口
+ */
+export const portalAuthorityApi = {
+  listRoles: async () => obHttp().get<BizResponse<PortalRoleRow[]>>("/cmict/admin/role/get-list"),
+
+  pageRoles: async (params: { currentPage: number; pageSize: number; roleName?: string }) =>
+    obHttp().get<BizResponse<{ records?: PortalRoleRow[]; [key: string]: unknown }>>("/cmict/admin/role/page", { params }),
+
+  getOrgContactsLazy: async (params: { parentId?: string }) =>
+    obHttp().get<BizResponse<PortalContactRow[]>>("/cmict/admin/org/contacts/lazy/tree", { params }),
+
+  searchContactUsers: async (params: { search?: string }) =>
+    obHttp().get<BizResponse<PortalContactRow[]>>("/cmict/admin/user/structure/search/", { params }),
 };

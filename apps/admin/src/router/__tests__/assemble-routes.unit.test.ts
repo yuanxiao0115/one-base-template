@@ -51,20 +51,18 @@ describe("router/assemble-routes", () => {
     expect(routePathList).toContain(routePaths.catchall);
   });
 
-  it("PortalManagement 模块应使用老项目路径并移除 alias 路由", async () => {
+  it("PortalManagement 模块应使用语义化设计路径并移除历史 alias 路由", async () => {
     const { routes } = await assembleRoutes(createRouteAssemblyOptions(["PortalManagement"]));
     const allRoutes = flattenRoutes(routes);
 
     const listRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/setting") && item.name === "PortalTemplateList");
-    const designerRoute = allRoutes.find(
-      (item) => isSamePath(item.path, "/resource/portal/setting") && item.name === "PortalDesigner"
-    );
+    const designerRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/design") && item.name === "PortalDesigner");
     const pageEditRoute = allRoutes.find(
       (item) => isSamePath(item.path, "/portal/page/edit") && item.name === "PortalPageEditor"
     );
     const previewRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/preview") && item.name === "PortalPreview");
 
-    const removedAliasPaths = ["/portal/templates", "/portal/designer", "/portal/layout"];
+    const removedAliasPaths = ["/portal/templates", "/portal/layout", "/resource/portal/setting"];
 
     expect(listRoute).toBeDefined();
     expect(listRoute?.redirect).toBeUndefined();

@@ -1,6 +1,6 @@
 import type { PortalTab } from "../types";
 
-function normalizeIdLike(value: unknown): string {
+export function normalizeIdLike(value: unknown): string {
   if (typeof value === "string") {
     return value;
   }
@@ -25,6 +25,35 @@ export function walkTabs(tabs: PortalTab[] | undefined, visitor: (tab: PortalTab
   }
 }
 
+export function normalizeParentId(parent: PortalTab | null | undefined): number | string {
+  const id = normalizeIdLike(parent?.id);
+  return id || 0;
+}
+
+export function normalizeTabName(value: unknown, fallback: string): string {
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+  return fallback;
+}
+
+export function findTabById(tabs: PortalTab[] | undefined, tabId: string): PortalTab | null {
+  if (!tabId || !Array.isArray(tabs)) {
+    return null;
+  }
+  for (const tab of tabs) {
+    const id = normalizeIdLike(tab?.id);
+    if (id === tabId) {
+      return tab;
+    }
+    const child = findTabById(tab?.children, tabId);
+    if (child) {
+      return child;
+    }
+  }
+  return null;
+}
+
 export function findFirstPageTabId(tabs: PortalTab[] | undefined): string {
   if (!Array.isArray(tabs)) {
     return "";
@@ -33,8 +62,9 @@ export function findFirstPageTabId(tabs: PortalTab[] | undefined): string {
     if (!tab || typeof tab !== "object") {
       continue;
     }
-    if (tab.tabType === 2 && typeof tab.id === "string" && tab.id) {
-      return tab.id;
+    const id = normalizeIdLike(tab.id);
+    if (tab.tabType === 2 && id) {
+      return id;
     }
     const nested = findFirstPageTabId(tab.children);
     if (nested) {
@@ -53,7 +83,7 @@ export function containsTabId(tabs: PortalTab[] | undefined, tabId: string): boo
     if (found) {
       return;
     }
-    if (t.id === tabId) {
+    if (normalizeIdLike(t.id) === tabId) {
       found = true;
     }
   });
