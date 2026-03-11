@@ -146,7 +146,7 @@ export default defineConfig(({ mode }) => {
               },
               {
                 name: "admin-portal",
-                patterns: ["/apps/admin/src/modules/portal/"],
+                patterns: ["/apps/admin/src/modules/portalManagement/"],
               },
             ],
           }),

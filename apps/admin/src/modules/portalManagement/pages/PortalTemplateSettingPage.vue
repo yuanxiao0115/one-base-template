@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { ElMessage } from "element-plus";
+  import { message } from "@/utils/message";
   import { confirm } from "@/infra/confirm";
 
   import { portalService } from "../services/portal-service";
@@ -20,8 +20,12 @@
   const router = useRouter();
 
   const templateId = computed(() => {
-    const v = route.query.templateId;
-    return typeof v === "string" ? v : "";
+    const id = route.query.id;
+    if (typeof id === "string") {
+      return id;
+    }
+    const templateId = route.query.templateId;
+    return typeof templateId === "string" ? templateId : "";
   });
 
   const routeTabId = computed(() => {
@@ -99,7 +103,7 @@
     try {
       const res = await portalService.template.detail({ id: templateId.value });
       if (!normalizeBizOk(res)) {
-        ElMessage.error(res?.message || "加载门户失败");
+        message.error(res?.message || "加载门户失败");
         templateInfo.value = null;
         currentTabId.value = "";
         return;
@@ -113,7 +117,7 @@
       setCurrentTab(nextTabId);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "加载门户失败";
-      ElMessage.error(msg);
+      message.error(msg);
       templateInfo.value = null;
       currentTabId.value = "";
     } finally {
@@ -140,7 +144,7 @@
 
     const res = await portalService.template.update(tpl);
     if (!normalizeBizOk(res)) {
-      ElMessage.error(res?.message || "关联页面到模板失败");
+      message.error(res?.message || "关联页面到模板失败");
       return;
     }
 
@@ -192,7 +196,7 @@
     try {
       const res = await portalService.tab.detail({ id });
       if (!normalizeBizOk(res)) {
-        ElMessage.error(res?.message || "加载页面详情失败");
+        message.error(res?.message || "加载页面详情失败");
         return;
       }
 
@@ -205,7 +209,7 @@
       attrVisible.value = true;
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "加载页面详情失败";
-      ElMessage.error(msg);
+      message.error(msg);
     } finally {
       attrLoading.value = false;
     }
@@ -256,13 +260,13 @@
 
         const res = await portalService.tab.add(data);
         if (!normalizeBizOk(res)) {
-          ElMessage.error(res?.message || "新建失败");
+          message.error(res?.message || "新建失败");
           return;
         }
 
         const newTabId = typeof res?.data === "string" ? res.data : "";
         if (!newTabId) {
-          ElMessage.error("新建成功但未返回 tabId");
+          message.error("新建成功但未返回 tabId");
           return;
         }
 
@@ -270,16 +274,16 @@
 
         if (payload.tabType === 2) {
           router.push({
-            path: "/portal/layout",
+            path: "/portal/page/edit",
             query: {
-              templateId: templateId.value,
+              id: templateId.value,
               tabId: newTabId,
             },
           });
           return;
         }
 
-        ElMessage.success("新建成功");
+        message.success("新建成功");
         await loadTemplate(currentTabId.value);
         return;
       }
@@ -308,11 +312,11 @@
 
       const res = await portalService.tab.update(updateData);
       if (!normalizeBizOk(res)) {
-        ElMessage.error(res?.message || "保存失败");
+        message.error(res?.message || "保存失败");
         return;
       }
 
-      ElMessage.success("保存成功");
+      message.success("保存成功");
       await loadTemplate(currentTabId.value);
     } finally {
       creating.value = false;
@@ -344,11 +348,11 @@
       isHide: next,
     });
     if (!normalizeBizOk(res)) {
-      ElMessage.error(res?.message || `${text}失败`);
+      message.error(res?.message || `${text}失败`);
       return;
     }
 
-    ElMessage.success(`${text}成功`);
+    message.success(`${text}成功`);
     await loadTemplate(currentTabId.value);
   }
 
@@ -369,11 +373,11 @@
 
     const res = await portalService.tab.delete({ id: tabId });
     if (!normalizeBizOk(res)) {
-      ElMessage.error(res?.message || "删除失败");
+      message.error(res?.message || "删除失败");
       return;
     }
 
-    ElMessage.success("删除成功");
+    message.success("删除成功");
     await loadTemplate(currentTabId.value);
 
     if (tabId === currentTabId.value) {
@@ -387,16 +391,16 @@
       return;
     }
     router.push({
-      path: "/portal/layout",
+      path: "/portal/page/edit",
       query: {
-        templateId: templateId.value,
+        id: templateId.value,
         tabId,
       },
     });
   }
 
   function onBack() {
-    router.push("/portal/templates");
+    router.push("/portal/setting");
   }
 
   void loadTemplate();
@@ -435,7 +439,7 @@
 
       <div class="main">
         <div v-if="!templateId" class="empty">
-          <el-result icon="warning" title="缺少参数" sub-title="请通过 /portal/designer?templateId=xxx 进入" />
+          <el-result icon="warning" title="缺少参数" sub-title="请通过 /resource/portal/setting?id=xxx 进入" />
         </div>
         <div v-else-if="!currentTabId" class="empty">
           <el-result icon="info" title="暂无可预览页面" sub-title="请先新建一个空白页" />

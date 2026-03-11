@@ -20,8 +20,8 @@
   function buildSrc(tabId: string) {
     const resolved = router.resolve({
       name: "PortalPreview",
-      params: { tabId },
       query: {
+        tabId,
         templateId: props.templateId,
         isInIframe: "true",
       },

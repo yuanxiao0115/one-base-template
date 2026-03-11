@@ -1,7 +1,7 @@
 import type { AppModuleManifestMeta } from "@one-base-template/core";
 
 export const moduleManifest = {
-  id: "portal",
+  id: "portalManagement",
   version: "1",
   moduleTier: "optional",
   enabledByDefault: false,

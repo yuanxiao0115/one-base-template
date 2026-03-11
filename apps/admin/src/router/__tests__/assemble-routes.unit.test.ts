@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { RouteRecordRaw } from "vue-router";
 
 vi.mock("@one-base-template/ui/shell", () => ({
   AdminLayout: {},
@@ -25,6 +26,20 @@ function createRouteAssemblyOptions(
 }
 
 describe("router/assemble-routes", () => {
+  function flattenRoutes(routes: RouteRecordRaw[]): RouteRecordRaw[] {
+    return routes.flatMap((route) => {
+      const children = Array.isArray(route.children) ? route.children : [];
+      return [route, ...flattenRoutes(children)];
+    });
+  }
+
+  function isSamePath(actualPath: unknown, expectedPath: string): boolean {
+    if (typeof actualPath !== "string") {
+      return false;
+    }
+    return actualPath === expectedPath || actualPath === expectedPath.slice(1);
+  }
+
   it("应保留公共固定路由", async () => {
     const { routes } = await assembleRoutes(createRouteAssemblyOptions(["home"]));
     const routePathList = routes.map((item) => item.path);
@@ -36,20 +51,33 @@ describe("router/assemble-routes", () => {
     expect(routePathList).toContain(routePaths.catchall);
   });
 
-  it("portal 模块应生成 compat 别名路由并补齐 activePath", async () => {
-    const { routes } = await assembleRoutes(createRouteAssemblyOptions(["portal"]));
-    const aliasRoute = routes.find((item) => item.path === "/portal/setting");
-    const meta = (aliasRoute?.meta as Record<string, unknown> | undefined) ?? {};
+  it("portalManagement 模块应使用老项目路径并移除 alias 路由", async () => {
+    const { routes } = await assembleRoutes(createRouteAssemblyOptions(["portalManagement"]));
+    const allRoutes = flattenRoutes(routes);
 
-    expect(aliasRoute).toBeDefined();
-    expect(aliasRoute?.redirect).toBe("/portal/templates");
-    expect(meta.hideInMenu).toBe(true);
-    expect(meta.hiddenTab).toBe(true);
-    expect(meta.activePath).toBe("/portal/setting");
+    const listRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/setting") && item.name === "PortalTemplateList");
+    const designerRoute = allRoutes.find(
+      (item) => isSamePath(item.path, "/resource/portal/setting") && item.name === "PortalDesigner"
+    );
+    const pageEditRoute = allRoutes.find(
+      (item) => isSamePath(item.path, "/portal/page/edit") && item.name === "PortalPageEditor"
+    );
+    const previewRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/preview") && item.name === "PortalPreview");
+
+    const removedAliasPaths = ["/portal/templates", "/portal/designer", "/portal/layout"];
+
+    expect(listRoute).toBeDefined();
+    expect(listRoute?.redirect).toBeUndefined();
+    expect(designerRoute).toBeDefined();
+    expect(pageEditRoute).toBeDefined();
+    expect(previewRoute).toBeDefined();
+    expect((designerRoute?.meta as Record<string, unknown> | undefined)?.activePath).toBe("/portal/setting");
+    expect((pageEditRoute?.meta as Record<string, unknown> | undefined)?.activePath).toBe("/portal/setting");
+    expect(removedAliasPaths.some((path) => allRoutes.some((item) => isSamePath(item.path, path)))).toBe(false);
   });
 
   it("应从已装配路由自动收集 skipMenuAuth 白名单", async () => {
-    const { skipMenuAuthRouteNames } = await assembleRoutes(createRouteAssemblyOptions(["home", "portal"]));
+    const { skipMenuAuthRouteNames } = await assembleRoutes(createRouteAssemblyOptions(["home", "portalManagement"]));
 
     expect(skipMenuAuthRouteNames).toEqual(
       expect.arrayContaining(["HomeIndex", "PortalTemplateList", "PortalDesigner", "PortalPageEditor"])

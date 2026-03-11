@@ -2,9 +2,22 @@
   import { computed, nextTick, reactive, ref, watch } from "vue";
   import type { FormInstance, FormRules } from "element-plus";
 
+  type TemplateDialogMode = "create" | "edit" | "copy";
+
+  interface TemplateDialogValue {
+    templateName?: string;
+    description?: string;
+    templateType?: number;
+    isOpen?: number;
+  }
+
   const props = defineProps<{
     modelValue: boolean;
     loading?: boolean;
+    mode?: TemplateDialogMode;
+    initialValue?: TemplateDialogValue;
+    title?: string;
+    submitText?: string;
   }>();
 
   const emit = defineEmits<{
@@ -27,6 +40,34 @@
   const visible = computed({
     get: () => props.modelValue,
     set: (v: boolean) => emit("update:modelValue", v),
+  });
+
+  const dialogMode = computed<TemplateDialogMode>(() => props.mode ?? "create");
+
+  const dialogTitle = computed(() => {
+    if (props.title) {
+      return props.title;
+    }
+    if (dialogMode.value === "edit") {
+      return "编辑门户模板";
+    }
+    if (dialogMode.value === "copy") {
+      return "复制门户模板";
+    }
+    return "新增门户模板";
+  });
+
+  const submitButtonText = computed(() => {
+    if (props.submitText) {
+      return props.submitText;
+    }
+    if (dialogMode.value === "edit") {
+      return "保存";
+    }
+    if (dialogMode.value === "copy") {
+      return "复制";
+    }
+    return "创建并配置";
   });
 
   const formRef = ref<FormInstance>();
@@ -53,10 +94,11 @@
       if (!v) {
         return;
       }
-      form.templateName = "";
-      form.description = "";
-      form.templateType = 0;
-      form.isOpen = 0;
+      const source = props.initialValue ?? {};
+      form.templateName = (source.templateName ?? "").trim();
+      form.description = source.description ?? "";
+      form.templateType = Number(source.templateType) || 0;
+      form.isOpen = Number(source.isOpen) || 0;
       nextTick(() => formRef.value?.clearValidate());
     }
   );
@@ -86,7 +128,7 @@
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="新增门户模板" width="560px" :close-on-click-modal="false">
+  <el-dialog v-model="visible" :title="dialogTitle" width="560px" :close-on-click-modal="false">
     <el-form ref="formRef" :model="form" :rules label-position="top" class="form">
       <el-form-item label="门户名称" prop="templateName">
         <el-input
@@ -129,7 +171,7 @@
     <template #footer>
       <div class="footer">
         <el-button @click="onCancel">取消</el-button>
-        <el-button type="primary" :loading @click="onSubmit">创建并配置</el-button>
+        <el-button type="primary" :loading @click="onSubmit">{{ submitButtonText }}</el-button>
       </div>
     </template>
   </el-dialog>

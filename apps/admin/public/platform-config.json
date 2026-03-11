@@ -20,6 +20,7 @@
     "user-management",
     "log-management",
     "system-management",
-    "cms-management"
+    "cms-management",
+    "portalManagement"
   ]
 }

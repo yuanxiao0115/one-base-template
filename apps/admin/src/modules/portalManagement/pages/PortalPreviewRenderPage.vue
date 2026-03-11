@@ -35,6 +35,10 @@
   const { materialsMap } = useMaterials();
 
   const tabId = computed(() => {
+    const queryTabId = route.query.tabId;
+    if (typeof queryTabId === "string") {
+      return queryTabId;
+    }
     const raw = route.params.tabId;
     return typeof raw === "string" ? raw : "";
   });

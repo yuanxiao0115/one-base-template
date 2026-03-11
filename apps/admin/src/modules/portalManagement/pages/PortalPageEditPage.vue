@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { ElMessage } from "element-plus";
+  import { message } from "@/utils/message";
   import {
     type PortalLayoutItem,
     GridLayoutEditor,
@@ -51,8 +51,12 @@
   });
 
   const templateId = computed(() => {
-    const v = route.query.templateId;
-    return typeof v === "string" ? v : "";
+    const id = route.query.id;
+    if (typeof id === "string") {
+      return id;
+    }
+    const templateId = route.query.templateId;
+    return typeof templateId === "string" ? templateId : "";
   });
 
   const loading = ref(false);
@@ -113,7 +117,7 @@
     try {
       const res = await portalService.tab.detail({ id });
       if (!normalizeBizOk(res)) {
-        ElMessage.error(res?.message || "加载页面失败");
+        message.error(res?.message || "加载页面失败");
         pageLayoutStore.reset();
         return;
       }
@@ -138,7 +142,7 @@
       pageLayoutStore.deselectLayoutItem();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "加载页面失败";
-      ElMessage.error(msg);
+      message.error(msg);
       pageLayoutStore.reset();
     } finally {
       loading.value = false;
@@ -147,7 +151,7 @@
 
   async function savePage() {
     if (!tabId.value) {
-      ElMessage.warning("缺少 tabId，无法保存");
+      message.warning("缺少 tabId，无法保存");
       return false;
     }
 
@@ -169,15 +173,15 @@
       });
 
       if (!normalizeBizOk(res)) {
-        ElMessage.error(res?.message || "保存失败");
+        message.error(res?.message || "保存失败");
         return false;
       }
 
-      ElMessage.success("保存成功");
+      message.success("保存成功");
       return true;
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "保存失败";
-      ElMessage.error(msg);
+      message.error(msg);
       return false;
     } finally {
       saving.value = false;
@@ -186,7 +190,7 @@
 
   async function previewPage() {
     if (!tabId.value) {
-      ElMessage.warning("缺少 tabId，无法预览");
+      message.warning("缺少 tabId，无法预览");
       return;
     }
 
@@ -203,8 +207,8 @@
 
       const resolved = router.resolve({
         name: "PortalPreview",
-        params: { tabId: tabId.value },
         query: {
+          tabId: tabId.value,
           templateId: templateId.value,
           isPreview: "true",
           isInIframe: "false",
@@ -219,15 +223,15 @@
   function onBack() {
     if (templateId.value) {
       router.push({
-        path: "/portal/designer",
+        path: "/resource/portal/setting",
         query: {
-          templateId: templateId.value,
+          id: templateId.value,
           tabId: tabId.value,
         },
       });
       return;
     }
-    router.push("/portal/templates");
+    router.push("/portal/setting");
   }
 
   watch(

@@ -10,16 +10,9 @@ const portalModule: AppModuleManifest = {
     standalone: standaloneRoutes,
   },
   compat: {
-    routeAliases: [
-      {
-        from: "/portal/setting",
-        to: "/portal/templates",
-      },
-    ],
     activePathMap: {
-      "/portal/designer": "/portal/setting",
-      "/portal/layout": "/portal/setting",
-      "/portal/templates": "/portal/setting",
+      "/resource/portal/setting": "/portal/setting",
+      "/portal/page/edit": "/portal/setting",
     },
   },
 };
