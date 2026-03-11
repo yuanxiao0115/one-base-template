@@ -4,6 +4,13 @@ interface MaterialModule {
   default?: Component;
 }
 
+export interface RegisterPortalMaterialComponentOptions {
+  name: string;
+  component: Component;
+  aliases?: string[];
+  strategy?: 'reject' | 'replace';
+}
+
 function tryGetComponentName(mod: unknown): string | null {
   const component = (mod as MaterialModule | undefined)?.default;
   const name = (component as any)?.name;
@@ -18,6 +25,47 @@ function getMaterialNameAliases(name: string): string[] {
     return [name, `pb-${name.slice(4)}`];
   }
   return [name];
+}
+
+const customMaterialComponents: Record<string, Component> = {};
+
+function resolveRegisterNames(name: string, aliases: string[] = []): string[] {
+  return Array.from(new Set([...getMaterialNameAliases(name), ...aliases]));
+}
+
+/**
+ * 注册运行时物料组件。
+ *
+ * 说明：
+ * - 默认冲突策略为 reject，防止业务无感覆盖内置组件。
+ * - 需要显式覆盖时传 strategy=replace。
+ */
+export function registerPortalMaterialComponent(options: RegisterPortalMaterialComponentOptions) {
+  const strategy = options.strategy === 'replace' ? 'replace' : 'reject';
+  const names = resolveRegisterNames(options.name, options.aliases);
+
+  if (strategy === 'reject') {
+    const conflict = names.find((name) => Boolean(customMaterialComponents[name]));
+    if (conflict) {
+      throw new Error(`[portal-engine] 注册物料组件冲突：${conflict}`);
+    }
+  }
+
+  for (const name of names) {
+    customMaterialComponents[name] = options.component;
+  }
+}
+
+export function unregisterPortalMaterialComponent(name: string, aliases: string[] = []): boolean {
+  const names = resolveRegisterNames(name, aliases);
+  let removed = false;
+  for (const aliasName of names) {
+    if (customMaterialComponents[aliasName]) {
+      delete customMaterialComponents[aliasName];
+      removed = true;
+    }
+  }
+  return removed;
 }
 
 function registerMaterialComponent(
@@ -61,6 +109,10 @@ export function useMaterials() {
   }
   for (const mod of Object.values(styleModules) as MaterialModule[]) {
     registerMaterialComponent(materialsMap, mod);
+  }
+
+  for (const [name, component] of Object.entries(customMaterialComponents)) {
+    materialsMap[name] = component;
   }
 
   return { materialsMap };

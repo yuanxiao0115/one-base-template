@@ -30,7 +30,7 @@
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
-  import { ElMessage } from 'element-plus';
+  import { message } from '../common/message';
   import { navigatePortalCmsDetail, navigatePortalCmsList } from '../../navigation';
   import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
   import ListEmpty from '../common/list/ListEmpty.vue';
@@ -142,7 +142,7 @@
   const handleMoreClick = async () => {
     const { categoryId } = dataSource.value;
     if (!categoryId) {
-      ElMessage.error('请先选择栏目');
+      message.error('请先选择栏目');
       return;
     }
 
@@ -154,7 +154,7 @@
       moreLink: moreLink.value,
     });
     if (!result.handled) {
-      ElMessage.error(result.message || '当前应用未配置 CMS 列表跳转');
+      message.error(result.message || '当前应用未配置 CMS 列表跳转');
     }
   };
 
@@ -170,7 +170,7 @@
       tabId: typeof rawTabId === 'string' ? rawTabId : undefined,
     });
     if (!result.handled) {
-      ElMessage.error(result.message || '当前应用未配置 CMS 详情跳转');
+      message.error(result.message || '当前应用未配置 CMS 详情跳转');
     }
   };
 

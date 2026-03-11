@@ -58,7 +58,7 @@
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
-  import { ElMessage } from 'element-plus';
+  import { message } from '../message';
   import { navigatePortalCmsList } from '../../../navigation';
   import TitleStripeDisplay from './TitleStripeDisplay.vue';
 
@@ -251,7 +251,7 @@
   const handleMoreClick = async () => {
     const categoryId = props.schema?.content?.dataSource?.categoryId;
     if (!categoryId) {
-      ElMessage.error('请先选择栏目');
+      message.error('请先选择栏目');
       return;
     }
 
@@ -263,7 +263,7 @@
       moreLink: moreLink.value,
     });
     if (!result.handled) {
-      ElMessage.error(result.message || '当前应用未配置 CMS 列表跳转');
+      message.error(result.message || '当前应用未配置 CMS 列表跳转');
     }
   };
   defineOptions({ name: 'PbTitleDisplay' });

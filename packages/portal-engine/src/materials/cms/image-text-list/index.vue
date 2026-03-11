@@ -60,8 +60,8 @@
 
 <script setup lang="ts">
   import { computed } from 'vue';
-  import { ElMessage } from 'element-plus';
   import { useRouter } from 'vue-router';
+  import { message } from '../common/message';
   import { navigatePortalCmsDetail } from '../../navigation';
   import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
   import ListContainer from '../common/list/ListContainer.vue';
@@ -158,7 +158,7 @@
       tabId: typeof rawTabId === 'string' ? rawTabId : undefined,
     });
     if (!result.handled) {
-      ElMessage.error(result.message || '当前应用未配置 CMS 详情跳转');
+      message.error(result.message || '当前应用未配置 CMS 详情跳转');
     }
   };
 

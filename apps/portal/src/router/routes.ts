@@ -40,6 +40,7 @@ export const portalRoutes: RouteRecordRaw[] = [
     component: PortalRenderPage,
     meta: {
       title: "门户首页",
+      public: true,
       hiddenTab: true,
       skipMenuAuth: true,
     },

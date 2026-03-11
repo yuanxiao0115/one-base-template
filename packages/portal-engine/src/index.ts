@@ -13,7 +13,8 @@ export type { BizResponse, PageResult, PortalTab, PortalTemplate } from './schem
 export type { SchemaConfigOptions, SchemaConfigResult, SectionConfig } from './composables/useSchemaConfig';
 export { useSchemaConfig } from './composables/useSchemaConfig';
 export { deepClone, deepEqual } from './utils/deep';
-export { useMaterials } from './materials/useMaterials';
+export type { RegisterPortalMaterialComponentOptions } from './materials/useMaterials';
+export { registerPortalMaterialComponent, unregisterPortalMaterialComponent, useMaterials } from './materials/useMaterials';
 export { cmsApi, getPortalCmsApi, setPortalCmsApi } from './materials/api';
 export type {
   PortalCmsDetailNavigationContext,
@@ -27,7 +28,24 @@ export {
   resetPortalCmsNavigation,
   setPortalCmsNavigation,
 } from './materials/navigation';
-export { portalMaterialsRegistry, portalMaterialTypeAliases, resolvePortalMaterialTypeAlias } from './registry/materials-registry';
+export type {
+  PortalMaterialCategory,
+  PortalMaterialCategoryInput,
+  PortalMaterialConflictStrategy,
+  PortalMaterialItem,
+  PortalMaterialRegistry,
+  PortalMaterialRegistryController,
+  RegisterPortalMaterialOptions,
+  UnregisterPortalMaterialOptions,
+} from './registry/materials-registry.types';
+export {
+  createPortalMaterialRegistry,
+  portalMaterialsRegistry,
+  portalMaterialTypeAliases,
+  registerPortalMaterial,
+  resolvePortalMaterialTypeAlias,
+  unregisterPortalMaterial,
+} from './registry/materials-registry';
 export type { PortalLayoutItem } from './stores/pageLayout';
 export { usePortalPageLayoutStore } from './stores/pageLayout';
 export { default as GridLayoutEditor } from './editor/GridLayoutEditor.vue';

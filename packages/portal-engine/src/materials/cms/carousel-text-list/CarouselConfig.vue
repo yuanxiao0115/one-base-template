@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
   import { computed, onMounted, ref } from 'vue';
-  import { ElMessage } from 'element-plus';
+  import { message } from '../common/message';
   import { cmsApi } from '../../api';
   import CmsListSourceConfig from '../common/cms/CmsListSourceConfig.vue';
 
@@ -145,11 +145,11 @@
       if (res.code === 200 && res.data) {
         categoryOptions.value = res.data;
       } else {
-        ElMessage.warning('栏目列表获取失败');
+        message.warning('栏目列表获取失败');
       }
     } catch (error) {
       console.error('获取栏目列表失败', error);
-      ElMessage.error('获取栏目列表失败');
+      message.error('获取栏目列表失败');
     } finally {
       columnsLoading.value = false;
     }
@@ -181,12 +181,12 @@
         // 将数据保存到本地变量用于预览，不保存到modelValue
         previewListItems.value = articlesRes.data.records;
       } else {
-        ElMessage.warning('列表数据获取失败');
+        message.warning('列表数据获取失败');
         previewListItems.value = [];
       }
     } catch (error) {
       console.error('获取列表数据失败', error);
-      ElMessage.error('获取列表数据失败');
+      message.error('获取列表数据失败');
       previewListItems.value = [];
     } finally {
       articlesLoading.value = false;
@@ -200,12 +200,12 @@
         const maxItems = modelValue.value.maxItems || 5;
         previewCarouselItems.value = carouselsRes.data.records.slice(0, maxItems);
       } else {
-        ElMessage.warning('轮播图数据获取失败');
+        message.warning('轮播图数据获取失败');
         previewCarouselItems.value = [];
       }
     } catch (error) {
       console.error('获取轮播图数据失败', error);
-      ElMessage.error('获取轮播图数据失败');
+      message.error('获取轮播图数据失败');
       previewCarouselItems.value = [];
     } finally {
       carouselsLoading.value = false;
@@ -217,7 +217,7 @@
     if (modelValue.value?.categoryId) {
       loadDataByCategory(modelValue.value.categoryId);
     } else {
-      ElMessage.warning('请先选择栏目');
+      message.warning('请先选择栏目');
     }
   };
 
