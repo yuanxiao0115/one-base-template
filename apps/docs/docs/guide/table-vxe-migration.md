@@ -210,19 +210,19 @@ const table = useTable({
 - 页面 1：`/system/log/login-log`（分页表格）
   - 路由名：`SystemLoginLogManagement`
   - 代码位置：
-    - `apps/admin/src/modules/LogManagement/login-log/page.vue`
+    - `apps/admin/src/modules/LogManagement/login-log/list.vue`
     - `apps/admin/src/modules/LogManagement/login-log/columns.tsx`
     - `apps/admin/src/modules/LogManagement/login-log/api.ts`
 - 页面 2：`/system/org`（树形组织管理）
   - 路由名：`SystemOrgManagement`
   - 代码位置：
-    - `apps/admin/src/modules/UserManagement/org/page.vue`
+    - `apps/admin/src/modules/UserManagement/org/list.vue`
     - `apps/admin/src/modules/UserManagement/org/columns.tsx`
     - `apps/admin/src/modules/UserManagement/org/api.ts`
 - 页面 3：`/system/permission`（权限管理）
   - 路由名：`SystemMenuManagement`
   - 代码位置：
-    - `apps/admin/src/modules/SystemManagement/menu/page.vue`
+    - `apps/admin/src/modules/SystemManagement/menu/list.vue`
     - `apps/admin/src/modules/SystemManagement/menu/columns.ts`
     - `apps/admin/src/modules/SystemManagement/menu/api.ts`
 

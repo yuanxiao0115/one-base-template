@@ -21,7 +21,7 @@ describe("manual-chunks wangeditor 策略", () => {
   });
 
   it("应保持 CMS 业务页面继续进入 feature chunk", () => {
-    expect(manualChunks("/repo/apps/admin/src/modules/CmsManagement/content/page.vue")).toBe(
+    expect(manualChunks("/repo/apps/admin/src/modules/CmsManagement/content/list.vue")).toBe(
       "admin-cms-management"
     );
   });

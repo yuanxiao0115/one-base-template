@@ -4,7 +4,7 @@ export default [
   {
     path: "/system/permission",
     name: "SystemMenuManagement",
-    component: async () => import("./menu/page.vue"),
+    component: async () => import("./menu/list.vue"),
     meta: {
       title: "菜单管理",
       keepAlive: true,
@@ -13,7 +13,7 @@ export default [
   {
     path: "/system/dict",
     name: "SystemDictManagement",
-    component: async () => import("./dict/page.vue"),
+    component: async () => import("./dict/list.vue"),
     meta: {
       title: "字典管理",
       keepAlive: true,

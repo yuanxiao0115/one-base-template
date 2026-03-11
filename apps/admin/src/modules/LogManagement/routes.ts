@@ -12,7 +12,7 @@ export default [
   {
     path: "/system/log/login-log",
     name: "SystemLoginLogManagement",
-    component: async () => import("./login-log/page.vue"),
+    component: async () => import("./login-log/list.vue"),
     meta: {
       title: "登录日志",
       keepAlive: true,
@@ -21,7 +21,7 @@ export default [
   {
     path: "/system/log/sys-log",
     name: "SystemSysLogManagement",
-    component: async () => import("./sys-log/page.vue"),
+    component: async () => import("./sys-log/list.vue"),
     meta: {
       title: "操作日志",
       keepAlive: true,

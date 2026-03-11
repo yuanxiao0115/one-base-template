@@ -4,7 +4,7 @@ export default [
   {
     path: "/publicity/column",
     name: "PublicityColumn",
-    component: async () => import("./column/page.vue"),
+    component: async () => import("./column/list.vue"),
     meta: {
       title: "栏目管理",
       keepAlive: true,
@@ -15,7 +15,7 @@ export default [
   {
     path: "/publicity/content",
     name: "PublicityContent",
-    component: async () => import("./content/page.vue"),
+    component: async () => import("./content/list.vue"),
     meta: {
       title: "宣传内容管理",
       keepAlive: true,
@@ -26,7 +26,7 @@ export default [
   {
     path: "/publicity/article-list/:categoryId",
     name: "ArticleList",
-    component: async () => import("./content/page.vue"),
+    component: async () => import("./content/list.vue"),
     meta: {
       title: "文章列表",
       keepAlive: true,
@@ -38,7 +38,7 @@ export default [
   {
     path: "/publicity/audit",
     name: "PublicityAudit",
-    component: async () => import("./audit/page.vue"),
+    component: async () => import("./audit/list.vue"),
     meta: {
       title: "审核管理",
       keepAlive: true,
