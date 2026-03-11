@@ -1,11 +1,12 @@
 import type { PortalTab } from "../types";
 
 export type PortalHeaderMode = "configurable" | "customComponent";
-export type PortalHeaderVariant = "classic" | "newsBlue" | "newsRed";
-export type PortalFooterVariant = "simple" | "gov" | "enterprise";
 export type PortalNavSource = "tabTree" | "manual";
 export type PortalNavAlign = "left" | "center" | "right";
 export type PortalFooterFixedMode = "static" | "fixed";
+export type PortalHeaderTitleLayout = "stack" | "divider";
+export type PortalHeaderTitlePosition = "logoRight" | "leftEdge";
+export type PortalContainerWidth = number | "100%";
 
 export interface PortalShellNavItem {
   key: string;
@@ -19,20 +20,34 @@ export interface PortalHeaderTokens {
   textColor: string;
   activeBgColor: string;
   activeTextColor: string;
+  noticeBgColor: string;
+  noticeTextColor: string;
   height: number;
   logo: string;
   logoWidth: number;
   logoLeftMargin: number;
-  containerWidth: number;
+  containerWidth: PortalContainerWidth;
   sticky: boolean;
   zIndex: number;
   shadow: string;
+  actionBgColor: string;
+  actionTextColor: string;
+  actionBorderColor: string;
 }
 
 export interface PortalHeaderBehavior {
   navSource: PortalNavSource;
   navAlign: PortalNavAlign;
+  title: string;
+  subTitle: string;
+  titleLayout: PortalHeaderTitleLayout;
+  titlePosition: PortalHeaderTitlePosition;
+  titleFontSize: number;
+  subTitleFontSize: number;
   showUserCenter: boolean;
+  showActionButton: boolean;
+  actionButtonText: string;
+  actionButtonUrl: string;
   showTopNotice: boolean;
   topNoticeText: string;
   manualNavItems: PortalShellNavItem[];
@@ -41,7 +56,6 @@ export interface PortalHeaderBehavior {
 export interface PortalHeaderConfig {
   enabled: boolean;
   mode: PortalHeaderMode;
-  variant: PortalHeaderVariant;
   customComponentKey: string;
   tokens: PortalHeaderTokens;
   behavior: PortalHeaderBehavior;
@@ -50,9 +64,10 @@ export interface PortalHeaderConfig {
 export interface PortalFooterTokens {
   bgColor: string;
   textColor: string;
+  mutedTextColor: string;
   linkColor: string;
   height: number;
-  containerWidth: number;
+  containerWidth: PortalContainerWidth;
   borderTopColor: string;
 }
 
@@ -61,17 +76,22 @@ export interface PortalFooterContent {
   copyright: string;
   icp: string;
   policeRecord: string;
+  servicePhone: string;
+  serviceEmail: string;
+  address: string;
   links: Array<{ label: string; url: string }>;
 }
 
 export interface PortalFooterBehavior {
   fixedMode: PortalFooterFixedMode;
   scrollableWhenFixed: boolean;
+  showLinks: boolean;
+  showRecord: boolean;
+  showContact: boolean;
 }
 
 export interface PortalFooterConfig {
   enabled: boolean;
-  variant: PortalFooterVariant;
   tokens: PortalFooterTokens;
   content: PortalFooterContent;
   behavior: PortalFooterBehavior;
@@ -112,18 +132,6 @@ export const PORTAL_CUSTOM_HEADER_OPTIONS = [
   },
 ] as const;
 
-export const PORTAL_HEADER_VARIANT_OPTIONS: Array<{ label: string; value: PortalHeaderVariant }> = [
-  { label: "经典蓝", value: "classic" },
-  { label: "新闻蓝", value: "newsBlue" },
-  { label: "新闻红", value: "newsRed" },
-];
-
-export const PORTAL_FOOTER_VARIANT_OPTIONS: Array<{ label: string; value: PortalFooterVariant }> = [
-  { label: "简洁页脚", value: "simple" },
-  { label: "政务页脚", value: "gov" },
-  { label: "企业页脚", value: "enterprise" },
-];
-
 const DEFAULT_DETAILS: PortalTemplateDetails = {
   schemaVersion: 1,
   pageHeader: 1,
@@ -132,13 +140,14 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
     header: {
       enabled: true,
       mode: "configurable",
-      variant: "classic",
       customComponentKey: "",
       tokens: {
         bgColor: "#0f62cf",
         textColor: "#ffffff",
         activeBgColor: "rgba(255,255,255,0.16)",
         activeTextColor: "#ffffff",
+        noticeBgColor: "#0a4ea8",
+        noticeTextColor: "#ffffff",
         height: 60,
         logo: "",
         logoWidth: 150,
@@ -147,11 +156,23 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
         sticky: false,
         zIndex: 20,
         shadow: "0 1px 4px rgba(15, 98, 207, 0.18)",
+        actionBgColor: "#ffffff",
+        actionTextColor: "#0f62cf",
+        actionBorderColor: "rgba(255,255,255,0.45)",
       },
       behavior: {
         navSource: "tabTree",
         navAlign: "left",
+        title: "门户",
+        subTitle: "",
+        titleLayout: "stack",
+        titlePosition: "logoRight",
+        titleFontSize: 18,
+        subTitleFontSize: 12,
         showUserCenter: true,
+        showActionButton: false,
+        actionButtonText: "快速入口",
+        actionButtonUrl: "",
         showTopNotice: false,
         topNoticeText: "",
         manualNavItems: [],
@@ -159,10 +180,10 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
     },
     footer: {
       enabled: true,
-      variant: "simple",
       tokens: {
         bgColor: "#f8fafc",
         textColor: "#475569",
+        mutedTextColor: "#64748b",
         linkColor: "#2563eb",
         height: 80,
         containerWidth: 1200,
@@ -173,11 +194,17 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
         copyright: "",
         icp: "",
         policeRecord: "",
+        servicePhone: "",
+        serviceEmail: "",
+        address: "",
         links: [],
       },
       behavior: {
         fixedMode: "static",
         scrollableWhenFixed: true,
+        showLinks: true,
+        showRecord: true,
+        showContact: false,
       },
     },
   },
@@ -216,6 +243,26 @@ function toBoolean(value: unknown, fallback: boolean): boolean {
 
 function toEnabledNumber(value: unknown, fallback: number): number {
   return toBoolean(value, fallback === 1) ? 1 : 0;
+}
+
+function normalizeContainerWidth(value: unknown, fallback: PortalContainerWidth): PortalContainerWidth {
+  if (typeof value === "string") {
+    const text = value.trim();
+    if (text === "100%") {
+      return "100%";
+    }
+    const numeric = Number(text);
+    if (Number.isFinite(numeric)) {
+      return Math.max(320, numeric);
+    }
+    return fallback;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.max(320, value);
+  }
+
+  return fallback;
 }
 
 function normalizeNavItems(input: unknown): PortalShellNavItem[] {
@@ -260,7 +307,6 @@ function mergeHeaderConfig(input: unknown, fallback: PortalHeaderConfig): Portal
   const next = deepCopy(fallback);
   next.enabled = toBoolean(input.enabled, next.enabled);
   next.mode = input.mode === "customComponent" ? "customComponent" : "configurable";
-  next.variant = input.variant === "newsBlue" || input.variant === "newsRed" ? input.variant : "classic";
   next.customComponentKey = toText(input.customComponentKey, next.customComponentKey);
 
   const tokens = isObject(input.tokens) ? input.tokens : {};
@@ -268,19 +314,33 @@ function mergeHeaderConfig(input: unknown, fallback: PortalHeaderConfig): Portal
   next.tokens.textColor = toText(tokens.textColor, next.tokens.textColor);
   next.tokens.activeBgColor = toText(tokens.activeBgColor, next.tokens.activeBgColor);
   next.tokens.activeTextColor = toText(tokens.activeTextColor, next.tokens.activeTextColor);
+  next.tokens.noticeBgColor = toText(tokens.noticeBgColor, next.tokens.noticeBgColor);
+  next.tokens.noticeTextColor = toText(tokens.noticeTextColor, next.tokens.noticeTextColor);
   next.tokens.height = toNumber(tokens.height, next.tokens.height);
   next.tokens.logo = toText(tokens.logo, next.tokens.logo);
   next.tokens.logoWidth = toNumber(tokens.logoWidth, next.tokens.logoWidth);
   next.tokens.logoLeftMargin = toNumber(tokens.logoLeftMargin, next.tokens.logoLeftMargin);
-  next.tokens.containerWidth = toNumber(tokens.containerWidth, next.tokens.containerWidth);
+  next.tokens.containerWidth = normalizeContainerWidth(tokens.containerWidth, next.tokens.containerWidth);
   next.tokens.sticky = toBoolean(tokens.sticky, next.tokens.sticky);
   next.tokens.zIndex = toNumber(tokens.zIndex, next.tokens.zIndex);
   next.tokens.shadow = toText(tokens.shadow, next.tokens.shadow);
+  next.tokens.actionBgColor = toText(tokens.actionBgColor, next.tokens.actionBgColor);
+  next.tokens.actionTextColor = toText(tokens.actionTextColor, next.tokens.actionTextColor);
+  next.tokens.actionBorderColor = toText(tokens.actionBorderColor, next.tokens.actionBorderColor);
 
   const behavior = isObject(input.behavior) ? input.behavior : {};
   next.behavior.navSource = behavior.navSource === "manual" ? "manual" : "tabTree";
   next.behavior.navAlign = behavior.navAlign === "center" || behavior.navAlign === "right" ? behavior.navAlign : "left";
+  next.behavior.title = toText(behavior.title, toText(behavior.brandName, next.behavior.title));
+  next.behavior.subTitle = toText(behavior.subTitle, toText(behavior.brandSubTitle, next.behavior.subTitle));
+  next.behavior.titleLayout = behavior.titleLayout === "divider" ? "divider" : "stack";
+  next.behavior.titlePosition = behavior.titlePosition === "leftEdge" ? "leftEdge" : "logoRight";
+  next.behavior.titleFontSize = toNumber(behavior.titleFontSize, next.behavior.titleFontSize);
+  next.behavior.subTitleFontSize = toNumber(behavior.subTitleFontSize, next.behavior.subTitleFontSize);
   next.behavior.showUserCenter = toBoolean(behavior.showUserCenter, next.behavior.showUserCenter);
+  next.behavior.showActionButton = toBoolean(behavior.showActionButton, next.behavior.showActionButton);
+  next.behavior.actionButtonText = toText(behavior.actionButtonText, next.behavior.actionButtonText);
+  next.behavior.actionButtonUrl = toText(behavior.actionButtonUrl, next.behavior.actionButtonUrl);
   next.behavior.showTopNotice = toBoolean(behavior.showTopNotice, next.behavior.showTopNotice);
   next.behavior.topNoticeText = toText(behavior.topNoticeText, next.behavior.topNoticeText);
   next.behavior.manualNavItems = normalizeNavItems(behavior.manualNavItems);
@@ -295,14 +355,14 @@ function mergeFooterConfig(input: unknown, fallback: PortalFooterConfig): Portal
 
   const next = deepCopy(fallback);
   next.enabled = toBoolean(input.enabled, next.enabled);
-  next.variant = input.variant === "gov" || input.variant === "enterprise" ? input.variant : "simple";
 
   const tokens = isObject(input.tokens) ? input.tokens : {};
   next.tokens.bgColor = toText(tokens.bgColor, next.tokens.bgColor);
   next.tokens.textColor = toText(tokens.textColor, next.tokens.textColor);
+  next.tokens.mutedTextColor = toText(tokens.mutedTextColor, next.tokens.mutedTextColor);
   next.tokens.linkColor = toText(tokens.linkColor, next.tokens.linkColor);
   next.tokens.height = toNumber(tokens.height, next.tokens.height);
-  next.tokens.containerWidth = toNumber(tokens.containerWidth, next.tokens.containerWidth);
+  next.tokens.containerWidth = normalizeContainerWidth(tokens.containerWidth, next.tokens.containerWidth);
   next.tokens.borderTopColor = toText(tokens.borderTopColor, next.tokens.borderTopColor);
 
   const content = isObject(input.content) ? input.content : {};
@@ -310,6 +370,9 @@ function mergeFooterConfig(input: unknown, fallback: PortalFooterConfig): Portal
   next.content.copyright = toText(content.copyright, next.content.copyright);
   next.content.icp = toText(content.icp, next.content.icp);
   next.content.policeRecord = toText(content.policeRecord, next.content.policeRecord);
+  next.content.servicePhone = toText(content.servicePhone, next.content.servicePhone);
+  next.content.serviceEmail = toText(content.serviceEmail, next.content.serviceEmail);
+  next.content.address = toText(content.address, next.content.address);
   const linksRaw = Array.isArray(content.links) ? content.links : [];
   next.content.links = linksRaw
     .map((item) => {
@@ -331,6 +394,9 @@ function mergeFooterConfig(input: unknown, fallback: PortalFooterConfig): Portal
   const behavior = isObject(input.behavior) ? input.behavior : {};
   next.behavior.fixedMode = behavior.fixedMode === "fixed" ? "fixed" : "static";
   next.behavior.scrollableWhenFixed = toBoolean(behavior.scrollableWhenFixed, next.behavior.scrollableWhenFixed);
+  next.behavior.showLinks = toBoolean(behavior.showLinks, next.behavior.showLinks);
+  next.behavior.showRecord = toBoolean(behavior.showRecord, next.behavior.showRecord);
+  next.behavior.showContact = toBoolean(behavior.showContact, next.behavior.showContact);
 
   return next;
 }
@@ -421,6 +487,23 @@ export function parsePortalTemplateDetails(raw: unknown): PortalTemplateDetails 
 
 export function stringifyPortalTemplateDetails(input: PortalTemplateDetails): string {
   return JSON.stringify(input);
+}
+
+export function buildPortalTemplateDetailsSchemaPreview(): PortalTemplateDetails {
+  const sample = createDefaultPortalTemplateDetails();
+  sample.pageOverrides = {
+    "<tabId>": {
+      headerOverrideEnabled: false,
+      footerOverrideEnabled: false,
+      header: {
+        enabled: true,
+      },
+      footer: {
+        enabled: true,
+      },
+    },
+  };
+  return sample;
 }
 
 export function resolvePortalShellForTab(details: PortalTemplateDetails, tabId: string): PortalResolvedShell {

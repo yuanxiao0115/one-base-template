@@ -7,16 +7,36 @@
     config: PortalFooterConfig;
   }>();
 
+  const footerContainerWidth = computed(() => {
+    const width = props.config.tokens.containerWidth;
+    if (width === "100%") {
+      return "100%";
+    }
+    const normalized = Number(width);
+    return `${Math.max(320, Number.isFinite(normalized) ? normalized : 1200)}px`;
+  });
+
   const footerStyle = computed(() => ({
     "--portal-footer-bg": props.config.tokens.bgColor,
     "--portal-footer-text": props.config.tokens.textColor,
+    "--portal-footer-muted-text": props.config.tokens.mutedTextColor,
     "--portal-footer-link": props.config.tokens.linkColor,
     "--portal-footer-height": `${Math.max(56, props.config.tokens.height)}px`,
-    "--portal-footer-container-width": `${Math.max(320, props.config.tokens.containerWidth)}px`,
+    "--portal-footer-container-width": footerContainerWidth.value,
     "--portal-footer-border": props.config.tokens.borderTopColor,
   }));
 
   const isFixed = computed(() => props.config.behavior.fixedMode === "fixed");
+  const showRecord = computed(
+    () =>
+      props.config.behavior.showRecord &&
+      Boolean(props.config.content.copyright || props.config.content.icp || props.config.content.policeRecord)
+  );
+  const showContact = computed(
+    () =>
+      props.config.behavior.showContact &&
+      Boolean(props.config.content.servicePhone || props.config.content.serviceEmail || props.config.content.address)
+  );
 </script>
 
 <template>
@@ -24,7 +44,7 @@
     <div class="footer-inner">
       <div v-if="props.config.content.description" class="footer-desc">{{ props.config.content.description }}</div>
 
-      <div v-if="props.config.content.links.length" class="footer-links">
+      <div v-if="props.config.behavior.showLinks && props.config.content.links.length" class="footer-links">
         <a
           v-for="item in props.config.content.links"
           :key="`${item.label}-${item.url}`"
@@ -37,10 +57,18 @@
         </a>
       </div>
 
-      <div class="footer-meta">
+      <div v-if="showRecord" class="footer-meta">
         <span v-if="props.config.content.copyright">{{ props.config.content.copyright }}</span>
         <span v-if="props.config.content.icp">{{ props.config.content.icp }}</span>
         <span v-if="props.config.content.policeRecord">{{ props.config.content.policeRecord }}</span>
+      </div>
+
+      <div v-if="showContact" class="footer-contact">
+        <div class="contact-lines">
+          <span v-if="props.config.content.servicePhone">电话：{{ props.config.content.servicePhone }}</span>
+          <span v-if="props.config.content.serviceEmail">邮箱：{{ props.config.content.serviceEmail }}</span>
+          <span v-if="props.config.content.address">地址：{{ props.config.content.address }}</span>
+        </div>
       </div>
     </div>
   </footer>
@@ -75,6 +103,7 @@
 
   .footer-desc {
     font-size: 13px;
+    color: var(--portal-footer-muted-text);
     line-height: 1.45;
   }
 
@@ -103,6 +132,25 @@
     flex-wrap: wrap;
     gap: 8px 12px;
     font-size: 12px;
-    opacity: 0.9;
+    color: var(--portal-footer-muted-text);
   }
+
+  .footer-contact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .contact-lines {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--portal-footer-muted-text);
+  }
+
 </style>
