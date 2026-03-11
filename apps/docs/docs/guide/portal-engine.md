@@ -1,6 +1,6 @@
 # portal-engine 能力边界
 
-> 适用范围：`packages/portal-engine`、`apps/admin/src/modules/portal`、`apps/portal/src/modules/portal`
+> 适用范围：`packages/portal-engine`、`apps/admin/src/modules/portalManagement`、`apps/portal/src/modules/portal`
 
 `portal-engine` 是门户设计器与渲染能力的共享引擎包，目标是让 admin 与 portal 复用同一套编辑/渲染核心，而不是在应用层重复实现。
 
@@ -33,7 +33,7 @@ packages/portal-engine/src/
   - 禁止依赖 `apps/*`。
 - `apps/admin`
   - 负责后台管理端编排（路由、页面壳、接口注入）。
-  - 通过 `apps/admin/src/modules/portal/materials/useMaterials.ts` 适配本地 API 与行为。
+  - 通过 `apps/admin/src/modules/portalManagement/materials/useMaterials.ts` 适配本地 API 与行为。
 - `apps/portal`
   - 负责消费者渲染入口与前台分流。
   - 复用 `portal-engine` 渲染器，不复制引擎内部逻辑。
@@ -45,9 +45,22 @@ packages/portal-engine/src/
 3. 行为扩展：`packages/portal-engine/src/materials/navigation.ts`
 4. 页面渲染：`packages/portal-engine/src/renderer/PortalGridRenderer.vue`
 
+## 运行时扩展 API
+
+- 物料元数据扩展：
+  - `registerPortalMaterial(material, options)`
+  - `unregisterPortalMaterial(options)`
+  - `createPortalMaterialRegistry(initialCategories?)`
+- 物料渲染组件扩展：
+  - `registerPortalMaterialComponent({ name, component, aliases?, strategy? })`
+  - `unregisterPortalMaterialComponent(name, aliases?)`
+
+> 推荐做法：先注册物料元数据（出现在物料库），再注册同名渲染组件（画布与预览可渲染）。
+
 ## 维护建议
 
 - 新能力先判断是否可沉淀为共享引擎能力，再决定是否留在 `apps/admin`。
+- CMS 物料中的消息提示统一通过 `packages/portal-engine/src/materials/cms/common/message.ts` 调用，避免在物料组件内散落直接 `ElMessage` 调用。
 - 引擎包变更后，至少回归：
 
 ```bash

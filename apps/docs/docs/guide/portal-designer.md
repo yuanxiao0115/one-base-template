@@ -3,7 +3,7 @@
 本模块用于在后台管理端完成「门户页面」的拖拽布局、配置与预览渲染。
 
 当前实现遵循仓库的边界约定：
-- 业务模块落在 `apps/admin/src/modules/portal`（不侵入 `packages/core`/`packages/ui`）。
+- 业务模块落在 `apps/admin/src/modules/portalManagement`（不侵入 `packages/core`/`packages/ui`）。
 - 物料库改为 **前端维护**，不依赖后端返回物料分类/配置。
 - 预览页允许 **匿名访问**（`meta.public=true`），用于 iframe/新窗口预览。
 - **不移植**「页面模板」能力：创建时选择页面模板 / 存为模板 / 从历史模板加载等逻辑都不做。
@@ -21,43 +21,49 @@
 - `src/materials/useMaterials.ts`（扫描 `cms` 物料，内置 `pb-* <-> cms-*` 组件名别名）
 - `src/registry/materials-registry.ts`（默认注册 `cms-*`，并导出 `pb-* -> cms-*` 类型别名映射）
 
-当前 `apps/admin/src/modules/portal/types.ts`、`hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts` 保留为兼容 re-export 层，确保历史调用点不需要一次性批量改路径。
+当前 `apps/admin/src/modules/portalManagement/types.ts`、`hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts` 保留为兼容 re-export 层，确保历史调用点不需要一次性批量改路径。
 另外 `MaterialLibrary` 已改为由页面注入 `categories`，不再直接依赖 admin 内的 registry 路径，便于 `apps/admin` 与后续 `apps/portal` 复用同一编辑器组件。
 
 ## 路由说明
 
 管理侧（挂在 `AdminLayout` 内，需要登录/菜单权限）：
 - `/portal`：父节点兜底，重定向到列表页
-- `/portal/templates`：门户模板列表（表格版，后端概念为 template）
-- `/portal/designer?templateId=<id>`：门户配置 IDE（tab 树 + iframe 预览 + 新建页面）
-- `/portal/layout?tabId=<id>&templateId=<id>`：页面编辑器（拖拽布局 + 保存 + 预览）
+- `/portal/setting`：门户模板列表（表格版，后端概念为 template）
+- `/resource/portal/setting?id=<id>`：门户配置 IDE（tab 树 + iframe 预览 + 新建页面）
+- `/portal/page/edit?id=<id>&tabId=<id>`：页面编辑器（拖拽布局 + 保存 + 预览）
 
 预览渲染（顶层路由，不挂 `AdminLayout`，允许匿名）：
-- `/portal/preview/:tabId?templateId=<id>`：渲染指定 tab 的 pageLayout（通常给 iframe / 新窗口使用）
+- `/portal/preview?templateId=<id>&tabId=<id>`：渲染指定 tab 的 pageLayout（通常给 iframe / 新窗口使用）
 
 独立消费者应用（`apps/portal`）：
-- `/portal/index/:tabId?templateId=<id>`：门户前台渲染入口（默认登录后访问，`skipMenuAuth=true`）
+- `/portal/index/:tabId?templateId=<id>`：门户前台渲染入口（匿名可访问，`meta.public=true`）
 - `/portal/preview/:tabId?templateId=<id>`：匿名预览入口（与 admin 预览协议一致）
 - 启动命令：`pnpm dev:portal`（等价 `pnpm -C apps/portal dev`）
 
 标签栏约定（基于 core tabs 规则）：
-- `/portal/designer`、`/portal/layout`、`/portal/preview` 均通过 `meta.hiddenTab=true` 处理为“不进入顶部标签栏”
+- `/resource/portal/setting`、`/portal/page/edit`、`/portal/preview` 均通过 `meta.hiddenTab=true` 处理为“不进入顶部标签栏”
 - 这样可保持门户编辑/预览页为全屏工作区，不与常规业务页签混排
 
 ## 门户模板列表（表格版）
 
-入口：`/portal/templates`
+入口：`/portal/setting`
 
 当前最小能力（不改后端接口）：
-- 新增：点击右上角 `新增门户` → 填写门户名称/模板布局/门户类型/描述 → 创建成功后进入 `/portal/designer?templateId=<id>`
+- 新增：点击右上角 `新增门户` → 填写门户名称/模板布局/门户类型/描述 → 创建成功后进入 `/resource/portal/setting?id=<id>`
+- 编辑：行内 `编辑`，复用同一表单弹窗回写 `template.update`
+- 复制：行内 `复制`，复用同一表单弹窗调用 `template.copy`
 - 搜索：门户名称关键字（`searchKey`）
 - 筛选：发布状态（全部/草稿/已发布）
 - 分页：`currentPage/pageSize`
 - 行内操作：
-  - `配置`：进入 `/portal/designer?templateId=<id>`
-  - `预览`：打开 `/portal/preview/:tabId?templateId=<id>`
+  - `配置`：进入 `/resource/portal/setting?id=<id>`
+  - `预览`：打开 `/portal/preview?templateId=<id>&tabId=<id>`
   - `发布/取消发布`：调用 `template.publish`
   - `删除`：调用 `template.delete`（带确认弹窗）
+
+列表交互基线（对齐 admin）：
+- 表格渲染统一使用 `ObVxeTable`（不使用 `el-table`）
+- 消息提示统一使用 `@/utils/message`（不直接使用 `ElMessage`）
 
 新增门户模板字段说明（对齐老项目，避免部分环境后端校验失败）：
 - `templateType`：模板布局（0=左侧导航、1=顶部导航、2=全屏左导航），默认 0
@@ -67,7 +73,7 @@
 
 > 仅保留“直接新建页面并编辑”的流程；不做“页面模板/历史模板/存为模板”。
 
-入口：`/portal/designer?templateId=<id>`
+入口：`/resource/portal/setting?id=<id>`
 
 ### 1) 页面树导航（tabList）
 
@@ -90,7 +96,7 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
    - `tabType=2`：空白页（可拖拽编辑）
    - `tabType=3`：链接（需填写地址/打开方式/单点方式）
 3. 调用 `POST /cmict/portal/tab/add` 创建 tab
-4. 若创建的是空白页（`tabType=2`），创建成功后 **直接跳转** `/portal/layout?templateId=<id>&tabId=<newTabId>` 进入拖拽编辑器
+4. 若创建的是空白页（`tabType=2`），创建成功后 **直接跳转** `/portal/page/edit?id=<id>&tabId=<newTabId>` 进入拖拽编辑器
 5. 若创建的是导航组/链接，则停留在 designer 并刷新页面树
 
 兼容性兜底（无需后端改动）：
@@ -164,10 +170,13 @@ type PageLayoutJson = {
 - 物料目录：`packages/portal-engine/src/materials/cms/**`
 - 物料注册表：`packages/portal-engine/src/registry/materials-registry.ts`
 - 动态加载：`packages/portal-engine/src/materials/useMaterials.ts`
+- 运行时扩展 API：
+  - `registerPortalMaterial` / `unregisterPortalMaterial`（注册/移除物料元数据）
+  - `registerPortalMaterialComponent` / `unregisterPortalMaterialComponent`（注册/移除运行时渲染组件）
 
 admin 端保留兼容入口（壳层）：
-- `apps/admin/src/modules/portal/materials/registry/materials-registry.ts`
-- `apps/admin/src/modules/portal/materials/useMaterials.ts`
+- `apps/admin/src/modules/portalManagement/materials/registry/materials-registry.ts`
+- `apps/admin/src/modules/portalManagement/materials/useMaterials.ts`
 - 兼容入口会把 admin 的 `cmsApi` 绑定到引擎的 `setPortalCmsApi`，保证迁移后组件数据源行为不变。
 
 动态加载策略：

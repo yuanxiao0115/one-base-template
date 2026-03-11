@@ -22,7 +22,7 @@ apps/admin/src/modules/<module-id>/
 
 `manifest.ts` 必填字段：
 
-- `id`: 模块标识（如 `portal`）
+- `id`: 模块标识（如 `portalManagement`）
 - `version`: 当前固定为 `'1'`
 - `moduleTier`: 模块分层（`core`/`optional`）
 - `enabledByDefault`: 是否默认启用
@@ -128,11 +128,9 @@ await assembleRoutes({
 
 ```ts
 compat: {
-  routeAliases: [{ from: "/portal/setting", to: "/portal/templates" }],
   activePathMap: {
-    "/portal/designer": "/portal/setting",
-    "/portal/layout": "/portal/setting",
-    "/portal/templates": "/portal/setting",
+    "/resource/portal/setting": "/portal/setting",
+    "/portal/page/edit": "/portal/setting",
   },
 }
 ```
@@ -173,7 +171,7 @@ compat: {
 ### 2.5 全屏路由归属与路由纯函数下沉（2026-03-10）
 
 - **全屏/不走 Layout 路由统一就近注册到业务模块 `routes.standalone`**：
-  - 例如 `portal` 的 `/portal/designer`、`/portal/layout`、`/portal/preview/:tabId?`。
+  - 例如 `portalManagement` 的 `/resource/portal/setting`、`/portal/page/edit`、`/portal/preview`。
   - `router/assemble-routes.ts` 只做装配与校验，不再集中维护业务全屏路由明细。
 - `packages/core` 新增可复用路由纯函数，`admin` 直接复用：
   - `toRouteNameKey`：统一 route.name 归一化（string/symbol）
