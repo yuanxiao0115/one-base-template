@@ -10,7 +10,7 @@
     usePortalPageLayoutStore,
   } from "@one-base-template/portal-engine";
 
-  import { portalService } from "../services/portal-service";
+  import { portalApiClient } from "../api/client";
   import { useMaterials } from "../materials/useMaterials";
   import { portalMaterialsRegistry } from "../materials/registry/materials-registry";
 
@@ -115,7 +115,7 @@
 
     loading.value = true;
     try {
-      const res = await portalService.tab.detail({ id });
+      const res = await portalApiClient.tab.detail({ id });
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "加载页面失败");
         pageLayoutStore.reset();
@@ -166,7 +166,7 @@
         component: pageLayoutStore.layoutItems,
       };
 
-      const res = await portalService.tab.update({
+      const res = await portalApiClient.tab.update({
         id: tabId.value,
         tabName: tabName.value || "页面",
         pageLayout: JSON.stringify(pageLayout),

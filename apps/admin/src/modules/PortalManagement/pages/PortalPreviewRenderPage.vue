@@ -3,7 +3,7 @@
   import { useRoute } from "vue-router";
   import { type PortalLayoutItem, PortalGridRenderer } from "@one-base-template/portal-engine";
 
-  import { portalService } from "../services/portal-service";
+  import { portalApiClient } from "../api/client";
   import { useMaterials } from "../materials/useMaterials";
 
   defineOptions({
@@ -105,8 +105,8 @@
 
     try {
       // 优先匿名接口；失败再兜底鉴权接口（用户可能已登录）
-      const resPublic = await portalService.tabPublic.detail({ id });
-      const res = normalizeBizOk(resPublic) ? resPublic : await portalService.tab.detail({ id });
+      const resPublic = await portalApiClient.tabPublic.detail({ id });
+      const res = normalizeBizOk(resPublic) ? resPublic : await portalApiClient.tab.detail({ id });
 
       if (!normalizeBizOk(res)) {
         errorMessage.value = res?.message || "加载失败";

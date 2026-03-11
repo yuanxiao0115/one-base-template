@@ -5,7 +5,7 @@
   import { confirm } from "@/infra/confirm";
   import { message } from "@/utils/message";
 
-  import { portalService } from "../services/portal-service";
+  import { portalApiClient } from "../api/client";
   import type { BizResponse, PageResult, PortalTemplate } from "../types";
   import { findFirstPageTabId } from "../utils/portalTree";
   import PortalTemplateCreateDialog from "../components/template/PortalTemplateCreateDialog.vue";
@@ -144,7 +144,7 @@
     try {
       currentPage.value = page;
 
-      const res = await portalService.template.list({
+      const res = await portalApiClient.template.list({
         currentPage: currentPage.value,
         pageSize: pageSize.value,
         searchKey: searchForm.searchKey || undefined,
@@ -213,7 +213,7 @@
 
   async function loadTemplateForDialog(id: string, fallback?: Partial<PortalTemplate>) {
     try {
-      const res = await portalService.template.detail({ id });
+      const res = await portalApiClient.template.detail({ id });
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "加载门户详情失败");
         return null;
@@ -279,7 +279,7 @@
     dialogSubmitting.value = true;
     try {
       if (dialogMode.value === "create") {
-        const res = await portalService.template.add({
+        const res = await portalApiClient.template.add({
           templateName: payload.templateName,
           description: payload.description || "",
           // 对齐老项目的必填字段，避免后端校验失败
@@ -323,7 +323,7 @@
           return;
         }
 
-        const res = await portalService.template.update({
+        const res = await portalApiClient.template.update({
           id,
           templateName: payload.templateName,
           description: payload.description || "",
@@ -348,7 +348,7 @@
         return;
       }
 
-      const res = await portalService.template.copy({
+      const res = await portalApiClient.template.copy({
         id,
         templateName: payload.templateName,
       });
@@ -391,7 +391,7 @@
     }
 
     try {
-      const res = await portalService.template.detail({ id });
+      const res = await portalApiClient.template.detail({ id });
       if (!normalizeBizOk(res)) {
         message.error(res?.message || "获取模板详情失败");
         return;
@@ -421,7 +421,7 @@
     const nextStatus = isPublished(row) ? 0 : 1;
     const text = nextStatus === 1 ? "发布" : "取消发布";
 
-    const res = await portalService.template.publish({
+    const res = await portalApiClient.template.publish({
       id,
       status: nextStatus,
     });
@@ -446,7 +446,7 @@
       return;
     }
 
-    const res = await portalService.template.delete({ id });
+    const res = await portalApiClient.template.delete({ id });
     if (!normalizeBizOk(res)) {
       message.error(res?.message || "删除失败");
       return;
