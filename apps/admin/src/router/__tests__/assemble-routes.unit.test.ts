@@ -51,8 +51,8 @@ describe("router/assemble-routes", () => {
     expect(routePathList).toContain(routePaths.catchall);
   });
 
-  it("portalManagement 模块应使用老项目路径并移除 alias 路由", async () => {
-    const { routes } = await assembleRoutes(createRouteAssemblyOptions(["portalManagement"]));
+  it("PortalManagement 模块应使用老项目路径并移除 alias 路由", async () => {
+    const { routes } = await assembleRoutes(createRouteAssemblyOptions(["PortalManagement"]));
     const allRoutes = flattenRoutes(routes);
 
     const listRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/setting") && item.name === "PortalTemplateList");
@@ -77,7 +77,7 @@ describe("router/assemble-routes", () => {
   });
 
   it("应从已装配路由自动收集 skipMenuAuth 白名单", async () => {
-    const { skipMenuAuthRouteNames } = await assembleRoutes(createRouteAssemblyOptions(["home", "portalManagement"]));
+    const { skipMenuAuthRouteNames } = await assembleRoutes(createRouteAssemblyOptions(["home", "PortalManagement"]));
 
     expect(skipMenuAuthRouteNames).toEqual(
       expect.arrayContaining(["HomeIndex", "PortalTemplateList", "PortalDesigner", "PortalPageEditor"])

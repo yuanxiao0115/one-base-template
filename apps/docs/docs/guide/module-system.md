@@ -22,7 +22,7 @@ apps/admin/src/modules/<module-id>/
 
 `manifest.ts` 必填字段：
 
-- `id`: 模块标识（如 `portalManagement`）
+- `id`: 模块标识（如 `PortalManagement`）
 - `version`: 当前固定为 `'1'`
 - `moduleTier`: 模块分层（`core`/`optional`）
 - `enabledByDefault`: 是否默认启用
@@ -81,7 +81,7 @@ pnpm new:module user-center --title 用户中心
 
 - 顶层特例（如门户设计器）不再写在路由中转层，统一归口 `router/assemble-routes.ts`
 - 删除模块目录后，不会残留对应路由注册
-- 模块页面路由建议使用 `component: () => import("./xx/page.vue")` 懒加载，降低首包体积与启动压力
+- 模块页面路由建议使用 `component: () => import("./xx/list.vue")` 懒加载，降低首包体积与启动压力
 
 ### 2.1 装配参数输入（升级友好关键）
 
@@ -171,7 +171,7 @@ compat: {
 ### 2.5 全屏路由归属与路由纯函数下沉（2026-03-10）
 
 - **全屏/不走 Layout 路由统一就近注册到业务模块 `routes.standalone`**：
-  - 例如 `portalManagement` 的 `/resource/portal/setting`、`/portal/page/edit`、`/portal/preview`。
+  - 例如 `PortalManagement` 的 `/resource/portal/setting`、`/portal/page/edit`、`/portal/preview`。
   - `router/assemble-routes.ts` 只做装配与校验，不再集中维护业务全屏路由明细。
 - `packages/core` 新增可复用路由纯函数，`admin` 直接复用：
   - `toRouteNameKey`：统一 route.name 归一化（string/symbol）
@@ -296,7 +296,7 @@ apps/admin/src/modules/UserManagement/
   manifest.ts
   module.ts
   routes.ts
-  position/page.vue
+  position/list.vue
   position/api.ts
   position/form.ts
   position/components/*
@@ -305,7 +305,7 @@ apps/admin/src/modules/UserManagement/
 关键点：
 
 - 路由集中：模块根仅保留一个 `routes.ts`
-- 路由防漏：新增/迁移 `page.vue` 必须同次更新 `routes.ts`，且路由组件路径必须可解析到真实文件
+- 路由防漏：新增/迁移 `list.vue` 必须同次更新 `routes.ts`，且路由组件路径必须可解析到真实文件
 - 功能目录：`position/` 下内聚 `page + api + form + components`
 - 路由入口：`/system/position`
 - 页面结构：`ObPageContainer + ObTableBox + ObVxeTable`
@@ -315,7 +315,7 @@ apps/admin/src/modules/UserManagement/
 
 角色分配页当前已落地，关键文件如下：
 
-- 页面编排：`apps/admin/src/modules/UserManagement/role-assign/page.vue`
+- 页面编排：`apps/admin/src/modules/UserManagement/role-assign/list.vue`
 - 页面状态：`apps/admin/src/modules/UserManagement/role-assign/composables/useRoleAssignPageState.ts`
 - 角色成员选择：`apps/admin/src/modules/UserManagement/role-assign/components/RoleAssignMemberSelectForm.vue`
 - 复用选人组件：`apps/admin/src/components/PersonnelSelector/PersonnelSelector.vue`
@@ -374,7 +374,7 @@ export default [
   {
     path: '/system/position',
     name: 'SystemPositionManagement',
-    component: () => import('./position/page.vue'),
+    component: () => import('./position/list.vue'),
     meta: {
       title: '职位管理',
       keepAlive: true
@@ -396,13 +396,13 @@ apps/admin/src/modules/LogManagement/
   routes.ts
   login-log/api.ts
   login-log/types.ts
-  login-log/page.vue
+  login-log/list.vue
   login-log/columns.tsx
   login-log/composables/*
   login-log/components/*
   sys-log/api.ts
   sys-log/types.ts
-  sys-log/page.vue
+  sys-log/list.vue
   sys-log/columns.tsx
   sys-log/composables/*
   sys-log/components/*
@@ -411,7 +411,7 @@ apps/admin/src/modules/LogManagement/
 关键点：
 
 - 路由集中：`routes.ts` 统一管理 `/system/log/login-log` 与 `/system/log/sys-log`
-- 页面编排：`page.vue` 仅保留 `ObTableBox + ObVxeTable + 详情抽屉` 编排
+- 页面编排：`list.vue` 仅保留 `ObTableBox + ObVxeTable + 详情抽屉` 编排
 - 逻辑下沉：查询、删除、详情拉取统一放在 `composables/use*PageState.ts`
 - 接口契约：`api.ts` 只保留请求调用；`types.ts` 保持“够用即可”，日志实体优先“关键字段 + 索引签名”以降低维护负担
 - 模块装配：`platform-config.json` 的 `enabledModules` 显式加入 `log-management`
@@ -431,14 +431,14 @@ apps/admin/src/modules/SystemManagement/
     form.ts
     composables/useMenuManagementPageState.ts
     components/*
-    page.vue
+    list.vue
   dict/
     api.ts
     columns.ts
     form.ts
     composables/useDictPageState.ts
     components/*
-    page.vue
+    list.vue
 ```
 
 关键点：

@@ -11,7 +11,7 @@ describe('core/router/module-registry', () => {
   it('collectModuleLoadEntries 应过滤无效清单并按 id 排序', () => {
     const warnings: string[] = [];
     const validMeta = {
-      id: 'portalManagement',
+      id: 'PortalManagement',
       version: '1',
       moduleTier: 'optional',
       enabledByDefault: false,
@@ -19,7 +19,7 @@ describe('core/router/module-registry', () => {
 
     const entries = collectModuleLoadEntries({
       manifestDefinitions: {
-        '../modules/portalManagement/manifest.ts': {
+        '../modules/PortalManagement/manifest.ts': {
           default: validMeta,
         },
         '../modules/home/manifest.ts': {
@@ -40,14 +40,14 @@ describe('core/router/module-registry', () => {
         },
       },
       hasModuleDeclaration(modulePath) {
-        return modulePath.includes('/home/') || modulePath.includes('/portalManagement/');
+        return modulePath.includes('/home/') || modulePath.includes('/PortalManagement/');
       },
       onWarn(message) {
         warnings.push(message);
       },
     });
 
-    expect(entries.map((item) => item.id)).toEqual(['home', 'portalManagement']);
+    expect(entries.map((item) => item.id)).toEqual(['home', 'PortalManagement']);
     expect(warnings.some((message) => message.includes('忽略无效模块清单'))).toBe(true);
   });
 
@@ -63,12 +63,12 @@ describe('core/router/module-registry', () => {
         modulePath: '../modules/home/module.ts',
       },
       {
-        id: 'portalManagement',
+        id: 'PortalManagement',
         version: '1',
         moduleTier: 'optional',
         enabledByDefault: false,
-        manifestPath: '../modules/portalManagement/manifest.ts',
-        modulePath: '../modules/portalManagement/module.ts',
+        manifestPath: '../modules/PortalManagement/manifest.ts',
+        modulePath: '../modules/PortalManagement/module.ts',
       },
     ] as const;
 
@@ -78,7 +78,7 @@ describe('core/router/module-registry', () => {
         enabledModules: '*',
         onWarn: (message) => warnings.push(message),
       }).map((item) => item.id),
-    ).toEqual(['home', 'portalManagement']);
+    ).toEqual(['home', 'PortalManagement']);
 
     expect(
       pickEnabledModuleEntries({
@@ -92,10 +92,10 @@ describe('core/router/module-registry', () => {
     expect(
       pickEnabledModuleEntries({
         allModules: [...allModules],
-        enabledModules: ['home', 'home', 'unknown', 'portalManagement'],
+        enabledModules: ['home', 'home', 'unknown', 'PortalManagement'],
         onWarn: (message) => warnings.push(message),
       }).map((item) => item.id),
-    ).toEqual(['home', 'portalManagement']);
+    ).toEqual(['home', 'PortalManagement']);
     expect(warnings).toEqual(
       expect.arrayContaining([
         expect.stringContaining('enabledModules 包含重复模块 id：home'),
@@ -162,7 +162,7 @@ describe('core/router/module-registry', () => {
     expect(
       resolveModuleDeclarationCandidate({
         module: {
-          id: 'portalManagement',
+          id: 'PortalManagement',
           version: '1',
           moduleTier: 'optional',
           enabledByDefault: false,
@@ -170,6 +170,6 @@ describe('core/router/module-registry', () => {
           routes: { layout: [] },
         },
       })?.id,
-    ).toBe('portalManagement');
+    ).toBe('PortalManagement');
   });
 });

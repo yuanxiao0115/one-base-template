@@ -3,7 +3,7 @@
 本模块用于在后台管理端完成「门户页面」的拖拽布局、配置与预览渲染。
 
 当前实现遵循仓库的边界约定：
-- 业务模块落在 `apps/admin/src/modules/portalManagement`（不侵入 `packages/core`/`packages/ui`）。
+- 业务模块落在 `apps/admin/src/modules/PortalManagement`（不侵入 `packages/core`/`packages/ui`）。
 - 物料库改为 **前端维护**，不依赖后端返回物料分类/配置。
 - 预览页允许 **匿名访问**（`meta.public=true`），用于 iframe/新窗口预览。
 - **不移植**「页面模板」能力：创建时选择页面模板 / 存为模板 / 从历史模板加载等逻辑都不做。
@@ -21,7 +21,7 @@
 - `src/materials/useMaterials.ts`（扫描 `cms` 物料，内置 `pb-* <-> cms-*` 组件名别名）
 - `src/registry/materials-registry.ts`（默认注册 `cms-*`，并导出 `pb-* -> cms-*` 类型别名映射）
 
-当前 `apps/admin/src/modules/portalManagement/types.ts`、`hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts` 保留为兼容 re-export 层，确保历史调用点不需要一次性批量改路径。
+当前 `apps/admin/src/modules/PortalManagement/types.ts`、`hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts` 保留为兼容 re-export 层，确保历史调用点不需要一次性批量改路径。
 另外 `MaterialLibrary` 已改为由页面注入 `categories`，不再直接依赖 admin 内的 registry 路径，便于 `apps/admin` 与后续 `apps/portal` 复用同一编辑器组件。
 
 ## 路由说明
@@ -175,8 +175,8 @@ type PageLayoutJson = {
   - `registerPortalMaterialComponent` / `unregisterPortalMaterialComponent`（注册/移除运行时渲染组件）
 
 admin 端保留兼容入口（壳层）：
-- `apps/admin/src/modules/portalManagement/materials/registry/materials-registry.ts`
-- `apps/admin/src/modules/portalManagement/materials/useMaterials.ts`
+- `apps/admin/src/modules/PortalManagement/materials/registry/materials-registry.ts`
+- `apps/admin/src/modules/PortalManagement/materials/useMaterials.ts`
 - 兼容入口会把 admin 的 `cmsApi` 绑定到引擎的 `setPortalCmsApi`，保证迁移后组件数据源行为不变。
 
 动态加载策略：

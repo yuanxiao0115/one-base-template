@@ -34,10 +34,10 @@ describe("router/registry", () => {
   });
 
   it("应过滤重复与未知模块并触发 warn", async () => {
-    const enabled = await getEnabledModules(["home", "home", "unknown-module", "portalManagement"]);
+    const enabled = await getEnabledModules(["home", "home", "unknown-module", "PortalManagement"]);
     const warnMessages = warn.mock.calls.map((call) => String(call[0]));
 
-    expect(enabled.map((item) => item.id)).toEqual(["home", "portalManagement"]);
+    expect(enabled.map((item) => item.id)).toEqual(["home", "PortalManagement"]);
     expect(warnMessages).toEqual(
       expect.arrayContaining([
         expect.stringContaining("enabledModules 包含重复模块 id：home"),

@@ -1,6 +1,6 @@
 # portal-engine 能力边界
 
-> 适用范围：`packages/portal-engine`、`apps/admin/src/modules/portalManagement`、`apps/portal/src/modules/portal`
+> 适用范围：`packages/portal-engine`、`apps/admin/src/modules/PortalManagement`、`apps/portal/src/modules/portal`
 
 `portal-engine` 是门户设计器与渲染能力的共享引擎包，目标是让 admin 与 portal 复用同一套编辑/渲染核心，而不是在应用层重复实现。
 
@@ -33,7 +33,7 @@ packages/portal-engine/src/
   - 禁止依赖 `apps/*`。
 - `apps/admin`
   - 负责后台管理端编排（路由、页面壳、接口注入）。
-  - 通过 `apps/admin/src/modules/portalManagement/materials/useMaterials.ts` 适配本地 API 与行为。
+  - 通过 `apps/admin/src/modules/PortalManagement/materials/useMaterials.ts` 适配本地 API 与行为。
 - `apps/portal`
   - 负责消费者渲染入口与前台分流。
   - 复用 `portal-engine` 渲染器，不复制引擎内部逻辑。

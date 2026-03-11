@@ -61,8 +61,9 @@
 - `PageContainer` 与 `TableBox` 在 `apps/admin` 页面中统一使用全局前缀标签：`ObPageContainer` / `ObTableBox`。
 - `@one-base-template/ui` 组件在 admin 页面默认走全局注册（`Ob*` 前缀）；仅在明确说明原因时才允许局部 import。
 - `ObPageContainer` 外层禁止再包无业务意义占位 `div`，优先使用片段根节点保持结构扁平。
-- 门户模板列表页（`apps/admin/src/modules/portalManagement/pages/PortalTemplateListPage.vue`）必须对齐 admin 列表基线：禁止使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 与 `@/utils/message`。
-- 门户管理模块标识固定为 `portalManagement`；管理侧路由路径固定对齐老项目：`/portal/setting`、`/resource/portal/setting`、`/portal/page/edit`、`/portal/preview`，禁止再通过 `compat.routeAliases` 为该模块做旧路径别名兜底。
+- admin 下 CRUD 编排页文件名统一使用 `list.vue`（不再使用 `page.vue`），对应路由懒加载路径必须保持一致。
+- 门户模板列表页（`apps/admin/src/modules/PortalManagement/pages/PortalTemplateListPage.vue`）必须对齐 admin 列表基线：禁止使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 与 `@/utils/message`。
+- 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定对齐老项目：`/portal/setting`、`/resource/portal/setting`、`/portal/page/edit`、`/portal/preview`，禁止再通过 `compat.routeAliases` 为该模块做旧路径别名兜底。
 - admin 登录页统一使用 `ObLoginBoxV2`，不要回退到基础版 `ObLoginBox`。
 - 涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面。
 
