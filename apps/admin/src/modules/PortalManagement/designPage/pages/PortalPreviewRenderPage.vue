@@ -3,7 +3,7 @@
   import { useRoute } from "vue-router";
 
   import { resolvePreviewMode, resolvePreviewViewport } from "../../utils/preview";
-  import PortalPreviewPanel from "../components/PortalPreviewPanel.vue";
+  import PortalPreviewPanel from "../components/preview-render/PortalPreviewPanel.vue";
 
   defineOptions({
     name: "PortalPreview",

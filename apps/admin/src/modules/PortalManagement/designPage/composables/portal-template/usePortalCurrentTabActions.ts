@@ -1,9 +1,9 @@
 import type { Ref } from "vue";
 import type { Router } from "vue-router";
 
-import type { PortalTab } from "../../types";
-import { isPortalTabEditable } from "../../utils/portalTree";
-import type { PortalPreviewMode } from "../../utils/preview";
+import type { PortalTab } from "../../../types";
+import { isPortalTabEditable } from "../../../utils/portalTree";
+import type { PortalPreviewMode } from "../../../utils/preview";
 
 interface UsePortalCurrentTabActionsOptions {
   router: Router;
@@ -14,7 +14,7 @@ interface UsePortalCurrentTabActionsOptions {
   notifyWarning: (message: string) => void;
   onEditTab: (tabId: string) => void;
   onOpenAttribute: (tab: PortalTab) => Promise<void> | void;
-  onOpenPermission: () => Promise<void> | void;
+  onOpenPageSettings: (tabId: string) => Promise<void> | void;
   onToggleHide: (tab: PortalTab) => Promise<void> | void;
   onDeleteTab: (tab: PortalTab) => Promise<void> | void;
 }
@@ -38,12 +38,14 @@ export function usePortalCurrentTabActions(options: UsePortalCurrentTabActionsOp
     void options.onOpenAttribute(tab);
   }
 
-  function openCurrentPermission() {
-    if (!(options.templateId.value && options.currentTabId.value)) {
-      options.notifyWarning("请先选择页面");
+  function openCurrentPageSettings() {
+    const tabId = options.currentTabId.value;
+    const tab = options.currentTab.value;
+    if (!(tabId && tab && isPortalTabEditable(tab.tabType))) {
+      options.notifyWarning("仅可编辑页面支持页面设置");
       return;
     }
-    void options.onOpenPermission();
+    void options.onOpenPageSettings(tabId);
   }
 
   function toggleCurrentTabHide() {
@@ -82,8 +84,8 @@ export function usePortalCurrentTabActions(options: UsePortalCurrentTabActionsOp
 
   return {
     editCurrentTab,
+    openCurrentPageSettings,
     openCurrentAttribute,
-    openCurrentPermission,
     toggleCurrentTabHide,
     deleteCurrentTab,
     openPreviewWindow,

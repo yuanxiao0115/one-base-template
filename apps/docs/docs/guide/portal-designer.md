@@ -70,17 +70,30 @@
 - 筛选：发布状态（全部/草稿/已发布）
 - 分页：`currentPage/pageSize`
 - 行内操作：
-  - `门户权限`：打开门户权限弹窗（授权类型支持“人员 / 角色”）
+  - `权限配置`：打开统一权限入口弹窗（可切换“门户权限 / 页面权限”）
   - `配置`：进入 `/portal/design?id=<id>`
   - `预览`：打开 `/portal/preview?templateId=<id>&tabId=<id>`
   - `发布/取消发布`：调用 `template.publish`
   - `删除`：调用 `template.delete`（带确认弹窗）
 
-门户权限弹窗（对齐老项目 `portal-authority-form.vue`）：
+统一权限入口弹窗：
+- 默认进入“门户权限”页签，弹窗内直接内嵌门户权限编辑表单（无二次弹窗）。
+- 切到“页面权限”时，左侧展示该模板下可编辑页面树（按 tab 树层级），右侧直接内嵌当前页面权限表单（无二次弹窗）。
+- 设计器页内不再提供权限入口，权限统一从模板列表进入。
+
+门户权限编辑器（对齐老项目 `portal-authority-form.vue`）：
 - 授权类型支持 `person`（人员）与 `role`（角色）。
 - 人员模式：配置 `whiteDTOS`（可访问人员）、`blackDTOS`（不可访问人员）、`userIds`（可维护人员）。
 - 角色模式：配置 `allowRole.roleIds`、`forbiddenRole.roleIds`、`configRole.roleIds`。
 - 保存前先请求 `GET /cmict/portal/template/detail?id=<id>`，回填 `templateName/templateType/isOpen/id` 等历史必填字段，再调用 `POST /cmict/portal/template/update`。
+
+页面权限编辑器：
+- 授权类型支持 `person` 与 `role`。
+- `person`：保存为 `allowPerms.userIds`、`forbiddenPerms.userIds`、`configPerms.userIds`。
+- `role`：保存为 `allowPerms.roleIds`、`forbiddenPerms.roleIds`、`configPerms.roleIds`。
+- 保存前先调用 `GET /cmict/portal/tab/detail` 拉取页签详情，并回填 `id/tabName/templateId/sort` 等必填字段。
+- 保存统一调用 `POST /cmict/portal/tab/update`。
+- 选人左侧树严格对齐老项目：固定调用 `GET /cmict/admin/org/detail/children-and-user`，根节点入参优先使用当前登录用户 `companyId`（缺失再回退 `parentId=\"0\"`），并兼容 `orgDetailList/userStructureQueryVOS` 返回结构，避免“左树无数据”。
 
 列表交互基线（对齐 admin）：
 - 表格渲染统一使用 `ObVxeTable`（不使用 `el-table`）
@@ -108,7 +121,7 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 当前工作台（2026-03-11）布局口径：
 - 页面采用「左侧结构树 + 右侧编辑工作台」双栏模型。
 - 顶部为窄条信息头（返回 / 模板名 / 页眉页脚配置 / 刷新），不再使用厚头部或多层卡片。
-- 右侧首行是“当前页面动作条”，承载页面级操作：页面设置、进入编辑、页面壳层覆盖、页面权限、隐藏、预览、删除；预览模式/视口与舞台交互（自动/手动、缩放、重置）都放在工具栏同一行。
+- 右侧首行是“当前页面动作条”，承载页面级操作：页面设置、进入编辑、页面壳层覆盖、隐藏、预览、删除；预览模式/视口与舞台交互（自动/手动、缩放、重置）都放在工具栏同一行。
 - 右侧预览区使用“设备画框 + iframe”结构，支持按目标视口等比缩放预览（先完成框架，不改数据链路）。
 - `preview-host-frame` 尺寸变化（拖动窗口、打开/收起 DevTools）会触发重新计算缩放，预览区会随容器自适应。
 - `preview-host-frame` 舞台底层使用轻网格背景（仅视觉辅助，不参与业务渲染）。
@@ -146,12 +159,9 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 - `删除页面`：调用 `DELETE /cmict/portal/tab/delete`（会弹确认）
 - 左侧树支持拖拽排序（前端实现，不新增后端接口）：拖拽后按新顺序重算同级 `sort`，并调用 `tab.detail + tab.update` 持久化；搜索状态下禁用拖拽，避免过滤树导致排序歧义。
 
-页面权限（Designer 顶部动作条）：
-- 点击“页面权限”后，先调用 `GET /cmict/portal/tab/detail?id=<tabId>` 回填权限信息。
-- 授权类型支持 `person` 与 `role`：
-  - `person`：保存为 `allowPerms.userIds`、`forbiddenPerms.userIds`、`configPerms.userIds`
-  - `role`：保存为 `allowPerms.roleIds`、`forbiddenPerms.roleIds`、`configPerms.roleIds`
-- 保存统一调用 `PUT /cmict/portal/tab/update`。
+权限入口约定：
+- 设计器不再承载权限配置能力。
+- 门户权限与页面权限统一收口到 `/portal/setting` 列表页“权限配置”入口。
 
 ## 页眉页脚壳层配置（details）
 

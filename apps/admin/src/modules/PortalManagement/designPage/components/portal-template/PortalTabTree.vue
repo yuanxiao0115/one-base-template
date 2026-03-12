@@ -2,8 +2,8 @@
   import { computed } from "vue";
   import { Document, Edit, Folder, Link, MoreFilled, Plus } from "@element-plus/icons-vue";
 
-  import type { PortalTab } from "../../types";
-  import { isPortalTabEditable } from "../../utils/portalTree";
+  import type { PortalTab } from "../../../types";
+  import { isPortalTabEditable } from "../../../utils/portalTree";
 
   const props = defineProps<{
     tabs: PortalTab[];

@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed, reactive, ref, watch } from "vue";
   import { UserFilled } from "@element-plus/icons-vue";
+  import { useAuthStore } from "@one-base-template/core";
   import { openPersonnelSelection } from "@/components/PersonnelSelector";
   import type {
     PersonnelFetchNodes,
@@ -37,11 +38,24 @@
 
   type UserField = "white" | "black" | "edit";
 
-  const props = defineProps<{
-    modelValue: boolean;
-    loading?: boolean;
-    initial?: Partial<PortalTemplate>;
-  }>();
+  interface AuthUserWithCompanyId {
+    companyId?: number | string | null;
+  }
+
+  const props = withDefaults(
+    defineProps<{
+      modelValue?: boolean;
+      embedded?: boolean;
+      loading?: boolean;
+      initial?: Partial<PortalTemplate>;
+    }>(),
+    {
+      modelValue: false,
+      embedded: false,
+      loading: false,
+      initial: () => ({}),
+    }
+  );
 
   const emit = defineEmits<{
     (e: "update:modelValue", value: boolean): void;
@@ -53,8 +67,13 @@
   });
 
   const visible = computed({
-    get: () => props.modelValue,
-    set: (value: boolean) => emit("update:modelValue", value),
+    get: () => (props.embedded ? true : Boolean(props.modelValue)),
+    set: (value: boolean) => {
+      if (props.embedded) {
+        return;
+      }
+      emit("update:modelValue", value);
+    },
   });
 
   const form = reactive({
@@ -70,6 +89,7 @@
   const roleOptions = ref<RoleOption[]>([]);
   const roleLoading = ref(false);
   const pickingField = ref<UserField | "">("");
+  const authStore = useAuthStore();
 
   const personDisplay = computed(() => ({
     white: formatUserNames(form.whiteUsers),
@@ -80,11 +100,25 @@
   watch(
     () => visible.value,
     (opened) => {
-      if (!opened) {
+      if (props.embedded || !opened) {
         return;
       }
       hydrateFromInitial(props.initial);
       void ensureRoleOptions();
+    }
+  );
+
+  watch(
+    () => props.initial,
+    (nextInitial) => {
+      if (!props.embedded) {
+        return;
+      }
+      hydrateFromInitial(nextInitial);
+      void ensureRoleOptions();
+    },
+    {
+      immediate: true,
     }
   );
 
@@ -121,6 +155,12 @@
       .filter(Boolean);
     return Array.from(new Set([...fromIds, ...fromList]));
   }
+
+  const rootParentId = computed(() => {
+    const user = authStore.user as AuthUserWithCompanyId | null;
+    const companyId = normalizeIdLike(user?.companyId);
+    return companyId || "0";
+  });
 
   function normalizeAuthorityUsers(value: unknown): AuthorityUserItem[] {
     if (!Array.isArray(value)) {
@@ -241,8 +281,11 @@
   }
 
   const fetchNodes: PersonnelFetchNodes = async ({ parentId }) => {
+    const normalizedParentId = normalizeIdLike(parentId);
+    const requestParentId =
+      !normalizedParentId || normalizedParentId === "0" ? rootParentId.value : normalizedParentId;
     const res = await portalAuthorityApi.getOrgContactsLazy({
-      parentId: parentId || undefined,
+      parentId: requestParentId,
     });
     const rows = Array.isArray(res?.data) ? res.data : [];
     return rows
@@ -378,6 +421,9 @@
   }
 
   function onCancel() {
+    if (props.embedded) {
+      return;
+    }
     visible.value = false;
   }
 
@@ -423,10 +469,143 @@
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="门户权限" width="720px" :close-on-click-modal="false" destroy-on-close>
-    <el-form label-position="left" label-width="108px">
+  <template v-if="props.embedded">
+    <div class="authority-panel authority-panel--embedded">
+      <el-form label-position="left" label-width="96px" class="permission-form">
+        <el-form-item label="授权类型">
+          <el-radio-group v-model="form.authType" class="auth-type-toggle">
+            <el-radio value="person">人员</el-radio>
+            <el-radio value="role">角色</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <template v-if="form.authType === 'role'">
+          <el-form-item label="可访问角色">
+            <el-select
+              v-model="form.allowRoleIds"
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
+              filterable
+              :loading="roleLoading"
+              placeholder="请选择"
+              class="permission-role-select"
+            >
+              <el-option v-for="role in roleOptions" :key="role.id" :label="role.name" :value="role.id" />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="不可访问角色">
+            <el-select
+              v-model="form.forbiddenRoleIds"
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
+              filterable
+              :loading="roleLoading"
+              placeholder="请选择"
+              class="permission-role-select"
+            >
+              <el-option v-for="role in roleOptions" :key="role.id" :label="role.name" :value="role.id" />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="可维护角色">
+            <el-select
+              v-model="form.configRoleIds"
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
+              filterable
+              :loading="roleLoading"
+              placeholder="请选择"
+              class="permission-role-select"
+            >
+              <el-option v-for="role in roleOptions" :key="role.id" :label="role.name" :value="role.id" />
+            </el-select>
+          </el-form-item>
+        </template>
+
+        <template v-else>
+          <el-form-item label="可访问人员">
+            <el-input
+              :model-value="personDisplay.white"
+              readonly
+              placeholder="请选择"
+              @click="pickUsers('white')"
+              class="permission-user-input"
+            >
+              <template #append>
+                <el-button
+                  class="picker-trigger"
+                  :icon="UserFilled"
+                  :loading="pickingField === 'white'"
+                  @click="pickUsers('white')"
+                />
+              </template>
+            </el-input>
+          </el-form-item>
+
+          <el-form-item label="不可访问人员">
+            <el-input
+              :model-value="personDisplay.black"
+              readonly
+              placeholder="请选择"
+              @click="pickUsers('black')"
+              class="permission-user-input"
+            >
+              <template #append>
+                <el-button
+                  class="picker-trigger"
+                  :icon="UserFilled"
+                  :loading="pickingField === 'black'"
+                  @click="pickUsers('black')"
+                />
+              </template>
+            </el-input>
+          </el-form-item>
+
+          <el-form-item label="可维护人员">
+            <el-input
+              :model-value="personDisplay.edit"
+              readonly
+              placeholder="请选择"
+              @click="pickUsers('edit')"
+              class="permission-user-input"
+            >
+              <template #append>
+                <el-button
+                  class="picker-trigger"
+                  :icon="UserFilled"
+                  :loading="pickingField === 'edit'"
+                  @click="pickUsers('edit')"
+                />
+              </template>
+            </el-input>
+          </el-form-item>
+        </template>
+      </el-form>
+
+      <div class="footer footer--embedded">
+        <el-button type="primary" class="submit-btn" :loading="props.loading" @click="onSubmit">
+          保存门户权限
+        </el-button>
+      </div>
+    </div>
+  </template>
+
+  <el-dialog
+    v-else
+    v-model="visible"
+    title="门户权限"
+    width="720px"
+    :close-on-click-modal="false"
+    destroy-on-close
+    class="authority-dialog"
+  >
+    <el-form label-position="left" label-width="96px" class="permission-form">
       <el-form-item label="授权类型">
-        <el-radio-group v-model="form.authType">
+        <el-radio-group v-model="form.authType" class="auth-type-toggle">
           <el-radio value="person">人员</el-radio>
           <el-radio value="role">角色</el-radio>
         </el-radio-group>
@@ -442,6 +621,7 @@
             filterable
             :loading="roleLoading"
             placeholder="请选择"
+            class="permission-role-select"
           >
             <el-option v-for="role in roleOptions" :key="role.id" :label="role.name" :value="role.id" />
           </el-select>
@@ -456,6 +636,7 @@
             filterable
             :loading="roleLoading"
             placeholder="请选择"
+            class="permission-role-select"
           >
             <el-option v-for="role in roleOptions" :key="role.id" :label="role.name" :value="role.id" />
           </el-select>
@@ -470,6 +651,7 @@
             filterable
             :loading="roleLoading"
             placeholder="请选择"
+            class="permission-role-select"
           >
             <el-option v-for="role in roleOptions" :key="role.id" :label="role.name" :value="role.id" />
           </el-select>
@@ -483,9 +665,15 @@
             readonly
             placeholder="请选择"
             @click="pickUsers('white')"
+            class="permission-user-input"
           >
             <template #append>
-              <el-button :icon="UserFilled" :loading="pickingField === 'white'" @click="pickUsers('white')" />
+              <el-button
+                class="picker-trigger"
+                :icon="UserFilled"
+                :loading="pickingField === 'white'"
+                @click="pickUsers('white')"
+              />
             </template>
           </el-input>
         </el-form-item>
@@ -496,9 +684,15 @@
             readonly
             placeholder="请选择"
             @click="pickUsers('black')"
+            class="permission-user-input"
           >
             <template #append>
-              <el-button :icon="UserFilled" :loading="pickingField === 'black'" @click="pickUsers('black')" />
+              <el-button
+                class="picker-trigger"
+                :icon="UserFilled"
+                :loading="pickingField === 'black'"
+                @click="pickUsers('black')"
+              />
             </template>
           </el-input>
         </el-form-item>
@@ -509,9 +703,15 @@
             readonly
             placeholder="请选择"
             @click="pickUsers('edit')"
+            class="permission-user-input"
           >
             <template #append>
-              <el-button :icon="UserFilled" :loading="pickingField === 'edit'" @click="pickUsers('edit')" />
+              <el-button
+                class="picker-trigger"
+                :icon="UserFilled"
+                :loading="pickingField === 'edit'"
+                @click="pickUsers('edit')"
+              />
             </template>
           </el-input>
         </el-form-item>
@@ -521,16 +721,144 @@
     <template #footer>
       <div class="footer">
         <el-button @click="onCancel">取消</el-button>
-        <el-button type="primary" :loading="props.loading" @click="onSubmit">保存</el-button>
+        <el-button type="primary" class="submit-btn" :loading="props.loading" @click="onSubmit">保存</el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <style scoped>
+  .authority-panel {
+    --surface-border: #dbe4ef;
+    --surface-bg: #fff;
+  }
+
+  .authority-panel--embedded {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+  }
+
+  .permission-form :deep(.el-form-item) {
+    margin-bottom: 8px;
+  }
+
+  .permission-form :deep(.el-form-item__label) {
+    color: #334155;
+    font-weight: 500;
+    font-size: 13px;
+    padding-right: 8px;
+  }
+
+  .permission-form :deep(.el-form-item__content) {
+    min-height: 32px;
+  }
+
+  .auth-type-toggle :deep(.el-radio__label) {
+    color: #334155;
+  }
+
+  .auth-type-toggle :deep(.el-radio__input.is-checked + .el-radio__label) {
+    color: var(--el-color-primary);
+    font-weight: 600;
+  }
+
+  .permission-role-select,
+  .permission-user-input {
+    width: 100%;
+  }
+
+  .permission-role-select :deep(.el-select__wrapper),
+  .permission-user-input :deep(.el-input__wrapper) {
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px var(--surface-border) inset;
+    background: #fff;
+    min-height: 32px;
+  }
+
+  .permission-role-select :deep(.el-select__wrapper.is-focused),
+  .permission-user-input :deep(.el-input__wrapper.is-focus) {
+    box-shadow: 0 0 0 1px var(--el-color-primary) inset;
+  }
+
+  .permission-user-input :deep(.el-input-group__append) {
+    border-radius: 0 3px 3px 0;
+    padding: 0;
+    border-left: 1px solid #dbe4ef;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    min-width: 34px;
+    overflow: hidden;
+  }
+
+  .picker-trigger {
+    border: none;
+    border-radius: 0;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    color: var(--el-color-primary);
+    background: transparent;
+  }
+
+  .permission-user-input :deep(.el-input-group__append .el-button .el-icon) {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1;
+  }
+
   .footer {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .footer--embedded {
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: none;
+  }
+
+  .submit-btn {
+    min-width: 98px;
+  }
+
+  :deep(.authority-dialog .el-dialog__body) {
+    padding-top: 10px;
+    padding-bottom: 12px;
+    background: #fff;
+  }
+
+  :deep(.authority-dialog .el-dialog__header) {
+    border-bottom: 1px solid #dbe4ef;
+  }
+
+  :deep(.authority-dialog .el-dialog__footer) {
+    border-top: 1px solid #dbe4ef;
+    padding-top: 10px;
+  }
+
+  @media (max-width: 960px) {
+    .authority-panel--embedded {
+      border-radius: 0;
+      padding: 0;
+    }
+
+    .permission-form :deep(.el-form-item__label) {
+      width: 88px !important;
+    }
   }
 </style>

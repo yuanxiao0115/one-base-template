@@ -4,8 +4,8 @@
   import { Delete, Plus, UploadFilled } from "@element-plus/icons-vue";
   import { message } from "@one-base-template/ui";
 
-  import { portalApi } from "../../../api";
-  import { PORTAL_CUSTOM_HEADER_OPTIONS, type PortalTemplateDetails } from "../../../utils/templateDetails";
+  import { portalApi } from "../../../../api";
+  import { PORTAL_CUSTOM_HEADER_OPTIONS, type PortalTemplateDetails } from "../../../../utils/templateDetails";
 
   interface SelectOption {
     label: string;

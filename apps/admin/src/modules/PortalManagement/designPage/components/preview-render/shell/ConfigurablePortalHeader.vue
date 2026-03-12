@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed } from "vue";
 
-  import type { PortalHeaderConfig, PortalShellNavItem } from "../../../utils/templateDetails";
+  import type { PortalHeaderConfig, PortalShellNavItem } from "../../../../utils/templateDetails";
 
   const props = defineProps<{
     config: PortalHeaderConfig;

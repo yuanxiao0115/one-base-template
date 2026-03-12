@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed } from "vue";
 
-  import type { PortalFooterConfig } from "../../../utils/templateDetails";
+  import type { PortalFooterConfig } from "../../../../utils/templateDetails";
 
   const props = defineProps<{
     config: PortalFooterConfig;

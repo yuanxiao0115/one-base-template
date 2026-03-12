@@ -3,14 +3,14 @@
   import { CopyDocument } from "@element-plus/icons-vue";
   import { message } from "@one-base-template/ui";
 
-  import type { PortalTab } from "../../types";
+  import type { PortalTab } from "../../../types";
   import {
     buildPortalTemplateDetailsSchemaPreview,
     createDefaultPortalTemplateDetails,
     parsePortalTemplateDetails,
     stringifyPortalTemplateDetails,
     type PortalTemplateDetails,
-  } from "../../utils/templateDetails";
+  } from "../../../utils/templateDetails";
   import PortalShellFooterSettingsForm from "./shell-settings/PortalShellFooterSettingsForm.vue";
   import PortalShellHeaderSettingsForm from "./shell-settings/PortalShellHeaderSettingsForm.vue";
 

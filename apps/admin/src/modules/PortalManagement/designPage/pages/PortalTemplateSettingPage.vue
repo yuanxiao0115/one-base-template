@@ -33,7 +33,6 @@
     savePortalTabPageSettings,
   } from "../composables/portal-template/usePortalTabPageSettings";
 
-  import PagePermissionDialog from "../components/portal-template/PagePermissionDialog.vue";
   import PortalDesignerActionStrip from "../components/portal-template/PortalDesignerActionStrip.vue";
   import PortalDesignerHeaderBar from "../components/portal-template/PortalDesignerHeaderBar.vue";
   import PortalPageSettingsDrawer from "../components/portal-template/PortalPageSettingsDrawer.vue";
@@ -78,9 +77,6 @@
   const editingTabId = ref("");
   const editingTabType = ref<number | null>(null);
 
-  const permissionVisible = ref(false);
-  const permissionLoading = ref(false);
-  const permissionInitial = ref<Partial<PortalTab>>({});
   const pageSettingsVisible = ref(false);
   const pageSettingsLoading = ref(false);
   const pageSettingsSaving = ref(false);
@@ -162,7 +158,6 @@
   const {
     editCurrentTab,
     openCurrentPageSettings,
-    openCurrentPermission,
     toggleCurrentTabHide,
     deleteCurrentTab,
     openPreviewWindow,
@@ -176,7 +171,6 @@
     onEditTab: onEdit,
     onOpenPageSettings: openPageSettingsDrawer,
     onOpenAttribute: openAttribute,
-    onOpenPermission: openPermissionDialog,
     onToggleHide: toggleHide,
     onDeleteTab: deleteTab,
   });
@@ -808,61 +802,6 @@
     }
   }
 
-  async function openPermissionDialog() {
-    if (!(templateId.value && currentTabId.value) || permissionLoading.value) {
-      return;
-    }
-
-    permissionLoading.value = true;
-    try {
-      const res = await portalApi.tab.detail({ id: currentTabId.value });
-      if (!normalizeBizOk(res)) {
-        message.error(res?.message || "加载页面权限失败");
-        return;
-      }
-      permissionInitial.value = res?.data ?? {};
-      permissionVisible.value = true;
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "加载页面权限失败";
-      message.error(msg);
-    } finally {
-      permissionLoading.value = false;
-    }
-  }
-
-  async function onSubmitPermission(payload: {
-    authType: "person" | "role";
-    allowPerms: { roleIds: string[]; userIds: string[] };
-    forbiddenPerms: { roleIds: string[]; userIds: string[] };
-    configPerms: { roleIds: string[]; userIds: string[] };
-  }) {
-    if (!(templateId.value && currentTabId.value) || permissionLoading.value) {
-      return;
-    }
-
-    permissionLoading.value = true;
-    try {
-      const res = await portalApi.tab.update({
-        id: currentTabId.value,
-        templateId: templateId.value,
-        ...payload,
-      });
-      if (!normalizeBizOk(res)) {
-        message.error(res?.message || "页面权限保存失败");
-        return;
-      }
-
-      message.success("页面权限保存成功");
-      permissionVisible.value = false;
-      await loadTemplate(currentTabId.value);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "页面权限保存失败";
-      message.error(msg);
-    } finally {
-      permissionLoading.value = false;
-    }
-  }
-
   function onBack() {
     router.push("/portal/setting");
   }
@@ -1130,7 +1069,6 @@
           @edit="editCurrentTab"
           @page-settings="openCurrentPageSettings"
           @page-shell="openPageShellSettings"
-          @permission="openCurrentPermission"
           @toggle-hide="toggleCurrentTabHide"
           @preview="openPreviewWindow"
           @delete="deleteCurrentTab"
@@ -1162,13 +1100,6 @@
       :loading="creating || attrLoading"
       :initial="attrInitial"
       @submit="onSubmitAttr"
-    />
-
-    <PagePermissionDialog
-      v-model="permissionVisible"
-      :loading="permissionLoading"
-      :initial="permissionInitial"
-      @submit="onSubmitPermission"
     />
 
     <PortalPageSettingsDrawer

@@ -2,7 +2,7 @@
   import { computed, nextTick, reactive, ref, watch } from "vue";
   import type { FormInstance, FormRules } from "element-plus";
 
-  import type { PortalTab } from "../../types";
+  import type { PortalTab } from "../../../types";
 
   const props = defineProps<{
     modelValue: boolean;

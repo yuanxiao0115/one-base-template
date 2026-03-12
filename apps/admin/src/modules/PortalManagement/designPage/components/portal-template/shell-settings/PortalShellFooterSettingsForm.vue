@@ -2,7 +2,7 @@
   import { computed } from "vue";
   import { Delete, Plus } from "@element-plus/icons-vue";
 
-  import type { PortalTemplateDetails } from "../../../utils/templateDetails";
+  import type { PortalTemplateDetails } from "../../../../utils/templateDetails";
 
   const props = defineProps<{
     formState: PortalTemplateDetails;

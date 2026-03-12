@@ -2,7 +2,7 @@
   import { ref } from "vue";
   import { Plus, Search } from "@element-plus/icons-vue";
 
-  import type { PortalTab } from "../../types";
+  import type { PortalTab } from "../../../types";
 
   import PortalTabTree from "./PortalTabTree.vue";
 

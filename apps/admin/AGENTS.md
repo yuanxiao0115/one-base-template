@@ -63,13 +63,15 @@
 - `@one-base-template/ui` 组件在 admin 页面默认走全局注册（`Ob*` 前缀）；仅在明确说明原因时才允许局部 import。
 - `ObPageContainer` 外层禁止再包无业务意义占位 `div`，优先使用片段根节点保持结构扁平。
 - admin 下 CRUD 编排页文件名统一使用 `list.vue`（不再使用 `page.vue`），对应路由懒加载路径必须保持一致。
-- 门户模板列表页（`apps/admin/src/modules/PortalManagement/template/list.vue`）必须对齐 admin 列表基线：禁止使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 与 `@one-base-template/ui`。
+- 门户模板列表页（`apps/admin/src/modules/PortalManagement/templatePage/list.vue`）必须对齐 admin 列表基线：禁止使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 与 `@one-base-template/ui`。
+- PortalManagement 权限选人左树严格对齐老项目：固定调用 `GET /cmict/admin/org/detail/children-and-user`，不做多接口兼容兜底；根节点请求使用当前登录用户 `companyId`（缺失时才回退 `parentId=\"0\"`）。
 - 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定为：`/portal/setting`、`/portal/design`、`/portal/page/edit`、`/portal/preview`（`/resource/portal/setting` 仅作为兼容 alias），禁止再通过 `compat.routeAliases` 为该模块做旧路径别名兜底。
-- `PortalManagement` 下的设计能力目录必须按业务域拆分为 `portal-design`（门户设计）与 `page-design`（页面设计）；禁止再把两个业务页面/组件混放在同一层目录，也不要新增 `designer` 中间层。
-- `PortalManagement/portal-design` 中涉及壳层（门户级）能力时，入口必须放在顶部栏（`PortalDesignerHeaderBar`）；页面工具栏（`PortalDesignerActionStrip`）只允许放页面级动作，禁止放门户级页眉页脚配置入口。
-- `PortalManagement/portal-design` 的页眉页脚配置必须以可视化表单项为主，不允许把“手工编辑 JSON 文本”作为主配置方式；仅可提供“只读 JSON 结构查看/复制”能力用于联调与排错。
-- `PortalManagement/portal-design` 的页眉页脚配置在弹窗编辑过程中必须实时驱动右侧预览（仅前端预览态，不直接落库）；`safe/live` 差异必须下沉到物料组件层，禁止在壳层（页眉/页脚/容器）做模式分叉。
-- `PortalManagement/portal-design` 的页脚配置基线不包含“风格变体”和“联系二维码”；面板必须按功能区分组，并保持颜色项在对应功能区就近配置。
+- `PortalManagement` 的设计能力统一收敛到 `designPage` 目录：`pages` 存放页面级入口，`components` 必须按页面边界分组（如 `portal-template`、`preview-render`），禁止在 `components` 根目录平铺堆叠组件。
+- `PortalManagement/designPage/components/portal-template` 中涉及壳层（门户级）能力时，入口必须放在顶部栏（`PortalDesignerHeaderBar`）；页面工具栏（`PortalDesignerActionStrip`）只允许放页面级动作，禁止放门户级页眉页脚配置入口。
+- `PortalManagement/designPage/components/portal-template` 的页眉页脚配置必须以可视化表单项为主，不允许把“手工编辑 JSON 文本”作为主配置方式；仅可提供“只读 JSON 结构查看/复制”能力用于联调与排错。
+- `PortalManagement/designPage/components/portal-template` 的页眉页脚配置在弹窗编辑过程中必须实时驱动右侧预览（仅前端预览态，不直接落库）；`safe/live` 差异必须下沉到物料组件层，禁止在壳层（页眉/页脚/容器）做模式分叉。
+- `PortalManagement/designPage/components/portal-template` 的页脚配置基线不包含“风格变体”和“联系二维码”；面板必须按功能区分组，并保持颜色项在对应功能区就近配置。
+- `PortalManagement` 页面设置能力默认**不包含配置预设**（如“默认/营销/政务”）；除非用户明确提出，否则禁止新增预设模板入口与对应数据结构。
 - admin 登录页统一使用 `ObLoginBoxV2`，不要回退到基础版 `ObLoginBox`。
 - 涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面。
 
@@ -120,6 +122,7 @@
   - 左侧面包屑区域禁止额外显示“组织”抬头。
   - 列表 `loading` 遮罩背景保持透明。
 - 选人能力沉淀为可复用组件：`apps/admin/src/components/PersonnelSelector`。
+- 选人能力相关的数据源（组织树/人员搜索）必须优先收敛到 `apps/admin/src/components/PersonnelSelector/**` 公共层；业务模块（如 `PortalManagement`、`UserManagement/role-assign`）禁止各自硬编码不同接口路径。
 - 角色分配页左侧角色区优先使用 `ObPageContainer` 的 `#left` + `el-menu`；搜索框与角色选中项保持扁平化无圆角。
 - 用户管理左侧组织树统一使用 `ObTree`：仅叶子节点文本溢出时显示 tooltip。
 - 组织管理树形迁移必须对齐老项目 `parentId` 逻辑：根查询/搜索透传 `companyId`（无值回退 `0`），禁止写死 `parentId='0'`。

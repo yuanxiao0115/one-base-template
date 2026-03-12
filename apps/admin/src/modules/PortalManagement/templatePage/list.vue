@@ -5,10 +5,21 @@
   import { confirm } from "@one-base-template/ui";
   import { message } from "@one-base-template/ui";
 
+  import { portalApi } from "../api";
+  import type { PortalTab } from "../types";
+  import {
+    buildPortalTabPermissionUpdatePayload,
+    buildTemplatePagePermissionTree,
+    collectTemplatePagePermissionTabs,
+    type PagePermissionSubmitPayload,
+    type TemplatePagePermissionTreeNode,
+  } from "../utils/pagePermission";
   import { templateApi } from "./api";
+  import PagePermissionDialog from "./components/PagePermissionDialog.vue";
   import type { BizResponse, PageResult, PortalTemplate } from "./types";
   import { findFirstPageTabId } from "../utils/portalTree";
   import PortalAuthorityDialog from "./components/PortalAuthorityDialog.vue";
+  import PortalPermissionSwitchDialog from "./components/PortalPermissionSwitchDialog.vue";
   import PortalTemplateCreateDialog from "./components/PortalTemplateCreateDialog.vue";
 
   defineOptions({ name: "PortalTemplateList" });
@@ -35,7 +46,7 @@
     },
     {
       label: "操作",
-      width: 300,
+      width: 360,
       fixed: "right",
       align: "right",
       slot: "operation",
@@ -98,10 +109,17 @@
     isOpen: number;
   }
 
-  const authorityVisible = ref(false);
   const authoritySubmitting = ref(false);
   const authorityInitial = ref<Partial<PortalTemplate>>({});
   const authorityTemplateId = ref("");
+  const permissionCenterVisible = ref(false);
+  const permissionTemplateId = ref("");
+  const permissionTemplateName = ref("");
+  const permissionPageTree = ref<TemplatePagePermissionTreeNode[]>([]);
+  const pagePermissionLoading = ref(false);
+  const pagePermissionTemplateId = ref("");
+  const pagePermissionInitial = ref<Partial<PortalTab>>({});
+  const pagePermissionCurrentTabId = ref("");
 
   function normalizeBizOk(res: BizResLike | null | undefined): boolean {
     const code = res?.code;
@@ -441,7 +459,7 @@
     }
   }
 
-  async function openAuthority(row: PortalTemplate) {
+  async function openPermissionCenter(row: PortalTemplate) {
     const id = normalizeIdLike(row.id);
     if (!id) {
       return;
@@ -454,7 +472,103 @@
 
     authorityTemplateId.value = id;
     authorityInitial.value = detail;
-    authorityVisible.value = true;
+    permissionTemplateId.value = id;
+    permissionTemplateName.value = normalizeTemplateName(detail.templateName) || normalizeTemplateName(row.templateName);
+    permissionPageTree.value = buildTemplatePagePermissionTree(
+      Array.isArray(detail.tabList) ? (detail.tabList as PortalTab[]) : []
+    );
+
+    const tabOptions = collectTemplatePagePermissionTabs(
+      Array.isArray(detail.tabList) ? (detail.tabList as PortalTab[]) : []
+    );
+
+    pagePermissionTemplateId.value = id;
+    pagePermissionCurrentTabId.value = tabOptions[0]?.tabId || "";
+    pagePermissionInitial.value = {};
+    permissionCenterVisible.value = true;
+
+    if (pagePermissionCurrentTabId.value) {
+      void loadPagePermissionDetail(pagePermissionCurrentTabId.value);
+    }
+  }
+
+  async function loadPagePermissionDetail(tabId: string): Promise<boolean> {
+    if (!tabId) {
+      return false;
+    }
+
+    if (pagePermissionLoading.value) {
+      return false;
+    }
+
+    pagePermissionLoading.value = true;
+    try {
+      const res = await portalApi.tab.detail({
+        id: tabId,
+        templateId: pagePermissionTemplateId.value || undefined,
+      });
+      if (!normalizeBizOk(res)) {
+        message.error(res?.message || "加载页面权限失败");
+        return false;
+      }
+
+      pagePermissionInitial.value = (res?.data ?? {}) as PortalTab;
+      return true;
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "加载页面权限失败";
+      message.error(msg);
+      return false;
+    } finally {
+      pagePermissionLoading.value = false;
+    }
+  }
+
+  function onSelectPermissionPage(tabId: string) {
+    if (!tabId || tabId === pagePermissionCurrentTabId.value) {
+      return;
+    }
+    pagePermissionCurrentTabId.value = tabId;
+    void loadPagePermissionDetail(tabId);
+  }
+
+  async function onSubmitPagePermission(payload: PagePermissionSubmitPayload) {
+    const tabId = pagePermissionCurrentTabId.value;
+    if (!(tabId && pagePermissionTemplateId.value) || pagePermissionLoading.value) {
+      return;
+    }
+
+    pagePermissionLoading.value = true;
+    try {
+      const detailRes = await portalApi.tab.detail({
+        id: tabId,
+        templateId: pagePermissionTemplateId.value,
+      });
+      if (!normalizeBizOk(detailRes)) {
+        message.error(detailRes?.message || "加载页面详情失败，无法保存权限");
+        return;
+      }
+
+      const detail = (detailRes?.data ?? {}) as PortalTab;
+      const res = await portalApi.tab.update(buildPortalTabPermissionUpdatePayload(detail, payload));
+      if (!normalizeBizOk(res)) {
+        message.error(res?.message || "页面权限保存失败");
+        return;
+      }
+
+      message.success("页面权限保存成功");
+      pagePermissionInitial.value = {
+        ...detail,
+        authType: payload.authType,
+        allowPerms: payload.allowPerms,
+        forbiddenPerms: payload.forbiddenPerms,
+        configPerms: payload.configPerms,
+      };
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "页面权限保存失败";
+      message.error(msg);
+    } finally {
+      pagePermissionLoading.value = false;
+    }
   }
 
   async function onSubmitAuthority(payload: PortalAuthorityPayload) {
@@ -477,7 +591,6 @@
       }
 
       message.success("门户权限保存成功");
-      authorityVisible.value = false;
       await queryList(currentPage.value);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "门户权限保存失败";
@@ -604,9 +717,9 @@
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
               <el-button link type="primary" :size="actionSize" @click="() => openEdit(row)">编辑</el-button>
+            <el-button link type="primary" :size="actionSize" @click="() => goDesigner(row)">配置</el-button>
               <el-button link :size="actionSize" @click="() => openCopy(row)">复制</el-button>
-              <el-button link :size="actionSize" @click="() => openAuthority(row)">门户权限</el-button>
-              <el-button link type="primary" :size="actionSize" @click="() => goDesigner(row)">配置</el-button>
+              <el-button link :size="actionSize" @click="() => openPermissionCenter(row)">权限配置</el-button>
               <el-button link :size="actionSize" @click="() => openPreview(row)">预览</el-button>
               <el-button link :size="actionSize" @click="() => togglePublish(row)">
                 {{ isPublished(row) ? "取消发布" : "发布" }}
@@ -640,12 +753,33 @@
     @submit="onSubmitTemplate"
   />
 
-  <PortalAuthorityDialog
-    v-model="authorityVisible"
-    :loading="authoritySubmitting"
-    :initial="authorityInitial"
-    @submit="onSubmitAuthority"
-  />
+  <PortalPermissionSwitchDialog
+    v-model="permissionCenterVisible"
+    :template-id="permissionTemplateId"
+    :template-name="permissionTemplateName"
+    :page-tree="permissionPageTree"
+    :current-page-id="pagePermissionCurrentTabId"
+    :page-detail-loading="pagePermissionLoading"
+    @select-page="onSelectPermissionPage"
+  >
+    <template #portal-content>
+      <PortalAuthorityDialog
+        embedded
+        :loading="authoritySubmitting"
+        :initial="authorityInitial"
+        @submit="onSubmitAuthority"
+      />
+    </template>
+
+    <template #page-content>
+      <PagePermissionDialog
+        embedded
+        :loading="pagePermissionLoading"
+        :initial="pagePermissionInitial"
+        @submit="onSubmitPagePermission"
+      />
+    </template>
+  </PortalPermissionSwitchDialog>
 </template>
 
 <style scoped>

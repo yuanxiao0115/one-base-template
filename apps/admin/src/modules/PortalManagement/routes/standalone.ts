@@ -5,7 +5,7 @@ export default [
     // 门户预览页：必须是顶层路由，避免被 AdminLayout（侧栏/顶栏）包裹
     path: "/portal/preview",
     name: "PortalPreview",
-    component: async () => import("../page-design/pages/PortalPreviewRenderPage.vue"),
+    component: async () => import("../designPage/pages/PortalPreviewRenderPage.vue"),
     meta: {
       public: true,
       hiddenTab: true,
@@ -16,7 +16,7 @@ export default [
     path: "/portal/design",
     alias: ["/resource/portal/setting"],
     name: "PortalDesigner",
-    component: async () => import("../portal-design/pages/PortalTemplateSettingPage.vue"),
+    component: async () => import("../designPage/pages/PortalTemplateSettingPage.vue"),
     meta: {
       title: "门户配置",
       fullScreen: true,
@@ -30,7 +30,7 @@ export default [
     // 门户页面编辑器：全局全屏页
     path: "/portal/page/edit",
     name: "PortalPageEditor",
-    component: async () => import("../page-design/pages/PortalPageEditPage.vue"),
+    component: async () => import("../designPage/pages/PortalPageEditPage.vue"),
     meta: {
       title: "页面编辑",
       fullScreen: true,
