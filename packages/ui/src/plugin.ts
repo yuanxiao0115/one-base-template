@@ -7,6 +7,7 @@ import TabsBar from './components/tabs/TabsBar.vue';
 import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
 import KeepAliveView from './components/view/KeepAliveView.vue';
 import FontIcon from './components/icon/FontIcon.vue';
+import ObCard from './components/card/ObCard.vue';
 import PageContainer from './components/container/PageContainer.vue';
 import CrudContainer from './components/container/CrudContainer.vue';
 import Tree from './components/tree/Tree.vue';
@@ -26,6 +27,7 @@ const UI_COMPONENTS = {
   ThemeSwitcher,
   KeepAliveView,
   FontIcon,
+  Card: ObCard,
   PageContainer,
   CrudContainer,
   Tree,

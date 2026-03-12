@@ -15,5 +15,6 @@ describe('registerOneUiComponents', () => {
     expect(app.component('ObLoginBox')).toBeUndefined()
     expect(app.component('ObLoginBoxV2')).toBeUndefined()
     expect(app.component('ObPageContainer')).toBeTruthy()
+    expect(app.component('ObCard')).toBeTruthy()
   })
 })
