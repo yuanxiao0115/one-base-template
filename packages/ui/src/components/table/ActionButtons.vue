@@ -205,15 +205,20 @@
       :hide-timeout="120"
       @command="handleOverflowCommand"
     >
-      <el-button
-        link
-        type="primary"
+      <span
         class="ob-action-buttons__more"
-        :icon="MoreFilled"
+        role="button"
+        tabindex="0"
         aria-label="更多操作"
         @click.stop
         @mouseenter.stop
-      />
+        @keydown.enter.stop.prevent
+        @keydown.space.stop.prevent
+      >
+        <el-icon>
+          <MoreFilled />
+        </el-icon>
+      </span>
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item
@@ -242,8 +247,16 @@
   }
 
   .ob-action-buttons__more {
-    min-width: 24px;
-    min-height: 24px;
-    padding: 0 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--el-color-primary);
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 2px;
+    outline: none;
+    user-select: none;
   }
 </style>
