@@ -8,20 +8,18 @@
 - 预览页允许 **匿名访问**（`meta.public=true`），用于同页渲染与新窗口预览。
 - **不移植**「页面模板」能力：创建时选择页面模板 / 存为模板 / 从历史模板加载等逻辑都不做。
 
-## 目录收敛（2026-03-11）
+## 目录收敛（2026-03-12）
 
-为强化“门户设计 / 页面设计”边界，目录已拆分为两个业务域：
-- `apps/admin/src/modules/PortalManagement/portal-design`
+为减少跨目录切换与平铺组件膨胀，目录统一收敛为 `designPage`：
+- `apps/admin/src/modules/PortalManagement/designPage`
   - `pages/PortalTemplateSettingPage.vue`（门户设计主工作台）
-  - `components/PortalTabTree.vue`
-  - `components/TabAttributeDialog.vue`
-  - `components/CreateBlankPageDialog.vue`
-- `apps/admin/src/modules/PortalManagement/page-design`
   - `pages/PortalPageEditPage.vue`（页面设计器）
   - `pages/PortalPreviewRenderPage.vue`（预览渲染页）
-  - `components/PortalPreviewPanel.vue`
+  - `components/portal-template/**`（门户配置主工作台边界内组件）
+  - `components/preview-render/**`（预览渲染边界内组件）
+  - `composables/portal-template/**`（门户设计页专属组合逻辑）
 
-路由文件 `routes/standalone.ts` 已同步改为从对应业务域页面懒加载。
+路由文件 `routes/standalone.ts` 已同步改为从 `designPage/pages` 懒加载。
 
 ## 引擎抽包进度（2026-03-06）
 
@@ -46,7 +44,7 @@
 - `/portal/setting`：门户模板列表（表格版，后端概念为 template）
 - `/portal/design?id=<id>`：门户配置 IDE（tab 树 + 同页预览 + 新建页面）
 - `/resource/portal/setting?id=<id>`：兼容别名（自动映射到 `/portal/design`）
-- `/portal/page/edit?id=<id>&tabId=<id>`：页面编辑器（拖拽布局 + 保存 + 预览）
+- `/portal/page/edit?id=<id>&tabId=<id>`：页面编辑器（深度编辑模式，保留拖拽布局 + 保存 + 预览）
 
 预览渲染（顶层路由，不挂 `AdminLayout`，允许匿名）：
 - `/portal/preview?templateId=<id>&tabId=<id>`：渲染指定 tab 的 pageLayout（通常给新窗口使用；同页预览复用同一渲染组件）
@@ -110,10 +108,14 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 当前工作台（2026-03-11）布局口径：
 - 页面采用「左侧结构树 + 右侧编辑工作台」双栏模型。
 - 顶部为窄条信息头（返回 / 模板名 / 页眉页脚配置 / 刷新），不再使用厚头部或多层卡片。
-- 右侧首行是“当前页面动作条”，仅承载页面级操作：进入编辑、页面属性、页面权限、隐藏、预览、删除；预览模式/视口/缩放控件与动作按钮同一行。
+- 右侧首行是“当前页面动作条”，承载页面级操作：页面设置、进入编辑、页面壳层覆盖、页面权限、隐藏、预览、删除；预览模式/视口与舞台交互（自动/手动、缩放、重置）都放在工具栏同一行。
 - 右侧预览区使用“设备画框 + iframe”结构，支持按目标视口等比缩放预览（先完成框架，不改数据链路）。
 - `preview-host-frame` 尺寸变化（拖动窗口、打开/收起 DevTools）会触发重新计算缩放，预览区会随容器自适应。
+- `preview-host-frame` 舞台底层使用轻网格背景（仅视觉辅助，不参与业务渲染）。
+- 预览内增加双边界辅助线：`preview-shell` 表示“门户区域”、`content-container` 表示“页面区域”，用于快速辨认壳层与页面内容边界。
 - `tree-header` 与 `preview-head` 均已移除，整体保持白底、低边框、直角风格。
+- 预览舞台新增手动增强：支持 `50%~200%` 手动缩放、按住拖拽平移、重置视图（默认仍是自动缩放）。
+- 视口分辨率切换改为 `postMessage` 下发，不再通过切换 iframe URL 触发整页重载，避免重复接口请求。
 
 ### 2) 新建空白页并直接进入编辑
 
@@ -157,7 +159,7 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 
 入口层级约定：
 - **门户级** 页眉页脚配置入口放在 Designer 顶部栏（HeaderBar）。
-- 页面工具栏（ActionStrip）仅保留页面级动作，不再放置壳层配置入口。
+- **页面级** 覆盖配置入口放在 ActionStrip（页面动作区），仅对当前选中页面生效并写入 `details.pageOverrides[tabId]`。
 
 配置方式约定（本次优化）：
 - 配置以“可视化表单项”为主，不要求直接编辑 JSON 文本。
@@ -220,6 +222,89 @@ type PortalPageSettingsV2 = {
     colSpace: number; // 列间距（默认 16）
     rowSpace: number; // 行间距（默认 16）
   };
+  layoutMode:
+    | "global-scroll"
+    | "header-fixed-content-scroll"
+    | "header-fixed-footer-fixed-content-scroll";
+  layoutContainer: {
+    widthMode: "full-width" | "fixed" | "custom";
+    fixedWidth: number;
+    customWidth: number;
+    contentAlign: "left" | "center";
+    contentMinHeight: number;
+    overflowMode: "auto" | "scroll" | "hidden";
+  };
+  spacing: {
+    marginTop: number;
+    marginRight: number;
+    marginBottom: number;
+    marginLeft: number;
+    paddingTop: number;
+    paddingRight: number;
+    paddingBottom: number;
+    paddingLeft: number;
+  };
+  background: {
+    backgroundColor: string;
+    backgroundImage: string;
+    backgroundRepeat: "no-repeat" | "repeat" | "repeat-x" | "repeat-y";
+    backgroundSizeMode: "cover" | "contain" | "custom";
+    backgroundSizeCustom: string;
+    backgroundPosition: string;
+    backgroundAttachment: "scroll" | "fixed";
+    scope: "page" | "content" | "banner";
+    overlayColor: string;
+    overlayOpacity: number;
+  };
+  banner: {
+    enabled: boolean;
+    image: string;
+    height: number;
+    fullWidth: boolean;
+    linkUrl: string;
+    overlayColor: string;
+    overlayOpacity: number;
+  };
+  headerFooterBehavior: {
+    headerSticky: boolean;
+    headerOffsetTop: number;
+    footerMode: "normal" | "fixed";
+    footerFixedHeight: number;
+  };
+  responsive: {
+    pad: {
+      enabled: boolean;
+      maxWidth: number;
+      colNum: number;
+      colSpace: number;
+      rowSpace: number;
+      marginTop: number;
+      marginRight: number;
+      marginBottom: number;
+      marginLeft: number;
+      paddingTop: number;
+      paddingRight: number;
+      paddingBottom: number;
+      paddingLeft: number;
+      bannerHeight: number;
+    };
+    mobile: {
+      enabled: boolean;
+      maxWidth: number;
+      colNum: number;
+      colSpace: number;
+      rowSpace: number;
+      marginTop: number;
+      marginRight: number;
+      marginBottom: number;
+      marginLeft: number;
+      paddingTop: number;
+      paddingRight: number;
+      paddingBottom: number;
+      paddingLeft: number;
+      bannerHeight: number;
+    };
+  };
   access: {
     mode: "public" | "login" | "role"; // 访问方式
     roleIds: string[]; // mode=role 时生效
@@ -254,9 +339,11 @@ type PageLayoutJson = {
 ```
 
 页面设置 V2 的读写策略（2026-03-11）：
-- **读旧**：渲染与编辑统一通过 `normalizePortalPageSettingsV2` 读取 `settings`，兼容旧结构 `settings.gridData`。
+- **读旧**：渲染与编辑统一通过 `normalizePortalPageSettingsV2` 读取 `settings`，兼容旧结构 `gridData/marginData/backgroundData/headerFooterData`。
 - **写新**：编辑器保存统一通过 `buildPortalPageLayoutForSave` 写回 `version=2.0` 的 `settings`。
-- **网格读取统一**：渲染器和编辑器都通过 `getPortalGridSettings` 读取网格参数，避免新旧字段分叉。
+- **断点运行时解析统一**：渲染器和编辑器通过 `resolvePortalPageRuntimeSettings` / `getPortalGridSettings` 解析当前视口下的栅格与间距。
+- **入口收敛（2026-03-12）**：`/portal/design` 已支持页面设置抽屉（动作条“页面设置”），可在设计页内直接修改并保存 `pageLayout.settings`；`/portal/page/edit` 继续作为深度编辑入口。
+- **配置边界**：页面设置不包含“默认/营销/政务”等预设模板入口，按当前页面真实配置直接编辑。
 
 保存/发布前校验：
 - 统一使用 `validatePortalPageSettingsV2`。
@@ -264,6 +351,32 @@ type PageLayoutJson = {
   - `publishGuard.requireTitle=true` 时，`basic.pageTitle` 必填；
   - `access.mode=role` 时，`access.roleIds` 不能为空；
   - `publishGuard.requireContent=true` 时，页面至少存在一个组件。
+  - `banner.enabled=true` 时，`banner.image` 为建议项（为空不阻断保存）；
+  - 同时启用 `pad/mobile` 断点时，`mobile.maxWidth < pad.maxWidth`。
+
+## 编辑态滚动与层级模型（2026-03-11）
+
+页面编辑器采用“外层固定高度，三栏内部滚动”：
+- 左侧物料库：头部固定，分类列表内部滚动。
+- 中间画布：画布区域内部滚动（超出后滚动，不再推动整页）。
+- 右侧设置：tabs 内容区内部滚动。
+
+编辑器建议保持 **5 层结构**：
+1. 工作台壳层：`page/topbar/content`（只负责占满可视区，不承载业务滚动）。
+2. 三栏容器层：`MaterialLibrary + canvas + right-panel`（负责三栏分配与高度传递）。
+3. 画布视口层：`canvas-inner`（隔离滚动边界，避免滚动冒泡到外层）。
+4. 页面框架层：`page-frame/page-canvas/banner`（承载边距、背景、Banner 独立区域）。
+5. 栅格渲染层：`grid-container/grid-layout/grid-item`（承载拖拽布局与组件渲染）。
+
+预览渲染建议保持 **4 层结构**：
+1. 预览壳层：`preview-page/preview-shell`（是否内容区滚动、是否固定壳层）。
+2. 内容滚动层：`content`（根据 `layoutMode + overflowMode` 决定滚动策略）。
+3. 页面框架层：`content-frame/content-container/banner`（边距、背景、Banner）。
+4. 组件栅格层：`PortalGridRenderer`（仅负责组件网格渲染，不参与壳层滚动决策）。
+
+补充（2026-03-12）：
+- 设计器外层设备舞台（`preview-host-frame`）默认隐藏自身滚动条，避免与 iframe 内部滚动策略叠加。
+- 目标视口缩放计算按“容器内容区尺寸（扣除 padding）”执行，避免边界 1px 误差触发外层滚动条。
 
 ## 匿名预览与消息刷新
 
@@ -276,10 +389,10 @@ type PageLayoutJson = {
   - `GET /cmict/portal/tab/detail?id=<tabId>`
 - 预留 query 协议（当前为骨架阶段）：
   - `previewMode=safe|live`（模式参数已透传，后续再接入真实数据隔离逻辑）
-  - `vw` / `vh`（预览目标视口，供设计器设备画框使用）
 - 监听 `postMessage`（同源校验 `e.origin === window.location.origin`）：
   - 接收 `{ type: 'refresh-portal', data: { tabId } }` 后刷新渲染
   - 接收 `{ type: 'preview-shell-details', data: { details, templateId, tabId } }` 后仅覆盖预览壳层配置，不触发接口请求
+  - 接收 `{ type: 'preview-viewport', data: { width, height, templateId, tabId } }` 后仅更新预览视口，不触发接口请求
 
 ## 物料注册与动态加载
 
