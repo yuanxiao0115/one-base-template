@@ -233,6 +233,38 @@ describe('setupRouterGuards', () => {
     await loadMenusDeferred;
   });
 
+  it('remote 模式下后台同步失败后不应在每次路由重复触发 loadMenus', async () => {
+    mocks.getCoreOptions.mockReturnValue({
+      sso: {
+        enabled: false,
+        routePath: '/sso',
+      },
+      menuMode: 'remote',
+    });
+    menuStore.remoteSynced = false;
+    menuStore.loaded = true;
+    menuStore.loadMenus.mockRejectedValue(new Error('sync failed'));
+    menuStore.isAllowed.mockReturnValue(true);
+
+    const runGuard = createGuardRunner();
+
+    await expect(
+      runGuard({
+        path: '/system/remote-first',
+        fullPath: '/system/remote-first',
+      })
+    ).resolves.toBe(true);
+
+    await expect(
+      runGuard({
+        path: '/system/remote-second',
+        fullPath: '/system/remote-second',
+      })
+    ).resolves.toBe(true);
+
+    expect(menuStore.loadMenus).toHaveBeenCalledTimes(1);
+  });
+
   it('remote 模式下 remoteSynced=false 且 loaded=false 时应先 loadMenus 再继续权限判定', async () => {
     const events: string[] = [];
 

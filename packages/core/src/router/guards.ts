@@ -85,13 +85,19 @@ async function syncRemoteMenusIfNeeded(params: {
   remoteSynced: boolean;
   loaded: boolean;
   loadMenus: () => Promise<void>;
+  backgroundSyncAttempted: boolean;
+  markBackgroundSyncAttempted: () => void;
 }) {
-  const { isRemoteMenuMode, remoteSynced, loaded, loadMenus } = params;
+  const { isRemoteMenuMode, remoteSynced, loaded, loadMenus, backgroundSyncAttempted, markBackgroundSyncAttempted } = params;
   if (!(isRemoteMenuMode && !remoteSynced)) {
     return;
   }
 
   if (loaded) {
+    if (backgroundSyncAttempted) {
+      return;
+    }
+    markBackgroundSyncAttempted();
     // 已有缓存时采用“先放行，后同步”，避免首跳被远端慢接口明显阻塞。
     void loadMenus().catch(() => {
       // 同步失败由全局 http hooks 统一处理（如 401 跳登录），这里避免未捕获告警。
@@ -171,15 +177,6 @@ async function resolveMenuGuardResult(params: {
   const menuStore = useMenuStore();
   const systemStore = useSystemStore();
 
-  // remote 菜单模式下，即使命中本地缓存也要在当前会话至少同步一次远端菜单，
-  // 避免系统列表/菜单结构长期停留在历史缓存（例如新增系统后看不到）。
-  await syncRemoteMenusIfNeeded({
-    isRemoteMenuMode,
-    remoteSynced: menuStore.remoteSynced,
-    loaded: menuStore.loaded,
-    loadMenus: () => menuStore.loadMenus(),
-  });
-
   // 详情/编辑等“非菜单路由”通过 meta.activePath 归属到某个菜单入口：
   // - 归属系统：用 activePath 反查 systemCode
   // - 权限校验：以 activePath 为准（只要有菜单权限即可访问详情页）
@@ -236,6 +233,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
   const hasSkipMenuAuthAllowList = Array.isArray(options.allowedSkipMenuAuthRouteNames);
   const allowedSkipMenuAuthRouteNames = new Set(options.allowedSkipMenuAuthRouteNames ?? []);
   const strictSkipMenuAuth = hasSkipMenuAuthAllowList;
+  let remoteBackgroundSyncAttempted = false;
 
   router.beforeEach(async (to, from) => {
     await options.onNavigationStart?.({ to, from });
@@ -258,6 +256,18 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     if (!authed) {
       return buildLoginRedirect(to, loginRoutePath);
     }
+
+    const menuStore = useMenuStore();
+    await syncRemoteMenusIfNeeded({
+      isRemoteMenuMode: coreOptions.menuMode === 'remote',
+      remoteSynced: menuStore.remoteSynced,
+      loaded: menuStore.loaded,
+      loadMenus: () => menuStore.loadMenus(),
+      backgroundSyncAttempted: remoteBackgroundSyncAttempted,
+      markBackgroundSyncAttempted: () => {
+        remoteBackgroundSyncAttempted = true;
+      },
+    });
 
     return resolveMenuGuardResult({
       guardContext: {
