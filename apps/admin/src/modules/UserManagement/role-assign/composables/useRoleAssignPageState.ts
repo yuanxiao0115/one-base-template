@@ -1,15 +1,16 @@
 import { computed, nextTick, onMounted, reactive, ref } from "vue";
 import type { CrudFormLike } from "@one-base-template/ui";
-import { useTable } from "@one-base-template/core";
+import { useAuthStore, useTable } from "@one-base-template/core";
 import { message } from "@one-base-template/ui";
+import {
+  fetchPersonnelTreeByLegacyApi,
+  resolvePersonnelRootParentId,
+  searchPersonnelUsersByStructure,
+} from "@/components/PersonnelSelector/contactDataSource";
+import type { PersonnelNode, PersonnelUserNode } from "@/components/PersonnelSelector/types";
 import roleAssignColumns from "../columns";
 import { roleAssignApi } from "../api";
-import type {
-  RoleAssignContactNode,
-  RoleAssignContactUserNode,
-  RoleMemberRecord,
-  RoleOption,
-} from "../types";
+import type { RoleMemberRecord, RoleOption } from "../types";
 import type { RoleAssignUserOption } from "../components/RoleAssignMemberSelectForm.vue";
 
 type MemberSelectFormExpose = CrudFormLike & {
@@ -54,6 +55,8 @@ function buildRemoveConfirmName(names: string[]): string {
 }
 
 export function useRoleAssignPageState() {
+  const authStore = useAuthStore();
+
   const tableRef = ref<unknown>(null);
   const memberFormRef = ref<MemberSelectFormExpose>();
 
@@ -132,6 +135,7 @@ export function useRoleAssignPageState() {
     ...pagination,
   }));
   const currentRoleName = computed(() => currentRole.value?.roleName || "角色分配");
+  const rootParentId = computed(() => resolvePersonnelRootParentId(authStore.user));
 
   function resetMemberForm() {
     memberForm.userIds = [];
@@ -270,9 +274,10 @@ export function useRoleAssignPageState() {
     await removeMembersByIds(ids, names);
   }
 
-  async function fetchContactNodes(parentId?: string): Promise<RoleAssignContactNode[]> {
-    const response = await roleAssignApi.getOrgContactsLazy({
-      parentId: parentId || "0",
+  async function fetchContactNodes(parentId?: string): Promise<PersonnelNode[]> {
+    const normalizedParentId = parentId?.trim() ? parentId : rootParentId.value;
+    const response = await fetchPersonnelTreeByLegacyApi({
+      parentId: normalizedParentId,
     });
     if (response.code !== 200) {
       throw new Error(response.message || "加载组织通讯录失败");
@@ -281,8 +286,8 @@ export function useRoleAssignPageState() {
     return Array.isArray(response.data) ? response.data : [];
   }
 
-  async function searchContactUsers(keyword: string): Promise<RoleAssignContactUserNode[]> {
-    const response = await roleAssignApi.searchContactUsers({
+  async function searchContactUsers(keyword: string): Promise<PersonnelUserNode[]> {
+    const response = await searchPersonnelUsersByStructure({
       search: keyword,
     });
     if (response.code !== 200) {

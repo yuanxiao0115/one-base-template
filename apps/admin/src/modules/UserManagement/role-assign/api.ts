@@ -1,8 +1,6 @@
 import { obHttp } from "@one-base-template/core";
 import type {
   ApiResponse,
-  RoleAssignContactNode,
-  RoleAssignContactUserNode,
   RoleMemberPageData,
   RoleMemberPageParams,
   RoleMemberPayload,
@@ -10,8 +8,6 @@ import type {
   RoleOption,
   UserOption,
 } from "./types";
-
-
 export const roleAssignApi = {
   listRoles: async (params: { roleName?: string }) =>
     obHttp().get<ApiResponse<RoleOption[]>>("/cmict/admin/role/list", { params }),
@@ -31,12 +27,6 @@ export const roleAssignApi = {
 
   removeMembers: async (data: RoleMemberPayload) =>
     obHttp().post<ApiResponse<boolean>>("/cmict/admin/role/member/remove", { data }),
-
-  getOrgContactsLazy: async (params: { parentId?: string }) =>
-    obHttp().get<ApiResponse<RoleAssignContactNode[]>>("/cmict/admin/org/contacts/lazy/tree", { params }),
-
-  searchContactUsers: async (params: { search?: string }) =>
-    obHttp().get<ApiResponse<RoleAssignContactUserNode[]>>("/cmict/admin/user/structure/search/", { params }),
 
   searchUsers: async (params: { nickName?: string }) =>
     obHttp().get<ApiResponse<UserOption[]>>("/cmict/admin/user/list", { params }),

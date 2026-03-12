@@ -7,8 +7,8 @@
     PersonnelNode,
     PersonnelSearchNodes,
     PersonnelSelectedUser,
+    PersonnelUserNode,
   } from "@/components/PersonnelSelector/types";
-  import type { RoleAssignContactNode, RoleAssignContactUserNode } from "../types";
 
   export type RoleAssignUserOption = PersonnelSelectedUser;
 
@@ -19,8 +19,8 @@
 
   const props = defineProps<{
     disabled: boolean;
-    fetchContactNodes: (parentId?: string) => Promise<RoleAssignContactNode[]>;
-    searchContactUsers: (keyword: string) => Promise<RoleAssignContactUserNode[]>;
+    fetchContactNodes: (parentId?: string) => Promise<PersonnelNode[]>;
+    searchContactUsers: (keyword: string) => Promise<PersonnelUserNode[]>;
   }>();
 
   const model = defineModel<{
@@ -45,50 +45,12 @@
     ],
   }));
 
-  function toPersonnelNode(row: RoleAssignContactNode): PersonnelNode {
-    if (row.nodeType === "org") {
-      return {
-        id: row.id,
-        parentId: row.parentId,
-        companyId: row.companyId,
-        title: row.title,
-        orgName: row.orgName,
-        orgType: row.orgType,
-        nodeType: "org",
-      };
-    }
-
-    return {
-      id: row.id,
-      parentId: row.parentId,
-      companyId: row.companyId,
-      title: row.title,
-      userId: row.userId,
-      nickName: row.nickName,
-      userAccount: row.userAccount,
-      phone: row.phone,
-      nodeType: "user",
-    };
-  }
-
   const fetchNodes: PersonnelFetchNodes = async ({ parentId }) => {
-    const rows = await props.fetchContactNodes(parentId);
-    return rows.map(toPersonnelNode);
+    return props.fetchContactNodes(parentId);
   };
 
   const searchNodes: PersonnelSearchNodes = async ({ keyword }) => {
-    const rows = await props.searchContactUsers(keyword);
-    return rows.map((row) => ({
-      id: row.id,
-      parentId: row.parentId,
-      companyId: row.companyId,
-      title: row.title,
-      userId: row.userId,
-      nickName: row.nickName,
-      userAccount: row.userAccount,
-      phone: row.phone,
-      nodeType: "user",
-    }));
+    return props.searchContactUsers(keyword);
   };
 
   defineExpose({
