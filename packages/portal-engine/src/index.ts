@@ -13,12 +13,30 @@ export type { BizResponse, PageResult, PortalTab, PortalTemplate } from './schem
 export type {
   PortalPageAccessMode,
   PortalPageAccessSettings,
+  PortalPageBackgroundAttachment,
+  PortalPageBackgroundRepeat,
+  PortalPageBackgroundScope,
+  PortalPageBackgroundSettings,
+  PortalPageBackgroundSizeMode,
   PortalPageBasicSettings,
+  PortalPageBannerSettings,
+  PortalPageContentAlign,
+  PortalPageContentWidthMode,
+  PortalPageFooterMode,
   PortalPageGridSettings,
+  PortalPageHeaderFooterBehaviorSettings,
+  PortalPageLayoutContainerSettings,
   PortalPageLayoutPayload,
+  PortalPageLayoutMode,
+  PortalPageOverflowMode,
   PortalPagePublishGuardSettings,
+  PortalPageResponsiveItemSettings,
+  PortalPageResponsiveSettings,
+  PortalPageRuntimeSettings,
   PortalPageSettingIssue,
   PortalPageSettingsV2,
+  PortalPageSpacingSettings,
+  PortalPageViewportType,
 } from './schema/page-settings';
 export {
   buildPortalPageLayoutForSave,
@@ -27,6 +45,7 @@ export {
   isPortalPageSettingsV2,
   normalizePortalPageSettingsV2,
   PORTAL_PAGE_SETTINGS_V2_VERSION,
+  resolvePortalPageRuntimeSettings,
   validatePortalPageSettingsV2,
 } from './schema/page-settings';
 export type { SchemaConfigOptions, SchemaConfigResult, SectionConfig } from './composables/useSchemaConfig';
@@ -68,6 +87,8 @@ export {
 export type { PortalLayoutItem } from './stores/pageLayout';
 export { usePortalPageLayoutStore } from './stores/pageLayout';
 export { default as GridLayoutEditor } from './editor/GridLayoutEditor.vue';
+export type { LayoutUpdateItem } from './editor/layout-sync';
+export { hasLayoutGeometryChanged, mergeLayoutItems } from './editor/layout-sync';
 export { default as PropertyPanel } from './editor/PropertyPanel.vue';
 export { default as MaterialLibrary } from './editor/MaterialLibrary.vue';
 export { default as PortalGridRenderer } from './renderer/PortalGridRenderer.vue';

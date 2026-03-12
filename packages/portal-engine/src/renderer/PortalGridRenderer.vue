@@ -11,9 +11,14 @@
     materialsMap: Record<string, Component>;
     pageSettingData: unknown;
     previewMode?: 'safe' | 'live';
+    viewportWidth?: number;
   }>();
 
-  const gridSettings = computed(() => getPortalGridSettings(props.pageSettingData));
+  const gridSettings = computed(() =>
+    getPortalGridSettings(props.pageSettingData, {
+      viewportWidth: props.viewportWidth,
+    })
+  );
   const colNum = computed(() => gridSettings.value.colNum);
   const marginX = computed(() => gridSettings.value.colSpace);
   const marginY = computed(() => gridSettings.value.rowSpace);

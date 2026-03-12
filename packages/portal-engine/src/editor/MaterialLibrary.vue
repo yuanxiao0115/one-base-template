@@ -84,15 +84,18 @@
 <style scoped>
   .material-library {
     display: flex;
-    overflow: auto;
+    overflow: hidden;
     border-right: 1px solid var(--el-border-color-lighter);
     width: 260px;
+    flex: 0 0 260px;
     height: 100%;
+    min-height: 0;
     background: var(--el-bg-color);
     flex-direction: column;
   }
 
   .header {
+    flex: 0 0 auto;
     padding: 12px 12px 6px;
   }
 
@@ -108,6 +111,9 @@
   }
 
   .collapse {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
     padding: 0 8px 12px;
   }
 
