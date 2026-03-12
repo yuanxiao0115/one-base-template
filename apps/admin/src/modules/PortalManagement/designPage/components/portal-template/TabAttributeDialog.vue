@@ -2,6 +2,7 @@
   import { computed, nextTick, reactive, ref, watch } from "vue";
   import type { FormInstance, FormRules } from "element-plus";
 
+  import { portalApi } from "../../../api";
   import type { PortalTab } from "../../../types";
 
   const props = defineProps<{
@@ -22,6 +23,7 @@
         tabUrl?: string;
         tabUrlOpenMode?: number;
         tabUrlSsoType?: number;
+        portalTemplateId?: string;
       }
     ): void;
   }>();
@@ -50,7 +52,13 @@
     tabUrl: "",
     tabUrlOpenMode: 1,
     tabUrlSsoType: 1,
+    portalTemplateId: "",
   });
+
+  interface PortalTemplateOption {
+    id: string;
+    name: string;
+  }
 
   const tabTypeOptions = [
     {
@@ -64,6 +72,10 @@
     {
       key: 3,
       label: "链接",
+    },
+    {
+      key: 4,
+      label: "门户列表",
     },
   ];
 
@@ -93,6 +105,98 @@
     },
   ];
 
+  const isLinkType = computed(() => form.tabType === 3 || form.tabType === 4);
+  const isPortalListType = computed(() => form.tabType === 4);
+  const portalTemplateLoading = ref(false);
+  const portalTemplateOptions = ref<PortalTemplateOption[]>([]);
+  const portalTemplateOptionsLoaded = ref(false);
+
+  interface BizResLike {
+    code?: unknown;
+    success?: unknown;
+    data?: unknown;
+  }
+
+  function normalizeBizOk(res: BizResLike | null | undefined): boolean {
+    const code = res?.code;
+    return res?.success === true || code === 0 || code === 200 || String(code) === "0" || String(code) === "200";
+  }
+
+  function buildPortalTemplateLink(templateId: string): string {
+    const id = String(templateId || "").trim();
+    if (!id) {
+      return "";
+    }
+    return `/portal/index?templateId=${encodeURIComponent(id)}`;
+  }
+
+  function parsePortalTemplateIdFromUrl(url: string): string {
+    const input = String(url || "").trim();
+    if (!input) {
+      return "";
+    }
+    try {
+      const parsed = new URL(input, "http://localhost");
+      if (!parsed.pathname.startsWith("/portal/index")) {
+        return "";
+      }
+      const templateId = parsed.searchParams.get("templateId");
+      return templateId ? templateId.trim() : "";
+    } catch {
+      return "";
+    }
+  }
+
+  function normalizePortalTemplateOptions(data: unknown): PortalTemplateOption[] {
+    if (!data || typeof data !== "object") {
+      return [];
+    }
+    const payload = data as { records?: unknown; list?: unknown };
+    const rows = Array.isArray(payload.records) ? payload.records : Array.isArray(payload.list) ? payload.list : [];
+    const map = new Map<string, PortalTemplateOption>();
+    for (const row of rows) {
+      if (!row || typeof row !== "object") {
+        continue;
+      }
+      const item = row as { id?: unknown; templateName?: unknown };
+      const id = typeof item.id === "string" ? item.id.trim() : "";
+      if (!id) {
+        continue;
+      }
+      const name = typeof item.templateName === "string" && item.templateName.trim() ? item.templateName.trim() : id;
+      map.set(id, { id, name });
+    }
+    return Array.from(map.values());
+  }
+
+  async function loadPortalTemplateOptions(force = false) {
+    if (portalTemplateLoading.value) {
+      return;
+    }
+    if (portalTemplateOptionsLoaded.value && !force) {
+      return;
+    }
+    portalTemplateLoading.value = true;
+    try {
+      const res = await portalApi.template.list({
+        currentPage: 1,
+        pageSize: 200,
+      });
+      if (!normalizeBizOk(res)) {
+        portalTemplateOptions.value = [];
+        portalTemplateOptionsLoaded.value = false;
+        return;
+      }
+      portalTemplateOptions.value = normalizePortalTemplateOptions(res?.data);
+      portalTemplateOptionsLoaded.value = true;
+    } catch {
+      portalTemplateOptions.value = [];
+      portalTemplateOptionsLoaded.value = false;
+    } finally {
+      portalTemplateLoading.value = false;
+    }
+  }
+
   const rules: FormRules = {
     tabName: [
       {
@@ -119,7 +223,7 @@
       {
         trigger: "blur",
         validator: (_rule, value, callback) => {
-          if (form.tabType !== 3) {
+          if (!isLinkType.value) {
             return callback();
           }
           const v = typeof value === "string" ? value.trim() : "";
@@ -134,7 +238,7 @@
       {
         trigger: "change",
         validator: (_rule, value, callback) => {
-          if (form.tabType !== 3) {
+          if (!isLinkType.value) {
             return callback();
           }
           if (!value) {
@@ -148,11 +252,26 @@
       {
         trigger: "change",
         validator: (_rule, value, callback) => {
-          if (form.tabType !== 3) {
+          if (!isLinkType.value) {
             return callback();
           }
           if (!value) {
             return callback(new Error("请选择单点方式"));
+          }
+          callback();
+        },
+      },
+    ],
+    portalTemplateId: [
+      {
+        trigger: "change",
+        validator: (_rule, value, callback) => {
+          if (!isPortalListType.value) {
+            return callback();
+          }
+          const v = typeof value === "string" ? value.trim() : "";
+          if (!v) {
+            return callback(new Error("请选择门户"));
           }
           callback();
         },
@@ -168,6 +287,7 @@
     form.tabUrl = typeof initial?.tabUrl === "string" ? initial.tabUrl : "";
     form.tabUrlOpenMode = typeof initial?.tabUrlOpenMode === "number" ? initial.tabUrlOpenMode : 1;
     form.tabUrlSsoType = typeof initial?.tabUrlSsoType === "number" ? initial.tabUrlSsoType : 1;
+    form.portalTemplateId = parsePortalTemplateIdFromUrl(form.tabUrl);
   }
 
   watch(
@@ -177,7 +297,37 @@
         return;
       }
       hydrateFromInitial(props.initial);
+      if (form.tabType === 4) {
+        void loadPortalTemplateOptions(true);
+      }
       nextTick(() => formRef.value?.clearValidate());
+    }
+  );
+
+  watch(
+    () => form.tabType,
+    (nextType) => {
+      if (nextType !== 4) {
+        form.portalTemplateId = "";
+        return;
+      }
+      if (!form.portalTemplateId) {
+        form.portalTemplateId = parsePortalTemplateIdFromUrl(form.tabUrl);
+      }
+      if (form.portalTemplateId) {
+        form.tabUrl = buildPortalTemplateLink(form.portalTemplateId);
+      }
+      void loadPortalTemplateOptions();
+    }
+  );
+
+  watch(
+    () => form.portalTemplateId,
+    (nextId) => {
+      if (!isPortalListType.value) {
+        return;
+      }
+      form.tabUrl = buildPortalTemplateLink(nextId);
     }
   );
 
@@ -195,14 +345,16 @@
     if (!tabName) {
       return;
     }
+    const normalizedUrl = form.tabType === 4 ? buildPortalTemplateLink(form.portalTemplateId) : form.tabUrl.trim();
 
     emit("submit", {
       tabName,
       tabType: Number(form.tabType),
       sort: Number(form.sort) || 1,
-      tabUrl: form.tabType === 3 ? form.tabUrl.trim() : undefined,
-      tabUrlOpenMode: form.tabType === 3 ? form.tabUrlOpenMode : undefined,
-      tabUrlSsoType: form.tabType === 3 ? form.tabUrlSsoType : undefined,
+      tabUrl: isLinkType.value ? normalizedUrl : undefined,
+      tabUrlOpenMode: isLinkType.value ? form.tabUrlOpenMode : undefined,
+      tabUrlSsoType: isLinkType.value ? form.tabUrlSsoType : undefined,
+      portalTemplateId: form.tabType === 4 ? form.portalTemplateId : undefined,
     });
   }
 </script>
@@ -220,9 +372,28 @@
         </el-radio-group>
       </el-form-item>
 
-      <template v-if="form.tabType === 3">
+      <template v-if="isLinkType">
+        <el-form-item v-if="isPortalListType" label="门户列表" prop="portalTemplateId">
+          <el-select
+            v-model="form.portalTemplateId"
+            placeholder="请选择门户"
+            filterable
+            clearable
+            style="width: 100%"
+            :loading="portalTemplateLoading"
+          >
+            <el-option v-for="item in portalTemplateOptions" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="地址" prop="tabUrl">
-          <el-input v-model="form.tabUrl" placeholder="请输入链接地址" maxlength="500" show-word-limit />
+          <el-input
+            v-model="form.tabUrl"
+            :placeholder="isPortalListType ? '选择门户后自动生成跳转地址' : '请输入链接地址'"
+            :readonly="isPortalListType"
+            maxlength="500"
+            show-word-limit
+          />
         </el-form-item>
 
         <el-form-item label="打开方式" prop="tabUrlOpenMode">

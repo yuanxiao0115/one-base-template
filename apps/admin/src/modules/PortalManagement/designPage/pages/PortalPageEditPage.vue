@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { computed, ref, watch } from "vue";
+  import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import { message } from "@one-base-template/ui";
   import {
@@ -12,11 +12,9 @@
     normalizePortalPageSettingsV2,
     PropertyPanel,
     usePortalPageLayoutStore,
-    validatePortalPageSettingsV2,
   } from "@one-base-template/portal-engine";
 
-  import { portalApi, portalAuthorityApi } from "../../api";
-  import PortalPageSettingsForm from "../components/page-settings/PortalPageSettingsForm.vue";
+  import { portalApi } from "../../api";
   import { useMaterials } from "../../materials/useMaterials";
   import { portalMaterialsRegistry } from "../../materials/registry/materials-registry";
 
@@ -32,11 +30,6 @@
   interface PageLayoutJson {
     settings?: unknown;
     component?: PortalLayoutItem[];
-  }
-
-  interface RoleOption {
-    label: string;
-    value: string;
   }
 
   const route = useRoute();
@@ -64,13 +57,19 @@
   const loading = ref(false);
   const saving = ref(false);
   const previewLoading = ref(false);
-  const roleLoading = ref(false);
-  const settingTab = ref<"settings" | "component">("settings");
 
   const tabName = ref("");
-  const roleOptions = ref<RoleOption[]>([]);
 
   const pageSettingData = ref<PortalPageSettingsV2>(createDefaultPortalPageSettingsV2());
+  const previewWindowRef = ref<Window | null>(null);
+
+  const PREVIEW_WINDOW_NAME = "portal-page-preview";
+  const PREVIEW_RUNTIME_SYNC_DELAY = 160;
+  const PREVIEW_RUNTIME_BOOTSTRAP_DELAYS = [180, 520] as const;
+  const PREVIEW_READY_MESSAGE_TYPE = "preview-page-ready";
+
+  let previewRuntimeSyncTimer: number | null = null;
+  let previewRuntimeBootstrapTimers: number[] = [];
 
   function normalizeBizOk(res: BizResLike | null | undefined): boolean {
     const code = res?.code;
@@ -113,45 +112,136 @@
     return normalized;
   }
 
-  async function loadRoleOptions() {
-    if (roleLoading.value || roleOptions.value.length > 0) {
+  function toPlainData<T>(value: T): T {
+    return JSON.parse(JSON.stringify(value)) as T;
+  }
+
+  function getPreviewWindow(): Window | null {
+    const targetWindow = previewWindowRef.value;
+    if (!targetWindow || targetWindow.closed) {
+      previewWindowRef.value = null;
+      return null;
+    }
+    return targetWindow;
+  }
+
+  function clearPreviewRuntimeSyncTimer() {
+    if (!previewRuntimeSyncTimer) {
       return;
     }
+    window.clearTimeout(previewRuntimeSyncTimer);
+    previewRuntimeSyncTimer = null;
+  }
 
-    roleLoading.value = true;
+  function clearPreviewRuntimeBootstrapTimers() {
+    if (previewRuntimeBootstrapTimers.length === 0) {
+      return;
+    }
+    for (const timer of previewRuntimeBootstrapTimers) {
+      window.clearTimeout(timer);
+    }
+    previewRuntimeBootstrapTimers = [];
+  }
+
+  function postPreviewRuntimeMessage(): boolean {
+    if (!tabId.value) {
+      return false;
+    }
+    const targetWindow = getPreviewWindow();
+    if (!targetWindow) {
+      return false;
+    }
+
     try {
-      const res = await portalAuthorityApi.listRoles();
-      if (!normalizeBizOk(res)) {
-        return;
-      }
-      const list = Array.isArray(res?.data) ? res.data : [];
-      roleOptions.value = list
-        .map((item) => {
-          const value = typeof item?.id === "string" ? item.id : "";
-          const label = typeof item?.roleName === "string" ? item.roleName : typeof item?.name === "string" ? item.name : "";
-          if (!(value && label)) {
-            return null;
-          }
-          return { label, value };
-        })
-        .filter(Boolean) as RoleOption[];
+      targetWindow.postMessage(
+        {
+          type: "preview-page-runtime",
+          data: {
+            tabId: tabId.value,
+            templateId: templateId.value,
+            settings: toPlainData(pageSettingData.value),
+            component: toPlainData(pageLayoutStore.layoutItems),
+          },
+        },
+        window.location.origin
+      );
+      return true;
     } catch {
-      roleOptions.value = [];
-    } finally {
-      roleLoading.value = false;
+      previewWindowRef.value = null;
+      return false;
     }
   }
 
-  function validateBeforeSave(): boolean {
-    const issues = validatePortalPageSettingsV2(pageSettingData.value, {
-      componentCount: pageLayoutStore.layoutItems.length,
-    });
-    if (issues.length === 0) {
-      return true;
+  function queuePreviewRuntimeSync() {
+    clearPreviewRuntimeSyncTimer();
+    previewRuntimeSyncTimer = window.setTimeout(() => {
+      previewRuntimeSyncTimer = null;
+      postPreviewRuntimeMessage();
+    }, PREVIEW_RUNTIME_SYNC_DELAY);
+  }
+
+  function pushPreviewRuntimeBootstrapSync() {
+    postPreviewRuntimeMessage();
+    clearPreviewRuntimeBootstrapTimers();
+    previewRuntimeBootstrapTimers = PREVIEW_RUNTIME_BOOTSTRAP_DELAYS.map((delay) =>
+      window.setTimeout(() => {
+        postPreviewRuntimeMessage();
+      }, delay)
+    );
+  }
+
+  function openPreviewWindow(href: string): Window | null {
+    const existing = getPreviewWindow();
+    if (existing) {
+      try {
+        existing.location.href = href;
+      } catch {
+        previewWindowRef.value = null;
+      }
+      existing.focus();
+      return existing;
     }
-    settingTab.value = "settings";
-    message.warning(issues[0]?.message || "页面设置校验失败");
-    return false;
+
+    const opened = window.open(href, PREVIEW_WINDOW_NAME);
+    if (!opened) {
+      message.warning("预览窗口被浏览器拦截，请允许弹窗后重试");
+      return null;
+    }
+    previewWindowRef.value = opened;
+    return opened;
+  }
+
+  function onPreviewWindowMessage(event: MessageEvent) {
+    if (event.origin !== window.location.origin) {
+      return;
+    }
+
+    const raw = event.data as unknown;
+    if (!raw || typeof raw !== "object") {
+      return;
+    }
+
+    const msg = raw as { type?: unknown; data?: unknown };
+    if (msg.type !== PREVIEW_READY_MESSAGE_TYPE) {
+      return;
+    }
+
+    const payload = msg.data as { tabId?: unknown; templateId?: unknown } | undefined;
+    const payloadTabId = typeof payload?.tabId === "string" ? payload.tabId : "";
+    const payloadTemplateId = typeof payload?.templateId === "string" ? payload.templateId : "";
+    if (payloadTabId && payloadTabId !== tabId.value) {
+      return;
+    }
+    if (payloadTemplateId && payloadTemplateId !== templateId.value) {
+      return;
+    }
+
+    const source = event.source as Window | null;
+    if (!source || typeof source.postMessage !== "function") {
+      return;
+    }
+    previewWindowRef.value = source;
+    pushPreviewRuntimeBootstrapSync();
   }
 
   async function loadTabDetail(id: string) {
@@ -211,10 +301,6 @@
 
     try {
       pageSettingData.value = applyPageSettings(pageSettingData.value, tabName.value);
-      if (!validateBeforeSave()) {
-        return false;
-      }
-
       const pageLayout = buildPortalPageLayoutForSave(pageSettingData.value, pageLayoutStore.layoutItems);
 
       const res = await portalApi.tab.update({
@@ -264,7 +350,12 @@
           previewMode: "live",
         },
       });
-      window.open(resolved.href, "_blank", "noopener,noreferrer");
+      const previewWindow = openPreviewWindow(resolved.href);
+      if (!previewWindow) {
+        return;
+      }
+      previewWindowRef.value = previewWindow;
+      pushPreviewRuntimeBootstrapSync();
     } finally {
       previewLoading.value = false;
     }
@@ -293,48 +384,44 @@
   );
 
   watch(
-    () => pageSettingData.value.access.mode,
-    (mode) => {
-      if (mode === "role") {
-        void loadRoleOptions();
-      }
+    () => [pageSettingData.value, pageLayoutStore.layoutItems, tabId.value, templateId.value] as const,
+    () => {
+      queuePreviewRuntimeSync();
     },
-    { immediate: true }
+    { deep: true }
   );
+
+  onBeforeUnmount(() => {
+    clearPreviewRuntimeSyncTimer();
+    clearPreviewRuntimeBootstrapTimers();
+    window.removeEventListener("message", onPreviewWindowMessage);
+    previewWindowRef.value = null;
+  });
+
+  onMounted(() => {
+    window.addEventListener("message", onPreviewWindowMessage);
+  });
 </script>
 
 <template>
   <div class="page">
-    <div class="topbar">
-      <div class="left topbar-block"><el-button class="toolbar-btn" @click="onBack">返回</el-button></div>
-      <div class="center">
-        <div class="title-row">
-          <div class="title">{{ tabName || '页面编辑' }}</div>
-          <div class="title-badge">页面设置工作台</div>
-        </div>
-        <div class="sub">tabId={{ tabId || '-' }} · templateId={{ templateId || '-' }}</div>
+    <header class="headbar">
+      <el-button class="head-btn" size="small" @click="onBack">返回</el-button>
+      <div class="head-title-wrap">
+        <div class="head-title">{{ tabName || "页面编辑" }}</div>
+        <div class="head-meta">templateId {{ templateId || "-" }} · tabId {{ tabId || "-" }}</div>
       </div>
-      <div class="right topbar-block">
-        <el-button class="toolbar-btn" :loading="saving" type="primary" @click="savePage">保存</el-button>
-        <el-button class="toolbar-btn" :loading="previewLoading" @click="previewPage">预览</el-button>
-      </div>
-    </div>
+      <el-button class="head-btn" size="small" type="primary" :loading="saving" @click="savePage">保存</el-button>
+      <el-button class="head-btn" size="small" :loading="previewLoading" @click="previewPage">预览</el-button>
+    </header>
 
     <div v-loading="loading" class="content">
       <MaterialLibrary :categories="materialCategories" />
       <div class="canvas">
-        <GridLayoutEditor class="canvas-inner" :materials-map :scale="1" :loaded="!loading" :page-setting-data />
+        <GridLayoutEditor :materials-map :scale="1" :loaded="!loading" :page-setting-data />
       </div>
       <div class="right-panel">
-        <el-tabs v-model="settingTab" class="right-tabs">
-          <el-tab-pane label="页面设置" name="settings">
-            <PortalPageSettingsForm v-model="pageSettingData" :role-options="roleOptions" :role-loading="roleLoading" />
-          </el-tab-pane>
-
-          <el-tab-pane label="组件属性" name="component">
-            <PropertyPanel :materials-map />
-          </el-tab-pane>
-        </el-tabs>
+        <PropertyPanel class="property-panel" :materials-map />
       </div>
     </div>
   </div>
@@ -355,85 +442,39 @@
     overflow: hidden;
   }
 
-  .topbar {
-    display: grid;
-    grid-template-columns: 180px minmax(0, 1fr) 220px;
+  .headbar {
+    flex: none;
+    display: flex;
+    align-items: center;
     gap: 12px;
-    box-sizing: border-box;
-    height: 60px;
-    align-items: center;
-    border-bottom: 1px solid var(--portal-line-strong);
-    padding: 0 16px;
-    background: linear-gradient(90deg, #fbfdff 0%, #f3f8ff 58%, #fbfdff 100%);
+    padding: 7px 14px;
+    border-bottom: 1px solid #d8e0ea;
+    background: #f2f5f9;
   }
 
-  .left,
-  .right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .right {
-    justify-content: flex-end;
-  }
-
-  .topbar-block {
+  .head-title-wrap {
+    flex: 1;
     min-width: 0;
   }
 
-  .toolbar-btn {
-    height: 32px;
-    min-width: 74px;
-    border-radius: 4px;
-  }
-
-  .toolbar-btn:active {
-    transform: translateY(1px);
-  }
-
-  .center {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .title-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .title-badge {
-    width: fit-content;
-    border: 1px solid rgb(37 99 235 / 22%);
-    border-radius: 4px;
-    padding: 1px 8px;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 18px;
-    color: rgb(29 78 216 / 95%);
-    background: rgb(255 255 255 / 92%);
-    white-space: nowrap;
-  }
-
-  .title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--el-text-color-primary);
-    white-space: nowrap;
+  .head-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .sub {
-    font-size: 12px;
-    line-height: 1.2;
-    color: var(--el-text-color-secondary);
-    font-family: var(--el-font-family-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, monospace);
-    letter-spacing: 0.15px;
+  .head-meta {
+    margin-top: 1px;
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .head-btn {
+    flex: none;
+    border-radius: 0;
   }
 
   .content {
@@ -479,14 +520,6 @@
     overflow: hidden;
   }
 
-  .canvas-inner {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-    height: 100%;
-  }
-
-  .canvas :deep(.page-banner),
   .canvas :deep(.grid-container) {
     border-radius: 0;
     border-color: var(--portal-line);
@@ -508,47 +541,9 @@
     flex-direction: column;
   }
 
-  .right-tabs {
+  .property-panel {
     flex: 1;
     min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .right-tabs :deep(.el-tabs__header) {
-    margin: 0;
-    padding: 0 12px;
-    border-bottom: 1px solid #e2e9f3;
-    background: linear-gradient(180deg, #fcfdff 0%, #f6f9fe 100%);
-  }
-
-  .right-tabs :deep(.el-tabs__content) {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .right-tabs :deep(.el-tab-pane) {
-    height: 100%;
-    min-height: 0;
-  }
-
-  .right-tabs :deep(.el-tabs__item) {
-    height: 48px;
-    line-height: 48px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--el-text-color-secondary);
-  }
-
-  .right-tabs :deep(.el-tabs__item.is-active) {
-    font-weight: 700;
-    color: var(--el-color-primary);
-  }
-
-  .right-tabs :deep(.el-tabs__active-bar) {
-    height: 2px;
-    border-radius: 999px;
   }
 
   @media (max-width: 1600px) {
@@ -563,14 +558,6 @@
   }
 
   @media (max-width: 1360px) {
-    .topbar {
-      grid-template-columns: 160px minmax(0, 1fr) 240px;
-    }
-
-    .title-badge {
-      display: none;
-    }
-
     .right-panel {
       width: 352px;
       min-width: 352px;
@@ -595,5 +582,16 @@
       grid-template-columns: 220px minmax(0, 1fr) 336px;
     }
 
+  }
+
+  @media (max-width: 640px) {
+    .headbar {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .head-title {
+      font-size: 13px;
+    }
   }
 </style>

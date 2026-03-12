@@ -70,7 +70,10 @@
 - `PortalManagement/designPage/components/portal-template` 中涉及壳层（门户级）能力时，入口必须放在顶部栏（`PortalDesignerHeaderBar`）；页面工具栏（`PortalDesignerActionStrip`）只允许放页面级动作，禁止放门户级页眉页脚配置入口。
 - `PortalManagement/designPage/components/portal-template` 的页眉页脚配置必须以可视化表单项为主，不允许把“手工编辑 JSON 文本”作为主配置方式；仅可提供“只读 JSON 结构查看/复制”能力用于联调与排错。
 - `PortalManagement/designPage/components/portal-template` 的页眉页脚配置在弹窗编辑过程中必须实时驱动右侧预览（仅前端预览态，不直接落库）；`safe/live` 差异必须下沉到物料组件层，禁止在壳层（页眉/页脚/容器）做模式分叉。
+- `PortalManagement/designPage/components/portal-template/PortalShellSettingsDialog.vue` 作为门户级页眉页脚配置容器必须使用 `ObCrudContainer`（`container="drawer"`）承载，抽屉宽度固定 `400`；禁止回退为 `el-dialog` 直连编排。
 - `PortalManagement/designPage/components/portal-template` 的页脚配置基线不包含“风格变体”和“联系二维码”；面板必须按功能区分组，并保持颜色项在对应功能区就近配置。
+- `PortalManagement/designPage/components/portal-template/PortalPageSettingsDrawer.vue` 作为页面配置抽屉必须使用 `ObCrudContainer`（`container="drawer"`）承载；禁止回退为 `el-drawer` / `el-dialog` 直连编排。
+- `PortalManagement/designPage/components/portal-template/PortalPageSettingsDrawer.vue` 与 `PortalShellSettingsDialog.vue` 视觉风格需保持一致：外层 `#f5f7fa`、模块 `#fff + ObCard`、单列控件宽度收敛 `320px`、颜色项统一“色块 + HEX 输入”。
 - `PortalManagement` 页面设置能力默认**不包含配置预设**（如“默认/营销/政务”）；除非用户明确提出，否则禁止新增预设模板入口与对应数据结构。
 - admin 登录页统一使用 `ObLoginBoxV2`，不要回退到基础版 `ObLoginBox`。
 - 涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面。

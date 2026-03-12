@@ -195,15 +195,23 @@
 </script>
 
 <template>
-  <el-dialog
+  <ObCrudContainer
     v-model="visible"
     class="shell-settings-dialog"
+    container="drawer"
+    mode="edit"
     title="门户页眉页脚配置"
-    width="1120px"
+    :loading="props.loading"
+    confirm-text="保存配置"
+    :drawer-size="400"
+    :append-to-body="false"
     :close-on-click-modal="false"
     destroy-on-close
+    @confirm="onSubmit"
+    @cancel="onCancel"
+    @close="onCancel"
   >
-    <section class="dialog-top">
+    <section class="drawer-top">
       <div class="top-main">
         <div class="top-title">门户级壳层设置</div>
         <div class="top-sub-title">
@@ -230,13 +238,7 @@
       </el-tab-pane>
     </el-tabs>
 
-    <template #footer>
-      <div class="footer-actions">
-        <el-button @click="onCancel">取消</el-button>
-        <el-button type="primary" :loading="props.loading" @click="onSubmit">保存配置</el-button>
-      </div>
-    </template>
-  </el-dialog>
+  </ObCrudContainer>
 
   <el-drawer v-model="jsonViewerVisible" title="details 数据结构（只读）" size="56%" append-to-body destroy-on-close>
     <div class="json-panel-list">
@@ -260,18 +262,25 @@
 </template>
 
 <style scoped>
-  .dialog-top {
+  .shell-settings-dialog :deep(.el-drawer__body) {
+    padding: 12px;
+    background: #f5f7fa;
+  }
+
+  .shell-settings-dialog :deep(.el-drawer__footer) {
+    padding: 10px 12px 12px;
+  }
+
+  .drawer-top {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 10px;
-    padding: 12px 14px;
-    border: 1px solid #dbe6f5;
-    background: linear-gradient(128deg, #f7fbff 0%, #f4f8ff 48%, #ffffff 100%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.95),
-      0 8px 24px -20px rgba(30, 64, 175, 0.35);
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background: #fff;
   }
 
   .top-main {
@@ -283,16 +292,15 @@
 
   .top-title {
     margin: 0;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
-    color: #0f172a;
-    letter-spacing: 0.02em;
+    color: #1f2937;
   }
 
   .top-sub-title {
     font-size: 12px;
-    line-height: 1.6;
-    color: #475569;
+    line-height: 1.45;
+    color: #64748b;
   }
 
   .top-actions {
@@ -302,20 +310,23 @@
   }
 
   .tabs {
-    min-height: 560px;
+    min-height: 0;
+  }
+
+  .tabs :deep(.el-tabs__header) {
+    margin: 0 0 8px;
+  }
+
+  .tabs :deep(.el-tabs__item) {
+    height: 32px;
+    line-height: 32px;
+    font-size: 13px;
   }
 
   .tab-content {
-    max-height: 58vh;
+    max-height: calc(100vh - 220px);
     overflow: auto;
-    padding-right: 4px;
-  }
-
-  .footer-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
+    padding-right: 2px;
   }
 
   .json-panel-list {
@@ -363,7 +374,7 @@
   }
 
   @media (max-width: 900px) {
-    .dialog-top {
+    .drawer-top {
       flex-direction: column;
       align-items: stretch;
     }

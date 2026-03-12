@@ -6,6 +6,7 @@
   import {
     buildPortalPageLayoutForSave,
     createDefaultPortalPageSettingsV2,
+    normalizePortalPageSettingsV2,
     type PortalPageSettingsV2,
   } from "@one-base-template/portal-engine";
 
@@ -36,7 +37,6 @@
   import PortalDesignerActionStrip from "../components/portal-template/PortalDesignerActionStrip.vue";
   import PortalDesignerHeaderBar from "../components/portal-template/PortalDesignerHeaderBar.vue";
   import PortalPageSettingsDrawer from "../components/portal-template/PortalPageSettingsDrawer.vue";
-  import PortalPageShellOverrideDialog from "../components/portal-template/PortalPageShellOverrideDialog.vue";
   import PortalDesignerPreviewFrame from "../components/portal-template/PortalDesignerPreviewFrame.vue";
   import PortalShellSettingsDialog from "../components/portal-template/PortalShellSettingsDialog.vue";
   import PortalDesignerTreePanel from "../components/portal-template/PortalDesignerTreePanel.vue";
@@ -80,15 +80,19 @@
   const pageSettingsVisible = ref(false);
   const pageSettingsLoading = ref(false);
   const pageSettingsSaving = ref(false);
+  const pageSettingsActiveTab = ref<"layout" | "advanced" | "header" | "footer">("layout");
   const pageSettingsForm = ref<PortalPageSettingsV2 | null>(null);
+  const pageSettingsPersisted = ref<PortalPageSettingsV2 | null>(null);
+  const pageSettingsComponents = ref<unknown[]>([]);
+  const pageSettingsSavedInThisRound = ref(false);
   const roleLoading = ref(false);
   const roleOptions = ref<Array<{ label: string; value: string }>>([]);
   const shellSettingVisible = ref(false);
   const shellSettingSaving = ref(false);
   const shellSettingSavedInThisRound = ref(false);
-  const pageShellSettingVisible = ref(false);
   const pageShellSettingSaving = ref(false);
   const pageShellSettingSavedInThisRound = ref(false);
+  const pageShellPreviewDirty = ref(false);
   const sortingTabs = ref(false);
   const previewMode = ref<PortalPreviewMode>(PREVIEW_MODE_SAFE);
   const previewViewport = ref<PortalPreviewViewport>(PREVIEW_VIEWPORT_DEFAULT);
@@ -220,6 +224,32 @@
         height: previewViewport.value.height,
       },
     });
+  }
+
+  function cloneByJson<T>(input: T): T {
+    return JSON.parse(JSON.stringify(input)) as T;
+  }
+
+  function postPageRuntimePreview(settings: PortalPageSettingsV2 | null | undefined): boolean {
+    if (!(templateId.value && currentTabId.value)) {
+      return false;
+    }
+    if (!settings) {
+      return false;
+    }
+    const normalizedSettings = normalizePortalPageSettingsV2(settings);
+    const runtimeComponents = Array.isArray(pageSettingsComponents.value) ? cloneByJson(pageSettingsComponents.value) : [];
+    return (
+      previewFrameRef.value?.postMessageToFrame({
+        type: "preview-page-runtime",
+        data: {
+          templateId: templateId.value,
+          tabId: currentTabId.value,
+          settings: cloneByJson(normalizedSettings),
+          component: runtimeComponents,
+        },
+      }) ?? false
+    );
   }
 
   function updateRouteTabId(tabId: string) {
@@ -474,6 +504,7 @@
     tabUrl?: string;
     tabUrlOpenMode?: number;
     tabUrlSsoType?: number;
+    portalTemplateId?: string;
   }) {
     if (!templateId.value) {
       return;
@@ -485,17 +516,19 @@
     creating.value = true;
     try {
       if (attrMode.value === "create") {
+        // “门户列表”是便捷入口，落库仍按链接处理，避免后端枚举兼容问题
+        const submitTabType = payload.tabType === 4 ? 3 : payload.tabType;
         const data: Record<string, unknown> = {
           templateId: templateId.value,
           parentId: attrParentId.value,
           tabName: payload.tabName,
-          tabType: payload.tabType,
+          tabType: submitTabType,
           sort: payload.sort,
           tabIcon: "",
           order: 0,
         };
 
-        if (payload.tabType === 3) {
+        if (submitTabType === 3) {
           data.tabUrl = payload.tabUrl ?? "";
           data.tabUrlOpenMode = payload.tabUrlOpenMode ?? 1;
           data.tabUrlSsoType = payload.tabUrlSsoType ?? 1;
@@ -505,7 +538,7 @@
           data.tabUrlSsoType = 1;
         }
 
-        if (payload.tabType === 2) {
+        if (submitTabType === 2) {
           data.pageLayout = JSON.stringify(
             buildPortalPageLayoutForSave(createDefaultPortalPageSettingsV2(), [])
           );
@@ -526,7 +559,7 @@
 
         await linkTabToTemplate(newTabId);
 
-        if (payload.tabType === 2) {
+        if (submitTabType === 2) {
           router.push({
             path: "/portal/page/edit",
             query: {
@@ -547,7 +580,8 @@
       if (!id) {
         return;
       }
-      const tabType = editingTabType.value ?? payload.tabType;
+      const rawTabType = editingTabType.value ?? payload.tabType;
+      const tabType = rawTabType === 4 ? 3 : rawTabType;
 
       const updateData: Record<string, unknown> = {
         id,
@@ -761,22 +795,34 @@
     });
   }
 
-  async function openPageSettingsDrawer(tabId: string) {
+  async function openPageSettingsDrawer(tabId: string, targetTab: "layout" | "advanced" | "header" | "footer" = "layout") {
     if (!tabId || pageSettingsLoading.value) {
       return;
     }
 
+    pageSettingsActiveTab.value = targetTab;
     pageSettingsLoading.value = true;
     try {
       const detail = await loadPortalTabPageSettings(tabId);
-      pageSettingsForm.value = detail.settings;
+      pageSettingsPersisted.value = cloneByJson(detail.settings);
+      pageSettingsComponents.value = cloneByJson(detail.components);
+      pageSettingsForm.value = cloneByJson(detail.settings);
+      pageSettingsSavedInThisRound.value = false;
+      pageShellSettingSavedInThisRound.value = false;
+      pageShellPreviewDirty.value = false;
+      pageShellPreviewDetailsDraft.value = "";
       pageSettingsVisible.value = true;
+      postPageRuntimePreview(pageSettingsForm.value);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "加载页面设置失败";
       message.error(msg);
     } finally {
       pageSettingsLoading.value = false;
     }
+  }
+
+  function onPageSettingsPreviewChange(settings: PortalPageSettingsV2) {
+    postPageRuntimePreview(settings);
   }
 
   async function onSubmitPageSettings(settings: PortalPageSettingsV2) {
@@ -792,6 +838,10 @@
         settings,
       });
       message.success("页面设置保存成功");
+      pageSettingsPersisted.value = cloneByJson(settings);
+      pageSettingsForm.value = cloneByJson(settings);
+      pageSettingsSavedInThisRound.value = true;
+      postPageRuntimePreview(pageSettingsForm.value);
       pageSettingsVisible.value = false;
       await loadTemplate(currentTabId.value);
     } catch (e: unknown) {
@@ -842,12 +892,17 @@
     postPreviewViewport();
     const draftDetails =
       (shellSettingVisible.value && shellPreviewDetailsDraft.value) ||
-      (pageShellSettingVisible.value && pageShellPreviewDetailsDraft.value) ||
+      (
+        pageSettingsVisible.value &&
+        (pageSettingsActiveTab.value === "header" || pageSettingsActiveTab.value === "footer") &&
+        pageShellPreviewDetailsDraft.value
+      ) ||
       "";
-    if (!draftDetails) {
-      return;
+    if (draftDetails) {
+      postShellPreviewDetails(draftDetails);
     }
-    postShellPreviewDetails(draftDetails);
+    const runtimeSettings = pageSettingsVisible.value ? pageSettingsForm.value : pageSettingsPersisted.value;
+    postPageRuntimePreview(runtimeSettings);
   }
 
   function openShellSettings() {
@@ -855,7 +910,6 @@
       message.warning("请先选择门户模板");
       return;
     }
-    pageShellSettingVisible.value = false;
     shellSettingVisible.value = true;
   }
 
@@ -895,24 +949,9 @@
     }
   }
 
-  function openPageShellSettings() {
-    if (!templateInfo.value) {
-      message.warning("请先选择门户模板");
-      return;
-    }
-
-    const current = currentTab.value;
-    if (!(currentTabId.value && (current && isPortalTabEditable(current.tabType)))) {
-      message.warning("请选择可编辑页面后再配置页面级页眉页脚");
-      return;
-    }
-
-    shellSettingVisible.value = false;
-    pageShellSettingVisible.value = true;
-  }
-
   function onPageShellPreviewChange(payload: { details: string }) {
     pageShellPreviewDetailsDraft.value = payload.details;
+    pageShellPreviewDirty.value = true;
     postShellPreviewDetails(payload.details);
   }
 
@@ -936,8 +975,9 @@
 
       message.success("页面级页眉页脚配置保存成功");
       pageShellSettingSavedInThisRound.value = true;
+      pageShellPreviewDirty.value = false;
       pageShellPreviewDetailsDraft.value = payload.details;
-      pageShellSettingVisible.value = false;
+      pageSettingsVisible.value = false;
       await loadTemplate(currentTabId.value);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "页面级页眉页脚配置保存失败";
@@ -953,6 +993,14 @@
       if (!currentTabId.value) {
         previewInteractionMode.value = "auto";
       }
+      pageSettingsPersisted.value = null;
+      pageSettingsComponents.value = [];
+      pageSettingsForm.value = null;
+      pageSettingsSavedInThisRound.value = false;
+      pageSettingsActiveTab.value = "layout";
+      pageShellSettingSavedInThisRound.value = false;
+      pageShellPreviewDirty.value = false;
+      pageShellPreviewDetailsDraft.value = "";
       if (!pageSettingsVisible.value) {
         return;
       }
@@ -968,6 +1016,33 @@
       }
     }
   );
+
+  watch(pageSettingsVisible, (opened) => {
+    if (opened) {
+      pageSettingsSavedInThisRound.value = false;
+      pageShellSettingSavedInThisRound.value = false;
+      pageShellPreviewDirty.value = false;
+      return;
+    }
+    const persistedDetails = templateInfo.value?.details || "";
+    if (pageShellSettingSavedInThisRound.value) {
+      pageShellSettingSavedInThisRound.value = false;
+    } else if (pageShellPreviewDirty.value || pageShellPreviewDetailsDraft.value) {
+      pageShellPreviewDetailsDraft.value = "";
+      postShellPreviewDetails(persistedDetails);
+    }
+    pageShellPreviewDirty.value = false;
+    pageSettingsActiveTab.value = "layout";
+
+    if (pageSettingsSavedInThisRound.value) {
+      pageSettingsSavedInThisRound.value = false;
+      return;
+    }
+    if (pageSettingsPersisted.value) {
+      pageSettingsForm.value = cloneByJson(pageSettingsPersisted.value);
+      postPageRuntimePreview(pageSettingsPersisted.value);
+    }
+  });
 
   watch(
     shellSettingVisible,
@@ -988,24 +1063,6 @@
   );
 
   watch(
-    pageShellSettingVisible,
-    (opened) => {
-      if (opened) {
-        pageShellPreviewDetailsDraft.value = "";
-        pageShellSettingSavedInThisRound.value = false;
-        return;
-      }
-      if (pageShellSettingSavedInThisRound.value) {
-        pageShellSettingSavedInThisRound.value = false;
-        return;
-      }
-      const persistedDetails = templateInfo.value?.details || "";
-      pageShellPreviewDetailsDraft.value = "";
-      postShellPreviewDetails(persistedDetails);
-    }
-  );
-
-  watch(
     () => [previewFrameSrc.value, currentTabId.value, shellSettingVisible.value, shellPreviewDetailsDraft.value] as const,
     async ([, tabId, opened, draftDetails]) => {
       if (!(opened && draftDetails && tabId)) {
@@ -1018,9 +1075,15 @@
 
   watch(
     () =>
-      [previewFrameSrc.value, currentTabId.value, pageShellSettingVisible.value, pageShellPreviewDetailsDraft.value] as const,
-    async ([, tabId, opened, draftDetails]) => {
-      if (!(opened && draftDetails && tabId)) {
+      [
+        previewFrameSrc.value,
+        currentTabId.value,
+        pageSettingsVisible.value,
+        pageSettingsActiveTab.value,
+        pageShellPreviewDetailsDraft.value,
+      ] as const,
+    async ([, tabId, opened, activeTab, draftDetails]) => {
+      if (!(opened && (activeTab === "header" || activeTab === "footer") && draftDetails && tabId)) {
         return;
       }
       await nextTick();
@@ -1068,7 +1131,6 @@
           :interaction-mode="previewInteractionMode"
           @edit="editCurrentTab"
           @page-settings="openCurrentPageSettings"
-          @page-shell="openPageShellSettings"
           @toggle-hide="toggleCurrentTabHide"
           @preview="openPreviewWindow"
           @delete="deleteCurrentTab"
@@ -1104,12 +1166,20 @@
 
     <PortalPageSettingsDrawer
       v-model="pageSettingsVisible"
+      v-model:active-tab="pageSettingsActiveTab"
       :loading="pageSettingsSaving"
+      :shell-loading="pageShellSettingSaving"
       :page-name="currentTabName"
       :settings="pageSettingsForm"
+      :details="templateInfo?.details || ''"
+      :tabs="templateInfo?.tabList || []"
+      :current-tab-id="currentTabId"
       :role-options="roleOptions"
       :role-loading="roleLoading"
+      @preview-change="onPageSettingsPreviewChange"
+      @preview-shell-change="onPageShellPreviewChange"
       @submit="onSubmitPageSettings"
+      @submit-shell="onSubmitPageShellSetting"
     />
 
     <PortalShellSettingsDialog
@@ -1121,15 +1191,6 @@
       @preview-change="onShellPreviewChange"
     />
 
-    <PortalPageShellOverrideDialog
-      v-model="pageShellSettingVisible"
-      :loading="pageShellSettingSaving"
-      :current-tab-id="currentTabId"
-      :details="templateInfo?.details || ''"
-      :tabs="templateInfo?.tabList || []"
-      @submit="onSubmitPageShellSetting"
-      @preview-change="onPageShellPreviewChange"
-    />
   </div>
 </template>
 

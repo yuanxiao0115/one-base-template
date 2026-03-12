@@ -4,7 +4,6 @@
     Delete as DeleteIcon,
     EditPen,
     Hide,
-    Operation,
     RefreshRight,
     Setting,
     View,
@@ -61,7 +60,6 @@
       e:
         | "edit"
         | "page-settings"
-        | "page-shell"
         | "toggle-hide"
         | "preview"
         | "delete"
@@ -218,17 +216,6 @@
             aria-label="页面设置"
             :disabled="!canOperateCurrent"
             @click="emit('page-settings')"
-          />
-        </el-tooltip>
-        <el-tooltip content="页面壳层覆盖" placement="top">
-          <el-button
-            class="action-icon"
-            text
-            size="small"
-            :icon="Operation"
-            aria-label="页面壳层覆盖"
-            :disabled="!canOperateCurrent"
-            @click="emit('page-shell')"
           />
         </el-tooltip>
         <el-tooltip :content="isCurrentHidden ? '显示页面' : '隐藏页面'" placement="top">

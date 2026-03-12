@@ -8,6 +8,7 @@
     navItems: PortalShellNavItem[];
     activeTabId: string;
     embedded?: boolean;
+    sticky?: boolean | null;
   }>();
 
   const emit = defineEmits<(e: "navigate", item: PortalShellNavItem) => void>();
@@ -66,6 +67,7 @@
   const showActionButton = computed(
     () => props.config.behavior.showActionButton && Boolean(props.config.behavior.actionButtonText.trim())
   );
+  const useSticky = computed(() => (typeof props.sticky === "boolean" ? props.sticky : props.config.tokens.sticky));
 
   function isActive(item: PortalShellNavItem): boolean {
     return Boolean(item.tabId && item.tabId === props.activeTabId);
@@ -81,7 +83,7 @@
 </script>
 
 <template>
-  <div class="header-wrap" :class="{ 'header-wrap--sticky': props.config.tokens.sticky }" :style="headerStyle">
+  <div class="header-wrap" :class="{ 'header-wrap--sticky': useSticky }" :style="headerStyle">
     <div v-if="props.config.behavior.showTopNotice && props.config.behavior.topNoticeText" class="top-notice">
       {{ props.config.behavior.topNoticeText }}
     </div>

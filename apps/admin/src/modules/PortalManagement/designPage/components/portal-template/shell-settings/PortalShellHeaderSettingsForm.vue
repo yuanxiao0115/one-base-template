@@ -6,6 +6,7 @@
 
   import { portalApi } from "../../../../api";
   import { PORTAL_CUSTOM_HEADER_OPTIONS, type PortalTemplateDetails } from "../../../../utils/templateDetails";
+  import PortalColorField from "../PortalColorField.vue";
 
   interface SelectOption {
     label: string;
@@ -149,18 +150,17 @@
 </script>
 
 <template>
-  <el-form :model="props.formState" label-width="128px" class="settings-form">
-    <section class="settings-section">
-      <h4 class="section-title">基础布局</h4>
+  <el-form :model="props.formState" label-position="top" class="settings-form">
+    <ObCard class="settings-card" title="基础布局">
       <el-form-item label="启用页眉">
         <el-switch v-model="props.formState.shell.header.enabled" />
       </el-form-item>
 
       <el-form-item label="页眉模式">
-        <el-radio-group v-model="props.formState.shell.header.mode">
-          <el-radio value="configurable">可配置组件</el-radio>
-          <el-radio value="customComponent">独立组件</el-radio>
-        </el-radio-group>
+        <el-select v-model="props.formState.shell.header.mode">
+          <el-option label="可配置组件" value="configurable" />
+          <el-option label="独立组件" value="customComponent" />
+        </el-select>
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.mode === 'customComponent'" label="独立组件">
@@ -175,31 +175,26 @@
       </el-form-item>
 
       <el-form-item label="背景色">
-        <el-color-picker v-model="props.formState.shell.header.tokens.bgColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.bgColor" />
       </el-form-item>
 
       <el-form-item label="文字色">
-        <el-color-picker v-model="props.formState.shell.header.tokens.textColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.textColor" />
       </el-form-item>
 
       <el-form-item label="高度(px)">
         <el-input-number v-model="props.formState.shell.header.tokens.height" :min="40" :max="200" />
       </el-form-item>
 
-      <el-form-item label="内容宽度">
-        <div class="width-config">
-          <el-radio-group v-model="headerContainerWidthMode">
-            <el-radio value="fixed">固定宽度</el-radio>
-            <el-radio value="full">100%铺满</el-radio>
-          </el-radio-group>
-          <el-input-number
-            v-model="headerContainerWidthPx"
-            :min="320"
-            :max="1920"
-            controls-position="right"
-            :disabled="headerContainerWidthMode === 'full'"
-          />
-        </div>
+      <el-form-item label="内容宽度模式">
+        <el-select v-model="headerContainerWidthMode">
+          <el-option label="固定宽度" value="fixed" />
+          <el-option label="100%铺满" value="full" />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item v-if="headerContainerWidthMode === 'fixed'" label="固定宽度(px)">
+        <el-input-number v-model="headerContainerWidthPx" :min="320" :max="1920" controls-position="right" />
       </el-form-item>
 
       <el-form-item label="吸顶">
@@ -213,19 +208,34 @@
       <el-form-item label="阴影">
         <el-input
           v-model="props.formState.shell.header.tokens.shadow"
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 3 }"
+          maxlength="120"
+          show-word-limit
           placeholder="例如：0 8px 24px rgba(2, 44, 102, 0.18)"
         />
       </el-form-item>
-    </section>
+    </ObCard>
 
-    <section class="settings-section">
-      <h4 class="section-title">品牌与标题</h4>
+    <ObCard class="settings-card" title="品牌与标题">
       <el-form-item label="标题">
-        <el-input v-model="props.formState.shell.header.behavior.title" maxlength="24" show-word-limit />
+        <el-input
+          v-model="props.formState.shell.header.behavior.title"
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 3 }"
+          maxlength="24"
+          show-word-limit
+        />
       </el-form-item>
 
       <el-form-item label="副标题">
-        <el-input v-model="props.formState.shell.header.behavior.subTitle" maxlength="40" show-word-limit />
+        <el-input
+          v-model="props.formState.shell.header.behavior.subTitle"
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 3 }"
+          maxlength="40"
+          show-word-limit
+        />
       </el-form-item>
 
       <el-form-item label="标题排布">
@@ -274,6 +284,10 @@
       <el-form-item label="Logo 值">
         <el-input
           v-model="props.formState.shell.header.tokens.logo"
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 3 }"
+          maxlength="200"
+          show-word-limit
           placeholder="资源 id 或 URL（示例：abc123 / https://cdn/logo.png）"
         />
       </el-form-item>
@@ -285,10 +299,9 @@
       <el-form-item label="Logo 左偏移(px)">
         <el-input-number v-model="props.formState.shell.header.tokens.logoLeftMargin" :min="0" :max="200" />
       </el-form-item>
-    </section>
+    </ObCard>
 
-    <section class="settings-section">
-      <h4 class="section-title">导航模块</h4>
+    <ObCard class="settings-card" title="导航模块">
       <el-form-item label="导航来源">
         <el-radio-group v-model="props.formState.shell.header.behavior.navSource">
           <el-radio value="tabTree">页面树自动生成</el-radio>
@@ -305,11 +318,11 @@
       </el-form-item>
 
       <el-form-item label="导航激活背景">
-        <el-color-picker v-model="props.formState.shell.header.tokens.activeBgColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.activeBgColor" />
       </el-form-item>
 
       <el-form-item label="导航激活文字">
-        <el-color-picker v-model="props.formState.shell.header.tokens.activeTextColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.activeTextColor" />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.behavior.navSource === 'manual'" label="手工导航">
@@ -328,38 +341,50 @@
             :key="item.key || index"
             class="row-grid"
           >
-            <el-input v-model="item.label" placeholder="导航名称（必填）" class="col-2" />
+            <el-input v-model="item.label" maxlength="20" show-word-limit placeholder="导航名称（必填）" class="col-2" />
             <el-select v-model="item.tabId" clearable filterable placeholder="绑定页面（可选）" class="col-2">
               <el-option v-for="tab in props.pageTabOptions" :key="tab.value" :label="tab.label" :value="tab.value" />
             </el-select>
-            <el-input v-model="item.url" placeholder="外链 URL（可选）" class="col-3" />
+            <el-input
+              v-model="item.url"
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 3 }"
+              maxlength="200"
+              show-word-limit
+              placeholder="外链 URL（可选）"
+              class="col-3"
+            />
             <el-button text type="danger" :icon="Delete" @click="removeManualNavItem(index)" />
           </div>
         </div>
       </el-form-item>
-    </section>
+    </ObCard>
 
-    <section class="settings-section">
-      <h4 class="section-title">顶部公告模块</h4>
+    <ObCard class="settings-card" title="顶部公告模块">
       <el-form-item label="顶部公告">
         <el-switch v-model="props.formState.shell.header.behavior.showTopNotice" />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.behavior.showTopNotice" label="公告文案">
-        <el-input v-model="props.formState.shell.header.behavior.topNoticeText" maxlength="120" show-word-limit />
+        <el-input
+          v-model="props.formState.shell.header.behavior.topNoticeText"
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 4 }"
+          maxlength="120"
+          show-word-limit
+        />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.behavior.showTopNotice" label="公告背景色">
-        <el-color-picker v-model="props.formState.shell.header.tokens.noticeBgColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.noticeBgColor" />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.behavior.showTopNotice" label="公告文字色">
-        <el-color-picker v-model="props.formState.shell.header.tokens.noticeTextColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.noticeTextColor" />
       </el-form-item>
-    </section>
+    </ObCard>
 
-    <section class="settings-section">
-      <h4 class="section-title">行动按钮与用户区</h4>
+    <ObCard class="settings-card" title="行动按钮与用户区">
       <el-form-item label="行动按钮">
         <el-switch v-model="props.formState.shell.header.behavior.showActionButton" />
       </el-form-item>
@@ -369,25 +394,32 @@
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.behavior.showActionButton" label="按钮跳转 URL">
-        <el-input v-model="props.formState.shell.header.behavior.actionButtonUrl" placeholder="https://example.com/path" />
+        <el-input
+          v-model="props.formState.shell.header.behavior.actionButtonUrl"
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 3 }"
+          maxlength="200"
+          show-word-limit
+          placeholder="https://example.com/path"
+        />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.behavior.showActionButton" label="按钮背景色">
-        <el-color-picker v-model="props.formState.shell.header.tokens.actionBgColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.actionBgColor" />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.behavior.showActionButton" label="按钮文字色">
-        <el-color-picker v-model="props.formState.shell.header.tokens.actionTextColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.actionTextColor" />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.header.behavior.showActionButton" label="按钮边框色">
-        <el-color-picker v-model="props.formState.shell.header.tokens.actionBorderColor" />
+        <PortalColorField v-model="props.formState.shell.header.tokens.actionBorderColor" />
       </el-form-item>
 
       <el-form-item label="用户中心">
         <el-switch v-model="props.formState.shell.header.behavior.showUserCenter" />
       </el-form-item>
-    </section>
+    </ObCard>
   </el-form>
 </template>
 
@@ -395,38 +427,44 @@
   .settings-form {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
   }
 
-  .settings-section {
-    border: 1px solid #e2e8f0;
-    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 88%);
-    padding: 10px 12px 6px;
+  .settings-card :deep(.ob-card__body .el-form-item) {
+    margin-bottom: 12px;
   }
 
-  .settings-section :deep(.el-form-item) {
-    margin-bottom: 10px;
+  .settings-card :deep(.ob-card__body .el-form-item:last-child) {
+    margin-bottom: 0;
   }
 
-  .settings-section :deep(.el-form-item__label) {
+  .settings-card :deep(.ob-card__body .el-form-item__label) {
+    padding-bottom: 4px;
     font-size: 12px;
     color: #475569;
+    line-height: 1.45;
   }
 
-  .settings-section :deep(.el-form-item__content) {
+  .settings-card :deep(.ob-card__body .el-form-item__content) {
     min-height: 32px;
   }
 
-  .section-title {
-    margin: 0 0 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1e293b;
-    letter-spacing: 0.02em;
+  .settings-card :deep(.ob-card__body .el-form-item__content > .el-input),
+  .settings-card :deep(.ob-card__body .el-form-item__content > .el-textarea),
+  .settings-card :deep(.ob-card__body .el-form-item__content > .el-select),
+  .settings-card :deep(.ob-card__body .el-form-item__content > .el-input-number),
+  .settings-card :deep(.ob-card__body .el-form-item__content > .portal-color-field) {
+    width: min(100%, 320px);
+  }
+
+  .settings-card :deep(.ob-card__body .el-form-item__content > .el-radio-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
   }
 
   .w-320 {
-    width: 320px;
+    width: min(100%, 320px);
   }
 
   .rows-panel {
@@ -434,7 +472,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 10px;
+    padding: 8px;
     border: 1px solid #d7e1ed;
     background: #f8fafc;
   }
@@ -461,7 +499,7 @@
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 3fr) 28px;
     gap: 8px;
-    align-items: center;
+    align-items: start;
   }
 
   .col-2 {
@@ -474,6 +512,7 @@
 
   .logo-uploader {
     width: 100%;
+    max-width: 420px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -514,14 +553,6 @@
     line-height: 1.5;
   }
 
-  .width-config {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
   @media (max-width: 900px) {
     .row-grid {
       grid-template-columns: 1fr;
@@ -532,8 +563,12 @@
       max-width: 260px;
     }
 
-    .width-config {
-      align-items: stretch;
+    .settings-card :deep(.ob-card__body .el-form-item__content > .el-input),
+    .settings-card :deep(.ob-card__body .el-form-item__content > .el-textarea),
+    .settings-card :deep(.ob-card__body .el-form-item__content > .el-select),
+    .settings-card :deep(.ob-card__body .el-form-item__content > .el-input-number),
+    .settings-card :deep(.ob-card__body .el-form-item__content > .portal-color-field) {
+      width: 100%;
     }
   }
 </style>

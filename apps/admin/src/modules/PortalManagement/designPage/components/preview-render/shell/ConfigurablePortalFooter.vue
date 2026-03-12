@@ -5,6 +5,7 @@
 
   const props = defineProps<{
     config: PortalFooterConfig;
+    fixed?: boolean | null;
   }>();
 
   const footerContainerWidth = computed(() => {
@@ -26,7 +27,9 @@
     "--portal-footer-border": props.config.tokens.borderTopColor,
   }));
 
-  const isFixed = computed(() => props.config.behavior.fixedMode === "fixed");
+  const isFixed = computed(() =>
+    typeof props.fixed === "boolean" ? props.fixed : props.config.behavior.fixedMode === "fixed"
+  );
   const showRecord = computed(
     () =>
       props.config.behavior.showRecord &&

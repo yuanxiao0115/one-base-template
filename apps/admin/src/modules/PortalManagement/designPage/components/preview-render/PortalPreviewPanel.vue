@@ -7,6 +7,7 @@
     normalizePortalPageSettingsV2,
     resolvePortalPageRuntimeSettings,
     type PortalLayoutItem,
+    type PortalPageLayoutMode,
     type PortalPageBackgroundSettings,
     type PortalPageSettingsV2,
     PortalGridRenderer,
@@ -25,6 +26,9 @@
   import ConfigurablePortalFooter from "./shell/ConfigurablePortalFooter.vue";
   import ConfigurablePortalHeader from "./shell/ConfigurablePortalHeader.vue";
   import { customHeaderRegistry } from "./shell/customHeaderRegistry";
+  import PortalPreviewGlobalScrollLayout from "./layouts/PortalPreviewGlobalScrollLayout.vue";
+  import PortalPreviewHeaderFixedContentScrollLayout from "./layouts/PortalPreviewHeaderFixedContentScrollLayout.vue";
+  import PortalPreviewHeaderFooterFixedContentScrollLayout from "./layouts/PortalPreviewHeaderFooterFixedContentScrollLayout.vue";
 
   interface BizResLike {
     code?: unknown;
@@ -145,18 +149,33 @@
   });
 
   const showBanner = computed(() => normalizedPageSettings.value.banner.enabled);
-
-  const useContentScroll = computed(() => normalizedPageSettings.value.layoutMode !== "global-scroll");
-  const useHeaderSticky = computed(
-    () => normalizedPageSettings.value.layoutMode !== "global-scroll" && normalizedPageSettings.value.headerFooterBehavior.headerSticky
+  const activeLayoutMode = computed<PortalPageLayoutMode>(() => normalizedPageSettings.value.layoutMode);
+  const useContentScroll = computed(() => activeLayoutMode.value !== "global-scroll");
+  const useHeaderSticky = computed(() => activeLayoutMode.value !== "global-scroll");
+  const useFixedFooter = computed(
+    () => {
+      if (!showFooter.value) {
+        return false;
+      }
+      if (activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll") {
+        return true;
+      }
+      if (activeLayoutMode.value === "global-scroll") {
+        return false;
+      }
+      return normalizedPageSettings.value.headerFooterBehavior.footerMode === "fixed";
+    }
   );
-
-  const useFixedFooter = computed(() => {
-    const byLayoutMode = normalizedPageSettings.value.layoutMode === "header-fixed-footer-fixed-content-scroll";
-    const byPageSetting = normalizedPageSettings.value.headerFooterBehavior.footerMode === "fixed";
-    const byShellSetting = resolvedShell.value.footer.behavior.fixedMode === "fixed";
-    return showFooter.value && (byLayoutMode || byPageSetting || byShellSetting);
+  const layoutComponent = computed(() => {
+    if (activeLayoutMode.value === "global-scroll") {
+      return PortalPreviewGlobalScrollLayout;
+    }
+    if (activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll") {
+      return PortalPreviewHeaderFooterFixedContentScrollLayout;
+    }
+    return PortalPreviewHeaderFixedContentScrollLayout;
   });
+  const layoutShellClass = computed(() => `preview-shell--layout-${activeLayoutMode.value}`);
   const useViewportFillForEmpty = computed(() => useContentScroll.value && layoutItems.value.length === 0);
   const showPreviewAreaOutline = computed(() => hasFixedViewport.value || props.embedded);
 
@@ -207,8 +226,18 @@
   }
 
   const contentStyle = computed<CSSProperties>(() => {
+    const contentOverflowY = (() => {
+      if (!useContentScroll.value) {
+        return undefined;
+      }
+      if (activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll") {
+        return "auto";
+      }
+      return normalizedPageSettings.value.layoutContainer.overflowMode;
+    })();
+
     const style: CSSProperties = {
-      overflowY: useContentScroll.value ? normalizedPageSettings.value.layoutContainer.overflowMode : undefined,
+      overflowY: contentOverflowY,
       overflowX: "hidden",
       minHeight: 0,
     };
@@ -436,9 +465,77 @@
     return loadTabLayout(id);
   }
 
+  interface PreviewPageRuntimePayload {
+    tabId?: unknown;
+    templateId?: unknown;
+    settings?: unknown;
+    component?: unknown;
+  }
+
+  function applyRuntimePagePreview(payload: PreviewPageRuntimePayload | undefined): boolean {
+    if (!payload || typeof payload !== "object") {
+      return false;
+    }
+    const payloadTemplateId = typeof payload?.templateId === "string" ? payload.templateId : "";
+    const payloadTabId = typeof payload?.tabId === "string" ? payload.tabId : "";
+    if (payloadTemplateId && payloadTemplateId !== props.templateId && payloadTemplateId !== loadedTemplateId.value) {
+      return false;
+    }
+    if (payloadTabId && payloadTabId !== props.tabId) {
+      return false;
+    }
+    const hasSettings = Object.hasOwn(payload, "settings");
+    const hasComponent = Object.hasOwn(payload, "component");
+    if (!(hasSettings || hasComponent)) {
+      return false;
+    }
+    if (hasSettings) {
+      pageSettingData.value = normalizePortalPageSettingsV2(payload.settings);
+    }
+    if (hasComponent) {
+      layoutItems.value = normalizeLayoutItems(payload.component);
+    }
+    errorMessage.value = "";
+    return true;
+  }
+
+  function getRuntimeSnapshot() {
+    return {
+      settings: normalizePortalPageSettingsV2(pageSettingData.value),
+      component: normalizeLayoutItems(layoutItems.value),
+    };
+  }
+
+  function postPreviewReadyMessage() {
+    if (!props.listenMessage) {
+      return;
+    }
+    const payload = {
+      type: "preview-page-ready",
+      data: {
+        tabId: props.tabId,
+        templateId: props.templateId || loadedTemplateId.value,
+      },
+    };
+
+    const safePost = (target: WindowProxy | null | undefined) => {
+      if (!target || target === window) {
+        return;
+      }
+      try {
+        target.postMessage(payload, window.location.origin);
+      } catch {
+        // ignore postMessage errors for detached opener/parent
+      }
+    };
+
+    safePost(window.opener);
+    safePost(window.parent);
+  }
+
   function onMessage(event: MessageEvent) {
     // 只接收同源消息，避免被第三方页面触发刷新
-    if (event.origin !== window.location.origin) {
+    if (event.origin && event.origin !== window.location.origin) {
       return;
     }
 
@@ -476,6 +573,12 @@
         return;
       }
       setRuntimeViewport(payload?.width, payload?.height);
+      return;
+    }
+
+    if (msg.type === "preview-page-runtime") {
+      const payload = msg.data as PreviewPageRuntimePayload | undefined;
+      applyRuntimePagePreview(payload);
       return;
     }
 
@@ -540,6 +643,13 @@
   );
 
   watch(
+    () => [props.tabId, props.templateId] as const,
+    () => {
+      postPreviewReadyMessage();
+    }
+  );
+
+  watch(
     () => props.listenMessage,
     (enabled) => {
       if (enabled) {
@@ -553,6 +663,7 @@
 
   onMounted(() => {
     updateViewportWidth();
+    postPreviewReadyMessage();
     window.addEventListener("resize", updateViewportWidth);
   });
 
@@ -563,6 +674,8 @@
 
   defineExpose({
     refresh,
+    applyRuntimePagePreview,
+    getRuntimeSnapshot,
   });
 </script>
 
@@ -573,7 +686,8 @@
       :class="{
         'preview-shell--fixed': hasFixedViewport,
         'preview-shell--content-scroll': useContentScroll,
-        'preview-shell--portal-outline': showPreviewAreaOutline
+        'preview-shell--portal-outline': showPreviewAreaOutline,
+        [layoutShellClass]: true
       }"
       :style="previewShellStyle"
     >
@@ -585,75 +699,82 @@
         </el-result>
       </div>
 
-      <template v-else>
-        <div v-if="showHeader" class="header-wrap" :style="headerWrapStyle">
-          <component
-            :is="customHeaderComponent"
-            v-if="customHeaderComponent"
-            :config="resolvedShell.header"
-            :nav-items="headerNavItems"
-            :active-tab-id="props.tabId"
-            @navigate="onHeaderNavigate"
-          />
+      <component :is="layoutComponent" v-else class="preview-layout-host">
+        <template #header>
+          <div v-if="showHeader" class="header-wrap" :style="headerWrapStyle">
+            <component
+              :is="customHeaderComponent"
+              v-if="customHeaderComponent"
+              :config="resolvedShell.header"
+              :nav-items="headerNavItems"
+              :active-tab-id="props.tabId"
+              @navigate="onHeaderNavigate"
+            />
 
-          <ConfigurablePortalHeader
-            v-else
-            :config="resolvedShell.header"
-            :nav-items="headerNavItems"
-            :active-tab-id="props.tabId"
-            :embedded="props.embedded"
-            @navigate="onHeaderNavigate"
-          />
-        </div>
+            <ConfigurablePortalHeader
+              v-else
+              :config="resolvedShell.header"
+              :nav-items="headerNavItems"
+              :active-tab-id="props.tabId"
+              :embedded="props.embedded"
+              :sticky="false"
+              @navigate="onHeaderNavigate"
+            />
+          </div>
+        </template>
 
-        <div class="content" :class="{ 'content--embedded': embedded }" :style="contentStyle">
-          <div class="content-frame" :class="{ 'content-frame--empty': useViewportFillForEmpty }" :style="contentFrameStyle">
-            <div
-              class="content-container"
-              :class="{
-                'content-container--page-outline': showPreviewAreaOutline,
-                'content-container--empty': useViewportFillForEmpty
-              }"
-              :style="contentContainerStyle"
-            >
-              <a
-                v-if="showBanner && normalizedPageSettings.banner.linkUrl"
-                class="page-banner page-banner--link"
-                :style="bannerStyle"
-                :href="normalizedPageSettings.banner.linkUrl"
-                target="_blank"
-                rel="noopener noreferrer"
+        <template #content>
+          <div class="content" :class="{ 'content--embedded': embedded }" :style="contentStyle">
+            <div class="content-frame" :class="{ 'content-frame--empty': useViewportFillForEmpty }" :style="contentFrameStyle">
+              <div
+                class="content-container"
+                :class="{
+                  'content-container--page-outline': showPreviewAreaOutline,
+                  'content-container--empty': useViewportFillForEmpty
+                }"
+                :style="contentContainerStyle"
               >
-                <span class="page-banner__hint">Banner 独立区域</span>
-              </a>
-              <div v-else-if="showBanner" class="page-banner" :style="bannerStyle">
-                <span class="page-banner__hint">Banner 独立区域</span>
-              </div>
+                <a
+                  v-if="showBanner && normalizedPageSettings.banner.linkUrl"
+                  class="page-banner page-banner--link"
+                  :style="bannerStyle"
+                  :href="normalizedPageSettings.banner.linkUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="page-banner__hint">Banner 独立区域</span>
+                </a>
+                <div v-else-if="showBanner" class="page-banner" :style="bannerStyle">
+                  <span class="page-banner__hint">Banner 独立区域</span>
+                </div>
 
-              <div v-if="layoutItems.length === 0" class="state state--empty">
-                <el-empty description="当前页面暂未配置组件" :image-size="100">
-                  <template #description>
-                    <p class="empty-desc">可先进入编辑器添加组件后，再返回此处查看效果。</p>
-                  </template>
-                </el-empty>
-              </div>
+                <div v-if="layoutItems.length === 0" class="state state--empty">
+                  <el-empty description="当前页面暂未配置组件" :image-size="100">
+                    <template #description>
+                      <p class="empty-desc">可先进入编辑器添加组件后，再返回此处查看效果。</p>
+                    </template>
+                  </el-empty>
+                </div>
 
-              <PortalGridRenderer
-                v-else
-                :layout-items
-                :materials-map
-                :page-setting-data
-                :preview-mode="props.previewMode"
-                :viewport-width="activeViewportWidth"
-              />
+                <PortalGridRenderer
+                  v-else
+                  :layout-items
+                  :materials-map
+                  :page-setting-data
+                  :preview-mode="props.previewMode"
+                  :viewport-width="activeViewportWidth"
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </template>
 
-        <div class="footer-wrap" :class="{ 'footer-wrap--fixed': useFixedFooter }">
-          <ConfigurablePortalFooter v-if="showFooter" :config="resolvedShell.footer" />
-        </div>
-      </template>
+        <template #footer>
+          <div v-if="showFooter" class="footer-wrap" :class="{ 'footer-wrap--fixed': useFixedFooter }">
+            <ConfigurablePortalFooter :config="resolvedShell.footer" :fixed="useFixedFooter" />
+          </div>
+        </template>
+      </component>
     </div>
   </div>
 </template>
@@ -702,6 +823,11 @@
     outline-offset: -1px;
   }
 
+  .preview-layout-host {
+    min-height: 0;
+    height: 100%;
+  }
+
   .header-wrap {
     z-index: 20;
   }
@@ -724,9 +850,6 @@
   }
 
   .content-frame--empty {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
     min-height: 100%;
   }
 
