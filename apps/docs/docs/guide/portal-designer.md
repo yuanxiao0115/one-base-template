@@ -49,6 +49,11 @@
 预览渲染（顶层路由，不挂 `AdminLayout`，允许匿名）：
 - `/portal/preview?templateId=<id>&tabId=<id>`：渲染指定 tab 的 pageLayout（通常给新窗口使用；同页预览复用同一渲染组件）
 
+页面编辑实时预览（2026-03-12）：
+- `PortalPageEditPage` 打开预览后，会持续向预览窗口发送 `preview-page-runtime` 消息（包含 `tabId/templateId/settings/component`）。
+- `PortalPreviewPanel` 新增 `preview-page-runtime` 消息处理，收到后立即更新 `pageSettingData/layoutItems`，无需手动刷新预览页。
+- 页面设置字段覆盖范围：`basic/layout/layoutContainer/spacing/background/banner/headerFooterBehavior/responsive/access/publishGuard`。
+
 独立消费者应用（`apps/portal`）：
 - `/portal/index/:tabId?templateId=<id>`：门户前台渲染入口（匿名可访问，`meta.public=true`）
 - `/portal/preview/:tabId?templateId=<id>`：匿名预览入口（与 admin 预览协议一致）
@@ -115,13 +120,13 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 
 - `tabType=1`：导航组（不可选中预览，但可以作为“新建子级”的父节点）
 - `tabType=2`：空白页（可预览/可编辑）
-- `tabType=3`：链接（当前 Designer 不做配置入口，后续如需要再补）
+- `tabType=3`：链接
 - 左侧树默认不展示统计条，节点操作区使用图标按钮（编辑/新建/更多），并支持关键字搜索。
 
 当前工作台（2026-03-11）布局口径：
 - 页面采用「左侧结构树 + 右侧编辑工作台」双栏模型。
 - 顶部为窄条信息头（返回 / 模板名 / 页眉页脚配置 / 刷新），不再使用厚头部或多层卡片。
-- 右侧首行是“当前页面动作条”，承载页面级操作：页面设置、进入编辑、页面壳层覆盖、隐藏、预览、删除；预览模式/视口与舞台交互（自动/手动、缩放、重置）都放在工具栏同一行。
+- 右侧首行是“当前页面动作条”，承载页面级操作：页面设置、进入编辑、隐藏、预览、删除；预览模式/视口与舞台交互（自动/手动、缩放、重置）都放在工具栏同一行。
 - 右侧预览区使用“设备画框 + iframe”结构，支持按目标视口等比缩放预览（先完成框架，不改数据链路）。
 - `preview-host-frame` 尺寸变化（拖动窗口、打开/收起 DevTools）会触发重新计算缩放，预览区会随容器自适应。
 - `preview-host-frame` 舞台底层使用轻网格背景（仅视觉辅助，不参与业务渲染）。
@@ -138,13 +143,14 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 
 创建步骤：
 1. 弹出对话框输入 `页面名称(tabName)`
-2. 选择类型（与老项目枚举保持一致）：
+2. 选择类型（在老项目枚举基础上新增门户列表便捷项）：
    - `tabType=1`：导航组
    - `tabType=2`：空白页（可拖拽编辑）
    - `tabType=3`：链接（需填写地址/打开方式/单点方式）
+   - `tabType=4`：门户列表（从门户下拉中选择，自动生成 `/portal/index?templateId=...` 链接）
 3. 调用 `POST /cmict/portal/tab/add` 创建 tab
 4. 若创建的是空白页（`tabType=2`），创建成功后 **直接跳转** `/portal/page/edit?id=<id>&tabId=<newTabId>` 进入拖拽编辑器
-5. 若创建的是导航组/链接，则停留在 designer 并刷新页面树
+5. 若创建的是导航组/链接/门户列表，则停留在 designer 并刷新页面树
 
 兼容性兜底（无需后端改动）：
 - 若某些环境 `tab.add` 后没有自动挂到 `template.tabList/tabIds`，前端会：
@@ -169,7 +175,8 @@ Designer 左侧的页面树来自后端 `template.detail` 返回的 `tabList`（
 
 入口层级约定：
 - **门户级** 页眉页脚配置入口放在 Designer 顶部栏（HeaderBar）。
-- **页面级** 覆盖配置入口放在 ActionStrip（页面动作区），仅对当前选中页面生效并写入 `details.pageOverrides[tabId]`。
+- **页面级** 壳层覆盖入口收敛到“页面设置”抽屉（`页眉设置 / 页脚设置` 标签），不再额外提供独立按钮入口。
+- **容器约束**：门户级配置与页面级配置均使用 `ObCrudContainer(container="drawer")`，抽屉宽度统一 `400`，确保两套面板交互与密度一致。
 
 配置方式约定（本次优化）：
 - 配置以“可视化表单项”为主，不要求直接编辑 JSON 文本。
@@ -353,6 +360,15 @@ type PageLayoutJson = {
 - **写新**：编辑器保存统一通过 `buildPortalPageLayoutForSave` 写回 `version=2.0` 的 `settings`。
 - **断点运行时解析统一**：渲染器和编辑器通过 `resolvePortalPageRuntimeSettings` / `getPortalGridSettings` 解析当前视口下的栅格与间距。
 - **入口收敛（2026-03-12）**：`/portal/design` 已支持页面设置抽屉（动作条“页面设置”），可在设计页内直接修改并保存 `pageLayout.settings`；`/portal/page/edit` 继续作为深度编辑入口。
+- **容器统一（2026-03-12）**：`PortalPageSettingsDrawer` 与 `PortalShellSettingsDialog` 均使用 `ObCrudContainer`（`container="drawer"`），抽屉宽度统一 `400`，不再直接使用 `el-drawer` / `el-dialog` 组装。
+- **抽屉结构（2026-03-12）**：页面设置抽屉收敛为单层四标签：`基础设置 / 高级设置 / 页眉设置 / 页脚设置`。页眉/页脚启用开关内嵌在对应标签页顶部，减少抽屉顶部额外占位。
+- **卡片规范（2026-03-12）**：页面设置相关分组统一改为 `@one-base-template/ui` 的 `ObCard`，样式基线为白底、`1px solid #e2e8f0` 边框、`4px` 圆角、`16px` 内边距、标题 `14px #333` + 主题色前缀块，保证配置区视觉一致。
+- **紧凑化统一（2026-03-12）**：页面设置与页眉/页脚设置统一采用 `label-position=top` + `#f5f7fa` 面板背景 + `#fff` 卡片分组；单行常规输入控件统一收敛为 `320px`，复杂区域保持全宽。
+- **颜色字段统一（2026-03-12）**：颜色配置统一为“色块 + HEX 输入”复合控件（`PortalColorField`），提升可读性与可编辑性，避免只保留小色块导致的大面积留白。
+- **导航与折叠（2026-03-12）**：页面设置表单已移除锚点导航与高级折叠，改为通过 `基础设置 / 高级设置` 标签分段编辑，减少滚动干扰与视觉噪音。
+- **模式控件统一（2026-03-12）**：页面“布局模式”、页眉“页眉模式”、页脚“布局模式”与壳层“内容宽度模式”统一改为 `el-select`，避免混用 `radio` 导致的视觉松散。
+- **输入约束（2026-03-12）**：所有文本输入统一补齐 `maxlength`；超过 20 字预期的字段（URL/描述/公告/版权等）统一改为多行输入并展示字数统计。
+- **字段裁剪（2026-03-12）**：`/portal/design` 的布局设置已移除 `访问控制`、`发布校验` 两组，仅保留布局与样式相关项；`/portal/page/edit` 仍保留完整页面设置字段。
 - **配置边界**：页面设置不包含“默认/营销/政务”等预设模板入口，按当前页面真实配置直接编辑。
 
 保存/发布前校验：
