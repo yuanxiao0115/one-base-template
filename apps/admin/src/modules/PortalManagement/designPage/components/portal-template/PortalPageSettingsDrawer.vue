@@ -36,8 +36,6 @@
       details?: string;
       tabs?: PortalTab[];
       currentTabId?: string;
-      roleOptions?: Array<{ label: string; value: string }>;
-      roleLoading?: boolean;
     }>(),
     {
       activeTab: "layout",
@@ -48,8 +46,6 @@
       details: "",
       tabs: () => [],
       currentTabId: "",
-      roleOptions: () => [],
-      roleLoading: false,
     }
   );
 
@@ -321,11 +317,7 @@
           <div class="tab-content">
             <PortalPageSettingsForm
               v-model="formState"
-              :role-options="props.roleOptions"
-              :role-loading="props.roleLoading"
               :show-basic-info="false"
-              :show-access-control="false"
-              :show-publish-guard="false"
               section-mode="basic"
             />
           </div>
@@ -335,11 +327,7 @@
           <div class="tab-content">
             <PortalPageSettingsForm
               v-model="formState"
-              :role-options="props.roleOptions"
-              :role-loading="props.roleLoading"
               :show-basic-info="false"
-              :show-access-control="false"
-              :show-publish-guard="false"
               section-mode="advanced"
             />
           </div>

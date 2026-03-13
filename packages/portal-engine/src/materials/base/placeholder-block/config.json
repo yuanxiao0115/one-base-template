@@ -1,0 +1,66 @@
+{
+  "index": {
+    "name": "pb-placeholder-block-index"
+  },
+  "content": {
+    "name": "pb-placeholder-block-content",
+    "container": {
+      "showTitle": true,
+      "title": "HTML模块",
+      "subtitle": "支持在属性面板输入 HTML 内容",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "block": {
+      "html": "<p style=\"margin:0;color:#475569;\">支持在属性面板输入 HTML 内容</p>"
+    }
+  },
+  "style": {
+    "name": "pb-placeholder-block-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "block": {
+      "minHeight": 180,
+      "padding": 0,
+      "backgroundColor": "transparent",
+      "textColor": "#0f172a",
+      "borderWidth": 0,
+      "borderStyle": "solid",
+      "borderColor": "transparent",
+      "borderRadius": 0,
+      "fontSize": 14,
+      "lineHeight": 1.6
+    }
+  }
+}

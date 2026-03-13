@@ -226,18 +226,7 @@
   }
 
   const contentStyle = computed<CSSProperties>(() => {
-    const contentOverflowY = (() => {
-      if (!useContentScroll.value) {
-        return undefined;
-      }
-      if (activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll") {
-        return "auto";
-      }
-      return normalizedPageSettings.value.layoutContainer.overflowMode;
-    })();
-
     const style: CSSProperties = {
-      overflowY: contentOverflowY,
       overflowX: "hidden",
       minHeight: 0,
     };
@@ -252,6 +241,27 @@
     }
 
     return style;
+  });
+  const contentScrollStyle = computed<CSSProperties>(() => {
+    if (!useContentScroll.value) {
+      return {};
+    }
+    const overflowY =
+      activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll"
+        ? "auto"
+        : normalizedPageSettings.value.layoutContainer.overflowMode;
+    return {
+      overflowY,
+      overflowX: "hidden",
+    };
+  });
+  const layoutProps = computed(() => {
+    if (activeLayoutMode.value === "global-scroll") {
+      return {};
+    }
+    return {
+      contentScrollStyle: contentScrollStyle.value,
+    };
   });
 
   const contentFrameStyle = computed<CSSProperties>(() => {
@@ -699,7 +709,7 @@
         </el-result>
       </div>
 
-      <component :is="layoutComponent" v-else class="preview-layout-host">
+      <component :is="layoutComponent" v-bind="layoutProps" v-else class="preview-layout-host">
         <template #header>
           <div v-if="showHeader" class="header-wrap" :style="headerWrapStyle">
             <component

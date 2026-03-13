@@ -10,7 +10,7 @@
     type PortalPageSettingsV2,
   } from "@one-base-template/portal-engine";
 
-  import { portalApi, portalAuthorityApi } from "../../api";
+  import { portalApi } from "../../api";
   import type { BizResponse, PortalTab, PortalTemplate } from "../../types";
   import {
     PREVIEW_MODE_SAFE,
@@ -81,12 +81,11 @@
   const pageSettingsLoading = ref(false);
   const pageSettingsSaving = ref(false);
   const pageSettingsActiveTab = ref<"layout" | "advanced" | "header" | "footer">("layout");
+  const pageSettingsEditingTabId = ref("");
   const pageSettingsForm = ref<PortalPageSettingsV2 | null>(null);
   const pageSettingsPersisted = ref<PortalPageSettingsV2 | null>(null);
   const pageSettingsComponents = ref<unknown[]>([]);
   const pageSettingsSavedInThisRound = ref(false);
-  const roleLoading = ref(false);
-  const roleOptions = ref<Array<{ label: string; value: string }>>([]);
   const shellSettingVisible = ref(false);
   const shellSettingSaving = ref(false);
   const shellSettingSavedInThisRound = ref(false);
@@ -122,38 +121,20 @@
     return templateInfo.value?.tabList ?? [];
   }
 
-  async function loadRoleOptions() {
-    if (roleLoading.value || roleOptions.value.length > 0) {
-      return;
-    }
-
-    roleLoading.value = true;
-    try {
-      const res = await portalAuthorityApi.listRoles();
-      if (!normalizeBizOk(res)) {
-        return;
-      }
-      const list = Array.isArray(res?.data) ? res.data : [];
-      roleOptions.value = list
-        .map((item) => {
-          const value = typeof item?.id === "string" ? item.id : "";
-          const label = typeof item?.roleName === "string" ? item.roleName : typeof item?.name === "string" ? item.name : "";
-          if (!(value && label)) {
-            return null;
-          }
-          return { label, value };
-        })
-        .filter(Boolean) as Array<{ label: string; value: string }>;
-    } catch {
-      roleOptions.value = [];
-    } finally {
-      roleLoading.value = false;
-    }
-  }
-
   const currentTab = computed(() => findTabById(getTabs(), currentTabId.value));
   const currentTabName = computed(() => {
     const value = currentTab.value?.tabName;
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+    return "未命名页面";
+  });
+  const pageSettingsCurrentTabId = computed(() =>
+    pageSettingsVisible.value && pageSettingsEditingTabId.value ? pageSettingsEditingTabId.value : currentTabId.value
+  );
+  const pageSettingsCurrentTab = computed(() => findTabById(getTabs(), pageSettingsCurrentTabId.value));
+  const pageSettingsCurrentTabName = computed(() => {
+    const value = pageSettingsCurrentTab.value?.tabName;
     if (typeof value === "string" && value.trim()) {
       return value.trim();
     }
@@ -271,7 +252,15 @@
       });
   }
 
-  function setCurrentTab(tabId: string) {
+  function setCurrentTab(tabId: string, options?: { silentWhenLocked?: boolean }) {
+    const lockedTabId = pageSettingsVisible.value ? pageSettingsEditingTabId.value : "";
+    if (lockedTabId && tabId && tabId !== lockedTabId) {
+      if (!options?.silentWhenLocked) {
+        message.warning("页面设置已打开，请先保存或关闭后再切换页面");
+      }
+      updateRouteTabId(lockedTabId);
+      return;
+    }
     currentTabId.value = tabId;
     updateRouteTabId(tabId);
   }
@@ -396,7 +385,7 @@
       const tabs = getTabs();
       const preferred = preferTabId || routeTabId.value;
       const nextTabId = preferred && containsTabId(tabs, preferred) ? preferred : findFirstPageTabId(tabs);
-      setCurrentTab(nextTabId);
+      setCurrentTab(nextTabId, { silentWhenLocked: true });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "加载门户失败";
       message.error(msg);
@@ -799,11 +788,19 @@
     if (!tabId || pageSettingsLoading.value) {
       return;
     }
+    if (pageSettingsVisible.value && pageSettingsEditingTabId.value && pageSettingsEditingTabId.value !== tabId) {
+      message.warning("页面设置已打开，请先保存或关闭后再切换页面");
+      return;
+    }
 
+    pageSettingsEditingTabId.value = tabId;
     pageSettingsActiveTab.value = targetTab;
     pageSettingsLoading.value = true;
     try {
       const detail = await loadPortalTabPageSettings(tabId);
+      if (pageSettingsEditingTabId.value !== tabId) {
+        return;
+      }
       pageSettingsPersisted.value = cloneByJson(detail.settings);
       pageSettingsComponents.value = cloneByJson(detail.components);
       pageSettingsForm.value = cloneByJson(detail.settings);
@@ -815,6 +812,7 @@
       postPageRuntimePreview(pageSettingsForm.value);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "加载页面设置失败";
+      pageSettingsEditingTabId.value = "";
       message.error(msg);
     } finally {
       pageSettingsLoading.value = false;
@@ -826,14 +824,15 @@
   }
 
   async function onSubmitPageSettings(settings: PortalPageSettingsV2) {
-    if (!(templateId.value && currentTabId.value) || pageSettingsSaving.value) {
+    const editingTabId = pageSettingsEditingTabId.value || currentTabId.value;
+    if (!(templateId.value && editingTabId) || pageSettingsSaving.value) {
       return;
     }
 
     pageSettingsSaving.value = true;
     try {
       await savePortalTabPageSettings({
-        tabId: currentTabId.value,
+        tabId: editingTabId,
         templateId: templateId.value,
         settings,
       });
@@ -843,7 +842,7 @@
       pageSettingsSavedInThisRound.value = true;
       postPageRuntimePreview(pageSettingsForm.value);
       pageSettingsVisible.value = false;
-      await loadTemplate(currentTabId.value);
+      await loadTemplate(editingTabId);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "页面设置保存失败";
       message.error(msg);
@@ -956,7 +955,8 @@
   }
 
   async function onSubmitPageShellSetting(payload: { details: string }) {
-    if (!templateId.value || pageShellSettingSaving.value) {
+    const editingTabId = pageSettingsEditingTabId.value || currentTabId.value;
+    if (!(templateId.value && editingTabId) || pageShellSettingSaving.value) {
       return;
     }
 
@@ -978,7 +978,7 @@
       pageShellPreviewDirty.value = false;
       pageShellPreviewDetailsDraft.value = payload.details;
       pageSettingsVisible.value = false;
-      await loadTemplate(currentTabId.value);
+      await loadTemplate(editingTabId);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "页面级页眉页脚配置保存失败";
       message.error(msg);
@@ -1001,6 +1001,7 @@
       pageShellSettingSavedInThisRound.value = false;
       pageShellPreviewDirty.value = false;
       pageShellPreviewDetailsDraft.value = "";
+      pageSettingsEditingTabId.value = "";
       if (!pageSettingsVisible.value) {
         return;
       }
@@ -1008,17 +1009,11 @@
     }
   );
 
-  watch(
-    () => [pageSettingsVisible.value, pageSettingsForm.value?.access.mode] as const,
-    ([opened, mode]) => {
-      if (opened && mode === "role") {
-        void loadRoleOptions();
-      }
-    }
-  );
-
   watch(pageSettingsVisible, (opened) => {
     if (opened) {
+      if (!pageSettingsEditingTabId.value) {
+        pageSettingsEditingTabId.value = currentTabId.value;
+      }
       pageSettingsSavedInThisRound.value = false;
       pageShellSettingSavedInThisRound.value = false;
       pageShellPreviewDirty.value = false;
@@ -1036,12 +1031,14 @@
 
     if (pageSettingsSavedInThisRound.value) {
       pageSettingsSavedInThisRound.value = false;
+      pageSettingsEditingTabId.value = "";
       return;
     }
     if (pageSettingsPersisted.value) {
       pageSettingsForm.value = cloneByJson(pageSettingsPersisted.value);
       postPageRuntimePreview(pageSettingsPersisted.value);
     }
+    pageSettingsEditingTabId.value = "";
   });
 
   watch(
@@ -1169,13 +1166,11 @@
       v-model:active-tab="pageSettingsActiveTab"
       :loading="pageSettingsSaving"
       :shell-loading="pageShellSettingSaving"
-      :page-name="currentTabName"
+      :page-name="pageSettingsCurrentTabName"
       :settings="pageSettingsForm"
       :details="templateInfo?.details || ''"
       :tabs="templateInfo?.tabList || []"
-      :current-tab-id="currentTabId"
-      :role-options="roleOptions"
-      :role-loading="roleLoading"
+      :current-tab-id="pageSettingsCurrentTabId"
       @preview-change="onPageSettingsPreviewChange"
       @preview-shell-change="onPageShellPreviewChange"
       @submit="onSubmitPageSettings"

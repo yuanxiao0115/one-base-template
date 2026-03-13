@@ -1,10 +1,23 @@
+<script setup lang="ts">
+  import type { CSSProperties } from "vue";
+
+  const props = withDefaults(
+    defineProps<{
+      contentScrollStyle?: CSSProperties;
+    }>(),
+    {
+      contentScrollStyle: () => ({}),
+    }
+  );
+</script>
+
 <template>
   <div class="preview-layout preview-layout--header-fixed-content-scroll">
     <div class="preview-layout__header">
       <slot name="header" />
     </div>
     <div class="preview-layout__content">
-      <div class="preview-layout__content-scroll">
+      <div class="preview-layout__content-scroll" :style="props.contentScrollStyle">
         <slot name="content" />
         <slot name="footer" />
       </div>
@@ -35,6 +48,6 @@
   .preview-layout__content-scroll {
     height: 100%;
     min-height: 0;
-    overflow: auto;
+    overflow: hidden;
   }
 </style>

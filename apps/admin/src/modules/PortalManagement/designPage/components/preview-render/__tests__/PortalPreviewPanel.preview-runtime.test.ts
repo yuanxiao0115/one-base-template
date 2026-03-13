@@ -573,6 +573,7 @@ describe('PortalPreviewPanel preview runtime message', () => {
     const headerFixedSettings = createLayoutModeSettings('header-fixed-content-scroll', {
       headerSticky: true,
       footerMode: 'normal',
+      overflowMode: 'hidden',
     });
     expect(
       panelVm.applyRuntimePagePreview({
@@ -588,6 +589,24 @@ describe('PortalPreviewPanel preview runtime message', () => {
     const headerWrapInHeaderFixed = wrapper.find('.header-wrap');
     expect(headerWrapInHeaderFixed.attributes('style')).toContain('position: sticky;');
     expect(wrapper.find('.footer--fixed').exists()).toBe(false);
+    const headerFixedContentScroll = wrapper.find('.preview-layout--header-fixed-content-scroll .preview-layout__content-scroll');
+    expect(headerFixedContentScroll.attributes('style')).toContain('overflow-y: hidden;');
+
+    const headerFixedScrollModeSettings = createLayoutModeSettings('header-fixed-content-scroll', {
+      headerSticky: true,
+      footerMode: 'normal',
+      overflowMode: 'scroll',
+    });
+    expect(
+      panelVm.applyRuntimePagePreview({
+        tabId: '',
+        templateId: 'tpl-1',
+        settings: headerFixedScrollModeSettings,
+        component: updatedLayout,
+      })
+    ).toBe(true);
+    await flushAsync();
+    expect(headerFixedContentScroll.attributes('style')).toContain('overflow-y: scroll;');
 
     const headerFooterFixedSettings = createLayoutModeSettings('header-fixed-footer-fixed-content-scroll', {
       headerSticky: true,
@@ -606,7 +625,10 @@ describe('PortalPreviewPanel preview runtime message', () => {
 
     expect(wrapper.find('.preview-layout--header-footer-fixed-content-scroll').exists()).toBe(true);
     expect(wrapper.find('.footer--fixed').exists()).toBe(true);
-    expect(wrapper.find('.content').attributes('style')).toContain('overflow-y: auto;');
+    const headerFooterFixedContentScroll = wrapper.find(
+      '.preview-layout--header-footer-fixed-content-scroll .preview-layout__content-scroll'
+    );
+    expect(headerFooterFixedContentScroll.attributes('style')).toContain('overflow-y: auto;');
   });
 
   it('preview-page-runtime 未传 component 时不应清空已有组件', async () => {

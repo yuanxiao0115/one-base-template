@@ -3,7 +3,7 @@
 
   <el-form-item label="条纹颜色">
     <div class="form-item-with-tip">
-      <el-color-picker v-model="modelValue.stripeAccentColor" show-alpha />
+      <PortalColorField v-model="modelValue.stripeAccentColor" show-alpha />
       <div class="form-tip">有色条纹颜色</div>
     </div>
   </el-form-item>
@@ -43,13 +43,15 @@
 
   <el-form-item label="底色">
     <div class="form-item-with-tip">
-      <el-color-picker v-model="modelValue.stripeBaseColor" show-alpha />
+      <PortalColorField v-model="modelValue.stripeBaseColor" show-alpha />
       <div class="form-tip">灰色条纹颜色</div>
     </div>
   </el-form-item>
 </template>
 
 <script setup lang="ts">
+  import PortalColorField from '../../../common/fields/PortalColorField.vue';
+
   export interface TitleStripeConfigModelType {
     stripeAccentColor: string;
     stripeAccentCount: number;

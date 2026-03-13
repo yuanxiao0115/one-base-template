@@ -3,6 +3,7 @@ import imageTextListConfig from '../materials/cms/image-text-list/config.json';
 import documentCardListConfig from '../materials/cms/document-card-list/config.json';
 import imageTextColumnConfig from '../materials/cms/image-text-column/config.json';
 import carouselTextListConfig from '../materials/cms/carousel-text-list/config.json';
+import placeholderBlockConfig from '../materials/base/placeholder-block/config.json';
 
 import baseConfig from '../materials/cms/common/base-config.json';
 import { createComponentGroup } from './utils/component-factory';
@@ -20,13 +21,49 @@ import iconLink from './images/icon_link.png';
 import iconCarousel from './images/icon_carousel.png';
 import iconContent from './images/icon_content.png';
 
+const transparentPlaceholderConfig = {
+  index: {
+    name: 'pb-transparent-placeholder-index',
+  },
+  content: {
+    name: 'pb-transparent-placeholder-content',
+  },
+  style: {
+    name: 'pb-transparent-placeholder-style',
+  },
+};
+
 /**
  * 物料注册表（前端维护）
  *
  * 约束：
- * - 先闭环：仅注册 CMS专区（cms）
+ * - 当前内置分类：基础组件（basic） + CMS专区（cms）
  * - 暂不注册：pb-app-entrance / pb-image-link-list（依赖较重，后续再补）
  */
+const basicComponents = createComponentGroup(
+  [
+    {
+      id: 'basic-placeholder-block',
+      type: 'basic-placeholder-block',
+      name: 'HTML模块',
+      width: 12,
+      height: 18,
+      icon: iconContent,
+      config: placeholderBlockConfig,
+    },
+    {
+      id: 'basic-transparent-placeholder',
+      type: 'basic-transparent-placeholder',
+      name: '透明占位模块',
+      width: 12,
+      height: 6,
+      icon: iconContent,
+      config: transparentPlaceholderConfig,
+    },
+  ],
+  baseConfig
+);
+
 const cmsComponents = createComponentGroup(
   [
     {
@@ -213,6 +250,13 @@ function unregisterPortalMaterialFromRegistry(
 
 const defaultCategories: PortalMaterialCategory[] = [
   {
+    id: 'basic',
+    name: '基础组件',
+    cmptTypeName: '基础组件',
+    title: '基础组件',
+    cmptList: basicComponents,
+  },
+  {
     id: 'cms',
     name: 'CMS专区',
     cmptTypeName: 'CMS专区',
@@ -242,6 +286,8 @@ export const portalMaterialTypeAliases: Record<string, string> = {
   'pb-image-text-column': 'cms-image-text-column',
   'pb-document-card-list': 'cms-document-card-list',
   'pb-carousel-text-list': 'cms-carousel-text-list',
+  'pb-placeholder-block': 'basic-placeholder-block',
+  'pb-transparent-placeholder': 'basic-transparent-placeholder',
 };
 
 export function resolvePortalMaterialTypeAlias(type: string) {

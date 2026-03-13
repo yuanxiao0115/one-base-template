@@ -74,7 +74,10 @@
 - `PortalManagement/designPage/components/portal-template` 的页脚配置基线不包含“风格变体”和“联系二维码”；面板必须按功能区分组，并保持颜色项在对应功能区就近配置。
 - `PortalManagement/designPage/components/portal-template/PortalPageSettingsDrawer.vue` 作为页面配置抽屉必须使用 `ObCrudContainer`（`container="drawer"`）承载；禁止回退为 `el-drawer` / `el-dialog` 直连编排。
 - `PortalManagement/designPage/components/portal-template/PortalPageSettingsDrawer.vue` 与 `PortalShellSettingsDialog.vue` 视觉风格需保持一致：外层 `#f5f7fa`、模块 `#fff + ObCard`、单列控件宽度收敛 `320px`、颜色项统一“色块 + HEX 输入”。
+- `PortalManagement/designPage` 的页面设置抽屉打开期间，当前页面 `tabId` 必须锁定（禁止切换树节点）；保存与预览消息链路必须使用打开抽屉时锁定的 `tabId`，禁止按 `currentTabId` 漂移写入。
+- `PortalManagement/designPage/components/preview-render` 在 `header-fixed-content-scroll` 模式必须让 `layoutContainer.overflowMode` 作用到真实内容滚动容器；禁止被外层固定布局的默认 `overflow` 覆盖导致配置失效。
 - `PortalManagement` 页面设置能力默认**不包含配置预设**（如“默认/营销/政务”）；除非用户明确提出，否则禁止新增预设模板入口与对应数据结构。
+- `PortalManagement/designPage` 的“页面设置抽屉”固定不提供 `访问控制`、`发布校验` 配置项；仅保留布局、样式与页眉页脚相关配置，禁止回加角色加载链路与对应表单区块。
 - admin 登录页统一使用 `ObLoginBoxV2`，不要回退到基础版 `ObLoginBox`。
 - 涉及错误页能力调整时必须同时检查并覆盖 `403` 与 `404` 两个页面。
 

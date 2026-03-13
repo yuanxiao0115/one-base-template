@@ -2,7 +2,7 @@
   <el-collapse-item title="列表样式" name="list">
     <el-form-item label="标题文字颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.titleColor" show-alpha />
+        <PortalColorField v-model="modelValue.titleColor" show-alpha />
         <div class="form-tip">设置标题文字的颜色</div>
       </div>
     </el-form-item>
@@ -20,7 +20,7 @@
 
     <el-form-item label="发布时间颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.timeColor" show-alpha />
+        <PortalColorField v-model="modelValue.timeColor" show-alpha />
         <div class="form-tip">设置发布时间的颜色</div>
       </div>
     </el-form-item>
@@ -39,6 +39,8 @@
 </template>
 
 <script setup lang="ts">
+  import PortalColorField from '../../common/fields/PortalColorField.vue';
+
   // 类型定义
   export interface ListStyleModelType {
     titleColor: string;

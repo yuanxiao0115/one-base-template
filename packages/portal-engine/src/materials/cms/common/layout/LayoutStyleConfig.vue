@@ -2,7 +2,7 @@
   <el-collapse-item title="容器样式" name="container">
     <el-form-item label="背景颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="containerStyleData.containerBgColor" show-alpha />
+        <PortalColorField v-model="containerStyleData.containerBgColor" show-alpha />
         <div class="form-tip">设置整个组件的背景颜色，透明度可调</div>
       </div>
     </el-form-item>
@@ -25,115 +25,8 @@
 
     <el-form-item label="容器内边距">
       <div class="form-item-with-tip">
-        <div class="padding-inputs">
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.containerPaddingTop"
-              :min="0"
-              :max="50"
-              controls-position="right"
-              class="padding-input"
-            >
-              <template #suffix> <span class="suffix-unit-mini">上</span> </template>
-            </el-input-number>
-          </div>
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.containerPaddingRight"
-              :min="0"
-              :max="50"
-              controls-position="right"
-              class="padding-input"
-            >
-              <template #suffix> <span class="suffix-unit-mini">右</span> </template>
-            </el-input-number>
-          </div>
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.containerPaddingBottom"
-              :min="0"
-              :max="50"
-              controls-position="right"
-              class="padding-input"
-            >
-              <template #suffix> <span class="suffix-unit-mini">下</span> </template>
-            </el-input-number>
-          </div>
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.containerPaddingLeft"
-              :min="0"
-              :max="50"
-              controls-position="right"
-              class="padding-input"
-            >
-              <template #suffix> <span class="suffix-unit-mini">左</span> </template>
-            </el-input-number>
-          </div>
-        </div>
+        <PortalSpacingField v-model="containerPaddingValue" :max="50" />
         <div class="form-tip">设置内容与容器边缘的距离，值越大间距越大</div>
-      </div>
-    </el-form-item>
-
-    <el-form-item label="圆角">
-      <div class="form-item-with-tip">
-        <div class="corner-preview">
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.containerBorderRadius"
-              :min="0"
-              :max="50"
-              controls-position="right"
-            >
-              <template #suffix> <span class="suffix-unit">px</span> </template>
-            </el-input-number>
-          </div>
-          <div class="corner-samples">
-            <div
-              class="corner-sample-option"
-              :class="{
-                active: containerStyleData.containerBorderRadius === 0
-              }"
-              @click="containerStyleData.containerBorderRadius = 0"
-            >
-              <div class="corner-sample" style="border-radius: 0;" />
-              <div class="corner-label">无圆角</div>
-            </div>
-            <div
-              class="corner-sample-option"
-              :class="{
-                active: containerStyleData.containerBorderRadius === 4
-              }"
-              @click="containerStyleData.containerBorderRadius = 4"
-            >
-              <div class="corner-sample" style="border-radius: 4px;" />
-              <div class="corner-label">小圆角</div>
-            </div>
-          </div>
-          <div class="corner-samples">
-            <div
-              class="corner-sample-option"
-              :class="{
-                active: containerStyleData.containerBorderRadius === 8
-              }"
-              @click="containerStyleData.containerBorderRadius = 8"
-            >
-              <div class="corner-sample" style="border-radius: 8px;" />
-              <div class="corner-label">中圆角</div>
-            </div>
-            <div
-              class="corner-sample-option"
-              :class="{
-                active: containerStyleData.containerBorderRadius === 16
-              }"
-              @click="containerStyleData.containerBorderRadius = 16"
-            >
-              <div class="corner-sample" style="border-radius: 16px;" />
-              <div class="corner-label">大圆角</div>
-            </div>
-          </div>
-        </div>
-        <div class="form-tip">设置容器四角的圆角大小，0表示直角，值越大越圆</div>
       </div>
     </el-form-item>
 
@@ -181,87 +74,23 @@
       </div>
     </el-form-item>
 
-    <el-form-item label="边框">
-      <div class="form-item-with-tip">
-        <div class="border-editor">
-          <div class="border-styles">
-            <div
-              class="border-style-option"
-              :class="{
-                active:
-                  containerStyleData.containerBorderStyle === 'none'
-                  && containerStyleData.containerBorderWidth === 0
-              }"
-              @click="containerStyleData.containerBorderStyle = 'none'"
-            >
-              <div class="border-preview" style="border: none;"><span>无边框</span></div>
-            </div>
-            <div
-              class="border-style-option"
-              :class="{
-                active:
-                  containerStyleData.containerBorderStyle === 'solid'
-                  && (containerStyleData.containerBorderWidth === 1
-                    || containerStyleData.containerBorderWidth === 2)
-              }"
-              @click="containerStyleData.containerBorderStyle = 'solid'"
-            >
-              <div class="border-preview" style="border: 1px solid #606266;"><span>实线</span></div>
-            </div>
-            <div
-              class="border-style-option"
-              :class="{
-                active:
-                  containerStyleData.containerBorderStyle === 'dashed'
-                  && containerStyleData.containerBorderWidth === 1
-              }"
-              @click="containerStyleData.containerBorderStyle = 'dashed'"
-            >
-              <div class="border-preview" style="border: 1px dashed #606266;"><span>虚线</span></div>
-            </div>
-            <div
-              class="border-style-option"
-              :class="{
-                active:
-                  containerStyleData.containerBorderStyle === 'dotted'
-                  && containerStyleData.containerBorderWidth === 1
-              }"
-              @click="containerStyleData.containerBorderStyle = 'dotted'"
-            >
-              <div class="border-preview" style="border: 1px dotted #606266;"><span>点线</span></div>
-            </div>
-          </div>
-
-          <div v-show="containerStyleData.containerBorderStyle !== 'none'" class="border-settings">
-            <div class="border-color">
-              <div class="border-option-label">边框颜色：</div>
-              <el-color-picker v-model="containerStyleData.containerBorderColor" show-alpha />
-            </div>
-
-            <div class="border-width">
-              <div class="border-option-label">边框宽度：</div>
-              <div class="input-with-unit">
-                <el-input-number
-                  v-model="containerStyleData.containerBorderWidth"
-                  :min="1"
-                  :max="10"
-                  controls-position="right"
-                >
-                  <template #suffix> <span class="suffix-unit">px</span> </template>
-                </el-input-number>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="form-tip">选择边框样式并设置颜色和宽度</div>
-      </div>
-    </el-form-item>
+    <PortalBorderField
+      v-model="containerBorderValue"
+      :width-min="1"
+      :width-max="10"
+      :radius-max="50"
+      :hide-color-width-when-none="true"
+      style-label="边框样式"
+      color-label="边框颜色"
+      width-label="边框宽度(px)"
+      radius-label="圆角(px)"
+    />
   </el-collapse-item>
 
   <el-collapse-item title="内容区域样式" name="content">
     <el-form-item label="背景颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="containerStyleData.contentBgColor" show-alpha />
+        <PortalColorField v-model="containerStyleData.contentBgColor" show-alpha />
         <div class="form-tip">设置内容区域的背景颜色，可与容器背景形成对比</div>
       </div>
     </el-form-item>
@@ -300,52 +129,7 @@
 
     <el-form-item label="内容边距">
       <div class="form-item-with-tip">
-        <div class="padding-inputs">
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.contentPaddingTop"
-              :min="0"
-              :max="50"
-              controls-position="right"
-              class="padding-input"
-            >
-              <template #suffix> <span class="suffix-unit-mini">上</span> </template>
-            </el-input-number>
-          </div>
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.contentPaddingRight"
-              :min="0"
-              :max="50"
-              controls-position="right"
-              class="padding-input"
-            >
-              <template #suffix> <span class="suffix-unit-mini">右</span> </template>
-            </el-input-number>
-          </div>
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.contentPaddingBottom"
-              :min="0"
-              :max="50"
-              controls-position="right"
-              class="padding-input"
-            >
-              <template #suffix> <span class="suffix-unit-mini">下</span> </template>
-            </el-input-number>
-          </div>
-          <div class="input-with-unit">
-            <el-input-number
-              v-model="containerStyleData.contentPaddingLeft"
-              :min="0"
-              :max="50"
-              controls-position="right"
-              class="padding-input"
-            >
-              <template #suffix> <span class="suffix-unit-mini">左</span> </template>
-            </el-input-number>
-          </div>
-        </div>
+        <PortalSpacingField v-model="contentPaddingValue" :max="50" />
         <div class="form-tip">设置内容区域的内部边距，值越大内容与边缘的距离越大</div>
       </div>
     </el-form-item>
@@ -353,7 +137,10 @@
 </template>
 
 <script setup lang="ts">
-  import { watch } from 'vue';
+  import { computed, watch } from 'vue';
+  import PortalBorderField from '../../../common/fields/PortalBorderField.vue';
+  import PortalColorField from '../../../common/fields/PortalColorField.vue';
+  import PortalSpacingField from '../../../common/fields/PortalSpacingField.vue';
 
   // 定义接口类型
   export interface ContainerStyleModelType {
@@ -404,6 +191,51 @@
     }),
   });
 
+  const containerPaddingValue = computed({
+    get: () => ({
+      top: Number(containerStyleData.value.containerPaddingTop) || 0,
+      right: Number(containerStyleData.value.containerPaddingRight) || 0,
+      bottom: Number(containerStyleData.value.containerPaddingBottom) || 0,
+      left: Number(containerStyleData.value.containerPaddingLeft) || 0,
+    }),
+    set: (value) => {
+      containerStyleData.value.containerPaddingTop = Number(value.top) || 0;
+      containerStyleData.value.containerPaddingRight = Number(value.right) || 0;
+      containerStyleData.value.containerPaddingBottom = Number(value.bottom) || 0;
+      containerStyleData.value.containerPaddingLeft = Number(value.left) || 0;
+    },
+  });
+
+  const contentPaddingValue = computed({
+    get: () => ({
+      top: Number(containerStyleData.value.contentPaddingTop) || 0,
+      right: Number(containerStyleData.value.contentPaddingRight) || 0,
+      bottom: Number(containerStyleData.value.contentPaddingBottom) || 0,
+      left: Number(containerStyleData.value.contentPaddingLeft) || 0,
+    }),
+    set: (value) => {
+      containerStyleData.value.contentPaddingTop = Number(value.top) || 0;
+      containerStyleData.value.contentPaddingRight = Number(value.right) || 0;
+      containerStyleData.value.contentPaddingBottom = Number(value.bottom) || 0;
+      containerStyleData.value.contentPaddingLeft = Number(value.left) || 0;
+    },
+  });
+
+  const containerBorderValue = computed({
+    get: () => ({
+      style: containerStyleData.value.containerBorderStyle,
+      color: containerStyleData.value.containerBorderColor,
+      width: Number(containerStyleData.value.containerBorderWidth) || 0,
+      radius: Number(containerStyleData.value.containerBorderRadius) || 0,
+    }),
+    set: (value) => {
+      containerStyleData.value.containerBorderStyle = value.style;
+      containerStyleData.value.containerBorderColor = value.color;
+      containerStyleData.value.containerBorderWidth = Number(value.width) || 0;
+      containerStyleData.value.containerBorderRadius = Number(value.radius) || 0;
+    },
+  });
+
   // 根据预设更新实际阴影值
   watch(
     () => containerStyleData.value.containerShadowPreset,
@@ -449,35 +281,10 @@
     margin-right: 10px;
   }
 
-  .unit-label {
-    margin-left: 8px;
-    font-size: 14px;
-    white-space: nowrap;
-    color: var(--config-muted, #606266);
-  }
-
-  .unit-label.mini {
-    margin-left: 4px;
-    min-width: 20px;
-    font-size: 12px;
-  }
-
   .suffix-unit {
     margin-right: 8px;
     font-size: 14px;
     color: var(--config-muted, #909399);
-  }
-
-  .suffix-unit-mini {
-    margin-right: 8px;
-    min-width: 14px;
-    font-size: 12px;
-    text-align: center;
-    color: var(--config-muted, #909399);
-  }
-
-  .padding-input {
-    width: 110px;
   }
 
   .slider-with-value {
@@ -489,45 +296,6 @@
   .slider-value {
     margin-left: 15px;
     min-width: 45px;
-    color: var(--config-muted, #606266);
-  }
-
-  .corner-preview {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .corner-samples {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-  }
-
-  .corner-sample-option {
-    border: 2px solid transparent;
-    border-radius: 4px;
-    padding: 5px;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .corner-sample-option.active {
-    border-color: #409eff;
-    background-color: #ecf5ff;
-  }
-
-  .corner-sample {
-    margin-bottom: 5px;
-    border: 1px solid #dcdfe6;
-    width: 60px;
-    height: 60px;
-    background-color: #f0f2f5;
-  }
-
-  .corner-label {
-    font-size: 12px;
     color: var(--config-muted, #606266);
   }
 
@@ -560,77 +328,5 @@
     font-size: 12px;
     color: var(--config-muted, #606266);
     background-color: #fff;
-  }
-
-  .padding-inputs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .border-editor {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .border-styles {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-  }
-
-  .border-style-option {
-    border: 2px solid transparent;
-    border-radius: 4px;
-    padding: 5px;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .border-style-option.active {
-    border-color: #409eff;
-    background-color: #ecf5ff;
-  }
-
-  .border-preview {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 5px;
-    width: 80px;
-    height: 40px;
-    font-size: 12px;
-    color: var(--config-muted, #606266);
-    background-color: #f9f9f9;
-  }
-
-  .border-settings {
-    display: flex;
-    margin-top: 5px;
-    border-radius: 4px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .border-color {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .border-width {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .border-option-label {
-    font-size: 14px;
-    white-space: nowrap;
-    color: var(--config-muted, #606266);
   }
 </style>

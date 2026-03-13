@@ -92,3 +92,21 @@ export { hasLayoutGeometryChanged, mergeLayoutItems } from './editor/layout-sync
 export { default as PropertyPanel } from './editor/PropertyPanel.vue';
 export { default as MaterialLibrary } from './editor/MaterialLibrary.vue';
 export { default as PortalGridRenderer } from './renderer/PortalGridRenderer.vue';
+export { PortalBorderField, PortalColorField, PortalSpacingField } from './materials/common/fields';
+export {
+  DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG,
+  DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG,
+  MenuIconSelectorInput,
+  UnifiedContainerContentConfig,
+  UnifiedContainerDisplay,
+  UnifiedContainerStyleConfig,
+  createDefaultUnifiedContainerContentConfig,
+  createDefaultUnifiedContainerStyleConfig,
+  mergeUnifiedContainerContentConfig,
+  mergeUnifiedContainerStyleConfig,
+} from './materials/common/unified-container';
+export type {
+  UnifiedContainerBorderStyle,
+  UnifiedContainerContentConfigModel,
+  UnifiedContainerStyleConfigModel,
+} from './materials/common/unified-container';

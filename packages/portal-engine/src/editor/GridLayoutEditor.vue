@@ -62,6 +62,11 @@
     return name ? props.materialsMap[name] : null;
   }
 
+  function isTransparentPlaceholder(item: PortalLayoutItem): boolean {
+    const name = getComponentName(item);
+    return name === 'pb-transparent-placeholder-index' || name === 'cms-transparent-placeholder-index';
+  }
+
   function getComponentConfig(item: PortalLayoutItem) {
     return item.component?.cmptConfig || {};
   }
@@ -227,7 +232,10 @@
           :h="item.h"
           :i="item.i"
           class="grid-item"
-          :class="{ active: selectedItemId === item.i }"
+          :class="{
+            active: selectedItemId === item.i,
+            'is-transparent-placeholder': isTransparentPlaceholder(item)
+          }"
           @click.stop="() => handleClickGridItem(item.i)"
         >
           <div class="item-inner">
@@ -267,7 +275,11 @@
     border-radius: 10px;
     width: 100%;
     height: auto;
-    background: linear-gradient(180deg, var(--el-fill-color-light) 0%, var(--el-bg-color-page) 100%);
+    background-color: #f8fafc;
+    background-image:
+      linear-gradient(to right, rgb(15 23 42 / 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(15 23 42 / 0.08) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 
   .grid-container.drag-over {
@@ -301,6 +313,11 @@
 
   .grid-item.active {
     outline: 2px solid var(--el-color-primary);
+  }
+
+  .grid-item.is-transparent-placeholder {
+    background: transparent;
+    box-shadow: none;
   }
 
   .item-inner {

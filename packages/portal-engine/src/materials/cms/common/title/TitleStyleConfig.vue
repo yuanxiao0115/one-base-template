@@ -2,7 +2,7 @@
   <el-collapse-item title="标题样式" name="title">
     <el-form-item label="文字颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="titleStyleData.titleColor" show-alpha />
+        <PortalColorField v-model="titleStyleData.titleColor" show-alpha />
         <div class="form-tip">选择标题文字的颜色，可调整透明度</div>
       </div>
     </el-form-item>
@@ -32,7 +32,7 @@
 
     <el-form-item label="下划线颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="titleStyleData.borderColor" show-alpha />
+        <PortalColorField v-model="titleStyleData.borderColor" show-alpha />
         <div class="form-tip">设置标题下方横线的颜色，可调整透明度</div>
       </div>
     </el-form-item>
@@ -43,7 +43,7 @@
 
     <el-form-item label="文字颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="titleStyleData.linkColor" show-alpha />
+        <PortalColorField v-model="titleStyleData.linkColor" show-alpha />
         <div class="form-tip">设置"更多"链接的文字颜色</div>
       </div>
     </el-form-item>
@@ -62,6 +62,7 @@
 </template>
 
 <script setup lang="ts">
+  import PortalColorField from '../../../common/fields/PortalColorField.vue';
   import TitleStripeConfig from './TitleStripeConfig.vue';
 
   // 定义接口类型

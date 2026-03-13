@@ -34,6 +34,11 @@
     return name ? props.materialsMap[name] : null;
   }
 
+  function isTransparentPlaceholder(item: PortalLayoutItem): boolean {
+    const name = getComponentName(item);
+    return name === 'pb-transparent-placeholder-index' || name === 'cms-transparent-placeholder-index';
+  }
+
   function getComponentConfig(item: PortalLayoutItem) {
     return item.component?.cmptConfig || {};
   }
@@ -59,6 +64,7 @@
       :h="item.h"
       :i="item.i"
       class="grid-item"
+      :class="{ 'is-transparent-placeholder': isTransparentPlaceholder(item) }"
     >
       <component
         :is="getComponent(item)"
@@ -86,6 +92,10 @@
     overflow: hidden;
     border-radius: 8px;
     background: var(--el-bg-color-overlay);
+  }
+
+  .grid-item.is-transparent-placeholder {
+    background: transparent;
   }
 
   .component-debug-placeholder {

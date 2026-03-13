@@ -2,7 +2,7 @@
   <el-collapse-item title="链接样式" name="links">
     <el-form-item label="文字颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.linkColor" show-alpha />
+        <PortalColorField v-model="modelValue.linkColor" show-alpha />
         <div class="form-tip">选择链接文字的颜色，可调整透明度</div>
       </div>
     </el-form-item>
@@ -32,7 +32,7 @@
 
     <el-form-item label="悬停颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.hoverColor" show-alpha />
+        <PortalColorField v-model="modelValue.hoverColor" show-alpha />
         <div class="form-tip">设置鼠标悬停时的文字颜色</div>
       </div>
     </el-form-item>
@@ -40,6 +40,8 @@
 </template>
 
 <script setup lang="ts">
+  import PortalColorField from '../../common/fields/PortalColorField.vue';
+
   // 类型定义
   export interface LinkStyleModelType {
     linkColor: string;

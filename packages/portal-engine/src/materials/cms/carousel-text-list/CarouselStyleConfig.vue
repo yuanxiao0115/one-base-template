@@ -24,14 +24,14 @@
 
     <el-form-item label="指示器颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.indicatorColor" show-alpha />
+        <PortalColorField v-model="modelValue.indicatorColor" show-alpha />
         <div class="form-tip">设置指示器的颜色</div>
       </div>
     </el-form-item>
 
     <el-form-item label="箭头颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.arrowColor" show-alpha />
+        <PortalColorField v-model="modelValue.arrowColor" show-alpha />
         <div class="form-tip">设置箭头的颜色</div>
       </div>
     </el-form-item>
@@ -59,21 +59,21 @@
     <template v-if="modelValue.showTitle">
       <el-form-item label="标题背景色">
         <div class="form-item-with-tip">
-          <el-color-picker v-model="modelValue.titleBackground" show-alpha />
+          <PortalColorField v-model="modelValue.titleBackground" show-alpha />
           <div class="form-tip">设置标题背景颜色</div>
         </div>
       </el-form-item>
 
       <el-form-item label="标题文字颜色">
         <div class="form-item-with-tip">
-          <el-color-picker v-model="modelValue.titleColor" show-alpha />
+          <PortalColorField v-model="modelValue.titleColor" show-alpha />
           <div class="form-tip">设置标题文字颜色</div>
         </div>
       </el-form-item>
 
       <el-form-item label="页码颜色">
         <div class="form-item-with-tip">
-          <el-color-picker v-model="modelValue.pageIndicatorColor" show-alpha />
+          <PortalColorField v-model="modelValue.pageIndicatorColor" show-alpha />
           <div class="form-tip">设置页码指示器的颜色</div>
         </div>
       </el-form-item>
@@ -104,6 +104,8 @@
 </template>
 
 <script setup lang="ts">
+  import PortalColorField from '../../common/fields/PortalColorField.vue';
+
   // 类型定义
   export interface CarouselStyleModelType {
     width: number;

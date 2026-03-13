@@ -72,7 +72,7 @@
     </el-form-item>
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-2" label="按钮文字颜色">
-      <el-color-picker v-model="modelValue.moreTextColor" show-alpha />
+      <PortalColorField v-model="modelValue.moreTextColor" show-alpha />
     </el-form-item>
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-3" label="按钮字体大小">
@@ -84,7 +84,7 @@
     </el-form-item>
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-4" label="按钮背景色">
-      <el-color-picker v-model="modelValue.moreBgColor" show-alpha />
+      <PortalColorField v-model="modelValue.moreBgColor" show-alpha />
     </el-form-item>
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-5" label="按钮内边距">
@@ -132,6 +132,7 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
+  import PortalColorField from '../../common/fields/PortalColorField.vue';
   import SelectImg from '../../SelectImg.vue';
 
   export interface ImageConfigModelType {

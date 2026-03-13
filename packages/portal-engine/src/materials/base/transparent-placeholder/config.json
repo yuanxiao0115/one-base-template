@@ -1,0 +1,11 @@
+{
+  "index": {
+    "name": "pb-transparent-placeholder-index"
+  },
+  "content": {
+    "name": "pb-transparent-placeholder-content"
+  },
+  "style": {
+    "name": "pb-transparent-placeholder-style"
+  }
+}

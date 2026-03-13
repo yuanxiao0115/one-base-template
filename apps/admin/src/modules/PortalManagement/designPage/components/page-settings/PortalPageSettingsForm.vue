@@ -1,27 +1,16 @@
 <script setup lang="ts">
   import { computed } from "vue";
-  import type { PortalPageSettingsV2 } from "@one-base-template/portal-engine";
+  import { PortalSpacingField, type PortalPageSettingsV2 } from "@one-base-template/portal-engine";
 
   import PortalColorField from "../portal-template/PortalColorField.vue";
 
-  interface RoleOption {
-    label: string;
-    value: string;
-  }
-
   const props = withDefaults(
     defineProps<{
-      roleOptions: RoleOption[];
-      roleLoading: boolean;
       showBasicInfo?: boolean;
-      showAccessControl?: boolean;
-      showPublishGuard?: boolean;
       sectionMode?: "basic" | "advanced" | "full";
     }>(),
     {
       showBasicInfo: true,
-      showAccessControl: true,
-      showPublishGuard: true,
       sectionMode: "full",
     }
   );
@@ -29,6 +18,66 @@
   const model = defineModel<PortalPageSettingsV2>({ required: true });
   const showBasicSection = computed(() => props.sectionMode !== "advanced");
   const showAdvancedSection = computed(() => props.sectionMode !== "basic");
+
+  const pageMarginSpacing = computed({
+    get: () => ({
+      top: Number(model.value.spacing.marginTop) || 0,
+      right: Number(model.value.spacing.marginRight) || 0,
+      bottom: Number(model.value.spacing.marginBottom) || 0,
+      left: Number(model.value.spacing.marginLeft) || 0,
+    }),
+    set: (value) => {
+      model.value.spacing.marginTop = Number(value.top) || 0;
+      model.value.spacing.marginRight = Number(value.right) || 0;
+      model.value.spacing.marginBottom = Number(value.bottom) || 0;
+      model.value.spacing.marginLeft = Number(value.left) || 0;
+    },
+  });
+
+  const pagePaddingSpacing = computed({
+    get: () => ({
+      top: Number(model.value.spacing.paddingTop) || 0,
+      right: Number(model.value.spacing.paddingRight) || 0,
+      bottom: Number(model.value.spacing.paddingBottom) || 0,
+      left: Number(model.value.spacing.paddingLeft) || 0,
+    }),
+    set: (value) => {
+      model.value.spacing.paddingTop = Number(value.top) || 0;
+      model.value.spacing.paddingRight = Number(value.right) || 0;
+      model.value.spacing.paddingBottom = Number(value.bottom) || 0;
+      model.value.spacing.paddingLeft = Number(value.left) || 0;
+    },
+  });
+
+  const padSpacing = computed({
+    get: () => ({
+      top: Number(model.value.responsive.pad.marginTop) || 0,
+      right: Number(model.value.responsive.pad.paddingRight) || 0,
+      bottom: Number(model.value.responsive.pad.marginBottom) || 0,
+      left: Number(model.value.responsive.pad.paddingLeft) || 0,
+    }),
+    set: (value) => {
+      model.value.responsive.pad.marginTop = Number(value.top) || 0;
+      model.value.responsive.pad.paddingRight = Number(value.right) || 0;
+      model.value.responsive.pad.marginBottom = Number(value.bottom) || 0;
+      model.value.responsive.pad.paddingLeft = Number(value.left) || 0;
+    },
+  });
+
+  const mobileSpacing = computed({
+    get: () => ({
+      top: Number(model.value.responsive.mobile.marginTop) || 0,
+      right: Number(model.value.responsive.mobile.paddingRight) || 0,
+      bottom: Number(model.value.responsive.mobile.marginBottom) || 0,
+      left: Number(model.value.responsive.mobile.paddingLeft) || 0,
+    }),
+    set: (value) => {
+      model.value.responsive.mobile.marginTop = Number(value.top) || 0;
+      model.value.responsive.mobile.paddingRight = Number(value.right) || 0;
+      model.value.responsive.mobile.marginBottom = Number(value.bottom) || 0;
+      model.value.responsive.mobile.paddingLeft = Number(value.left) || 0;
+    },
+  });
 </script>
 
 <template>
@@ -113,20 +162,10 @@
       <ObCard class="settings-card" title="页面边距">
         <el-form label-position="top">
           <el-form-item label="外边距（上 / 右 / 下 / 左）">
-            <div class="inline-grid">
-              <el-input-number v-model="model.spacing.marginTop" :min="0" :max="600" controls-position="right" />
-              <el-input-number v-model="model.spacing.marginRight" :min="0" :max="600" controls-position="right" />
-              <el-input-number v-model="model.spacing.marginBottom" :min="0" :max="600" controls-position="right" />
-              <el-input-number v-model="model.spacing.marginLeft" :min="0" :max="600" controls-position="right" />
-            </div>
+            <PortalSpacingField v-model="pageMarginSpacing" :max="600" />
           </el-form-item>
           <el-form-item label="内边距（上 / 右 / 下 / 左）">
-            <div class="inline-grid">
-              <el-input-number v-model="model.spacing.paddingTop" :min="0" :max="600" controls-position="right" />
-              <el-input-number v-model="model.spacing.paddingRight" :min="0" :max="600" controls-position="right" />
-              <el-input-number v-model="model.spacing.paddingBottom" :min="0" :max="600" controls-position="right" />
-              <el-input-number v-model="model.spacing.paddingLeft" :min="0" :max="600" controls-position="right" />
-            </div>
+            <PortalSpacingField v-model="pagePaddingSpacing" :max="600" />
           </el-form-item>
         </el-form>
       </ObCard>
@@ -258,12 +297,7 @@
               </div>
             </el-form-item>
             <el-form-item label="平板边距（外边距上 / 下 / 内边距左 / 右）">
-              <div class="inline-grid">
-                <el-input-number v-model="model.responsive.pad.marginTop" :min="0" :max="600" controls-position="right" />
-                <el-input-number v-model="model.responsive.pad.marginBottom" :min="0" :max="600" controls-position="right" />
-                <el-input-number v-model="model.responsive.pad.paddingLeft" :min="0" :max="600" controls-position="right" />
-                <el-input-number v-model="model.responsive.pad.paddingRight" :min="0" :max="600" controls-position="right" />
-              </div>
+              <PortalSpacingField v-model="padSpacing" :max="600" />
             </el-form-item>
             <el-form-item label="平板 Banner 高度（px）">
               <el-input-number v-model="model.responsive.pad.bannerHeight" :min="80" :max="1200" controls-position="right" />
@@ -285,12 +319,7 @@
               </div>
             </el-form-item>
             <el-form-item label="移动端边距（外边距上 / 下 / 内边距左 / 右）">
-              <div class="inline-grid">
-                <el-input-number v-model="model.responsive.mobile.marginTop" :min="0" :max="600" controls-position="right" />
-                <el-input-number v-model="model.responsive.mobile.marginBottom" :min="0" :max="600" controls-position="right" />
-                <el-input-number v-model="model.responsive.mobile.paddingLeft" :min="0" :max="600" controls-position="right" />
-                <el-input-number v-model="model.responsive.mobile.paddingRight" :min="0" :max="600" controls-position="right" />
-              </div>
+              <PortalSpacingField v-model="mobileSpacing" :max="600" />
             </el-form-item>
             <el-form-item label="移动端 Banner 高度（px）">
               <el-input-number v-model="model.responsive.mobile.bannerHeight" :min="80" :max="1200" controls-position="right" />
@@ -320,43 +349,6 @@
               :max="400"
               controls-position="right"
             />
-          </el-form-item>
-        </el-form>
-      </ObCard>
-
-      <ObCard v-if="props.showAccessControl" class="settings-card" title="访问控制">
-        <el-form label-position="top">
-          <el-form-item label="访问方式">
-            <el-radio-group v-model="model.access.mode">
-              <el-radio value="public">公开</el-radio>
-              <el-radio value="login">登录可见</el-radio>
-              <el-radio value="role">角色可见</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item v-if="model.access.mode === 'role'" label="可访问角色">
-            <el-select
-              v-model="model.access.roleIds"
-              multiple
-              clearable
-              filterable
-              collapse-tags
-              collapse-tags-tooltip
-              placeholder="请选择角色"
-              :loading="props.roleLoading"
-            >
-              <el-option v-for="role in props.roleOptions" :key="role.value" :label="role.label" :value="role.value" />
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </ObCard>
-
-      <ObCard v-if="props.showPublishGuard" class="settings-card" title="发布校验">
-        <el-form label-position="top">
-          <el-form-item label="发布时要求页面标题">
-            <el-switch v-model="model.publishGuard.requireTitle" active-text="开启" inactive-text="关闭" />
-          </el-form-item>
-          <el-form-item label="发布时要求页面有组件内容">
-            <el-switch v-model="model.publishGuard.requireContent" active-text="开启" inactive-text="关闭" />
           </el-form-item>
         </el-form>
       </ObCard>

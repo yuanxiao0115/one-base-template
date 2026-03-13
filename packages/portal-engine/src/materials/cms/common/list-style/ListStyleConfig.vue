@@ -2,14 +2,14 @@
   <el-collapse-item title="列表样式" name="list">
     <el-form-item label="标题颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.titleColor" show-alpha />
+        <PortalColorField v-model="modelValue.titleColor" show-alpha />
         <div class="form-tip">列表标题文字颜色</div>
       </div>
     </el-form-item>
 
     <el-form-item label="标题悬停颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.titleHoverColor" show-alpha />
+        <PortalColorField v-model="modelValue.titleHoverColor" show-alpha />
         <div class="form-tip">鼠标悬停时的标题颜色</div>
       </div>
     </el-form-item>
@@ -41,7 +41,7 @@
 
     <el-form-item label="日期颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.dateColor" show-alpha />
+        <PortalColorField v-model="modelValue.dateColor" show-alpha />
         <div class="form-tip">发布时间文字颜色</div>
       </div>
     </el-form-item>
@@ -61,7 +61,7 @@
 
     <el-form-item label="圆点颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.dotColor" show-alpha />
+        <PortalColorField v-model="modelValue.dotColor" show-alpha />
         <div class="form-tip">列表圆点颜色</div>
       </div>
     </el-form-item>
@@ -92,7 +92,7 @@
 
     <el-form-item label="分割线颜色">
       <div class="form-item-with-tip">
-        <el-color-picker v-model="modelValue.rowDividerColor" show-alpha />
+        <PortalColorField v-model="modelValue.rowDividerColor" show-alpha />
         <div class="form-tip">列表项分割线颜色</div>
       </div>
     </el-form-item>
@@ -160,6 +160,7 @@
 </template>
 
 <script setup lang="ts">
+  import PortalColorField from '../../../common/fields/PortalColorField.vue';
   import type { ListStyleModelType } from './types';
 
   const modelValue = defineModel<ListStyleModelType>({

@@ -70,7 +70,7 @@
       </div>
     </el-form-item>
 
-    <el-form-item label="标题颜色"> <el-color-picker v-model="modelValue.titleColor" show-alpha /> </el-form-item>
+    <el-form-item label="标题颜色"> <PortalColorField v-model="modelValue.titleColor" show-alpha /> </el-form-item>
 
     <el-form-item label="标题最大字数">
       <div class="input-with-unit">
@@ -83,6 +83,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Delete, Plus } from '@element-plus/icons-vue';
+  import PortalColorField from '../../common/fields/PortalColorField.vue';
   import CmsListSourceConfig from '../common/cms/CmsListSourceConfig.vue';
   import { useCmsListDataSource } from '../common/cms/useCmsListDataSource';
 

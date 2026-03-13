@@ -362,6 +362,8 @@ type PageLayoutJson = {
 - **入口收敛（2026-03-12）**：`/portal/design` 已支持页面设置抽屉（动作条“页面设置”），可在设计页内直接修改并保存 `pageLayout.settings`；`/portal/page/edit` 继续作为深度编辑入口。
 - **容器统一（2026-03-12）**：`PortalPageSettingsDrawer` 与 `PortalShellSettingsDialog` 均使用 `ObCrudContainer`（`container="drawer"`），抽屉宽度统一 `400`，不再直接使用 `el-drawer` / `el-dialog` 组装。
 - **抽屉结构（2026-03-12）**：页面设置抽屉收敛为单层四标签：`基础设置 / 高级设置 / 页眉设置 / 页脚设置`。页眉/页脚启用开关内嵌在对应标签页顶部，减少抽屉顶部额外占位。
+- **切换约束（2026-03-12）**：页面设置抽屉打开后会锁定当前 `tabId`，禁止在左侧树切换页面；保存和预览消息均使用该锁定 `tabId`，避免慢网场景出现跨页串写。
+- **预览滚动语义修复（2026-03-13）**：`header-fixed-content-scroll` 模式下，`overflowMode(auto/scroll/hidden)` 现已作用于真实内容滚动容器，不再被外层固定布局的默认滚动行为短路；`header-fixed-footer-fixed-content-scroll` 继续强制内容区滚动。
 - **卡片规范（2026-03-12）**：页面设置相关分组统一改为 `@one-base-template/ui` 的 `ObCard`，样式基线为白底、`1px solid #e2e8f0` 边框、`4px` 圆角、`16px` 内边距、标题 `14px #333` + 主题色前缀块，保证配置区视觉一致。
 - **紧凑化统一（2026-03-12）**：页面设置与页眉/页脚设置统一采用 `label-position=top` + `#f5f7fa` 面板背景 + `#fff` 卡片分组；单行常规输入控件统一收敛为 `320px`，复杂区域保持全宽。
 - **颜色字段统一（2026-03-12）**：颜色配置统一为“色块 + HEX 输入”复合控件（`PortalColorField`），提升可读性与可编辑性，避免只保留小色块导致的大面积留白。
@@ -373,6 +375,7 @@ type PageLayoutJson = {
 
 保存/发布前校验：
 - 统一使用 `validatePortalPageSettingsV2`。
+- `访问控制/发布校验` 字段仅在 `/portal/page/edit` 深度编辑场景生效，`/portal/design` 抽屉不再暴露这两组配置。
 - 默认校验项：
   - `publishGuard.requireTitle=true` 时，`basic.pageTitle` 必填；
   - `access.mode=role` 时，`access.roleIds` 不能为空；
