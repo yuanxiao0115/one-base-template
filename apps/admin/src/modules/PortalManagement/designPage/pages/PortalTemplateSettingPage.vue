@@ -17,6 +17,7 @@
     sendPreviewShellDetails,
     sendPreviewViewport,
     type PortalPreviewFrameTarget,
+    PortalDesignerPreviewFrame,
     PREVIEW_MODE_SAFE,
     PREVIEW_VIEWPORT_DEFAULT,
     type PortalPreviewMode,
@@ -41,7 +42,6 @@
   import PortalDesignerActionStrip from "../components/portal-template/PortalDesignerActionStrip.vue";
   import PortalDesignerHeaderBar from "../components/portal-template/PortalDesignerHeaderBar.vue";
   import PortalPageSettingsDrawer from "../components/portal-template/PortalPageSettingsDrawer.vue";
-  import PortalDesignerPreviewFrame from "../components/portal-template/PortalDesignerPreviewFrame.vue";
   import PortalShellSettingsDialog from "../components/portal-template/PortalShellSettingsDialog.vue";
   import PortalDesignerTreePanel from "../components/portal-template/PortalDesignerTreePanel.vue";
   import TabAttributeDialog from "../components/portal-template/TabAttributeDialog.vue";

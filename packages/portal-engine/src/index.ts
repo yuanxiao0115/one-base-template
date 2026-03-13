@@ -175,6 +175,17 @@ export {
 export { default as PropertyPanel } from './editor/PropertyPanel.vue';
 export { default as MaterialLibrary } from './editor/MaterialLibrary.vue';
 export { default as PortalPageEditorWorkbench } from './editor/PortalPageEditorWorkbench.vue';
+export { default as PortalDesignerPreviewFrame } from './editor/PortalDesignerPreviewFrame.vue';
+export {
+  calcPortalManualPanRange,
+  calcPortalPreviewPanBounds,
+  calcPortalPreviewStagePosition,
+  clampPortalPreviewOffset,
+  clampPortalPreviewPercent,
+  type PortalPreviewPanBounds,
+  type PortalPreviewPanBoundsInput,
+  type PortalPreviewStageOffset,
+} from './editor/preview-stage-utils';
 export {
   ConfigurablePortalFooter,
   ConfigurablePortalHeader,

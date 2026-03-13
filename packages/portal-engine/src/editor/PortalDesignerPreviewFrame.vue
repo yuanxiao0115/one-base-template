@@ -1,8 +1,14 @@
 <script setup lang="ts">
-  import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
-  import { Plus } from "@element-plus/icons-vue";
+  import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+  import { Plus } from '@element-plus/icons-vue';
 
-  import { calcPreviewScale } from "@one-base-template/portal-engine";
+  import { calcPreviewScale } from '../utils/preview';
+  import {
+    calcPortalPreviewPanBounds,
+    calcPortalPreviewStagePosition,
+    clampPortalPreviewOffset,
+    clampPortalPreviewPercent,
+  } from './preview-stage-utils';
 
   const props = defineProps<{
     templateId: string;
@@ -13,9 +19,9 @@
   }>();
 
   const emit = defineEmits<{
-    (e: "create-root" | "frame-load"): void;
-    (e: "scale-change", value: number): void;
-    (e: "interaction-state-change", payload: { mode: "auto" | "manual"; scale: number }): void;
+    (e: 'create-root' | 'frame-load'): void;
+    (e: 'scale-change', value: number): void;
+    (e: 'interaction-state-change', payload: { mode: 'auto' | 'manual'; scale: number }): void;
   }>();
 
   const MIN_MANUAL_SCALE_PERCENT = 50;
@@ -62,16 +68,12 @@
     transform: `scale(${activePreviewScale.value})`,
   }));
 
-  function clampNumber(value: number, min: number, max: number) {
-    return Math.min(max, Math.max(min, value));
-  }
-
-  function getInteractionMode(): "auto" | "manual" {
-    return manualMode.value ? "manual" : "auto";
+  function getInteractionMode(): 'auto' | 'manual' {
+    return manualMode.value ? 'manual' : 'auto';
   }
 
   function emitInteractionState(scale = activePreviewScale.value) {
-    emit("interaction-state-change", {
+    emit('interaction-state-change', {
       mode: getInteractionMode(),
       scale,
     });
@@ -79,78 +81,32 @@
 
   function getHostInnerSize(host: HTMLElement) {
     const style = window.getComputedStyle(host);
-    const paddingX = Number.parseFloat(style.paddingLeft || "0") + Number.parseFloat(style.paddingRight || "0");
-    const paddingY = Number.parseFloat(style.paddingTop || "0") + Number.parseFloat(style.paddingBottom || "0");
+    const paddingX = Number.parseFloat(style.paddingLeft || '0') + Number.parseFloat(style.paddingRight || '0');
+    const paddingY = Number.parseFloat(style.paddingTop || '0') + Number.parseFloat(style.paddingBottom || '0');
     return {
       width: Math.max(0, host.clientWidth - paddingX),
       height: Math.max(0, host.clientHeight - paddingY),
     };
   }
 
-  function getManualPanRange(hostSize: number, stageSize: number) {
-    if (stageSize > hostSize) {
-      return 0;
-    }
-    return Math.max((hostSize - stageSize) / 2, MANUAL_PAN_MIN_OFFSET);
-  }
-
   function getPanBounds() {
-    const hostWidth = hostInnerSize.value.width;
-    const hostHeight = hostInnerSize.value.height;
-    const stageWidth = previewWidth.value;
-    const stageHeight = previewHeight.value;
-    const centeredX = (hostWidth - stageWidth) / 2;
-
-    if (!manualMode.value) {
-      return {
-        centeredX,
-        minX: 0,
-        maxX: 0,
-        minY: 0,
-        maxY: 0,
-      };
-    }
-
-    const minX =
-      stageWidth <= hostWidth
-        ? -getManualPanRange(hostWidth, stageWidth)
-        : hostWidth - stageWidth;
-    const maxX =
-      stageWidth <= hostWidth
-        ? getManualPanRange(hostWidth, stageWidth)
-        : 0;
-    const minY =
-      stageHeight <= hostHeight
-        ? -getManualPanRange(hostHeight, stageHeight)
-        : hostHeight - stageHeight;
-    const maxY =
-      stageHeight <= hostHeight
-        ? getManualPanRange(hostHeight, stageHeight)
-        : 0;
-
-    return {
-      centeredX,
-      minX,
-      maxX,
-      minY,
-      maxY,
-    };
+    return calcPortalPreviewPanBounds({
+      manualMode: manualMode.value,
+      hostWidth: hostInnerSize.value.width,
+      hostHeight: hostInnerSize.value.height,
+      stageWidth: previewWidth.value,
+      stageHeight: previewHeight.value,
+      minOffset: MANUAL_PAN_MIN_OFFSET,
+    });
   }
 
   function clampPanOffset(offset = panOffset.value) {
-    const bounds = getPanBounds();
-    return {
-      x: clampNumber(offset.x, bounds.minX, bounds.maxX),
-      y: clampNumber(offset.y, bounds.minY, bounds.maxY),
-    };
+    return clampPortalPreviewOffset(offset, getPanBounds());
   }
 
   function getStagePosition(offset = panOffset.value) {
     const bounds = getPanBounds();
-    const clampedOffset = clampPanOffset(offset);
-    const x = bounds.centeredX + clampedOffset.x;
-    const y = clampedOffset.y;
-    return { x, y };
+    return calcPortalPreviewStagePosition(bounds, clampPanOffset(offset));
   }
 
   function syncPanOffsetWithinBounds() {
@@ -169,7 +125,7 @@
       hostInnerSize.value = { width: 0, height: 0 };
       autoPreviewScale.value = 1;
       if (!manualMode.value) {
-        emit("scale-change", 1);
+        emit('scale-change', 1);
         emitInteractionState(1);
       }
       return;
@@ -179,7 +135,7 @@
     const nextScale = calcPreviewScale(innerSize.width, innerSize.height, props.viewportWidth, props.viewportHeight);
     autoPreviewScale.value = nextScale;
     if (!manualMode.value) {
-      emit("scale-change", nextScale);
+      emit('scale-change', nextScale);
       emitInteractionState(nextScale);
     }
     syncPanOffsetWithinBounds();
@@ -212,7 +168,7 @@
 
   function bindPreviewHostObserver(host: HTMLElement | null) {
     clearPreviewHostObserver();
-    if (!host || typeof ResizeObserver === "undefined") {
+    if (!host || typeof ResizeObserver === 'undefined') {
       return;
     }
     previewHostResizeObserver = new ResizeObserver(() => {
@@ -223,17 +179,17 @@
 
   function onPreviewFrameLoad() {
     schedulePreviewScaleRecalc();
-    emit("frame-load");
+    emit('frame-load');
   }
 
-  function setInteractionMode(mode: "auto" | "manual") {
-    if (mode === "manual") {
+  function setInteractionMode(mode: 'auto' | 'manual') {
+    if (mode === 'manual') {
       if (!manualMode.value) {
         manualPreviewScale.value = activePreviewScale.value;
         manualMode.value = true;
         syncPanOffsetWithinBounds();
       }
-      emit("scale-change", manualPreviewScale.value);
+      emit('scale-change', manualPreviewScale.value);
       emitInteractionState(manualPreviewScale.value);
       return;
     }
@@ -244,18 +200,18 @@
       panOffset.value = { x: 0, y: 0 };
       stopPan();
     }
-    emit("scale-change", autoPreviewScale.value);
+    emit('scale-change', autoPreviewScale.value);
     emitInteractionState(autoPreviewScale.value);
   }
 
   function updateManualScale(scalePercent: number) {
-    const nextScale = clampNumber(scalePercent, MIN_MANUAL_SCALE_PERCENT, MAX_MANUAL_SCALE_PERCENT) / 100;
+    const nextScale = clampPortalPreviewPercent(scalePercent, MIN_MANUAL_SCALE_PERCENT, MAX_MANUAL_SCALE_PERCENT) / 100;
     if (!manualMode.value) {
-      setInteractionMode("manual");
+      setInteractionMode('manual');
     }
     manualPreviewScale.value = nextScale;
     syncPanOffsetWithinBounds();
-    emit("scale-change", nextScale);
+    emit('scale-change', nextScale);
     emitInteractionState(nextScale);
   }
 
@@ -315,12 +271,12 @@
       return false;
     }
     const candidate = target as HTMLElement;
-    if (typeof candidate.scrollHeight !== "number" || typeof candidate.clientHeight !== "number") {
+    if (typeof candidate.scrollHeight !== 'number' || typeof candidate.clientHeight !== 'number') {
       return false;
     }
     const style = view.getComputedStyle(candidate);
     const overflowY = style.overflowY;
-    const canScrollY = overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay";
+    const canScrollY = overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
     if (!canScrollY) {
       return false;
     }
@@ -334,11 +290,11 @@
     }
     try {
       const frameDocument = frameWindow.document;
-      const contentScroll = frameDocument.querySelector(".preview-layout__content-scroll");
+      const contentScroll = frameDocument.querySelector('.preview-layout__content-scroll');
       if (isScrollableElement(contentScroll, frameWindow)) {
         return contentScroll;
       }
-      const shell = frameDocument.querySelector(".preview-shell");
+      const shell = frameDocument.querySelector('.preview-shell');
       if (isScrollableElement(shell, frameWindow)) {
         return shell;
       }
@@ -347,7 +303,7 @@
         return null;
       }
       const candidate = scrollingElement as HTMLElement;
-      return typeof candidate.scrollBy === "function" ? candidate : null;
+      return typeof candidate.scrollBy === 'function' ? candidate : null;
     } catch {
       return null;
     }
@@ -365,12 +321,12 @@
     scrollContainer.scrollBy({
       top: event.deltaY,
       left: event.deltaX,
-      behavior: "auto",
+      behavior: 'auto',
     });
   }
 
   function resetView() {
-    setInteractionMode("auto");
+    setInteractionMode('auto');
     schedulePreviewScaleRecalc();
   }
 
@@ -412,15 +368,15 @@
   );
 
   onMounted(() => {
-    window.addEventListener("resize", schedulePreviewScaleRecalc);
-    window.visualViewport?.addEventListener("resize", schedulePreviewScaleRecalc);
+    window.addEventListener('resize', schedulePreviewScaleRecalc);
+    window.visualViewport?.addEventListener('resize', schedulePreviewScaleRecalc);
     schedulePreviewScaleRecalc();
   });
 
   onBeforeUnmount(() => {
     clearPreviewHostObserver();
-    window.removeEventListener("resize", schedulePreviewScaleRecalc);
-    window.visualViewport?.removeEventListener("resize", schedulePreviewScaleRecalc);
+    window.removeEventListener('resize', schedulePreviewScaleRecalc);
+    window.visualViewport?.removeEventListener('resize', schedulePreviewScaleRecalc);
     cancelPreviewScaleTask();
     stopPan();
   });
