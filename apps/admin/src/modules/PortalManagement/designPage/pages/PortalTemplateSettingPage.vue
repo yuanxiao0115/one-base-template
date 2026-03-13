@@ -18,6 +18,7 @@
     sendPreviewViewport,
     type PortalPreviewFrameTarget,
     PortalDesignerPreviewFrame,
+    usePortalCurrentTabActions,
     PREVIEW_MODE_SAFE,
     PREVIEW_VIEWPORT_DEFAULT,
     type PortalPreviewMode,
@@ -33,7 +34,6 @@
     normalizeParentId,
     normalizeTabName,
   } from "../../utils/portalTree";
-  import { usePortalCurrentTabActions } from "../composables/portal-template/usePortalCurrentTabActions";
   import {
     loadPortalTabPageSettings,
     savePortalTabPageSettings,
@@ -150,17 +150,26 @@
     deleteCurrentTab,
     openPreviewWindow,
   } = usePortalCurrentTabActions({
-    router,
     templateId,
     currentTabId,
     currentTab,
     previewMode,
+    resolvePreviewHref: ({ templateId: nextTemplateId, tabId, previewMode: nextPreviewMode }) =>
+      router.resolve({
+        name: "PortalPreview",
+        query: {
+          templateId: nextTemplateId,
+          tabId,
+          previewMode: nextPreviewMode,
+        },
+      }).href,
     notifyWarning: (msg) => message.warning(msg),
     onEditTab: onEdit,
     onOpenPageSettings: openPageSettingsDrawer,
     onOpenAttribute: openAttribute,
     onToggleHide: toggleHide,
     onDeleteTab: deleteTab,
+    isTabEditable: (tab) => isPortalTabEditable(tab.tabType),
   });
 
   const previewFrameSrc = computed(() => {

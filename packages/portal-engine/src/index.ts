@@ -149,6 +149,8 @@ export { usePortalPageLayoutStore } from './stores/pageLayout';
 export { default as GridLayoutEditor } from './editor/GridLayoutEditor.vue';
 export type { LayoutUpdateItem } from './editor/layout-sync';
 export { hasLayoutGeometryChanged, mergeLayoutItems } from './editor/layout-sync';
+export type { UsePortalCurrentTabActionsOptions } from './editor/current-tab-actions';
+export { usePortalCurrentTabActions } from './editor/current-tab-actions';
 export {
   PORTAL_PREVIEW_MESSAGE_PAGE_READY,
   PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME,
