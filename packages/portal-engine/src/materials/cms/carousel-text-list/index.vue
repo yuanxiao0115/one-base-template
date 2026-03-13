@@ -245,7 +245,7 @@
   );
 
   defineOptions({
-    name: 'PbCarouselTextListIndex',
+    name: 'cms-carousel-text-list-index',
   });
 </script>
 

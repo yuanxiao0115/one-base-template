@@ -1,10 +1,13 @@
 import {
   createPortalPageSettingsService,
+  getPortalPageSettingsApi,
   type PortalPageSettingsV2,
   type PortalTabPageSettingsDetail as EnginePortalTabPageSettingsDetail,
 } from "@one-base-template/portal-engine";
 
 import type { PortalTab } from "../../../types";
+import { getPortalEngineAdminContext } from "../../../engine/context";
+import { setupPortalEngineForAdmin } from "../../../engine/register";
 
 interface PageLayoutJson {
   settings?: unknown;
@@ -19,8 +22,6 @@ export interface PortalTabPageSettingsDetail {
   components: unknown[];
 }
 
-const pageSettingsService = createPortalPageSettingsService();
-
 function toPortalTabPageSettingsDetail(detail: EnginePortalTabPageSettingsDetail): PortalTabPageSettingsDetail {
   return {
     ...detail,
@@ -28,8 +29,13 @@ function toPortalTabPageSettingsDetail(detail: EnginePortalTabPageSettingsDetail
   };
 }
 
+function getPageSettingsService() {
+  const context = setupPortalEngineForAdmin();
+  return createPortalPageSettingsService(getPortalPageSettingsApi(getPortalEngineAdminContext()), context);
+}
+
 export async function loadPortalTabPageSettings(tabId: string): Promise<PortalTabPageSettingsDetail> {
-  const detail = await pageSettingsService.loadTabPageSettings(tabId);
+  const detail = await getPageSettingsService().loadTabPageSettings(tabId);
   return toPortalTabPageSettingsDetail(detail);
 }
 
@@ -38,5 +44,5 @@ export async function savePortalTabPageSettings(params: {
   templateId: string;
   settings: PortalPageSettingsV2;
 }): Promise<void> {
-  await pageSettingsService.saveTabPageSettings(params);
+  await getPageSettingsService().saveTabPageSettings(params);
 }

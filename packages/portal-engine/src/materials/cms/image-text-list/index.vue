@@ -170,7 +170,7 @@
   };
   // 组件名称定义
   defineOptions({
-    name: 'PbImageTextListIndex',
+    name: 'cms-image-text-list-index',
   });
 </script>
 

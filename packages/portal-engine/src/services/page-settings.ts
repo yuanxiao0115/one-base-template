@@ -4,6 +4,12 @@ import {
   normalizePortalPageSettingsV2,
   type PortalPageSettingsV2,
 } from '../schema/page-settings';
+import type { PortalEngineContext } from '../runtime/context';
+import {
+  getDefaultPortalEngineContext,
+  readPortalEngineContextValue,
+  writePortalEngineContextValue,
+} from '../runtime/context';
 
 interface PageLayoutJson {
   settings?: unknown;
@@ -38,26 +44,28 @@ export interface PortalTabPageSettingsDetail {
   components: unknown[];
 }
 
-const fallbackPortalPageSettingsApi: PortalPageSettingsApi = {
-  async getTabDetail() {
-    return {
-      code: 500,
-      success: false,
-      message: 'portal-engine pageSettingsApi 未配置：getTabDetail',
-      data: {},
-    };
-  },
-  async updateTab() {
-    return {
-      code: 500,
-      success: false,
-      message: 'portal-engine pageSettingsApi 未配置：updateTab',
-      data: null,
-    };
-  },
-};
+const PORTAL_PAGE_SETTINGS_API_CONTEXT_KEY = Symbol('portal-engine.page-settings-api');
 
-let currentPortalPageSettingsApi: PortalPageSettingsApi = fallbackPortalPageSettingsApi;
+function createFallbackPortalPageSettingsApi(): PortalPageSettingsApi {
+  return {
+    async getTabDetail() {
+      return {
+        code: 500,
+        success: false,
+        message: 'portal-engine pageSettingsApi 未配置：getTabDetail',
+        data: {},
+      };
+    },
+    async updateTab() {
+      return {
+        code: 500,
+        success: false,
+        message: 'portal-engine pageSettingsApi 未配置：updateTab',
+        data: null,
+      };
+    },
+  };
+}
 
 function normalizeBizOk(res: PortalPageSettingsApiResponse<unknown> | null | undefined): boolean {
   const code = res?.code;
@@ -120,24 +128,45 @@ function resolvePageLayoutComponents(input: unknown): unknown[] {
   return Array.isArray(input) ? input : [];
 }
 
-export function setPortalPageSettingsApi(api: Partial<PortalPageSettingsApi>) {
-  currentPortalPageSettingsApi = {
-    ...currentPortalPageSettingsApi,
-    ...api,
-  };
+export function setPortalPageSettingsApi(
+  api: Partial<PortalPageSettingsApi>,
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
+  const currentPortalPageSettingsApi = getPortalPageSettingsApi(context);
+  return writePortalEngineContextValue(
+    PORTAL_PAGE_SETTINGS_API_CONTEXT_KEY,
+    {
+      ...currentPortalPageSettingsApi,
+      ...api,
+    },
+    context
+  );
 }
 
-export function resetPortalPageSettingsApi() {
-  currentPortalPageSettingsApi = fallbackPortalPageSettingsApi;
+export function resetPortalPageSettingsApi(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+  return writePortalEngineContextValue(
+    PORTAL_PAGE_SETTINGS_API_CONTEXT_KEY,
+    createFallbackPortalPageSettingsApi(),
+    context
+  );
 }
 
-export function getPortalPageSettingsApi(): PortalPageSettingsApi {
-  return currentPortalPageSettingsApi;
+export function getPortalPageSettingsApi(context: PortalEngineContext = getDefaultPortalEngineContext()): PortalPageSettingsApi {
+  return readPortalEngineContextValue<PortalPageSettingsApi>(
+    PORTAL_PAGE_SETTINGS_API_CONTEXT_KEY,
+    context,
+    createFallbackPortalPageSettingsApi
+  );
 }
 
-export function createPortalPageSettingsService(api: PortalPageSettingsApi = currentPortalPageSettingsApi) {
+export function createPortalPageSettingsService(
+  api: PortalPageSettingsApi | undefined = undefined,
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
+  const resolvedApi = api ?? getPortalPageSettingsApi(context);
+
   async function loadTabPageSettings(tabId: string): Promise<PortalTabPageSettingsDetail> {
-    const res = await api.getTabDetail({ id: tabId });
+    const res = await resolvedApi.getTabDetail({ id: tabId });
     if (!normalizeBizOk(res)) {
       throw new Error(res?.message || '加载页面设置失败');
     }
@@ -176,7 +205,7 @@ export function createPortalPageSettingsService(api: PortalPageSettingsApi = cur
     const tabName =
       (typeof detail.tab.tabName === 'string' && detail.tab.tabName.trim()) || mergedSettings.basic.pageTitle || '页面';
 
-    const res = await api.updateTab({
+    const res = await resolvedApi.updateTab({
       id: params.tabId,
       templateId,
       tabName,

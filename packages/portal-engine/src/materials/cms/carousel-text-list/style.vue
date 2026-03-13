@@ -62,7 +62,7 @@
   });
 
   defineOptions({
-    name: 'PbCarouselTextListStyle',
+    name: 'cms-carousel-text-list-style',
   });
 </script>
 

@@ -55,7 +55,7 @@
   });
 
   defineOptions({
-    name: 'PbImageTextListContent',
+    name: 'cms-image-text-list-content',
   });
 </script>
 

@@ -11,6 +11,9 @@
   },
   "scripts": {
     "build": "pnpm typecheck",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "verify:materials": "node ../../scripts/check-portal-materials.mjs",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint ."
   },

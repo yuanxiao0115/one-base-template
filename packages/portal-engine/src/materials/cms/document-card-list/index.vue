@@ -142,7 +142,7 @@
   };
 
   defineOptions({
-    name: 'PbDocumentCardListIndex',
+    name: 'cms-document-card-list-index',
   });
 </script>
 

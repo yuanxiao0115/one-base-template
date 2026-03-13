@@ -46,7 +46,7 @@
   });
 
   defineOptions({
-    name: 'PbCarouselTextListContent',
+    name: 'cms-carousel-text-list-content',
   });
 </script>
 

@@ -175,7 +175,7 @@
   };
 
   defineOptions({
-    name: 'PbImageTextColumnIndex',
+    name: 'cms-image-text-column-index',
   });
 </script>
 

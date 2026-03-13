@@ -1,4 +1,4 @@
-import { setPortalCmsApi, useMaterials as usePortalEngineMaterials } from "@one-base-template/portal-engine";
+import { setPortalCmsApi, useRendererMaterials as usePortalEngineRendererMaterials } from "@one-base-template/portal-engine";
 import { cmsApi } from "../api";
 
 let cmsApiBound = false;
@@ -19,5 +19,5 @@ function ensureCmsApiBound() {
 
 export function useMaterials() {
   ensureCmsApiBound();
-  return usePortalEngineMaterials();
+  return usePortalEngineRendererMaterials();
 }

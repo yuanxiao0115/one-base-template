@@ -263,6 +263,8 @@ function handleNavigate(payload: PortalPreviewNavigatePayload) {
 - 引擎包变更后，至少回归：
 
 ```bash
+pnpm -C packages/portal-engine run verify:materials
+pnpm -C packages/portal-engine run test:run
 pnpm -C packages/portal-engine typecheck
 pnpm -C apps/admin typecheck
 pnpm -C apps/portal typecheck

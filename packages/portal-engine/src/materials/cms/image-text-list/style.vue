@@ -50,7 +50,7 @@
   });
 
   defineOptions({
-    name: 'PbImageTextListStyle',
+    name: 'cms-image-text-list-style',
   });
 </script>
 

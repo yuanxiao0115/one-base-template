@@ -41,7 +41,7 @@
   });
 
   defineOptions({
-    name: 'PbDocumentCardListContent',
+    name: 'cms-document-card-list-content',
   });
 </script>
 

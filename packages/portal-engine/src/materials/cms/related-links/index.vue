@@ -53,7 +53,7 @@
 
   // 组件名称定义，保持与原来一致
   defineOptions({
-    name: 'PbRelatedLinksIndex',
+    name: 'cms-related-links-index',
   });
 </script>
 

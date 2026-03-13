@@ -454,9 +454,11 @@ admin 端保留兼容入口（壳层）：
 - 兼容入口通过 `setupPortalEngineForAdmin()` 统一把 admin 的 `cmsApi + pageSettingsApi` 绑定到引擎，保证迁移后组件数据源与页面设置保存链路行为不变。
 
 动态加载策略：
-- 通过 `import.meta.glob('./cms/**/index.vue' | './cms/**/content.vue' | './cms/**/style.vue', { eager: true })` 扫描物料目录
-- 以组件的 `defineOptions({ name })` 作为 key，要求与 `cmptConfig.index/content/style.name` 一致
-- 同时为组件名注入 `pb-*` 与 `cms-*` 双向别名，兼容历史 schema 与新命名
+- `useEditorMaterials()` 负责编辑态，加载 `index/content/style` 三类组件
+- `useRendererMaterials()` 负责预览态/渲染态，只加载 `index` 运行态组件
+- 兼容入口 `useMaterials()` 默认等同于 `useEditorMaterials()`，用于历史调用方平滑迁移
+- 组件 key 以 `defineOptions({ name })` 为准，必须与 `cmptConfig.index/content/style.name` 一致
+- 路径推导名与 config 名存在历史 `base-` 前缀差异时，必须在 `static-fallbacks/*.ts` 中显式声明 alias
 - `packages/portal-engine/src/materials/navigation.ts` 负责 CMS 物料点击导航注入：
   - 共享包不再硬编码 `portalPreviewCmsDetail` / `/frontPortal/cms/list`
   - 应用侧后续通过 `setPortalCmsNavigation()` 注入具体 target

@@ -1,4 +1,10 @@
 import type { Router } from 'vue-router';
+import type { PortalEngineContext } from '../runtime/context';
+import {
+  getDefaultPortalEngineContext,
+  readPortalEngineContextValue,
+  writePortalEngineContextValue,
+} from '../runtime/context';
 
 type MaybePromise<T> = T | Promise<T>;
 type RouterLike = Pick<Router, 'push'>;
@@ -41,7 +47,19 @@ const UNRESOLVED_DETAIL_RESULT: PortalCmsNavigationResult = {
   message: '当前应用未配置 CMS 详情跳转',
 };
 
-let currentPortalCmsNavigation: PortalCmsNavigation = {};
+const PORTAL_CMS_NAVIGATION_CONTEXT_KEY = Symbol('portal-engine.cms-navigation');
+
+function createFallbackPortalCmsNavigation(): PortalCmsNavigation {
+  return {};
+}
+
+export function getPortalCmsNavigation(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+  return readPortalEngineContextValue<PortalCmsNavigation>(
+    PORTAL_CMS_NAVIGATION_CONTEXT_KEY,
+    context,
+    createFallbackPortalCmsNavigation
+  );
+}
 
 function normalizeNavigationResult(
   value: void | boolean | PortalCmsNavigationResult,
@@ -61,35 +79,47 @@ function normalizeNavigationResult(
   };
 }
 
-export function setPortalCmsNavigation(navigation: Partial<PortalCmsNavigation>) {
-  currentPortalCmsNavigation = {
-    ...currentPortalCmsNavigation,
-    ...navigation,
-  };
+export function setPortalCmsNavigation(
+  navigation: Partial<PortalCmsNavigation>,
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
+  const currentPortalCmsNavigation = getPortalCmsNavigation(context);
+  return writePortalEngineContextValue(
+    PORTAL_CMS_NAVIGATION_CONTEXT_KEY,
+    {
+      ...currentPortalCmsNavigation,
+      ...navigation,
+    },
+    context
+  );
 }
 
-export function resetPortalCmsNavigation() {
-  currentPortalCmsNavigation = {};
+export function resetPortalCmsNavigation(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+  return writePortalEngineContextValue(PORTAL_CMS_NAVIGATION_CONTEXT_KEY, createFallbackPortalCmsNavigation(), context);
 }
 
 export async function navigatePortalCmsList(
-  context: PortalCmsListNavigationContext
+  navigationContext: PortalCmsListNavigationContext,
+  context: PortalEngineContext = getDefaultPortalEngineContext()
 ): Promise<PortalCmsNavigationResult> {
+  const currentPortalCmsNavigation = getPortalCmsNavigation(context);
   const openList = currentPortalCmsNavigation.openList;
   if (!openList) {
     return UNRESOLVED_LIST_RESULT;
   }
 
-  return normalizeNavigationResult(await openList(context), UNRESOLVED_LIST_RESULT);
+  return normalizeNavigationResult(await openList(navigationContext), UNRESOLVED_LIST_RESULT);
 }
 
 export async function navigatePortalCmsDetail(
-  context: PortalCmsDetailNavigationContext
+  navigationContext: PortalCmsDetailNavigationContext,
+  context: PortalEngineContext = getDefaultPortalEngineContext()
 ): Promise<PortalCmsNavigationResult> {
+  const currentPortalCmsNavigation = getPortalCmsNavigation(context);
   const openDetail = currentPortalCmsNavigation.openDetail;
   if (!openDetail) {
     return UNRESOLVED_DETAIL_RESULT;
   }
 
-  return normalizeNavigationResult(await openDetail(context), UNRESOLVED_DETAIL_RESULT);
+  return normalizeNavigationResult(await openDetail(navigationContext), UNRESOLVED_DETAIL_RESULT);
 }

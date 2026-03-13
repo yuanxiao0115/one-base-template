@@ -41,7 +41,7 @@
   });
 
   defineOptions({
-    name: 'PbDocumentCardListStyle',
+    name: 'cms-document-card-list-style',
   });
 </script>
 

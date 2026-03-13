@@ -20,8 +20,14 @@ import baseFormConfig from '../materials/base/base-form/config.json';
 import baseStatConfig from '../materials/base/base-stat/config.json';
 import baseFileListConfig from '../materials/base/base-file-list/config.json';
 import baseTimelineConfig from '../materials/base/base-timeline/config.json';
+import transparentPlaceholderConfig from '../materials/base/transparent-placeholder/config.json';
 
 import baseConfig from '../materials/cms/common/base-config.json';
+import type { PortalEngineContext } from '../runtime/context';
+import {
+  getDefaultPortalEngineContext,
+  readPortalEngineContextValue,
+} from '../runtime/context';
 import { createComponentGroup } from './utils/component-factory';
 import type {
   PortalMaterialCategory,
@@ -32,6 +38,9 @@ import type {
   RegisterPortalMaterialOptions,
   UnregisterPortalMaterialOptions,
 } from './materials-registry.types';
+
+const PORTAL_MATERIAL_REGISTRY_CONTEXT_KEY = Symbol('portal-engine.material-registry');
+const PORTAL_MATERIAL_TYPE_ALIASES_CONTEXT_KEY = Symbol('portal-engine.material-type-aliases');
 
 const MATERIAL_ICON_MAP = {
   htmlBlock: 'ri:code-line',
@@ -58,18 +67,6 @@ const MATERIAL_ICON_MAP = {
   documentCardList: 'ri:file-line',
   carouselTextList: 'ri:slideshow-line',
 } as const;
-
-const transparentPlaceholderConfig = {
-  index: {
-    name: 'base-transparent-placeholder-index',
-  },
-  content: {
-    name: 'base-transparent-placeholder-content',
-  },
-  style: {
-    name: 'base-transparent-placeholder-style',
-  },
-};
 
 /**
  * 物料注册表（前端维护）
@@ -459,9 +456,33 @@ export function createPortalMaterialRegistry(
   };
 }
 
-const defaultRegistryController = createPortalMaterialRegistry(defaultCategories);
+function createDefaultRegistryController() {
+  return createPortalMaterialRegistry(defaultCategories);
+}
 
-export const portalMaterialTypeAliases: Record<string, string> = {};
+export function getPortalMaterialRegistryController(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+  return readPortalEngineContextValue<PortalMaterialRegistryController>(
+    PORTAL_MATERIAL_REGISTRY_CONTEXT_KEY,
+    context,
+    createDefaultRegistryController
+  );
+}
+
+function createPortalMaterialTypeAliases() {
+  return {} as Record<string, string>;
+}
+
+export function getPortalMaterialTypeAliases(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+  return readPortalEngineContextValue<Record<string, string>>(
+    PORTAL_MATERIAL_TYPE_ALIASES_CONTEXT_KEY,
+    context,
+    createPortalMaterialTypeAliases
+  );
+}
+
+const defaultRegistryController = getPortalMaterialRegistryController();
+
+export const portalMaterialTypeAliases: Record<string, string> = getPortalMaterialTypeAliases();
 
 export function resolvePortalMaterialTypeAlias(type: string) {
   return portalMaterialTypeAliases[type] ?? type;

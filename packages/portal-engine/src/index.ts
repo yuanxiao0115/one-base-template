@@ -9,6 +9,15 @@ export function createPortalEngine(options: PortalEngineOptions = {}) {
   };
 }
 
+export type { PortalEngineContext, PortalEngineContextOptions } from './runtime/context';
+export {
+  createPortalEngineContext,
+  getDefaultPortalEngineContext,
+  providePortalEngineContext,
+  resetDefaultPortalEngineContext,
+  usePortalEngineContext,
+} from './runtime/context';
+
 export type { BizResponse, PageResult, PortalTab, PortalTemplate } from './schema/types';
 export type { PortalPreviewMode, PortalPreviewViewport } from './utils/preview';
 export {
@@ -113,7 +122,9 @@ export {
 } from './services/page-settings';
 export type { RegisterPortalMaterialComponentOptions } from './materials/useMaterials';
 export { registerPortalMaterialComponent, unregisterPortalMaterialComponent, useMaterials } from './materials/useMaterials';
-export { cmsApi, getPortalCmsApi, setPortalCmsApi } from './materials/api';
+export { useEditorMaterials } from './materials/useEditorMaterials';
+export { useRendererMaterials } from './materials/useRendererMaterials';
+export { cmsApi, getPortalCmsApi, resetPortalCmsApi, setPortalCmsApi } from './materials/api';
 export type {
   PortalCmsDetailNavigationContext,
   PortalCmsListNavigationContext,
@@ -121,6 +132,7 @@ export type {
   PortalCmsNavigationResult,
 } from './materials/navigation';
 export {
+  getPortalCmsNavigation,
   navigatePortalCmsDetail,
   navigatePortalCmsList,
   resetPortalCmsNavigation,
@@ -138,6 +150,8 @@ export type {
 } from './registry/materials-registry.types';
 export {
   createPortalMaterialRegistry,
+  getPortalMaterialRegistryController,
+  getPortalMaterialTypeAliases,
   portalMaterialsRegistry,
   portalMaterialTypeAliases,
   registerPortalMaterial,

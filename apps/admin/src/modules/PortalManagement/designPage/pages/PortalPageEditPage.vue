@@ -16,7 +16,7 @@
   } from "@one-base-template/portal-engine";
 
   import { portalApi } from "../../api";
-  import { useMaterials } from "../../materials/useMaterials";
+  import { useEditorMaterials } from "../../materials/useEditorMaterials";
 
   defineOptions({
     name: "PortalPageEditor",
@@ -37,7 +37,7 @@
 
   const pageLayoutStore = usePortalPageLayoutStore();
 
-  const { materialsMap } = useMaterials();
+  const { materialsMap } = useEditorMaterials();
   const materialCategories = portalMaterialsRegistry.categories;
 
   const tabId = computed(() => {

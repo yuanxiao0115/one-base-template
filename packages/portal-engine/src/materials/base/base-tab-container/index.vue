@@ -24,7 +24,7 @@
   import { computed, ref, watch, type CSSProperties, type Component } from 'vue';
 
   import PortalGridRenderer from '../../../renderer/PortalGridRenderer.vue';
-  import { BASE_TAB_CONTAINER_INDEX_NAME, normalizeTabContainerTabs, resolveTabContainerActiveTabId } from '../../../schema/tab-container';
+  import { normalizeTabContainerTabs, resolveTabContainerActiveTabId } from '../../../schema/tab-container';
   import { UnifiedContainerDisplay } from '../../common/unified-container';
   import type {
     UnifiedContainerContentConfigModel,
@@ -124,7 +124,7 @@
   }));
 
   defineOptions({
-    name: BASE_TAB_CONTAINER_INDEX_NAME,
+    name: 'base-tab-container-index',
   });
 </script>
 

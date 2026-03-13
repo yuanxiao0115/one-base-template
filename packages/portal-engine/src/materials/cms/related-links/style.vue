@@ -49,7 +49,7 @@
   });
 
   defineOptions({
-    name: 'PbRelatedLinksStyle',
+    name: 'cms-related-links-style',
   });
 </script>
 

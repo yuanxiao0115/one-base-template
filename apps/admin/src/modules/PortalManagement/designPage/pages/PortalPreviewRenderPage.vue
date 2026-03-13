@@ -11,7 +11,7 @@
   } from "@one-base-template/portal-engine";
 
   import { portalApi } from "../../api";
-  import { useMaterials } from "../../materials/useMaterials";
+  import { useRendererMaterials } from "../../materials/useRendererMaterials";
 
   defineOptions({
     name: "PortalPreview",
@@ -24,7 +24,7 @@
 
   const route = useRoute();
   const router = useRouter();
-  const { materialsMap } = useMaterials();
+  const { materialsMap } = useRendererMaterials();
 
   const tabId = computed(() => {
     const queryTabId = route.query.tabId;

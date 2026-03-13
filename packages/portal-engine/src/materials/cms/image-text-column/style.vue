@@ -42,7 +42,7 @@
   });
 
   defineOptions({
-    name: 'PbImageTextColumnStyle',
+    name: 'cms-image-text-column-style',
   });
 </script>
 

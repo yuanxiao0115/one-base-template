@@ -48,7 +48,7 @@
   });
 
   defineOptions({
-    name: 'PbRelatedLinksContent',
+    name: 'cms-related-links-content',
   });
 </script>
 

@@ -41,7 +41,7 @@
   });
 
   defineOptions({
-    name: 'PbImageTextColumnContent',
+    name: 'cms-image-text-column-content',
   });
 </script>
 
