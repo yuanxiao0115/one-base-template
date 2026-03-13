@@ -76,6 +76,11 @@ packages/portal-engine/src/
 - `editor/page-settings-session.ts`
   - 下沉页面设置会话状态机（tab 锁定、草稿状态、关闭回滚、保存收口）。
   - admin 页面仅负责 API 调用与消息提示，会话流转交由引擎维护。
+- `workbench/template-workbench-controller.ts`
+  - 下沉模板工作台的模板加载、属性弹窗、隐藏/删除、拖拽排序与“新建后直达编辑页”编排。
+  - 通过 `api/notify/confirm/openEditor/syncRouteTabId` 注入应用依赖，保持 `apps/admin` 只做消费者。
+- `workbench/useTemplateWorkbench.ts`
+  - 提供页面层直接消费的组合式入口，admin 页面无需再维护同构树操作与属性提交逻辑。
 
 ## admin 注册入口（必须）
 
@@ -103,6 +108,53 @@ setPortalCmsNavigation(options.cmsNavigation ?? {});
 ```
 
 规则：页面层禁止直接调用 `setPortal*`，统一走 register 入口，避免注入能力分散在业务页面。
+
+## 模板工作台消费者接入
+
+`PortalTemplateSettingPage.vue` 这类页面应优先消费 `useTemplateWorkbench()`，而不是在页面层重新维护模板树状态：
+
+```ts
+import { useTemplateWorkbench } from '@one-base-template/portal-engine';
+
+const workbench = useTemplateWorkbench({
+  templateId,
+  routeTabId,
+  lockedTabId,
+  api: {
+    template: {
+      detail: portalApi.template.detail,
+      update: portalApi.template.update,
+      hideToggle: portalApi.template.hideToggle,
+    },
+    tab: {
+      detail: portalApi.tab.detail,
+      add: portalApi.tab.add,
+      update: portalApi.tab.update,
+      delete: portalApi.tab.delete,
+    },
+  },
+  notify: {
+    success: (text) => message.success(text),
+    error: (text) => message.error(text),
+    warning: (text) => message.warning(text),
+  },
+  confirm: async ({ message: text, title }) => {
+    await confirm.warn(text, title);
+  },
+  syncRouteTabId: updateRouteTabId,
+  openEditor: ({ templateId, tabId }) => {
+    router.push({
+      path: '/portal/page/edit',
+      query: { id: templateId, tabId },
+    });
+  },
+});
+```
+
+页面层保留的职责应收敛为：
+- 预览舞台与 `preview-bridge` 通信
+- 页面设置会话与壳层配置提交
+- 路由装配与消息组件注入
 
 ## PortalPreviewPanel 消费者接入（props 注入）
 

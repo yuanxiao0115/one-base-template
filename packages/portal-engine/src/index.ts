@@ -199,6 +199,17 @@ export { default as PropertyPanel } from './editor/PropertyPanel.vue';
 export { default as MaterialLibrary } from './editor/MaterialLibrary.vue';
 export { default as PortalPageEditorWorkbench } from './editor/PortalPageEditorWorkbench.vue';
 export { default as PortalDesignerPreviewFrame } from './editor/PortalDesignerPreviewFrame.vue';
+export type {
+  CreateTemplateWorkbenchControllerOptions,
+  SubmitTabAttributePayload,
+  TemplateWorkbenchApi,
+  TemplateWorkbenchConfirmParams,
+  TemplateWorkbenchController,
+  TemplateWorkbenchNotifier,
+  TreeSortDropPayload,
+} from './workbench/template-workbench-controller';
+export { createTemplateWorkbenchController } from './workbench/template-workbench-controller';
+export { useTemplateWorkbench } from './workbench/useTemplateWorkbench';
 export {
   calcPortalManualPanRange,
   calcPortalPreviewPanBounds,

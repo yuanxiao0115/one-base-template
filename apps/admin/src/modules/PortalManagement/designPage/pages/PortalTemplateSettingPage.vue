@@ -1,41 +1,28 @@
 <script setup lang="ts">
   import { computed, nextTick, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { message } from "@one-base-template/ui";
-  import { confirm } from "@one-base-template/ui";
-  import {
-    buildPortalPageLayoutForSave,
-    createDefaultPortalPageSettingsV2,
-    normalizePortalPageSettingsV2,
-    type PortalPageSettingsV2,
-  } from "@one-base-template/portal-engine";
-
-  import { portalApi } from "../../api";
-  import type { BizResponse, PortalTab, PortalTemplate } from "../../types";
+  import { confirm, message } from "@one-base-template/ui";
   import {
     createPortalPageSettingsSession,
+    normalizePortalPageSettingsV2,
+    PortalDesignerPreviewFrame,
+    PREVIEW_MODE_SAFE,
+    PREVIEW_VIEWPORT_DEFAULT,
     sendPreviewRuntime,
     sendPreviewShellDetails,
     sendPreviewViewport,
+    type BizResponse,
     type PortalPageSettingsDrawerTab,
+    type PortalPageSettingsV2,
     type PortalPreviewFrameTarget,
-    PortalDesignerPreviewFrame,
-    usePortalCurrentTabActions,
-    PREVIEW_MODE_SAFE,
-    PREVIEW_VIEWPORT_DEFAULT,
     type PortalPreviewMode,
     type PortalPreviewViewport,
+    usePortalCurrentTabActions,
+    useTemplateWorkbench,
   } from "@one-base-template/portal-engine";
-  import {
-    calcNextSort,
-    containsTabId,
-    findFirstPageTabId,
-    findTabById,
-    isPortalTabEditable,
-    normalizeIdLike,
-    normalizeParentId,
-    normalizeTabName,
-  } from "../../utils/portalTree";
+
+  import { portalApi } from "../../api";
+  import { findTabById, isPortalTabEditable } from "../../utils/portalTree";
   import {
     loadPortalTabPageSettings,
     savePortalTabPageSettings,
@@ -43,9 +30,9 @@
 
   import PortalDesignerActionStrip from "../components/portal-template/PortalDesignerActionStrip.vue";
   import PortalDesignerHeaderBar from "../components/portal-template/PortalDesignerHeaderBar.vue";
+  import PortalDesignerTreePanel from "../components/portal-template/PortalDesignerTreePanel.vue";
   import PortalPageSettingsDrawer from "../components/portal-template/PortalPageSettingsDrawer.vue";
   import PortalShellSettingsDialog from "../components/portal-template/PortalShellSettingsDialog.vue";
-  import PortalDesignerTreePanel from "../components/portal-template/PortalDesignerTreePanel.vue";
   import TabAttributeDialog from "../components/portal-template/TabAttributeDialog.vue";
 
   defineOptions({
@@ -60,28 +47,44 @@
     if (typeof id === "string") {
       return id;
     }
-    const templateId = route.query.templateId;
-    return typeof templateId === "string" ? templateId : "";
+    const nextTemplateId = route.query.templateId;
+    return typeof nextTemplateId === "string" ? nextTemplateId : "";
   });
 
   const routeTabId = computed(() => {
-    const v = route.query.tabId;
-    return typeof v === "string" ? v : "";
+    const value = route.query.tabId;
+    return typeof value === "string" ? value : "";
   });
 
-  const loading = ref(false);
-  const creating = ref(false);
+  function cloneByJson<T>(input: T): T {
+    return JSON.parse(JSON.stringify(input)) as T;
+  }
 
-  const templateInfo = ref<PortalTemplate | null>(null);
-  const currentTabId = ref("");
+  type BizResLike = Pick<BizResponse<unknown>, "code" | "message" | "success">;
 
-  const attrVisible = ref(false);
-  const attrMode = ref<"create" | "edit">("create");
-  const attrLoading = ref(false);
-  const attrInitial = ref<Partial<PortalTab>>({});
-  const attrParentId = ref<number | string>(0);
-  const editingTabId = ref("");
-  const editingTabType = ref<number | null>(null);
+  function normalizeBizOk(res: BizResLike | null | undefined): boolean {
+    const code = res?.code;
+    return res?.success === true || code === 0 || code === 200 || String(code) === "0" || String(code) === "200";
+  }
+
+  function updateRouteTabId(tabId: string) {
+    const next = tabId || undefined;
+    const current = routeTabId.value || undefined;
+    if (current === next) {
+      return;
+    }
+
+    router
+      .replace({
+        query: {
+          ...route.query,
+          tabId: next,
+        },
+      })
+      .catch((error) => {
+        console.warn("[PortalTemplateSettingPage] 更新路由参数失败", error);
+      });
+  }
 
   const pageSettingsSession = createPortalPageSettingsSession<PortalPageSettingsV2>({
     clone: cloneByJson,
@@ -98,10 +101,71 @@
     pageShellSaving: pageShellSettingSaving,
     pageShellPreviewDetailsDraft,
   } = pageSettingsSession;
+
+  const workbench = useTemplateWorkbench({
+    templateId,
+    routeTabId,
+    lockedTabId: computed(() => (pageSettingsVisible.value ? pageSettingsEditingTabId.value : "")),
+    api: {
+      template: {
+        detail: portalApi.template.detail,
+        update: portalApi.template.update,
+        hideToggle: portalApi.template.hideToggle,
+      },
+      tab: {
+        detail: portalApi.tab.detail,
+        add: portalApi.tab.add,
+        update: portalApi.tab.update,
+        delete: portalApi.tab.delete,
+      },
+    },
+    notify: {
+      success: (text) => message.success(text),
+      error: (text) => message.error(text),
+      warning: (text) => message.warning(text),
+    },
+    confirm: async ({ message: text, title }) => {
+      await confirm.warn(text, title);
+    },
+    syncRouteTabId: updateRouteTabId,
+    openEditor: ({ templateId: nextTemplateId, tabId }) => {
+      router.push({
+        path: "/portal/page/edit",
+        query: {
+          id: nextTemplateId,
+          tabId,
+        },
+      });
+    },
+  });
+
+  const {
+    loading,
+    creating,
+    sortingTabs,
+    templateInfo,
+    currentTabId,
+    currentTab,
+    attrVisible,
+    attrMode,
+    attrLoading,
+    attrInitial,
+    setCurrentTab,
+    loadTemplate,
+    openCreateRoot,
+    openCreateSibling,
+    openCreateChild,
+    openAttribute,
+    onSubmitAttr,
+    toggleHide,
+    deleteTab,
+    onTreeSortDrop,
+    onEdit,
+  } = workbench;
+
   const shellSettingVisible = ref(false);
   const shellSettingSaving = ref(false);
   const shellSettingSavedInThisRound = ref(false);
-  const sortingTabs = ref(false);
   const previewMode = ref<PortalPreviewMode>(PREVIEW_MODE_SAFE);
   const previewViewport = ref<PortalPreviewViewport>(PREVIEW_VIEWPORT_DEFAULT);
   const previewScale = ref(1);
@@ -117,29 +181,12 @@
 
   const previewFrameRef = ref<PreviewFrameExpose | null>(null);
 
-  type BizResLike = Pick<BizResponse<unknown>, "code" | "message" | "success">;
-
-  function normalizeBizOk(res: BizResLike | null | undefined): boolean {
-    const code = res?.code;
-    return res?.success === true || code === 0 || code === 200 || String(code) === "0" || String(code) === "200";
-  }
-
-  function getTabs(): PortalTab[] {
-    return templateInfo.value?.tabList ?? [];
-  }
-
-  const currentTab = computed(() => findTabById(getTabs(), currentTabId.value));
-  const currentTabName = computed(() => {
-    const value = currentTab.value?.tabName;
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
-    }
-    return "未命名页面";
-  });
   const pageSettingsCurrentTabId = computed(() =>
     pageSettingsVisible.value && pageSettingsEditingTabId.value ? pageSettingsEditingTabId.value : currentTabId.value
   );
-  const pageSettingsCurrentTab = computed(() => findTabById(getTabs(), pageSettingsCurrentTabId.value));
+  const pageSettingsCurrentTab = computed(() =>
+    findTabById(templateInfo.value?.tabList ?? [], pageSettingsCurrentTabId.value)
+  );
   const pageSettingsCurrentTabName = computed(() => {
     const value = pageSettingsCurrentTab.value?.tabName;
     if (typeof value === "string" && value.trim()) {
@@ -147,6 +194,7 @@
     }
     return "未命名页面";
   });
+
   const {
     editCurrentTab,
     openCurrentPageSettings,
@@ -167,7 +215,7 @@
           previewMode: nextPreviewMode,
         },
       }).href,
-    notifyWarning: (msg) => message.warning(msg),
+    notifyWarning: (text) => message.warning(text),
     onEditTab: onEdit,
     onOpenPageSettings: openPageSettingsDrawer,
     onOpenAttribute: openAttribute,
@@ -191,10 +239,7 @@
   });
 
   function postShellPreviewDetails(details: string) {
-    if (!templateId.value) {
-      return;
-    }
-    if (!currentTabId.value) {
+    if (!(templateId.value && currentTabId.value)) {
       return;
     }
 
@@ -217,17 +262,11 @@
     });
   }
 
-  function cloneByJson<T>(input: T): T {
-    return JSON.parse(JSON.stringify(input)) as T;
-  }
-
   function postPageRuntimePreview(settings: PortalPageSettingsV2 | null | undefined): boolean {
-    if (!(templateId.value && currentTabId.value)) {
+    if (!(templateId.value && currentTabId.value && settings)) {
       return false;
     }
-    if (!settings) {
-      return false;
-    }
+
     const normalizedSettings = normalizePortalPageSettingsV2(settings);
     const runtimeComponents = Array.isArray(pageSettingsComponents.value) ? cloneByJson(pageSettingsComponents.value) : [];
     return sendPreviewRuntime(previewFrameRef.value, {
@@ -235,557 +274,6 @@
       tabId: currentTabId.value,
       settings: cloneByJson(normalizedSettings),
       component: runtimeComponents,
-    });
-  }
-
-  function updateRouteTabId(tabId: string) {
-    const next = tabId || undefined;
-    const current = routeTabId.value || undefined;
-    if (current === next) {
-      return;
-    }
-
-    router
-      .replace({
-        query: {
-          ...route.query,
-          tabId: next,
-        },
-      })
-      .catch((error) => {
-        console.warn("[PortalTemplateSettingPage] 更新路由参数失败", error);
-      });
-  }
-
-  function setCurrentTab(tabId: string, options?: { silentWhenLocked?: boolean }) {
-    const lockedTabId = pageSettingsVisible.value ? pageSettingsEditingTabId.value : "";
-    if (lockedTabId && tabId && tabId !== lockedTabId) {
-      if (!options?.silentWhenLocked) {
-        message.warning("页面设置已打开，请先保存或关闭后再切换页面");
-      }
-      updateRouteTabId(lockedTabId);
-      return;
-    }
-    currentTabId.value = tabId;
-    updateRouteTabId(tabId);
-  }
-
-  interface TreeSortDropPayload {
-    draggingId: string;
-    dropId: string;
-    dropType: "before" | "after" | "inner";
-  }
-
-  interface TabSortPatch {
-    id: string;
-    parentId: number | string;
-    sort: number;
-  }
-
-  interface TabLocation {
-    node: PortalTab;
-    parent: PortalTab | null;
-    siblings: PortalTab[];
-    index: number;
-  }
-
-  function cloneTabsForSort(source: PortalTab[]): PortalTab[] {
-    return JSON.parse(JSON.stringify(source)) as PortalTab[];
-  }
-
-  function findTabLocationById(tabs: PortalTab[], tabId: string, parent: PortalTab | null = null): TabLocation | null {
-    for (let index = 0; index < tabs.length; index += 1) {
-      const node = tabs[index];
-      if (!node || typeof node !== "object") {
-        continue;
-      }
-      if (normalizeIdLike(node.id) === tabId) {
-        return {
-          node,
-          parent,
-          siblings: tabs,
-          index,
-        };
-      }
-      if (Array.isArray(node.children) && node.children.length > 0) {
-        const nested = findTabLocationById(node.children, tabId, node);
-        if (nested) {
-          return nested;
-        }
-      }
-    }
-    return null;
-  }
-
-  function removeTabById(tabs: PortalTab[], tabId: string, parent: PortalTab | null = null): TabLocation | null {
-    for (let index = 0; index < tabs.length; index += 1) {
-      const node = tabs[index];
-      if (!node || typeof node !== "object") {
-        continue;
-      }
-      if (normalizeIdLike(node.id) === tabId) {
-        const [removed] = tabs.splice(index, 1);
-        if (!removed || typeof removed !== "object") {
-          return null;
-        }
-        return {
-          node: removed,
-          parent,
-          siblings: tabs,
-          index,
-        };
-      }
-      if (Array.isArray(node.children) && node.children.length > 0) {
-        const nested = removeTabById(node.children, tabId, node);
-        if (nested) {
-          return nested;
-        }
-      }
-    }
-    return null;
-  }
-
-  function ensureChildren(node: PortalTab): PortalTab[] {
-    if (!Array.isArray(node.children)) {
-      node.children = [];
-    }
-    return node.children;
-  }
-
-  function collectSortPatches(siblings: PortalTab[], parentId: number | string): TabSortPatch[] {
-    return siblings
-      .map((item, index) => {
-        const id = normalizeIdLike(item.id);
-        if (!id) {
-          return null;
-        }
-        return {
-          id,
-          parentId,
-          sort: index + 1,
-        };
-      })
-      .filter((item): item is TabSortPatch => Boolean(item));
-  }
-
-  async function loadTemplate(preferTabId?: string) {
-    if (!templateId.value) {
-      templateInfo.value = null;
-      currentTabId.value = "";
-      return;
-    }
-
-    loading.value = true;
-    try {
-      const res = await portalApi.template.detail({ id: templateId.value });
-      if (!normalizeBizOk(res)) {
-        message.error(res?.message || "加载门户失败");
-        templateInfo.value = null;
-        currentTabId.value = "";
-        return;
-      }
-
-      templateInfo.value = res?.data ?? null;
-
-      const tabs = getTabs();
-      const preferred = preferTabId || routeTabId.value;
-      const nextTabId = preferred && containsTabId(tabs, preferred) ? preferred : findFirstPageTabId(tabs);
-      setCurrentTab(nextTabId, { silentWhenLocked: true });
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "加载门户失败";
-      message.error(msg);
-      templateInfo.value = null;
-      currentTabId.value = "";
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function linkTabToTemplate(tabId: string) {
-    await loadTemplate(tabId);
-    if (containsTabId(getTabs(), tabId)) {
-      return;
-    }
-
-    const tpl = templateInfo.value;
-    if (!tpl) {
-      return;
-    }
-
-    const nextIds = Array.isArray(tpl.tabIds) ? [...tpl.tabIds] : [];
-    if (!nextIds.includes(tabId)) {
-      nextIds.push(tabId);
-    }
-    tpl.tabIds = nextIds;
-
-    const res = await portalApi.template.update(tpl);
-    if (!normalizeBizOk(res)) {
-      message.error(res?.message || "关联页面到模板失败");
-      return;
-    }
-
-    await loadTemplate(tabId);
-  }
-
-  function openCreate(parentId: number | string, initial?: Partial<PortalTab>) {
-    attrMode.value = "create";
-    attrParentId.value = parentId;
-    editingTabId.value = "";
-    editingTabType.value = null;
-    attrInitial.value = {
-      tabType: 2,
-      sort: calcNextSort(getTabs(), parentId),
-      ...initial,
-    };
-    attrVisible.value = true;
-  }
-
-  function openCreateRoot() {
-    openCreate(0, { tabType: 2 });
-  }
-
-  function openCreateSibling(node: PortalTab) {
-    openCreate(node.parentId ?? 0, { tabType: 2 });
-  }
-
-  function openCreateChild(node: PortalTab) {
-    if (node.tabType !== 1) {
-      return;
-    }
-    const id = normalizeIdLike(node.id);
-    if (!id) {
-      return;
-    }
-    openCreate(id, { tabType: 2 });
-  }
-
-  async function openAttribute(node: PortalTab) {
-    const id = normalizeIdLike(node.id);
-    if (!id) {
-      return;
-    }
-    if (!templateId.value) {
-      return;
-    }
-
-    attrLoading.value = true;
-    try {
-      const res = await portalApi.tab.detail({ id });
-      if (!normalizeBizOk(res)) {
-        message.error(res?.message || "加载页面详情失败");
-        return;
-      }
-
-      const tab = res?.data;
-      attrMode.value = "edit";
-      editingTabId.value = id;
-      editingTabType.value = typeof tab?.tabType === "number" ? tab.tabType : null;
-      attrParentId.value = tab?.parentId ?? 0;
-      attrInitial.value = tab ?? {};
-      attrVisible.value = true;
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "加载页面详情失败";
-      message.error(msg);
-    } finally {
-      attrLoading.value = false;
-    }
-  }
-
-  async function onSubmitAttr(payload: {
-    tabName: string;
-    tabType: number;
-    sort: number;
-    tabUrl?: string;
-    tabUrlOpenMode?: number;
-    tabUrlSsoType?: number;
-    portalTemplateId?: string;
-  }) {
-    if (!templateId.value) {
-      return;
-    }
-    if (creating.value) {
-      return;
-    }
-
-    creating.value = true;
-    try {
-      if (attrMode.value === "create") {
-        // “门户列表”是便捷入口，落库仍按链接处理，避免后端枚举兼容问题
-        const submitTabType = payload.tabType === 4 ? 3 : payload.tabType;
-        const data: Record<string, unknown> = {
-          templateId: templateId.value,
-          parentId: attrParentId.value,
-          tabName: payload.tabName,
-          tabType: submitTabType,
-          sort: payload.sort,
-          tabIcon: "",
-          order: 0,
-        };
-
-        if (submitTabType === 3) {
-          data.tabUrl = payload.tabUrl ?? "";
-          data.tabUrlOpenMode = payload.tabUrlOpenMode ?? 1;
-          data.tabUrlSsoType = payload.tabUrlSsoType ?? 1;
-        } else {
-          data.tabUrl = "";
-          data.tabUrlOpenMode = 1;
-          data.tabUrlSsoType = 1;
-        }
-
-        if (submitTabType === 2) {
-          data.pageLayout = JSON.stringify(
-            buildPortalPageLayoutForSave(createDefaultPortalPageSettingsV2(), [])
-          );
-          data.cmptInsts = [];
-        }
-
-        const res = await portalApi.tab.add(data);
-        if (!normalizeBizOk(res)) {
-          message.error(res?.message || "新建失败");
-          return;
-        }
-
-        const newTabId = typeof res?.data === "string" ? res.data : "";
-        if (!newTabId) {
-          message.error("新建成功但未返回 tabId");
-          return;
-        }
-
-        await linkTabToTemplate(newTabId);
-
-        if (submitTabType === 2) {
-          router.push({
-            path: "/portal/page/edit",
-            query: {
-              id: templateId.value,
-              tabId: newTabId,
-            },
-          });
-          return;
-        }
-
-        message.success("新建成功");
-        await loadTemplate(currentTabId.value);
-        return;
-      }
-
-      // 编辑：不允许修改 tabType（与老项目保持一致）
-      const id = editingTabId.value;
-      if (!id) {
-        return;
-      }
-      const rawTabType = editingTabType.value ?? payload.tabType;
-      const tabType = rawTabType === 4 ? 3 : rawTabType;
-
-      const updateData: Record<string, unknown> = {
-        id,
-        templateId: templateId.value,
-        parentId: attrParentId.value,
-        tabName: payload.tabName,
-        tabType,
-        sort: payload.sort,
-      };
-
-      if (tabType === 3) {
-        updateData.tabUrl = payload.tabUrl ?? "";
-        updateData.tabUrlOpenMode = payload.tabUrlOpenMode ?? 1;
-        updateData.tabUrlSsoType = payload.tabUrlSsoType ?? 1;
-      }
-
-      const res = await portalApi.tab.update(updateData);
-      if (!normalizeBizOk(res)) {
-        message.error(res?.message || "保存失败");
-        return;
-      }
-
-      message.success("保存成功");
-      await loadTemplate(currentTabId.value);
-    } finally {
-      creating.value = false;
-      attrVisible.value = false;
-    }
-  }
-
-  async function toggleHide(node: PortalTab) {
-    if (!templateId.value) {
-      return;
-    }
-    const tabId = normalizeIdLike(node.id);
-    if (!tabId) {
-      return;
-    }
-
-    const next = node.isHide === 1 ? 0 : 1;
-    const text = next === 1 ? "隐藏" : "显示";
-
-    try {
-      await confirm.warn(`确定要${text}该页面吗？`, "操作确认");
-    } catch {
-      return;
-    }
-
-    const res = await portalApi.template.hideToggle({
-      id: templateId.value,
-      tabId,
-      isHide: next,
-    });
-    if (!normalizeBizOk(res)) {
-      message.error(res?.message || `${text}失败`);
-      return;
-    }
-
-    message.success(`${text}成功`);
-    await loadTemplate(currentTabId.value);
-  }
-
-  async function deleteTab(node: PortalTab) {
-    if (!templateId.value) {
-      return;
-    }
-    const tabId = normalizeIdLike(node.id);
-    if (!tabId) {
-      return;
-    }
-
-    try {
-      await confirm.warn("确定要删除该页面吗？", "删除确认");
-    } catch {
-      return;
-    }
-
-    const res = await portalApi.tab.delete({ id: tabId });
-    if (!normalizeBizOk(res)) {
-      message.error(res?.message || "删除失败");
-      return;
-    }
-
-    message.success("删除成功");
-    await loadTemplate(currentTabId.value);
-
-    if (tabId === currentTabId.value) {
-      const next = findFirstPageTabId(getTabs());
-      setCurrentTab(next);
-    }
-  }
-
-  async function applyTabSortPatches(patches: TabSortPatch[]) {
-    if (!templateId.value) {
-      return;
-    }
-
-    for (const patch of patches) {
-      const detailRes = await portalApi.tab.detail({ id: patch.id });
-      if (!normalizeBizOk(detailRes)) {
-        throw new Error(detailRes?.message || `加载页面详情失败：${patch.id}`);
-      }
-
-      const detail = detailRes?.data ?? {};
-      const tabType = typeof detail.tabType === "number" ? detail.tabType : 2;
-      const tabName = normalizeTabName(detail.tabName, `页面-${patch.id}`);
-      const updateData: Record<string, unknown> = {
-        id: patch.id,
-        templateId: templateId.value,
-        parentId: patch.parentId,
-        tabName,
-        tabType,
-        sort: patch.sort,
-      };
-
-      if (tabType === 3) {
-        updateData.tabUrl = typeof detail.tabUrl === "string" ? detail.tabUrl : "";
-        updateData.tabUrlOpenMode = typeof detail.tabUrlOpenMode === "number" ? detail.tabUrlOpenMode : 1;
-        updateData.tabUrlSsoType = typeof detail.tabUrlSsoType === "number" ? detail.tabUrlSsoType : 1;
-      }
-
-      const updateRes = await portalApi.tab.update(updateData);
-      if (!normalizeBizOk(updateRes)) {
-        throw new Error(updateRes?.message || `更新页面排序失败：${patch.id}`);
-      }
-    }
-  }
-
-  async function onTreeSortDrop(payload: TreeSortDropPayload) {
-    if (!templateId.value || sortingTabs.value) {
-      return;
-    }
-
-    const tabs = cloneTabsForSort(getTabs());
-    const removed = removeTabById(tabs, payload.draggingId);
-    if (!removed) {
-      message.error("未找到被拖拽页面，排序失败");
-      return;
-    }
-
-    const dropLocation = findTabLocationById(tabs, payload.dropId);
-    if (!dropLocation) {
-      message.error("未找到目标位置，排序失败");
-      return;
-    }
-
-    const sourceParentId = normalizeParentId(removed.parent);
-    let destinationParentId: number | string;
-    let destinationSiblings: PortalTab[];
-
-    if (payload.dropType === "inner") {
-      if (dropLocation.node.tabType !== 1) {
-        message.warning("仅导航组支持接收子页面");
-        return;
-      }
-      destinationParentId = normalizeIdLike(dropLocation.node.id) || 0;
-      destinationSiblings = ensureChildren(dropLocation.node);
-      destinationSiblings.push(removed.node);
-    } else {
-      destinationParentId = normalizeParentId(dropLocation.parent);
-      destinationSiblings = dropLocation.siblings;
-      const insertIndex = payload.dropType === "before" ? dropLocation.index : dropLocation.index + 1;
-      destinationSiblings.splice(insertIndex, 0, removed.node);
-    }
-
-    removed.node.parentId = destinationParentId;
-
-    const patchMap = new Map<string, TabSortPatch>();
-    for (const patch of collectSortPatches(destinationSiblings, destinationParentId)) {
-      patchMap.set(patch.id, patch);
-    }
-    if (String(sourceParentId) !== String(destinationParentId)) {
-      for (const patch of collectSortPatches(removed.siblings, sourceParentId)) {
-        patchMap.set(patch.id, patch);
-      }
-    }
-    const patches = Array.from(patchMap.values());
-    if (patches.length === 0) {
-      return;
-    }
-
-    sortingTabs.value = true;
-    try {
-      await applyTabSortPatches(patches);
-      message.success("页面排序已更新");
-      await loadTemplate(payload.draggingId);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "页面排序更新失败";
-      message.error(msg);
-      await loadTemplate(currentTabId.value);
-    } finally {
-      sortingTabs.value = false;
-    }
-  }
-
-  function onEdit(tabId: string) {
-    if (!templateId.value) {
-      return;
-    }
-    const tab = findTabById(getTabs(), tabId);
-    if (!(tab && isPortalTabEditable(tab.tabType))) {
-      message.warning("仅空白页支持编辑");
-      return;
-    }
-    router.push({
-      path: "/portal/page/edit",
-      query: {
-        id: templateId.value,
-        tabId,
-      },
     });
   }
 
@@ -810,10 +298,10 @@
         components: detail.components,
       });
       postPageRuntimePreview(pageSettingsForm.value);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "加载页面设置失败";
+    } catch (error: unknown) {
+      const text = error instanceof Error ? error.message : "加载页面设置失败";
       pageSettingsSession.failOpen();
-      message.error(msg);
+      message.error(text);
     }
   }
 
@@ -838,9 +326,9 @@
       pageSettingsSession.markPageSettingsSaved(settings);
       postPageRuntimePreview(pageSettingsForm.value);
       await loadTemplate(editingTabId);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "页面设置保存失败";
-      message.error(msg);
+    } catch (error: unknown) {
+      const text = error instanceof Error ? error.message : "页面设置保存失败";
+      message.error(text);
     } finally {
       pageSettingsSaving.value = false;
     }
@@ -935,9 +423,9 @@
       shellPreviewDetailsDraft.value = payload.details;
       shellSettingVisible.value = false;
       await loadTemplate(currentTabId.value);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "页眉页脚配置保存失败";
-      message.error(msg);
+    } catch (error: unknown) {
+      const text = error instanceof Error ? error.message : "页眉页脚配置保存失败";
+      message.error(text);
     } finally {
       shellSettingSaving.value = false;
     }
@@ -970,9 +458,9 @@
       message.success("页面级页眉页脚配置保存成功");
       pageSettingsSession.markPageShellSaved(payload.details);
       await loadTemplate(editingTabId);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "页面级页眉页脚配置保存失败";
-      message.error(msg);
+    } catch (error: unknown) {
+      const text = error instanceof Error ? error.message : "页面级页眉页脚配置保存失败";
+      message.error(text);
     } finally {
       pageShellSettingSaving.value = false;
     }
@@ -1002,23 +490,20 @@
     }
   });
 
-  watch(
-    shellSettingVisible,
-    (opened) => {
-      if (opened) {
-        shellPreviewDetailsDraft.value = "";
-        shellSettingSavedInThisRound.value = false;
-        return;
-      }
-      if (shellSettingSavedInThisRound.value) {
-        shellSettingSavedInThisRound.value = false;
-        return;
-      }
-      const persistedDetails = templateInfo.value?.details || "";
+  watch(shellSettingVisible, (opened) => {
+    if (opened) {
       shellPreviewDetailsDraft.value = "";
-      postShellPreviewDetails(persistedDetails);
+      shellSettingSavedInThisRound.value = false;
+      return;
     }
-  );
+    if (shellSettingSavedInThisRound.value) {
+      shellSettingSavedInThisRound.value = false;
+      return;
+    }
+    const persistedDetails = templateInfo.value?.details || "";
+    shellPreviewDetailsDraft.value = "";
+    postShellPreviewDetails(persistedDetails);
+  });
 
   watch(
     () => [previewFrameSrc.value, currentTabId.value, shellSettingVisible.value, shellPreviewDetailsDraft.value] as const,
@@ -1146,7 +631,6 @@
       @submit="onSubmitShellSetting"
       @preview-change="onShellPreviewChange"
     />
-
   </div>
 </template>
 
