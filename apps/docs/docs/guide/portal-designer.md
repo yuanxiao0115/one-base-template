@@ -30,6 +30,7 @@
 - `src/stores/pageLayout.ts`
 - `src/editor/{GridLayoutEditor,PropertyPanel,MaterialLibrary}.vue`
 - `src/renderer/PortalGridRenderer.vue`
+- `src/renderer/PortalPreviewPanel.vue`（预览页渲染面板，下沉为引擎组件）
 - `src/materials/cms/**`（由 `party-building` 迁移并重命名目录）
 - `src/materials/useMaterials.ts`（扫描 `cms` 物料，内置 `pb-* <-> cms-*` 组件名别名）
 - `src/registry/materials-registry.ts`（默认注册 `cms-*`，并导出 `pb-* -> cms-*` 类型别名映射）
@@ -425,7 +426,7 @@ type PageLayoutJson = {
 
 预览页 `PortalPreviewRenderPage`：
 - 路由 `meta.public=true`，允许未登录直接访问
-- 设计器右侧使用 iframe 加载 `/portal/preview`，独立页面与 iframe 内部都复用 `PortalPreviewPanel`
+- 设计器右侧使用 iframe 加载 `/portal/preview`，独立页面与 iframe 内部都复用 `@one-base-template/portal-engine` 导出的 `PortalPreviewPanel`（不再维护 admin 本地副本）
 - 加载数据优先走匿名接口：
   - `GET /cmict/portal/public/portal/tab/detail?id=<tabId>`
 - 失败兜底走鉴权接口（用户已登录时可用）：

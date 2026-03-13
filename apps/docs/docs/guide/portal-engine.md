@@ -104,6 +104,67 @@ setPortalCmsNavigation(options.cmsNavigation ?? {});
 
 规则：页面层禁止直接调用 `setPortal*`，统一走 register 入口，避免注入能力分散在业务页面。
 
+## PortalPreviewPanel 消费者接入（props 注入）
+
+`PortalPreviewPanel` 已下沉到 `packages/portal-engine/src/renderer/PortalPreviewPanel.vue`，消费者（admin/portal/其他应用）统一通过 props 注入能力，**不依赖 `apps/admin` 的本地 `portalApi` 或 `useMaterials` mock**。
+
+接入要点：
+1. 注入 `previewDataSource`：提供 `getTabDetail/getTemplateDetail` 两个异步函数。
+2. 注入 `materialsMap`：传入 `Record<string, Component>`，key 必须与 schema 的 `cmptConfig.index.name` 对齐。
+3. 注入 `onNavigate`：统一接收 tab/url 跳转事件，由消费者决定路由跳转或外链打开策略。
+
+```vue
+<script setup lang="ts">
+import { markRaw } from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  PortalPreviewPanel,
+  type PortalPreviewDataSource,
+  type PortalPreviewNavigatePayload,
+} from '@one-base-template/portal-engine';
+
+import BaseTextIndex from './materials/BaseTextIndex.vue';
+import { request } from './infra/request';
+
+const router = useRouter();
+
+const materialsMap = {
+  'base-text-index': markRaw(BaseTextIndex),
+};
+
+const previewDataSource: PortalPreviewDataSource = {
+  getTabDetail: (tabId) => request.get('/portal/tab/detail', { params: { id: tabId } }),
+  getTemplateDetail: (templateId) => request.get('/portal/template/detail', { params: { id: templateId } }),
+};
+
+function handleNavigate(payload: PortalPreviewNavigatePayload) {
+  if (payload.type === 'tab' && payload.tabId) {
+    router.replace({
+      query: {
+        tabId: payload.tabId,
+      },
+    });
+    return;
+  }
+  if (payload.type === 'url' && payload.url) {
+    window.open(payload.url, '_blank', 'noopener,noreferrer');
+  }
+}
+</script>
+
+<template>
+  <PortalPreviewPanel
+    tab-id="tab-1"
+    template-id="tpl-1"
+    :preview-data-source="previewDataSource"
+    :materials-map="materialsMap"
+    :on-navigate="handleNavigate"
+    :listen-message="true"
+    preview-mode="safe"
+  />
+</template>
+```
+
 ## 基础物料（base）新增能力
 
 `packages/portal-engine/src/materials/base` 当前已包含以下通用物料：
