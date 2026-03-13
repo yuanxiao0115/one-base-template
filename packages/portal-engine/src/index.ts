@@ -210,6 +210,13 @@ export type {
 } from './workbench/template-workbench-controller';
 export { createTemplateWorkbenchController } from './workbench/template-workbench-controller';
 export { useTemplateWorkbench } from './workbench/useTemplateWorkbench';
+export type {
+  CreateTemplateWorkbenchPageControllerOptions,
+  TemplateWorkbenchPageController,
+  TemplateWorkbenchPagePreviewTarget,
+} from './workbench/template-workbench-page-controller';
+export { createTemplateWorkbenchPageController } from './workbench/template-workbench-page-controller';
+export { useTemplateWorkbenchPage } from './workbench/useTemplateWorkbenchPage';
 export {
   calcPortalManualPanRange,
   calcPortalPreviewPanBounds,

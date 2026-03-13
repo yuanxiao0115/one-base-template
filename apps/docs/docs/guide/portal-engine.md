@@ -81,6 +81,11 @@ packages/portal-engine/src/
   - 通过 `api/notify/confirm/openEditor/syncRouteTabId` 注入应用依赖，保持 `apps/admin` 只做消费者。
 - `workbench/useTemplateWorkbench.ts`
   - 提供页面层直接消费的组合式入口，admin 页面无需再维护同构树操作与属性提交逻辑。
+- `workbench/template-workbench-page-controller.ts`
+  - 继续下沉模板工作台页面级编排：预览舞台状态、页面设置抽屉、页眉页脚草稿预览与保存回滚。
+  - 通过 `context/api/notify/confirm/openEditor/syncRouteTabId/resolvePreviewHref` 注入应用依赖，admin 页面只保留路由与壳组件拼装。
+- `workbench/useTemplateWorkbenchPage.ts`
+  - 提供模板工作台页面的消费者入口，统一组合 `template-workbench-controller + current-tab-actions + page-settings-session + preview-bridge`。
 
 ## admin 注册入口（必须）
 
@@ -111,15 +116,16 @@ setPortalCmsNavigation(options.cmsNavigation ?? {});
 
 ## 模板工作台消费者接入
 
-`PortalTemplateSettingPage.vue` 这类页面应优先消费 `useTemplateWorkbench()`，而不是在页面层重新维护模板树状态：
+`PortalTemplateSettingPage.vue` 这类页面应优先消费 `useTemplateWorkbenchPage()`，而不是在页面层重新维护页面设置会话、预览桥与模板树状态：
 
 ```ts
-import { useTemplateWorkbench } from '@one-base-template/portal-engine';
+import { useTemplateWorkbenchPage } from '@one-base-template/portal-engine';
 
-const workbench = useTemplateWorkbench({
+const workbenchPage = useTemplateWorkbenchPage({
+  context: setupPortalEngineForAdmin(),
   templateId,
   routeTabId,
-  lockedTabId,
+  previewTarget: previewFrameRef,
   api: {
     template: {
       detail: portalApi.template.detail,
@@ -148,13 +154,18 @@ const workbench = useTemplateWorkbench({
       query: { id: templateId, tabId },
     });
   },
+  resolvePreviewHref: ({ templateId, tabId, previewMode }) =>
+    router.resolve({
+      name: 'PortalPreview',
+      query: { templateId, tabId, previewMode },
+    }).href,
 });
 ```
 
 页面层保留的职责应收敛为：
-- 预览舞台与 `preview-bridge` 通信
-- 页面设置会话与壳层配置提交
-- 路由装配与消息组件注入
+- 路由参数解析与 `router/message/confirm` 注入
+- 预览舞台、树面板、抽屉/对话框等壳组件拼装
+- 首次 `loadTemplate()` 触发与页面级返回动作
 
 ## PortalPreviewPanel 消费者接入（props 注入）
 
