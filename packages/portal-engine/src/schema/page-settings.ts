@@ -1,4 +1,4 @@
-export const PORTAL_PAGE_SETTINGS_V2_VERSION = "2.0" as const;
+export const PORTAL_PAGE_SETTINGS_V2_VERSION = '2.0' as const;
 
 export interface PortalPageGridSettings {
   colNum: number;
@@ -12,7 +12,7 @@ export interface PortalPageBasicSettings {
   isVisible: boolean;
 }
 
-export type PortalPageAccessMode = "public" | "login" | "role";
+export type PortalPageAccessMode = 'public' | 'login' | 'role';
 
 export interface PortalPageAccessSettings {
   mode: PortalPageAccessMode;
@@ -25,15 +25,15 @@ export interface PortalPagePublishGuardSettings {
 }
 
 export type PortalPageLayoutMode =
-  | "global-scroll"
-  | "header-fixed-content-scroll"
-  | "header-fixed-footer-fixed-content-scroll";
+  | 'global-scroll'
+  | 'header-fixed-content-scroll'
+  | 'header-fixed-footer-fixed-content-scroll';
 
-export type PortalPageContentWidthMode = "full-width" | "fixed" | "custom";
+export type PortalPageContentWidthMode = 'full-width' | 'fixed' | 'custom';
 
-export type PortalPageContentAlign = "left" | "center";
+export type PortalPageContentAlign = 'left' | 'center';
 
-export type PortalPageOverflowMode = "auto" | "scroll" | "hidden";
+export type PortalPageOverflowMode = 'auto' | 'scroll' | 'hidden';
 
 export interface PortalPageLayoutContainerSettings {
   widthMode: PortalPageContentWidthMode;
@@ -55,13 +55,13 @@ export interface PortalPageSpacingSettings {
   paddingLeft: number;
 }
 
-export type PortalPageBackgroundRepeat = "no-repeat" | "repeat" | "repeat-x" | "repeat-y";
+export type PortalPageBackgroundRepeat = 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y';
 
-export type PortalPageBackgroundSizeMode = "cover" | "contain" | "custom";
+export type PortalPageBackgroundSizeMode = 'cover' | 'contain' | 'custom';
 
-export type PortalPageBackgroundAttachment = "scroll" | "fixed";
+export type PortalPageBackgroundAttachment = 'scroll' | 'fixed';
 
-export type PortalPageBackgroundScope = "page" | "content" | "banner";
+export type PortalPageBackgroundScope = 'page' | 'content' | 'banner';
 
 export interface PortalPageBackgroundSettings {
   backgroundColor: string;
@@ -86,7 +86,7 @@ export interface PortalPageBannerSettings {
   overlayOpacity: number;
 }
 
-export type PortalPageFooterMode = "normal" | "fixed";
+export type PortalPageFooterMode = 'normal' | 'fixed';
 
 export interface PortalPageHeaderFooterBehaviorSettings {
   headerSticky: boolean;
@@ -117,7 +117,7 @@ export interface PortalPageResponsiveSettings {
   mobile: PortalPageResponsiveItemSettings;
 }
 
-export type PortalPageViewportType = "pc" | "pad" | "mobile";
+export type PortalPageViewportType = 'pc' | 'pad' | 'mobile';
 
 export interface PortalPageRuntimeSettings {
   viewport: PortalPageViewportType;
@@ -176,7 +176,7 @@ interface LegacyPortalPageSettingsLike {
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== "object") {
+  if (!value || typeof value !== 'object') {
     return {};
   }
   return value as Record<string, unknown>;
@@ -199,14 +199,14 @@ function normalizeNonNegativeInteger(value: unknown, fallback: number): number {
 }
 
 function normalizeBoolean(value: unknown, fallback: boolean): boolean {
-  if (typeof value === "boolean") {
+  if (typeof value === 'boolean') {
     return value;
   }
   return fallback;
 }
 
-function normalizeString(value: unknown, fallback = ""): string {
-  if (typeof value !== "string") {
+function normalizeString(value: unknown, fallback = ''): string {
+  if (typeof value !== 'string') {
     return fallback;
   }
   return value.trim();
@@ -217,97 +217,97 @@ function normalizeRoleIds(value: unknown): string[] {
     return [];
   }
   return value
-    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .map((item) => (typeof item === 'string' ? item.trim() : ''))
     .filter(Boolean);
 }
 
 function normalizeAccessMode(value: unknown): PortalPageAccessMode {
-  if (value === "login" || value === "role") {
+  if (value === 'login' || value === 'role') {
     return value;
   }
-  return "public";
+  return 'public';
 }
 
 function normalizeLayoutMode(value: unknown): PortalPageLayoutMode {
   if (
-    value === "global-scroll" ||
-    value === "header-fixed-content-scroll" ||
-    value === "header-fixed-footer-fixed-content-scroll"
+    value === 'global-scroll' ||
+    value === 'header-fixed-content-scroll' ||
+    value === 'header-fixed-footer-fixed-content-scroll'
   ) {
     return value;
   }
 
   // 老项目映射：classic=整体滚动, portal=页头吸顶+内容滚动, flow=页头吸顶+页脚固定
-  if (value === "classic") {
-    return "global-scroll";
+  if (value === 'classic') {
+    return 'global-scroll';
   }
-  if (value === "portal") {
-    return "header-fixed-content-scroll";
+  if (value === 'portal') {
+    return 'header-fixed-content-scroll';
   }
-  if (value === "flow") {
-    return "header-fixed-footer-fixed-content-scroll";
+  if (value === 'flow') {
+    return 'header-fixed-footer-fixed-content-scroll';
   }
 
-  return "header-fixed-content-scroll";
+  return 'header-fixed-content-scroll';
 }
 
 function normalizeContentWidthMode(value: unknown): PortalPageContentWidthMode {
-  if (value === "full-width" || value === "fixed" || value === "custom") {
+  if (value === 'full-width' || value === 'fixed' || value === 'custom') {
     return value;
   }
-  if (value === "fixed-width") {
-    return "fixed";
+  if (value === 'fixed-width') {
+    return 'fixed';
   }
-  return "fixed";
+  return 'fixed';
 }
 
 function normalizeContentAlign(value: unknown): PortalPageContentAlign {
-  if (value === "left") {
-    return "left";
+  if (value === 'left') {
+    return 'left';
   }
-  return "center";
+  return 'center';
 }
 
 function normalizeOverflowMode(value: unknown): PortalPageOverflowMode {
-  if (value === "scroll" || value === "hidden") {
+  if (value === 'scroll' || value === 'hidden') {
     return value;
   }
-  return "auto";
+  return 'auto';
 }
 
 function normalizeBackgroundRepeat(value: unknown): PortalPageBackgroundRepeat {
-  if (value === "repeat" || value === "repeat-x" || value === "repeat-y") {
+  if (value === 'repeat' || value === 'repeat-x' || value === 'repeat-y') {
     return value;
   }
-  return "no-repeat";
+  return 'no-repeat';
 }
 
 function normalizeBackgroundSizeMode(value: unknown): PortalPageBackgroundSizeMode {
-  if (value === "contain" || value === "custom") {
+  if (value === 'contain' || value === 'custom') {
     return value;
   }
-  return "cover";
+  return 'cover';
 }
 
 function normalizeBackgroundAttachment(value: unknown): PortalPageBackgroundAttachment {
-  if (value === "fixed") {
-    return "fixed";
+  if (value === 'fixed') {
+    return 'fixed';
   }
-  return "scroll";
+  return 'scroll';
 }
 
 function normalizeBackgroundScope(value: unknown): PortalPageBackgroundScope {
-  if (value === "content" || value === "banner") {
+  if (value === 'content' || value === 'banner') {
     return value;
   }
-  return "page";
+  return 'page';
 }
 
 function normalizeFooterMode(value: unknown): PortalPageFooterMode {
-  if (value === "fixed") {
-    return "fixed";
+  if (value === 'fixed') {
+    return 'fixed';
   }
-  return "normal";
+  return 'normal';
 }
 
 function normalizeOpacity(value: unknown, fallback: number): number {
@@ -327,11 +327,11 @@ function resolveLegacyLayoutContainer(raw: LegacyPortalPageSettingsLike): Partia
   const basicData = asRecord(raw.basicData);
 
   const legacyLayoutMode = normalizeString(basicData.layoutMode);
-  let widthMode: PortalPageContentWidthMode = "fixed";
-  if (legacyLayoutMode === "full-width") {
-    widthMode = "full-width";
-  } else if (legacyLayoutMode === "custom") {
-    widthMode = "custom";
+  let widthMode: PortalPageContentWidthMode = 'fixed';
+  if (legacyLayoutMode === 'full-width') {
+    widthMode = 'full-width';
+  } else if (legacyLayoutMode === 'custom') {
+    widthMode = 'custom';
   }
 
   return {
@@ -360,26 +360,26 @@ function resolveLegacySpacing(raw: LegacyPortalPageSettingsLike): Partial<Portal
 function resolveLegacyBackground(raw: LegacyPortalPageSettingsLike): Partial<PortalPageBackgroundSettings> {
   const backgroundData = asRecord(raw.backgroundData);
 
-  const legacySize = normalizeString(backgroundData.pageBgSize, "cover");
-  const isLegacyCustomSize = Boolean(legacySize && legacySize !== "cover" && legacySize !== "contain");
+  const legacySize = normalizeString(backgroundData.pageBgSize, 'cover');
+  const isLegacyCustomSize = Boolean(legacySize && legacySize !== 'cover' && legacySize !== 'contain');
 
   const x = normalizeString(backgroundData.pageBgXPosition);
   const y = normalizeString(backgroundData.pageBgYPosition);
-  const customPosition = [x || "0px", y || "0px"].join(" ");
+  const customPosition = [x || '0px', y || '0px'].join(' ');
 
   return {
-    backgroundColor: normalizeString(backgroundData.pageBgColor, "#ffffff"),
+    backgroundColor: normalizeString(backgroundData.pageBgColor, '#ffffff'),
     backgroundImage: normalizeString(backgroundData.pageBgImage),
     backgroundRepeat: normalizeBackgroundRepeat(backgroundData.pageBgRepeat),
-    backgroundSizeMode: isLegacyCustomSize ? "custom" : normalizeBackgroundSizeMode(legacySize),
-    backgroundSizeCustom: isLegacyCustomSize ? legacySize : "100% 100%",
+    backgroundSizeMode: isLegacyCustomSize ? 'custom' : normalizeBackgroundSizeMode(legacySize),
+    backgroundSizeCustom: isLegacyCustomSize ? legacySize : '100% 100%',
     backgroundPosition:
-      normalizeString(backgroundData.pageBgPosition) === "custom"
+      normalizeString(backgroundData.pageBgPosition) === 'custom'
         ? customPosition
-        : normalizeString(backgroundData.pageBgPosition, "center center"),
+        : normalizeString(backgroundData.pageBgPosition, 'center center'),
     backgroundAttachment: normalizeBackgroundAttachment(backgroundData.pageBgAttachment),
     scope: normalizeBackgroundScope(backgroundData.bgScope),
-    overlayColor: normalizeString(backgroundData.pageBgMaskColor, "#000000"),
+    overlayColor: normalizeString(backgroundData.pageBgMaskColor, '#000000'),
     overlayOpacity: normalizeOpacity(backgroundData.pageBgOpacity, 0),
   };
 }
@@ -389,7 +389,7 @@ function resolveLegacyHeaderFooter(raw: LegacyPortalPageSettingsLike): Partial<P
   return {
     headerSticky: normalizeBoolean(headerFooterData.headerFixed, true),
     headerOffsetTop: normalizeNumber(headerFooterData.overlapHeaderOffset, 0, -300, 300),
-    footerMode: headerFooterData.footerFixedMode === "fixed" ? "fixed" : "normal",
+    footerMode: headerFooterData.footerFixedMode === 'fixed' ? 'fixed' : 'normal',
     footerFixedHeight: normalizePositiveInteger(headerFooterData.footerHeight, 72),
   };
 }
@@ -466,8 +466,8 @@ export function createDefaultPortalPageSettingsV2(): PortalPageSettingsV2 {
   return {
     version: PORTAL_PAGE_SETTINGS_V2_VERSION,
     basic: {
-      pageTitle: "",
-      slug: "",
+      pageTitle: '',
+      slug: '',
       isVisible: true,
     },
     layout: {
@@ -475,14 +475,14 @@ export function createDefaultPortalPageSettingsV2(): PortalPageSettingsV2 {
       colSpace: 16,
       rowSpace: 16,
     },
-    layoutMode: "header-fixed-content-scroll",
+    layoutMode: 'header-fixed-content-scroll',
     layoutContainer: {
-      widthMode: "fixed",
+      widthMode: 'fixed',
       fixedWidth: 1200,
       customWidth: 1440,
-      contentAlign: "center",
+      contentAlign: 'center',
       contentMinHeight: 720,
-      overflowMode: "auto",
+      overflowMode: 'auto',
     },
     spacing: {
       marginTop: 0,
@@ -495,30 +495,30 @@ export function createDefaultPortalPageSettingsV2(): PortalPageSettingsV2 {
       paddingLeft: 8,
     },
     background: {
-      backgroundColor: "#ffffff",
-      backgroundImage: "",
-      backgroundRepeat: "no-repeat",
-      backgroundSizeMode: "cover",
-      backgroundSizeCustom: "100% 100%",
-      backgroundPosition: "center center",
-      backgroundAttachment: "scroll",
-      scope: "page",
-      overlayColor: "#000000",
+      backgroundColor: '#ffffff',
+      backgroundImage: '',
+      backgroundRepeat: 'no-repeat',
+      backgroundSizeMode: 'cover',
+      backgroundSizeCustom: '100% 100%',
+      backgroundPosition: 'center center',
+      backgroundAttachment: 'scroll',
+      scope: 'page',
+      overlayColor: '#000000',
       overlayOpacity: 0,
     },
     banner: {
       enabled: false,
-      image: "",
+      image: '',
       height: 260,
       fullWidth: true,
-      linkUrl: "",
-      overlayColor: "#000000",
+      linkUrl: '',
+      overlayColor: '#000000',
       overlayOpacity: 0,
     },
     headerFooterBehavior: {
       headerSticky: true,
       headerOffsetTop: 0,
-      footerMode: "normal",
+      footerMode: 'normal',
       footerFixedHeight: 72,
     },
     responsive: {
@@ -556,7 +556,7 @@ export function createDefaultPortalPageSettingsV2(): PortalPageSettingsV2 {
       },
     },
     access: {
-      mode: "public",
+      mode: 'public',
       roleIds: [],
     },
     publishGuard: {
@@ -567,7 +567,7 @@ export function createDefaultPortalPageSettingsV2(): PortalPageSettingsV2 {
 }
 
 export function isPortalPageSettingsV2(input: unknown): input is PortalPageSettingsV2 {
-  if (!input || typeof input !== "object") {
+  if (!input || typeof input !== 'object') {
     return false;
   }
   const raw = input as Record<string, unknown>;
@@ -576,7 +576,7 @@ export function isPortalPageSettingsV2(input: unknown): input is PortalPageSetti
 
 export function normalizePortalPageSettingsV2(input: unknown): PortalPageSettingsV2 {
   const defaults = createDefaultPortalPageSettingsV2();
-  if (!input || typeof input !== "object") {
+  if (!input || typeof input !== 'object') {
     return defaults;
   }
 
@@ -727,14 +727,14 @@ export function resolvePortalPageRuntimeSettings(
   const mobileSettings = normalized.responsive.mobile;
   const padSettings = normalized.responsive.pad;
 
-  let viewport: PortalPageViewportType = "pc";
+  let viewport: PortalPageViewportType = 'pc';
   if (mobileSettings.enabled && viewportWidth <= mobileSettings.maxWidth) {
-    viewport = "mobile";
+    viewport = 'mobile';
   } else if (padSettings.enabled && viewportWidth <= padSettings.maxWidth) {
-    viewport = "pad";
+    viewport = 'pad';
   }
 
-  if (viewport === "mobile") {
+  if (viewport === 'mobile') {
     return {
       viewport,
       grid: {
@@ -756,7 +756,7 @@ export function resolvePortalPageRuntimeSettings(
     };
   }
 
-  if (viewport === "pad") {
+  if (viewport === 'pad') {
     return {
       viewport,
       grid: {
@@ -803,43 +803,43 @@ export function validatePortalPageSettingsV2(
 
   if (normalized.publishGuard.requireTitle && !normalized.basic.pageTitle.trim()) {
     issues.push({
-      field: "basic.pageTitle",
-      message: "请填写页面标题",
+      field: 'basic.pageTitle',
+      message: '请填写页面标题',
     });
   }
 
-  if (normalized.access.mode === "role" && normalized.access.roleIds.length === 0) {
+  if (normalized.access.mode === 'role' && normalized.access.roleIds.length === 0) {
     issues.push({
-      field: "access.roleIds",
-      message: "访问方式为角色可见时必须选择角色",
+      field: 'access.roleIds',
+      message: '访问方式为角色可见时必须选择角色',
     });
   }
 
   if (normalized.publishGuard.requireContent && componentCount <= 0) {
     issues.push({
-      field: "publishGuard.requireContent",
-      message: "当前页面没有组件内容，无法发布",
+      field: 'publishGuard.requireContent',
+      message: '当前页面没有组件内容，无法发布',
     });
   }
 
   if (normalized.layout.colNum <= 0) {
     issues.push({
-      field: "layout.colNum",
-      message: "栅格列数必须大于 0",
+      field: 'layout.colNum',
+      message: '栅格列数必须大于 0',
     });
   }
 
-  if (normalized.layoutContainer.widthMode === "custom" && normalized.layoutContainer.customWidth < 320) {
+  if (normalized.layoutContainer.widthMode === 'custom' && normalized.layoutContainer.customWidth < 320) {
     issues.push({
-      field: "layoutContainer.customWidth",
-      message: "自定义内容宽度不能小于 320px",
+      field: 'layoutContainer.customWidth',
+      message: '自定义内容宽度不能小于 320px',
     });
   }
 
-  if (normalized.headerFooterBehavior.footerMode === "fixed" && normalized.headerFooterBehavior.footerFixedHeight < 40) {
+  if (normalized.headerFooterBehavior.footerMode === 'fixed' && normalized.headerFooterBehavior.footerFixedHeight < 40) {
     issues.push({
-      field: "headerFooterBehavior.footerFixedHeight",
-      message: "固定页脚高度不能小于 40px",
+      field: 'headerFooterBehavior.footerFixedHeight',
+      message: '固定页脚高度不能小于 40px',
     });
   }
 
@@ -849,8 +849,8 @@ export function validatePortalPageSettingsV2(
     normalized.responsive.mobile.maxWidth >= normalized.responsive.pad.maxWidth
   ) {
     issues.push({
-      field: "responsive.mobile.maxWidth",
-      message: "移动端断点宽度必须小于平板断点宽度",
+      field: 'responsive.mobile.maxWidth',
+      message: '移动端断点宽度必须小于平板断点宽度',
     });
   }
 

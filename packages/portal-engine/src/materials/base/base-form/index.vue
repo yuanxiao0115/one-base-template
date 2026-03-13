@@ -10,40 +10,56 @@
       >
         <el-input
           v-if="field.type === 'text'"
-          v-model="formModel[field.fieldKey]"
+          :model-value="getTextModelValue(field.fieldKey)"
           :placeholder="field.placeholder"
           :style="inputStyleObj"
+          @update:model-value="setFieldValue(field.fieldKey, $event)"
         />
 
         <el-input
           v-else-if="field.type === 'textarea'"
-          v-model="formModel[field.fieldKey]"
+          :model-value="getTextModelValue(field.fieldKey)"
           type="textarea"
           :autosize="{ minRows: 3, maxRows: 6 }"
           :placeholder="field.placeholder"
+          @update:model-value="setFieldValue(field.fieldKey, $event)"
         />
 
         <el-input-number
           v-else-if="field.type === 'number'"
-          v-model="formModel[field.fieldKey]"
+          :model-value="getNumberModelValue(field.fieldKey)"
           controls-position="right"
           :style="inputStyleObj"
+          @update:model-value="setFieldValue(field.fieldKey, $event)"
         />
 
-        <el-select v-else-if="field.type === 'select'" v-model="formModel[field.fieldKey]" :placeholder="field.placeholder" :style="inputStyleObj">
+        <el-select
+          v-else-if="field.type === 'select'"
+          :model-value="getSelectModelValue(field.fieldKey)"
+          :placeholder="field.placeholder"
+          :style="inputStyleObj"
+          @update:model-value="setFieldValue(field.fieldKey, $event)"
+        >
           <el-option v-for="option in field.options" :key="option.value" :label="option.label" :value="option.value" />
         </el-select>
 
         <el-date-picker
           v-else-if="field.type === 'date'"
-          v-model="formModel[field.fieldKey]"
+          :model-value="getDateModelValue(field.fieldKey)"
           type="date"
           value-format="YYYY-MM-DD"
           :placeholder="field.placeholder"
           :style="inputStyleObj"
+          @update:model-value="setFieldValue(field.fieldKey, $event)"
         />
 
-        <el-input v-else v-model="formModel[field.fieldKey]" :placeholder="field.placeholder" :style="inputStyleObj" />
+        <el-input
+          v-else
+          :model-value="getTextModelValue(field.fieldKey)"
+          :placeholder="field.placeholder"
+          :style="inputStyleObj"
+          @update:model-value="setFieldValue(field.fieldKey, $event)"
+        />
       </el-form-item>
 
       <div class="base-form__actions" :style="actionStyleObj">
@@ -84,6 +100,11 @@
     placeholder: string;
     options: FormFieldOption[];
   }
+
+  type TextModelValue = string | number | null | undefined;
+  type NumberModelValue = number | null | undefined;
+  type SelectModelValue = string | number | boolean | Record<string, unknown> | null | undefined;
+  type DateModelValue = string | number | Date | string[] | number[] | Date[] | null | undefined;
 
   interface BaseFormSchema {
     content?: {
@@ -258,6 +279,64 @@
     backgroundColor: formStyle.value.primaryColor,
     color: '#fff',
   }));
+
+  function setFieldValue(fieldKey: string, value: unknown) {
+    formModel[fieldKey] = value;
+  }
+
+  function getTextModelValue(fieldKey: string): TextModelValue {
+    const value = formModel[fieldKey];
+    if (typeof value === 'string' || typeof value === 'number' || value == null) {
+      return value;
+    }
+    return String(value);
+  }
+
+  function getNumberModelValue(fieldKey: string): NumberModelValue {
+    const value = formModel[fieldKey];
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+    if (value === null || value === undefined) {
+      return value;
+    }
+    return null;
+  }
+
+  function getSelectModelValue(fieldKey: string): SelectModelValue {
+    const value = formModel[fieldKey];
+    if (value == null) {
+      return value;
+    }
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+      return value as Record<string, unknown>;
+    }
+    return String(value);
+  }
+
+  function isDateArray(value: unknown): value is string[] | number[] | Date[] {
+    if (!Array.isArray(value)) {
+      return false;
+    }
+    return value.every((item) => typeof item === 'string' || typeof item === 'number' || item instanceof Date);
+  }
+
+  function getDateModelValue(fieldKey: string): DateModelValue {
+    const value = formModel[fieldKey];
+    if (value == null) {
+      return value;
+    }
+    if (typeof value === 'string' || typeof value === 'number' || value instanceof Date) {
+      return value;
+    }
+    if (isDateArray(value)) {
+      return value;
+    }
+    return undefined;
+  }
 
   function validateForm(): boolean {
     for (const field of normalizedFields.value) {

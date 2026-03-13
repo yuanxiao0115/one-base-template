@@ -39,7 +39,7 @@
 
   type CmsDataSourceType = 'dynamic' | 'static';
 
-  const props = withDefaults(
+  withDefaults(
     defineProps<{
       title?: string;
       showSourceType?: boolean;
