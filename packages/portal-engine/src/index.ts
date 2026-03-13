@@ -151,6 +151,13 @@ export type { LayoutUpdateItem } from './editor/layout-sync';
 export { hasLayoutGeometryChanged, mergeLayoutItems } from './editor/layout-sync';
 export type { UsePortalCurrentTabActionsOptions } from './editor/current-tab-actions';
 export { usePortalCurrentTabActions } from './editor/current-tab-actions';
+export type {
+  PortalPageSettingsDrawerTab,
+  PortalPageSettingsSession,
+  PortalPageSettingsSessionCloseResult,
+  PortalPageSettingsSessionState,
+} from './editor/page-settings-session';
+export { createPortalPageSettingsSession } from './editor/page-settings-session';
 export {
   PORTAL_PREVIEW_MESSAGE_PAGE_READY,
   PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME,

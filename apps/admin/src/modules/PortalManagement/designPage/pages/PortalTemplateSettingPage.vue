@@ -13,9 +13,11 @@
   import { portalApi } from "../../api";
   import type { BizResponse, PortalTab, PortalTemplate } from "../../types";
   import {
+    createPortalPageSettingsSession,
     sendPreviewRuntime,
     sendPreviewShellDetails,
     sendPreviewViewport,
+    type PortalPageSettingsDrawerTab,
     type PortalPreviewFrameTarget,
     PortalDesignerPreviewFrame,
     usePortalCurrentTabActions,
@@ -81,28 +83,30 @@
   const editingTabId = ref("");
   const editingTabType = ref<number | null>(null);
 
-  const pageSettingsVisible = ref(false);
-  const pageSettingsLoading = ref(false);
-  const pageSettingsSaving = ref(false);
-  const pageSettingsActiveTab = ref<"layout" | "advanced" | "header" | "footer">("layout");
-  const pageSettingsEditingTabId = ref("");
-  const pageSettingsForm = ref<PortalPageSettingsV2 | null>(null);
-  const pageSettingsPersisted = ref<PortalPageSettingsV2 | null>(null);
-  const pageSettingsComponents = ref<unknown[]>([]);
-  const pageSettingsSavedInThisRound = ref(false);
+  const pageSettingsSession = createPortalPageSettingsSession<PortalPageSettingsV2>({
+    clone: cloneByJson,
+  });
+  const {
+    visible: pageSettingsVisible,
+    loading: pageSettingsLoading,
+    saving: pageSettingsSaving,
+    activeTab: pageSettingsActiveTab,
+    editingTabId: pageSettingsEditingTabId,
+    form: pageSettingsForm,
+    persisted: pageSettingsPersisted,
+    components: pageSettingsComponents,
+    pageShellSaving: pageShellSettingSaving,
+    pageShellPreviewDetailsDraft,
+  } = pageSettingsSession;
   const shellSettingVisible = ref(false);
   const shellSettingSaving = ref(false);
   const shellSettingSavedInThisRound = ref(false);
-  const pageShellSettingSaving = ref(false);
-  const pageShellSettingSavedInThisRound = ref(false);
-  const pageShellPreviewDirty = ref(false);
   const sortingTabs = ref(false);
   const previewMode = ref<PortalPreviewMode>(PREVIEW_MODE_SAFE);
   const previewViewport = ref<PortalPreviewViewport>(PREVIEW_VIEWPORT_DEFAULT);
   const previewScale = ref(1);
   const previewInteractionMode = ref<"auto" | "manual">("auto");
   const shellPreviewDetailsDraft = ref("");
-  const pageShellPreviewDetailsDraft = ref("");
 
   interface PreviewFrameExpose extends PortalPreviewFrameTarget {
     setInteractionMode: (mode: "auto" | "manual") => void;
@@ -785,7 +789,7 @@
     });
   }
 
-  async function openPageSettingsDrawer(tabId: string, targetTab: "layout" | "advanced" | "header" | "footer" = "layout") {
+  async function openPageSettingsDrawer(tabId: string, targetTab: PortalPageSettingsDrawerTab = "layout") {
     if (!tabId || pageSettingsLoading.value) {
       return;
     }
@@ -794,29 +798,22 @@
       return;
     }
 
-    pageSettingsEditingTabId.value = tabId;
-    pageSettingsActiveTab.value = targetTab;
-    pageSettingsLoading.value = true;
+    pageSettingsSession.prepareOpen(tabId, targetTab);
     try {
       const detail = await loadPortalTabPageSettings(tabId);
       if (pageSettingsEditingTabId.value !== tabId) {
+        pageSettingsSession.failOpen();
         return;
       }
-      pageSettingsPersisted.value = cloneByJson(detail.settings);
-      pageSettingsComponents.value = cloneByJson(detail.components);
-      pageSettingsForm.value = cloneByJson(detail.settings);
-      pageSettingsSavedInThisRound.value = false;
-      pageShellSettingSavedInThisRound.value = false;
-      pageShellPreviewDirty.value = false;
-      pageShellPreviewDetailsDraft.value = "";
-      pageSettingsVisible.value = true;
+      pageSettingsSession.applyLoadedDetail({
+        settings: detail.settings,
+        components: detail.components,
+      });
       postPageRuntimePreview(pageSettingsForm.value);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "加载页面设置失败";
-      pageSettingsEditingTabId.value = "";
+      pageSettingsSession.failOpen();
       message.error(msg);
-    } finally {
-      pageSettingsLoading.value = false;
     }
   }
 
@@ -838,11 +835,8 @@
         settings,
       });
       message.success("页面设置保存成功");
-      pageSettingsPersisted.value = cloneByJson(settings);
-      pageSettingsForm.value = cloneByJson(settings);
-      pageSettingsSavedInThisRound.value = true;
+      pageSettingsSession.markPageSettingsSaved(settings);
       postPageRuntimePreview(pageSettingsForm.value);
-      pageSettingsVisible.value = false;
       await loadTemplate(editingTabId);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "页面设置保存失败";
@@ -950,8 +944,7 @@
   }
 
   function onPageShellPreviewChange(payload: { details: string }) {
-    pageShellPreviewDetailsDraft.value = payload.details;
-    pageShellPreviewDirty.value = true;
+    pageSettingsSession.markPageShellPreviewDraft(payload.details);
     postShellPreviewDetails(payload.details);
   }
 
@@ -975,10 +968,7 @@
       }
 
       message.success("页面级页眉页脚配置保存成功");
-      pageShellSettingSavedInThisRound.value = true;
-      pageShellPreviewDirty.value = false;
-      pageShellPreviewDetailsDraft.value = payload.details;
-      pageSettingsVisible.value = false;
+      pageSettingsSession.markPageShellSaved(payload.details);
       await loadTemplate(editingTabId);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "页面级页眉页脚配置保存失败";
@@ -994,52 +984,22 @@
       if (!currentTabId.value) {
         previewInteractionMode.value = "auto";
       }
-      pageSettingsPersisted.value = null;
-      pageSettingsComponents.value = [];
-      pageSettingsForm.value = null;
-      pageSettingsSavedInThisRound.value = false;
-      pageSettingsActiveTab.value = "layout";
-      pageShellSettingSavedInThisRound.value = false;
-      pageShellPreviewDirty.value = false;
-      pageShellPreviewDetailsDraft.value = "";
-      pageSettingsEditingTabId.value = "";
-      if (!pageSettingsVisible.value) {
-        return;
-      }
-      pageSettingsVisible.value = false;
+      pageSettingsSession.resetOnCurrentTabChange();
     }
   );
 
   watch(pageSettingsVisible, (opened) => {
     if (opened) {
-      if (!pageSettingsEditingTabId.value) {
-        pageSettingsEditingTabId.value = currentTabId.value;
-      }
-      pageSettingsSavedInThisRound.value = false;
-      pageShellSettingSavedInThisRound.value = false;
-      pageShellPreviewDirty.value = false;
+      pageSettingsSession.onDrawerOpened(currentTabId.value);
       return;
     }
-    const persistedDetails = templateInfo.value?.details || "";
-    if (pageShellSettingSavedInThisRound.value) {
-      pageShellSettingSavedInThisRound.value = false;
-    } else if (pageShellPreviewDirty.value || pageShellPreviewDetailsDraft.value) {
-      pageShellPreviewDetailsDraft.value = "";
-      postShellPreviewDetails(persistedDetails);
+    const closeState = pageSettingsSession.onDrawerClosed(templateInfo.value?.details || "");
+    if (closeState.restoreShellDetails !== null) {
+      postShellPreviewDetails(closeState.restoreShellDetails);
     }
-    pageShellPreviewDirty.value = false;
-    pageSettingsActiveTab.value = "layout";
-
-    if (pageSettingsSavedInThisRound.value) {
-      pageSettingsSavedInThisRound.value = false;
-      pageSettingsEditingTabId.value = "";
-      return;
+    if (closeState.restoreRuntimeSettings) {
+      postPageRuntimePreview(closeState.restoreRuntimeSettings);
     }
-    if (pageSettingsPersisted.value) {
-      pageSettingsForm.value = cloneByJson(pageSettingsPersisted.value);
-      postPageRuntimePreview(pageSettingsPersisted.value);
-    }
-    pageSettingsEditingTabId.value = "";
   });
 
   watch(
