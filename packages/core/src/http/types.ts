@@ -39,7 +39,7 @@ export interface ObHttpRequestConfig extends AxiosRequestConfig {
   $downloadFileName?: string;
 
   /** 请求前回调（优先级：单次请求 > 全局） */
-  beforeRequestCallback?: (config: ObHttpRequestConfig) => void;
+  beforeRequestCallback?: (config: ObHttpRequestConfig) => void | Promise<void>;
   /** 响应后回调（优先级：单次请求 > 全局） */
   beforeResponseCallback?: (response: AxiosResponse) => void;
 }
@@ -119,6 +119,6 @@ export interface CreateObHttpOptions {
   hooks?: ObHttpHooks;
 
   /** 全局回调（保持与旧项目 PureHttp.initConfig 类似的能力） */
-  beforeRequestCallback?: (config: ObHttpRequestConfig) => void;
+  beforeRequestCallback?: (config: ObHttpRequestConfig) => void | Promise<void>;
   beforeResponseCallback?: (response: AxiosResponse) => void;
 }

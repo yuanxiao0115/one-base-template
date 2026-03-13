@@ -2,8 +2,31 @@ import { ElMessage } from "element-plus";
 import type { Pinia } from "pinia";
 import type { Router } from "vue-router";
 import { createObHttp, type ObHttp, useAuthStore, useMenuStore, useSystemStore } from "@one-base-template/core";
-import { createClientSignature } from "@/infra/sczfw/crypto";
 import type { AuthMode, BackendKind } from "@/infra/env";
+
+async function appendSczfwClientSignature(
+  config: Record<string, unknown>,
+  params: {
+    sczfwHeaders?: Record<string, string>;
+    clientSignatureSalt?: string;
+    clientSignatureClientId?: string;
+  }
+) {
+  const { createClientSignature } = await import("@/infra/sczfw/client-signature");
+  const signature = createClientSignature({
+    salt: params.clientSignatureSalt,
+    clientId: params.clientSignatureClientId,
+  });
+
+  const prev =
+    config.headers && typeof config.headers === "object" ? (config.headers as Record<string, unknown>) : {};
+
+  config.headers = {
+    ...prev,
+    ...(params.sczfwHeaders ?? {}),
+    "Client-Signature": signature,
+  };
+}
 
 export function createAppHttp(params: {
   backend: BackendKind;
@@ -50,22 +73,12 @@ export function createAppHttp(params: {
     },
     beforeRequestCallback:
       backend === "sczfw"
-        ? (config) => {
-            const signature = createClientSignature({
-              salt: clientSignatureSalt,
-              clientId: clientSignatureClientId,
+        ? async (config) => {
+            await appendSczfwClientSignature(config as Record<string, unknown>, {
+              sczfwHeaders,
+              clientSignatureSalt,
+              clientSignatureClientId,
             });
-
-            const prev =
-              config.headers && typeof config.headers === "object"
-                ? (config.headers as Record<string, unknown>)
-                : {};
-
-            config.headers = {
-              ...prev,
-              ...(sczfwHeaders ?? {}),
-              "Client-Signature": signature,
-            };
           }
         : undefined,
     download: {

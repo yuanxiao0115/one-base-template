@@ -87,6 +87,10 @@ pnpm biome:ci
 - 登录或未授权流程如果只是做状态清理或只读访问，优先补“细粒度子出口 + 动态 import”：
   - 当前 `tags` 清理固定走 `@one-base-template/tag/store`
   - 不要静态 import `@one-base-template/tag` 根入口
+- `sczfw` 的 `Client-Signature` 生成也应采用同一思路：
+  - `createObHttp()` 已支持异步 `beforeRequestCallback`
+  - admin / portal 的签名逻辑统一在请求发出前 `await import('.../infra/sczfw/crypto')`
+  - 目标是把 `gm-crypto` 挪出冷启动依赖图，而不是继续静态挂在 `bootstrap/http.ts`
 - 这类性能边界建议通过“源码约束测试或构建校验”固化；当前若仓库测试资产处于清理阶段，可先以 `typecheck/lint/build` 作为临时门禁。
 - 离线 Iconify 数据按集合拆成独立异步 chunk：
   - `ep` / `ri` 图标集合不再直接塞进应用主入口

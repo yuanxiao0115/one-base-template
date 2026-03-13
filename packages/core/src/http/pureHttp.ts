@@ -268,9 +268,9 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
 
     // 单次请求回调优先
     if (typeof config.beforeRequestCallback === 'function') {
-      config.beforeRequestCallback(config);
+      await config.beforeRequestCallback(config);
     } else if (typeof options.beforeRequestCallback === 'function') {
-      options.beforeRequestCallback(config);
+      await options.beforeRequestCallback(config);
     }
 
     try {

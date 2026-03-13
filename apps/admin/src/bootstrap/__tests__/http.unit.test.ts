@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   createObHttpMock: vi.fn(),
   createClientSignatureMock: vi.fn(() => "client-signature"),
   elMessageError: vi.fn(),
+  sczfwCryptoLoadCount: 0,
 }));
 
 vi.mock("@one-base-template/core", () => ({
@@ -30,9 +31,12 @@ vi.mock("element-plus", () => ({
   },
 }));
 
-vi.mock("../../infra/sczfw/crypto", () => ({
-  createClientSignature: mocks.createClientSignatureMock,
-}));
+vi.mock("../../infra/sczfw/client-signature", () => {
+  mocks.sczfwCryptoLoadCount += 1;
+  return {
+    createClientSignature: mocks.createClientSignatureMock,
+  };
+});
 
 import { createAppHttp } from "../http";
 
@@ -58,6 +62,7 @@ function createStorageMock() {
 describe("bootstrap/http", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.sczfwCryptoLoadCount = 0;
     vi.stubGlobal("localStorage", createStorageMock());
     mocks.createObHttpMock.mockImplementation((options: unknown) => options);
   });
@@ -80,7 +85,7 @@ describe("bootstrap/http", () => {
     expect(options.axios.timeout).toBe(30_000);
   });
 
-  it("sczfw 场景应注入签名请求头并使用更长超时", () => {
+  it("sczfw 场景应按请求懒加载签名模块并注入签名请求头", async () => {
     createAppHttp({
       backend: "sczfw",
       isProd: true,
@@ -101,16 +106,18 @@ describe("bootstrap/http", () => {
     expect(options.axios.withCredentials).toBe(false);
     expect(options.axios.timeout).toBe(100_000);
     expect(typeof options.beforeRequestCallback).toBe("function");
+    expect(mocks.sczfwCryptoLoadCount).toBe(0);
 
     const config = {
       headers: {},
     };
-    options.beforeRequestCallback(config);
+    await options.beforeRequestCallback(config);
 
     expect(mocks.createClientSignatureMock).toHaveBeenCalledWith({
       salt: "salt-1",
       clientId: "client-1",
     });
+    expect(mocks.sczfwCryptoLoadCount).toBe(1);
     expect(config.headers).toMatchObject({
       Appcode: "admin-app",
       "Client-Signature": "client-signature",
