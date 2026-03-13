@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createOneAppManualChunks,
   createOneAppPreloadDependenciesResolver,
+  pruneBuiltChunkPreloadMaps,
 } from "../../../../scripts/vite/manual-chunks";
 
 describe("manual-chunks wangeditor 策略", () => {
@@ -44,5 +45,35 @@ describe("admin preload resolver", () => {
         hostType: "js",
       })
     ).toEqual(["assets/vue-vendor-zzz.js"]);
+  });
+
+  it("admin-app-shell 不应预加载 portal/vxe/element-plus 等重依赖", () => {
+    const deps = [
+      "assets/admin-portal-xxx.js",
+      "assets/portal-engine-yyy.js",
+      "assets/vxe-zzz.js",
+      "assets/element-plus-www.js",
+      "assets/vue-vendor-keep.js",
+    ];
+    expect(
+      preloadResolver("assets/admin-app-shell-abc.js", deps, {
+        hostId: "assets/admin-app-shell-abc.js",
+        hostType: "js",
+      })
+    ).toEqual(["assets/vue-vendor-keep.js"]);
+  });
+});
+
+describe("admin preload map prune", () => {
+  it("应重写 admin-app-shell 的 built preload map，过滤重依赖前缀", () => {
+    const source =
+      'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/admin-portal-1.js","assets/element-plus-1.js","assets/vue-vendor-1.js"])) )=>i.map(i=>d[i]);';
+    const nextSource = pruneBuiltChunkPreloadMaps(source, "assets/admin-app-shell-abc.js", {
+      appName: "admin",
+    });
+
+    expect(nextSource).not.toBe(source);
+    expect(nextSource).toContain('dep=>dep&&!["assets/admin-entry-"');
+    expect(nextSource).toContain('prefix=>dep.startsWith(prefix)');
   });
 });

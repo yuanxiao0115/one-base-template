@@ -89,6 +89,27 @@ function normalizeDependencyFileName(rawValue) {
   return String(rawValue).replace(/^\/?assets\//, "");
 }
 
+function parseBlockedPrefixesFromChunk(sourceCode) {
+  const matches = [
+    ...sourceCode.matchAll(
+      /filter\(dep=>dep&&!((?:\[[\s\S]*?\]))\.some\(prefix=>dep\.startsWith\(prefix\)\)\)/g
+    ),
+  ];
+
+  return [
+    ...new Set(
+      matches.flatMap((match) => {
+        try {
+          const prefixes = JSON.parse(match[1]);
+          return Array.isArray(prefixes) ? prefixes.filter((item) => typeof item === "string") : [];
+        } catch {
+          return [];
+        }
+      })
+    ),
+  ];
+}
+
 async function collectStartupDependencyJsFiles(assets) {
   const appShellAsset = getLargestMatchedAsset(assets, startupQueueBudgets.dependencyMapPattern);
   if (!appShellAsset) {
@@ -101,10 +122,12 @@ async function collectStartupDependencyJsFiles(assets) {
     return { appShellAsset, startupJsFiles: null };
   }
 
+  const blockedPrefixes = parseBlockedPrefixesFromChunk(sourceCode);
   const startupJsFiles = [
     ...new Set(
       dependencies
         .filter((value) => typeof value === "string" && value.endsWith(".js"))
+        .filter((value) => !blockedPrefixes.some((prefix) => String(value).replace(/^\//, "").startsWith(prefix)))
         .map(normalizeDependencyFileName)
     ),
   ];

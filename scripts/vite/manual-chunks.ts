@@ -381,7 +381,7 @@ export function createOneAppPreloadDependenciesResolver(options: OneAppManualChu
       return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
     }
 
-    if (matchesOutputPrefix(filename, ['assets/admin-runtime-'])) {
+    if (matchesOutputPrefix(filename, ['assets/admin-runtime-', 'assets/admin-app-shell-'])) {
       return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
     }
 
@@ -424,7 +424,7 @@ export function pruneBuiltChunkPreloadMaps(code: string, filename: string, optio
     return code
   }
 
-  if (matchesOutputPrefix(filename, ['assets/index-', 'assets/admin-runtime-'])) {
+  if (matchesOutputPrefix(filename, ['assets/index-', 'assets/admin-runtime-', 'assets/admin-app-shell-'])) {
     return rewriteChunkPreloadMap(code, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
   }
 

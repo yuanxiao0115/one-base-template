@@ -80,6 +80,7 @@ pnpm biome:ci
   - 路由壳组件改走 `@one-base-template/ui/shell`
   - 登录页优先直引 `@one-base-template/ui/lite-auth`，避免再经 `ui/lite` barrel 把 `one-ui-shell` 借道带回匿名首屏
 - `admin` 的构建后处理会继续收紧 `index-*` / `admin-auth-*` / `LoginPage-*` / `lite-*` 的 preload map，避免登录相关页面提前拉起 `one-ui-shell` / `vxe` / `portal-engine` 等业务壳资源
+- `admin-app-shell-*` 的 built preload map 也必须做同口径裁剪；`pnpm check:admin:bundle` 统计的 `startup dependency map` 需按构建后真实生效的 blocked prefixes 计算，不能再按未过滤的原始 `m.f` 列表误判
 - 第四批补充（admin）：
   - preload 阻断前缀新增 `iconify-ri-*`（避免登录与运行时入口预拉 Remix Icon 全量集合）
   - `index-*` / `admin-runtime-*` 入口额外阻断 `element-plus-*` 预加载，避免非必要首屏抢占带宽
