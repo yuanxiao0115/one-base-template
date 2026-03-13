@@ -99,6 +99,18 @@ export {
   normalizePortalTabName,
   walkPortalTabs,
 } from './domain/tab-tree';
+export type {
+  PortalPageSettingsApi,
+  PortalPageSettingsApiResponse,
+  PortalPageSettingsTabLike,
+  PortalTabPageSettingsDetail,
+} from './services/page-settings';
+export {
+  createPortalPageSettingsService,
+  getPortalPageSettingsApi,
+  resetPortalPageSettingsApi,
+  setPortalPageSettingsApi,
+} from './services/page-settings';
 export type { RegisterPortalMaterialComponentOptions } from './materials/useMaterials';
 export { registerPortalMaterialComponent, unregisterPortalMaterialComponent, useMaterials } from './materials/useMaterials';
 export { cmsApi, getPortalCmsApi, setPortalCmsApi } from './materials/api';

@@ -1,10 +1,11 @@
 import {
   setPortalCmsApi,
   setPortalCmsNavigation,
+  setPortalPageSettingsApi,
   type PortalCmsNavigation,
 } from '@one-base-template/portal-engine';
 
-import { cmsApi } from '../api';
+import { cmsApi, portalApi } from '../api';
 
 export interface PortalEngineAdminRegisterOptions {
   cmsNavigation?: Partial<PortalCmsNavigation>;
@@ -21,6 +22,11 @@ export function setupPortalEngineForAdmin(options: PortalEngineAdminRegisterOpti
     getCategoryTree: cmsApi.getCategoryTree,
     getUserArticlesByCategory: cmsApi.getUserArticlesByCategory,
     getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory,
+  });
+
+  setPortalPageSettingsApi({
+    getTabDetail: ({ id }) => portalApi.tab.detail({ id }),
+    updateTab: (payload) => portalApi.tab.update(payload),
   });
 
   if (options.cmsNavigation) {
