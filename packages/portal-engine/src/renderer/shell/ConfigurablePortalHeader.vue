@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { computed } from "vue";
+  import { computed } from 'vue';
 
-  import type { PortalHeaderConfig, PortalShellNavItem } from "../../../../utils/templateDetails";
+  import type { PortalHeaderConfig, PortalShellNavItem } from '../../shell/template-details';
 
   const props = defineProps<{
     config: PortalHeaderConfig;
@@ -11,33 +11,33 @@
     sticky?: boolean | null;
   }>();
 
-  const emit = defineEmits<(e: "navigate", item: PortalShellNavItem) => void>();
+  const emit = defineEmits<(e: 'navigate', item: PortalShellNavItem) => void>();
 
   const headerContainerWidth = computed(() => {
     const width = props.config.tokens.containerWidth;
-    if (width === "100%") {
-      return "100%";
+    if (width === '100%') {
+      return '100%';
     }
     const normalized = Number(width);
     return `${Math.max(320, Number.isFinite(normalized) ? normalized : 1200)}px`;
   });
 
   const headerStyle = computed(() => ({
-    "--portal-header-bg": props.config.tokens.bgColor,
-    "--portal-header-text": props.config.tokens.textColor,
-    "--portal-header-active-bg": props.config.tokens.activeBgColor,
-    "--portal-header-active-text": props.config.tokens.activeTextColor,
-    "--portal-header-notice-bg": props.config.tokens.noticeBgColor,
-    "--portal-header-notice-text": props.config.tokens.noticeTextColor,
-    "--portal-header-height": `${Math.max(40, props.config.tokens.height)}px`,
-    "--portal-header-shadow": props.config.tokens.shadow,
-    "--portal-header-z": String(Math.max(1, props.config.tokens.zIndex)),
-    "--portal-header-container-width": headerContainerWidth.value,
-    "--portal-header-action-bg": props.config.tokens.actionBgColor,
-    "--portal-header-action-text": props.config.tokens.actionTextColor,
-    "--portal-header-action-border": props.config.tokens.actionBorderColor,
-    "--portal-header-title-size": `${Math.max(12, props.config.behavior.titleFontSize)}px`,
-    "--portal-header-sub-title-size": `${Math.max(10, props.config.behavior.subTitleFontSize)}px`,
+    '--portal-header-bg': props.config.tokens.bgColor,
+    '--portal-header-text': props.config.tokens.textColor,
+    '--portal-header-active-bg': props.config.tokens.activeBgColor,
+    '--portal-header-active-text': props.config.tokens.activeTextColor,
+    '--portal-header-notice-bg': props.config.tokens.noticeBgColor,
+    '--portal-header-notice-text': props.config.tokens.noticeTextColor,
+    '--portal-header-height': `${Math.max(40, props.config.tokens.height)}px`,
+    '--portal-header-shadow': props.config.tokens.shadow,
+    '--portal-header-z': String(Math.max(1, props.config.tokens.zIndex)),
+    '--portal-header-container-width': headerContainerWidth.value,
+    '--portal-header-action-bg': props.config.tokens.actionBgColor,
+    '--portal-header-action-text': props.config.tokens.actionTextColor,
+    '--portal-header-action-border': props.config.tokens.actionBorderColor,
+    '--portal-header-title-size': `${Math.max(12, props.config.behavior.titleFontSize)}px`,
+    '--portal-header-sub-title-size': `${Math.max(10, props.config.behavior.subTitleFontSize)}px`,
   }));
 
   const logoStyle = computed(() => ({
@@ -48,17 +48,17 @@
   const navClass = computed(() => `nav nav--${props.config.behavior.navAlign}`);
   const titlePositionClass = computed(() => `brand-cluster--${props.config.behavior.titlePosition}`);
 
-  const titleText = computed(() => props.config.behavior.title.trim() || "门户");
+  const titleText = computed(() => props.config.behavior.title.trim() || '门户');
   const subTitleText = computed(() => props.config.behavior.subTitle.trim());
   const hasSubTitle = computed(() => Boolean(subTitleText.value));
-  const isDividerLayout = computed(() => props.config.behavior.titleLayout === "divider" && hasSubTitle.value);
+  const isDividerLayout = computed(() => props.config.behavior.titleLayout === 'divider' && hasSubTitle.value);
 
   const logoSource = computed(() => {
     const value = props.config.tokens.logo.trim();
     if (!value) {
-      return "";
+      return '';
     }
-    if (/^https?:\/\//.test(value) || value.startsWith("/")) {
+    if (/^https?:\/\//.test(value) || value.startsWith('/')) {
       return value;
     }
     return `/cmict/file/resource/show?id=${encodeURIComponent(value)}`;
@@ -67,7 +67,7 @@
   const showActionButton = computed(
     () => props.config.behavior.showActionButton && Boolean(props.config.behavior.actionButtonText.trim())
   );
-  const useSticky = computed(() => (typeof props.sticky === "boolean" ? props.sticky : props.config.tokens.sticky));
+  const useSticky = computed(() => (typeof props.sticky === 'boolean' ? props.sticky : props.config.tokens.sticky));
 
   function isActive(item: PortalShellNavItem): boolean {
     return Boolean(item.tabId && item.tabId === props.activeTabId);
@@ -78,7 +78,7 @@
     if (!url) {
       return;
     }
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 </script>
 
@@ -91,12 +91,12 @@
     <header class="header-main">
       <div class="header-inner">
         <div class="brand-cluster" :class="titlePositionClass">
-          <img v-if="logoSource" class="brand-logo" :style="logoStyle" :src="logoSource" alt="logo" />
+          <img v-if="logoSource" class="brand-logo" :style="logoStyle" :src="logoSource" alt="logo">
 
           <div class="brand-text-wrap" :class="{ 'brand-text-wrap--divider': isDividerLayout }">
             <span class="brand-title">{{ titleText }}</span>
             <template v-if="isDividerLayout">
-              <i class="brand-divider" aria-hidden="true"></i>
+              <i class="brand-divider" aria-hidden="true" />
               <span class="brand-sub-title">{{ subTitleText }}</span>
             </template>
             <span v-else-if="hasSubTitle" class="brand-sub-title">{{ subTitleText }}</span>

@@ -3,10 +3,21 @@
   import type { CSSProperties } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import {
+    buildPortalHeaderNavItems,
+    ConfigurablePortalFooter,
+    ConfigurablePortalHeader,
+    createDefaultPortalTemplateDetails,
     createDefaultPortalPageSettingsV2,
+    customHeaderRegistry,
     normalizePortalPageSettingsV2,
+    parsePortalTemplateDetails,
+    PortalPreviewGlobalScrollLayout,
+    PortalPreviewHeaderFixedContentScrollLayout,
+    PortalPreviewHeaderFooterFixedContentScrollLayout,
     resolvePortalPageRuntimeSettings,
+    resolvePortalShellForTab,
     type PortalLayoutItem,
+    type PortalShellNavItem,
     type PortalPageLayoutMode,
     type PortalPageBackgroundSettings,
     type PortalPageSettingsV2,
@@ -16,19 +27,6 @@
   import { portalApi } from "../../../api";
   import { useMaterials } from "../../../materials/useMaterials";
   import type { PortalTab } from "../../../types";
-  import {
-    buildPortalHeaderNavItems,
-    createDefaultPortalTemplateDetails,
-    parsePortalTemplateDetails,
-    resolvePortalShellForTab,
-    type PortalShellNavItem,
-  } from "../../../utils/templateDetails";
-  import ConfigurablePortalFooter from "./shell/ConfigurablePortalFooter.vue";
-  import ConfigurablePortalHeader from "./shell/ConfigurablePortalHeader.vue";
-  import { customHeaderRegistry } from "./shell/customHeaderRegistry";
-  import PortalPreviewGlobalScrollLayout from "./layouts/PortalPreviewGlobalScrollLayout.vue";
-  import PortalPreviewHeaderFixedContentScrollLayout from "./layouts/PortalPreviewHeaderFixedContentScrollLayout.vue";
-  import PortalPreviewHeaderFooterFixedContentScrollLayout from "./layouts/PortalPreviewHeaderFooterFixedContentScrollLayout.vue";
 
   interface BizResLike {
     code?: unknown;

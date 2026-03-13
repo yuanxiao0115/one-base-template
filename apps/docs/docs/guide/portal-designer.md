@@ -33,6 +33,9 @@
 - `src/materials/cms/**`（由 `party-building` 迁移并重命名目录）
 - `src/materials/useMaterials.ts`（扫描 `cms` 物料，内置 `pb-* <-> cms-*` 组件名别名）
 - `src/registry/materials-registry.ts`（默认注册 `cms-*`，并导出 `pb-* -> cms-*` 类型别名映射）
+- `src/shell/template-details.ts` + `src/utils/preview.ts`（页眉页脚 details 协议与预览视口工具）
+- `src/renderer/shell/**` + `src/renderer/layouts/**`（预览壳层与布局组件）
+- `src/editor/PortalPageEditorWorkbench.vue`（页面编辑工作台壳组件）
 
 当前 admin 侧已改为直接引用 `@one-base-template/portal-engine` 导出，不再维护 `hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts`、`materials/registry/materials-registry.ts` 这类中转 re-export 层。
 另外 `MaterialLibrary` 已改为由页面注入 `categories`，不再直接依赖 admin 内的 registry 路径，便于 `apps/admin` 与后续 `apps/portal` 复用同一编辑器组件。
@@ -435,7 +438,8 @@ type PageLayoutJson = {
 
 admin 端保留兼容入口（壳层）：
 - `apps/admin/src/modules/PortalManagement/materials/useMaterials.ts`
-- 兼容入口会把 admin 的 `cmsApi` 绑定到引擎的 `setPortalCmsApi`，保证迁移后组件数据源行为不变。
+- `apps/admin/src/modules/PortalManagement/engine/register.ts`
+- 兼容入口通过 `setupPortalEngineForAdmin()` 统一把 admin 的 `cmsApi` 绑定到引擎，保证迁移后组件数据源行为不变。
 
 动态加载策略：
 - 通过 `import.meta.glob('./cms/**/index.vue' | './cms/**/content.vue' | './cms/**/style.vue', { eager: true })` 扫描物料目录

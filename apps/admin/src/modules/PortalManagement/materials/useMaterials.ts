@@ -1,23 +1,8 @@
-import { setPortalCmsApi, useMaterials as usePortalEngineMaterials } from '@one-base-template/portal-engine';
-import { cmsApi } from '../api';
+import { useMaterials as usePortalEngineMaterials } from '@one-base-template/portal-engine';
 
-let cmsApiBound = false;
-
-function ensureCmsApiBound() {
-  if (cmsApiBound) {
-    return;
-  }
-
-  setPortalCmsApi({
-    getCategoryTree: cmsApi.getCategoryTree,
-    getUserArticlesByCategory: cmsApi.getUserArticlesByCategory,
-    getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory,
-  });
-
-  cmsApiBound = true;
-}
+import { setupPortalEngineForAdmin } from '../engine/register';
 
 export function useMaterials() {
-  ensureCmsApiBound();
+  setupPortalEngineForAdmin();
   return usePortalEngineMaterials();
 }

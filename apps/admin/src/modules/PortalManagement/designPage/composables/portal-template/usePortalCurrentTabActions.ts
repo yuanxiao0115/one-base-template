@@ -3,7 +3,7 @@ import type { Router } from "vue-router";
 
 import type { PortalTab } from "../../../types";
 import { isPortalTabEditable } from "../../../utils/portalTree";
-import type { PortalPreviewMode } from "../../../utils/preview";
+import type { PortalPreviewMode } from "@one-base-template/portal-engine";
 
 interface UsePortalCurrentTabActionsOptions {
   router: Router;

@@ -5,7 +5,7 @@
   import { message } from "@one-base-template/ui";
 
   import { portalApi } from "../../../../api";
-  import { PORTAL_CUSTOM_HEADER_OPTIONS, type PortalTemplateDetails } from "../../../../utils/templateDetails";
+  import { PORTAL_CUSTOM_HEADER_OPTIONS, type PortalTemplateDetails } from "@one-base-template/portal-engine";
   import PortalColorField from "../PortalColorField.vue";
 
   interface SelectOption {

@@ -10,6 +10,42 @@ export function createPortalEngine(options: PortalEngineOptions = {}) {
 }
 
 export type { BizResponse, PageResult, PortalTab, PortalTemplate } from './schema/types';
+export type { PortalPreviewMode, PortalPreviewViewport } from './utils/preview';
+export {
+  calcPreviewScale,
+  PREVIEW_MODE_LIVE,
+  PREVIEW_MODE_SAFE,
+  PREVIEW_VIEWPORT_DEFAULT,
+  resolvePreviewMode,
+  resolvePreviewViewport,
+} from './utils/preview';
+export type {
+  PortalContainerWidth,
+  PortalFooterConfig,
+  PortalFooterFixedMode,
+  PortalHeaderConfig,
+  PortalHeaderMode,
+  PortalHeaderTitleLayout,
+  PortalHeaderTitlePosition,
+  PortalNavAlign,
+  PortalNavSource,
+  PortalPageShellOverride,
+  PortalResolvedShell,
+  PortalShellConfig,
+  PortalShellNavItem,
+  PortalTemplateDetails,
+} from './shell/template-details';
+export {
+  buildPortalHeaderNavItems,
+  buildPortalTemplateDetailsSchemaPreview,
+  createDefaultPortalTemplateDetails,
+  getCustomHeaderOption,
+  normalizeTabId,
+  parsePortalTemplateDetails,
+  PORTAL_CUSTOM_HEADER_OPTIONS,
+  resolvePortalShellForTab,
+  stringifyPortalTemplateDetails,
+} from './shell/template-details';
 export type {
   PortalPageAccessMode,
   PortalPageAccessSettings,
@@ -91,7 +127,16 @@ export type { LayoutUpdateItem } from './editor/layout-sync';
 export { hasLayoutGeometryChanged, mergeLayoutItems } from './editor/layout-sync';
 export { default as PropertyPanel } from './editor/PropertyPanel.vue';
 export { default as MaterialLibrary } from './editor/MaterialLibrary.vue';
-export { default as PortalGridRenderer } from './renderer/PortalGridRenderer.vue';
+export { default as PortalPageEditorWorkbench } from './editor/PortalPageEditorWorkbench.vue';
+export {
+  ConfigurablePortalFooter,
+  ConfigurablePortalHeader,
+  customHeaderRegistry,
+  PortalGridRenderer,
+  PortalPreviewGlobalScrollLayout,
+  PortalPreviewHeaderFixedContentScrollLayout,
+  PortalPreviewHeaderFooterFixedContentScrollLayout,
+} from './renderer';
 export { PortalBorderField, PortalColorField, PortalSpacingField } from './materials/common/fields';
 export {
   DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG,

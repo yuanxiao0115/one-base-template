@@ -16,7 +16,7 @@
     PREVIEW_VIEWPORT_DEFAULT,
     type PortalPreviewMode,
     type PortalPreviewViewport,
-  } from "../../../utils/preview";
+  } from "@one-base-template/portal-engine";
   import type { PortalTab } from "../../../types";
 
   interface PreviewViewportOption extends PortalPreviewViewport {

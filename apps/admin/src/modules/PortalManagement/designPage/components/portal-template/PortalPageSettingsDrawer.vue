@@ -15,7 +15,7 @@
     stringifyPortalTemplateDetails,
     type PortalPageShellOverride,
     type PortalTemplateDetails,
-  } from "../../../utils/templateDetails";
+  } from "@one-base-template/portal-engine";
   import PortalPageSettingsForm from "../page-settings/PortalPageSettingsForm.vue";
   import PortalShellFooterSettingsForm from "./shell-settings/PortalShellFooterSettingsForm.vue";
   import PortalShellHeaderSettingsForm from "./shell-settings/PortalShellHeaderSettingsForm.vue";

@@ -2,7 +2,7 @@
   import { computed } from "vue";
   import { useRoute } from "vue-router";
 
-  import { resolvePreviewMode, resolvePreviewViewport } from "../../utils/preview";
+  import { resolvePreviewMode, resolvePreviewViewport } from "@one-base-template/portal-engine";
   import PortalPreviewPanel from "../components/preview-render/PortalPreviewPanel.vue";
 
   defineOptions({

@@ -5,7 +5,7 @@ import {
   PREVIEW_VIEWPORT_DEFAULT,
   resolvePreviewMode,
   resolvePreviewViewport,
-} from "./preview";
+} from "@one-base-template/portal-engine";
 
 describe("PortalManagement/utils/preview", () => {
   it("应解析 previewMode，非法值回退 safe", () => {

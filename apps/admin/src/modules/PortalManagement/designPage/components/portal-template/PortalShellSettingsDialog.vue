@@ -10,7 +10,7 @@
     parsePortalTemplateDetails,
     stringifyPortalTemplateDetails,
     type PortalTemplateDetails,
-  } from "../../../utils/templateDetails";
+  } from "@one-base-template/portal-engine";
   import PortalShellFooterSettingsForm from "./shell-settings/PortalShellFooterSettingsForm.vue";
   import PortalShellHeaderSettingsForm from "./shell-settings/PortalShellHeaderSettingsForm.vue";
 

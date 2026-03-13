@@ -2,7 +2,7 @@
   import { computed } from "vue";
   import { Delete, Plus } from "@element-plus/icons-vue";
 
-  import type { PortalTemplateDetails } from "../../../../utils/templateDetails";
+  import type { PortalTemplateDetails } from "@one-base-template/portal-engine";
   import PortalColorField from "../PortalColorField.vue";
 
   const props = defineProps<{

@@ -5,7 +5,7 @@ import {
   createDefaultPortalTemplateDetails,
   parsePortalTemplateDetails,
   resolvePortalShellForTab,
-} from "./templateDetails";
+} from "@one-base-template/portal-engine";
 
 describe("PortalManagement/utils/templateDetails", () => {
   it("应在 details 缺失或非法时回退默认配置", () => {

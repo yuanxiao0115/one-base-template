@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { computed } from "vue";
+  import { computed } from 'vue';
 
-  import type { PortalHeaderConfig, PortalShellNavItem } from "../../../../../utils/templateDetails";
+  import type { PortalHeaderConfig, PortalShellNavItem } from '../../../shell/template-details';
 
   const props = defineProps<{
     config: PortalHeaderConfig;
@@ -9,14 +9,14 @@
     activeTabId: string;
   }>();
 
-  const emit = defineEmits<(e: "navigate", item: PortalShellNavItem) => void>();
+  const emit = defineEmits<(e: 'navigate', item: PortalShellNavItem) => void>();
 
   const barStyle = computed(() => ({
-    "--news-header-bg": props.config.tokens.bgColor || "#b91c1c",
-    "--news-header-text": props.config.tokens.textColor || "#ffffff",
-    "--news-header-active-bg": props.config.tokens.activeBgColor || "#991b1b",
-    "--news-header-active-text": props.config.tokens.activeTextColor || "#ffffff",
-    "--news-header-height": `${Math.max(56, props.config.tokens.height)}px`,
+    '--news-header-bg': props.config.tokens.bgColor || '#b91c1c',
+    '--news-header-text': props.config.tokens.textColor || '#ffffff',
+    '--news-header-active-bg': props.config.tokens.activeBgColor || '#991b1b',
+    '--news-header-active-text': props.config.tokens.activeTextColor || '#ffffff',
+    '--news-header-height': `${Math.max(56, props.config.tokens.height)}px`,
   }));
 
   function isActive(item: PortalShellNavItem): boolean {

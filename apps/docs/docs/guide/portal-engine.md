@@ -33,7 +33,8 @@ packages/portal-engine/src/
   - 禁止依赖 `apps/*`。
 - `apps/admin`
   - 负责后台管理端编排（路由、页面壳、接口注入）。
-  - 通过 `apps/admin/src/modules/PortalManagement/materials/useMaterials.ts` 适配本地 API 与行为。
+  - 通过 `apps/admin/src/modules/PortalManagement/engine/register.ts` 作为唯一注册入口，统一注入引擎能力（CMS API、导航扩展等）。
+  - 页面层只消费引擎组件与 schema，不直接散落调用 `portal-engine` 底层注册 API。
 - `apps/portal`
   - 负责消费者渲染入口与前台分流。
   - 复用 `portal-engine` 渲染器，不复制引擎内部逻辑。

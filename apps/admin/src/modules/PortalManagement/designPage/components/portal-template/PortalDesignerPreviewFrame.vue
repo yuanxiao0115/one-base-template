@@ -2,7 +2,7 @@
   import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
   import { Plus } from "@element-plus/icons-vue";
 
-  import { calcPreviewScale } from "../../../utils/preview";
+  import { calcPreviewScale } from "@one-base-template/portal-engine";
 
   const props = defineProps<{
     templateId: string;

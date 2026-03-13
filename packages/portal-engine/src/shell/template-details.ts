@@ -1,12 +1,12 @@
-import type { PortalTab } from "../types";
+import type { PortalTab } from '../schema/types';
 
-export type PortalHeaderMode = "configurable" | "customComponent";
-export type PortalNavSource = "tabTree" | "manual";
-export type PortalNavAlign = "left" | "center" | "right";
-export type PortalFooterFixedMode = "static" | "fixed";
-export type PortalHeaderTitleLayout = "stack" | "divider";
-export type PortalHeaderTitlePosition = "logoRight" | "leftEdge";
-export type PortalContainerWidth = number | "100%";
+export type PortalHeaderMode = 'configurable' | 'customComponent';
+export type PortalNavSource = 'tabTree' | 'manual';
+export type PortalNavAlign = 'left' | 'center' | 'right';
+export type PortalFooterFixedMode = 'static' | 'fixed';
+export type PortalHeaderTitleLayout = 'stack' | 'divider';
+export type PortalHeaderTitlePosition = 'logoRight' | 'leftEdge';
+export type PortalContainerWidth = number | '100%';
 
 export interface PortalShellNavItem {
   key: string;
@@ -126,9 +126,9 @@ export interface PortalResolvedShell {
 
 export const PORTAL_CUSTOM_HEADER_OPTIONS = [
   {
-    key: "news-government-v1",
-    label: "新闻门户-政务红",
-    description: "红色政务风格，适配新闻门户等专题站点",
+    key: 'news-government-v1',
+    label: '新闻门户-政务红',
+    description: '红色政务风格，适配新闻门户等专题站点',
   },
 ] as const;
 
@@ -139,68 +139,68 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
   shell: {
     header: {
       enabled: true,
-      mode: "configurable",
-      customComponentKey: "",
+      mode: 'configurable',
+      customComponentKey: '',
       tokens: {
-        bgColor: "#0f62cf",
-        textColor: "#ffffff",
-        activeBgColor: "rgba(255,255,255,0.16)",
-        activeTextColor: "#ffffff",
-        noticeBgColor: "#0a4ea8",
-        noticeTextColor: "#ffffff",
+        bgColor: '#0f62cf',
+        textColor: '#ffffff',
+        activeBgColor: 'rgba(255,255,255,0.16)',
+        activeTextColor: '#ffffff',
+        noticeBgColor: '#0a4ea8',
+        noticeTextColor: '#ffffff',
         height: 60,
-        logo: "",
+        logo: '',
         logoWidth: 150,
         logoLeftMargin: 0,
         containerWidth: 1200,
         sticky: false,
         zIndex: 20,
-        shadow: "0 1px 4px rgba(15, 98, 207, 0.18)",
-        actionBgColor: "#ffffff",
-        actionTextColor: "#0f62cf",
-        actionBorderColor: "rgba(255,255,255,0.45)",
+        shadow: '0 1px 4px rgba(15, 98, 207, 0.18)',
+        actionBgColor: '#ffffff',
+        actionTextColor: '#0f62cf',
+        actionBorderColor: 'rgba(255,255,255,0.45)',
       },
       behavior: {
-        navSource: "tabTree",
-        navAlign: "left",
-        title: "门户",
-        subTitle: "",
-        titleLayout: "stack",
-        titlePosition: "logoRight",
+        navSource: 'tabTree',
+        navAlign: 'left',
+        title: '门户',
+        subTitle: '',
+        titleLayout: 'stack',
+        titlePosition: 'logoRight',
         titleFontSize: 18,
         subTitleFontSize: 12,
         showUserCenter: true,
         showActionButton: false,
-        actionButtonText: "快速入口",
-        actionButtonUrl: "",
+        actionButtonText: '快速入口',
+        actionButtonUrl: '',
         showTopNotice: false,
-        topNoticeText: "",
+        topNoticeText: '',
         manualNavItems: [],
       },
     },
     footer: {
       enabled: true,
       tokens: {
-        bgColor: "#f8fafc",
-        textColor: "#475569",
-        mutedTextColor: "#64748b",
-        linkColor: "#2563eb",
+        bgColor: '#f8fafc',
+        textColor: '#475569',
+        mutedTextColor: '#64748b',
+        linkColor: '#2563eb',
         height: 80,
         containerWidth: 1200,
-        borderTopColor: "#e2e8f0",
+        borderTopColor: '#e2e8f0',
       },
       content: {
-        description: "",
-        copyright: "",
-        icp: "",
-        policeRecord: "",
-        servicePhone: "",
-        serviceEmail: "",
-        address: "",
+        description: '',
+        copyright: '',
+        icp: '',
+        policeRecord: '',
+        servicePhone: '',
+        serviceEmail: '',
+        address: '',
         links: [],
       },
       behavior: {
-        fixedMode: "static",
+        fixedMode: 'static',
         scrollableWhenFixed: true,
         showLinks: true,
         showRecord: true,
@@ -216,7 +216,7 @@ function deepCopy<T>(value: T): T {
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
 function toNumber(value: unknown, fallback: number): number {
@@ -224,18 +224,18 @@ function toNumber(value: unknown, fallback: number): number {
   return Number.isFinite(num) ? num : fallback;
 }
 
-function toText(value: unknown, fallback = ""): string {
-  return typeof value === "string" ? value : fallback;
+function toText(value: unknown, fallback = ''): string {
+  return typeof value === 'string' ? value : fallback;
 }
 
 function toBoolean(value: unknown, fallback: boolean): boolean {
-  if (typeof value === "boolean") {
+  if (typeof value === 'boolean') {
     return value;
   }
-  if (value === 1 || value === "1" || value === "true") {
+  if (value === 1 || value === '1' || value === 'true') {
     return true;
   }
-  if (value === 0 || value === "0" || value === "false") {
+  if (value === 0 || value === '0' || value === 'false') {
     return false;
   }
   return fallback;
@@ -246,10 +246,10 @@ function toEnabledNumber(value: unknown, fallback: number): number {
 }
 
 function normalizeContainerWidth(value: unknown, fallback: PortalContainerWidth): PortalContainerWidth {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     const text = value.trim();
-    if (text === "100%") {
-      return "100%";
+    if (text === '100%') {
+      return '100%';
     }
     const numeric = Number(text);
     if (Number.isFinite(numeric)) {
@@ -258,7 +258,7 @@ function normalizeContainerWidth(value: unknown, fallback: PortalContainerWidth)
     return fallback;
   }
 
-  if (typeof value === "number" && Number.isFinite(value)) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
     return Math.max(320, value);
   }
 
@@ -306,7 +306,7 @@ function mergeHeaderConfig(input: unknown, fallback: PortalHeaderConfig): Portal
 
   const next = deepCopy(fallback);
   next.enabled = toBoolean(input.enabled, next.enabled);
-  next.mode = input.mode === "customComponent" ? "customComponent" : "configurable";
+  next.mode = input.mode === 'customComponent' ? 'customComponent' : 'configurable';
   next.customComponentKey = toText(input.customComponentKey, next.customComponentKey);
 
   const tokens = isObject(input.tokens) ? input.tokens : {};
@@ -329,12 +329,12 @@ function mergeHeaderConfig(input: unknown, fallback: PortalHeaderConfig): Portal
   next.tokens.actionBorderColor = toText(tokens.actionBorderColor, next.tokens.actionBorderColor);
 
   const behavior = isObject(input.behavior) ? input.behavior : {};
-  next.behavior.navSource = behavior.navSource === "manual" ? "manual" : "tabTree";
-  next.behavior.navAlign = behavior.navAlign === "center" || behavior.navAlign === "right" ? behavior.navAlign : "left";
+  next.behavior.navSource = behavior.navSource === 'manual' ? 'manual' : 'tabTree';
+  next.behavior.navAlign = behavior.navAlign === 'center' || behavior.navAlign === 'right' ? behavior.navAlign : 'left';
   next.behavior.title = toText(behavior.title, toText(behavior.brandName, next.behavior.title));
   next.behavior.subTitle = toText(behavior.subTitle, toText(behavior.brandSubTitle, next.behavior.subTitle));
-  next.behavior.titleLayout = behavior.titleLayout === "divider" ? "divider" : "stack";
-  next.behavior.titlePosition = behavior.titlePosition === "leftEdge" ? "leftEdge" : "logoRight";
+  next.behavior.titleLayout = behavior.titleLayout === 'divider' ? 'divider' : 'stack';
+  next.behavior.titlePosition = behavior.titlePosition === 'leftEdge' ? 'leftEdge' : 'logoRight';
   next.behavior.titleFontSize = toNumber(behavior.titleFontSize, next.behavior.titleFontSize);
   next.behavior.subTitleFontSize = toNumber(behavior.subTitleFontSize, next.behavior.subTitleFontSize);
   next.behavior.showUserCenter = toBoolean(behavior.showUserCenter, next.behavior.showUserCenter);
@@ -392,7 +392,7 @@ function mergeFooterConfig(input: unknown, fallback: PortalFooterConfig): Portal
     .filter((item): item is { label: string; url: string } => Boolean(item));
 
   const behavior = isObject(input.behavior) ? input.behavior : {};
-  next.behavior.fixedMode = behavior.fixedMode === "fixed" ? "fixed" : "static";
+  next.behavior.fixedMode = behavior.fixedMode === 'fixed' ? 'fixed' : 'static';
   next.behavior.scrollableWhenFixed = toBoolean(behavior.scrollableWhenFixed, next.behavior.scrollableWhenFixed);
   next.behavior.showLinks = toBoolean(behavior.showLinks, next.behavior.showLinks);
   next.behavior.showRecord = toBoolean(behavior.showRecord, next.behavior.showRecord);
@@ -449,7 +449,7 @@ export function parsePortalTemplateDetails(raw: unknown): PortalTemplateDetails 
   const fallback = createDefaultPortalTemplateDetails();
 
   let source: unknown = raw;
-  if (typeof raw === "string") {
+  if (typeof raw === 'string') {
     const text = raw.trim();
     if (!text) {
       return fallback;
@@ -492,7 +492,7 @@ export function stringifyPortalTemplateDetails(input: PortalTemplateDetails): st
 export function buildPortalTemplateDetailsSchemaPreview(): PortalTemplateDetails {
   const sample = createDefaultPortalTemplateDetails();
   sample.pageOverrides = {
-    "<tabId>": {
+    '<tabId>': {
       headerOverrideEnabled: false,
       footerOverrideEnabled: false,
       header: {
@@ -532,13 +532,13 @@ export function resolvePortalShellForTab(details: PortalTemplateDetails, tabId: 
 }
 
 export function normalizeTabId(value: unknown): string {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return value;
   }
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     return String(value);
   }
-  return "";
+  return '';
 }
 
 export function buildPortalHeaderNavItems(tabs: PortalTab[] | undefined): PortalShellNavItem[] {
@@ -550,7 +550,7 @@ export function buildPortalHeaderNavItems(tabs: PortalTab[] | undefined): Portal
 
   const walk = (nodes: PortalTab[]) => {
     for (const node of nodes) {
-      if (!node || typeof node !== "object") {
+      if (!node || typeof node !== 'object') {
         continue;
       }
       if (node.isHide === 1) {

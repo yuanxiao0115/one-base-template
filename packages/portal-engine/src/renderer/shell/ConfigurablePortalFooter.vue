@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { computed } from "vue";
+  import { computed } from 'vue';
 
-  import type { PortalFooterConfig } from "../../../../utils/templateDetails";
+  import type { PortalFooterConfig } from '../../shell/template-details';
 
   const props = defineProps<{
     config: PortalFooterConfig;
@@ -10,25 +10,25 @@
 
   const footerContainerWidth = computed(() => {
     const width = props.config.tokens.containerWidth;
-    if (width === "100%") {
-      return "100%";
+    if (width === '100%') {
+      return '100%';
     }
     const normalized = Number(width);
     return `${Math.max(320, Number.isFinite(normalized) ? normalized : 1200)}px`;
   });
 
   const footerStyle = computed(() => ({
-    "--portal-footer-bg": props.config.tokens.bgColor,
-    "--portal-footer-text": props.config.tokens.textColor,
-    "--portal-footer-muted-text": props.config.tokens.mutedTextColor,
-    "--portal-footer-link": props.config.tokens.linkColor,
-    "--portal-footer-height": `${Math.max(56, props.config.tokens.height)}px`,
-    "--portal-footer-container-width": footerContainerWidth.value,
-    "--portal-footer-border": props.config.tokens.borderTopColor,
+    '--portal-footer-bg': props.config.tokens.bgColor,
+    '--portal-footer-text': props.config.tokens.textColor,
+    '--portal-footer-muted-text': props.config.tokens.mutedTextColor,
+    '--portal-footer-link': props.config.tokens.linkColor,
+    '--portal-footer-height': `${Math.max(56, props.config.tokens.height)}px`,
+    '--portal-footer-container-width': footerContainerWidth.value,
+    '--portal-footer-border': props.config.tokens.borderTopColor,
   }));
 
   const isFixed = computed(() =>
-    typeof props.fixed === "boolean" ? props.fixed : props.config.behavior.fixedMode === "fixed"
+    typeof props.fixed === 'boolean' ? props.fixed : props.config.behavior.fixedMode === 'fixed'
   );
   const showRecord = computed(
     () =>

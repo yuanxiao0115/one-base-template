@@ -1,7 +1,10 @@
 import type { AppModuleManifest } from "@one-base-template/core";
 import { moduleManifest } from "./manifest";
+import { setupPortalEngineForAdmin } from "./engine/register";
 import layoutRoutes from "./routes/layout";
 import standaloneRoutes from "./routes/standalone";
+
+setupPortalEngineForAdmin();
 
 const portalModule: AppModuleManifest = {
   ...moduleManifest,
