@@ -86,6 +86,14 @@ packages/portal-engine/src/
   - 通过 `context/api/notify/confirm/openEditor/syncRouteTabId/resolvePreviewHref` 注入应用依赖，admin 页面只保留路由与壳组件拼装。
 - `workbench/useTemplateWorkbenchPage.ts`
   - 提供模板工作台页面的消费者入口，统一组合 `template-workbench-controller + current-tab-actions + page-settings-session + preview-bridge`。
+- `workbench/page-editor-controller.ts`
+  - 下沉页面编辑工作台编排：tab 详情加载、页面保存、预览窗口同步与 `preview-page-ready` 回传处理。
+  - `api/notify/resolvePreviewHref/openWindow` 均采用注入模式，避免把 admin 路由和消息实现写死在引擎。
+- `workbench/usePageEditorWorkbench.ts`
+  - 页面编辑消费者入口，自动接管预览窗口消息监听与销毁清理。
+- `workbench/PortalTemplateWorkbenchShell.vue`
+  - 下沉模板工作台壳层布局（header/tree/toolbar/preview/dialogs 五段插槽）。
+  - admin 页面只保留业务组件拼装，不再维护重复布局样式。
 
 ## admin 注册入口（必须）
 
@@ -166,6 +174,49 @@ const workbenchPage = useTemplateWorkbenchPage({
 - 路由参数解析与 `router/message/confirm` 注入
 - 预览舞台、树面板、抽屉/对话框等壳组件拼装
 - 首次 `loadTemplate()` 触发与页面级返回动作
+
+## 页面编辑消费者接入
+
+`PortalPageEditPage.vue` 这类页面应优先消费 `usePageEditorWorkbench()`，让 admin 只保留路由与依赖注入：
+
+```ts
+import { usePageEditorWorkbench } from '@one-base-template/portal-engine'
+
+const workbench = usePageEditorWorkbench({
+  tabId,
+  templateId,
+  api: {
+    tab: {
+      detail: portalApi.tab.detail,
+      update: portalApi.tab.update,
+    },
+  },
+  notify: {
+    success: (text) => message.success(text),
+    error: (text) => message.error(text),
+    warning: (text) => message.warning(text),
+  },
+  resolvePreviewHref: ({ tabId, templateId, previewMode }) =>
+    router.resolve({
+      name: 'PortalPreview',
+      query: { tabId, templateId, previewMode },
+    }).href,
+})
+```
+
+页面层建议仅保留：
+- `tabId/templateId` 路由参数解析
+- 返回跳转（如 `onBack`）
+- `PortalPageEditorWorkbench` 组件透传 `loading/saving/preview/pageSettingData` 与事件绑定
+
+## 模板工作台壳层接入
+
+模板工作台页面建议统一使用 `PortalTemplateWorkbenchShell`，通过插槽装配业务组件：
+- `#header`：顶部栏（返回、刷新、页眉页脚入口）
+- `#tree`：左侧树面板
+- `#toolbar`：页面动作条
+- `#preview`：预览舞台
+- `#dialogs`：属性弹窗、页面设置抽屉、壳层设置抽屉
 
 ## PortalPreviewPanel 消费者接入（props 注入）
 

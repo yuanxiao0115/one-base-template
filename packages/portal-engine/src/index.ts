@@ -210,6 +210,7 @@ export type {
 } from './workbench/template-workbench-controller';
 export { createTemplateWorkbenchController } from './workbench/template-workbench-controller';
 export { useTemplateWorkbench } from './workbench/useTemplateWorkbench';
+export { default as PortalTemplateWorkbenchShell } from './workbench/PortalTemplateWorkbenchShell.vue';
 export type {
   CreateTemplateWorkbenchPageControllerOptions,
   TemplateWorkbenchPageController,

@@ -4,6 +4,7 @@
   import { confirm, message } from "@one-base-template/ui";
   import {
     PortalDesignerPreviewFrame,
+    PortalTemplateWorkbenchShell,
     type TemplateWorkbenchPagePreviewTarget,
     useTemplateWorkbenchPage,
   } from "@one-base-template/portal-engine";
@@ -173,160 +174,101 @@
 </script>
 
 <template>
-  <div class="page">
-    <PortalDesignerHeaderBar
-      :title="templateInfo?.templateName || '门户配置工作台'"
-      :template-id="templateId"
-      :loading="loading"
-      @back="onBack"
-      @refresh="loadTemplate(currentTabId)"
-      @shell-settings="openShellSettings"
-    />
+  <PortalTemplateWorkbenchShell :loading="loading">
+    <template #header>
+      <PortalDesignerHeaderBar
+        :title="templateInfo?.templateName || '门户配置工作台'"
+        :template-id="templateId"
+        :loading="loading"
+        @back="onBack"
+        @refresh="loadTemplate(currentTabId)"
+        @shell-settings="openShellSettings"
+      />
+    </template>
 
-    <div v-loading="loading" class="layout">
-      <aside class="tree-pane">
-        <PortalDesignerTreePanel
-          class="tree-content"
-          :tabs="templateInfo?.tabList ?? []"
-          :current-tab-id="currentTabId"
-          :sorting="sortingTabs"
-          @create-root="openCreateRoot"
-          @select="setCurrentTab"
-          @edit="onEdit"
-          @create-sibling="openCreateSibling"
-          @create-child="openCreateChild"
-          @attribute="openAttribute"
-          @toggle-hide="toggleHide"
-          @delete="deleteTab"
-          @sort-drop="onTreeSortDrop"
-        />
-      </aside>
+    <template #tree>
+      <PortalDesignerTreePanel
+        :tabs="templateInfo?.tabList ?? []"
+        :current-tab-id="currentTabId"
+        :sorting="sortingTabs"
+        @create-root="openCreateRoot"
+        @select="setCurrentTab"
+        @edit="onEdit"
+        @create-sibling="openCreateSibling"
+        @create-child="openCreateChild"
+        @attribute="openAttribute"
+        @toggle-hide="toggleHide"
+        @delete="deleteTab"
+        @sort-drop="onTreeSortDrop"
+      />
+    </template>
 
-      <section class="editor-pane">
-        <PortalDesignerActionStrip
-          :current-tab="currentTab"
-          :preview-scale="previewScale"
-          :interaction-mode="previewInteractionMode"
-          @edit="editCurrentTab"
-          @page-settings="openCurrentPageSettings"
-          @toggle-hide="toggleCurrentTabHide"
-          @preview="openPreviewWindow"
-          @delete="deleteCurrentTab"
-          @preview-change="onPreviewChange"
-          @interaction-change="onPreviewInteractionChange"
-          @zoom-in="onZoomInPreview"
-          @zoom-out="onZoomOutPreview"
-          @reset-view="onResetPreviewView"
-        />
+    <template #toolbar>
+      <PortalDesignerActionStrip
+        :current-tab="currentTab"
+        :preview-scale="previewScale"
+        :interaction-mode="previewInteractionMode"
+        @edit="editCurrentTab"
+        @page-settings="openCurrentPageSettings"
+        @toggle-hide="toggleCurrentTabHide"
+        @preview="openPreviewWindow"
+        @delete="deleteCurrentTab"
+        @preview-change="onPreviewChange"
+        @interaction-change="onPreviewInteractionChange"
+        @zoom-in="onZoomInPreview"
+        @zoom-out="onZoomOutPreview"
+        @reset-view="onResetPreviewView"
+      />
+    </template>
 
-        <PortalDesignerPreviewFrame
-          ref="previewFrameRef"
-          :template-id="templateId"
-          :current-tab-id="currentTabId"
-          :preview-frame-src="previewFrameSrc"
-          :viewport-width="previewViewport.width"
-          :viewport-height="previewViewport.height"
-          @create-root="openCreateRoot"
-          @scale-change="onPreviewScaleChange"
-          @interaction-state-change="onPreviewInteractionStateChange"
-          @frame-load="onPreviewFrameLoad"
-        />
-      </section>
-    </div>
+    <template #preview>
+      <PortalDesignerPreviewFrame
+        ref="previewFrameRef"
+        :template-id="templateId"
+        :current-tab-id="currentTabId"
+        :preview-frame-src="previewFrameSrc"
+        :viewport-width="previewViewport.width"
+        :viewport-height="previewViewport.height"
+        @create-root="openCreateRoot"
+        @scale-change="onPreviewScaleChange"
+        @interaction-state-change="onPreviewInteractionStateChange"
+        @frame-load="onPreviewFrameLoad"
+      />
+    </template>
 
-    <TabAttributeDialog
-      v-model="attrVisible"
-      :mode="attrMode"
-      :loading="creating || attrLoading"
-      :initial="attrInitial"
-      @submit="onSubmitAttr"
-    />
+    <template #dialogs>
+      <TabAttributeDialog
+        v-model="attrVisible"
+        :mode="attrMode"
+        :loading="creating || attrLoading"
+        :initial="attrInitial"
+        @submit="onSubmitAttr"
+      />
 
-    <PortalPageSettingsDrawer
-      v-model="pageSettingsVisible"
-      v-model:active-tab="pageSettingsActiveTab"
-      :loading="pageSettingsSaving"
-      :shell-loading="pageShellSettingSaving"
-      :page-name="pageSettingsCurrentTabName"
-      :settings="pageSettingsForm"
-      :details="templateInfo?.details || ''"
-      :tabs="templateInfo?.tabList || []"
-      :current-tab-id="pageSettingsCurrentTabId"
-      @preview-change="onPageSettingsPreviewChange"
-      @preview-shell-change="onPageShellPreviewChange"
-      @submit="onSubmitPageSettings"
-      @submit-shell="onSubmitPageShellSetting"
-    />
+      <PortalPageSettingsDrawer
+        v-model="pageSettingsVisible"
+        v-model:active-tab="pageSettingsActiveTab"
+        :loading="pageSettingsSaving"
+        :shell-loading="pageShellSettingSaving"
+        :page-name="pageSettingsCurrentTabName"
+        :settings="pageSettingsForm"
+        :details="templateInfo?.details || ''"
+        :tabs="templateInfo?.tabList || []"
+        :current-tab-id="pageSettingsCurrentTabId"
+        @preview-change="onPageSettingsPreviewChange"
+        @preview-shell-change="onPageShellPreviewChange"
+        @submit="onSubmitPageSettings"
+        @submit-shell="onSubmitPageShellSetting"
+      />
 
-    <PortalShellSettingsDialog
-      v-model="shellSettingVisible"
-      :loading="shellSettingSaving"
-      :details="templateInfo?.details || ''"
-      :tabs="templateInfo?.tabList || []"
-      @submit="onSubmitShellSetting"
-      @preview-change="onShellPreviewChange"
-    />
-  </div>
+      <PortalShellSettingsDialog
+        v-model="shellSettingVisible"
+        :loading="shellSettingSaving"
+        :details="templateInfo?.details || ''"
+        :tabs="templateInfo?.tabList || []"
+        @submit="onSubmitShellSetting"
+        @preview-change="onShellPreviewChange"
+      />
+    </template>
+  </PortalTemplateWorkbenchShell>
 </template>
-
-<style scoped>
-  .page {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    background: #fff;
-  }
-
-  .layout {
-    flex: 1;
-    min-height: 0;
-    display: grid;
-    grid-template-columns: 320px minmax(0, 1fr);
-    background: #fff;
-  }
-
-  .tree-pane {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    border-right: 1px solid #e5ebf2;
-    overflow: hidden;
-    background: #fff;
-  }
-
-  .tree-content {
-    flex: 1;
-    min-height: 0;
-  }
-
-  .editor-pane {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    background: #fff;
-  }
-
-  .page :deep(.el-button) {
-    border-radius: 0;
-  }
-
-  .page :deep(.el-input__wrapper) {
-    border-radius: 0;
-  }
-
-  @media (max-width: 1366px) {
-    .layout {
-      grid-template-columns: 300px minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 960px) {
-    .layout {
-      grid-template-columns: 1fr;
-      grid-template-rows: 340px minmax(0, 1fr);
-    }
-  }
-</style>
