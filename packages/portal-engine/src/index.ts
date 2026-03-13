@@ -217,6 +217,16 @@ export type {
 } from './workbench/template-workbench-page-controller';
 export { createTemplateWorkbenchPageController } from './workbench/template-workbench-page-controller';
 export { useTemplateWorkbenchPage } from './workbench/useTemplateWorkbenchPage';
+export type {
+  CreatePageEditorControllerOptions,
+  PortalPageEditorLayoutStore,
+  PageEditorController,
+  PortalPageEditorApi,
+  PortalPageEditorNotifier,
+  PortalPageEditorTabDetail,
+} from './workbench/page-editor-controller';
+export { createPageEditorController } from './workbench/page-editor-controller';
+export { usePageEditorWorkbench } from './workbench/usePageEditorWorkbench';
 export {
   calcPortalManualPanRange,
   calcPortalPreviewPanBounds,
