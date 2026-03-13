@@ -150,27 +150,24 @@
 
   const showBanner = computed(() => normalizedPageSettings.value.banner.enabled);
   const activeLayoutMode = computed<PortalPageLayoutMode>(() => normalizedPageSettings.value.layoutMode);
-  const useContentScroll = computed(() => activeLayoutMode.value !== "global-scroll");
-  const useHeaderSticky = computed(() => activeLayoutMode.value !== "global-scroll");
+  const isGlobalScrollLayout = computed(() => activeLayoutMode.value === "global-scroll");
+  const isHeaderFixedLayout = computed(() => activeLayoutMode.value === "header-fixed-content-scroll");
+  const isHeaderFooterFixedLayout = computed(() => activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll");
+  const useContentScroll = computed(() => isHeaderFixedLayout.value || isHeaderFooterFixedLayout.value);
+  const useHeaderSticky = computed(() => isHeaderFixedLayout.value || isHeaderFooterFixedLayout.value);
   const useFixedFooter = computed(
     () => {
       if (!showFooter.value) {
         return false;
       }
-      if (activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll") {
-        return true;
-      }
-      if (activeLayoutMode.value === "global-scroll") {
-        return false;
-      }
-      return normalizedPageSettings.value.headerFooterBehavior.footerMode === "fixed";
+      return isHeaderFooterFixedLayout.value;
     }
   );
   const layoutComponent = computed(() => {
-    if (activeLayoutMode.value === "global-scroll") {
+    if (isGlobalScrollLayout.value) {
       return PortalPreviewGlobalScrollLayout;
     }
-    if (activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll") {
+    if (isHeaderFooterFixedLayout.value) {
       return PortalPreviewHeaderFooterFixedContentScrollLayout;
     }
     return PortalPreviewHeaderFixedContentScrollLayout;
@@ -226,37 +223,24 @@
   }
 
   const contentStyle = computed<CSSProperties>(() => {
-    const style: CSSProperties = {
+    return {
       overflowX: "hidden",
       minHeight: 0,
+      paddingBottom: "0px",
     };
-
-    if (useFixedFooter.value) {
-      const fallbackFooterHeight = Math.max(56, resolvedShell.value.footer.tokens.height);
-      const footerHeight = Math.max(
-        fallbackFooterHeight,
-        normalizedPageSettings.value.headerFooterBehavior.footerFixedHeight
-      );
-      style.paddingBottom = `${footerHeight + 8}px`;
-    }
-
-    return style;
   });
   const contentScrollStyle = computed<CSSProperties>(() => {
     if (!useContentScroll.value) {
       return {};
     }
-    const overflowY =
-      activeLayoutMode.value === "header-fixed-footer-fixed-content-scroll"
-        ? "auto"
-        : normalizedPageSettings.value.layoutContainer.overflowMode;
+    const overflowY = isHeaderFooterFixedLayout.value ? "auto" : normalizedPageSettings.value.layoutContainer.overflowMode;
     return {
       overflowY,
       overflowX: "hidden",
     };
   });
   const layoutProps = computed(() => {
-    if (activeLayoutMode.value === "global-scroll") {
+    if (isGlobalScrollLayout.value) {
       return {};
     }
     return {
@@ -273,11 +257,6 @@
       marginLeft: `${spacing.marginLeft}px`,
       minHeight: `${normalizedPageSettings.value.layoutContainer.contentMinHeight}px`,
     };
-
-    if (normalizedPageSettings.value.layoutContainer.widthMode !== "full-width") {
-      style.display = "flex";
-      style.justifyContent = normalizedPageSettings.value.layoutContainer.contentAlign === "left" ? "flex-start" : "center";
-    }
 
     if (normalizedPageSettings.value.background.scope === "page") {
       Object.assign(style, buildBackgroundStyle(normalizedPageSettings.value.background));
@@ -314,17 +293,25 @@
     return style;
   });
 
+  const contentMainStyle = computed<CSSProperties>(() => {
+    if (normalizedPageSettings.value.layoutContainer.widthMode === "full-width") {
+      return {};
+    }
+    return {
+      display: "flex",
+      justifyContent: normalizedPageSettings.value.layoutContainer.contentAlign === "left" ? "flex-start" : "center",
+      minHeight: 0,
+    };
+  });
+
   const bannerStyle = computed<CSSProperties>(() => {
     const banner = normalizedPageSettings.value.banner;
-    const spacing = runtimeSettings.value.spacing;
 
     const style: CSSProperties = {
       height: `${runtimeSettings.value.bannerHeight}px`,
     };
 
     if (banner.fullWidth) {
-      style.marginLeft = `-${spacing.paddingLeft}px`;
-      style.marginRight = `-${spacing.paddingRight}px`;
       style.borderRadius = "0";
     }
 
@@ -709,7 +696,14 @@
         </el-result>
       </div>
 
-      <component :is="layoutComponent" v-bind="layoutProps" v-else class="preview-layout-host">
+      <component
+        :is="layoutComponent"
+        :key="activeLayoutMode"
+        v-bind="layoutProps"
+        v-else
+        class="preview-layout-host"
+        :class="{ 'preview-layout-host--content-scroll': useContentScroll }"
+      >
         <template #header>
           <div v-if="showHeader" class="header-wrap" :style="headerWrapStyle">
             <component
@@ -722,6 +716,7 @@
             />
 
             <ConfigurablePortalHeader
+              :key="`header-${activeLayoutMode}`"
               v-else
               :config="resolvedShell.header"
               :nav-items="headerNavItems"
@@ -736,44 +731,46 @@
         <template #content>
           <div class="content" :class="{ 'content--embedded': embedded }" :style="contentStyle">
             <div class="content-frame" :class="{ 'content-frame--empty': useViewportFillForEmpty }" :style="contentFrameStyle">
-              <div
-                class="content-container"
-                :class="{
-                  'content-container--page-outline': showPreviewAreaOutline,
-                  'content-container--empty': useViewportFillForEmpty
-                }"
-                :style="contentContainerStyle"
+              <a
+                v-if="showBanner && normalizedPageSettings.banner.linkUrl"
+                class="page-banner page-banner--link"
+                :style="bannerStyle"
+                :href="normalizedPageSettings.banner.linkUrl"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <a
-                  v-if="showBanner && normalizedPageSettings.banner.linkUrl"
-                  class="page-banner page-banner--link"
-                  :style="bannerStyle"
-                  :href="normalizedPageSettings.banner.linkUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <span class="page-banner__hint">Banner 独立区域</span>
+              </a>
+              <div v-else-if="showBanner" class="page-banner" :style="bannerStyle">
+                <span class="page-banner__hint">Banner 独立区域</span>
+              </div>
+
+              <div class="content-main" :style="contentMainStyle">
+                <div
+                  class="content-container"
+                  :class="{
+                    'content-container--page-outline': showPreviewAreaOutline,
+                    'content-container--empty': useViewportFillForEmpty
+                  }"
+                  :style="contentContainerStyle"
                 >
-                  <span class="page-banner__hint">Banner 独立区域</span>
-                </a>
-                <div v-else-if="showBanner" class="page-banner" :style="bannerStyle">
-                  <span class="page-banner__hint">Banner 独立区域</span>
-                </div>
+                  <div v-if="layoutItems.length === 0" class="state state--empty">
+                    <el-empty description="当前页面暂未配置组件" :image-size="100">
+                      <template #description>
+                        <p class="empty-desc">可先进入编辑器添加组件后，再返回此处查看效果。</p>
+                      </template>
+                    </el-empty>
+                  </div>
 
-                <div v-if="layoutItems.length === 0" class="state state--empty">
-                  <el-empty description="当前页面暂未配置组件" :image-size="100">
-                    <template #description>
-                      <p class="empty-desc">可先进入编辑器添加组件后，再返回此处查看效果。</p>
-                    </template>
-                  </el-empty>
+                  <PortalGridRenderer
+                    v-else
+                    :layout-items
+                    :materials-map
+                    :page-setting-data
+                    :preview-mode="props.previewMode"
+                    :viewport-width="activeViewportWidth"
+                  />
                 </div>
-
-                <PortalGridRenderer
-                  v-else
-                  :layout-items
-                  :materials-map
-                  :page-setting-data
-                  :preview-mode="props.previewMode"
-                  :viewport-width="activeViewportWidth"
-                />
               </div>
             </div>
           </div>
@@ -781,7 +778,7 @@
 
         <template #footer>
           <div v-if="showFooter" class="footer-wrap" :class="{ 'footer-wrap--fixed': useFixedFooter }">
-            <ConfigurablePortalFooter :config="resolvedShell.footer" :fixed="useFixedFooter" />
+            <ConfigurablePortalFooter :key="`footer-${activeLayoutMode}`" :config="resolvedShell.footer" :fixed="useFixedFooter" />
           </div>
         </template>
       </component>
@@ -834,6 +831,10 @@
   }
 
   .preview-layout-host {
+    min-height: 100%;
+  }
+
+  .preview-layout-host--content-scroll {
     min-height: 0;
     height: 100%;
   }
@@ -845,7 +846,7 @@
   .content {
     flex: 1;
     min-height: 0;
-    padding: 8px;
+    /* padding: 8px; */
     background: var(--el-bg-color);
     box-sizing: border-box;
   }
@@ -856,6 +857,9 @@
   }
 
   .content-frame {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     min-height: 100%;
   }
 
@@ -864,7 +868,11 @@
   }
 
   .content-container {
-    min-height: 100%;
+    min-height: 0;
+  }
+
+  .content-main {
+    min-height: 0;
   }
 
   .content-container--empty {
@@ -883,7 +891,6 @@
     overflow: hidden;
     border: 1px dashed var(--el-border-color);
     border-radius: 10px;
-    margin-bottom: 12px;
     background: linear-gradient(135deg, rgb(15 98 207 / 0.14), rgb(15 98 207 / 0.04));
   }
 
@@ -910,6 +917,12 @@
 
   .footer-wrap--fixed {
     box-shadow: 0 -2px 10px rgb(0 0 0 / 0.08);
+  }
+
+  .preview-shell--layout-global-scroll :deep(.footer--fixed),
+  .preview-shell--layout-header-fixed-content-scroll :deep(.footer--fixed) {
+    position: static;
+    bottom: auto;
   }
 
   .state {

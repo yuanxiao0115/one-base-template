@@ -310,6 +310,65 @@
     stopPan();
   }
 
+  function isScrollableElement(target: Element | null, view: Window): target is HTMLElement {
+    if (!target) {
+      return false;
+    }
+    const candidate = target as HTMLElement;
+    if (typeof candidate.scrollHeight !== "number" || typeof candidate.clientHeight !== "number") {
+      return false;
+    }
+    const style = view.getComputedStyle(candidate);
+    const overflowY = style.overflowY;
+    const canScrollY = overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay";
+    if (!canScrollY) {
+      return false;
+    }
+    return candidate.scrollHeight > candidate.clientHeight;
+  }
+
+  function resolveFrameScrollContainer(): HTMLElement | null {
+    const frameWindow = previewIframeRef.value?.contentWindow;
+    if (!frameWindow) {
+      return null;
+    }
+    try {
+      const frameDocument = frameWindow.document;
+      const contentScroll = frameDocument.querySelector(".preview-layout__content-scroll");
+      if (isScrollableElement(contentScroll, frameWindow)) {
+        return contentScroll;
+      }
+      const shell = frameDocument.querySelector(".preview-shell");
+      if (isScrollableElement(shell, frameWindow)) {
+        return shell;
+      }
+      const scrollingElement = frameDocument.scrollingElement;
+      if (!scrollingElement) {
+        return null;
+      }
+      const candidate = scrollingElement as HTMLElement;
+      return typeof candidate.scrollBy === "function" ? candidate : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function onPanWheel(event: WheelEvent) {
+    if (!manualMode.value) {
+      return;
+    }
+    const scrollContainer = resolveFrameScrollContainer();
+    if (!scrollContainer) {
+      return;
+    }
+    event.preventDefault();
+    scrollContainer.scrollBy({
+      top: event.deltaY,
+      left: event.deltaX,
+      behavior: "auto",
+    });
+  }
+
   function resetView() {
     setInteractionMode("auto");
     schedulePreviewScaleRecalc();
@@ -409,6 +468,7 @@
         @pointermove="onPanPointerMove"
         @pointerup="onPanPointerEnd"
         @pointercancel="onPanPointerEnd"
+        @wheel.prevent="onPanWheel"
       >
         <span class="preview-pan-tip">按住拖拽平移</span>
       </div>

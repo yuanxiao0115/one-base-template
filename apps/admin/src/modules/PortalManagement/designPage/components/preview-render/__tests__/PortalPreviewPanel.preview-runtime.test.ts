@@ -567,8 +567,11 @@ describe('PortalPreviewPanel preview runtime message', () => {
     await flushAsync();
 
     expect(wrapper.find('.preview-layout--global-scroll').exists()).toBe(true);
+    expect(wrapper.find('.preview-shell--content-scroll').exists()).toBe(false);
     expect(wrapper.find('.header-wrap--sticky').exists()).toBe(false);
     expect(wrapper.find('.footer--fixed').exists()).toBe(false);
+    const globalContent = wrapper.find('.content');
+    expect(globalContent.attributes('style')).toContain('padding-bottom: 0px;');
 
     const headerFixedSettings = createLayoutModeSettings('header-fixed-content-scroll', {
       headerSticky: true,
@@ -589,8 +592,12 @@ describe('PortalPreviewPanel preview runtime message', () => {
     const headerWrapInHeaderFixed = wrapper.find('.header-wrap');
     expect(headerWrapInHeaderFixed.attributes('style')).toContain('position: sticky;');
     expect(wrapper.find('.footer--fixed').exists()).toBe(false);
+    expect(wrapper.find('.preview-shell--content-scroll').exists()).toBe(true);
     const headerFixedContentScroll = wrapper.find('.preview-layout--header-fixed-content-scroll .preview-layout__content-scroll');
+    expect(headerFixedContentScroll.exists()).toBe(true);
     expect(headerFixedContentScroll.attributes('style')).toContain('overflow-y: hidden;');
+    const headerFixedContent = wrapper.find('.content');
+    expect(headerFixedContent.attributes('style')).toContain('padding-bottom: 0px;');
 
     const headerFixedScrollModeSettings = createLayoutModeSettings('header-fixed-content-scroll', {
       headerSticky: true,
@@ -606,7 +613,12 @@ describe('PortalPreviewPanel preview runtime message', () => {
       })
     ).toBe(true);
     await flushAsync();
-    expect(headerFixedContentScroll.attributes('style')).toContain('overflow-y: scroll;');
+    expect(wrapper.find('.preview-shell--content-scroll').exists()).toBe(true);
+    const headerFixedContentScrollInScrollMode = wrapper.find(
+      '.preview-layout--header-fixed-content-scroll .preview-layout__content-scroll'
+    );
+    expect(headerFixedContentScrollInScrollMode.exists()).toBe(true);
+    expect(headerFixedContentScrollInScrollMode.attributes('style')).toContain('overflow-y: scroll;');
 
     const headerFooterFixedSettings = createLayoutModeSettings('header-fixed-footer-fixed-content-scroll', {
       headerSticky: true,
@@ -624,11 +636,14 @@ describe('PortalPreviewPanel preview runtime message', () => {
     await flushAsync();
 
     expect(wrapper.find('.preview-layout--header-footer-fixed-content-scroll').exists()).toBe(true);
+    expect(wrapper.find('.preview-shell--content-scroll').exists()).toBe(true);
     expect(wrapper.find('.footer--fixed').exists()).toBe(true);
     const headerFooterFixedContentScroll = wrapper.find(
       '.preview-layout--header-footer-fixed-content-scroll .preview-layout__content-scroll'
     );
     expect(headerFooterFixedContentScroll.attributes('style')).toContain('overflow-y: auto;');
+    const headerFooterFixedContent = wrapper.find('.content');
+    expect(headerFooterFixedContent.attributes('style')).toContain('padding-bottom: 0px;');
   });
 
   it('preview-page-runtime 未传 component 时不应清空已有组件', async () => {
@@ -678,7 +693,7 @@ describe('PortalPreviewPanel preview runtime message', () => {
     expect(snapshot.component[0]?.i).toBe('cmp-1');
   });
 
-  it('内容对齐切换时，content-frame 样式应同步切换 left/center', async () => {
+  it('内容对齐切换时，content-main 样式应同步切换 left/center', async () => {
     const wrapper = mount(PortalPreviewPanel, {
       props: {
         tabId: '',
@@ -713,8 +728,8 @@ describe('PortalPreviewPanel preview runtime message', () => {
     ).toBe(true);
     await flushAsync();
 
-    const contentFrame = wrapper.find('.content-frame');
-    expect(contentFrame.attributes('style')).toContain('justify-content: flex-start;');
+    const contentMain = wrapper.find('.content-main');
+    expect(contentMain.attributes('style')).toContain('justify-content: flex-start;');
 
     const centerAlignSettings = createLayoutModeSettings('header-fixed-content-scroll', {
       widthMode: 'custom',
@@ -729,7 +744,7 @@ describe('PortalPreviewPanel preview runtime message', () => {
       })
     ).toBe(true);
     await flushAsync();
-    expect(contentFrame.attributes('style')).toContain('justify-content: center;');
+    expect(contentMain.attributes('style')).toContain('justify-content: center;');
   });
 
   it('预览页加载后应向 opener 上报 preview-page-ready 事件', async () => {
