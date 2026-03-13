@@ -36,6 +36,9 @@
 - `src/shell/template-details.ts` + `src/utils/preview.ts`（页眉页脚 details 协议与预览视口工具）
 - `src/renderer/shell/**` + `src/renderer/layouts/**`（预览壳层与布局组件）
 - `src/editor/PortalPageEditorWorkbench.vue`（页面编辑工作台壳组件）
+- `src/editor/preview-bridge/**`（预览通信协议与发送器）
+- `src/domain/tab-tree.ts`（tab 树领域算法）
+- `src/services/page-settings.ts`（页面设置 load/save 服务，支持 API 注入）
 
 当前 admin 侧已改为直接引用 `@one-base-template/portal-engine` 导出，不再维护 `hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts`、`materials/registry/materials-registry.ts` 这类中转 re-export 层。
 另外 `MaterialLibrary` 已改为由页面注入 `categories`，不再直接依赖 admin 内的 registry 路径，便于 `apps/admin` 与后续 `apps/portal` 复用同一编辑器组件。
@@ -53,7 +56,7 @@
 - `/portal/preview?templateId=<id>&tabId=<id>`：渲染指定 tab 的 pageLayout（通常给新窗口使用；同页预览复用同一渲染组件）
 
 页面编辑实时预览（2026-03-12）：
-- `PortalPageEditPage` 打开预览后，会持续向预览窗口发送 `preview-page-runtime` 消息（包含 `tabId/templateId/settings/component`）。
+- `PortalPageEditPage` 打开预览后，会通过 `preview-bridge` 持续向预览窗口发送 `preview-page-runtime` 消息（包含 `tabId/templateId/settings/component`）。
 - `PortalPreviewPanel` 新增 `preview-page-runtime` 消息处理，收到后立即更新 `pageSettingData/layoutItems`，无需手动刷新预览页。
 - 页面设置字段覆盖范围：`basic/layout/layoutContainer/spacing/background/banner/headerFooterBehavior/responsive/access/publishGuard`。
 
@@ -439,7 +442,7 @@ type PageLayoutJson = {
 admin 端保留兼容入口（壳层）：
 - `apps/admin/src/modules/PortalManagement/materials/useMaterials.ts`
 - `apps/admin/src/modules/PortalManagement/engine/register.ts`
-- 兼容入口通过 `setupPortalEngineForAdmin()` 统一把 admin 的 `cmsApi` 绑定到引擎，保证迁移后组件数据源行为不变。
+- 兼容入口通过 `setupPortalEngineForAdmin()` 统一把 admin 的 `cmsApi + pageSettingsApi` 绑定到引擎，保证迁移后组件数据源与页面设置保存链路行为不变。
 
 动态加载策略：
 - 通过 `import.meta.glob('./cms/**/index.vue' | './cms/**/content.vue' | './cms/**/style.vue', { eager: true })` 扫描物料目录

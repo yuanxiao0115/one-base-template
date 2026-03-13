@@ -17,7 +17,9 @@ packages/portal-engine/src/
   actions/       # 页面动作解析与目标注册
   composables/   # 复用式组合能力（如 schema 配置读取）
   container/     # CMS 容器与通用渲染容器
+  domain/        # 领域算法（tab-tree 等）
   editor/        # 设计器能力（布局编辑、属性面板、物料面板）
+  services/      # 可注入服务（页面设置读写等）
   materials/     # 物料组件与动态加载
   registry/      # 物料注册表
   renderer/      # 门户渲染器
@@ -45,6 +47,47 @@ packages/portal-engine/src/
 2. 物料注册：`packages/portal-engine/src/registry/materials-registry.ts`
 3. 行为扩展：`packages/portal-engine/src/materials/navigation.ts`
 4. 页面渲染：`packages/portal-engine/src/renderer/PortalGridRenderer.vue`
+
+## 2026-03-13 P0 下沉（admin 消费者化）
+
+本轮把 admin 中高频重复的设计器域逻辑下沉到了 `portal-engine`：
+
+- `editor/preview-bridge/*`
+  - 统一预览通信协议常量与消息构建（`preview-shell-details` / `preview-viewport` / `preview-page-runtime` / `preview-page-ready`）。
+  - 提供 `sendPreviewShellDetails/sendPreviewViewport/sendPreviewRuntime/sendPreviewPageRuntimeToWindow`，替换页面内手写 `postMessage`。
+- `domain/tab-tree.ts`
+  - 统一 tab 树领域算法：`find/contains/nextSort/editable/normalize`。
+  - admin 的 `utils/portalTree.ts` 已收敛为兼容转发层。
+- `services/page-settings.ts`
+  - 下沉页面设置 load/save 逻辑（解析 pageLayout、合并 settings、构建保存 payload）。
+  - 通过 API 注入实现跨应用复用，不在页面层散落 `tab.detail/tab.update` 细节。
+
+## admin 注册入口（必须）
+
+`apps/admin` 作为消费者时，只允许在 `apps/admin/src/modules/PortalManagement/engine/register.ts` 注入扩展能力：
+
+```ts
+import {
+  setPortalCmsApi,
+  setPortalCmsNavigation,
+  setPortalPageSettingsApi,
+} from '@one-base-template/portal-engine';
+
+setPortalCmsApi({
+  getCategoryTree: cmsApi.getCategoryTree,
+  getUserArticlesByCategory: cmsApi.getUserArticlesByCategory,
+  getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory,
+});
+
+setPortalPageSettingsApi({
+  getTabDetail: ({ id }) => portalApi.tab.detail({ id }),
+  updateTab: (payload) => portalApi.tab.update(payload),
+});
+
+setPortalCmsNavigation(options.cmsNavigation ?? {});
+```
+
+规则：页面层禁止直接调用 `setPortal*`，统一走 register 入口，避免注入能力分散在业务页面。
 
 ## 基础物料（base）新增能力
 
