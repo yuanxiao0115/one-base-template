@@ -1,9 +1,9 @@
 {
   "index": {
-    "name": "pb-image-text-list-index"
+    "name": "cms-image-text-list-index"
   },
   "content": {
-    "name": "pb-image-text-list-content",
+    "name": "cms-image-text-list-content",
     "title": {
       "title": "专栏模块",
       "titleStyle": "simple",
@@ -26,7 +26,7 @@
     }
   },
   "style": {
-    "name": "pb-image-text-list-style",
+    "name": "cms-image-text-list-style",
     "title": {
       "titleColor": "#BE0009",
       "titleFontSize": 16,

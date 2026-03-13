@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-base-title" :style="containerStyleObj">
+  <div class="cms-base-title" :style="containerStyleObj">
     <!-- 简单样式：通长下划线，标题下方加粗 -->
     <div v-if="titleStyle === 'simple'" class="title-simple-wrapper title-wrapper" :style="titleWrapperStyleObj">
       <div class="title-container">
@@ -270,7 +270,7 @@
 </script>
 
 <style scoped>
-  .pb-base-title {
+  .cms-base-title {
     width: 100%;
     box-sizing: border-box;
   }

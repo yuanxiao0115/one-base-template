@@ -37,7 +37,7 @@
 
   // 使用通用hooks处理schema配置 - 不提供默认值，完全依赖props
   const { sectionData } = useSchemaConfig<StyleData>({
-    name: 'pb-carousel-text-list-style',
+    name: 'cms-carousel-text-list-style',
     sections: {
       title: {},
       container: {},
@@ -54,7 +54,7 @@
   const showDot = computed(() => {
     try {
       // 从schema中获取内容配置，检查list.showDot的值
-      const contentSchema = props.schema?.['pb-carousel-text-list-content'] || {};
+      const contentSchema = props.schema?.['cms-carousel-text-list-content'] || {};
       return contentSchema?.list?.showDot ?? true;
     } catch {
       return true;

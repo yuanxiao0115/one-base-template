@@ -30,7 +30,7 @@
   }
 
   const { sectionData } = useSchemaConfig<StyleData>({
-    name: 'pb-image-text-column-style',
+    name: 'cms-image-text-column-style',
     sections: {
       container: {},
       list: {},

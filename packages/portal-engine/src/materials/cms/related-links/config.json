@@ -1,9 +1,9 @@
 {
   "index": {
-    "name": "pb-related-links-index"
+    "name": "cms-related-links-index"
   },
   "content": {
-    "name": "pb-related-links-content",
+    "name": "cms-related-links-content",
     "title": {
       "title": "相关链接",
       "titleStyle": "simple",
@@ -28,7 +28,7 @@
     }
   },
   "style": {
-    "name": "pb-related-links-style",
+    "name": "cms-related-links-style",
     "title": {
       "titleColor": "#BE0009",
       "titleFontSize": 16,
@@ -62,7 +62,7 @@
       "containerPaddingBottom": 24,
       "containerPaddingLeft": 24,
       "boxShadow": "none",
-      "containerBgColor": "transparent",
+      "containerBgColor": "#ffffff",
       "containerBgOpacity": 1,
       "containerBorderRadius": 0,
       "containerShadowPreset": "none",

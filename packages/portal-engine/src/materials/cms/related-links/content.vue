@@ -36,7 +36,7 @@
 
   // 使用通用hooks处理schema配置
   const { sectionData } = useSchemaConfig<ComponentData>({
-    name: 'pb-related-links-content',
+    name: 'cms-related-links-content',
     sections: {
       title: {},
       links: {},

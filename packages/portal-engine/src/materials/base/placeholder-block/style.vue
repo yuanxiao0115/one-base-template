@@ -3,45 +3,47 @@
     <UnifiedContainerStyleConfig v-model="sectionData.container" />
 
     <el-form label-position="top">
-      <el-divider content-position="left">HTML 区域样式</el-divider>
-      <el-form-item label="最小高度(px)">
-        <el-input-number v-model="sectionData.block.minHeight" :min="80" :max="1200" />
-      </el-form-item>
+      <ObCard title="HTML 区域样式">
+        <el-form-item label="最小高度(px)">
+          <el-input-number v-model="sectionData.block.minHeight" :min="80" :max="1200" />
+        </el-form-item>
 
-      <el-form-item label="内边距(px)">
-        <el-input-number v-model="sectionData.block.padding" :min="0" :max="120" />
-      </el-form-item>
+        <el-form-item label="内边距(px)">
+          <el-input-number v-model="sectionData.block.padding" :min="0" :max="120" />
+        </el-form-item>
 
-      <el-form-item label="背景色">
-        <PortalColorField v-model="sectionData.block.backgroundColor" show-alpha />
-      </el-form-item>
+        <el-form-item label="背景色">
+          <PortalColorField v-model="sectionData.block.backgroundColor" show-alpha />
+        </el-form-item>
 
-      <el-form-item label="文字颜色">
-        <PortalColorField v-model="sectionData.block.textColor" show-alpha />
-      </el-form-item>
+        <el-form-item label="文字颜色">
+          <PortalColorField v-model="sectionData.block.textColor" show-alpha />
+        </el-form-item>
 
-      <PortalBorderField
-        v-model="blockBorderValue"
-        :style-options="blockBorderStyleOptions"
-        :width-min="0"
-        :width-max="20"
-        :radius-max="60"
-        :hide-color-width-when-none="false"
-      />
+        <PortalBorderField
+          v-model="blockBorderValue"
+          :style-options="blockBorderStyleOptions"
+          :width-min="0"
+          :width-max="20"
+          :radius-max="60"
+          :hide-color-width-when-none="false"
+        />
 
-      <el-form-item label="字体大小(px)">
-        <el-input-number v-model="sectionData.block.fontSize" :min="12" :max="40" />
-      </el-form-item>
+        <el-form-item label="字体大小(px)">
+          <el-input-number v-model="sectionData.block.fontSize" :min="12" :max="40" />
+        </el-form-item>
 
-      <el-form-item label="行高">
-        <el-input-number v-model="sectionData.block.lineHeight" :min="1" :max="3" :step="0.1" :precision="1" />
-      </el-form-item>
+        <el-form-item label="行高">
+          <el-input-number v-model="sectionData.block.lineHeight" :min="1" :max="3" :step="0.1" :precision="1" />
+        </el-form-item>
+      </ObCard>
     </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
   import { computed } from 'vue';
+  import { ObCard } from '@one-base-template/ui';
   import { useSchemaConfig } from '../../../composables/useSchemaConfig';
   import PortalBorderField from '../../common/fields/PortalBorderField.vue';
   import PortalColorField from '../../common/fields/PortalColorField.vue';
@@ -80,7 +82,7 @@
   ];
 
   const { sectionData } = useSchemaConfig<BlockStyleData>({
-    name: 'pb-placeholder-block-style',
+    name: 'base-placeholder-block-style',
     sections: {
       container: {},
       block: {},
@@ -121,7 +123,7 @@
   });
 
   defineOptions({
-    name: 'pb-placeholder-block-style',
+    name: 'base-placeholder-block-style',
   });
 </script>
 

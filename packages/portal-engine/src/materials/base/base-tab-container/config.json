@@ -1,0 +1,72 @@
+{
+  "index": {
+    "name": "base-tab-container-index"
+  },
+  "content": {
+    "name": "base-tab-container-content",
+    "container": {
+      "showTitle": true,
+      "title": "Tab容器",
+      "subtitle": "按页签分组承载组件内容",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "tabs": [
+      {
+        "id": "tab-1",
+        "title": "页签1",
+        "layoutItems": []
+      }
+    ],
+    "activeTabId": "tab-1"
+  },
+  "style": {
+    "name": "base-tab-container-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "tabs": {
+      "type": "line",
+      "stretch": false,
+      "textColor": "#475569",
+      "activeTextColor": "#2563eb",
+      "fontSize": 14,
+      "navMarginBottom": 12,
+      "paneBackgroundColor": "transparent",
+      "panePaddingTop": 0,
+      "panePaddingRight": 0,
+      "panePaddingBottom": 0,
+      "panePaddingLeft": 0
+    }
+  }
+}

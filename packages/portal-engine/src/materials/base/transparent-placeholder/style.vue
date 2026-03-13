@@ -11,7 +11,7 @@
   });
 
   defineOptions({
-    name: 'pb-transparent-placeholder-style',
+    name: 'base-transparent-placeholder-style',
   });
 </script>
 

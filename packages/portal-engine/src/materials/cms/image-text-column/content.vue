@@ -29,7 +29,7 @@
   }
 
   const { sectionData } = useSchemaConfig<ComponentData>({
-    name: 'pb-image-text-column-content',
+    name: 'cms-image-text-column-content',
     sections: {
       image: {},
       dataSource: {},

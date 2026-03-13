@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
+  import { MenuIcon } from '@one-base-template/ui';
 
   interface RegistryItem {
     id: string;
@@ -65,14 +66,9 @@
             draggable="true"
             @dragstart="(e) => onDragStart(e, item)"
           >
-            <img
-              v-if="item.cmptIcon"
-              class="icon"
-              :src="item.cmptIcon"
-              :alt="item.cmptName || '物料图标'"
-              :aria-label="item.cmptName || '物料图标'"
-            >
-            <div v-else class="icon placeholder" />
+            <div class="icon" :class="{ placeholder: !item.cmptIcon }">
+              <MenuIcon v-if="item.cmptIcon" :icon="item.cmptIcon" />
+            </div>
             <div class="name" :title="item.cmptName">{{ item.cmptName }}</div>
           </div>
         </div>
@@ -149,10 +145,23 @@
   }
 
   .icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     width: 28px;
     height: 28px;
-    object-fit: contain;
     flex: 0 0 auto;
+    color: var(--el-text-color-regular);
+    font-size: 18px;
+  }
+
+  .icon :deep(i),
+  .icon :deep(svg),
+  .icon :deep(img) {
+    width: 18px;
+    height: 18px;
+    line-height: 1;
+    object-fit: contain;
   }
 
   .icon.placeholder {

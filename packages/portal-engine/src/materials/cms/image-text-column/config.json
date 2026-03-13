@@ -1,9 +1,9 @@
 {
   "index": {
-    "name": "pb-image-text-column-index"
+    "name": "cms-image-text-column-index"
   },
   "content": {
-    "name": "pb-image-text-column-content",
+    "name": "cms-image-text-column-content",
     "image": {
       "imageUrl": "",
       "imageWidth": 160,
@@ -34,7 +34,7 @@
     }
   },
   "style": {
-    "name": "pb-image-text-column-style",
+    "name": "cms-image-text-column-style",
     "list": {
       "titleColor": "#333333",
       "titleFontSize": 16,

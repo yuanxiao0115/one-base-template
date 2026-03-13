@@ -2,6 +2,12 @@ import type { Component } from 'vue';
 import TransparentPlaceholderIndex from './base/transparent-placeholder/index.vue';
 import TransparentPlaceholderContent from './base/transparent-placeholder/content.vue';
 import TransparentPlaceholderStyle from './base/transparent-placeholder/style.vue';
+import BaseIframeContainerIndex from './base/base-iframe-container/index.vue';
+import BaseIframeContainerContent from './base/base-iframe-container/content.vue';
+import BaseIframeContainerStyle from './base/base-iframe-container/style.vue';
+import BaseTabContainerIndex from './base/base-tab-container/index.vue';
+import BaseTabContainerContent from './base/base-tab-container/content.vue';
+import BaseTabContainerStyle from './base/base-tab-container/style.vue';
 
 interface MaterialModule {
   default?: Component;
@@ -16,8 +22,8 @@ export interface RegisterPortalMaterialComponentOptions {
 
 function tryGetComponentName(mod: unknown): string | null {
   const component = (mod as MaterialModule | undefined)?.default;
-  const name = (component as any)?.name;
-  return typeof name === 'string' && name.length > 0 ? name : null;
+  const name = (component as any)?.name ?? (component as any)?.__name;
+  return typeof name === 'string' && name.trim().length > 0 ? name.trim() : null;
 }
 
 function toKebabCase(name: string): string {
@@ -30,27 +36,55 @@ function toKebabCase(name: string): string {
 function getMaterialNameAliases(name: string): string[] {
   const names = new Set<string>();
 
-  const appendAliasPair = (candidate: string) => {
-    if (candidate.startsWith('pb-')) {
-      names.add(candidate);
-      names.add(`cms-${candidate.slice(3)}`);
+  const appendAlias = (candidate: string) => {
+    const normalized = candidate.trim();
+    if (!normalized) {
       return;
     }
-    if (candidate.startsWith('cms-')) {
-      names.add(candidate);
-      names.add(`pb-${candidate.slice(4)}`);
-      return;
-    }
-    names.add(candidate);
+
+    names.add(normalized);
   };
 
-  appendAliasPair(name);
+  appendAlias(name);
   const kebabName = toKebabCase(name);
   if (kebabName !== name) {
-    appendAliasPair(kebabName);
+    appendAlias(kebabName);
   }
 
   return Array.from(names);
+}
+
+function getPathDerivedMaterialAliases(modulePath: string): string[] {
+  const normalizedPath = modulePath.replace(/\\/g, '/');
+  const match = normalizedPath.match(/^\.\/([^/]+)\/(.+)\/(index|content|style)\.vue$/);
+  if (!match) {
+    return [];
+  }
+
+  const namespace = toKebabCase(match[1] || '');
+  const materialPath = match[2];
+  const section = match[3];
+  if (!(namespace && materialPath && section)) {
+    return [];
+  }
+
+  const materialName = materialPath
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => toKebabCase(segment))
+    .map((segment, index) => {
+      if (index === 0 && segment.startsWith(`${namespace}-`)) {
+        return segment.slice(namespace.length + 1);
+      }
+      return segment;
+    })
+    .join('-');
+  if (!materialName) {
+    return [];
+  }
+
+  // 路径兜底策略：按目录前缀生成规范名（如 base-*/cms-*）。
+  return getMaterialNameAliases(`${namespace}-${materialName}-${section}`);
 }
 
 const customMaterialComponents: Record<string, Component> = {};
@@ -96,13 +130,31 @@ export function unregisterPortalMaterialComponent(name: string, aliases: string[
 
 function registerMaterialComponent(
   materialsMap: Record<string, Component>,
-  mod: MaterialModule | undefined
+  mod: MaterialModule | undefined,
+  modulePath?: string
 ) {
-  const name = tryGetComponentName(mod);
-  if (!name || !mod?.default) {
+  if (!mod?.default) {
     return;
   }
-  for (const aliasName of getMaterialNameAliases(name)) {
+
+  const aliasNames = new Set<string>();
+  const name = tryGetComponentName(mod);
+  if (name) {
+    for (const aliasName of getMaterialNameAliases(name)) {
+      aliasNames.add(aliasName);
+    }
+  }
+  if (modulePath) {
+    for (const aliasName of getPathDerivedMaterialAliases(modulePath)) {
+      aliasNames.add(aliasName);
+    }
+  }
+
+  if (aliasNames.size === 0) {
+    return;
+  }
+
+  for (const aliasName of aliasNames) {
     materialsMap[aliasName] = mod.default;
   }
 }
@@ -122,50 +174,78 @@ function registerMaterialComponentByName(
  *
  * 约定：
  * - 每个物料目录提供：index.vue / content.vue / style.vue
- * - defineOptions({ name }) 必须与 cmptConfig.index/content/style.name 对齐
+ * - 组件 defineOptions({ name }) 建议与 cmptConfig 对齐；
+ *   若未对齐，将按文件路径自动推导目录前缀别名进行兜底注册。
  */
 export function useMaterials() {
   const materialsMap: Record<string, Component> = {};
 
   const indexModules = {
-    ...import.meta.glob<MaterialModule>('./base/**/index.vue', { eager: true }),
-    ...import.meta.glob<MaterialModule>('./cms/**/index.vue', { eager: true }),
+    ...import.meta.glob<MaterialModule>('./*/**/index.vue', { eager: true }),
   };
   const contentModules = {
-    ...import.meta.glob<MaterialModule>('./base/**/content.vue', { eager: true }),
-    ...import.meta.glob<MaterialModule>('./cms/**/content.vue', { eager: true }),
+    ...import.meta.glob<MaterialModule>('./*/**/content.vue', { eager: true }),
   };
   const styleModules = {
-    ...import.meta.glob<MaterialModule>('./base/**/style.vue', { eager: true }),
-    ...import.meta.glob<MaterialModule>('./cms/**/style.vue', { eager: true }),
+    ...import.meta.glob<MaterialModule>('./*/**/style.vue', { eager: true }),
   };
 
-  for (const mod of Object.values(indexModules) as MaterialModule[]) {
-    registerMaterialComponent(materialsMap, mod);
+  for (const [path, mod] of Object.entries(indexModules) as [string, MaterialModule][]) {
+    registerMaterialComponent(materialsMap, mod, path);
   }
-  for (const mod of Object.values(contentModules) as MaterialModule[]) {
-    registerMaterialComponent(materialsMap, mod);
+  for (const [path, mod] of Object.entries(contentModules) as [string, MaterialModule][]) {
+    registerMaterialComponent(materialsMap, mod, path);
   }
-  for (const mod of Object.values(styleModules) as MaterialModule[]) {
-    registerMaterialComponent(materialsMap, mod);
+  for (const [path, mod] of Object.entries(styleModules) as [string, MaterialModule][]) {
+    registerMaterialComponent(materialsMap, mod, path);
   }
 
   // 透明占位模块兜底注册：
   // 某些开发缓存场景下，新增文件可能短时间未进入 import.meta.glob 结果。
   registerMaterialComponentByName(
     materialsMap,
-    'pb-transparent-placeholder-index',
+    'base-transparent-placeholder-index',
     TransparentPlaceholderIndex as Component
   );
   registerMaterialComponentByName(
     materialsMap,
-    'pb-transparent-placeholder-content',
+    'base-transparent-placeholder-content',
     TransparentPlaceholderContent as Component
   );
   registerMaterialComponentByName(
     materialsMap,
-    'pb-transparent-placeholder-style',
+    'base-transparent-placeholder-style',
     TransparentPlaceholderStyle as Component
+  );
+  registerMaterialComponentByName(
+    materialsMap,
+    'base-iframe-container-index',
+    BaseIframeContainerIndex as Component
+  );
+  registerMaterialComponentByName(
+    materialsMap,
+    'base-iframe-container-content',
+    BaseIframeContainerContent as Component
+  );
+  registerMaterialComponentByName(
+    materialsMap,
+    'base-iframe-container-style',
+    BaseIframeContainerStyle as Component
+  );
+  registerMaterialComponentByName(
+    materialsMap,
+    'base-tab-container-index',
+    BaseTabContainerIndex as Component
+  );
+  registerMaterialComponentByName(
+    materialsMap,
+    'base-tab-container-content',
+    BaseTabContainerContent as Component
+  );
+  registerMaterialComponentByName(
+    materialsMap,
+    'base-tab-container-style',
+    BaseTabContainerStyle as Component
   );
 
   for (const [name, component] of Object.entries(customMaterialComponents)) {

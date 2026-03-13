@@ -34,7 +34,7 @@
 
   // 使用通用hooks处理schema配置
   const { sectionData } = useSchemaConfig<ComponentData>({
-    name: 'pb-carousel-text-list-content',
+    name: 'cms-carousel-text-list-content',
     sections: {
       title: {},
       dataSource: {},

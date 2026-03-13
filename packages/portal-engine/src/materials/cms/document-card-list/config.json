@@ -1,9 +1,9 @@
 {
   "index": {
-    "name": "pb-document-card-list-index"
+    "name": "cms-document-card-list-index"
   },
   "content": {
-    "name": "pb-document-card-list-content",
+    "name": "cms-document-card-list-content",
     "title": {
       "title": "文件专栏卡片",
       "titleStyle": "simple",
@@ -23,6 +23,6 @@
     }
   },
   "style": {
-    "name": "pb-document-card-list-style"
+    "name": "cms-document-card-list-style"
   }
 }

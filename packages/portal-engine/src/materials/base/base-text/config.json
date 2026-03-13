@@ -1,0 +1,70 @@
+{
+  "index": {
+    "name": "base-text-index"
+  },
+  "content": {
+    "name": "base-text-content",
+    "container": {
+      "showTitle": true,
+      "title": "文字组件",
+      "subtitle": "支持普通文本和 HTML 文本",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "text": {
+      "value": "请在右侧属性面板填写文字内容。",
+      "asHtml": false
+    }
+  },
+  "style": {
+    "name": "base-text-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "text": {
+      "align": "left",
+      "fontSize": 15,
+      "fontWeight": 400,
+      "lineHeight": 1.7,
+      "letterSpacing": 0,
+      "textColor": "#334155",
+      "backgroundColor": "#ffffff",
+      "padding": 0,
+      "borderStyle": "none",
+      "borderWidth": 0,
+      "borderColor": "#e2e8f0",
+      "borderRadius": 0,
+      "maxLines": 0
+    }
+  }
+}

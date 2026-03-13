@@ -4,6 +4,12 @@ import documentCardListConfig from '../materials/cms/document-card-list/config.j
 import imageTextColumnConfig from '../materials/cms/image-text-column/config.json';
 import carouselTextListConfig from '../materials/cms/carousel-text-list/config.json';
 import placeholderBlockConfig from '../materials/base/placeholder-block/config.json';
+import baseImageConfig from '../materials/base/base-image/config.json';
+import baseCarouselConfig from '../materials/base/base-carousel/config.json';
+import baseTextConfig from '../materials/base/base-text/config.json';
+import baseTableConfig from '../materials/base/base-table/config.json';
+import baseIframeContainerConfig from '../materials/base/base-iframe-container/config.json';
+import baseTabContainerConfig from '../materials/base/base-tab-container/config.json';
 
 import baseConfig from '../materials/cms/common/base-config.json';
 import { createComponentGroup } from './utils/component-factory';
@@ -17,19 +23,31 @@ import type {
   UnregisterPortalMaterialOptions,
 } from './materials-registry.types';
 
-import iconLink from './images/icon_link.png';
-import iconCarousel from './images/icon_carousel.png';
-import iconContent from './images/icon_content.png';
+const MATERIAL_ICON_MAP = {
+  htmlBlock: 'ri:code-line',
+  transparentPlaceholder: 'ri:shape-line',
+  baseImage: 'ri:image-2-line',
+  baseCarousel: 'ri:slideshow-3-line',
+  baseText: 'ri:text',
+  baseTable: 'ri:table-line',
+  baseIframeContainer: 'ri:window-2-line',
+  baseTabContainer: 'ri:apps-2-line',
+  relatedLinks: 'ri:links-line',
+  imageTextList: 'ri:article-line',
+  imageTextColumn: 'ri:image-line',
+  documentCardList: 'ri:file-line',
+  carouselTextList: 'ri:slideshow-line',
+} as const;
 
 const transparentPlaceholderConfig = {
   index: {
-    name: 'pb-transparent-placeholder-index',
+    name: 'base-transparent-placeholder-index',
   },
   content: {
-    name: 'pb-transparent-placeholder-content',
+    name: 'base-transparent-placeholder-content',
   },
   style: {
-    name: 'pb-transparent-placeholder-style',
+    name: 'base-transparent-placeholder-style',
   },
 };
 
@@ -38,7 +56,7 @@ const transparentPlaceholderConfig = {
  *
  * 约束：
  * - 当前内置分类：基础组件（basic） + CMS专区（cms）
- * - 暂不注册：pb-app-entrance / pb-image-link-list（依赖较重，后续再补）
+ * - 暂不注册：app-entrance / image-link-list（依赖较重，后续再补）
  */
 const basicComponents = createComponentGroup(
   [
@@ -48,7 +66,7 @@ const basicComponents = createComponentGroup(
       name: 'HTML模块',
       width: 12,
       height: 18,
-      icon: iconContent,
+      icon: MATERIAL_ICON_MAP.htmlBlock,
       config: placeholderBlockConfig,
     },
     {
@@ -57,8 +75,62 @@ const basicComponents = createComponentGroup(
       name: '透明占位模块',
       width: 12,
       height: 6,
-      icon: iconContent,
+      icon: MATERIAL_ICON_MAP.transparentPlaceholder,
       config: transparentPlaceholderConfig,
+    },
+    {
+      id: 'basic-base-image',
+      type: 'basic-base-image',
+      name: '图片物料',
+      width: 12,
+      height: 20,
+      icon: MATERIAL_ICON_MAP.baseImage,
+      config: baseImageConfig,
+    },
+    {
+      id: 'basic-base-carousel',
+      type: 'basic-base-carousel',
+      name: '轮播图',
+      width: 12,
+      height: 24,
+      icon: MATERIAL_ICON_MAP.baseCarousel,
+      config: baseCarouselConfig,
+    },
+    {
+      id: 'basic-base-text',
+      type: 'basic-base-text',
+      name: '文字组件',
+      width: 12,
+      height: 16,
+      icon: MATERIAL_ICON_MAP.baseText,
+      config: baseTextConfig,
+    },
+    {
+      id: 'basic-base-table',
+      type: 'basic-base-table',
+      name: '数据表格',
+      width: 12,
+      height: 26,
+      icon: MATERIAL_ICON_MAP.baseTable,
+      config: baseTableConfig,
+    },
+    {
+      id: 'basic-base-iframe-container',
+      type: 'basic-base-iframe-container',
+      name: 'Iframe容器',
+      width: 12,
+      height: 26,
+      icon: MATERIAL_ICON_MAP.baseIframeContainer,
+      config: baseIframeContainerConfig,
+    },
+    {
+      id: 'basic-base-tab-container',
+      type: 'basic-base-tab-container',
+      name: 'Tab容器',
+      width: 12,
+      height: 28,
+      icon: MATERIAL_ICON_MAP.baseTabContainer,
+      config: baseTabContainerConfig,
     },
   ],
   baseConfig
@@ -72,7 +144,7 @@ const cmsComponents = createComponentGroup(
       name: '相关链接',
       width: 12,
       height: 50,
-      icon: iconLink,
+      icon: MATERIAL_ICON_MAP.relatedLinks,
       config: relatedLinksConfig,
     },
     {
@@ -81,7 +153,7 @@ const cmsComponents = createComponentGroup(
       name: '专栏模块',
       width: 12,
       height: 50,
-      icon: iconContent,
+      icon: MATERIAL_ICON_MAP.imageTextList,
       config: imageTextListConfig,
     },
     {
@@ -90,7 +162,7 @@ const cmsComponents = createComponentGroup(
       name: '图文专栏',
       width: 12,
       height: 50,
-      icon: iconContent,
+      icon: MATERIAL_ICON_MAP.imageTextColumn,
       config: imageTextColumnConfig,
     },
     {
@@ -99,7 +171,7 @@ const cmsComponents = createComponentGroup(
       name: '文件专栏卡片',
       width: 12,
       height: 50,
-      icon: iconCarousel,
+      icon: MATERIAL_ICON_MAP.documentCardList,
       config: documentCardListConfig,
     },
     {
@@ -108,7 +180,7 @@ const cmsComponents = createComponentGroup(
       name: '图文轮播',
       width: 12,
       height: 50,
-      icon: iconCarousel,
+      icon: MATERIAL_ICON_MAP.carouselTextList,
       config: carouselTextListConfig,
     },
   ],
@@ -280,15 +352,7 @@ export function createPortalMaterialRegistry(
 
 const defaultRegistryController = createPortalMaterialRegistry(defaultCategories);
 
-export const portalMaterialTypeAliases: Record<string, string> = {
-  'pb-related-links': 'cms-related-links',
-  'pb-image-text-list': 'cms-image-text-list',
-  'pb-image-text-column': 'cms-image-text-column',
-  'pb-document-card-list': 'cms-document-card-list',
-  'pb-carousel-text-list': 'cms-carousel-text-list',
-  'pb-placeholder-block': 'basic-placeholder-block',
-  'pb-transparent-placeholder': 'basic-transparent-placeholder',
-};
+export const portalMaterialTypeAliases: Record<string, string> = {};
 
 export function resolvePortalMaterialTypeAlias(type: string) {
   return portalMaterialTypeAliases[type] ?? type;

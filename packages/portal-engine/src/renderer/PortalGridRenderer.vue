@@ -4,6 +4,7 @@
   import { GridItem, GridLayout } from 'grid-layout-plus';
 
   import { getPortalGridSettings } from '../schema/page-settings';
+  import { BASE_TAB_CONTAINER_INDEX_NAME } from '../schema/tab-container';
   import type { PortalLayoutItem } from '../stores/pageLayout';
 
   const props = defineProps<{
@@ -12,7 +13,13 @@
     pageSettingData: unknown;
     previewMode?: 'safe' | 'live';
     viewportWidth?: number;
+    nestLevel?: number;
   }>();
+
+  const currentNestLevel = computed(() => {
+    const level = Number(props.nestLevel);
+    return Number.isFinite(level) && level >= 0 ? Math.floor(level) : 0;
+  });
 
   const gridSettings = computed(() =>
     getPortalGridSettings(props.pageSettingData, {
@@ -36,7 +43,15 @@
 
   function isTransparentPlaceholder(item: PortalLayoutItem): boolean {
     const name = getComponentName(item);
-    return name === 'pb-transparent-placeholder-index' || name === 'cms-transparent-placeholder-index';
+    return name === 'base-transparent-placeholder-index';
+  }
+
+  function isTabContainer(item: PortalLayoutItem): boolean {
+    return getComponentName(item) === BASE_TAB_CONTAINER_INDEX_NAME;
+  }
+
+  function isBlockedNestedTab(item: PortalLayoutItem): boolean {
+    return isTabContainer(item) && currentNestLevel.value >= 1;
   }
 
   function getComponentConfig(item: PortalLayoutItem) {
@@ -68,11 +83,17 @@
     >
       <component
         :is="getComponent(item)"
-        v-if="getComponentName(item)"
+        v-if="getComponentName(item) && !isBlockedNestedTab(item)"
         :id="item.i"
         :schema="getComponentConfig(item)"
         :preview-mode="props.previewMode"
+        :materials-map="props.materialsMap"
+        :page-setting-data="props.pageSettingData"
+        :nest-level="isTabContainer(item) ? currentNestLevel + 1 : currentNestLevel"
       />
+      <div v-else-if="isBlockedNestedTab(item)" class="component-depth-blocked">
+        Tab 容器仅允许一层嵌套，当前节点已被阻断渲染
+      </div>
       <div v-else class="component-debug-placeholder">
         <div class="debug-header">组件缺失：{{ getComponentName(item) || '未知组件' }}</div>
         <div class="debug-info">i={{ item.i }}/ x={{ item.x }}/ y={{ item.y }}/ w={{ item.w }}/ h={{ item.h }}</div>
@@ -91,7 +112,7 @@
   .grid-item {
     overflow: hidden;
     border-radius: 8px;
-    background: var(--el-bg-color-overlay);
+    background: transparent;
   }
 
   .grid-item.is-transparent-placeholder {
@@ -108,6 +129,22 @@
     background: var(--el-fill-color-lighter);
     flex-direction: column;
     gap: 8px;
+  }
+
+  .component-depth-blocked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+    border: 1px dashed var(--el-color-warning);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--el-color-warning-dark-2);
+    background: var(--el-color-warning-light-9);
+    text-align: center;
+    line-height: 1.6;
   }
 
   .debug-header {

@@ -3,22 +3,24 @@
     <UnifiedContainerContentConfig v-model="sectionData.container" />
 
     <el-form label-position="top" class="content-form">
-      <el-divider content-position="left">HTML 内容</el-divider>
-      <el-form-item label="HTML 内容">
-        <el-input
-          v-model="sectionData.block.html"
-          type="textarea"
-          :autosize="{ minRows: 8, maxRows: 16 }"
-          placeholder="可输入 HTML，例如：<h3>标题</h3><p>正文</p>"
-        />
-      </el-form-item>
+      <ObCard title="HTML 内容">
+        <el-form-item label="HTML 内容">
+          <el-input
+            v-model="sectionData.block.html"
+            type="textarea"
+            :autosize="{ minRows: 8, maxRows: 16 }"
+            placeholder="可输入 HTML，例如：<h3>标题</h3><p>正文</p>"
+          />
+        </el-form-item>
 
-      <div class="content-tip">提示：这里会按 HTML 渲染，请仅填写可信内容。</div>
+        <div class="content-tip">提示：这里会按 HTML 渲染，请仅填写可信内容。</div>
+      </ObCard>
     </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { ObCard } from '@one-base-template/ui';
   import { useSchemaConfig } from '../../../composables/useSchemaConfig';
   import {
     UnifiedContainerContentConfig,
@@ -44,7 +46,7 @@
   }
 
   const { sectionData } = useSchemaConfig<BlockContentData>({
-    name: 'pb-placeholder-block-content',
+    name: 'base-placeholder-block-content',
     sections: {
       container: {},
       block: {},
@@ -72,7 +74,7 @@
   }
 
   defineOptions({
-    name: 'pb-placeholder-block-content',
+    name: 'base-placeholder-block-content',
   });
 </script>
 

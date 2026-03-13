@@ -1,6 +1,6 @@
 <template>
   <TitleDisplay v-if="!(hideTitle || isSimpleTitle)" :schema />
-  <div class="pb-layout-container" :style="containerStyleObj">
+  <div class="cms-layout-container" :style="containerStyleObj">
     <!-- 无图模式: 标题在上，内容在下 -->
 
     <template v-if="layout === 'no-image'">
@@ -251,7 +251,7 @@
 </script>
 
 <style scoped>
-  .pb-layout-container {
+  .cms-layout-container {
     display: flex;
     width: 100%;
     height: 100%;

@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-list-row" @click="handleClick">
+  <div class="cms-list-row" @click="handleClick">
     <ListTitle class="item-title" :text="title" :show-dot :tag="titleTag" :href :target />
     <div v-if="date" class="item-date">{{ date }}</div>
   </div>
@@ -39,7 +39,7 @@
 </script>
 
 <style scoped>
-  .pb-list-row {
+  .cms-list-row {
     display: flex;
     justify-content: space-between;
     align-items: center;

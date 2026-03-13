@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-list-item-content"><slot /></div>
+  <div class="cms-list-item-content"><slot /></div>
 </template>
 
 <script setup lang="ts">
@@ -9,7 +9,7 @@
 </script>
 
 <style scoped>
-  .pb-list-item-content {
+  .cms-list-item-content {
     display: flex;
     justify-content: space-between;
     overflow: hidden;

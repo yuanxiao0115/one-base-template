@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag" class="pb-list-title" :class="{ 'with-dot': showDot }" v-bind="linkAttrs">
+  <component :is="tag" class="cms-list-title" :class="{ 'with-dot': showDot }" v-bind="linkAttrs">
     <slot>{{ text }}</slot>
   </component>
 </template>
@@ -40,7 +40,7 @@
 </script>
 
 <style scoped>
-  .pb-list-title {
+  .cms-list-title {
     display: block;
     overflow: hidden;
     font-size: var(--list-title-font-size, 16px);
@@ -50,7 +50,7 @@
     color: var(--list-title-color, #333);
   }
 
-  .pb-list-title.with-dot::before {
+  .cms-list-title.with-dot::before {
     display: inline-block;
     margin-right: var(--list-dot-gap, 8px);
     border-radius: 50%;

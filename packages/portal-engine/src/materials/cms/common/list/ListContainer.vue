@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-list-container" :class="containerClass"><slot /></div>
+  <div class="cms-list-container" :class="containerClass"><slot /></div>
 </template>
 
 <script setup lang="ts">
@@ -29,30 +29,30 @@
 </script>
 
 <style scoped>
-  .pb-list-container {
+  .cms-list-container {
     display: flex;
     width: 100%;
     min-height: 40px;
     flex-direction: column;
   }
 
-  .pb-list-container.double-column {
+  .cms-list-container.double-column {
     flex-flow: row wrap;
     column-gap: 24px;
   }
 
-  .pb-list-container.triple-column {
+  .cms-list-container.triple-column {
     flex-flow: row wrap;
     column-gap: 24px;
   }
 
-  .pb-list-container.double-column :deep(.pb-list-item),
-  .pb-list-container.double-column :deep(.list-item) {
+  .cms-list-container.double-column :deep(.cms-list-item),
+  .cms-list-container.double-column :deep(.list-item) {
     width: calc(50% - 12px);
   }
 
-  .pb-list-container.triple-column :deep(.pb-list-item),
-  .pb-list-container.triple-column :deep(.list-item) {
+  .cms-list-container.triple-column :deep(.cms-list-item),
+  .cms-list-container.triple-column :deep(.list-item) {
     width: calc(33.333% - 16px);
   }
 </style>

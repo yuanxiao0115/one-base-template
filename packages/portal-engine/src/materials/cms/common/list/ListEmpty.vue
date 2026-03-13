@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-list-empty">{{ text }}</div>
+  <div class="cms-list-empty">{{ text }}</div>
 </template>
 
 <script setup lang="ts">
@@ -18,7 +18,7 @@
 </script>
 
 <style scoped>
-  .pb-list-empty {
+  .cms-list-empty {
     padding: 20px 0;
     width: 100%;
     font-size: 14px;

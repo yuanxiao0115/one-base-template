@@ -1,0 +1,89 @@
+{
+  "index": {
+    "name": "base-carousel-index"
+  },
+  "content": {
+    "name": "base-carousel-content",
+    "container": {
+      "showTitle": true,
+      "title": "轮播图",
+      "subtitle": "支持多图与跳转配置",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "carousel": {
+      "autoplay": true,
+      "interval": 4000,
+      "trigger": "hover",
+      "arrow": "hover",
+      "indicatorPosition": "outside",
+      "items": [
+        {
+          "id": "slide-1",
+          "image": "",
+          "title": "轮播标题一",
+          "subtitle": "支持配置每一项的标题、副标题与跳转链接",
+          "linkUrl": "",
+          "openInNewTab": false
+        },
+        {
+          "id": "slide-2",
+          "image": "",
+          "title": "轮播标题二",
+          "subtitle": "图片值支持资源ID与完整URL",
+          "linkUrl": "",
+          "openInNewTab": false
+        }
+      ]
+    }
+  },
+  "style": {
+    "name": "base-carousel-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "carousel": {
+      "height": 260,
+      "borderRadius": 10,
+      "overlayBgColor": "rgba(15, 23, 42, 0.35)",
+      "titleColor": "#ffffff",
+      "subtitleColor": "rgba(255,255,255,0.9)",
+      "titleFontSize": 20,
+      "subtitleFontSize": 14,
+      "contentAlign": "left",
+      "contentPaddingX": 20,
+      "contentPaddingY": 16,
+      "imageFit": "cover"
+    }
+  }
+}

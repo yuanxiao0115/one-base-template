@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-list-style-display" :style="styleVars"><slot /></div>
+  <div class="cms-list-style-display" :style="styleVars"><slot /></div>
 </template>
 
 <script setup lang="ts">
@@ -40,7 +40,7 @@
 </script>
 
 <style scoped>
-  .pb-list-style-display {
+  .cms-list-style-display {
     width: 100%;
   }
 </style>

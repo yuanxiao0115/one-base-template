@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-list-item-image" :style="containerStyle">
+  <div class="cms-list-item-image" :style="containerStyle">
     <slot> <img v-if="src" :src="src" :alt="alt || '列表图片'" :style="imgStyle"> </slot>
   </div>
 </template>
@@ -43,7 +43,7 @@
 </script>
 
 <style scoped>
-  .pb-list-item-image {
+  .cms-list-item-image {
     display: flex;
     justify-content: center;
     align-items: center;

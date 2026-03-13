@@ -1,9 +1,9 @@
 {
   "index": {
-    "name": "pb-carousel-text-list-index"
+    "name": "cms-carousel-text-list-index"
   },
   "content": {
-    "name": "pb-carousel-text-list-content",
+    "name": "cms-carousel-text-list-content",
     "title": {
       "title": "内容容器",
       "titleStyle": "simple",
@@ -22,7 +22,7 @@
     }
   },
   "style": {
-    "name": "pb-carousel-text-list-style",
+    "name": "cms-carousel-text-list-style",
     "title": {
       "titleColor": "#BE0009",
       "titleFontSize": 16,

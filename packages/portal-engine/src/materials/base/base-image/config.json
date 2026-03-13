@@ -1,0 +1,82 @@
+{
+  "index": {
+    "name": "base-image-index"
+  },
+  "content": {
+    "name": "base-image-content",
+    "container": {
+      "showTitle": true,
+      "title": "图片物料",
+      "subtitle": "支持资源ID/URL与上传配置",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "image": {
+      "src": "",
+      "alt": "",
+      "caption": "",
+      "linkUrl": "",
+      "openInNewTab": true
+    },
+    "upload": {
+      "enabled": false,
+      "uploadUrl": "",
+      "fileField": "file",
+      "maxSizeMb": 5,
+      "responseImagePath": "data.id",
+      "headersJson": "{}",
+      "dataJson": "{}"
+    }
+  },
+  "style": {
+    "name": "base-image-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "image": {
+      "height": 220,
+      "widthMode": "full",
+      "width": 320,
+      "objectFit": "cover",
+      "backgroundColor": "#f8fafc",
+      "borderStyle": "none",
+      "borderWidth": 0,
+      "borderColor": "#e2e8f0",
+      "borderRadius": 8,
+      "boxShadow": "none",
+      "captionColor": "#475569",
+      "captionFontSize": 13,
+      "captionMarginTop": 8
+    }
+  }
+}

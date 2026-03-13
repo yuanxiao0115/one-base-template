@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
   defineOptions({
-    name: 'pb-transparent-placeholder-index',
+    name: 'base-transparent-placeholder-index',
   });
 </script>
 

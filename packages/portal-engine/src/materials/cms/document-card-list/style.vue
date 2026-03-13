@@ -29,7 +29,7 @@
   }
 
   const { sectionData } = useSchemaConfig<StyleData>({
-    name: 'pb-document-card-list-style',
+    name: 'cms-document-card-list-style',
     sections: {
       title: {},
       container: {},

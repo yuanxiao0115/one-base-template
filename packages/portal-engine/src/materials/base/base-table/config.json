@@ -1,0 +1,127 @@
+{
+  "index": {
+    "name": "base-table-index"
+  },
+  "content": {
+    "name": "base-table-content",
+    "container": {
+      "showTitle": true,
+      "title": "数据表格",
+      "subtitle": "支持静态数据与接口数据映射",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "dataSource": {
+      "mode": "static",
+      "staticRowsJson": "[{\n  \"title\": \"示例新闻一\",\n  \"publishTime\": \"2026-03-01\",\n  \"id\": \"1\"\n},{\n  \"title\": \"示例新闻二\",\n  \"publishTime\": \"2026-03-02\",\n  \"id\": \"2\"\n}]",
+      "method": "GET",
+      "apiUrl": "",
+      "headersJson": "{}",
+      "queryJson": "{}",
+      "bodyJson": "{}",
+      "listPath": "data.records",
+      "totalPath": "data.total",
+      "successPath": "code",
+      "successValue": "200",
+      "pageParamKey": "currentPage",
+      "pageSizeParamKey": "pageSize"
+    },
+    "table": {
+      "showHeader": true,
+      "showPagination": true,
+      "showRowDivider": true,
+      "showDot": false,
+      "dotFieldKey": "",
+      "dotTruthyValue": "",
+      "pageSize": 10,
+      "pageSizes": [10, 20, 50],
+      "emptyText": "暂无数据",
+      "tablePropsJson": "{}",
+      "columns": [
+        {
+          "id": "column-title",
+          "label": "标题",
+          "fieldKey": "title",
+          "width": 0,
+          "align": "left",
+          "ellipsis": true,
+          "isLink": true,
+          "linkPath": "/portal/content/detail",
+          "linkParamKey": "id",
+          "linkValueKey": "id",
+          "openType": "router",
+          "showDot": false,
+          "dotFieldKey": "",
+          "dotTruthyValue": ""
+        },
+        {
+          "id": "column-date",
+          "label": "发布时间",
+          "fieldKey": "publishTime",
+          "width": 180,
+          "align": "right",
+          "ellipsis": false,
+          "isLink": false,
+          "linkPath": "",
+          "linkParamKey": "id",
+          "linkValueKey": "id",
+          "openType": "router",
+          "showDot": false,
+          "dotFieldKey": "",
+          "dotTruthyValue": ""
+        }
+      ]
+    }
+  },
+  "style": {
+    "name": "base-table-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "table": {
+      "headerBgColor": "#f8fafc",
+      "headerTextColor": "#334155",
+      "headerFontSize": 14,
+      "headerRadius": 8,
+      "rowTextColor": "#334155",
+      "rowFontSize": 14,
+      "rowHoverBgColor": "#f8fafc",
+      "dividerColor": "#e2e8f0",
+      "linkColor": "#2563eb",
+      "dotColor": "#2563eb",
+      "dotSize": 6,
+      "paginationAlign": "right",
+      "paginationTopGap": 12
+    }
+  }
+}

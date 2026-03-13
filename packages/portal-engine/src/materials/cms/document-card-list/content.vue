@@ -29,7 +29,7 @@
   }
 
   const { sectionData } = useSchemaConfig<ComponentData>({
-    name: 'pb-document-card-list-content',
+    name: 'cms-document-card-list-content',
     sections: {
       title: {},
       dataSource: {},

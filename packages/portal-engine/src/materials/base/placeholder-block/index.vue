@@ -91,7 +91,7 @@
   });
 
   defineOptions({
-    name: 'pb-placeholder-block-index',
+    name: 'base-placeholder-block-index',
   });
 </script>
 

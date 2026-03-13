@@ -1,9 +1,9 @@
 {
   "index": {
-    "name": "pb-placeholder-block-index"
+    "name": "base-placeholder-block-index"
   },
   "content": {
-    "name": "pb-placeholder-block-content",
+    "name": "base-placeholder-block-content",
     "container": {
       "showTitle": true,
       "title": "HTML模块",
@@ -19,7 +19,7 @@
     }
   },
   "style": {
-    "name": "pb-placeholder-block-style",
+    "name": "base-placeholder-block-style",
     "container": {
       "backgroundColor": "#ffffff",
       "borderColor": "#e5e7eb",

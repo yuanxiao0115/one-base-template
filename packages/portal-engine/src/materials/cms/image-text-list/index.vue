@@ -175,12 +175,12 @@
 </script>
 
 <style scoped>
-  :deep(.pb-list-container.image-text-mode .pb-list-item) {
+  :deep(.cms-list-container.image-text-mode .cms-list-item) {
     margin: 12px 0;
     height: auto;
   }
 
-  :deep(.pb-list-container.image-text-mode .pb-list-item:first-child) {
+  :deep(.cms-list-container.image-text-mode .cms-list-item:first-child) {
     margin-top: 0;
   }
 
@@ -195,14 +195,14 @@
 
   /* 纯文本模式下的标题行高 */
 
-  :deep(.pb-list-container.text-only-mode .item-title) {
+  :deep(.cms-list-container.text-only-mode .item-title) {
     line-height: 24px;
     padding-left: 2px;
   }
 
   /* 图文模式下的标题行高 */
 
-  :deep(.pb-list-container.image-text-mode .item-title) {
+  :deep(.cms-list-container.image-text-mode .item-title) {
     line-height: 24px;
     font-weight: 400;
   }
@@ -212,13 +212,13 @@
     margin-right: 10px;
   }
 
-  :deep(.pb-list-item:hover .item-title) {
+  :deep(.cms-list-item:hover .item-title) {
     color: var(--list-title-hover-color, var(--list-title-color, #d33a31));
   }
 
   /* 纯文本模式下的日期样式 */
 
-  :deep(.pb-list-container.text-only-mode .item-date) {
+  :deep(.cms-list-container.text-only-mode .item-date) {
     min-width: 45px;
     font-size: var(--list-date-font-size, 14px);
     font-weight: 350;
@@ -227,7 +227,7 @@
 
   /* 图文模式下的日期样式 */
 
-  :deep(.pb-list-container.image-text-mode .item-date) {
+  :deep(.cms-list-container.image-text-mode .item-date) {
     font-size: 14px;
     line-height: 20px;
   }

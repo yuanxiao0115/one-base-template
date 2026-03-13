@@ -37,7 +37,7 @@
 
   // 使用通用hooks处理schema配置
   const { sectionData } = useSchemaConfig<StyleData>({
-    name: 'pb-image-text-list-style',
+    name: 'cms-image-text-list-style',
     sections: {
       title: {},
       container: {},
