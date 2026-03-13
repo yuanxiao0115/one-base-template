@@ -195,11 +195,18 @@ export {
   type PortalPreviewPanBoundsInput,
   type PortalPreviewStageOffset,
 } from './editor/preview-stage-utils';
+export type {
+  PortalPreviewDataSource,
+  PortalPreviewNavigatePayload,
+  PortalPreviewTabDetailResponse,
+  PortalPreviewTemplateDetailResponse,
+} from './renderer/portal-preview-panel.types';
 export {
   ConfigurablePortalFooter,
   ConfigurablePortalHeader,
   customHeaderRegistry,
   PortalGridRenderer,
+  PortalPreviewPanel,
   PortalPreviewGlobalScrollLayout,
   PortalPreviewHeaderFixedContentScrollLayout,
   PortalPreviewHeaderFooterFixedContentScrollLayout,
