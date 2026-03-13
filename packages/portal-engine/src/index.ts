@@ -87,6 +87,18 @@ export {
 export type { SchemaConfigOptions, SchemaConfigResult, SectionConfig } from './composables/useSchemaConfig';
 export { useSchemaConfig } from './composables/useSchemaConfig';
 export { deepClone, deepEqual } from './utils/deep';
+export type { PortalTabTreeNode } from './domain/tab-tree';
+export {
+  calcPortalTabNextSort,
+  containsPortalTabId,
+  findFirstPortalPageTabId,
+  findPortalTabById,
+  isPortalTabEditable,
+  normalizePortalParentId,
+  normalizePortalTabId,
+  normalizePortalTabName,
+  walkPortalTabs,
+} from './domain/tab-tree';
 export type { RegisterPortalMaterialComponentOptions } from './materials/useMaterials';
 export { registerPortalMaterialComponent, unregisterPortalMaterialComponent, useMaterials } from './materials/useMaterials';
 export { cmsApi, getPortalCmsApi, setPortalCmsApi } from './materials/api';
