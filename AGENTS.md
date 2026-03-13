@@ -48,6 +48,7 @@ apps/
 packages/
   adapters/              # Adapter：对接后端接口/字段映射
   core/                  # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等
+  portal-engine/         # 门户设计器/渲染引擎共享能力（admin 与 portal 复用）
   tag/                   # 主题样式与视觉资产
   ui/                    # UI 壳：Layout/Sidebar/Topbar/Tabs/KeepAlive 等
   utils/                 # 通用工具能力
@@ -80,6 +81,7 @@ docs/
 | docs 站点 | `/Users/haoqiuzhi/code/one-base-template/apps/docs/AGENTS.md` | 文档结构、导航同步、构建校验 |
 | adapters 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/adapters/AGENTS.md` | 适配层契约、字段映射、mock / 真实接口边界 |
 | core 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/core/AGENTS.md` | 逻辑内核、主题 token、无 UI 依赖 |
+| portal-engine 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/portal-engine/AGENTS.md` | 门户引擎物料配置红线、统一封装组件复用约束 |
 | ui 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/ui/AGENTS.md` | 壳组件实现、样式 token、导出边界 |
 | tag 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/tag/AGENTS.md` | 主题样式资源与导出规范 |
 | utils 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/utils/AGENTS.md` | 工具函数语义、纯函数与可复用性 |

@@ -45,6 +45,52 @@ packages/portal-engine/src/
 3. 行为扩展：`packages/portal-engine/src/materials/navigation.ts`
 4. 页面渲染：`packages/portal-engine/src/renderer/PortalGridRenderer.vue`
 
+## 基础物料（base）新增能力
+
+`packages/portal-engine/src/materials/base` 当前已包含以下通用物料：
+
+- `base-image`
+  - 支持资源 ID / 直链两种图片输入。
+  - 支持上传（可配置上传地址、请求头、附加参数、响应路径映射）。
+  - 展示层可配置 `fit`、宽高、边框、阴影、说明文案、点击跳转。
+- `base-carousel`
+  - 支持多图项维护（标题、副标题、跳转）。
+  - 支持自动播放、间隔、指示器/箭头显示策略。
+  - 样式层支持遮罩、文案对齐、圆角、图片填充模式。
+- `base-text`
+  - 支持普通文本与 HTML 文本两种渲染方式。
+  - 样式支持字号、字重、行高、边框、行数截断等常规排版能力。
+- `base-table`
+  - 支持静态 JSON 与真实接口两种数据源。
+  - 支持 `successPath/listPath/totalPath` 返回实体映射，兼容不同后端结构。
+  - 支持列配置（字段 key、列宽、对齐、省略、链接跳转参数）。
+  - 支持显示表头、分页、行分割线、圆点标识、`el-table` JSON 扩展属性。
+
+> 约定：每个物料目录保持 `config.json + index.vue + content.vue + style.vue`，并通过 `useSchemaConfig` 回写 schema。
+
+- 配置面板规范：
+  - `packages/portal-engine/src/materials/base/**` 中涉及分组标题的设置区域，统一使用 `ObCard title` 分割，不再使用 `el-divider`。
+  - `packages/portal-engine/src/materials/common/unified-container/**` 等抽离公共配置组件同样遵循上述规则，避免公共组件回流旧样式。
+  - 统一容器内容配置中，“显示外链按钮/外链文字/外链地址”与标题项收敛在同一个 `ObCard`，避免标题与外链被拆成两个卡片造成割裂感。
+  - 统一目标是让 base 物料设置面板在间距、层级和视觉上与后台配置页保持一致。
+
+## portal-engine Agent 规则落点
+
+- 主版本规则文件：`packages/portal-engine/AGENTS.md`
+- 关键强制项（摘录）：
+  - 分组标题必须使用 `ObCard`。
+  - 颜色配置必须优先使用 `PortalColorField`。
+  - 边距配置必须优先使用 `PortalSpacingField`。
+  - 边框配置必须优先使用 `PortalBorderField`。
+  - 标题/副标题/图标/外链能力优先复用 `materials/common/unified-container/**`。
+
+## 统一容器头部（Unified Container）
+
+- 统一容器内容配置新增 `subtitleLayout` 字段：
+  - `below`：副标题显示在主标题下方（默认）。
+  - `inline`：副标题显示在主标题后方（同一行）。
+- 编辑侧在 `UnifiedContainerContentConfig` 提供“副标题位置”开关，渲染侧由 `UnifiedContainerDisplay` 统一消费，base 物料无需单独实现。
+
 ## 运行时扩展 API
 
 - 物料元数据扩展：
