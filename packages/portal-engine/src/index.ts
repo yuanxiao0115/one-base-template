@@ -125,6 +125,29 @@ export { usePortalPageLayoutStore } from './stores/pageLayout';
 export { default as GridLayoutEditor } from './editor/GridLayoutEditor.vue';
 export type { LayoutUpdateItem } from './editor/layout-sync';
 export { hasLayoutGeometryChanged, mergeLayoutItems } from './editor/layout-sync';
+export {
+  PORTAL_PREVIEW_MESSAGE_PAGE_READY,
+  PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME,
+  PORTAL_PREVIEW_MESSAGE_SHELL_DETAILS,
+  PORTAL_PREVIEW_MESSAGE_VIEWPORT,
+  buildPreviewRuntimeMessage,
+  buildPreviewShellDetailsMessage,
+  buildPreviewViewportMessage,
+  isPreviewPageReadyMessage,
+  sendPreviewPageRuntimeToWindow,
+  sendPreviewRuntime,
+  sendPreviewShellDetails,
+  sendPreviewViewport,
+  type PortalPreviewFrameTarget,
+  type PortalPreviewReadyData,
+  type PortalPreviewReadyMessage,
+  type PortalPreviewRuntimeData,
+  type PortalPreviewRuntimeMessage,
+  type PortalPreviewShellDetailsData,
+  type PortalPreviewShellDetailsMessage,
+  type PortalPreviewViewportData,
+  type PortalPreviewViewportMessage,
+} from './editor/preview-bridge';
 export { default as PropertyPanel } from './editor/PropertyPanel.vue';
 export { default as MaterialLibrary } from './editor/MaterialLibrary.vue';
 export { default as PortalPageEditorWorkbench } from './editor/PortalPageEditorWorkbench.vue';

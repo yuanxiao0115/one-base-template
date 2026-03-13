@@ -13,6 +13,10 @@
   import { portalApi } from "../../api";
   import type { BizResponse, PortalTab, PortalTemplate } from "../../types";
   import {
+    sendPreviewRuntime,
+    sendPreviewShellDetails,
+    sendPreviewViewport,
+    type PortalPreviewFrameTarget,
     PREVIEW_MODE_SAFE,
     PREVIEW_VIEWPORT_DEFAULT,
     type PortalPreviewMode,
@@ -100,8 +104,7 @@
   const shellPreviewDetailsDraft = ref("");
   const pageShellPreviewDetailsDraft = ref("");
 
-  interface PreviewFrameExpose {
-    postMessageToFrame: (message: unknown) => boolean;
+  interface PreviewFrameExpose extends PortalPreviewFrameTarget {
     setInteractionMode: (mode: "auto" | "manual") => void;
     zoomIn: () => void;
     zoomOut: () => void;
@@ -182,13 +185,10 @@
       return;
     }
 
-    previewFrameRef.value?.postMessageToFrame({
-      type: "preview-shell-details",
-      data: {
-        details,
-        templateId: templateId.value,
-        tabId: currentTabId.value,
-      },
+    sendPreviewShellDetails(previewFrameRef.value, {
+      details,
+      templateId: templateId.value,
+      tabId: currentTabId.value,
     });
   }
 
@@ -196,14 +196,11 @@
     if (!(templateId.value && currentTabId.value)) {
       return;
     }
-    previewFrameRef.value?.postMessageToFrame({
-      type: "preview-viewport",
-      data: {
-        templateId: templateId.value,
-        tabId: currentTabId.value,
-        width: previewViewport.value.width,
-        height: previewViewport.value.height,
-      },
+    sendPreviewViewport(previewFrameRef.value, {
+      templateId: templateId.value,
+      tabId: currentTabId.value,
+      width: previewViewport.value.width,
+      height: previewViewport.value.height,
     });
   }
 
@@ -220,17 +217,12 @@
     }
     const normalizedSettings = normalizePortalPageSettingsV2(settings);
     const runtimeComponents = Array.isArray(pageSettingsComponents.value) ? cloneByJson(pageSettingsComponents.value) : [];
-    return (
-      previewFrameRef.value?.postMessageToFrame({
-        type: "preview-page-runtime",
-        data: {
-          templateId: templateId.value,
-          tabId: currentTabId.value,
-          settings: cloneByJson(normalizedSettings),
-          component: runtimeComponents,
-        },
-      }) ?? false
-    );
+    return sendPreviewRuntime(previewFrameRef.value, {
+      templateId: templateId.value,
+      tabId: currentTabId.value,
+      settings: cloneByJson(normalizedSettings),
+      component: runtimeComponents,
+    });
   }
 
   function updateRouteTabId(tabId: string) {

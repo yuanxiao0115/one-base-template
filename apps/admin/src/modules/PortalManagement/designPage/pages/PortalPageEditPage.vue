@@ -5,6 +5,8 @@
   import {
     buildPortalPageLayoutForSave,
     createDefaultPortalPageSettingsV2,
+    isPreviewPageReadyMessage,
+    sendPreviewPageRuntimeToWindow,
     type PortalLayoutItem,
     type PortalPageSettingsV2,
     normalizePortalPageSettingsV2,
@@ -64,8 +66,6 @@
   const PREVIEW_WINDOW_NAME = "portal-page-preview";
   const PREVIEW_RUNTIME_SYNC_DELAY = 160;
   const PREVIEW_RUNTIME_BOOTSTRAP_DELAYS = [180, 520] as const;
-  const PREVIEW_READY_MESSAGE_TYPE = "preview-page-ready";
-
   let previewRuntimeSyncTimer: number | null = null;
   let previewRuntimeBootstrapTimers: number[] = [];
 
@@ -150,24 +150,20 @@
       return false;
     }
 
-    try {
-      targetWindow.postMessage(
-        {
-          type: "preview-page-runtime",
-          data: {
-            tabId: tabId.value,
-            templateId: templateId.value,
-            settings: toPlainData(pageSettingData.value),
-            component: toPlainData(pageLayoutStore.layoutItems),
-          },
-        },
-        window.location.origin
-      );
-      return true;
-    } catch {
+    const ok = sendPreviewPageRuntimeToWindow(targetWindow, {
+      origin: window.location.origin,
+      data: {
+        tabId: tabId.value,
+        templateId: templateId.value,
+        settings: toPlainData(pageSettingData.value),
+        component: toPlainData(pageLayoutStore.layoutItems),
+      },
+    });
+    if (!ok) {
       previewWindowRef.value = null;
       return false;
     }
+    return true;
   }
 
   function queuePreviewRuntimeSync() {
@@ -214,19 +210,12 @@
       return;
     }
 
-    const raw = event.data as unknown;
-    if (!raw || typeof raw !== "object") {
+    const readyMessage = isPreviewPageReadyMessage(event.data);
+    if (!readyMessage.matched) {
       return;
     }
-
-    const msg = raw as { type?: unknown; data?: unknown };
-    if (msg.type !== PREVIEW_READY_MESSAGE_TYPE) {
-      return;
-    }
-
-    const payload = msg.data as { tabId?: unknown; templateId?: unknown } | undefined;
-    const payloadTabId = typeof payload?.tabId === "string" ? payload.tabId : "";
-    const payloadTemplateId = typeof payload?.templateId === "string" ? payload.templateId : "";
+    const payloadTabId = readyMessage.tabId;
+    const payloadTemplateId = readyMessage.templateId;
     if (payloadTabId && payloadTabId !== tabId.value) {
       return;
     }
