@@ -10,13 +10,13 @@
     GridLayoutEditor,
     MaterialLibrary,
     normalizePortalPageSettingsV2,
+    portalMaterialsRegistry,
     PropertyPanel,
     usePortalPageLayoutStore,
   } from "@one-base-template/portal-engine";
 
   import { portalApi } from "../../api";
   import { useMaterials } from "../../materials/useMaterials";
-  import { portalMaterialsRegistry } from "../../materials/registry/materials-registry";
 
   defineOptions({
     name: "PortalPageEditor",

@@ -1,6 +1,7 @@
 import type { AppModuleManifest } from "@one-base-template/core";
 import { moduleManifest } from "./manifest";
-import layoutRoutes, { standaloneRoutes } from "./routes";
+import layoutRoutes from "./routes/layout";
+import standaloneRoutes from "./routes/standalone";
 
 const portalModule: AppModuleManifest = {
   ...moduleManifest,
