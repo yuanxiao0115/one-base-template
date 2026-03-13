@@ -8,8 +8,14 @@
     normalizePortalPageSettingsV2,
   } from '../schema/page-settings';
   import { hasLayoutGeometryChanged, mergeLayoutItems, type LayoutUpdateItem } from './layout-sync';
+  import TabContainerEditorItem from './TabContainerEditorItem.vue';
   import { deepClone } from '../utils/deep';
-  import { type PortalLayoutItem, usePortalPageLayoutStore } from '../stores/pageLayout';
+  import {
+    type PortalLayoutItem,
+    isTabContainerLayoutItem,
+    resolveLayoutItemComponentName,
+    usePortalPageLayoutStore,
+  } from '../stores/pageLayout';
 
   const props = defineProps<{
     materialsMap: Record<string, Component>;
@@ -38,7 +44,7 @@
   const rowHeight = computed(() => 1);
 
   const layoutItems = computed(() => pageLayoutStore.layoutItems);
-  const selectedItemId = computed(() => pageLayoutStore.currentLayoutItemId);
+  const selectedRootItemId = computed(() => pageLayoutStore.currentRootLayoutItemId);
 
   function updateViewportWidth() {
     viewportWidth.value = Math.max(320, Math.round(window.innerWidth || 1920));
@@ -53,8 +59,7 @@
   });
 
   function getComponentName(item: PortalLayoutItem): string | undefined {
-    const name = item.component?.cmptConfig?.index?.name;
-    return typeof name === 'string' ? name : undefined;
+    return resolveLayoutItemComponentName(item);
   }
 
   function getComponent(item: PortalLayoutItem) {
@@ -64,7 +69,11 @@
 
   function isTransparentPlaceholder(item: PortalLayoutItem): boolean {
     const name = getComponentName(item);
-    return name === 'pb-transparent-placeholder-index' || name === 'cms-transparent-placeholder-index';
+    return name === 'base-transparent-placeholder-index';
+  }
+
+  function isTabContainer(item: PortalLayoutItem): boolean {
+    return isTabContainerLayoutItem(item);
   }
 
   function getComponentConfig(item: PortalLayoutItem) {
@@ -233,7 +242,7 @@
           :i="item.i"
           class="grid-item"
           :class="{
-            active: selectedItemId === item.i,
+            active: selectedRootItemId === item.i,
             'is-transparent-placeholder': isTransparentPlaceholder(item)
           }"
           @click.stop="() => handleClickGridItem(item.i)"
@@ -241,11 +250,20 @@
           <div class="item-inner">
             <button class="item-delete" type="button" @click.stop="() => delItem(item)">删除</button>
 
+            <TabContainerEditorItem
+              v-if="isTabContainer(item)"
+              :item="item"
+              :materials-map="props.materialsMap"
+              :page-setting-data="pageSettings"
+            />
+
             <component
               :is="getComponent(item)"
-              v-if="getComponentName(item)"
+              v-else-if="getComponentName(item)"
               :id="item.i"
               :schema="getComponentConfig(item)"
+              :materials-map="props.materialsMap"
+              :page-setting-data="pageSettings"
             />
             <div v-else class="component-debug-placeholder">
               <div class="debug-header">组件缺失：{{ getComponentName(item) || '未知组件' }}</div>
@@ -304,7 +322,7 @@
   .grid-item {
     overflow: hidden;
     border-radius: 10px;
-    background: var(--el-bg-color-overlay);
+    background: transparent;
     box-shadow: 0 2px 8px rgb(2 8 23 / 0.06);
     transition:
       box-shadow 140ms ease,

@@ -26,6 +26,10 @@
   });
 
   const loadingComponents = computed(() => pageLayoutStore.loadingComponents);
+  const currentSelectionType = computed(() => pageLayoutStore.currentSelectionType);
+  const currentRootLayoutItemId = computed(() => pageLayoutStore.currentRootLayoutItemId);
+  const currentTabId = computed(() => pageLayoutStore.currentTabId);
+  const isTabChildSelection = computed(() => currentSelectionType.value === 'tab-child-item');
 
   const contentComponentName = computed(() => pageLayoutStore.contentComponentName);
   const styleComponentName = computed(() => pageLayoutStore.styleComponentName);
@@ -52,15 +56,27 @@
     nextConfig[type] = deepClone(value);
     pageLayoutStore.updateCurrentItemConfig(nextConfig);
   }
+
+  function backToTabContainer() {
+    if (!currentRootLayoutItemId.value) {
+      return;
+    }
+    pageLayoutStore.selectTabContainer(currentRootLayoutItemId.value);
+  }
 </script>
 
 <template>
   <div class="panel">
     <div v-if="currentLayoutItem" class="panel-inner">
       <div class="panel-header">
-        <div class="title">{{ componentBaseName || '-' }} 配置</div>
+        <div class="title-row">
+          <div class="title">{{ componentBaseName || '-' }} 配置</div>
+          <el-button v-if="isTabChildSelection" size="small" plain @click="backToTabContainer">返回 Tab 容器</el-button>
+        </div>
         <div class="meta">
           <div>ID: {{ currentLayoutItem.i }}</div>
+          <div v-if="isTabChildSelection">父容器ID: {{ currentRootLayoutItemId || '-' }}</div>
+          <div v-if="isTabChildSelection">页签ID: {{ currentTabId || '-' }}</div>
           <div>位置: ({{ currentLayoutItem.x }}, {{ currentLayoutItem.y }})</div>
           <div>尺寸: {{ currentLayoutItem.w }} x {{ currentLayoutItem.h }}</div>
         </div>
@@ -152,6 +168,13 @@
     font-size: 14px;
     font-weight: 700;
     color: var(--el-text-color-primary);
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
 
   .meta {
