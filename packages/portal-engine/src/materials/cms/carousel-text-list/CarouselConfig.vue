@@ -1,6 +1,6 @@
 <template>
   <div class="carousel-config">
-    <CmsListSourceConfig
+    <CmsDataSourceConfig
       v-model="modelValue.categoryId"
       :columns="categoryOptions"
       :columns-loading
@@ -58,7 +58,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { message } from '../common/message';
   import { cmsApi } from '../../api';
-  import CmsListSourceConfig from '../common/cms/CmsListSourceConfig.vue';
+  import CmsDataSourceConfig from '../common/cms/CmsDataSourceConfig.vue';
 
   // 轮播图数据项类型
   export interface CarouselItem {

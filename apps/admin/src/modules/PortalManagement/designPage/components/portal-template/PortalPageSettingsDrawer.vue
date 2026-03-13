@@ -408,26 +408,6 @@
     border-top: 1px solid #e7edf6;
   }
 
-  .page-settings-drawer :deep(.ob-card) {
-    margin-bottom: 12px;
-    padding: 14px;
-  }
-
-  .page-settings-drawer :deep(.ob-card__header) {
-    margin-bottom: 10px;
-  }
-
-  .drawer-top-card {
-    margin-bottom: 0 !important;
-  }
-
-  .drawer-sub-title {
-    margin: 0;
-    font-size: 12px;
-    color: #475569;
-    line-height: 1.5;
-  }
-
   .drawer-body {
     flex: 1;
     min-height: 0;

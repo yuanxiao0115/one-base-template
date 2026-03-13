@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { computed } from 'vue';
+  import { ObCard } from '@one-base-template/ui';
   import PortalBorderField from '../fields/PortalBorderField.vue';
   import PortalColorField from '../fields/PortalColorField.vue';
   import PortalSpacingField from '../fields/PortalSpacingField.vue';
@@ -84,74 +85,74 @@
 <template>
   <div class="unified-container-style-config">
     <el-form label-position="top">
-      <el-divider content-position="left">容器样式</el-divider>
+      <ObCard title="容器样式">
+        <el-form-item label="背景颜色">
+          <PortalColorField v-model="modelValue.backgroundColor" show-alpha />
+        </el-form-item>
 
-      <el-form-item label="背景颜色">
-        <PortalColorField v-model="modelValue.backgroundColor" show-alpha />
-      </el-form-item>
+        <PortalBorderField v-model="borderValue" :width-min="1" :width-max="20" :radius-max="64" />
 
-      <PortalBorderField v-model="borderValue" :width-min="1" :width-max="20" :radius-max="64" />
+        <el-form-item label="阴影">
+          <el-input
+            v-model.trim="modelValue.boxShadow"
+            placeholder="例如：0 8px 24px rgba(15, 23, 42, 0.16) 或 none"
+          />
+        </el-form-item>
+      </ObCard>
 
-      <el-form-item label="阴影">
-        <el-input
-          v-model.trim="modelValue.boxShadow"
-          placeholder="例如：0 8px 24px rgba(15, 23, 42, 0.16) 或 none"
-        />
-      </el-form-item>
+      <ObCard title="容器内边距">
+        <PortalSpacingField v-model="containerPaddingValue" :max="200" />
+      </ObCard>
 
-      <el-divider content-position="left">容器内边距</el-divider>
+      <ObCard title="容器外边距">
+        <PortalSpacingField v-model="containerMarginValue" :max="200" />
+      </ObCard>
 
-      <PortalSpacingField v-model="containerPaddingValue" :max="200" />
+      <ObCard title="标题区样式">
+        <el-form-item label="标题区背景">
+          <PortalColorField v-model="modelValue.headerBackgroundColor" show-alpha />
+        </el-form-item>
 
-      <el-divider content-position="left">容器外边距</el-divider>
+        <el-form-item label="标题区分割线">
+          <PortalColorField v-model="modelValue.headerDividerColor" show-alpha />
+        </el-form-item>
 
-      <PortalSpacingField v-model="containerMarginValue" :max="200" />
+        <el-form-item label="标题颜色">
+          <PortalColorField v-model="modelValue.titleColor" show-alpha />
+        </el-form-item>
 
-      <el-divider content-position="left">标题区样式</el-divider>
+        <el-form-item label="标题字号(px)">
+          <el-input-number v-model="modelValue.titleFontSize" :min="12" :max="48" controls-position="right" />
+        </el-form-item>
 
-      <el-form-item label="标题区背景">
-        <PortalColorField v-model="modelValue.headerBackgroundColor" show-alpha />
-      </el-form-item>
+        <el-form-item label="副标题颜色">
+          <PortalColorField v-model="modelValue.subtitleColor" show-alpha />
+        </el-form-item>
 
-      <el-form-item label="标题区分割线">
-        <PortalColorField v-model="modelValue.headerDividerColor" show-alpha />
-      </el-form-item>
+        <el-form-item label="副标题字号(px)">
+          <el-input-number v-model="modelValue.subtitleFontSize" :min="10" :max="40" controls-position="right" />
+        </el-form-item>
 
-      <el-form-item label="标题颜色">
-        <PortalColorField v-model="modelValue.titleColor" show-alpha />
-      </el-form-item>
+        <el-form-item label="图标颜色">
+          <PortalColorField v-model="modelValue.iconColor" show-alpha />
+        </el-form-item>
 
-      <el-form-item label="标题字号(px)">
-        <el-input-number v-model="modelValue.titleFontSize" :min="12" :max="48" controls-position="right" />
-      </el-form-item>
+        <el-form-item label="外链颜色">
+          <PortalColorField v-model="modelValue.linkColor" show-alpha />
+        </el-form-item>
 
-      <el-form-item label="副标题颜色">
-        <PortalColorField v-model="modelValue.subtitleColor" show-alpha />
-      </el-form-item>
+        <el-form-item label="外链字号(px)">
+          <el-input-number v-model="modelValue.linkFontSize" :min="10" :max="32" controls-position="right" />
+        </el-form-item>
 
-      <el-form-item label="副标题字号(px)">
-        <el-input-number v-model="modelValue.subtitleFontSize" :min="10" :max="40" controls-position="right" />
-      </el-form-item>
+        <el-form-item label="标题区与内容间距(px)">
+          <el-input-number v-model="modelValue.contentTopGap" :min="0" :max="120" controls-position="right" />
+        </el-form-item>
+      </ObCard>
 
-      <el-form-item label="图标颜色">
-        <PortalColorField v-model="modelValue.iconColor" show-alpha />
-      </el-form-item>
-
-      <el-form-item label="外链颜色">
-        <PortalColorField v-model="modelValue.linkColor" show-alpha />
-      </el-form-item>
-
-      <el-form-item label="外链字号(px)">
-        <el-input-number v-model="modelValue.linkFontSize" :min="10" :max="32" controls-position="right" />
-      </el-form-item>
-
-      <el-form-item label="标题区与内容间距(px)">
-        <el-input-number v-model="modelValue.contentTopGap" :min="0" :max="120" controls-position="right" />
-      </el-form-item>
-
-      <el-divider content-position="left">标题区内边距</el-divider>
-
-      <PortalSpacingField v-model="headerPaddingValue" :max="120" />
+      <ObCard title="标题区内边距">
+        <PortalSpacingField v-model="headerPaddingValue" :max="120" />
+      </ObCard>
     </el-form>
   </div>
 </template>

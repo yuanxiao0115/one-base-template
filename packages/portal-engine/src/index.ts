@@ -108,5 +108,6 @@ export {
 export type {
   UnifiedContainerBorderStyle,
   UnifiedContainerContentConfigModel,
+  UnifiedContainerSubtitleLayout,
   UnifiedContainerStyleConfigModel,
 } from './materials/common/unified-container';

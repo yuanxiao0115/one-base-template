@@ -1,33 +1,27 @@
 <template>
   <div class="cms-list-source-config">
-    <el-divider content-position="left">列表数据来源</el-divider>
+    <el-form-item label="选择栏目">
+      <el-tree-select
+        v-model="categoryId"
+        placeholder="请选择栏目"
+        class="cms-list-source-select"
+        :loading="columnsLoading"
+        :data="columns"
+        node-key="id"
+        :props="treeProps"
+        check-strictly
+        @change="handleCategoryChange"
+      />
+    </el-form-item>
 
-    <div class="dynamic-data-config">
-      <el-form-item label="选择栏目">
-        <el-tree-select
-          v-model="categoryId"
-          placeholder="请选择栏目"
-          class="cms-list-source-select"
-          :loading="columnsLoading"
-          :data="columns"
-          node-key="id"
-          :props="treeProps"
-          check-strictly
-          @change="handleCategoryChange"
-        />
-      </el-form-item>
+    <el-form-item label="数据获取状态">
+      <div class="data-status">
+        <el-tag :type="statusType"> {{ statusText }} </el-tag>
+        <el-button type="primary" link :disabled="!categoryId || loading" @click="handleRefresh"> 刷新数据 </el-button>
+      </div>
+    </el-form-item>
 
-      <el-form-item label="数据获取状态">
-        <div class="data-status">
-          <el-tag :type="statusType"> {{ statusText }} </el-tag>
-          <el-button type="primary" link :disabled="!categoryId || loading" @click="handleRefresh">
-            刷新数据
-          </el-button>
-        </div>
-      </el-form-item>
-
-      <slot name="extra" />
-    </div>
+    <slot name="extra" />
   </div>
 </template>
 
@@ -103,46 +97,16 @@
   };
 
   defineOptions({
-    name: 'PbCmsListSourceConfig',
+    name: 'CmsListSourceConfig',
   });
 </script>
 
 <style scoped>
   .cms-list-source-config {
     --config-border: #e2e8f0;
-
-    --config-surface: #f8fafc;
-
-    --config-surface-strong: #fff;
-
-    --config-text: #0f172a;
-
-    --config-muted: #64748b;
-  }
-
-  .cms-list-source-config :deep(.el-divider__text) {
-    font-weight: 600;
-    color: var(--config-text);
-    letter-spacing: 0.2px;
-  }
-
-  .cms-list-source-config :deep(.el-form-item__label) {
-    font-weight: 500;
-    color: var(--config-muted);
-  }
-
-  .dynamic-data-config {
-    margin-top: 12px;
-    margin-bottom: 16px;
-    border: 1px solid var(--config-border);
-    border-radius: 8px;
-    padding: 16px;
-    background-color: var(--config-surface);
-    box-shadow: 0 1px 0 rgb(15 23 42 / 0.02);
-  }
-
-  .dynamic-data-config :deep(.el-form-item) {
-    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .cms-list-source-select {
@@ -155,7 +119,7 @@
     border: 1px dashed var(--config-border);
     border-radius: 6px;
     padding: 6px 10px;
-    background: var(--config-surface-strong);
+    background: #fff;
     gap: 10px;
   }
 

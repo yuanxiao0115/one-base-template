@@ -1,9 +1,11 @@
 export type UnifiedContainerBorderStyle = 'none' | 'solid' | 'dashed' | 'dotted';
+export type UnifiedContainerSubtitleLayout = 'below' | 'inline';
 
 export interface UnifiedContainerContentConfig {
   showTitle: boolean;
   title: string;
   subtitle: string;
+  subtitleLayout: UnifiedContainerSubtitleLayout;
   icon: string;
   showExternalLink: boolean;
   externalLinkText: string;

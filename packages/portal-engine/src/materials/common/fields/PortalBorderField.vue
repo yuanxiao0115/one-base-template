@@ -14,13 +14,6 @@
     value: string;
   }
 
-  const DEFAULT_STYLE_OPTIONS: PortalBorderStyleOption[] = [
-    { label: '无边框', value: 'none' },
-    { label: '实线', value: 'solid' },
-    { label: '虚线', value: 'dashed' },
-    { label: '点线', value: 'dotted' },
-  ];
-
   const props = withDefaults(
     defineProps<{
       modelValue?: Partial<PortalBorderFieldValue>;
@@ -39,7 +32,12 @@
     }>(),
     {
       modelValue: () => ({ style: 'solid', color: '#e5e7eb', width: 1, radius: 12 }),
-      styleOptions: () => DEFAULT_STYLE_OPTIONS,
+      styleOptions: () => [
+        { label: '无边框', value: 'none' },
+        { label: '实线', value: 'solid' },
+        { label: '虚线', value: 'dashed' },
+        { label: '点线', value: 'dotted' },
+      ],
       noneStyleValue: 'none',
       hideColorWidthWhenNone: true,
       colorShowAlpha: true,

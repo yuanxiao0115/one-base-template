@@ -1,10 +1,12 @@
 import type {
   UnifiedContainerBorderStyle,
   UnifiedContainerContentConfig,
+  UnifiedContainerSubtitleLayout,
   UnifiedContainerStyleConfig,
 } from './unified-container.types';
 
 const BORDER_STYLE_SET = new Set<UnifiedContainerBorderStyle>(['none', 'solid', 'dashed', 'dotted']);
+const SUBTITLE_LAYOUT_SET = new Set<UnifiedContainerSubtitleLayout>(['below', 'inline']);
 
 const UNIFIED_CONTAINER_STYLE_NUMERIC_KEYS = [
   'borderWidth',
@@ -31,6 +33,7 @@ export const DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG: UnifiedContainerContentCo
   showTitle: true,
   title: '模块标题',
   subtitle: '',
+  subtitleLayout: 'below',
   icon: '',
   showExternalLink: false,
   externalLinkText: '更多',
@@ -91,6 +94,12 @@ function toSafeBorderStyle(value: unknown, fallback: UnifiedContainerBorderStyle
     : fallback;
 }
 
+function toSafeSubtitleLayout(value: unknown, fallback: UnifiedContainerSubtitleLayout): UnifiedContainerSubtitleLayout {
+  return typeof value === 'string' && SUBTITLE_LAYOUT_SET.has(value as UnifiedContainerSubtitleLayout)
+    ? (value as UnifiedContainerSubtitleLayout)
+    : fallback;
+}
+
 export function createDefaultUnifiedContainerContentConfig(): UnifiedContainerContentConfig {
   return { ...DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG };
 }
@@ -111,6 +120,10 @@ export function mergeUnifiedContainerContentConfig(
     showTitle: toSafeBoolean(merged.showTitle, DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.showTitle),
     title: toSafeString(merged.title, DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.title),
     subtitle: toSafeString(merged.subtitle, DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.subtitle),
+    subtitleLayout: toSafeSubtitleLayout(
+      merged.subtitleLayout,
+      DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.subtitleLayout
+    ),
     icon: toSafeString(merged.icon, DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.icon),
     showExternalLink: toSafeBoolean(
       merged.showExternalLink,

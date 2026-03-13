@@ -1,32 +1,33 @@
 <template>
   <div class="list-config">
-    <CmsListSourceConfig
-      v-if="dataSourceType === 'dynamic'"
+    <CmsDataSourceConfig
       v-model="modelValue.categoryId"
-      :columns
-      :columns-loading
+      v-model:source-type="dataSourceType"
+      show-source-type
+      :columns="columns"
+      :columns-loading="columnsLoading"
       :loading="articlesLoading"
       :items-count="articles.length"
       @change="handleCategoryChange"
       @refresh="handleRefresh"
-    />
+    >
+      <template #static>
+        <div v-for="(item, index) in modelValue.items" :key="item.id || index" class="item-config">
+          <el-card class="item-card">
+            <div class="item-header">
+              <span>列表项 #{{ index + 1 }}</span>
+              <el-button type="danger" size="small" :icon="Delete" circle @click="() => removeItem(index)" />
+            </div>
+            <el-form-item label="文章ID"> <el-input v-model="item.id" placeholder="请输入文章ID" /> </el-form-item>
+            <el-form-item label="标题"> <el-input v-model="item.articleTitle" placeholder="请输入标题" /> </el-form-item>
+          </el-card>
+        </div>
 
-    <template v-if="dataSourceType === 'static'">
-      <div v-for="(item, index) in modelValue.items" :key="item.id || index" class="item-config">
-        <el-card class="item-card">
-          <div class="item-header">
-            <span>列表项 #{{ index + 1 }}</span>
-            <el-button type="danger" size="small" :icon="Delete" circle @click="() => removeItem(index)" />
-          </div>
-          <el-form-item label="文章ID"> <el-input v-model="item.id" placeholder="请输入文章ID" /> </el-form-item>
-          <el-form-item label="标题"> <el-input v-model="item.articleTitle" placeholder="请输入标题" /> </el-form-item>
-        </el-card>
-      </div>
+        <div v-if="(modelValue?.items?.length || 0) === 0" class="empty-items"><el-empty description="暂无列表项" /></div>
 
-      <div v-if="(modelValue?.items?.length || 0) === 0" class="empty-items"><el-empty description="暂无列表项" /></div>
-
-      <el-button type="primary" :icon="Plus" class="add-item-btn" @click="addItem"> 添加列表项 </el-button>
-    </template>
+        <el-button type="primary" :icon="Plus" class="add-item-btn" @click="addItem"> 添加列表项 </el-button>
+      </template>
+    </CmsDataSourceConfig>
 
     <el-divider content-position="left">显示设置</el-divider>
 
@@ -84,7 +85,7 @@
   import { ref } from 'vue';
   import { Delete, Plus } from '@element-plus/icons-vue';
   import PortalColorField from '../../common/fields/PortalColorField.vue';
-  import CmsListSourceConfig from '../common/cms/CmsListSourceConfig.vue';
+  import CmsDataSourceConfig from '../common/cms/CmsDataSourceConfig.vue';
   import { useCmsListDataSource } from '../common/cms/useCmsListDataSource';
 
   export interface CardListItem {
@@ -118,7 +119,7 @@
     }),
   });
 
-  const dataSourceType = ref<string>('dynamic');
+  const dataSourceType = ref<'dynamic' | 'static'>('dynamic');
 
   const { columns, articles, columnsLoading, articlesLoading, handleCategoryChange, handleRefresh } =
     useCmsListDataSource(modelValue);

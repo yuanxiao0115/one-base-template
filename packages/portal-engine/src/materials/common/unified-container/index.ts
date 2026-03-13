@@ -15,5 +15,6 @@ export {
 export type {
   UnifiedContainerBorderStyle,
   UnifiedContainerContentConfig as UnifiedContainerContentConfigModel,
+  UnifiedContainerSubtitleLayout,
   UnifiedContainerStyleConfig as UnifiedContainerStyleConfigModel,
 } from './unified-container.types';

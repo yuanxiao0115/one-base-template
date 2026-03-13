@@ -1,44 +1,45 @@
 <template>
   <div class="list-config">
-    <CmsListSourceConfig
-      v-if="dataSourceType === 'dynamic'"
+    <CmsDataSourceConfig
       v-model="modelValue.categoryId"
-      :columns
-      :columns-loading
+      v-model:source-type="dataSourceType"
+      show-source-type
+      :columns="columns"
+      :columns-loading="columnsLoading"
       :loading="articlesLoading"
       :items-count="articles.length"
       @change="handleCategoryChange"
       @refresh="handleRefresh"
-    />
+    >
+      <template #static>
+        <div v-for="(item, index) in modelValue.items" :key="item.id || index" class="item-config">
+          <el-card class="item-card">
+            <div class="item-header">
+              <span>列表项 #{{ index + 1 }}</span>
+              <el-button type="danger" size="small" :icon="Delete" circle @click="() => removeItem(index)" />
+            </div>
+            <el-form-item label="标题"> <el-input v-model="item.articleTitle" placeholder="请输入标题" /> </el-form-item>
+            <el-form-item label="链接URL">
+              <el-input v-model="item.linkUrl" placeholder="请输入链接地址" />
+            </el-form-item>
+            <el-form-item label="发布时间">
+              <el-date-picker
+                v-model="item.publishTime"
+                type="date"
+                placeholder="选择日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+                style="width: 100%;"
+              />
+            </el-form-item>
+          </el-card>
+        </div>
 
-    <template v-if="dataSourceType === 'static'">
-      <div v-for="(item, index) in modelValue.items" :key="item.id || index" class="item-config">
-        <el-card class="item-card">
-          <div class="item-header">
-            <span>列表项 #{{ index + 1 }}</span>
-            <el-button type="danger" size="small" :icon="Delete" circle @click="() => removeItem(index)" />
-          </div>
-          <el-form-item label="标题"> <el-input v-model="item.articleTitle" placeholder="请输入标题" /> </el-form-item>
-          <el-form-item label="链接URL">
-            <el-input v-model="item.linkUrl" placeholder="请输入链接地址" />
-          </el-form-item>
-          <el-form-item label="发布时间">
-            <el-date-picker
-              v-model="item.publishTime"
-              type="date"
-              placeholder="选择日期"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              style="width: 100%;"
-            />
-          </el-form-item>
-        </el-card>
-      </div>
+        <div v-if="(modelValue?.items?.length || 0) === 0" class="empty-items"><el-empty description="暂无列表项" /></div>
 
-      <div v-if="(modelValue?.items?.length || 0) === 0" class="empty-items"><el-empty description="暂无列表项" /></div>
-
-      <el-button type="primary" :icon="Plus" class="add-item-btn" @click="addItem"> 添加列表项 </el-button>
-    </template>
+        <el-button type="primary" :icon="Plus" class="add-item-btn" @click="addItem"> 添加列表项 </el-button>
+      </template>
+    </CmsDataSourceConfig>
 
     <ListDisplayConfig v-model="modelValue" />
   </div>
@@ -47,7 +48,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Delete, Plus } from '@element-plus/icons-vue';
-  import CmsListSourceConfig from '../common/cms/CmsListSourceConfig.vue';
+  import CmsDataSourceConfig from '../common/cms/CmsDataSourceConfig.vue';
   import { useCmsListDataSource } from '../common/cms/useCmsListDataSource';
   import ListDisplayConfig from '../common/list-style/ListConfig.vue';
 
@@ -74,7 +75,7 @@
     }),
   });
 
-  const dataSourceType = ref<string>('dynamic');
+  const dataSourceType = ref<'dynamic' | 'static'>('dynamic');
 
   const { columns, articles, columnsLoading, articlesLoading, handleCategoryChange, handleRefresh } =
     useCmsListDataSource(modelValue);

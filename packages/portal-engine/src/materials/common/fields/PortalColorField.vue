@@ -16,18 +16,51 @@
 
   const emit = defineEmits<(event: 'update:modelValue', value: string) => void>();
 
-  const pickerValue = computed(() => {
-    const value = String(props.modelValue || '').trim();
-    if (value) {
-      return value;
+  function isTransparentColor(value: string): boolean {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (!normalized) {
+      return false;
     }
-    return props.showAlpha ? 'rgba(255,255,255,1)' : '#FFFFFF';
+
+    if (normalized === 'transparent') {
+      return true;
+    }
+
+    const rgbaAlphaMatch = normalized.match(
+      /^rgba\(\s*[0-9.]+\s*,\s*[0-9.]+\s*,\s*[0-9.]+\s*,\s*([0-9.]+)\s*\)$/
+    );
+    if (!rgbaAlphaMatch) {
+      return false;
+    }
+
+    const alphaValue = Number(rgbaAlphaMatch[1]);
+    return Number.isFinite(alphaValue) && alphaValue <= 0;
+  }
+
+  const modelValueText = computed(() => String(props.modelValue || '').trim());
+  const isTransparentValue = computed(() => isTransparentColor(modelValueText.value));
+
+  const pickerValue = computed(() => {
+    const value = modelValueText.value;
+    if (!value) {
+      return props.showAlpha ? 'rgba(255,255,255,1)' : '#FFFFFF';
+    }
+
+    if (isTransparentColor(value)) {
+      return props.showAlpha ? 'rgba(255,255,255,0)' : '#FFFFFF';
+    }
+
+    return value;
   });
 
   function normalizeColor(value: string): string {
     const trimmed = String(value || '').trim();
     if (!trimmed) {
       return '';
+    }
+
+    if (isTransparentColor(trimmed)) {
+      return 'transparent';
     }
 
     const noHashHex = /^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$|^[0-9a-fA-F]{8}$/;
@@ -53,6 +86,10 @@
   function onBlur(event: FocusEvent) {
     const next = normalizeColor((event.target as HTMLInputElement | null)?.value || '');
     emit('update:modelValue', next);
+  }
+
+  function setTransparentColor() {
+    emit('update:modelValue', 'transparent');
   }
 
   defineOptions({
@@ -81,6 +118,19 @@
         <span class="portal-color-field__prefix">HEX</span>
       </template>
     </el-input>
+
+    <div class="portal-color-field__actions">
+      <el-button
+        link
+        type="primary"
+        size="small"
+        class="portal-color-field__transparent-btn"
+        :class="{ 'is-active': isTransparentValue }"
+        @click="setTransparentColor"
+      >
+        透明
+      </el-button>
+    </div>
   </div>
 </template>
 
@@ -112,5 +162,20 @@
     color: #64748b;
     font-weight: 600;
     letter-spacing: 0.02em;
+  }
+
+  .portal-color-field__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -2px;
+  }
+
+  .portal-color-field__transparent-btn {
+    padding: 0;
+  }
+
+  .portal-color-field__transparent-btn.is-active {
+    font-weight: 600;
   }
 </style>

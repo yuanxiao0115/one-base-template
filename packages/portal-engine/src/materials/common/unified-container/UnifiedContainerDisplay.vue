@@ -26,6 +26,7 @@
   const showSubtitle = computed(
     () => contentConfig.value.showTitle && contentConfig.value.subtitle.trim().length > 0
   );
+  const isSubtitleInline = computed(() => showSubtitle.value && contentConfig.value.subtitleLayout === 'inline');
 
   const externalLinkText = computed(() => {
     const text = contentConfig.value.externalLinkText.trim();
@@ -111,10 +112,17 @@
           <MenuIcon :icon="contentConfig.icon" />
         </span>
         <div class="unified-container__title-content">
-          <h3 class="unified-container__title" :style="titleStyleObj">{{ contentConfig.title }}</h3>
-          <p v-if="showSubtitle" class="unified-container__subtitle" :style="subtitleStyleObj">
-            {{ contentConfig.subtitle }}
-          </p>
+          <div v-if="isSubtitleInline" class="unified-container__title-line">
+            <h3 class="unified-container__title" :style="titleStyleObj">{{ contentConfig.title }}</h3>
+            <p class="unified-container__subtitle" :style="subtitleStyleObj">{{ contentConfig.subtitle }}</p>
+          </div>
+
+          <template v-else>
+            <h3 class="unified-container__title" :style="titleStyleObj">{{ contentConfig.title }}</h3>
+            <p v-if="showSubtitle" class="unified-container__subtitle" :style="subtitleStyleObj">
+              {{ contentConfig.subtitle }}
+            </p>
+          </template>
         </div>
       </div>
 
@@ -208,6 +216,19 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .unified-container__title-line {
+    display: flex;
+    align-items: baseline;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .unified-container__title-line .unified-container__title,
+  .unified-container__title-line .unified-container__subtitle {
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   .unified-container__header-actions {
