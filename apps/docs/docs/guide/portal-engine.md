@@ -62,6 +62,21 @@ packages/portal-engine/src/
   - 下沉页面设置 load/save 逻辑（解析 pageLayout、合并 settings、构建保存 payload）。
   - 通过 API 注入实现跨应用复用，不在页面层散落 `tab.detail/tab.update` 细节。
 
+## 2026-03-13 P1/P2 下沉（工作台编排继续收敛）
+
+- `editor/PortalDesignerPreviewFrame.vue`
+  - 设计器预览舞台组件下沉到引擎，admin 不再维护本地同构组件。
+  - 暴露 `postMessageToFrame/setInteractionMode/zoomIn/zoomOut/resetView`，保持既有工作台调用不变。
+- `editor/preview-stage-utils.ts`
+  - 抽出预览舞台缩放/平移纯函数（边界计算、偏移钳制、缩放百分比钳制）。
+  - 配套单测 `editor/preview-stage-utils.test.ts`，保障交互核心逻辑可回归。
+- `editor/current-tab-actions.ts`
+  - 下沉“当前页动作编排”逻辑（编辑、页面设置、隐藏、删除、预览）。
+  - 通过 `resolvePreviewHref` 与回调注入保持 admin 消费者角色，不把路由细节写死在引擎。
+- `editor/page-settings-session.ts`
+  - 下沉页面设置会话状态机（tab 锁定、草稿状态、关闭回滚、保存收口）。
+  - admin 页面仅负责 API 调用与消息提示，会话流转交由引擎维护。
+
 ## admin 注册入口（必须）
 
 `apps/admin` 作为消费者时，只允许在 `apps/admin/src/modules/PortalManagement/engine/register.ts` 注入扩展能力：

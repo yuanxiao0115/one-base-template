@@ -36,12 +36,20 @@
 - `src/shell/template-details.ts` + `src/utils/preview.ts`（页眉页脚 details 协议与预览视口工具）
 - `src/renderer/shell/**` + `src/renderer/layouts/**`（预览壳层与布局组件）
 - `src/editor/PortalPageEditorWorkbench.vue`（页面编辑工作台壳组件）
+- `src/editor/PortalDesignerPreviewFrame.vue`（设计器预览舞台组件）
 - `src/editor/preview-bridge/**`（预览通信协议与发送器）
+- `src/editor/current-tab-actions.ts`（当前页动作编排）
+- `src/editor/page-settings-session.ts`（页面设置会话状态机）
 - `src/domain/tab-tree.ts`（tab 树领域算法）
 - `src/services/page-settings.ts`（页面设置 load/save 服务，支持 API 注入）
 
 当前 admin 侧已改为直接引用 `@one-base-template/portal-engine` 导出，不再维护 `hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts`、`materials/registry/materials-registry.ts` 这类中转 re-export 层。
 另外 `MaterialLibrary` 已改为由页面注入 `categories`，不再直接依赖 admin 内的 registry 路径，便于 `apps/admin` 与后续 `apps/portal` 复用同一编辑器组件。
+
+2026-03-13 继续收敛结果：
+- `PortalTemplateSettingPage.vue` 已直接消费引擎导出的 `PortalDesignerPreviewFrame`、`usePortalCurrentTabActions`、`createPortalPageSettingsSession`。
+- admin 侧本地实现 `components/portal-template/PortalDesignerPreviewFrame.vue` 与 `composables/portal-template/usePortalCurrentTabActions.ts` 已删除。
+- 页面设置会话的锁定/回滚逻辑统一走引擎状态机，页面层仅保留 API 调用和编排。
 
 ## 路由说明
 
