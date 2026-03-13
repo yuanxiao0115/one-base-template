@@ -90,10 +90,15 @@
 
   function normalizeFormState(source: PortalTemplateDetails): PortalTemplateDetails {
     const normalized = parsePortalTemplateDetails(source);
-    normalized.pageHeader = normalized.shell.header.enabled ? 1 : 0;
-    normalized.pageFooter = normalized.shell.footer.enabled ? 1 : 0;
-    normalized.shell.header.enabled = normalized.pageHeader === 1;
-    normalized.shell.footer.enabled = normalized.pageFooter === 1;
+    const sourceHeaderEnabled = source?.shell?.header?.enabled;
+    const sourceFooterEnabled = source?.shell?.footer?.enabled;
+    const headerEnabled = typeof sourceHeaderEnabled === "boolean" ? sourceHeaderEnabled : normalized.shell.header.enabled;
+    const footerEnabled = typeof sourceFooterEnabled === "boolean" ? sourceFooterEnabled : normalized.shell.footer.enabled;
+
+    normalized.pageHeader = headerEnabled ? 1 : 0;
+    normalized.pageFooter = footerEnabled ? 1 : 0;
+    normalized.shell.header.enabled = headerEnabled;
+    normalized.shell.footer.enabled = footerEnabled;
     return normalized;
   }
 

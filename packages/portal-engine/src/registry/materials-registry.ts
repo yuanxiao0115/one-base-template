@@ -10,6 +10,16 @@ import baseTextConfig from '../materials/base/base-text/config.json';
 import baseTableConfig from '../materials/base/base-table/config.json';
 import baseIframeContainerConfig from '../materials/base/base-iframe-container/config.json';
 import baseTabContainerConfig from '../materials/base/base-tab-container/config.json';
+import appEntranceConfig from '../materials/base/app-entrance/config.json';
+import imageLinkListConfig from '../materials/base/image-link-list/config.json';
+import baseButtonGroupConfig from '../materials/base/base-button-group/config.json';
+import baseSearchBoxConfig from '../materials/base/base-search-box/config.json';
+import baseNoticeConfig from '../materials/base/base-notice/config.json';
+import baseCardListConfig from '../materials/base/base-card-list/config.json';
+import baseFormConfig from '../materials/base/base-form/config.json';
+import baseStatConfig from '../materials/base/base-stat/config.json';
+import baseFileListConfig from '../materials/base/base-file-list/config.json';
+import baseTimelineConfig from '../materials/base/base-timeline/config.json';
 
 import baseConfig from '../materials/cms/common/base-config.json';
 import { createComponentGroup } from './utils/component-factory';
@@ -32,6 +42,16 @@ const MATERIAL_ICON_MAP = {
   baseTable: 'ri:table-line',
   baseIframeContainer: 'ri:window-2-line',
   baseTabContainer: 'ri:apps-2-line',
+  appEntrance: 'ri:apps-2-line',
+  imageLinkList: 'ri:gallery-line',
+  baseButtonGroup: 'ri:cursor-line',
+  baseSearchBox: 'ri:search-line',
+  baseNotice: 'ri:notification-3-line',
+  baseCardList: 'ri:layout-grid-line',
+  baseForm: 'ri:file-edit-line',
+  baseStat: 'ri:bar-chart-box-line',
+  baseFileList: 'ri:file-list-3-line',
+  baseTimeline: 'ri:timeline-view',
   relatedLinks: 'ri:links-line',
   imageTextList: 'ri:article-line',
   imageTextColumn: 'ri:image-line',
@@ -56,7 +76,6 @@ const transparentPlaceholderConfig = {
  *
  * 约束：
  * - 当前内置分类：基础组件（basic） + CMS专区（cms）
- * - 暂不注册：app-entrance / image-link-list（依赖较重，后续再补）
  */
 const basicComponents = createComponentGroup(
   [
@@ -131,6 +150,96 @@ const basicComponents = createComponentGroup(
       height: 28,
       icon: MATERIAL_ICON_MAP.baseTabContainer,
       config: baseTabContainerConfig,
+    },
+    {
+      id: 'basic-app-entrance',
+      type: 'basic-app-entrance',
+      name: '应用入口',
+      width: 12,
+      height: 20,
+      icon: MATERIAL_ICON_MAP.appEntrance,
+      config: appEntranceConfig,
+    },
+    {
+      id: 'basic-image-link-list',
+      type: 'basic-image-link-list',
+      name: '图文链接列表',
+      width: 12,
+      height: 20,
+      icon: MATERIAL_ICON_MAP.imageLinkList,
+      config: imageLinkListConfig,
+    },
+    {
+      id: 'basic-base-button-group',
+      type: 'basic-base-button-group',
+      name: '按钮组',
+      width: 12,
+      height: 14,
+      icon: MATERIAL_ICON_MAP.baseButtonGroup,
+      config: baseButtonGroupConfig,
+    },
+    {
+      id: 'basic-base-search-box',
+      type: 'basic-base-search-box',
+      name: '搜索框',
+      width: 12,
+      height: 14,
+      icon: MATERIAL_ICON_MAP.baseSearchBox,
+      config: baseSearchBoxConfig,
+    },
+    {
+      id: 'basic-base-notice',
+      type: 'basic-base-notice',
+      name: '通知公告',
+      width: 12,
+      height: 14,
+      icon: MATERIAL_ICON_MAP.baseNotice,
+      config: baseNoticeConfig,
+    },
+    {
+      id: 'basic-base-card-list',
+      type: 'basic-base-card-list',
+      name: '卡片列表',
+      width: 12,
+      height: 22,
+      icon: MATERIAL_ICON_MAP.baseCardList,
+      config: baseCardListConfig,
+    },
+    {
+      id: 'basic-base-form',
+      type: 'basic-base-form',
+      name: '表单组件',
+      width: 12,
+      height: 24,
+      icon: MATERIAL_ICON_MAP.baseForm,
+      config: baseFormConfig,
+    },
+    {
+      id: 'basic-base-stat',
+      type: 'basic-base-stat',
+      name: '统计卡片',
+      width: 12,
+      height: 16,
+      icon: MATERIAL_ICON_MAP.baseStat,
+      config: baseStatConfig,
+    },
+    {
+      id: 'basic-base-file-list',
+      type: 'basic-base-file-list',
+      name: '文件列表',
+      width: 12,
+      height: 20,
+      icon: MATERIAL_ICON_MAP.baseFileList,
+      config: baseFileListConfig,
+    },
+    {
+      id: 'basic-base-timeline',
+      type: 'basic-base-timeline',
+      name: '时间轴',
+      width: 12,
+      height: 20,
+      icon: MATERIAL_ICON_MAP.baseTimeline,
+      config: baseTimelineConfig,
     },
   ],
   baseConfig

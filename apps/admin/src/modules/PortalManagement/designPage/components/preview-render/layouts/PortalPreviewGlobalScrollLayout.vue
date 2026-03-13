@@ -3,8 +3,8 @@
     <slot name="header" />
     <div class="preview-layout__content">
       <slot name="content" />
+      <slot name="footer" />
     </div>
-    <slot name="footer" />
   </div>
 </template>
 

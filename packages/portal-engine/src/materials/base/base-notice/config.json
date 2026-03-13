@@ -1,0 +1,84 @@
+{
+  "index": {
+    "name": "base-notice-index"
+  },
+  "content": {
+    "name": "base-notice-content",
+    "container": {
+      "showTitle": true,
+      "title": "通知公告",
+      "subtitle": "支持滚动展示与跳转",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "notice": {
+      "autoplay": true,
+      "interval": 3500,
+      "showBullet": true,
+      "items": [
+        {
+          "id": "notice-1",
+          "text": "关于系统维护窗口调整的通知",
+          "linkPath": "/portal/notice/detail",
+          "linkParamKey": "id",
+          "linkValueKey": "id",
+          "openType": "router"
+        },
+        {
+          "id": "notice-2",
+          "text": "政务服务大厅本周六正常开放",
+          "linkPath": "/portal/notice/detail",
+          "linkParamKey": "id",
+          "linkValueKey": "id",
+          "openType": "router"
+        }
+      ]
+    }
+  },
+  "style": {
+    "name": "base-notice-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "notice": {
+      "height": 40,
+      "radius": 8,
+      "backgroundColor": "#f8fafc",
+      "borderColor": "#e2e8f0",
+      "textColor": "#0f172a",
+      "textFontSize": 14,
+      "bulletColor": "#ef4444",
+      "iconColor": "#f59e0b"
+    }
+  }
+}

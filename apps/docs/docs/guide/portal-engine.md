@@ -65,6 +65,39 @@ packages/portal-engine/src/
   - 支持 `successPath/listPath/totalPath` 返回实体映射，兼容不同后端结构。
   - 支持列配置（字段 key、列宽、对齐、省略、链接跳转参数）。
   - 支持显示表头、分页、行分割线、圆点标识、`el-table` JSON 扩展属性。
+- `app-entrance`
+  - 应用入口宫格，支持图标/图片、角标、描述和点击跳转。
+  - 支持单行列数、间距、卡片背景与 hover 视觉配置。
+- `image-link-list`
+  - 图文导航列表，支持标题/描述/标签/图片与跳转配置。
+  - 适合门户首页推荐区、专题入口区快速搭建。
+- `base-button-group`
+  - 可维护多按钮动作，支持横向/纵向排列、对齐、间距、按钮尺寸和跳转。
+- `base-search-box`
+  - 关键字输入 + 按钮提交，支持参数名配置与搜索页路由跳转。
+- `base-notice`
+  - 纵向公告轮播，支持自动播放、轮播间隔、圆点标识与链接跳转。
+- `base-card-list`
+  - 卡片式内容列表，支持静态/API 数据源、字段映射、分页与详情跳转。
+- `base-form`
+  - 动态字段表单，支持 JSON 字段定义、提交接口、成功校验与提交后跳转。
+- `base-stat`
+  - 统计卡片网格，支持字段映射、数量控制、趋势显示与卡片跳转。
+- `base-file-list`
+  - 文件列表，支持字段映射、附件下载、详情跳转与分页展示。
+- `base-timeline`
+  - 时间轴组件，支持静态/API 数据源、时间线样式与条目跳转。
+
+### base 物料复用组件沉淀
+
+- `materials/base/common/PortalDataSourceCard.vue`
+  - 统一数据源配置卡片（静态 JSON / API 模式、返回路径、分页参数）。
+- `materials/base/common/PortalActionLinkField.vue`
+  - 统一跳转配置（path / paramKey / valueKey / openType）。
+- `materials/base/common/portal-data-source.ts`
+  - 抽离数据源模型、合并逻辑与请求加载函数。
+- `materials/base/common/portal-link.ts`
+  - 抽离链接模型、链接拼装与跳转执行逻辑。
 
 > 约定：每个物料目录保持 `config.json + index.vue + content.vue + style.vue`，并通过 `useSchemaConfig` 回写 schema。
 

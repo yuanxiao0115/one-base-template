@@ -1,0 +1,71 @@
+{
+  "index": {
+    "name": "base-search-box-index"
+  },
+  "content": {
+    "name": "base-search-box-content",
+    "container": {
+      "showTitle": true,
+      "title": "搜索框",
+      "subtitle": "支持关键字跳转",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "search": {
+      "placeholder": "请输入关键字",
+      "buttonText": "搜索",
+      "defaultKeyword": "",
+      "keywordParamKey": "keyword",
+      "linkPath": "/portal/search",
+      "linkParamKey": "keyword",
+      "linkValueKey": "keyword",
+      "openType": "router"
+    }
+  },
+  "style": {
+    "name": "base-search-box-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "search": {
+      "height": 40,
+      "radius": 8,
+      "inputBgColor": "#ffffff",
+      "inputBorderColor": "#d0d7e2",
+      "inputTextColor": "#0f172a",
+      "buttonBgColor": "#2563eb",
+      "buttonTextColor": "#ffffff",
+      "buttonWidth": 96
+    }
+  }
+}

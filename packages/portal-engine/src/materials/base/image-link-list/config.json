@@ -1,0 +1,97 @@
+{
+  "index": {
+    "name": "image-link-list-index"
+  },
+  "content": {
+    "name": "image-link-list-content",
+    "container": {
+      "showTitle": true,
+      "title": "图文链接列表",
+      "subtitle": "图片+标题组合导航",
+      "icon": "ri:gallery-line",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "list": {
+      "columnCount": 3,
+      "showDescription": true,
+      "items": [
+        {
+          "id": "img-1",
+          "title": "政策解读",
+          "description": "查看最新政策专题",
+          "image": "",
+          "tag": "推荐",
+          "link": {
+            "path": "/portal/policy",
+            "paramKey": "id",
+            "valueKey": "id",
+            "openType": "router"
+          }
+        },
+        {
+          "id": "img-2",
+          "title": "办事指南",
+          "description": "在线办理与进度查询",
+          "image": "",
+          "tag": "",
+          "link": {
+            "path": "/portal/service",
+            "paramKey": "id",
+            "valueKey": "id",
+            "openType": "router"
+          }
+        }
+      ]
+    }
+  },
+  "style": {
+    "name": "image-link-list-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "list": {
+      "cardBgColor": "#ffffff",
+      "cardBorderColor": "#e2e8f0",
+      "cardRadius": 10,
+      "imageHeight": 140,
+      "titleColor": "#0f172a",
+      "descriptionColor": "#64748b",
+      "tagBgColor": "#e0f2fe",
+      "tagTextColor": "#0369a1",
+      "titleFontSize": 15,
+      "descriptionFontSize": 12,
+      "rowGap": 12,
+      "columnGap": 12
+    }
+  }
+}

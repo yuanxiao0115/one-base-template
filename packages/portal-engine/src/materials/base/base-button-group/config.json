@@ -1,0 +1,82 @@
+{
+  "index": {
+    "name": "base-button-group-index"
+  },
+  "content": {
+    "name": "base-button-group-content",
+    "container": {
+      "showTitle": true,
+      "title": "按钮组",
+      "subtitle": "支持业务动作和链接跳转",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "buttons": {
+      "items": [
+        {
+          "id": "button-1",
+          "text": "立即办理",
+          "type": "primary",
+          "plain": false,
+          "linkPath": "/portal/service/apply",
+          "linkParamKey": "id",
+          "linkValueKey": "id",
+          "openType": "router"
+        },
+        {
+          "id": "button-2",
+          "text": "查看指南",
+          "type": "default",
+          "plain": true,
+          "linkPath": "/portal/guide",
+          "linkParamKey": "id",
+          "linkValueKey": "id",
+          "openType": "router"
+        }
+      ]
+    }
+  },
+  "style": {
+    "name": "base-button-group-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "buttons": {
+      "direction": "row",
+      "align": "left",
+      "gap": 10,
+      "size": "default",
+      "round": false
+    }
+  }
+}

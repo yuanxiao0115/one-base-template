@@ -41,8 +41,8 @@ export function usePortalCurrentTabActions(options: UsePortalCurrentTabActionsOp
   function openCurrentPageSettings() {
     const tabId = options.currentTabId.value;
     const tab = options.currentTab.value;
-    if (!(tabId && tab && isPortalTabEditable(tab.tabType))) {
-      options.notifyWarning("仅可编辑页面支持页面设置");
+    if (!(tabId && tab)) {
+      options.notifyWarning("请先选择页面");
       return;
     }
     void options.onOpenPageSettings(tabId);

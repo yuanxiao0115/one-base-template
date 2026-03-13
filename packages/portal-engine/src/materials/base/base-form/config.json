@@ -1,0 +1,75 @@
+{
+  "index": {
+    "name": "base-form-index"
+  },
+  "content": {
+    "name": "base-form-content",
+    "container": {
+      "showTitle": true,
+      "title": "表单组件",
+      "subtitle": "支持字段配置与接口提交",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "form": {
+      "fieldsJson": "[{\n  \"id\": \"field-name\",\n  \"label\": \"姓名\",\n  \"fieldKey\": \"name\",\n  \"type\": \"text\",\n  \"required\": true,\n  \"placeholder\": \"请输入姓名\"\n},{\n  \"id\": \"field-phone\",\n  \"label\": \"手机号\",\n  \"fieldKey\": \"mobile\",\n  \"type\": \"text\",\n  \"required\": true,\n  \"placeholder\": \"请输入手机号\"\n}]",
+      "submitText": "提交",
+      "resetText": "重置",
+      "apiUrl": "",
+      "method": "POST",
+      "headersJson": "{}",
+      "extraBodyJson": "{}",
+      "successPath": "code",
+      "successValue": "200",
+      "successMessage": "提交成功",
+      "linkPath": "",
+      "linkParamKey": "id",
+      "linkValueKey": "id",
+      "openType": "router"
+    }
+  },
+  "style": {
+    "name": "base-form-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "form": {
+      "labelWidth": 88,
+      "fieldGap": 12,
+      "inputHeight": 40,
+      "buttonAlign": "left",
+      "buttonGap": 10,
+      "primaryColor": "#2563eb"
+    }
+  }
+}

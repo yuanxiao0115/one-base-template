@@ -1,0 +1,103 @@
+{
+  "index": {
+    "name": "app-entrance-index"
+  },
+  "content": {
+    "name": "app-entrance-content",
+    "container": {
+      "showTitle": true,
+      "title": "应用入口",
+      "subtitle": "支持图标、描述与快捷跳转",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "entrance": {
+      "columnCount": 4,
+      "showDescription": true,
+      "items": [
+        {
+          "id": "entry-1",
+          "title": "门户首页",
+          "description": "前往门户首页",
+          "icon": "ri:home-5-line",
+          "image": "",
+          "badge": "常用",
+          "link": {
+            "path": "/portal/index",
+            "paramKey": "id",
+            "valueKey": "id",
+            "openType": "router"
+          }
+        },
+        {
+          "id": "entry-2",
+          "title": "通知公告",
+          "description": "查看最新通知",
+          "icon": "ri:notification-3-line",
+          "image": "",
+          "badge": "",
+          "link": {
+            "path": "/portal/notice",
+            "paramKey": "id",
+            "valueKey": "id",
+            "openType": "router"
+          }
+        }
+      ]
+    }
+  },
+  "style": {
+    "name": "app-entrance-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "entrance": {
+      "cardBgColor": "#f8fafc",
+      "cardHoverBgColor": "#f1f5f9",
+      "cardBorderColor": "#e2e8f0",
+      "cardRadius": 10,
+      "cardPadding": 12,
+      "iconColor": "#2563eb",
+      "titleColor": "#0f172a",
+      "descriptionColor": "#64748b",
+      "badgeBgColor": "#dbeafe",
+      "badgeTextColor": "#1d4ed8",
+      "titleFontSize": 15,
+      "descriptionFontSize": 12,
+      "iconSize": 20,
+      "imageHeight": 64,
+      "rowGap": 12,
+      "columnGap": 12
+    }
+  }
+}

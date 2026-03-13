@@ -1,0 +1,94 @@
+{
+  "index": {
+    "name": "base-stat-index"
+  },
+  "content": {
+    "name": "base-stat-content",
+    "container": {
+      "showTitle": true,
+      "title": "统计卡片",
+      "subtitle": "支持静态与接口统计数据",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "dataSource": {
+      "mode": "static",
+      "staticRowsJson": "[{\n  \"id\": \"1\",\n  \"title\": \"访问量\",\n  \"value\": 3280,\n  \"unit\": \"次\",\n  \"trend\": \"+12.5%\"\n}]",
+      "method": "GET",
+      "apiUrl": "",
+      "headersJson": "{}",
+      "queryJson": "{}",
+      "bodyJson": "{}",
+      "listPath": "data.records",
+      "totalPath": "data.total",
+      "successPath": "code",
+      "successValue": "200",
+      "pageParamKey": "currentPage",
+      "pageSizeParamKey": "pageSize"
+    },
+    "stat": {
+      "titleKey": "title",
+      "valueKey": "value",
+      "unitKey": "unit",
+      "trendKey": "trend",
+      "idKey": "id",
+      "maxDisplayCount": 8,
+      "linkPath": "",
+      "linkParamKey": "id",
+      "linkValueKey": "id",
+      "openType": "router"
+    }
+  },
+  "style": {
+    "name": "base-stat-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "stat": {
+      "columns": 4,
+      "gap": 12,
+      "cardPadding": 12,
+      "cardRadius": 10,
+      "cardBgColor": "#f8fafc",
+      "cardBorderColor": "#e2e8f0",
+      "titleColor": "#64748b",
+      "valueColor": "#0f172a",
+      "unitColor": "#334155",
+      "trendColor": "#16a34a",
+      "titleFontSize": 12,
+      "valueFontSize": 24,
+      "unitFontSize": 12,
+      "trendFontSize": 12
+    }
+  }
+}
