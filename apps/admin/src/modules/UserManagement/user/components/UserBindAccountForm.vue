@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import {
+  canTriggerKeywordSearch,
+  DEFAULT_MIN_KEYWORD_LENGTH,
+  normalizeKeyword
+} from '../../shared/keywordSearch';
 
 export interface UserBindOption {
   id: string;
@@ -16,7 +21,7 @@ const props = withDefaults(
     minSearchLength?: number;
   }>(),
   {
-    minSearchLength: 2
+    minSearchLength: DEFAULT_MIN_KEYWORD_LENGTH
   }
 );
 
@@ -53,10 +58,6 @@ const selectedUsers = computed<UserBindOption[]>(() =>
     .filter((item): item is UserBindOption => Boolean(item))
 );
 
-function normalizeKeyword(value: string): string {
-  return value.trim();
-}
-
 function cancelPendingSearch() {
   if (!searchTimer.value) {
     return;
@@ -69,7 +70,7 @@ async function loadOptions(keyword = '') {
   const normalizedKeyword = normalizeKeyword(keyword);
   const currentToken = ++latestRequestToken.value;
 
-  if (normalizedKeyword.length < props.minSearchLength) {
+  if (!canTriggerKeywordSearch(normalizedKeyword, props.minSearchLength)) {
     options.value = [];
     loading.value = false;
     return;

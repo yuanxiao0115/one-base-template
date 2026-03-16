@@ -9,6 +9,11 @@ import {
   type UserAccountForm as UserAccountFormModel,
   type UserBindForm
 } from '../form';
+import {
+  canTriggerKeywordSearch,
+  DEFAULT_MIN_KEYWORD_LENGTH,
+  normalizeKeyword
+} from '../../shared/keywordSearch';
 
 interface UserBindOption {
   id: string;
@@ -25,8 +30,6 @@ type BindFormExpose = CrudFormLike & {
 interface UseUserDialogStateOptions {
   onSearch: (goFirstPage?: boolean) => Promise<void>;
 }
-
-const MIN_USER_SEARCH_KEYWORD_LENGTH = 2;
 
 function getBindOptionsFromCorporateUsers(records: CorporateUserRecord[]): UserBindOption[] {
   return records.map((item) => ({
@@ -123,8 +126,8 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
   }
 
   async function fetchBindUsers(keyword: string): Promise<UserBindOption[]> {
-    const normalizedKeyword = keyword.trim();
-    if (normalizedKeyword.length < MIN_USER_SEARCH_KEYWORD_LENGTH) {
+    const normalizedKeyword = normalizeKeyword(keyword);
+    if (!canTriggerKeywordSearch(normalizedKeyword, DEFAULT_MIN_KEYWORD_LENGTH)) {
       return [];
     }
 

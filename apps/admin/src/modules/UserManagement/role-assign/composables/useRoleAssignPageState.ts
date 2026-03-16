@@ -12,6 +12,11 @@ import roleAssignColumns from '../columns';
 import { roleAssignApi } from '../api';
 import type { RoleMemberRecord, RoleOption } from '../types';
 import type { RoleAssignUserOption } from '../components/RoleAssignMemberSelectForm.vue';
+import {
+  canTriggerKeywordSearch,
+  DEFAULT_MIN_KEYWORD_LENGTH,
+  normalizeKeyword
+} from '../../shared/keywordSearch';
 
 type MemberSelectFormExpose = CrudFormLike & {
   loadRootNodes?: () => Promise<void>;
@@ -287,8 +292,13 @@ export function useRoleAssignPageState() {
   }
 
   async function searchContactUsers(keyword: string): Promise<PersonnelUserNode[]> {
+    const normalizedKeyword = normalizeKeyword(keyword);
+    if (!canTriggerKeywordSearch(normalizedKeyword, DEFAULT_MIN_KEYWORD_LENGTH)) {
+      return [];
+    }
+
     const response = await searchPersonnelUsersByStructure({
-      search: keyword
+      search: normalizedKeyword
     });
     if (response.code !== 200) {
       throw new Error(response.message || '搜索人员失败');
