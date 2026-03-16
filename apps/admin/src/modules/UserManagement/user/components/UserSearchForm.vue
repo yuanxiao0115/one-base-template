@@ -1,23 +1,23 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import type { FormInstance } from "element-plus";
+import { ref } from 'vue';
+import type { FormInstance } from 'element-plus';
 
-  const model = defineModel<{
-    nickName: string;
-    phone: string;
-    userAccount: string;
-    isEnable: boolean | null;
-    mail: string;
-    date: string[];
-  }>({ required: true });
+const model = defineModel<{
+  nickName: string;
+  phone: string;
+  userAccount: string;
+  isEnable: boolean | null;
+  mail: string;
+  date: string[];
+}>({ required: true });
 
-  const formRef = ref<FormInstance>();
+const formRef = ref<FormInstance>();
 
-  defineExpose({
-    resetFields: () => {
-      formRef.value?.resetFields?.();
-    },
-  });
+defineExpose({
+  resetFields: () => {
+    formRef.value?.resetFields?.();
+  }
+});
 </script>
 
 <template>
@@ -31,7 +31,12 @@
     </el-form-item>
 
     <el-form-item label="登录账号" prop="userAccount">
-      <el-input v-model.trim="model.userAccount" placeholder="请输入登录账号" clearable class="w-full" />
+      <el-input
+        v-model.trim="model.userAccount"
+        placeholder="请输入登录账号"
+        clearable
+        class="w-full"
+      />
     </el-form-item>
 
     <el-form-item label="状态" prop="isEnable">
@@ -60,7 +65,7 @@
 </template>
 
 <style scoped>
-  .user-search-form {
-    width: 100%;
-  }
+.user-search-form {
+  width: 100%;
+}
 </style>

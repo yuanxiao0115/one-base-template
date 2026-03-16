@@ -3,31 +3,31 @@
 </template>
 
 <script setup lang="ts">
-  withDefaults(
-    defineProps<{
-      text?: string;
-      inline?: boolean;
-    }>(),
-    {
-      text: '',
-      inline: false,
-    }
-  );
+withDefaults(
+  defineProps<{
+    text?: string;
+    inline?: boolean;
+  }>(),
+  {
+    text: '',
+    inline: false
+  }
+);
 
-  defineOptions({
-    name: 'PbListDate',
-  });
+defineOptions({
+  name: 'PbListDate'
+});
 </script>
 
 <style scoped>
-  .cms-list-date {
-    margin-top: 4px;
-    font-size: var(--list-date-font-size, 14px);
-    color: var(--list-date-color, #9095a1);
-  }
+.cms-list-date {
+  margin-top: 4px;
+  font-size: var(--list-date-font-size, 14px);
+  color: var(--list-date-color, #9095a1);
+}
 
-  .cms-list-date.inline {
-    margin-top: 0;
-    white-space: nowrap;
-  }
+.cms-list-date.inline {
+  margin-top: 0;
+  white-space: nowrap;
+}
 </style>

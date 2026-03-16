@@ -1,17 +1,17 @@
-import { SM3, SM4 } from "gm-crypto";
+import { SM3, SM4 } from 'gm-crypto';
 
 // 说明：该 key 与老项目（standard-oa-web-sczfw）保持一致，用于登录参数与滑块验证码坐标加密
-const DEFAULT_SM4_KEY_HEX = "6f889d54ad8c4ddb8c525fc96a185444";
+const DEFAULT_SM4_KEY_HEX = '6f889d54ad8c4ddb8c525fc96a185444';
 
 export function sm4EncryptBase64(plainText: string, keyHex: string = DEFAULT_SM4_KEY_HEX): string {
   return SM4.encrypt(plainText, keyHex, {
-    inputEncoding: "utf8",
-    outputEncoding: "base64",
+    inputEncoding: 'utf8',
+    outputEncoding: 'base64'
   });
 }
 
 export function sm3DigestHex(value: string): string {
-  return SM3.digest(value, "utf8", "hex");
+  return SM3.digest(value, 'utf8', 'hex');
 }
 
 export function base64Encode(value: string): string {
@@ -23,10 +23,14 @@ export function base64Encode(value: string): string {
  * `${b64(clientId)}.${b64(timestamp)}.${b64(sm3(clientId + timestamp + salt))}`
  * 说明：salt 只是公开签名盐值，不具备前端 secret 语义。
  */
-export function createClientSignature(params?: { clientId?: string; timestamp?: number; salt?: string }): string {
-  const clientId = params?.clientId ?? "1";
+export function createClientSignature(params?: {
+  clientId?: string;
+  timestamp?: number;
+  salt?: string;
+}): string {
+  const clientId = params?.clientId ?? '1';
   const timestamp = params?.timestamp ?? Date.now();
-  const salt = params?.salt ?? "fc54f9655dc04da486663f1055978ba8";
+  const salt = params?.salt ?? 'fc54f9655dc04da486663f1055978ba8';
 
   const digest = sm3DigestHex(`${clientId}${timestamp}${salt}`);
   return `${base64Encode(clientId)}.${base64Encode(String(timestamp))}.${base64Encode(digest)}`;

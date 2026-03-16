@@ -1,13 +1,13 @@
-import type { AppModuleManifest } from "@one-base-template/core";
-import { moduleManifest } from "./manifest";
-import layoutRoutes from "./routes";
+import type { AppModuleManifest } from '@one-base-template/core';
+import { moduleManifest } from './manifest';
+import layoutRoutes from './routes';
 
 const userManagementModule: AppModuleManifest = {
   ...moduleManifest,
-  apiNamespace: "user-management",
+  apiNamespace: 'user-management',
   routes: {
-    layout: layoutRoutes,
-  },
+    layout: layoutRoutes
+  }
 };
 
 export default userManagementModule;

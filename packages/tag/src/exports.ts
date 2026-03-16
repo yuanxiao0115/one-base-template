@@ -15,7 +15,7 @@ export {
   onMenuChange,
   type TagPosition,
   type RouteIgnoreRule,
-  type TagStorageConfig,
+  type TagStorageConfig
 } from './api';
 
 // ===== 集成相关 =====
@@ -47,5 +47,12 @@ export const EXPORTS = {
   plugin: ['install'],
 
   // 类型
-  types: ['TagItem', 'TagConfig', 'TagPosition', 'RouteIgnoreRule', 'TagStorageConfig', 'OneTagOptions'],
+  types: [
+    'TagItem',
+    'TagConfig',
+    'TagPosition',
+    'RouteIgnoreRule',
+    'TagStorageConfig',
+    'OneTagOptions'
+  ]
 } as const;

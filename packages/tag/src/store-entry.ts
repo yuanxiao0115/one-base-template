@@ -1,1 +1,1 @@
-export { setTagPiniaInstance, useTagStoreHook } from './store'
+export { setTagPiniaInstance, useTagStoreHook } from './store';

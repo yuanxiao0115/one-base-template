@@ -1,7 +1,13 @@
 import Axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 import { stringify } from 'qs';
 
-import type { CreateObHttpOptions, ObBizCode, ObHttpError, ObHttpRequestConfig, RequestMethods } from './types';
+import type {
+  CreateObHttpOptions,
+  ObBizCode,
+  ObHttpError,
+  ObHttpRequestConfig,
+  RequestMethods
+} from './types';
 
 export interface ObHttp {
   axios: AxiosInstance;
@@ -171,13 +177,13 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     headers: {
       Accept: 'application/json, text/plain, */*',
       'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
+      'X-Requested-With': 'XMLHttpRequest'
     },
     paramsSerializer: {
       // 兼容旧项目：数组参数序列化由 qs 处理
-      serialize: (params) => stringify(params),
+      serialize: (params) => stringify(params)
     },
-    ...(options.axios ?? {}),
+    ...options.axios
   });
 
   const hooks = options.hooks ?? {};
@@ -221,7 +227,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
   const download = {
     autoDownload: options.download?.autoDownload ?? true,
     maxJsonProbeSize: options.download?.maxJsonProbeSize ?? 1024 * 1024,
-    defaultFileName: options.download?.defaultFileName ?? 'download',
+    defaultFileName: options.download?.defaultFileName ?? 'download'
   };
 
   interface PendingRequest {
@@ -244,7 +250,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     }
     pendingRequests.set(requestId, {
       controller,
-      cancelOnRouteChange,
+      cancelOnRouteChange
     });
 
     // token / cookie 混合模式：根据配置决定是否附加 Authorization
@@ -258,7 +264,9 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     if (config.$isUpload) {
       // FormData 场景不建议手动拼 boundary，这里仅声明 multipart 类型
       setHeader(config, 'Content-Type', 'multipart/form-data');
-    } else if (!(getHeader(config.headers, 'content-type') || getHeader(config.headers, 'Content-Type'))) {
+    } else if (
+      !(getHeader(config.headers, 'content-type') || getHeader(config.headers, 'Content-Type'))
+    ) {
       setHeader(config, 'Content-Type', 'application/json');
     }
 
@@ -292,7 +300,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
       // 下载：Blob 可能实际是 JSON 错误，需要先探测
       if (config.$isDownload && data instanceof Blob) {
         const parsed = await parseBlobJson(data, response, {
-          maxJsonProbeSize: download.maxJsonProbeSize,
+          maxJsonProbeSize: download.maxJsonProbeSize
         });
 
         if (parsed.json) {
@@ -390,8 +398,8 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
       const config = {
         method,
         url,
-        ...(param ?? {}),
-        ...(axiosConfig ?? {}),
+        ...param,
+        ...axiosConfig
       } as ObHttpRequestConfig;
 
       return requestInternal<T>(config);
@@ -407,7 +415,7 @@ export function createObHttp(options: CreateObHttpOptions = {}): ObHttp {
     },
     delete<T = unknown>(url: string, config?: ObHttpRequestConfig): Promise<T> {
       return http.request<T>('delete', url, config);
-    },
+    }
   };
 
   return http;

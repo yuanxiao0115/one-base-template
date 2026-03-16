@@ -1,47 +1,47 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const warn = vi.hoisted(() => vi.fn());
 
-vi.mock("@/shared/logger", () => ({
+vi.mock('@/shared/logger', () => ({
   createAppLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
     warn,
-    error: vi.fn(),
-  }),
+    error: vi.fn()
+  })
 }));
 
-import { getEnabledModules } from "../registry";
+import { getEnabledModules } from '../registry';
 
-describe("router/registry", () => {
+describe('router/registry', () => {
   beforeEach(() => {
     warn.mockClear();
   });
 
   it("enabledModules='*' 应返回全部模块", async () => {
-    const all = await getEnabledModules("*");
+    const all = await getEnabledModules('*');
 
     expect(all.length).toBeGreaterThan(0);
     expect(new Set(all.map((item) => item.id)).size).toBe(all.length);
   });
 
-  it("enabledModules 为空数组时应返回 enabledByDefault 模块", async () => {
-    const all = await getEnabledModules("*");
+  it('enabledModules 为空数组时应返回 enabledByDefault 模块', async () => {
+    const all = await getEnabledModules('*');
     const defaults = await getEnabledModules([]);
     const expectedDefaultIds = all.filter((item) => item.enabledByDefault).map((item) => item.id);
 
     expect(defaults.map((item) => item.id)).toEqual(expectedDefaultIds);
   });
 
-  it("应过滤重复与未知模块并触发 warn", async () => {
-    const enabled = await getEnabledModules(["home", "home", "unknown-module", "PortalManagement"]);
+  it('应过滤重复与未知模块并触发 warn', async () => {
+    const enabled = await getEnabledModules(['home', 'home', 'unknown-module', 'PortalManagement']);
     const warnMessages = warn.mock.calls.map((call) => String(call[0]));
 
-    expect(enabled.map((item) => item.id)).toEqual(["home", "PortalManagement"]);
+    expect(enabled.map((item) => item.id)).toEqual(['home', 'PortalManagement']);
     expect(warnMessages).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("enabledModules 包含重复模块 id：home"),
-        expect.stringContaining("enabledModules 包含未知模块 id：unknown-module"),
+        expect.stringContaining('enabledModules 包含重复模块 id：home'),
+        expect.stringContaining('enabledModules 包含未知模块 id：unknown-module')
       ])
     );
   });

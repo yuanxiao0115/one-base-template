@@ -1,16 +1,16 @@
-import { computed, reactive, ref } from "vue";
-import { useCrudPage } from "@one-base-template/core";
-import { message } from "@one-base-template/ui";
-import { positionColumns } from "../columns";
-import { positionApi } from "../api";
-import type { PositionRecord, PositionSavePayload } from "../types";
-import { defaultPositionForm, type PositionForm, toPositionForm, toPositionPayload } from "../form";
+import { computed, reactive, ref } from 'vue';
+import { useCrudPage } from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
+import { positionColumns } from '../columns';
+import { positionApi } from '../api';
+import type { PositionRecord, PositionSavePayload } from '../types';
+import { defaultPositionForm, type PositionForm, toPositionForm, toPositionPayload } from '../form';
 import {
   assertUniqueCheck,
   type PositionUniqueSnapshot,
   shouldCheckPositionUnique,
-  toPositionUniqueSnapshot,
-} from "../../shared/unique";
+  toPositionUniqueSnapshot
+} from '../../shared/unique';
 
 interface SearchRefExpose {
   resetFields?: () => void;
@@ -23,30 +23,30 @@ export function usePositionPageState() {
   const positionUniqueSnapshot = ref<PositionUniqueSnapshot | null>(null);
 
   const searchForm = reactive({
-    postName: "",
+    postName: ''
   });
 
   const tableOpt = reactive({
     query: {
       api: positionApi.page,
       params: searchForm,
-      pagination: true,
+      pagination: true
     },
     remove: {
       api: positionApi.removePost,
       deleteConfirm: {
-        nameKey: "postName",
-        title: "删除确认",
-        message: "是否确认删除职位「{name}」？",
+        nameKey: 'postName',
+        title: '删除确认',
+        message: '是否确认删除职位「{name}」？'
       },
       onSuccess: () => {
-        message.success("删除职位成功");
+        message.success('删除职位成功');
       },
       onError: (error: unknown) => {
-        const errorMessage = error instanceof Error ? error.message : "删除职位失败";
+        const errorMessage = error instanceof Error ? error.message : '删除职位失败';
         message.error(errorMessage);
-      },
-    },
+      }
+    }
   });
 
   const crudPage = useCrudPage<PositionForm, PositionRecord, PositionRecord, PositionSavePayload>({
@@ -54,15 +54,15 @@ export function usePositionPageState() {
     tableRef,
     editor: {
       entity: {
-        name: "职位",
+        name: '职位'
       },
       form: {
         create: () => ({ ...defaultPositionForm }),
-        ref: editFormRef,
+        ref: editFormRef
       },
       detail: {
         beforeOpen: async ({ mode }) => {
-          if (mode === "create") {
+          if (mode === 'create') {
             positionUniqueSnapshot.value = null;
           }
         },
@@ -71,7 +71,7 @@ export function usePositionPageState() {
           const mapped = toPositionForm(detail);
           positionUniqueSnapshot.value = toPositionUniqueSnapshot(mapped);
           return mapped;
-        },
+        }
       },
       save: {
         buildPayload: async ({ form }) => {
@@ -81,11 +81,11 @@ export function usePositionPageState() {
           if (shouldCheckPositionUnique(currentUnique, positionUniqueSnapshot.value)) {
             const response = await positionApi.checkUnique({
               id: payload.id,
-              postName: payload.postName,
+              postName: payload.postName
             });
-            const isUnique = assertUniqueCheck(response, "职位名称校验失败");
+            const isUnique = assertUniqueCheck(response, '职位名称校验失败');
             if (!isUnique) {
-              throw new Error("已存在相同职位名称");
+              throw new Error('已存在相同职位名称');
             }
           }
 
@@ -93,28 +93,38 @@ export function usePositionPageState() {
         },
         request: async ({ mode, payload }) => {
           const response =
-            mode === "create" ? await positionApi.addPost(payload) : await positionApi.updatePost(payload);
+            mode === 'create'
+              ? await positionApi.addPost(payload)
+              : await positionApi.updatePost(payload);
 
           if (response.code !== 200) {
-            throw new Error(response.message || "保存职位失败");
+            throw new Error(response.message || '保存职位失败');
           }
           return response;
         },
         onSuccess: async ({ mode }) => {
-          message.success(mode === "create" ? "新增职位成功" : "更新职位成功");
-        },
-      },
-    },
+          message.success(mode === 'create' ? '新增职位成功' : '更新职位成功');
+        }
+      }
+    }
   });
 
-  const { loading, dataList, pagination, onSearch, resetForm, handleSizeChange, handleCurrentChange } = crudPage.table;
+  const {
+    loading,
+    dataList,
+    pagination,
+    onSearch,
+    resetForm,
+    handleSizeChange,
+    handleCurrentChange
+  } = crudPage.table;
 
   const crud = crudPage.editor;
   const { remove } = crudPage.actions;
 
   const tableColumns = computed(() => positionColumns);
   const tablePagination = computed(() => ({
-    ...pagination,
+    ...pagination
   }));
 
   const crudVisible = crud.visible;
@@ -134,7 +144,7 @@ export function usePositionPageState() {
   }
 
   function onResetSearch() {
-    resetForm(searchRef, "postName");
+    resetForm(searchRef, 'postName');
   }
 
   async function handleDelete(row: PositionRecord) {
@@ -145,14 +155,14 @@ export function usePositionPageState() {
     refs: {
       tableRef,
       searchRef,
-      editFormRef,
+      editFormRef
     },
     table: {
       loading,
       dataList,
       tablePagination,
       tableColumns,
-      searchForm,
+      searchForm
     },
     editor: {
       crud,
@@ -161,7 +171,7 @@ export function usePositionPageState() {
       crudTitle,
       crudReadonly,
       crudSubmitting,
-      crudForm,
+      crudForm
     },
     actions: {
       tableSearch,
@@ -169,7 +179,7 @@ export function usePositionPageState() {
       onResetSearch,
       handleSizeChange,
       handleCurrentChange,
-      handleDelete,
-    },
+      handleDelete
+    }
   };
 }

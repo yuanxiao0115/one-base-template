@@ -66,7 +66,9 @@ export async function handleSsoCallback(): Promise<{ redirect: string }> {
         throw new Error('[sso] adapter 未实现 exchangeTicket');
       }
 
-      const serviceUrl = strategy.serviceUrlParam ? sp.get(strategy.serviceUrlParam) : sp.get('serviceUrl');
+      const serviceUrl = strategy.serviceUrlParam
+        ? sp.get(strategy.serviceUrlParam)
+        : sp.get('serviceUrl');
       await sso.exchangeTicket({ ticket, serviceUrl: serviceUrl ?? undefined });
       break;
     }
@@ -86,7 +88,7 @@ export async function handleSsoCallback(): Promise<{ redirect: string }> {
       await sso.exchangeOAuthCode({
         code,
         state,
-        redirectUri: strategy.redirectUri,
+        redirectUri: strategy.redirectUri
       });
       break;
     }

@@ -1,7 +1,7 @@
-import { SM3 } from "gm-crypto";
+import { SM3 } from 'gm-crypto';
 
 function sm3DigestHex(value: string): string {
-  return SM3.digest(value, "utf8", "hex");
+  return SM3.digest(value, 'utf8', 'hex');
 }
 
 function base64Encode(value: string): string {
@@ -11,10 +11,14 @@ function base64Encode(value: string): string {
 /**
  * 生成与老项目兼容的 Client-Signature。
  */
-export function createClientSignature(params?: { clientId?: string; timestamp?: number; salt?: string }): string {
-  const clientId = params?.clientId ?? "1";
+export function createClientSignature(params?: {
+  clientId?: string;
+  timestamp?: number;
+  salt?: string;
+}): string {
+  const clientId = params?.clientId ?? '1';
   const timestamp = params?.timestamp ?? Date.now();
-  const salt = params?.salt ?? "fc54f9655dc04da486663f1055978ba8";
+  const salt = params?.salt ?? 'fc54f9655dc04da486663f1055978ba8';
 
   const digest = sm3DigestHex(`${clientId}${timestamp}${salt}`);
   return `${base64Encode(clientId)}.${base64Encode(String(timestamp))}.${base64Encode(digest)}`;

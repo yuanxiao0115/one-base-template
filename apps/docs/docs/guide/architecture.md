@@ -45,6 +45,7 @@
 - portal：沿用骨架并保留前台独立边界，登录后做前台分流。
 
 深度说明请看：
+
 - [启动链路细节（深度）](/guide/architecture-runtime-deep-dive)
 
 ## 路由与模块摘要
@@ -54,6 +55,7 @@
 - 权限判定：默认 `allowedPaths` 由菜单树推导，非菜单路由通过 `meta.activePath` 或 `meta.skipMenuAuth` 处理。
 
 深度说明请看：
+
 - [模块系统与切割](/guide/module-system)
 - [菜单与路由规范（Schema）](/guide/menu-route-spec)
 - [布局与菜单](/guide/layout-menu)
@@ -65,6 +67,7 @@
 - admin 样式入口收敛为“bootstrap 基础样式 + main 团队覆写样式”。
 
 深度说明请看：
+
 - [主题系统](/guide/theme-system)
 
 ## 推荐阅读路径

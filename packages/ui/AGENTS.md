@@ -17,6 +17,7 @@
 - `ObCrudContainer`：未传 `container` 时读取全局默认；传入 `container` 时 props 优先。
 - CRUD 通用容器必须保留 `footer` 插槽，并支持“纯容器模式”（仅通过 `v-model` 管理 `visible`，不强制 form 与默认确认/取消按钮）。
 - `ObPageContainer` 需支持左侧插槽（`#left`）与 `leftWidth`，用于“左树右表”布局并保障分页器稳定可见。
+- 颜色输入组件统一维护在 `packages/ui/src/components/field/ObColorField.vue`；其他子包只允许消费 `ObColorField` 或兼容壳，不再重复实现颜色输入逻辑。
 
 ## 主题与视觉规范
 

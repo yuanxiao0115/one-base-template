@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 
 import {
   calcPortalTabNextSort,
@@ -7,7 +7,7 @@ import {
   findPortalTabById,
   isPortalTabEditable,
   normalizePortalTabId,
-  normalizePortalTabName,
+  normalizePortalTabName
 } from './tab-tree';
 
 interface MockPortalTab {
@@ -32,16 +32,16 @@ function createTabs(): MockPortalTab[] {
           parentId: 'group-1',
           tabType: 2,
           sort: 3,
-          tabName: '首页',
-        },
-      ],
+          tabName: '首页'
+        }
+      ]
     },
     {
       id: 'link-1',
       tabType: 3,
       parentId: 0,
-      sort: 1,
-    },
+      sort: 1
+    }
   ];
 }
 

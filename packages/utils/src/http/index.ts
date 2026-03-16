@@ -102,12 +102,14 @@ export function createRequest(config: RequestConfig = {}, interceptors: RequestI
       ...baseConfig,
       ...options,
       method,
-      url,
+      url
     });
 
     // 当前 utils 只迁移了统一接口定义，具体请求执行需业务侧按项目基座（如 axios）二次封装。
     void mergedConfig;
-    runResponseErrorInterceptor(new Error('[http] createRequest 当前为适配占位实现，请在业务侧注入具体请求库。'));
+    runResponseErrorInterceptor(
+      new Error('[http] createRequest 当前为适配占位实现，请在业务侧注入具体请求库。')
+    );
   };
 
   return {
@@ -115,7 +117,7 @@ export function createRequest(config: RequestConfig = {}, interceptors: RequestI
     post: (url: string, data?: any, options?: any) => request('POST', url, { ...options, data }),
     put: (url: string, data?: any, options?: any) => request('PUT', url, { ...options, data }),
     delete: (url: string, options?: any) => request('DELETE', url, options),
-    request,
+    request
   };
 }
 
@@ -233,7 +235,7 @@ export function getHttpErrorMessage(status: number): string {
     500: 'Internal Server Error',
     502: 'Bad Gateway',
     503: 'Service Unavailable',
-    504: 'Gateway Timeout',
+    504: 'Gateway Timeout'
   };
 
   return errorMessages[status] || `HTTP Error ${status}`;
@@ -255,7 +257,11 @@ export function getHttpErrorMessage(status: number): string {
  * )
  * ```
  */
-export async function retryRequest<T>(requestFn: () => Promise<T>, maxRetries = 3, delay = 1000): Promise<T> {
+export async function retryRequest<T>(
+  requestFn: () => Promise<T>,
+  maxRetries = 3,
+  delay = 1000
+): Promise<T> {
   let lastError: any;
 
   for (let i = 0; i <= maxRetries; i++) {
@@ -292,7 +298,7 @@ export function withTimeout<T>(requestFn: () => Promise<T>, timeout: number): Pr
     requestFn(),
     new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error('Request timeout')), timeout);
-    }),
+    })
   ]);
 }
 
@@ -313,7 +319,10 @@ export function withTimeout<T>(requestFn: () => Promise<T>, timeout: number): Pr
  * const results = await concurrentRequests(requests, 2)
  * ```
  */
-export async function concurrentRequests<T>(requests: (() => Promise<T>)[], concurrency = 3): Promise<T[]> {
+export async function concurrentRequests<T>(
+  requests: (() => Promise<T>)[],
+  concurrency = 3
+): Promise<T[]> {
   const results: T[] = [];
   const executing: Promise<any>[] = [];
 
@@ -374,7 +383,7 @@ export class RequestCache {
   set(key: string, data: any): void {
     this.cache.set(key, {
       data,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     });
   }
 

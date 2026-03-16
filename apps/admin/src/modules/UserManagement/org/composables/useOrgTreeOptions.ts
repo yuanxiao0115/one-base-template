@@ -1,7 +1,7 @@
-import { type Ref, ref } from "vue";
-import { orgApi } from "../api";
-import type { OrgRecord } from "../types";
-import type { OrgTreeOption } from "../form";
+import { type Ref, ref } from 'vue';
+import { orgApi } from '../api';
+import type { OrgRecord } from '../types';
+import type { OrgTreeOption } from '../form';
 
 interface UseOrgTreeOptionsParams {
   rootParentId: Ref<string>;
@@ -15,7 +15,7 @@ function getTreeOptions(rows: OrgRecord[]): OrgTreeOption[] {
   return getSortedRows(rows).map((row) => ({
     value: row.id,
     label: row.orgName,
-    children: Array.isArray(row.children) ? getTreeOptions(row.children) : undefined,
+    children: Array.isArray(row.children) ? getTreeOptions(row.children) : undefined
   }));
 }
 
@@ -53,7 +53,7 @@ function getDisabledTreeOptions(options: OrgTreeOption[], ids: Set<string>): Org
   return options.map((item) => ({
     ...item,
     disabled: ids.has(item.value),
-    children: Array.isArray(item.children) ? getDisabledTreeOptions(item.children, ids) : undefined,
+    children: Array.isArray(item.children) ? getDisabledTreeOptions(item.children, ids) : undefined
   }));
 }
 
@@ -80,7 +80,7 @@ export function useOrgTreeOptions(params: UseOrgTreeOptionsParams) {
   async function loadOrgTreeOptions(disabledId?: string) {
     const response = await orgApi.queryAllOrgTree();
     if (response.code !== 200) {
-      throw new Error(response.message || "加载组织树失败");
+      throw new Error(response.message || '加载组织树失败');
     }
 
     const rows = Array.isArray(response.data) ? response.data : [];
@@ -96,9 +96,9 @@ export function useOrgTreeOptions(params: UseOrgTreeOptionsParams) {
       options = [
         {
           value: rootParentId.value,
-          label: "顶级组织",
-          children: options,
-        },
+          label: '顶级组织',
+          children: options
+        }
       ];
     }
 
@@ -107,6 +107,6 @@ export function useOrgTreeOptions(params: UseOrgTreeOptionsParams) {
 
   return {
     orgTreeOptions,
-    loadOrgTreeOptions,
+    loadOrgTreeOptions
   };
 }

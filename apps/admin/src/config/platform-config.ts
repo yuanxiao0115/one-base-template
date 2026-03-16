@@ -2,11 +2,12 @@ import { parseRuntimeConfig, type RuntimeConfig } from '@one-base-template/core'
 import {
   PlatformConfigLoadError,
   createRuntimeConfigLoader,
-  type PlatformConfigLoadErrorCode,
+  type PlatformConfigLoadErrorCode
 } from '@one-base-template/app-starter';
 
 const CONFIG_URL = `${import.meta.env.BASE_URL}platform-config.json`;
-const ENABLE_LOCAL_SNAPSHOT_FALLBACK = import.meta.env.VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK === 'true';
+const ENABLE_LOCAL_SNAPSHOT_FALLBACK =
+  import.meta.env.VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK === 'true';
 const LOCAL_SNAPSHOT_KEY = `${import.meta.env.BASE_URL}platform-config:snapshot:v1`;
 
 const runtimeConfigLoader = createRuntimeConfigLoader<RuntimeConfig>({
@@ -18,7 +19,7 @@ const runtimeConfigLoader = createRuntimeConfigLoader<RuntimeConfig>({
   localSnapshotKey: LOCAL_SNAPSHOT_KEY,
   onWarn(message) {
     console.warn(message);
-  },
+  }
 });
 
 export { PlatformConfigLoadError };

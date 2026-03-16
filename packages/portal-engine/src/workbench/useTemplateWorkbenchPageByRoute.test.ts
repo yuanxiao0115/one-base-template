@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 import type { CreateTemplateWorkbenchPageControllerOptions } from './template-workbench-page-controller';
 import type { PortalRouteQueryLike } from './template-workbench-route';
@@ -8,16 +8,18 @@ import { useTemplateWorkbenchPageByRoute } from './useTemplateWorkbenchPageByRou
 describe('useTemplateWorkbenchPageByRoute', () => {
   function createFactoryFixture() {
     let capturedOptions: CreateTemplateWorkbenchPageControllerOptions | null = null;
-    const controllerFactory = vi.fn().mockImplementation((options: CreateTemplateWorkbenchPageControllerOptions) => {
-      capturedOptions = options;
-      return {
-        marker: 'mock-controller',
-      };
-    });
+    const controllerFactory = vi
+      .fn()
+      .mockImplementation((options: CreateTemplateWorkbenchPageControllerOptions) => {
+        capturedOptions = options;
+        return {
+          marker: 'mock-controller'
+        };
+      });
 
     return {
       controllerFactory,
-      getCapturedOptions: () => capturedOptions,
+      getCapturedOptions: () => capturedOptions
     };
   }
 
@@ -25,37 +27,39 @@ describe('useTemplateWorkbenchPageByRoute', () => {
     const routeQuery = ref<PortalRouteQueryLike>({
       id: 'tpl-1',
       tabId: 'tab-1',
-      keep: 'yes',
+      keep: 'yes'
     });
     const previewTarget = ref({
       postMessageToFrame: vi.fn().mockReturnValue(true),
       setInteractionMode: vi.fn(),
       zoomIn: vi.fn(),
       zoomOut: vi.fn(),
-      resetView: vi.fn(),
+      resetView: vi.fn()
     });
     const replaceRouteQuery = vi.fn();
     const pushRoute = vi.fn();
-    const resolveRouteHref = vi.fn().mockImplementation((payload: { name: string; query: unknown }) => {
-      return `/resolved/${payload.name}`;
-    });
+    const resolveRouteHref = vi
+      .fn()
+      .mockImplementation((payload: { name: string; query: unknown }) => {
+        return `/resolved/${payload.name}`;
+      });
     const api = {
       template: {
         detail: vi.fn(),
         update: vi.fn(),
-        hideToggle: vi.fn(),
+        hideToggle: vi.fn()
       },
       tab: {
         detail: vi.fn(),
         add: vi.fn(),
         update: vi.fn(),
-        delete: vi.fn(),
-      },
+        delete: vi.fn()
+      }
     };
     const notify = {
       success: vi.fn(),
       error: vi.fn(),
-      warning: vi.fn(),
+      warning: vi.fn()
     };
     const confirm = vi.fn().mockResolvedValue(undefined);
     const fixture = createFactoryFixture();
@@ -69,7 +73,7 @@ describe('useTemplateWorkbenchPageByRoute', () => {
       replaceRouteQuery,
       pushRoute,
       resolveRouteHref,
-      controllerFactory: fixture.controllerFactory,
+      controllerFactory: fixture.controllerFactory
     });
 
     return {
@@ -78,7 +82,7 @@ describe('useTemplateWorkbenchPageByRoute', () => {
       pushRoute,
       resolveRouteHref,
       fixture,
-      binding,
+      binding
     };
   }
 
@@ -95,12 +99,12 @@ describe('useTemplateWorkbenchPageByRoute', () => {
     expect(replaceRouteQuery).toHaveBeenCalledWith({
       id: 'tpl-1',
       tabId: 'tab-2',
-      keep: 'yes',
+      keep: 'yes'
     });
 
     routeQuery.value = {
       templateId: 'tpl-2',
-      tabId: 'tab-9',
+      tabId: 'tab-9'
     };
     expect(binding.templateId.value).toBe('tpl-2');
     expect(binding.routeTabId.value).toBe('tab-9');
@@ -113,28 +117,28 @@ describe('useTemplateWorkbenchPageByRoute', () => {
 
     capturedOptions!.openEditor({
       templateId: 'tpl-3',
-      tabId: 'tab-3',
+      tabId: 'tab-3'
     });
     expect(pushRoute).toHaveBeenCalledWith({
       path: '/portal/page/edit',
       query: {
         id: 'tpl-3',
-        tabId: 'tab-3',
-      },
+        tabId: 'tab-3'
+      }
     });
 
     const href = capturedOptions!.resolvePreviewHref({
       templateId: 'tpl-3',
       tabId: 'tab-3',
-      previewMode: 'live',
+      previewMode: 'live'
     });
     expect(resolveRouteHref).toHaveBeenCalledWith({
       name: 'PortalPreview',
       query: {
         templateId: 'tpl-3',
         tabId: 'tab-3',
-        previewMode: 'live',
-      },
+        previewMode: 'live'
+      }
     });
     expect(href).toBe('/resolved/PortalPreview');
     expect(binding.controller).toEqual({ marker: 'mock-controller' });
@@ -144,39 +148,39 @@ describe('useTemplateWorkbenchPageByRoute', () => {
     const { routeQuery, previewTarget, api, notify, fixture } = (() => {
       const routeQuery = ref<PortalRouteQueryLike>({
         id: 'tpl-1',
-        tabId: 'tab-1',
+        tabId: 'tab-1'
       });
       const previewTarget = ref({
         postMessageToFrame: vi.fn().mockReturnValue(true),
         setInteractionMode: vi.fn(),
         zoomIn: vi.fn(),
         zoomOut: vi.fn(),
-        resetView: vi.fn(),
+        resetView: vi.fn()
       });
       const api = {
         template: {
           detail: vi.fn(),
           update: vi.fn(),
-          hideToggle: vi.fn(),
+          hideToggle: vi.fn()
         },
         tab: {
           detail: vi.fn(),
           add: vi.fn(),
           update: vi.fn(),
-          delete: vi.fn(),
-        },
+          delete: vi.fn()
+        }
       };
       const notify = {
         success: vi.fn(),
         error: vi.fn(),
-        warning: vi.fn(),
+        warning: vi.fn()
       };
       return {
         routeQuery,
         previewTarget,
         api,
         notify,
-        fixture: createFactoryFixture(),
+        fixture: createFactoryFixture()
       };
     })();
 
@@ -194,7 +198,7 @@ describe('useTemplateWorkbenchPageByRoute', () => {
       onReplaceRouteQueryError,
       pushRoute: vi.fn(),
       resolveRouteHref: vi.fn().mockReturnValue('/resolved/PortalPreview'),
-      controllerFactory: fixture.controllerFactory,
+      controllerFactory: fixture.controllerFactory
     });
 
     binding.syncRouteTabId('tab-2');

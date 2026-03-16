@@ -1,5 +1,5 @@
-import type { FormRules } from "element-plus";
-import type { PositionRecord, PositionSavePayload } from "./types";
+import type { FormRules } from 'element-plus';
+import type { PositionRecord, PositionSavePayload } from './types';
 
 export interface PositionForm {
   id?: string;
@@ -9,35 +9,35 @@ export interface PositionForm {
 }
 
 export const defaultPositionForm: PositionForm = {
-  postName: "",
+  postName: '',
   sort: 10,
-  remark: "",
+  remark: ''
 };
 
 export const positionFormRules: FormRules<PositionForm> = {
   postName: [
     {
       required: true,
-      message: "请输入职位名称",
-      trigger: "blur",
-    },
+      message: '请输入职位名称',
+      trigger: 'blur'
+    }
   ],
   sort: [
     {
       required: true,
-      message: "请输入排序值",
-      trigger: "blur",
-      type: "number",
-    },
-  ],
+      message: '请输入排序值',
+      trigger: 'blur',
+      type: 'number'
+    }
+  ]
 };
 
 export function toPositionForm(detail: PositionRecord): PositionForm {
   return {
     id: detail.id,
-    postName: detail.postName || "",
+    postName: detail.postName || '',
     sort: Number(detail.sort || 0),
-    remark: detail.remark || "",
+    remark: detail.remark || ''
   };
 }
 
@@ -46,6 +46,6 @@ export function toPositionPayload(form: PositionForm): PositionSavePayload {
     id: form.id,
     postName: form.postName.trim(),
     sort: Number(form.sort || 0),
-    remark: form.remark.trim(),
+    remark: form.remark.trim()
   };
 }

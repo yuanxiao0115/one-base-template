@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { TagComponent } from '@one-base-template/tag';
+import { TagComponent } from '@one-base-template/tag';
 </script>
 
 <template>

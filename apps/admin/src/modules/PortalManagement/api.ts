@@ -1,8 +1,8 @@
-import { obHttp } from "@one-base-template/core";
-import { templateApi } from "./templatePage/api";
-import type { BizResponse, PortalTab, PortalTemplate, TabListParams } from "./types";
+import { obHttp } from '@one-base-template/core';
+import { templateApi } from './templatePage/api';
+import type { BizResponse, PortalTab, PortalTemplate, TabListParams } from './types';
 
-export { templateApi } from "./templatePage/api";
+export { templateApi } from './templatePage/api';
 
 export const portalApi = {
   template: templateApi,
@@ -10,53 +10,55 @@ export const portalApi = {
   resource: {
     upload: async (file: File) => {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append('file', file);
       return obHttp().post<BizResponse<{ id?: string; savedPath?: string; joinUrl?: string }>>(
-        "/cmict/file/resource/upload",
+        '/cmict/file/resource/upload',
         {
           data: formData,
-          $isUpload: true,
+          $isUpload: true
         }
       );
-    },
+    }
   },
 
   tab: {
     list: async (params: TabListParams) =>
-      obHttp().get<BizResponse<unknown>>("/cmict/portal/tab/page", { params }),
+      obHttp().get<BizResponse<unknown>>('/cmict/portal/tab/page', { params }),
 
     detail: async (params: { id: string; templateId?: string | number }) =>
-      obHttp().get<BizResponse<PortalTab>>("/cmict/portal/tab/detail", {
-        params,
+      obHttp().get<BizResponse<PortalTab>>('/cmict/portal/tab/detail', {
+        params
       }),
 
     add: async (data: Partial<PortalTab>) =>
-      obHttp().post<BizResponse<unknown>>("/cmict/portal/tab/add", {
-        data,
+      obHttp().post<BizResponse<unknown>>('/cmict/portal/tab/add', {
+        data
       }),
 
     update: async (data: Partial<PortalTab>) =>
-      obHttp().post<BizResponse<unknown>>("/cmict/portal/tab/update", {
-        data,
+      obHttp().post<BizResponse<unknown>>('/cmict/portal/tab/update', {
+        data
       }),
 
     delete: async (data: { id: string }) =>
-      obHttp().delete<BizResponse<unknown>>("/cmict/portal/tab/delete", {
-        data,
-      }),
+      obHttp().delete<BizResponse<unknown>>('/cmict/portal/tab/delete', {
+        data
+      })
   },
 
   templatePublic: {
     getDetail: async (params: { id: string }) =>
-      obHttp().get<BizResponse<PortalTemplate>>("/cmict/portal/public/portal/template/get-detail", { params }),
+      obHttp().get<BizResponse<PortalTemplate>>('/cmict/portal/public/portal/template/get-detail', {
+        params
+      })
   },
 
   tabPublic: {
     detail: async (params: { id: string }) =>
-      obHttp().get<BizResponse<PortalTab>>("/cmict/portal/public/portal/tab/detail", {
-        params,
-      }),
-  },
+      obHttp().get<BizResponse<PortalTab>>('/cmict/portal/public/portal/tab/detail', {
+        params
+      })
+  }
 };
 
 interface CmsBizResponse<T> {
@@ -89,23 +91,23 @@ interface PortalContactRow {
 }
 
 function normalizeIdLike(value: unknown): string {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return value;
   }
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     return String(value);
   }
-  return "";
+  return '';
 }
 
 function normalizeString(value: unknown): string {
-  return typeof value === "string" ? value : "";
+  return typeof value === 'string' ? value : '';
 }
 
 function normalizeOrgRows(rows: unknown[], parentIdFallback: string): PortalContactRow[] {
   return rows
     .map((item) => {
-      if (!item || typeof item !== "object") {
+      if (!item || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -119,10 +121,10 @@ function normalizeOrgRows(rows: unknown[], parentIdFallback: string): PortalCont
         ...row,
         id,
         parentId,
-        companyId: normalizeIdLike(row.companyId) || "0",
-        nodeType: "org",
+        companyId: normalizeIdLike(row.companyId) || '0',
+        nodeType: 'org',
         orgName,
-        title: normalizeString(row.title) || orgName || id,
+        title: normalizeString(row.title) || orgName || id
       } as PortalContactRow;
     })
     .filter((item) => Boolean(item)) as PortalContactRow[];
@@ -138,7 +140,7 @@ function resolveUserParentId(row: Record<string, unknown>, parentIdFallback: str
     return parentIdFallback;
   }
   const firstOrg = userOrgs[0];
-  if (!firstOrg || typeof firstOrg !== "object") {
+  if (!firstOrg || typeof firstOrg !== 'object') {
     return parentIdFallback;
   }
   return normalizeIdLike((firstOrg as Record<string, unknown>).orgId) || parentIdFallback;
@@ -151,19 +153,19 @@ function resolveUserCompanyId(row: Record<string, unknown>): string {
   }
   const userOrgs = Array.isArray(row.userOrgs) ? row.userOrgs : [];
   if (userOrgs.length === 0) {
-    return "0";
+    return '0';
   }
   const firstOrg = userOrgs[0];
-  if (!firstOrg || typeof firstOrg !== "object") {
-    return "0";
+  if (!firstOrg || typeof firstOrg !== 'object') {
+    return '0';
   }
-  return normalizeIdLike((firstOrg as Record<string, unknown>).companyId) || "0";
+  return normalizeIdLike((firstOrg as Record<string, unknown>).companyId) || '0';
 }
 
 function normalizeUserRows(rows: unknown[], parentIdFallback: string): PortalContactRow[] {
   return rows
     .map((item) => {
-      if (!item || typeof item !== "object") {
+      if (!item || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -178,9 +180,9 @@ function normalizeUserRows(rows: unknown[], parentIdFallback: string): PortalCon
         userId: normalizeIdLike(row.userId) || id,
         parentId: resolveUserParentId(row, parentIdFallback),
         companyId: resolveUserCompanyId(row),
-        nodeType: "user",
+        nodeType: 'user',
         nickName,
-        title: normalizeString(row.title) || nickName || normalizeString(row.userAccount) || id,
+        title: normalizeString(row.title) || nickName || normalizeString(row.userAccount) || id
       } as PortalContactRow;
     })
     .filter((item) => Boolean(item)) as PortalContactRow[];
@@ -188,16 +190,18 @@ function normalizeUserRows(rows: unknown[], parentIdFallback: string): PortalCon
 
 function isUserLikeRow(row: Record<string, unknown>): boolean {
   const nodeType = normalizeString(row.nodeType);
-  if (nodeType === "user") {
+  if (nodeType === 'user') {
     return true;
   }
-  return Boolean(normalizeIdLike(row.userId) || normalizeString(row.nickName) || normalizeString(row.userAccount));
+  return Boolean(
+    normalizeIdLike(row.userId) || normalizeString(row.nickName) || normalizeString(row.userAccount)
+  );
 }
 
 function normalizeMixedRows(rows: unknown[], parentIdFallback: string): PortalContactRow[] {
   const normalized: PortalContactRow[] = [];
   rows.forEach((item) => {
-    if (!item || typeof item !== "object") {
+    if (!item || typeof item !== 'object') {
       return;
     }
     const row = item as Record<string, unknown>;
@@ -210,8 +214,8 @@ function normalizeMixedRows(rows: unknown[], parentIdFallback: string): PortalCo
   return normalized;
 }
 
-function normalizeContactRows(data: unknown, parentIdFallback = "0"): PortalContactRow[] {
-  const fallbackParentId = normalizeIdLike(parentIdFallback) || "0";
+function normalizeContactRows(data: unknown, parentIdFallback = '0'): PortalContactRow[] {
+  const fallbackParentId = normalizeIdLike(parentIdFallback) || '0';
   if (Array.isArray(data)) {
     const rows = normalizeMixedRows(data, fallbackParentId);
     if (rows.length > 0) {
@@ -220,7 +224,7 @@ function normalizeContactRows(data: unknown, parentIdFallback = "0"): PortalCont
     return [];
   }
 
-  if (!data || typeof data !== "object") {
+  if (!data || typeof data !== 'object') {
     return [];
   }
 
@@ -236,7 +240,10 @@ function normalizeContactRows(data: unknown, parentIdFallback = "0"): PortalCont
       ? payload.userList
       : [];
 
-  const fromTree = [...normalizeOrgRows(orgRows, fallbackParentId), ...normalizeUserRows(userRows, fallbackParentId)];
+  const fromTree = [
+    ...normalizeOrgRows(orgRows, fallbackParentId),
+    ...normalizeUserRows(userRows, fallbackParentId)
+  ];
   if (fromTree.length > 0) {
     return fromTree;
   }
@@ -251,14 +258,16 @@ function normalizeContactRows(data: unknown, parentIdFallback = "0"): PortalCont
 
 function normalizeContactResponse(
   response: BizResponse<unknown>,
-  parentIdFallback = "0",
+  parentIdFallback = '0',
   onlyUsers = false
 ): BizResponse<PortalContactRow[]> {
   const normalizedRows = normalizeContactRows(response?.data, parentIdFallback);
-  const data = onlyUsers ? normalizedRows.filter((item) => item.nodeType === "user") : normalizedRows;
+  const data = onlyUsers
+    ? normalizedRows.filter((item) => item.nodeType === 'user')
+    : normalizedRows;
   return {
     ...response,
-    data,
+    data
   };
 }
 
@@ -266,46 +275,58 @@ function normalizeContactResponse(
  * cMS 接口（party-building 组件依赖）
  */
 export const cmsApi = {
-  getCategoryTree: async () => obHttp().get<CmsBizResponse<unknown>>("/cmict/cms/cmsCategory/tree"),
+  getCategoryTree: async () => obHttp().get<CmsBizResponse<unknown>>('/cmict/cms/cmsCategory/tree'),
 
-  getUserArticlesByCategory: async (category: string, params?: { pageSize?: number; currentPage?: number }) =>
+  getUserArticlesByCategory: async (
+    category: string,
+    params?: { pageSize?: number; currentPage?: number }
+  ) =>
     obHttp().get<CmsBizResponse<unknown>>(`/cmict/cms/cmsUser/category/${category}/article/list`, {
       params: {
         pageSize: params?.pageSize ?? 20,
-        currentPage: params?.currentPage ?? 1,
-      },
+        currentPage: params?.currentPage ?? 1
+      }
     }),
 
   getUserCarouselsByCategory: async (category: string) =>
     obHttp().get<CmsBizResponse<unknown>>(`/cmict/cms/cmsUser/category/${category}/carousel/list`, {
       params: {
         pageSize: 20,
-        currentPage: 1,
-      },
-    }),
+        currentPage: 1
+      }
+    })
 };
 
 /**
  * 门户权限配置依赖接口
  */
 export const portalAuthorityApi = {
-  listRoles: async () => obHttp().get<BizResponse<PortalRoleRow[]>>("/cmict/admin/role/get-list"),
+  listRoles: async () => obHttp().get<BizResponse<PortalRoleRow[]>>('/cmict/admin/role/get-list'),
 
   pageRoles: async (params: { currentPage: number; pageSize: number; roleName?: string }) =>
-    obHttp().get<BizResponse<{ records?: PortalRoleRow[]; [key: string]: unknown }>>("/cmict/admin/role/page", { params }),
+    obHttp().get<BizResponse<{ records?: PortalRoleRow[]; [key: string]: unknown }>>(
+      '/cmict/admin/role/page',
+      { params }
+    ),
 
   getOrgContactsLazy: async (params: { parentId?: string }) => {
-    const parentId = normalizeIdLike(params.parentId) || "0";
-    const response = await obHttp().get<BizResponse<unknown>>("/cmict/admin/org/detail/children-and-user", {
-      params: {
-        parentId,
-      },
-    });
+    const parentId = normalizeIdLike(params.parentId) || '0';
+    const response = await obHttp().get<BizResponse<unknown>>(
+      '/cmict/admin/org/detail/children-and-user',
+      {
+        params: {
+          parentId
+        }
+      }
+    );
     return normalizeContactResponse(response, parentId, false);
   },
 
   searchContactUsers: async (params: { search?: string }) => {
-    const response = await obHttp().get<BizResponse<unknown>>("/cmict/admin/user/structure/search/", { params });
-    return normalizeContactResponse(response, "0", true);
-  },
+    const response = await obHttp().get<BizResponse<unknown>>(
+      '/cmict/admin/user/structure/search/',
+      { params }
+    );
+    return normalizeContactResponse(response, '0', true);
+  }
 };

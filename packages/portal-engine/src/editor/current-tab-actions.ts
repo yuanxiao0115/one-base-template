@@ -5,7 +5,11 @@ export interface UsePortalCurrentTabActionsOptions<TTab, TPreviewMode = unknown>
   currentTabId: Readonly<Ref<string>>;
   currentTab: Readonly<Ref<TTab | null>>;
   previewMode: Readonly<Ref<TPreviewMode>>;
-  resolvePreviewHref: (payload: { templateId: string; tabId: string; previewMode: TPreviewMode }) => string;
+  resolvePreviewHref: (payload: {
+    templateId: string;
+    tabId: string;
+    previewMode: TPreviewMode;
+  }) => string;
   isTabEditable?: (tab: TTab) => boolean;
   notifyWarning: (message: string) => void;
   onEditTab: (tabId: string) => void;
@@ -84,7 +88,7 @@ export function usePortalCurrentTabActions<TTab, TPreviewMode = unknown>(
     const href = options.resolvePreviewHref({
       templateId: options.templateId.value,
       tabId: options.currentTabId.value,
-      previewMode: options.previewMode.value,
+      previewMode: options.previewMode.value
     });
 
     (options.openWindow || defaultOpenWindow)(href, '_blank', 'noopener,noreferrer');
@@ -96,6 +100,6 @@ export function usePortalCurrentTabActions<TTab, TPreviewMode = unknown>(
     openCurrentAttribute,
     toggleCurrentTabHide,
     deleteCurrentTab,
-    openPreviewWindow,
+    openPreviewWindow
   };
 }

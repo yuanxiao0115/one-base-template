@@ -1,6 +1,8 @@
 <template>
   <div class="title-content-config">
-    <el-form-item label="标题"> <el-input v-model="titleData.title" placeholder="请输入标题" /> </el-form-item>
+    <el-form-item label="标题">
+      <el-input v-model="titleData.title" placeholder="请输入标题" />
+    </el-form-item>
 
     <el-form-item label="标题样式">
       <el-radio-group v-model="titleData.titleStyle">
@@ -19,37 +21,37 @@
 </template>
 
 <script setup lang="ts">
-  // 定义接口类型
-  export interface TitleConfigModelType {
-    title: string;
-    titleStyle: string;
-    showMore: boolean;
-    moreLink: string;
-  }
-  const titleData = defineModel<TitleConfigModelType>({
-    default: () => ({
-      title: '',
-      titleStyle: 'simple',
-      showMore: false,
-      moreLink: '',
-    }),
-  });
+// 定义接口类型
+export interface TitleConfigModelType {
+  title: string;
+  titleStyle: string;
+  showMore: boolean;
+  moreLink: string;
+}
+const titleData = defineModel<TitleConfigModelType>({
+  default: () => ({
+    title: '',
+    titleStyle: 'simple',
+    showMore: false,
+    moreLink: ''
+  })
+});
 
-  defineOptions({
-    name: 'PbTitleConfig',
-  });
+defineOptions({
+  name: 'PbTitleConfig'
+});
 </script>
 
 <style scoped>
-  .title-content-config {
-    --config-text: #0f172a;
+.title-content-config {
+  --config-text: #0f172a;
 
-    --config-muted: #64748b;
-    width: 100%;
-  }
+  --config-muted: #64748b;
+  width: 100%;
+}
 
-  .title-content-config :deep(.el-form-item__label) {
-    font-weight: 500;
-    color: var(--config-muted);
-  }
+.title-content-config :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: var(--config-muted);
+}
 </style>

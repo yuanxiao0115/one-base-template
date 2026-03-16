@@ -1,59 +1,59 @@
-import { ref } from 'vue'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref } from 'vue';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
-import type { BizResponse } from '../schema/types'
-import { PORTAL_PREVIEW_MESSAGE_PAGE_READY } from '../editor/preview-bridge'
-import type { PortalLayoutItem } from '../stores/pageLayout'
+import type { BizResponse } from '../schema/types';
+import { PORTAL_PREVIEW_MESSAGE_PAGE_READY } from '../editor/preview-bridge';
+import type { PortalLayoutItem } from '../stores/pageLayout';
 
-import { createPageEditorController } from './page-editor-controller'
+import { createPageEditorController } from './page-editor-controller';
 
 function ok<T>(data: T): BizResponse<T> {
   return {
     code: 0,
-    data,
-  }
+    data
+  };
 }
 
 async function flushPromises() {
-  await Promise.resolve()
-  await Promise.resolve()
+  await Promise.resolve();
+  await Promise.resolve();
 }
 
 describe('page editor controller', () => {
   function createController() {
-    const tabId = ref('tab-1')
-    const templateId = ref('tpl-1')
-    let layoutItems: PortalLayoutItem[] = []
+    const tabId = ref('tab-1');
+    const templateId = ref('tpl-1');
+    let layoutItems: PortalLayoutItem[] = [];
     const pageLayoutStore = {
       get layoutItems() {
-        return layoutItems
+        return layoutItems;
       },
       reset: vi.fn(() => {
-        layoutItems = []
+        layoutItems = [];
       }),
       updateLayoutItems: vi.fn((next: PortalLayoutItem[]) => {
-        layoutItems = next
+        layoutItems = next;
       }),
-      deselectLayoutItem: vi.fn(),
-    }
+      deselectLayoutItem: vi.fn()
+    };
     const previewWindow = {
       closed: false,
       location: {
-        href: '',
+        href: ''
       },
       focus: vi.fn(),
-      postMessage: vi.fn(),
-    } as unknown as Window
-    const openWindow = vi.fn().mockReturnValue(previewWindow)
-    const sendPreviewRuntimeToWindow = vi.fn().mockReturnValue(true)
+      postMessage: vi.fn()
+    } as unknown as Window;
+    const openWindow = vi.fn().mockReturnValue(previewWindow);
+    const sendPreviewRuntimeToWindow = vi.fn().mockReturnValue(true);
     const notify = {
       success: vi.fn(),
       error: vi.fn(),
-      warning: vi.fn(),
-    }
+      warning: vi.fn()
+    };
     const resolvePreviewHref = vi.fn().mockImplementation(({ tabId, templateId, previewMode }) => {
-      return `/portal/preview?tabId=${tabId}&templateId=${templateId}&previewMode=${String(previewMode)}`
-    })
+      return `/portal/preview?tabId=${tabId}&templateId=${templateId}&previewMode=${String(previewMode)}`;
+    });
     const api = {
       tab: {
         detail: vi.fn().mockResolvedValue(
@@ -63,8 +63,8 @@ describe('page editor controller', () => {
             pageLayout: JSON.stringify({
               settings: {
                 basic: {
-                  pageTitle: '',
-                },
+                  pageTitle: ''
+                }
               },
               component: [
                 {
@@ -72,15 +72,15 @@ describe('page editor controller', () => {
                   x: 0,
                   y: 0,
                   w: 12,
-                  h: 8,
-                },
-              ],
-            }),
+                  h: 8
+                }
+              ]
+            })
           })
         ),
-        update: vi.fn().mockResolvedValue(ok(true)),
-      },
-    }
+        update: vi.fn().mockResolvedValue(ok(true))
+      }
+    };
 
     const controller = createPageEditorController({
       tabId,
@@ -90,8 +90,8 @@ describe('page editor controller', () => {
       openWindow,
       sendPreviewRuntimeToWindow,
       resolvePreviewHref,
-      pageLayoutStore,
-    })
+      pageLayoutStore
+    });
 
     return {
       controller,
@@ -103,65 +103,71 @@ describe('page editor controller', () => {
       sendPreviewRuntimeToWindow,
       resolvePreviewHref,
       previewWindow,
-      pageLayoutStore,
-    }
+      pageLayoutStore
+    };
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
   it('应自动加载页面详情并在保存时提交标准化 pageLayout', async () => {
-    const { controller, api, notify } = createController()
-    await flushPromises()
+    const { controller, api, notify } = createController();
+    await flushPromises();
 
-    expect(api.tab.detail).toHaveBeenCalledWith({ id: 'tab-1' })
-    expect(controller.tabName.value).toBe('页面A')
+    expect(api.tab.detail).toHaveBeenCalledWith({ id: 'tab-1' });
+    expect(controller.tabName.value).toBe('页面A');
 
-    const success = await controller.savePage()
+    const success = await controller.savePage();
 
-    expect(success).toBe(true)
-    expect(api.tab.update).toHaveBeenCalledTimes(1)
-    const firstUpdateCall = api.tab.update.mock.calls[0]
-    expect(firstUpdateCall).toBeDefined()
+    expect(success).toBe(true);
+    expect(api.tab.update).toHaveBeenCalledTimes(1);
+    const firstUpdateCall = api.tab.update.mock.calls[0];
+    expect(firstUpdateCall).toBeDefined();
     const payload = firstUpdateCall![0] as {
-      id: string
-      tabName: string
-      pageLayout: string
-    }
-    expect(payload.id).toBe('tab-1')
-    expect(payload.tabName).toBe('页面A')
+      id: string;
+      tabName: string;
+      pageLayout: string;
+    };
+    expect(payload.id).toBe('tab-1');
+    expect(payload.tabName).toBe('页面A');
     const parsed = JSON.parse(payload.pageLayout) as {
       settings?: {
         basic?: {
-          pageTitle?: string
-        }
-      }
-      component?: unknown[]
-    }
-    expect(parsed.settings?.basic?.pageTitle).toBe('页面A')
-    expect(parsed.component).toHaveLength(1)
-    expect(notify.success).toHaveBeenCalledWith('保存成功')
-    controller.dispose()
-  })
+          pageTitle?: string;
+        };
+      };
+      component?: unknown[];
+    };
+    expect(parsed.settings?.basic?.pageTitle).toBe('页面A');
+    expect(parsed.component).toHaveLength(1);
+    expect(notify.success).toHaveBeenCalledWith('保存成功');
+    controller.dispose();
+  });
 
   it('预览时应打开窗口并在收到 ready 消息后再次同步运行时', async () => {
-    const { controller, openWindow, sendPreviewRuntimeToWindow, resolvePreviewHref, previewWindow } = createController()
-    await flushPromises()
-    controller.mount()
+    const {
+      controller,
+      openWindow,
+      sendPreviewRuntimeToWindow,
+      resolvePreviewHref,
+      previewWindow
+    } = createController();
+    await flushPromises();
+    controller.mount();
 
-    await controller.previewPage()
+    await controller.previewPage();
 
     expect(resolvePreviewHref).toHaveBeenCalledWith({
       tabId: 'tab-1',
       templateId: 'tpl-1',
-      previewMode: 'live',
-    })
+      previewMode: 'live'
+    });
     expect(openWindow).toHaveBeenCalledWith(
       '/portal/preview?tabId=tab-1&templateId=tpl-1&previewMode=live',
       'portal-page-preview'
-    )
-    const syncCountBeforeReady = sendPreviewRuntimeToWindow.mock.calls.length
+    );
+    const syncCountBeforeReady = sendPreviewRuntimeToWindow.mock.calls.length;
     window.dispatchEvent(
       new MessageEvent('message', {
         origin: window.location.origin,
@@ -170,12 +176,12 @@ describe('page editor controller', () => {
           type: PORTAL_PREVIEW_MESSAGE_PAGE_READY,
           data: {
             tabId: 'tab-1',
-            templateId: 'tpl-1',
-          },
-        },
+            templateId: 'tpl-1'
+          }
+        }
       })
-    )
-    expect(sendPreviewRuntimeToWindow.mock.calls.length).toBeGreaterThan(syncCountBeforeReady)
-    controller.dispose()
-  })
-})
+    );
+    expect(sendPreviewRuntimeToWindow.mock.calls.length).toBeGreaterThan(syncCountBeforeReady);
+    controller.dispose();
+  });
+});

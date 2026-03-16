@@ -5,59 +5,59 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue';
+import { computed } from 'vue';
 
-  const props = withDefaults(
-    defineProps<{
-      text?: string;
-      showDot?: boolean;
-      tag?: 'a' | 'div' | 'p' | 'span';
-      href?: string;
-      target?: string;
-    }>(),
-    {
-      text: '',
-      showDot: false,
-      tag: 'div',
-      href: '',
-      target: '_blank',
-    }
-  );
+const props = withDefaults(
+  defineProps<{
+    text?: string;
+    showDot?: boolean;
+    tag?: 'a' | 'div' | 'p' | 'span';
+    href?: string;
+    target?: string;
+  }>(),
+  {
+    text: '',
+    showDot: false,
+    tag: 'div',
+    href: '',
+    target: '_blank'
+  }
+);
 
-  const linkAttrs = computed(() => {
-    if (props.tag === 'a') {
-      return {
-        href: props.href,
-        target: props.target,
-      };
-    }
-    return {};
-  });
+const linkAttrs = computed(() => {
+  if (props.tag === 'a') {
+    return {
+      href: props.href,
+      target: props.target
+    };
+  }
+  return {};
+});
 
-  defineOptions({
-    name: 'PbListTitle',
-  });
+defineOptions({
+  name: 'PbListTitle'
+});
 </script>
 
 <style scoped>
-  .cms-list-title {
-    display: block;
-    overflow: hidden;
-    font-size: var(--list-title-font-size, 16px);
-    font-weight: var(--list-title-font-weight, normal);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--list-title-color, #333);
-  }
+.cms-list-title {
+  display: block;
+  overflow: hidden;
+  font-size: var(--list-title-font-size, 16px);
+  font-weight: var(--list-title-font-weight, normal);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--list-title-color, #333);
+}
 
-  .cms-list-title.with-dot::before {
-    display: inline-block;
-    margin-right: var(--list-dot-gap, 8px);
-    border-radius: 50%;
-    width: var(--list-dot-size, 8px);
-    height: var(--list-dot-size, 8px);
-    background-color: var(--list-dot-color, #cdd3d9);
-    content: "";
-    vertical-align: middle;
-  }
+.cms-list-title.with-dot::before {
+  display: inline-block;
+  margin-right: var(--list-dot-gap, 8px);
+  border-radius: 50%;
+  width: var(--list-dot-size, 8px);
+  height: var(--list-dot-size, 8px);
+  background-color: var(--list-dot-color, #cdd3d9);
+  content: '';
+  vertical-align: middle;
+}
 </style>

@@ -27,67 +27,68 @@ import {
   date,
   LocalStorage,
   createEmitter,
-  createReactiveState,
-} from '@one-base-template/utils'
+  createReactiveState
+} from '@one-base-template/utils';
 ```
 
 ### 常见场景示例
 
 ```ts
-import { array, tree, format, date, LocalStorage } from '@one-base-template/utils'
+import { array, tree, format, date, LocalStorage } from '@one-base-template/utils';
 
 // 1) 数组处理
-const uniqueList = array.unique([1, 1, 2, 3]) // [1, 2, 3]
+const uniqueList = array.unique([1, 1, 2, 3]); // [1, 2, 3]
 
 // 2) 扁平菜单转树
 const menuTree = tree.flatToTree(
   [
     { id: 1, parentId: 0, name: '系统管理' },
-    { id: 2, parentId: 1, name: '用户管理' },
+    { id: 2, parentId: 1, name: '用户管理' }
   ],
-  { rootValue: 0 },
-)
+  { rootValue: 0 }
+);
 
 // 3) 格式化与日期
-const money = format.formatCurrency(123456.789) // ¥123,456.79
-const now = date.formatTime(new Date()) // YYYY-MM-DD HH:mm:ss
+const money = format.formatCurrency(123456.789); // ¥123,456.79
+const now = date.formatTime(new Date()); // YYYY-MM-DD HH:mm:ss
 
 // 4) 带过期时间的本地存储（毫秒）
-const localStorageKit = new LocalStorage({ prefix: 'admin_' })
-localStorageKit.set('user', { id: 1, name: 'yuanxiao' }, 60_000)
-const user = localStorageKit.get('user')
+const localStorageKit = new LocalStorage({ prefix: 'admin_' });
+localStorageKit.set('user', { id: 1, name: 'yuanxiao' }, 60_000);
+const user = localStorageKit.get('user');
 ```
 
 ```ts
-import { createEmitter, createReactiveState } from '@one-base-template/utils'
+import { createEmitter, createReactiveState } from '@one-base-template/utils';
 
 // 5) Vue 组件事件透传
 const emitter = createEmitter((event, payload) => {
-  console.log(event, payload)
-})
-emitter.success('保存成功', { id: 1 })
+  console.log(event, payload);
+});
+emitter.success('保存成功', { id: 1 });
 
 // 6) 轻量响应式状态
-const { state, setState, resetState } = createReactiveState({ count: 0 })
-setState({ count: 1 })
-resetState()
-console.log(state.count) // 0
+const { state, setState, resetState } = createReactiveState({ count: 0 });
+setState({ count: 1 });
+resetState();
+console.log(state.count); // 0
 ```
 
 ## 能力清单
 
-| 分类 | 模块 | 代表能力 |
-| --- | --- | --- |
-| 数据处理 | `array` / `object` / `tree` / `math` / `type` | 去重、分组、树转换、数值计算、类型判断 |
-| 格式化 | `format` / `date` / `url` | 金额与敏感信息脱敏、日期格式化、URL 参数处理 |
-| 浏览器能力 | `file` / `storage` / `auth` / `base64` | 下载、local/session 封装、cookie/token 辅助、编解码 |
-| 安全能力 | `crypto` / `sm3` / `sm4` | 常见加解密与国密摘要/对称加密 |
-| Vue 能力 | `vue` / `hooks` | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading` |
-| 其他扩展 | `http` / `micro-app` / `pinyin` / `validation` / `tool` | 请求封装、微应用数据桥接、拼音与校验等 |
+| 分类       | 模块                                                    | 代表能力                                                            |
+| ---------- | ------------------------------------------------------- | ------------------------------------------------------------------- |
+| 数据处理   | `array` / `object` / `tree` / `math` / `type`           | 去重、分组、树转换、数值计算、类型判断                              |
+| 格式化     | `format` / `date` / `url`                               | 金额与敏感信息脱敏、日期格式化、URL 参数处理                        |
+| 浏览器能力 | `file` / `storage` / `auth` / `base64`                  | 下载、local/session 封装、cookie/token 辅助、编解码                 |
+| 安全能力   | `crypto` / `sm3` / `sm4`                                | 常见加解密与国密摘要/对称加密                                       |
+| Vue 能力   | `vue` / `hooks`                                         | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading` |
+| 其他扩展   | `http` / `micro-app` / `pinyin` / `validation` / `tool` | 请求封装、微应用数据桥接、拼音与校验等                              |
 
 > CRUD Hook（`useTable/useEntityEditor/useCrudPage`）已迁移到 `@one-base-template/core`（真源）+ `@one-base-template/ui`（`useEntityEditor` 薄封装）。
-> 
+>
 > 详见：
+>
 > - [CRUD 容器与 Hook](/guide/crud-container)
 > - [VXE 表格迁移](/guide/table-vxe-migration)
 

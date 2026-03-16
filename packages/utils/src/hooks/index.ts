@@ -9,7 +9,7 @@ export {
   getGlobalLoading,
   setGlobalLoading,
   type UseLoadingOptions,
-  type UseLoadingReturn,
+  type UseLoadingReturn
 } from './useLoading';
 
 // 重新导入用于默认导出
@@ -19,5 +19,5 @@ import useLoading, { getGlobalLoading, setGlobalLoading } from './useLoading';
 export default {
   useLoading,
   getGlobalLoading,
-  setGlobalLoading,
+  setGlobalLoading
 };

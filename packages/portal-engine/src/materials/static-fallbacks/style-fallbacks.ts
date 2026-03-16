@@ -17,68 +17,68 @@ export const STATIC_STYLE_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
   {
     name: 'base-transparent-placeholder-style',
     section: 'style',
-    component: TransparentPlaceholderStyle,
+    component: TransparentPlaceholderStyle
   },
   {
     name: 'base-iframe-container-style',
     section: 'style',
-    component: BaseIframeContainerStyle,
+    component: BaseIframeContainerStyle
   },
   {
     name: 'base-tab-container-style',
     section: 'style',
-    component: BaseTabContainerStyle,
+    component: BaseTabContainerStyle
   },
   {
     name: 'app-entrance-style',
     section: 'style',
     aliases: ['base-app-entrance-style'],
-    component: AppEntranceStyle,
+    component: AppEntranceStyle
   },
   {
     name: 'image-link-list-style',
     section: 'style',
     aliases: ['base-image-link-list-style'],
-    component: ImageLinkListStyle,
+    component: ImageLinkListStyle
   },
   {
     name: 'base-button-group-style',
     section: 'style',
-    component: BaseButtonGroupStyle,
+    component: BaseButtonGroupStyle
   },
   {
     name: 'base-search-box-style',
     section: 'style',
-    component: BaseSearchBoxStyle,
+    component: BaseSearchBoxStyle
   },
   {
     name: 'base-notice-style',
     section: 'style',
-    component: BaseNoticeStyle,
+    component: BaseNoticeStyle
   },
   {
     name: 'base-card-list-style',
     section: 'style',
-    component: BaseCardListStyle,
+    component: BaseCardListStyle
   },
   {
     name: 'base-form-style',
     section: 'style',
-    component: BaseFormStyle,
+    component: BaseFormStyle
   },
   {
     name: 'base-stat-style',
     section: 'style',
-    component: BaseStatStyle,
+    component: BaseStatStyle
   },
   {
     name: 'base-file-list-style',
     section: 'style',
-    component: BaseFileListStyle,
+    component: BaseFileListStyle
   },
   {
     name: 'base-timeline-style',
     section: 'style',
-    component: BaseTimelineStyle,
-  },
+    component: BaseTimelineStyle
+  }
 ];

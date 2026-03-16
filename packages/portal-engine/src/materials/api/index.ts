@@ -2,12 +2,15 @@ import type { PortalEngineContext } from '../../runtime/context';
 import {
   getDefaultPortalEngineContext,
   readPortalEngineContextValue,
-  writePortalEngineContextValue,
+  writePortalEngineContextValue
 } from '../../runtime/context';
 
 export interface CmsApi {
   getCategoryTree: () => Promise<unknown>;
-  getUserArticlesByCategory: (category: string, params?: { pageSize?: number; currentPage?: number }) => Promise<unknown>;
+  getUserArticlesByCategory: (
+    category: string,
+    params?: { pageSize?: number; currentPage?: number }
+  ) => Promise<unknown>;
   getUserCarouselsByCategory: (category: string) => Promise<unknown>;
 }
 
@@ -18,7 +21,7 @@ function createFallbackResponse(message: string) {
     code: 500,
     success: false,
     message,
-    data: null,
+    data: null
   };
 }
 
@@ -32,7 +35,7 @@ function createFallbackCmsApi(): CmsApi {
     },
     async getUserCarouselsByCategory() {
       return createFallbackResponse('portal-engine cmsApi 未配置：getUserCarouselsByCategory');
-    },
+    }
   };
 }
 
@@ -45,7 +48,7 @@ export function setPortalCmsApi(
     PORTAL_CMS_API_CONTEXT_KEY,
     {
       ...currentCmsApi,
-      ...api,
+      ...api
     },
     context
   );
@@ -56,11 +59,16 @@ export function resetPortalCmsApi(context: PortalEngineContext = getDefaultPorta
 }
 
 export function getPortalCmsApi(context: PortalEngineContext = getDefaultPortalEngineContext()) {
-  return readPortalEngineContextValue<CmsApi>(PORTAL_CMS_API_CONTEXT_KEY, context, createFallbackCmsApi);
+  return readPortalEngineContextValue<CmsApi>(
+    PORTAL_CMS_API_CONTEXT_KEY,
+    context,
+    createFallbackCmsApi
+  );
 }
 
 export const cmsApi: CmsApi = {
   getCategoryTree: () => getPortalCmsApi().getCategoryTree(),
-  getUserArticlesByCategory: (category, params) => getPortalCmsApi().getUserArticlesByCategory(category, params),
-  getUserCarouselsByCategory: (category) => getPortalCmsApi().getUserCarouselsByCategory(category),
+  getUserArticlesByCategory: (category, params) =>
+    getPortalCmsApi().getUserArticlesByCategory(category, params),
+  getUserCarouselsByCategory: (category) => getPortalCmsApi().getUserCarouselsByCategory(category)
 };

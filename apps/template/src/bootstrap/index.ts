@@ -1,30 +1,30 @@
-import { createApp } from "vue";
-import { createPinia, setActivePinia } from "pinia";
+import { createApp } from 'vue';
+import { createPinia, setActivePinia } from 'pinia';
 import {
   ONE_BUILTIN_THEMES,
   createCore,
   createStaticMenusFromRoutes,
-  setupRouterGuards,
-} from "@one-base-template/core";
-import { registerOneLiteUiComponents } from "@one-base-template/ui/lite";
-import OneTag from "@one-base-template/tag";
-import "@one-base-template/tag/style";
+  setupRouterGuards
+} from '@one-base-template/core';
+import { registerOneLiteUiComponents } from '@one-base-template/ui/lite';
+import OneTag from '@one-base-template/tag';
+import '@one-base-template/tag/style';
 
-import App from "@/App.vue";
-import { appEnv } from "@/infra/env";
-import { createTemplateLocalAdapter } from "@/infra/local-adapter";
+import App from '@/App.vue';
+import { appEnv } from '@/infra/env';
+import { createTemplateLocalAdapter } from '@/infra/local-adapter';
 import {
   APP_FORBIDDEN_ROUTE_PATH,
   APP_LOGIN_ROUTE_PATH,
   APP_NOT_FOUND_ROUTE_PATH,
   APP_PUBLIC_ROUTE_PATHS,
-  APP_ROOT_PATH,
-} from "@/router/constants";
-import { createAppRouter } from "@/router";
-import { templateRoutes } from "@/router/routes";
+  APP_ROOT_PATH
+} from '@/router/constants';
+import { createAppRouter } from '@/router';
+import { templateRoutes } from '@/router/routes';
 
 function isHiddenTagRoute(route: unknown): boolean {
-  if (!route || typeof route !== "object") {
+  if (!route || typeof route !== 'object') {
     return false;
   }
 
@@ -43,20 +43,20 @@ export function bootstrapTemplateApp() {
   app.use(router);
 
   registerOneLiteUiComponents(app, {
-    prefix: "Ob",
+    prefix: 'Ob',
     aliases: false,
     include: {
       LoginBox: false,
-      LoginBoxV2: false,
-    },
+      LoginBoxV2: false
+    }
   });
 
   app.use(OneTag, {
     pinia,
     router,
-    homePath: "/home/index",
-    homeTitle: "首页",
-    storageType: "session",
+    homePath: '/home/index',
+    homeTitle: '首页',
+    storageType: 'session',
     storageKey: `${appEnv.storageNamespace}:ob_tags`,
     ignoredRoutes: [
       { path: APP_LOGIN_ROUTE_PATH },
@@ -64,18 +64,20 @@ export function bootstrapTemplateApp() {
       { path: APP_NOT_FOUND_ROUTE_PATH },
       { path: APP_ROOT_PATH },
       {
-        test: (route) => isHiddenTagRoute(route),
-      },
-    ],
+        test: (route) => isHiddenTagRoute(route)
+      }
+    ]
   });
 
   const adapter = createTemplateLocalAdapter({
     storageNamespace: appEnv.storageNamespace,
-    tokenKey: appEnv.tokenKey,
+    tokenKey: appEnv.tokenKey
   });
 
   const staticMenus =
-    appEnv.menuMode === "static" ? createStaticMenusFromRoutes(templateRoutes, { rootPath: "/" }) : undefined;
+    appEnv.menuMode === 'static'
+      ? createStaticMenusFromRoutes(templateRoutes, { rootPath: '/' })
+      : undefined;
 
   app.use(
     createCore({
@@ -85,38 +87,38 @@ export function bootstrapTemplateApp() {
       staticMenus,
       sso: {
         enabled: false,
-        routePath: "/sso",
-        strategies: [],
+        routePath: '/sso',
+        strategies: []
       },
       theme: {
-        defaultTheme: "blue",
+        defaultTheme: 'blue',
         allowCustomPrimary: true,
         storageNamespace: appEnv.storageNamespace,
         themes: {
-          ...ONE_BUILTIN_THEMES,
-        },
+          ...ONE_BUILTIN_THEMES
+        }
       },
       layout: {
-        defaultMode: "side",
-        persist: true,
+        defaultMode: 'side',
+        persist: true
       },
       systems: {
         defaultCode: appEnv.defaultSystemCode,
         homeMap: appEnv.systemHomeMap,
-        fallbackHome: "/home/index",
-      },
+        fallbackHome: '/home/index'
+      }
     })
   );
 
   setupRouterGuards(router, {
     publicRoutePaths: [...APP_PUBLIC_ROUTE_PATHS],
     loginRoutePath: APP_LOGIN_ROUTE_PATH,
-    forbiddenRoutePath: APP_FORBIDDEN_ROUTE_PATH,
+    forbiddenRoutePath: APP_FORBIDDEN_ROUTE_PATH
   });
 
   return {
     app,
     router,
-    pinia,
+    pinia
   };
 }

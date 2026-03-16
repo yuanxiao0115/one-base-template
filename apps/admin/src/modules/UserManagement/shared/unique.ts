@@ -20,13 +20,13 @@ export interface PositionUniqueSnapshot {
 }
 
 function normalizeText(value: unknown): string {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return value.trim();
   }
-  if (typeof value === "number" && Number.isFinite(value)) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
     return String(value);
   }
-  return "";
+  return '';
 }
 
 export function assertUniqueCheck(response: BizBooleanResponse, fallbackMessage: string): boolean {
@@ -45,28 +45,39 @@ export function toUserUniqueSnapshot(input: {
   return {
     userAccount: normalizeText(input.userAccount),
     phone: normalizeText(input.phone),
-    mail: normalizeText(input.mail),
+    mail: normalizeText(input.mail)
   };
 }
 
-export function shouldCheckUserUnique(current: UserUniqueSnapshot, baseline?: UserUniqueSnapshot | null): boolean {
+export function shouldCheckUserUnique(
+  current: UserUniqueSnapshot,
+  baseline?: UserUniqueSnapshot | null
+): boolean {
   if (!baseline) {
     return true;
   }
 
   return (
-    current.userAccount !== baseline.userAccount || current.phone !== baseline.phone || current.mail !== baseline.mail
+    current.userAccount !== baseline.userAccount ||
+    current.phone !== baseline.phone ||
+    current.mail !== baseline.mail
   );
 }
 
-export function toOrgUniqueSnapshot(input: { orgName?: unknown; parentId?: unknown }): OrgUniqueSnapshot {
+export function toOrgUniqueSnapshot(input: {
+  orgName?: unknown;
+  parentId?: unknown;
+}): OrgUniqueSnapshot {
   return {
     orgName: normalizeText(input.orgName),
-    parentId: normalizeText(input.parentId),
+    parentId: normalizeText(input.parentId)
   };
 }
 
-export function shouldCheckOrgUnique(current: OrgUniqueSnapshot, baseline?: OrgUniqueSnapshot | null): boolean {
+export function shouldCheckOrgUnique(
+  current: OrgUniqueSnapshot,
+  baseline?: OrgUniqueSnapshot | null
+): boolean {
   if (!baseline) {
     return true;
   }
@@ -76,7 +87,7 @@ export function shouldCheckOrgUnique(current: OrgUniqueSnapshot, baseline?: OrgU
 
 export function toPositionUniqueSnapshot(input: { postName?: unknown }): PositionUniqueSnapshot {
   return {
-    postName: normalizeText(input.postName),
+    postName: normalizeText(input.postName)
   };
 }
 

@@ -23,7 +23,10 @@ export interface RouterGuardOptions {
    * 每次导航开始前触发（位于鉴权/菜单守卫之前）。
    * 典型场景：中断上一页在途请求，保证路由切换响应优先级。
    */
-  onNavigationStart?: (ctx: { to: RouteLocationNormalized; from: RouteLocationNormalized }) => void | Promise<void>;
+  onNavigationStart?: (ctx: {
+    to: RouteLocationNormalized;
+    from: RouteLocationNormalized;
+  }) => void | Promise<void>;
   /**
    * 公开路由路径集合，命中后直接放行。
    */
@@ -53,7 +56,11 @@ interface GuardRuntimeContext {
   allowedSkipMenuAuthRouteNames: Set<string>;
 }
 
-function isSsoRoute(params: { to: RouteLocationNormalized; ssoEnabled: boolean; ssoRoutePath: string }) {
+function isSsoRoute(params: {
+  to: RouteLocationNormalized;
+  ssoEnabled: boolean;
+  ssoRoutePath: string;
+}) {
   const { to, ssoEnabled, ssoRoutePath } = params;
   return ssoEnabled && to.path === ssoRoutePath;
 }
@@ -69,14 +76,17 @@ function isSkipMenuAuthRoute(to: RouteLocationNormalized) {
 function buildLoginRedirect(to: RouteLocationNormalized, loginRoutePath: string): GuardResult {
   return {
     path: loginRoutePath,
-    query: { redirect: to.fullPath },
+    query: { redirect: to.fullPath }
   };
 }
 
-function buildForbiddenRedirect(to: RouteLocationNormalized, forbiddenRoutePath: string): GuardResult {
+function buildForbiddenRedirect(
+  to: RouteLocationNormalized,
+  forbiddenRoutePath: string
+): GuardResult {
   return {
     path: forbiddenRoutePath,
-    query: { from: to.fullPath },
+    query: { from: to.fullPath }
   };
 }
 
@@ -88,7 +98,14 @@ async function syncRemoteMenusIfNeeded(params: {
   backgroundSyncAttempted: boolean;
   markBackgroundSyncAttempted: () => void;
 }) {
-  const { isRemoteMenuMode, remoteSynced, loaded, loadMenus, backgroundSyncAttempted, markBackgroundSyncAttempted } = params;
+  const {
+    isRemoteMenuMode,
+    remoteSynced,
+    loaded,
+    loadMenus,
+    backgroundSyncAttempted,
+    markBackgroundSyncAttempted
+  } = params;
   if (!(isRemoteMenuMode && !remoteSynced)) {
     return;
   }
@@ -109,7 +126,11 @@ async function syncRemoteMenusIfNeeded(params: {
   await loadMenus();
 }
 
-function shouldLoadMenus(params: { loaded: boolean; isRemoteMenuMode: boolean; remoteSynced: boolean }) {
+function shouldLoadMenus(params: {
+  loaded: boolean;
+  isRemoteMenuMode: boolean;
+  remoteSynced: boolean;
+}) {
   const { loaded, isRemoteMenuMode, remoteSynced } = params;
   return !(loaded || (isRemoteMenuMode && remoteSynced));
 }
@@ -132,7 +153,7 @@ async function switchSystemByMenuKeyIfNeeded(params: {
     loaded,
     isRemoteMenuMode,
     remoteSynced,
-    loadMenus,
+    loadMenus
   } = params;
 
   const resolvedSystem = resolveSystemByMenuKey(menuKey);
@@ -163,7 +184,9 @@ function resolveSkipMenuAuthGuardResult(params: GuardRuntimeContext): GuardResul
     return true;
   }
 
-  console.warn(`[core/router/guards] skipMenuAuth 路由未加入白名单：name=${routeName}, path=${to.path}`);
+  console.warn(
+    `[core/router/guards] skipMenuAuth 路由未加入白名单：name=${routeName}, path=${to.path}`
+  );
   return buildForbiddenRedirect(to, forbiddenRoutePath);
 }
 
@@ -191,7 +214,13 @@ async function resolveMenuGuardResult(params: {
   }
 
   // 若当前系统菜单未加载，先加载（remote 模式通常一次拉取所有系统菜单）
-  if (shouldLoadMenus({ loaded: menuStore.loaded, isRemoteMenuMode, remoteSynced: menuStore.remoteSynced })) {
+  if (
+    shouldLoadMenus({
+      loaded: menuStore.loaded,
+      isRemoteMenuMode,
+      remoteSynced: menuStore.remoteSynced
+    })
+  ) {
     await menuStore.loadMenus();
   }
 
@@ -210,7 +239,7 @@ async function resolveMenuGuardResult(params: {
     loaded: menuStore.loaded,
     isRemoteMenuMode,
     remoteSynced: menuStore.remoteSynced,
-    loadMenus: () => menuStore.loadMenus(),
+    loadMenus: () => menuStore.loadMenus()
   });
 
   // 菜单树决定可访问路由：不在 allowedPaths 的一律 403（详情页以 menuKey=activePath 判定）
@@ -241,7 +270,13 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     const coreOptions = getCoreOptions();
 
     // SSO 回调路由默认视为公开
-    if (isSsoRoute({ to, ssoEnabled: coreOptions.sso.enabled, ssoRoutePath: coreOptions.sso.routePath })) {
+    if (
+      isSsoRoute({
+        to,
+        ssoEnabled: coreOptions.sso.enabled,
+        ssoRoutePath: coreOptions.sso.routePath
+      })
+    ) {
       return true;
     }
 
@@ -266,7 +301,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
       backgroundSyncAttempted: remoteBackgroundSyncAttempted,
       markBackgroundSyncAttempted: () => {
         remoteBackgroundSyncAttempted = true;
-      },
+      }
     });
 
     return resolveMenuGuardResult({
@@ -274,10 +309,10 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
         to,
         forbiddenRoutePath,
         strictSkipMenuAuth,
-        allowedSkipMenuAuthRouteNames,
+        allowedSkipMenuAuthRouteNames
       },
       isSkipMenuAuth: skipMenuAuth,
-      isRemoteMenuMode: coreOptions.menuMode === 'remote',
+      isRemoteMenuMode: coreOptions.menuMode === 'remote'
     });
   });
 }

@@ -11,7 +11,7 @@ export const DEFAULT_RESET_ON_CLOSE = true;
 const MODE_TITLE_MAP: Record<CrudMode, string> = {
   create: '新增',
   edit: '编辑',
-  detail: '查看',
+  detail: '查看'
 };
 
 export function buildDefaultCrudTitle(mode: CrudMode, entityName: string): string {

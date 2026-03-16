@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "vp dev",
+    "build": "node ../../scripts/run-vp-build.mjs",
+    "preview": "vp preview",
     "typecheck": "vue-tsc --noEmit",
     "lint": "ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src",
     "lint:fix": "ultracite fix src",
@@ -25,6 +25,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",
     "ultracite": "^7.2.4",
-    "vite": "^8.0.0-beta.13"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

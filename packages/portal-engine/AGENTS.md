@@ -12,7 +12,7 @@
 ## 强制统一组件（必须遵守）
 
 - 配置分组标题：**必须**使用 `ObCard`，禁止新增 `el-divider` 作为分组标题方案。
-- 颜色选择：**必须**优先使用 `PortalColorField`，禁止在物料配置面板直接散落 `el-color-picker`。
+- 颜色选择：**必须**优先使用 `@one-base-template/ui` 的 `ObColorField`；`PortalColorField` 已废弃并移除，禁止新增兼容壳/兼容导出。
 - 间距配置：**必须**优先使用 `PortalSpacingField`（上/右/下/左一体化），禁止拆成多个 `el-input-number` 手工拼接。
 - 边框配置：**必须**优先使用 `PortalBorderField`，禁止每个物料重复实现边框样式/颜色/宽度逻辑。
 - 统一容器头部：标题、副标题、图标、外链配置必须复用 `common/unified-container/**` 能力，不在物料内重复造字段。

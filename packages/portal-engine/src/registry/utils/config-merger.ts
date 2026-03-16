@@ -71,7 +71,10 @@ export const mergeWithBaseConfig = (componentConfig: any, baseConfig: any): any 
  * @param baseConfig 基础配置
  * @returns 合并后的配置映射对象
  */
-export const batchMergeConfigs = (configMap: Record<string, any>, baseConfig: any): Record<string, any> => {
+export const batchMergeConfigs = (
+  configMap: Record<string, any>,
+  baseConfig: any
+): Record<string, any> => {
   const result: Record<string, any> = {};
 
   Object.keys(configMap).forEach((key) => {

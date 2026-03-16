@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 import { usePortalCurrentTabActions } from './current-tab-actions';
 
@@ -32,7 +32,7 @@ describe('portal current tab actions', () => {
       onOpenPageSettings,
       onToggleHide,
       onDeleteTab,
-      openWindow,
+      openWindow
     });
 
     return {
@@ -44,7 +44,7 @@ describe('portal current tab actions', () => {
       onToggleHide,
       onDeleteTab,
       openWindow,
-      resolvePreviewHref,
+      resolvePreviewHref
     };
   }
 
@@ -60,7 +60,10 @@ describe('portal current tab actions', () => {
   });
 
   it('编辑可编辑页应触发 onEditTab', () => {
-    const { actions, onEditTab, notifyWarning } = createActions({ id: 'tab-1', tabType: 2 }, 'tab-1');
+    const { actions, onEditTab, notifyWarning } = createActions(
+      { id: 'tab-1', tabType: 2 },
+      'tab-1'
+    );
 
     actions.editCurrentTab();
 
@@ -92,8 +95,12 @@ describe('portal current tab actions', () => {
     expect(okCase.resolvePreviewHref).toHaveBeenCalledWith({
       templateId: 'tpl-1',
       tabId: 'tab-1',
-      previewMode: 'safe',
+      previewMode: 'safe'
     });
-    expect(okCase.openWindow).toHaveBeenCalledWith('/portal/preview?tabId=tab-1', '_blank', 'noopener,noreferrer');
+    expect(okCase.openWindow).toHaveBeenCalledWith(
+      '/portal/preview?tabId=tab-1',
+      '_blank',
+      'noopener,noreferrer'
+    );
   });
 });

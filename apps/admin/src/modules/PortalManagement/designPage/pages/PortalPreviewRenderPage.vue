@@ -1,90 +1,48 @@
 <script setup lang="ts">
-  import { computed } from "vue";
-  import { useRoute, useRouter } from "vue-router";
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-  import {
-    PortalPreviewPanel,
-    resolvePreviewMode,
-    resolvePreviewViewport,
-    type PortalPreviewDataSource,
-    type PortalPreviewNavigatePayload,
-  } from "@one-base-template/portal-engine";
+import {
+  createPortalPreviewDataSource,
+  PortalPreviewPanel,
+  usePortalPreviewPageByRoute,
+  type PortalPreviewDataSource,
+  type PortalPreviewRouteParamsLike,
+  type PortalRouteQueryLike
+} from '@one-base-template/portal-engine';
 
-  import { portalApi } from "../../api";
-  import { useRendererMaterials } from "../../materials/useRendererMaterials";
+import { portalApi } from '../../api';
+import { useRendererMaterials } from '../../materials/useRendererMaterials';
 
-  defineOptions({
-    name: "PortalPreview",
-  });
+defineOptions({
+  name: 'PortalPreview'
+});
 
-  interface BizResLike {
-    code?: unknown;
-    success?: unknown;
-  }
+const route = useRoute();
+const router = useRouter();
+const { materialsMap } = useRendererMaterials();
+const routeQuery = computed(() => route.query as PortalRouteQueryLike);
+const routeParams = computed(() => route.params as PortalPreviewRouteParamsLike);
 
-  const route = useRoute();
-  const router = useRouter();
-  const { materialsMap } = useRendererMaterials();
-
-  const tabId = computed(() => {
-    const queryTabId = route.query.tabId;
-    if (typeof queryTabId === "string") {
-      return queryTabId;
-    }
-    const raw = route.params.tabId;
-    return typeof raw === "string" ? raw : "";
-  });
-
-  const templateId = computed(() => {
-    const raw = route.query.templateId;
-    return typeof raw === "string" ? raw : "";
-  });
-
-  const previewMode = computed(() => resolvePreviewMode(route.query.previewMode));
-  const previewViewport = computed(() => {
-    if (typeof route.query.vw !== "string" || typeof route.query.vh !== "string") {
-      return { width: 0, height: 0 };
-    }
-    return resolvePreviewViewport(route.query.vw, route.query.vh);
-  });
-
-  function normalizeBizOk(res: BizResLike | null | undefined): boolean {
-    const code = res?.code;
-    return res?.success === true || code === 0 || code === 200 || String(code) === "0" || String(code) === "200";
-  }
-
-  const previewDataSource: PortalPreviewDataSource = {
-    async getTabDetail(id: string) {
-      const resPublic = await portalApi.tabPublic.detail({ id });
-      if (normalizeBizOk(resPublic)) {
-        return resPublic;
-      }
-      return portalApi.tab.detail({ id });
-    },
-    getTemplateDetail(id: string) {
-      return portalApi.template.detail({ id });
-    },
-  };
-
-  function onNavigate(payload: PortalPreviewNavigatePayload) {
-    if (payload.type === "tab") {
-      if (!payload.tabId) {
-        return;
-      }
-      void router.replace({
-        query: {
-          ...route.query,
-          tabId: payload.tabId,
-          templateId: templateId.value || undefined,
-        },
-      });
-      return;
-    }
-
-    if (payload.type === "url" && payload.url) {
-      window.open(payload.url, "_blank", "noopener,noreferrer");
+const { tabId, templateId, previewMode, previewViewport, onNavigate } = usePortalPreviewPageByRoute(
+  {
+    routeQuery,
+    routeParams,
+    replaceRouteQuery: (nextQuery) =>
+      router.replace({
+        query: nextQuery
+      }),
+    onReplaceRouteQueryError: (error) => {
+      console.warn('[PortalPreviewRenderPage] 更新预览 query 失败', error);
     }
   }
+);
+
+const previewDataSource: PortalPreviewDataSource = createPortalPreviewDataSource({
+  getPublicTabDetail: (id: string) => portalApi.tabPublic.detail({ id }),
+  getTabDetail: (id: string) => portalApi.tab.detail({ id }),
+  getTemplateDetail: (id: string) => portalApi.template.detail({ id })
+});
 </script>
 
 <template>

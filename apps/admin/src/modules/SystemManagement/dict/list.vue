@@ -1,62 +1,70 @@
 <script setup lang="ts">
-  import { Plus } from "@element-plus/icons-vue";
-  import DictEditForm from "./components/DictEditForm.vue";
-  import DictSearchForm from "./components/DictSearchForm.vue";
-  import DictItemEditForm from "./components/DictItemEditForm.vue";
-  import DictItemSearchForm from "./components/DictItemSearchForm.vue";
-  import { useDictPageState } from "./composables/useDictPageState";
+import { Plus } from '@element-plus/icons-vue';
+import DictEditForm from './components/DictEditForm.vue';
+import DictSearchForm from './components/DictSearchForm.vue';
+import DictItemEditForm from './components/DictItemEditForm.vue';
+import DictItemSearchForm from './components/DictItemSearchForm.vue';
+import { useDictPageState } from './composables/useDictPageState';
 
-  defineOptions({
-    name: "SystemDictManagementPage",
-  });
+defineOptions({
+  name: 'SystemDictManagementPage'
+});
 
-  const pageState = useDictPageState();
+const pageState = useDictPageState();
 
-  const { refs } = pageState;
+const { refs } = pageState;
 
-  const { loading, dataList, tableColumns, tablePagination, searchForm } = pageState.table;
+const { loading, dataList, tableColumns, tablePagination, searchForm } = pageState.table;
 
-  const { crud, crudVisible, crudMode, crudTitle, crudReadonly, crudSubmitting, crudForm, dictFormRules } =
-    pageState.editor;
+const {
+  crud,
+  crudVisible,
+  crudMode,
+  crudTitle,
+  crudReadonly,
+  crudSubmitting,
+  crudForm,
+  dictFormRules
+} = pageState.editor;
 
-  const {
-    settingVisible,
-    settingTitle,
-    currentDictInfo,
-    itemLoading,
-    itemDataList,
-    itemTableColumns,
-    itemTablePagination,
-    itemSearchForm,
-    itemCrud,
-    itemCrudVisible,
-    itemCrudMode,
-    itemCrudTitle,
-    itemCrudReadonly,
-    itemCrudSubmitting,
-    itemCrudForm,
-    dictItemFormRules,
-  } = pageState.setting;
+const {
+  settingVisible,
+  settingTitle,
+  currentDictInfo,
+  itemLoading,
+  itemDataList,
+  itemTableColumns,
+  itemTablePagination,
+  itemSearchForm,
+  itemCrud,
+  itemCrudVisible,
+  itemCrudMode,
+  itemCrudTitle,
+  itemCrudReadonly,
+  itemCrudSubmitting,
+  itemCrudForm,
+  dictItemFormRules
+} = pageState.setting;
 
-  const {
-    tableSearch,
-    onKeywordUpdate,
-    onResetSearch,
-    openSetting,
-    closeSetting,
-    itemTableSearch,
-    onItemKeywordUpdate,
-    onResetItemSearch,
-    handleSelectionChange,
-    handleSizeChange,
-    handleCurrentChange,
-    handleDelete,
-    handleItemSelectionChange,
-    handleItemSizeChange,
-    handleItemCurrentChange,
-    handleDeleteItem,
-    handleToggleItemStatus,
-  } = pageState.actions;
+const {
+  tableSearch,
+  onKeywordUpdate,
+  onResetSearch,
+  openSetting,
+  closeSetting,
+  itemTableSearch,
+  onItemKeywordUpdate,
+  onResetItemSearch,
+  handleSelectionChange,
+  handleSizeChange,
+  handleCurrentChange,
+  handleDelete,
+  handleItemSelectionChange,
+  handleItemSizeChange,
+  handleItemCurrentChange,
+  handleDeleteItem,
+  handleToggleItemStatus
+} = pageState.actions;
 </script>
 
 <template>
@@ -89,10 +97,18 @@
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)">编辑</el-button>
-              <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)">查看</el-button>
-              <el-button link type="primary" :size="actionSize" @click="() => openSetting(row)">字典配置</el-button>
-              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
+              <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)"
+                >编辑</el-button
+              >
+              <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)"
+                >查看</el-button
+              >
+              <el-button link type="primary" :size="actionSize" @click="() => openSetting(row)"
+                >字典配置</el-button
+              >
+              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+                >删除</el-button
+              >
             </ObActionButtons>
           </template>
         </ObVxeTable>
@@ -116,7 +132,12 @@
     @cancel="crud.close"
     @close="crud.close"
   >
-    <DictEditForm :ref="refs.editFormRef" v-model="crudForm" :rules="dictFormRules" :disabled="crudReadonly" />
+    <DictEditForm
+      :ref="refs.editFormRef"
+      v-model="crudForm"
+      :rules="dictFormRules"
+      :disabled="crudReadonly"
+    />
   </ObCrudContainer>
 
   <ObCrudContainer
@@ -168,20 +189,43 @@
 
             <template #itemOperation="{ row, size: actionSize }">
               <ObActionButtons>
-                <el-button link type="primary" :size="actionSize" @click="() => itemCrud.openEdit(row)">编辑</el-button>
-                <el-button link type="primary" :size="actionSize" @click="() => handleToggleItemStatus(row)">
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="() => itemCrud.openEdit(row)"
+                  >编辑</el-button
+                >
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="() => handleToggleItemStatus(row)"
+                >
                   {{ row.disabled === 0 ? '停用' : '启用' }}
                 </el-button>
-                <el-button link type="primary" :size="actionSize" @click="() => itemCrud.openDetail(row)"
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="() => itemCrud.openDetail(row)"
                   >查看</el-button
                 >
-                <el-button link type="danger" :size="actionSize" @click="() => handleDeleteItem(row)">删除</el-button>
+                <el-button
+                  link
+                  type="danger"
+                  :size="actionSize"
+                  @click="() => handleDeleteItem(row)"
+                  >删除</el-button
+                >
               </ObActionButtons>
             </template>
           </ObVxeTable>
         </template>
 
-        <template #drawer> <DictItemSearchForm :ref="refs.itemSearchRef" v-model="itemSearchForm" /> </template>
+        <template #drawer>
+          <DictItemSearchForm :ref="refs.itemSearchRef" v-model="itemSearchForm" />
+        </template>
       </ObTableBox>
     </div>
   </ObCrudContainer>
@@ -209,20 +253,20 @@
 </template>
 
 <style scoped>
-  .system-dict-management-page__setting {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 68vh;
-    min-height: 520px;
-  }
+.system-dict-management-page__setting {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 68vh;
+  min-height: 520px;
+}
 
-  .system-dict-management-page__setting-head {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 8px;
-    color: var(--el-text-color-regular);
-    font-size: 13px;
-  }
+.system-dict-management-page__setting-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+  color: var(--el-text-color-regular);
+  font-size: 13px;
+}
 </style>

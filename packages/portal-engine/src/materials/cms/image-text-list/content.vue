@@ -17,66 +17,66 @@
 </template>
 
 <script setup lang="ts">
-  import TitleConfig, { type TitleConfigModelType } from '../common/title/TitleConfig.vue';
-  import LayoutConfig, { type LayoutConfigModelType } from '../common/layout/LayoutConfig.vue';
-  import ListConfig, { type ListConfigModelType } from './ListConfig.vue';
-  import { useSchemaConfig } from '../../../composables/useSchemaConfig';
+import TitleConfig, { type TitleConfigModelType } from '../common/title/TitleConfig.vue';
+import LayoutConfig, { type LayoutConfigModelType } from '../common/layout/LayoutConfig.vue';
+import ListConfig, { type ListConfigModelType } from './ListConfig.vue';
+import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 
-  // 定义 props
-  const props = defineProps({
-    schema: {
-      type: Object,
-      required: true,
-    },
-  });
-
-  // 定义 emit
-  const emit = defineEmits(['schemaChange']);
-
-  // 定义整体数据类型
-  interface ComponentData {
-    title: TitleConfigModelType;
-    layout: LayoutConfigModelType;
-    dataSource: ListConfigModelType;
+// 定义 props
+const props = defineProps({
+  schema: {
+    type: Object,
+    required: true
   }
+});
 
-  // 使用通用hooks处理schema配置
-  const { sectionData } = useSchemaConfig<ComponentData>({
-    name: 'cms-image-text-list-content',
-    sections: {
-      title: {},
-      layout: {},
-      dataSource: {},
-    },
-    schema: props.schema,
-    onChange: (newSchema) => {
-      emit('schemaChange', 'content', newSchema);
-    },
-  });
+// 定义 emit
+const emit = defineEmits(['schemaChange']);
 
-  defineOptions({
-    name: 'cms-image-text-list-content',
-  });
+// 定义整体数据类型
+interface ComponentData {
+  title: TitleConfigModelType;
+  layout: LayoutConfigModelType;
+  dataSource: ListConfigModelType;
+}
+
+// 使用通用hooks处理schema配置
+const { sectionData } = useSchemaConfig<ComponentData>({
+  name: 'cms-image-text-list-content',
+  sections: {
+    title: {},
+    layout: {},
+    dataSource: {}
+  },
+  schema: props.schema,
+  onChange: (newSchema) => {
+    emit('schemaChange', 'content', newSchema);
+  }
+});
+
+defineOptions({
+  name: 'cms-image-text-list-content'
+});
 </script>
 
 <style scoped>
-  .content-config {
-    --config-text: #0f172a;
+.content-config {
+  --config-text: #0f172a;
 
-    --config-muted: #64748b;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+  --config-muted: #64748b;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  .content-config :deep(.el-divider__text) {
-    font-weight: 600;
-    color: var(--config-text);
-    letter-spacing: 0.2px;
-  }
+.content-config :deep(.el-divider__text) {
+  font-weight: 600;
+  color: var(--config-text);
+  letter-spacing: 0.2px;
+}
 
-  .content-config :deep(.el-form-item__label) {
-    font-weight: 500;
-    color: var(--config-muted);
-  }
+.content-config :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: var(--config-muted);
+}
 </style>

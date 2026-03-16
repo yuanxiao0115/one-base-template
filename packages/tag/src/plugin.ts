@@ -75,5 +75,5 @@ function setupTag(pinia: Pinia, router: Router, config: TagConfig) {
 // 默认插件对象
 export default {
   install,
-  TagComponent,
+  TagComponent
 };

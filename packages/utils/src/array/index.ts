@@ -24,7 +24,7 @@ export function addIndex<T extends Record<string, any>>(
 ): (T & { index: number })[] {
   return data.map((item, index) => ({
     ...item,
-    index: (currentPage - 1) * pageSize + index + 1,
+    index: (currentPage - 1) * pageSize + index + 1
   }));
 }
 
@@ -42,7 +42,11 @@ export function addIndex<T extends Record<string, any>>(
  * getDifferentArr(arr1, arr2) // => [{ name: 'B' }]
  * ```
  */
-export function getDifferentArr<T extends Record<string, any>>(arr1: T[], arr2: T[], compareKey = 'name'): T[] {
+export function getDifferentArr<T extends Record<string, any>>(
+  arr1: T[],
+  arr2: T[],
+  compareKey = 'name'
+): T[] {
   return arr1.filter((item1) => !arr2.some((item2) => item2[compareKey] === item1[compareKey]));
 }
 
@@ -63,7 +67,10 @@ export function getDifferentArr<T extends Record<string, any>>(arr1: T[], arr2: 
  * // => { A: [{ type: 'A', value: 1 }, { type: 'A', value: 2 }], B: [{ type: 'B', value: 3 }] }
  * ```
  */
-export function groupBy<T extends Record<string, any>>(array: T[], key: keyof T): Record<string, T[]> {
+export function groupBy<T extends Record<string, any>>(
+  array: T[],
+  key: keyof T
+): Record<string, T[]> {
   return array.reduce(
     (groups, item) => {
       const group = String(item[key]);

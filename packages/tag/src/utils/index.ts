@@ -106,7 +106,7 @@ function createStorage(storage: Storage) {
       } catch (error) {
         console.error('Storage clear error:', error);
       }
-    },
+    }
   };
 }
 
@@ -121,7 +121,10 @@ export function storageLocal() {
 /**
  * 防抖函数
  */
-export function debounce<T extends (...args: any[]) => any>(func: T, wait = 300): (...args: Parameters<T>) => void {
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait = 300
+): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout>;
 
   return function (this: any, ...args: Parameters<T>) {
@@ -135,7 +138,10 @@ export function debounce<T extends (...args: any[]) => any>(func: T, wait = 300)
 export function delay(ms = 0): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-export function useTimeoutFn(fn: () => void, delay: number): { start: () => void; stop: () => void } {
+export function useTimeoutFn(
+  fn: () => void,
+  delay: number
+): { start: () => void; stop: () => void } {
   let timer: ReturnType<typeof setTimeout> | null = null;
 
   const start = () => {
@@ -152,7 +158,10 @@ export function useTimeoutFn(fn: () => void, delay: number): { start: () => void
 
   return { start, stop };
 }
-export function getKeyList<T extends Record<string, any>, K extends keyof T>(arr: T[], key: K): T[K][] {
+export function getKeyList<T extends Record<string, any>, K extends keyof T>(
+  arr: T[],
+  key: K
+): T[K][] {
   return arr.map((item) => item[key]);
 }
 export function useResizeObserver(target: any, callback: (entries: ResizeObserverEntry[]) => void) {
@@ -184,7 +193,7 @@ export function createSimpleRefresh(router: any, redirectPrefix = '/redirect') {
     const { fullPath, query } = route;
     router.replace({
       path: redirectPrefix + fullPath,
-      query,
+      query
     });
   };
 }
@@ -206,7 +215,9 @@ export function shouldShowHomeTag(): boolean {
  * 如果不应该显示首页标签，则过滤掉首页标签
  */
 export function filterHomeTagIfNeeded<T extends { path: string }>(tags: T[]): T[] {
-  return configManager.shouldShowHomeTag() ? tags : tags.filter((tag) => tag.path !== configManager.getHomePath());
+  return configManager.shouldShowHomeTag()
+    ? tags
+    : tags.filter((tag) => tag.path !== configManager.getHomePath());
 }
 
 /**

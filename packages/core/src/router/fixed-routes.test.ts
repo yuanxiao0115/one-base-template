@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { buildFixedRoutes } from './fixed-routes';
 
 describe('core/router/fixed-routes', () => {
@@ -10,22 +10,22 @@ describe('core/router/fixed-routes', () => {
       defaultHomePath: '/home/index',
       publicRouteMeta: {
         public: true,
-        hiddenTab: true,
+        hiddenTab: true
       },
       publicRoutes: [
         {
           path: '/login',
           name: 'Login',
-          component: {} as never,
+          component: {} as never
         },
         {
           path: '/403',
           name: 'Forbidden',
-          component: {} as never,
-        },
+          component: {} as never
+        }
       ],
       notFoundCatchallPath: '/:pathMatch(.*)*',
-      notFoundPath: '/404',
+      notFoundPath: '/404'
     });
 
     expect(routes).toHaveLength(4);
@@ -38,7 +38,7 @@ describe('core/router/fixed-routes', () => {
     const redirectTarget = (routes[3]!.redirect as () => { path: string; replace: boolean })();
     expect(redirectTarget).toEqual({
       path: '/404',
-      replace: true,
+      replace: true
     });
   });
 
@@ -49,22 +49,22 @@ describe('core/router/fixed-routes', () => {
       layoutRoutes: [],
       defaultHomePath: '/home/index',
       publicRouteMeta: {
-        public: true,
+        public: true
       },
       publicRoutes: [
         {
           path: '/404',
           name: 'not-found',
-          component: {} as never,
-        },
+          component: {} as never
+        }
       ],
-      notFoundCatchallPath: '/:pathMatch(.*)*',
+      notFoundCatchallPath: '/:pathMatch(.*)*'
     });
 
     const redirectTarget = (routes[2]!.redirect as () => { path: string; replace: boolean })();
     expect(redirectTarget).toEqual({
       path: '/404',
-      replace: true,
+      replace: true
     });
   });
 });

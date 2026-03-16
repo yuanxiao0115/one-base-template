@@ -1,9 +1,11 @@
-import type { BizResponse, PortalTemplate } from "../types";
+import type { BizResponse, PortalTemplate } from '../types';
 
-export function normalizeTemplateWhiteList(res: BizResponse<PortalTemplate>): BizResponse<PortalTemplate> {
+export function normalizeTemplateWhiteList(
+  res: BizResponse<PortalTemplate>
+): BizResponse<PortalTemplate> {
   // 兼容老接口：有些环境返回 whiteList 而不是 whiteDTOS
   const { data } = res;
-  if (!data || typeof data !== "object") {
+  if (!data || typeof data !== 'object') {
     return res;
   }
 
@@ -15,8 +17,8 @@ export function normalizeTemplateWhiteList(res: BizResponse<PortalTemplate>): Bi
       ...res,
       data: {
         ...data,
-        whiteDTOS: Array.isArray(whiteList) ? [...whiteList] : [whiteList],
-      },
+        whiteDTOS: Array.isArray(whiteList) ? [...whiteList] : [whiteList]
+      }
     };
   }
 

@@ -2,13 +2,13 @@ import {
   buildPortalPageLayoutForSave,
   createDefaultPortalPageSettingsV2,
   normalizePortalPageSettingsV2,
-  type PortalPageSettingsV2,
+  type PortalPageSettingsV2
 } from '../schema/page-settings';
 import type { PortalEngineContext } from '../runtime/context';
 import {
   getDefaultPortalEngineContext,
   readPortalEngineContextValue,
-  writePortalEngineContextValue,
+  writePortalEngineContextValue
 } from '../runtime/context';
 
 interface PageLayoutJson {
@@ -33,7 +33,9 @@ export interface PortalPageSettingsTabLike {
 }
 
 export interface PortalPageSettingsApi {
-  getTabDetail: (params: { id: string }) => Promise<PortalPageSettingsApiResponse<PortalPageSettingsTabLike>>;
+  getTabDetail: (params: {
+    id: string;
+  }) => Promise<PortalPageSettingsApiResponse<PortalPageSettingsTabLike>>;
   updateTab: (payload: Record<string, unknown>) => Promise<PortalPageSettingsApiResponse<unknown>>;
 }
 
@@ -53,7 +55,7 @@ function createFallbackPortalPageSettingsApi(): PortalPageSettingsApi {
         code: 500,
         success: false,
         message: 'portal-engine pageSettingsApi 未配置：getTabDetail',
-        data: {},
+        data: {}
       };
     },
     async updateTab() {
@@ -61,15 +63,21 @@ function createFallbackPortalPageSettingsApi(): PortalPageSettingsApi {
         code: 500,
         success: false,
         message: 'portal-engine pageSettingsApi 未配置：updateTab',
-        data: null,
+        data: null
       };
-    },
+    }
   };
 }
 
 function normalizeBizOk(res: PortalPageSettingsApiResponse<unknown> | null | undefined): boolean {
   const code = res?.code;
-  return res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
+  return (
+    res?.success === true ||
+    code === 0 ||
+    code === 200 ||
+    String(code) === '0' ||
+    String(code) === '200'
+  );
 }
 
 function normalizeIdLike(value: unknown): string {
@@ -89,7 +97,10 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return Object.prototype.toString.call(value) === '[object Object]';
 }
 
-function mergeRecords(base: Record<string, unknown>, patch: Record<string, unknown>): Record<string, unknown> {
+function mergeRecords(
+  base: Record<string, unknown>,
+  patch: Record<string, unknown>
+): Record<string, unknown> {
   const next: Record<string, unknown> = { ...base };
 
   for (const [key, patchValue] of Object.entries(patch)) {
@@ -116,8 +127,13 @@ function parsePageLayout(raw: unknown): PageLayoutJson {
   }
 }
 
-function normalizeSettingsWithFallback(settingsInput: unknown, fallbackTitle: string): PortalPageSettingsV2 {
-  const normalized = normalizePortalPageSettingsV2(settingsInput ?? createDefaultPortalPageSettingsV2());
+function normalizeSettingsWithFallback(
+  settingsInput: unknown,
+  fallbackTitle: string
+): PortalPageSettingsV2 {
+  const normalized = normalizePortalPageSettingsV2(
+    settingsInput ?? createDefaultPortalPageSettingsV2()
+  );
   if (!normalized.basic.pageTitle.trim()) {
     normalized.basic.pageTitle = fallbackTitle || '页面';
   }
@@ -137,13 +153,15 @@ export function setPortalPageSettingsApi(
     PORTAL_PAGE_SETTINGS_API_CONTEXT_KEY,
     {
       ...currentPortalPageSettingsApi,
-      ...api,
+      ...api
     },
     context
   );
 }
 
-export function resetPortalPageSettingsApi(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+export function resetPortalPageSettingsApi(
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
   return writePortalEngineContextValue(
     PORTAL_PAGE_SETTINGS_API_CONTEXT_KEY,
     createFallbackPortalPageSettingsApi(),
@@ -151,7 +169,9 @@ export function resetPortalPageSettingsApi(context: PortalEngineContext = getDef
   );
 }
 
-export function getPortalPageSettingsApi(context: PortalEngineContext = getDefaultPortalEngineContext()): PortalPageSettingsApi {
+export function getPortalPageSettingsApi(
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+): PortalPageSettingsApi {
   return readPortalEngineContextValue<PortalPageSettingsApi>(
     PORTAL_PAGE_SETTINGS_API_CONTEXT_KEY,
     context,
@@ -179,7 +199,7 @@ export function createPortalPageSettingsService(
       tab,
       pageLayout,
       settings: normalizeSettingsWithFallback(pageLayout.settings, tabName),
-      components: resolvePageLayoutComponents(pageLayout.component),
+      components: resolvePageLayoutComponents(pageLayout.component)
     };
   }
 
@@ -203,13 +223,15 @@ export function createPortalPageSettingsService(
     const pageLayout = buildPortalPageLayoutForSave(mergedSettings, detail.components);
     const templateId = normalizeIdLike(detail.tab.templateId) || params.templateId;
     const tabName =
-      (typeof detail.tab.tabName === 'string' && detail.tab.tabName.trim()) || mergedSettings.basic.pageTitle || '页面';
+      (typeof detail.tab.tabName === 'string' && detail.tab.tabName.trim()) ||
+      mergedSettings.basic.pageTitle ||
+      '页面';
 
     const res = await resolvedApi.updateTab({
       id: params.tabId,
       templateId,
       tabName,
-      pageLayout: JSON.stringify(pageLayout),
+      pageLayout: JSON.stringify(pageLayout)
     });
 
     if (!normalizeBizOk(res)) {
@@ -219,6 +241,6 @@ export function createPortalPageSettingsService(
 
   return {
     loadTabPageSettings,
-    saveTabPageSettings,
+    saveTabPageSettings
   };
 }

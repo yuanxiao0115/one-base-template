@@ -19,7 +19,7 @@ const DEFAULT_PORTAL_LINK_CONFIG: PortalLinkConfig = {
   path: '',
   paramKey: 'id',
   valueKey: 'id',
-  openType: 'router',
+  openType: 'router'
 };
 
 function isHttpUrl(value: string): boolean {
@@ -33,7 +33,7 @@ export function createDefaultPortalLinkConfig(): PortalLinkConfig {
 export function mergePortalLinkConfig(value?: Partial<PortalLinkConfig> | null): PortalLinkConfig {
   const merged = {
     ...DEFAULT_PORTAL_LINK_CONFIG,
-    ...(value ?? {}),
+    ...value
   };
 
   return {
@@ -46,7 +46,8 @@ export function mergePortalLinkConfig(value?: Partial<PortalLinkConfig> | null):
       typeof merged.valueKey === 'string' && merged.valueKey.trim().length
         ? merged.valueKey
         : DEFAULT_PORTAL_LINK_CONFIG.valueKey,
-    openType: merged.openType === 'newTab' || merged.openType === 'current' ? merged.openType : 'router',
+    openType:
+      merged.openType === 'newTab' || merged.openType === 'current' ? merged.openType : 'router'
   };
 }
 
@@ -66,7 +67,7 @@ export function resolvePortalLink(
   }
 
   return appendQueryToUrl(path, {
-    [paramKey]: value,
+    [paramKey]: value
   });
 }
 

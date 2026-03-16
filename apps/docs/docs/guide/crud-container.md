@@ -32,7 +32,7 @@ import CrudContainerDrawerDocDemo from './components/CrudContainerDrawerDocDemo.
 ## 全局默认容器配置（props 优先）
 
 ```ts
-import { OneUiPlugin } from '@one-base-template/ui'
+import { OneUiPlugin } from '@one-base-template/ui';
 
 app.use(OneUiPlugin, {
   prefix: 'Ob',
@@ -40,7 +40,7 @@ app.use(OneUiPlugin, {
   crudContainer: {
     defaultContainer: 'dialog'
   }
-})
+});
 ```
 
 说明：
@@ -63,33 +63,33 @@ app.use(OneUiPlugin, {
 
 ```vue
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ref, type Ref } from 'vue';
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import {
   CrudContainer as ObCrudContainer,
   useEntityEditor,
   type CrudFormLike
-} from '@one-base-template/ui'
+} from '@one-base-template/ui';
 
 type UserForm = {
-  id?: string
-  name: string
-  phone: string
-}
+  id?: string;
+  name: string;
+  phone: string;
+};
 
-const formRef = ref<FormInstance>()
+const formRef = ref<FormInstance>();
 
 const rules: FormRules<UserForm> = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }]
-}
+};
 
 async function addUser(payload: UserForm) {
-  return Promise.resolve({ code: 200, data: payload })
+  return Promise.resolve({ code: 200, data: payload });
 }
 
 async function editUser(payload: UserForm) {
-  return Promise.resolve({ code: 200, data: payload })
+  return Promise.resolve({ code: 200, data: payload });
 }
 
 const crud = useEntityEditor<UserForm, { id: string; name: string; phone: string }>({
@@ -101,17 +101,17 @@ const crud = useEntityEditor<UserForm, { id: string; name: string; phone: string
   save: {
     buildPayload: ({ form }) => ({ ...form }),
     request: async ({ mode, payload }) => {
-      const response = mode === 'create' ? await addUser(payload) : await editUser(payload)
+      const response = mode === 'create' ? await addUser(payload) : await editUser(payload);
       if (response.code !== 200) {
-        throw new Error('保存失败')
+        throw new Error('保存失败');
       }
-      return response
+      return response;
     },
     onSuccess: ({ mode }) => {
-      ElMessage.success(mode === 'create' ? '新增成功' : '更新成功')
+      ElMessage.success(mode === 'create' ? '新增成功' : '更新成功');
     }
   }
-})
+});
 </script>
 
 <template>
@@ -127,7 +127,13 @@ const crud = useEntityEditor<UserForm, { id: string; name: string; phone: string
     @confirm="crud.confirm"
     @cancel="crud.close"
   >
-    <el-form ref="formRef" :model="crud.form" :rules="rules" label-width="88px" :disabled="crud.readonly">
+    <el-form
+      ref="formRef"
+      :model="crud.form"
+      :rules="rules"
+      label-width="88px"
+      :disabled="crud.readonly"
+    >
       <el-form-item label="姓名" prop="name">
         <el-input v-model.trim="crud.form.name" />
       </el-form-item>
@@ -169,7 +175,7 @@ const crud = useEntityEditor<UserForm, { id: string; name: string; phone: string
 
 ```vue
 <script setup lang="ts">
-import { CrudContainer as ObCrudContainer, useEntityEditor } from '@one-base-template/ui'
+import { CrudContainer as ObCrudContainer, useEntityEditor } from '@one-base-template/ui';
 
 const crud = useEntityEditor({
   entity: { name: '组织', container: 'drawer' },
@@ -178,10 +184,10 @@ const crud = useEntityEditor({
   },
   save: {
     request: async ({ payload }) => {
-      await Promise.resolve(payload)
+      await Promise.resolve(payload);
     }
   }
-})
+});
 </script>
 
 <template>
@@ -240,12 +246,7 @@ const crud = useEntityEditor({
 
 ```vue
 <template>
-  <ObCrudContainer
-    v-model="visible"
-    container="drawer"
-    :drawer-columns="2"
-    title="编辑组织"
-  >
+  <ObCrudContainer v-model="visible" container="drawer" :drawer-columns="2" title="编辑组织">
     <el-form :model="form">
       <el-form-item label="组织名称">
         <el-input v-model="form.name" />
@@ -265,7 +266,7 @@ const crud = useEntityEditor({
 ## 3. beforeOpen 加载字典（打开前前置方法）
 
 ```ts
-const statusOptions = ref<Array<{ label: string; value: number }>>([])
+const statusOptions = ref<Array<{ label: string; value: number }>>([]);
 
 const crud = useEntityEditor({
   entity: { name: '菜单' },
@@ -276,23 +277,23 @@ const crud = useEntityEditor({
     beforeOpen: async ({ mode, row, form }) => {
       // 1) 字典前置加载
       if (statusOptions.value.length === 0) {
-        const response = await menuApi.getStatusEnum()
-        statusOptions.value = response.data || []
+        const response = await menuApi.getStatusEnum();
+        statusOptions.value = response.data || [];
       }
 
       // 2) 新增场景补默认值
       if (mode === 'create') {
-        form.status = 1
-        return
+        form.status = 1;
+        return;
       }
 
       // 3) 编辑/详情可根据当前行预处理
       if (row && row.status == null) {
-        form.status = 1
+        form.status = 1;
       }
     }
   }
-})
+});
 ```
 
 ## 4. 表单关联、提交、重置行为说明
@@ -307,10 +308,10 @@ const crud = useEntityEditor({
   },
   save: {
     request: async ({ payload }) => {
-      await api.save(payload)
+      await api.save(payload);
     }
   }
-})
+});
 ```
 
 默认行为：
@@ -324,7 +325,7 @@ const crud = useEntityEditor({
 ## 5. 保存成功后回调刷新列表
 
 ```ts
-const tableRef = ref<{ refresh?: () => void } | null>(null)
+const tableRef = ref<{ refresh?: () => void } | null>(null);
 
 const crud = useEntityEditor({
   entity: { name: '用户' },
@@ -333,13 +334,13 @@ const crud = useEntityEditor({
   },
   save: {
     request: async ({ payload }) => {
-      await userApi.save(payload)
+      await userApi.save(payload);
     },
     onSuccess: async () => {
-      await tableRef.value?.refresh?.()
+      await tableRef.value?.refresh?.();
     }
   }
-})
+});
 ```
 
 ## 6. 自定义 footer（仅一个按钮）
@@ -372,10 +373,10 @@ const crud = useEntityEditor({
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-import { CrudContainer as ObCrudContainer } from '@one-base-template/ui'
+import { ref } from 'vue';
+import { CrudContainer as ObCrudContainer } from '@one-base-template/ui';
 
-const visible = ref(false)
+const visible = ref(false);
 </script>
 
 <template>

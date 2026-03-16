@@ -11,7 +11,11 @@ function base64Encode(value: string): string {
 /**
  * 生成与老项目兼容的 Client-Signature。
  */
-export function createClientSignature(params?: { clientId?: string; timestamp?: number; salt?: string }): string {
+export function createClientSignature(params?: {
+  clientId?: string;
+  timestamp?: number;
+  salt?: string;
+}): string {
   const clientId = params?.clientId ?? '1';
   const timestamp = params?.timestamp ?? Date.now();
   const salt = params?.salt ?? 'fc54f9655dc04da486663f1055978ba8';

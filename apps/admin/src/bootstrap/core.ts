@@ -1,16 +1,16 @@
-import type { App } from "vue";
-import type { RouteRecordRaw } from "vue-router";
+import type { App } from 'vue';
+import type { RouteRecordRaw } from 'vue-router';
 import {
   type BackendAdapter,
   createCore,
   createStaticMenusFromRoutes,
   type LayoutMode,
   type MenuMode,
-  type SystemSwitchStyle,
-} from "@one-base-template/core";
-import { obConfirm } from "@one-base-template/ui";
+  type SystemSwitchStyle
+} from '@one-base-template/core';
+import { obConfirm } from '@one-base-template/ui';
 
-import { appSsoOptions, appThemeOptions, createSystemsOptions } from "../config";
+import { appSsoOptions, appThemeOptions, createSystemsOptions } from '../config';
 
 export function installCore(
   app: App,
@@ -39,10 +39,11 @@ export function installCore(
     sidebarCollapsedWidth,
     storageNamespace,
     defaultSystemCode,
-    systemHomeMap,
+    systemHomeMap
   } = params;
 
-  const staticMenus = menuMode === "static" ? createStaticMenusFromRoutes(routes, { rootPath: "/" }) : undefined;
+  const staticMenus =
+    menuMode === 'static' ? createStaticMenusFromRoutes(routes, { rootPath: '/' }) : undefined;
 
   app.use(
     createCore({
@@ -53,7 +54,7 @@ export function installCore(
       sso: appSsoOptions,
       theme: {
         ...appThemeOptions,
-        storageNamespace,
+        storageNamespace
       },
       layout: {
         defaultMode: layoutMode,
@@ -61,18 +62,18 @@ export function installCore(
         topbarHeight,
         sidebarWidth,
         sidebarCollapsedWidth,
-        persist: true,
+        persist: true
       },
       systems: createSystemsOptions({
         defaultCode: defaultSystemCode,
-        homeMap: systemHomeMap,
+        homeMap: systemHomeMap
       }),
       hooks: {
         tableConfirmAdapter: {
           warn: async (message, title, options) => obConfirm.warn(message, title, options),
-          prompt: async (message, title, options) => obConfirm.prompt(message, title, options),
-        },
-      },
+          prompt: async (message, title, options) => obConfirm.prompt(message, title, options)
+        }
+      }
     })
   );
 }

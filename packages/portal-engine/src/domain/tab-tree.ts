@@ -30,7 +30,10 @@ export function normalizePortalTabName(value: unknown, fallback: string): string
   return fallback;
 }
 
-export function walkPortalTabs<T extends PortalTabTreeNode>(tabs: T[] | undefined, visitor: (tab: T) => void) {
+export function walkPortalTabs<T extends PortalTabTreeNode>(
+  tabs: T[] | undefined,
+  visitor: (tab: T) => void
+) {
   if (!Array.isArray(tabs)) {
     return;
   }
@@ -45,12 +48,17 @@ export function walkPortalTabs<T extends PortalTabTreeNode>(tabs: T[] | undefine
   }
 }
 
-export function normalizePortalParentId(parent: PortalTabTreeNode | null | undefined): number | string {
+export function normalizePortalParentId(
+  parent: PortalTabTreeNode | null | undefined
+): number | string {
   const id = normalizePortalTabId(parent?.id);
   return id || 0;
 }
 
-export function findPortalTabById<T extends PortalTabTreeNode>(tabs: T[] | undefined, tabId: string): T | null {
+export function findPortalTabById<T extends PortalTabTreeNode>(
+  tabs: T[] | undefined,
+  tabId: string
+): T | null {
   if (!(tabId && Array.isArray(tabs))) {
     return null;
   }
@@ -69,7 +77,9 @@ export function findPortalTabById<T extends PortalTabTreeNode>(tabs: T[] | undef
   return null;
 }
 
-export function findFirstPortalPageTabId<T extends PortalTabTreeNode>(tabs: T[] | undefined): string {
+export function findFirstPortalPageTabId<T extends PortalTabTreeNode>(
+  tabs: T[] | undefined
+): string {
   if (!Array.isArray(tabs)) {
     return '';
   }
@@ -89,7 +99,10 @@ export function findFirstPortalPageTabId<T extends PortalTabTreeNode>(tabs: T[] 
   return '';
 }
 
-export function containsPortalTabId<T extends PortalTabTreeNode>(tabs: T[] | undefined, tabId: string): boolean {
+export function containsPortalTabId<T extends PortalTabTreeNode>(
+  tabs: T[] | undefined,
+  tabId: string
+): boolean {
   if (!tabId) {
     return false;
   }
@@ -105,7 +118,10 @@ export function containsPortalTabId<T extends PortalTabTreeNode>(tabs: T[] | und
   return found;
 }
 
-export function calcPortalTabNextSort<T extends PortalTabTreeNode>(tabs: T[] | undefined, parentId: unknown): number {
+export function calcPortalTabNextSort<T extends PortalTabTreeNode>(
+  tabs: T[] | undefined,
+  parentId: unknown
+): number {
   const parentKey = normalizePortalTabId(parentId) || '0';
   let maxSort = 0;
   walkPortalTabs(tabs, (tab) => {

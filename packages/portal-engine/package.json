@@ -11,11 +11,11 @@
   },
   "scripts": {
     "build": "pnpm typecheck",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "vp test",
+    "test:run": "vp test run",
     "verify:materials": "node ../../scripts/check-portal-materials.mjs",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "vp lint ."
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",

@@ -9,14 +9,17 @@ export interface PortalEngineContext {
   values: Map<symbol, unknown>;
 }
 
-const PORTAL_ENGINE_CONTEXT_KEY: InjectionKey<PortalEngineContext> = Symbol('portal-engine-context');
+const PORTAL_ENGINE_CONTEXT_KEY: InjectionKey<PortalEngineContext> =
+  Symbol('portal-engine-context');
 
 let defaultPortalEngineContext = createPortalEngineContext();
 
-export function createPortalEngineContext(options: PortalEngineContextOptions = {}): PortalEngineContext {
+export function createPortalEngineContext(
+  options: PortalEngineContextOptions = {}
+): PortalEngineContext {
   return {
     appId: options.appId,
-    values: new Map(),
+    values: new Map()
   };
 }
 

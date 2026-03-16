@@ -110,7 +110,11 @@ function isObject(item: any): item is Record<string, any> {
  * get(obj, 'a.b.d', 'default') // => 'default'
  * ```
  */
-export function get<T = any>(obj: Record<string, any>, path: string | string[], defaultValue?: T): T {
+export function get<T = any>(
+  obj: Record<string, any>,
+  path: string | string[],
+  defaultValue?: T
+): T {
   const keys = Array.isArray(path) ? path : path.split('.');
   let result = obj;
 
@@ -327,7 +331,10 @@ export function unflatten(obj: Record<string, any>, separator = '.'): Record<str
  * // => { a: 1, c: 3 }
  * ```
  */
-export function pick<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+export function pick<T extends Record<string, any>, K extends keyof T>(
+  obj: T,
+  keys: K[]
+): Pick<T, K> {
   const result = {} as Pick<T, K>;
 
   for (const key of keys) {
@@ -352,7 +359,10 @@ export function pick<T extends Record<string, any>, K extends keyof T>(obj: T, k
  * // => { a: 1, c: 3 }
  * ```
  */
-export function omit<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
+export function omit<T extends Record<string, any>, K extends keyof T>(
+  obj: T,
+  keys: K[]
+): Omit<T, K> {
   const result = { ...obj };
 
   for (const key of keys) {
@@ -378,5 +388,7 @@ export function isAllEmpty(obj: any): boolean {
   if (!obj || typeof obj !== 'object') {
     return true;
   }
-  return Object.keys(obj).every((key) => obj[key] === '' || obj[key] === null || obj[key] === undefined);
+  return Object.keys(obj).every(
+    (key) => obj[key] === '' || obj[key] === null || obj[key] === undefined
+  );
 }

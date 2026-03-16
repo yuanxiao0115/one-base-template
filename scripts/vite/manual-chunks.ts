@@ -1,54 +1,54 @@
 interface AppFeatureChunk {
-  name: string
-  patterns: string[]
+  name: string;
+  patterns: string[];
 }
 
 interface OneAppManualChunkOptions {
-  appName: 'admin' | 'portal' | 'template'
-  featureChunks?: AppFeatureChunk[]
+  appName: 'admin' | 'portal' | 'template';
+  featureChunks?: AppFeatureChunk[];
 }
 
 interface OneAppCodeSplittingOptions {
   groups: Array<{
-    name: (moduleId: string) => string | null | undefined
-    test: (moduleId: string) => boolean
-    priority: number
-  }>
-  includeDependenciesRecursively: boolean
-  minSize: number
-  minShareCount: number
+    name: (moduleId: string) => string | null | undefined;
+    test: (moduleId: string) => boolean;
+    priority: number;
+  }>;
+  includeDependenciesRecursively: boolean;
+  minSize: number;
+  minShareCount: number;
 }
 
 interface PreloadDependencyContext {
-  hostId: string
-  hostType: 'html' | 'js'
+  hostId: string;
+  hostType: 'html' | 'js';
 }
 
 interface CodeSplittingGroupDefinition {
-  chunkName: string
-  patterns: string[]
-  priority: number
+  chunkName: string;
+  patterns: string[];
+  priority: number;
 }
 
 function normalizeModuleId(id: string) {
-  return id.replaceAll('\\', '/')
+  return id.replaceAll('\\', '/');
 }
 
 function includesAny(id: string, patterns: string[]) {
-  return patterns.some(pattern => id.includes(pattern))
+  return patterns.some((pattern) => id.includes(pattern));
 }
 
 function normalizeOutputFileName(fileName: string) {
-  return normalizeModuleId(fileName).split('?')[0] ?? normalizeModuleId(fileName)
+  return normalizeModuleId(fileName).split('?')[0] ?? normalizeModuleId(fileName);
 }
 
 function matchesOutputPrefix(fileName: string, prefixes: string[]) {
-  const normalized = normalizeOutputFileName(fileName)
-  return prefixes.some(prefix => normalized.startsWith(prefix))
+  const normalized = normalizeOutputFileName(fileName);
+  return prefixes.some((prefix) => normalized.startsWith(prefix));
 }
 
 function filterPreloadDependencies(deps: string[], blockedPrefixes: string[]) {
-  return deps.filter(dep => !matchesOutputPrefix(dep, blockedPrefixes))
+  return deps.filter((dep) => !matchesOutputPrefix(dep, blockedPrefixes));
 }
 
 const VENDOR_CHUNK_RULES: AppFeatureChunk[] = [
@@ -70,7 +70,12 @@ const VENDOR_CHUNK_RULES: AppFeatureChunk[] = [
   },
   {
     name: 'vxe',
-    patterns: ['/node_modules/vxe-table/', '/node_modules/vxe-pc-ui/', '/node_modules/@vxe-ui/', '/node_modules/xe-utils/']
+    patterns: [
+      '/node_modules/vxe-table/',
+      '/node_modules/vxe-pc-ui/',
+      '/node_modules/@vxe-ui/',
+      '/node_modules/xe-utils/'
+    ]
   },
   {
     name: 'iconify-runtime',
@@ -97,9 +102,13 @@ const VENDOR_CHUNK_RULES: AppFeatureChunk[] = [
   },
   {
     name: 'sortable-grid',
-    patterns: ['/node_modules/sortablejs/', '/node_modules/grid-layout-plus/', '/node_modules/interactjs/']
+    patterns: [
+      '/node_modules/sortablejs/',
+      '/node_modules/grid-layout-plus/',
+      '/node_modules/interactjs/'
+    ]
   }
-]
+];
 
 const WORKSPACE_CHUNK_RULES: AppFeatureChunk[] = [
   {
@@ -129,7 +138,11 @@ const WORKSPACE_CHUNK_RULES: AppFeatureChunk[] = [
   },
   {
     name: 'one-ui-auth',
-    patterns: ['/packages/ui/src/components/auth/', '/packages/ui/src/lite/auth.ts', '/packages/ui/src/lite-auth.ts']
+    patterns: [
+      '/packages/ui/src/components/auth/',
+      '/packages/ui/src/lite/auth.ts',
+      '/packages/ui/src/lite-auth.ts'
+    ]
   },
   {
     name: 'one-ui-table',
@@ -151,7 +164,7 @@ const WORKSPACE_CHUNK_RULES: AppFeatureChunk[] = [
     name: 'one-utils',
     patterns: ['/packages/utils/src/']
   }
-]
+];
 
 const ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES = [
   'assets/admin-entry-',
@@ -168,7 +181,7 @@ const ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES = [
   'assets/iconify-ri-',
   'assets/wangeditor-',
   'assets/vxe-'
-]
+];
 
 const ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES = [
   ...ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES,
@@ -180,7 +193,7 @@ const ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES = [
   'assets/arrow-left-s-line-',
   'assets/dist-web-',
   'assets/module-'
-]
+];
 
 const ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES = [
   'assets/admin-app-shell-',
@@ -189,7 +202,7 @@ const ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES = [
   'assets/iconify-ri-',
   'assets/wangeditor-',
   'assets/vxe-'
-]
+];
 
 const ADMIN_INDEX_HTML_BLOCKED_STYLE_PREFIXES = [
   'assets/admin-entry-',
@@ -200,11 +213,11 @@ const ADMIN_INDEX_HTML_BLOCKED_STYLE_PREFIXES = [
   'assets/vxe-',
   'assets/one-ui-table-',
   'assets/one-ui-shell-'
-]
+];
 
 export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
-  const appSegment = `/apps/${options.appName}/src/`
-  const featureChunks = options.featureChunks ?? []
+  const appSegment = `/apps/${options.appName}/src/`;
+  const featureChunks = options.featureChunks ?? [];
   const adminRuntimePatterns =
     options.appName === 'admin'
       ? [
@@ -216,7 +229,7 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
           `${appSegment}infra/`,
           `${appSegment}router/constants.ts`
         ]
-      : []
+      : [];
   const adminAuthPatterns =
     options.appName === 'admin'
       ? [
@@ -225,57 +238,67 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
           `${appSegment}shared/services/auth-`,
           `${appSegment}shared/api/http-client.ts`
         ]
-      : []
+      : [];
 
   return function manualChunks(rawId: string) {
-    const id = normalizeModuleId(rawId)
+    const id = normalizeModuleId(rawId);
 
     if (id.startsWith('\0') || id.includes('?worker') || id.includes('&worker')) {
-      return undefined
+      return undefined;
     }
 
-    const vendorRule = VENDOR_CHUNK_RULES.find(rule => includesAny(id, rule.patterns))
+    const vendorRule = VENDOR_CHUNK_RULES.find((rule) => includesAny(id, rule.patterns));
     if (vendorRule) {
-      return vendorRule.name
+      return vendorRule.name;
     }
 
-    const workspaceRule = WORKSPACE_CHUNK_RULES.find(rule => includesAny(id, rule.patterns))
+    const workspaceRule = WORKSPACE_CHUNK_RULES.find((rule) => includesAny(id, rule.patterns));
     if (workspaceRule) {
-      return workspaceRule.name
+      return workspaceRule.name;
     }
 
     if (!id.includes(appSegment)) {
-      return undefined
+      return undefined;
     }
 
-    const featureRule = featureChunks.find(rule => includesAny(id, rule.patterns))
+    const featureRule = featureChunks.find((rule) => includesAny(id, rule.patterns));
     if (featureRule) {
-      return featureRule.name
+      return featureRule.name;
     }
 
     if (adminRuntimePatterns.length > 0 && includesAny(id, adminRuntimePatterns)) {
-      return 'admin-runtime'
+      return 'admin-runtime';
     }
 
     if (adminAuthPatterns.length > 0 && includesAny(id, adminAuthPatterns)) {
-      return 'admin-auth'
+      return 'admin-auth';
     }
 
     if (includesAny(id, [`${appSegment}pages/login/`, `${appSegment}pages/sso/`])) {
-      return `${options.appName}-auth`
+      return `${options.appName}-auth`;
     }
 
-    if (includesAny(id, [`${appSegment}bootstrap/`, `${appSegment}router/`, `${appSegment}infra/`, `${appSegment}config/`, `${appSegment}shared/`])) {
-      return `${options.appName}-app-shell`
+    if (
+      includesAny(id, [
+        `${appSegment}bootstrap/`,
+        `${appSegment}router/`,
+        `${appSegment}infra/`,
+        `${appSegment}config/`,
+        `${appSegment}shared/`
+      ])
+    ) {
+      return `${options.appName}-app-shell`;
     }
 
-    return undefined
-  }
+    return undefined;
+  };
 }
 
-export function createOneAppCodeSplitting(options: OneAppManualChunkOptions): OneAppCodeSplittingOptions {
-  const appSegment = `/apps/${options.appName}/src/`
-  const featureChunks = options.featureChunks ?? []
+export function createOneAppCodeSplitting(
+  options: OneAppManualChunkOptions
+): OneAppCodeSplittingOptions {
+  const appSegment = `/apps/${options.appName}/src/`;
+  const featureChunks = options.featureChunks ?? [];
   const codeSplittingGroups: CodeSplittingGroupDefinition[] = [
     ...VENDOR_CHUNK_RULES.map((rule, index) => ({
       chunkName: rule.name,
@@ -352,85 +375,98 @@ export function createOneAppCodeSplitting(options: OneAppManualChunkOptions): On
             priority: 100
           }
         ])
-  ]
+  ];
 
   return {
     // 让命名 chunk 递归吸纳其依赖，避免 vendor 的共享依赖被回落到 admin-entry 等业务入口 chunk。
     includeDependenciesRecursively: true,
     minSize: 0,
     minShareCount: 1,
-    groups: codeSplittingGroups.map(group => ({
+    groups: codeSplittingGroups.map((group) => ({
       name(moduleId) {
-        return includesAny(normalizeModuleId(moduleId), group.patterns) ? group.chunkName : null
+        return includesAny(normalizeModuleId(moduleId), group.patterns) ? group.chunkName : null;
       },
       test(moduleId) {
-        return includesAny(normalizeModuleId(moduleId), group.patterns)
+        return includesAny(normalizeModuleId(moduleId), group.patterns);
       },
       priority: group.priority
     }))
-  }
+  };
 }
 
 export function createOneAppPreloadDependenciesResolver(options: OneAppManualChunkOptions) {
   if (options.appName !== 'admin') {
-    return (_filename: string, deps: string[]) => deps
+    return (_filename: string, deps: string[]) => deps;
   }
 
   return (filename: string, deps: string[], context: PreloadDependencyContext) => {
     if (context.hostType === 'html' && matchesOutputPrefix(filename, ['assets/index-'])) {
-      return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
+      return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES);
     }
 
     if (matchesOutputPrefix(filename, ['assets/admin-runtime-', 'assets/admin-app-shell-'])) {
-      return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
+      return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES);
     }
 
     if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/lite-'])) {
-      return filterPreloadDependencies(deps, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES)
+      return filterPreloadDependencies(deps, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES);
     }
 
     if (matchesOutputPrefix(filename, ['assets/LoginPage-'])) {
-      return filterPreloadDependencies(deps, ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES)
+      return filterPreloadDependencies(deps, ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES);
     }
 
-    return deps
-  }
+    return deps;
+  };
 }
 
 export function stripIndexHtmlUnusedStylesheets(html: string, options: OneAppManualChunkOptions) {
   if (options.appName !== 'admin') {
-    return html
+    return html;
   }
 
-  return html.replace(/^[ \t]*<link rel="stylesheet" crossorigin href="\/([^"]+)">\n?/gm, (match, href: string) => {
-    return matchesOutputPrefix(href, ADMIN_INDEX_HTML_BLOCKED_STYLE_PREFIXES) ? '' : match
-  })
+  return html.replace(
+    /^[ \t]*<link rel="stylesheet" crossorigin href="\/([^"]+)">\n?/gm,
+    (match, href: string) => {
+      return matchesOutputPrefix(href, ADMIN_INDEX_HTML_BLOCKED_STYLE_PREFIXES) ? '' : match;
+    }
+  );
 }
 
 function rewriteChunkPreloadMap(code: string, blockedPrefixes: string[]) {
-  const preloadMapSignature = '=>i.map(i=>d[i]);'
+  const preloadMapSignature = '=>i.map(i=>d[i]);';
   if (!code.includes(preloadMapSignature)) {
-    return code
+    return code;
   }
 
   return code.replace(
     preloadMapSignature,
     `=>i.map(i=>d[i]).filter(dep=>dep&&!${JSON.stringify(blockedPrefixes)}.some(prefix=>dep.startsWith(prefix)));`
-  )
+  );
 }
 
-export function pruneBuiltChunkPreloadMaps(code: string, filename: string, options: OneAppManualChunkOptions) {
+export function pruneBuiltChunkPreloadMaps(
+  code: string,
+  filename: string,
+  options: OneAppManualChunkOptions
+) {
   if (options.appName !== 'admin') {
-    return code
+    return code;
   }
 
-  if (matchesOutputPrefix(filename, ['assets/index-', 'assets/admin-runtime-', 'assets/admin-app-shell-'])) {
-    return rewriteChunkPreloadMap(code, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES)
+  if (
+    matchesOutputPrefix(filename, [
+      'assets/index-',
+      'assets/admin-runtime-',
+      'assets/admin-app-shell-'
+    ])
+  ) {
+    return rewriteChunkPreloadMap(code, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES);
   }
 
   if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/LoginPage-', 'assets/lite-'])) {
-    return rewriteChunkPreloadMap(code, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES)
+    return rewriteChunkPreloadMap(code, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES);
   }
 
-  return code
+  return code;
 }

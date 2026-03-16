@@ -2,10 +2,15 @@ import type {
   UnifiedContainerBorderStyle,
   UnifiedContainerContentConfig,
   UnifiedContainerSubtitleLayout,
-  UnifiedContainerStyleConfig,
+  UnifiedContainerStyleConfig
 } from './unified-container.types';
 
-const BORDER_STYLE_SET = new Set<UnifiedContainerBorderStyle>(['none', 'solid', 'dashed', 'dotted']);
+const BORDER_STYLE_SET = new Set<UnifiedContainerBorderStyle>([
+  'none',
+  'solid',
+  'dashed',
+  'dotted'
+]);
 const SUBTITLE_LAYOUT_SET = new Set<UnifiedContainerSubtitleLayout>(['below', 'inline']);
 
 const UNIFIED_CONTAINER_STYLE_NUMERIC_KEYS = [
@@ -26,7 +31,7 @@ const UNIFIED_CONTAINER_STYLE_NUMERIC_KEYS = [
   'contentTopGap',
   'titleFontSize',
   'subtitleFontSize',
-  'linkFontSize',
+  'linkFontSize'
 ] as const satisfies readonly (keyof UnifiedContainerStyleConfig)[];
 
 export const DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG: UnifiedContainerContentConfig = {
@@ -38,7 +43,7 @@ export const DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG: UnifiedContainerContentCo
   showExternalLink: false,
   externalLinkText: '更多',
   externalLinkUrl: '',
-  openExternalInNewTab: true,
+  openExternalInNewTab: true
 };
 
 export const DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG: UnifiedContainerStyleConfig = {
@@ -69,7 +74,7 @@ export const DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG: UnifiedContainerStyleConfig
   subtitleFontSize: 13,
   iconColor: '#2563eb',
   linkColor: '#2563eb',
-  linkFontSize: 13,
+  linkFontSize: 13
 };
 
 function toSafeString(value: unknown, fallback: string): string {
@@ -88,14 +93,21 @@ function toSafeNonNegativeNumber(value: unknown, fallback: number): number {
   return numberValue < 0 ? 0 : numberValue;
 }
 
-function toSafeBorderStyle(value: unknown, fallback: UnifiedContainerBorderStyle): UnifiedContainerBorderStyle {
+function toSafeBorderStyle(
+  value: unknown,
+  fallback: UnifiedContainerBorderStyle
+): UnifiedContainerBorderStyle {
   return typeof value === 'string' && BORDER_STYLE_SET.has(value as UnifiedContainerBorderStyle)
     ? (value as UnifiedContainerBorderStyle)
     : fallback;
 }
 
-function toSafeSubtitleLayout(value: unknown, fallback: UnifiedContainerSubtitleLayout): UnifiedContainerSubtitleLayout {
-  return typeof value === 'string' && SUBTITLE_LAYOUT_SET.has(value as UnifiedContainerSubtitleLayout)
+function toSafeSubtitleLayout(
+  value: unknown,
+  fallback: UnifiedContainerSubtitleLayout
+): UnifiedContainerSubtitleLayout {
+  return typeof value === 'string' &&
+    SUBTITLE_LAYOUT_SET.has(value as UnifiedContainerSubtitleLayout)
     ? (value as UnifiedContainerSubtitleLayout)
     : fallback;
 }
@@ -113,7 +125,7 @@ export function mergeUnifiedContainerContentConfig(
 ): UnifiedContainerContentConfig {
   const merged = {
     ...DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG,
-    ...(value ?? {}),
+    ...value
   } satisfies UnifiedContainerContentConfig;
 
   return {
@@ -129,12 +141,18 @@ export function mergeUnifiedContainerContentConfig(
       merged.showExternalLink,
       DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.showExternalLink
     ),
-    externalLinkText: toSafeString(merged.externalLinkText, DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.externalLinkText),
-    externalLinkUrl: toSafeString(merged.externalLinkUrl, DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.externalLinkUrl),
+    externalLinkText: toSafeString(
+      merged.externalLinkText,
+      DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.externalLinkText
+    ),
+    externalLinkUrl: toSafeString(
+      merged.externalLinkUrl,
+      DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.externalLinkUrl
+    ),
     openExternalInNewTab: toSafeBoolean(
       merged.openExternalInNewTab,
       DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG.openExternalInNewTab
-    ),
+    )
   };
 }
 
@@ -143,28 +161,46 @@ export function mergeUnifiedContainerStyleConfig(
 ): UnifiedContainerStyleConfig {
   const merged = {
     ...DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG,
-    ...(value ?? {}),
+    ...value
   } satisfies UnifiedContainerStyleConfig;
 
   const normalized: UnifiedContainerStyleConfig = {
     ...merged,
-    backgroundColor: toSafeString(merged.backgroundColor, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.backgroundColor),
-    borderColor: toSafeString(merged.borderColor, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.borderColor),
-    borderStyle: toSafeBorderStyle(merged.borderStyle, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.borderStyle),
+    backgroundColor: toSafeString(
+      merged.backgroundColor,
+      DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.backgroundColor
+    ),
+    borderColor: toSafeString(
+      merged.borderColor,
+      DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.borderColor
+    ),
+    borderStyle: toSafeBorderStyle(
+      merged.borderStyle,
+      DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.borderStyle
+    ),
     boxShadow: toSafeString(merged.boxShadow, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.boxShadow),
     headerBackgroundColor: toSafeString(
       merged.headerBackgroundColor,
       DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.headerBackgroundColor
     ),
-    headerDividerColor: toSafeString(merged.headerDividerColor, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.headerDividerColor),
+    headerDividerColor: toSafeString(
+      merged.headerDividerColor,
+      DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.headerDividerColor
+    ),
     titleColor: toSafeString(merged.titleColor, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.titleColor),
-    subtitleColor: toSafeString(merged.subtitleColor, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.subtitleColor),
+    subtitleColor: toSafeString(
+      merged.subtitleColor,
+      DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.subtitleColor
+    ),
     iconColor: toSafeString(merged.iconColor, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.iconColor),
-    linkColor: toSafeString(merged.linkColor, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.linkColor),
+    linkColor: toSafeString(merged.linkColor, DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG.linkColor)
   };
 
   UNIFIED_CONTAINER_STYLE_NUMERIC_KEYS.forEach((key) => {
-    normalized[key] = toSafeNonNegativeNumber(merged[key], DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG[key]);
+    normalized[key] = toSafeNonNegativeNumber(
+      merged[key],
+      DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG[key]
+    );
   });
 
   if (normalized.borderStyle === 'none') {

@@ -59,7 +59,7 @@ export function buildNextRouteQueryWithTabId(
   }
   return {
     ...query,
-    [tabIdQueryKey]: nextValue,
+    [tabIdQueryKey]: nextValue
   };
 }
 
@@ -73,8 +73,8 @@ export function buildPortalPageEditorRouteLocation(
     path: editRoutePath,
     query: {
       id: templateId,
-      [tabIdQueryKey]: tabId,
-    } satisfies PortalRouteQueryLike,
+      [tabIdQueryKey]: tabId
+    } satisfies PortalRouteQueryLike
   };
 }
 
@@ -90,7 +90,7 @@ export function buildPortalPreviewRouteLocation(
     query: {
       templateId,
       [tabIdQueryKey]: tabId,
-      previewMode,
-    } satisfies PortalRouteQueryLike,
+      previewMode
+    } satisfies PortalRouteQueryLike
   };
 }

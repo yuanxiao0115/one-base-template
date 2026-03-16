@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import type { AppModuleManifestMeta } from './module-assembly';
 import {
   collectModuleLoadEntries,
   pickEnabledModuleEntries,
   resolveModuleDeclarationCandidate,
-  validateModuleDeclaration,
+  validateModuleDeclaration
 } from './module-registry';
 
 describe('core/router/module-registry', () => {
@@ -14,37 +14,37 @@ describe('core/router/module-registry', () => {
       id: 'PortalManagement',
       version: '1',
       moduleTier: 'optional',
-      enabledByDefault: false,
+      enabledByDefault: false
     } as const satisfies AppModuleManifestMeta;
 
     const entries = collectModuleLoadEntries({
       manifestDefinitions: {
         '../modules/PortalManagement/manifest.ts': {
-          default: validMeta,
+          default: validMeta
         },
         '../modules/home/manifest.ts': {
           default: {
             id: 'home',
             version: '1',
             moduleTier: 'core',
-            enabledByDefault: true,
-          },
+            enabledByDefault: true
+          }
         },
         '../modules/bad/manifest.ts': {
           default: {
             id: 'bad',
             version: '1',
             moduleTier: 'optional',
-            enabledByDefault: true,
-          },
-        },
+            enabledByDefault: true
+          }
+        }
       },
       hasModuleDeclaration(modulePath) {
         return modulePath.includes('/home/') || modulePath.includes('/PortalManagement/');
       },
       onWarn(message) {
         warnings.push(message);
-      },
+      }
     });
 
     expect(entries.map((item) => item.id)).toEqual(['home', 'PortalManagement']);
@@ -60,7 +60,7 @@ describe('core/router/module-registry', () => {
         moduleTier: 'core',
         enabledByDefault: true,
         manifestPath: '../modules/home/manifest.ts',
-        modulePath: '../modules/home/module.ts',
+        modulePath: '../modules/home/module.ts'
       },
       {
         id: 'PortalManagement',
@@ -68,24 +68,24 @@ describe('core/router/module-registry', () => {
         moduleTier: 'optional',
         enabledByDefault: false,
         manifestPath: '../modules/PortalManagement/manifest.ts',
-        modulePath: '../modules/PortalManagement/module.ts',
-      },
+        modulePath: '../modules/PortalManagement/module.ts'
+      }
     ] as const;
 
     expect(
       pickEnabledModuleEntries({
         allModules: [...allModules],
         enabledModules: '*',
-        onWarn: (message) => warnings.push(message),
-      }).map((item) => item.id),
+        onWarn: (message) => warnings.push(message)
+      }).map((item) => item.id)
     ).toEqual(['home', 'PortalManagement']);
 
     expect(
       pickEnabledModuleEntries({
         allModules: [...allModules],
         enabledModules: [],
-        onWarn: (message) => warnings.push(message),
-      }).map((item) => item.id),
+        onWarn: (message) => warnings.push(message)
+      }).map((item) => item.id)
     ).toEqual(['home']);
 
     warnings.length = 0;
@@ -93,14 +93,14 @@ describe('core/router/module-registry', () => {
       pickEnabledModuleEntries({
         allModules: [...allModules],
         enabledModules: ['home', 'home', 'unknown', 'PortalManagement'],
-        onWarn: (message) => warnings.push(message),
-      }).map((item) => item.id),
+        onWarn: (message) => warnings.push(message)
+      }).map((item) => item.id)
     ).toEqual(['home', 'PortalManagement']);
     expect(warnings).toEqual(
       expect.arrayContaining([
         expect.stringContaining('enabledModules 包含重复模块 id：home'),
-        expect.stringContaining('enabledModules 包含未知模块 id：unknown'),
-      ]),
+        expect.stringContaining('enabledModules 包含未知模块 id：unknown')
+      ])
     );
   });
 
@@ -112,7 +112,7 @@ describe('core/router/module-registry', () => {
       moduleTier: 'core',
       enabledByDefault: true,
       manifestPath: '../modules/home/manifest.ts',
-      modulePath: '../modules/home/module.ts',
+      modulePath: '../modules/home/module.ts'
     } as const;
 
     const valid = validateModuleDeclaration({
@@ -123,9 +123,9 @@ describe('core/router/module-registry', () => {
         moduleTier: 'core',
         enabledByDefault: true,
         apiNamespace: 'home',
-        routes: { layout: [] },
+        routes: { layout: [] }
       },
-      onWarn: (message) => warnings.push(message),
+      onWarn: (message) => warnings.push(message)
     });
     expect(valid).not.toBeNull();
 
@@ -137,9 +137,9 @@ describe('core/router/module-registry', () => {
         moduleTier: 'core',
         enabledByDefault: true,
         apiNamespace: 'home',
-        routes: { layout: [] },
+        routes: { layout: [] }
       },
-      onWarn: (message) => warnings.push(message),
+      onWarn: (message) => warnings.push(message)
     });
     expect(mismatch).toBeNull();
     expect(warnings.some((message) => message.includes('模块清单与声明不一致'))).toBe(true);
@@ -154,9 +154,9 @@ describe('core/router/module-registry', () => {
           moduleTier: 'core',
           enabledByDefault: true,
           apiNamespace: 'home',
-          routes: { layout: [] },
-        },
-      })?.id,
+          routes: { layout: [] }
+        }
+      })?.id
     ).toBe('home');
 
     expect(
@@ -167,9 +167,9 @@ describe('core/router/module-registry', () => {
           moduleTier: 'optional',
           enabledByDefault: false,
           apiNamespace: 'portal',
-          routes: { layout: [] },
-        },
-      })?.id,
+          routes: { layout: [] }
+        }
+      })?.id
     ).toBe('PortalManagement');
   });
 });

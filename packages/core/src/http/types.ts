@@ -1,6 +1,9 @@
 import type { AxiosError, AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 
-export type RequestMethods = Extract<Method, 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'>;
+export type RequestMethods = Extract<
+  Method,
+  'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
+>;
 
 export type ObAuthMode = 'cookie' | 'token' | 'mixed';
 

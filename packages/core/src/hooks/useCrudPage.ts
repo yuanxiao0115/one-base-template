@@ -1,5 +1,9 @@
 import type { Ref } from 'vue';
-import { useEntityEditor, type UseEntityEditorOptions, type UseEntityEditorReturn } from './useEntityEditor';
+import {
+  useEntityEditor,
+  type UseEntityEditorOptions,
+  type UseEntityEditorReturn
+} from './useEntityEditor';
 import { useTable, type UseTableOptions, type UseTableReturn } from './useTable';
 
 export type CrudPageRefreshAfterSave = 'current' | 'first' | 'none';
@@ -35,7 +39,7 @@ export function useCrudPage<
   TRow = Record<string, unknown>,
   TDetail = TRow,
   TPayload = TForm,
-  TResult = unknown,
+  TResult = unknown
 >(
   options: UseCrudPageOptions<TForm, TRow, TDetail, TPayload, TResult>
 ): UseCrudPageReturn<TForm, TRow, TDetail, TResult> {
@@ -47,8 +51,8 @@ export function useCrudPage<
     ...options.table,
     remove: {
       ...options.table.remove,
-      ...(refreshAfterDelete ? { refreshAfterDelete } : {}),
-    },
+      ...(refreshAfterDelete ? { refreshAfterDelete } : {})
+    }
   };
 
   const table = useTable(tableOptions, options.tableRef);
@@ -71,8 +75,8 @@ export function useCrudPage<
             }
 
             await table.onSearch(false);
-          },
-        },
+          }
+        }
       }
     : options.editor;
 
@@ -90,8 +94,8 @@ export function useCrudPage<
       openEdit: editor.openEdit,
       openDetail: editor.openDetail,
       confirm: editor.confirm,
-      remove,
-    },
+      remove
+    }
   };
 }
 

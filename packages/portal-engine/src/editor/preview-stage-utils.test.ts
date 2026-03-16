@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 
 import {
   calcPortalManualPanRange,
   calcPortalPreviewPanBounds,
   calcPortalPreviewStagePosition,
   clampPortalPreviewOffset,
-  clampPortalPreviewPercent,
+  clampPortalPreviewPercent
 } from './preview-stage-utils';
 
 describe('portal preview stage utils', () => {
@@ -28,7 +28,7 @@ describe('portal preview stage utils', () => {
       hostHeight: 700,
       stageWidth: 800,
       stageHeight: 600,
-      minOffset: 80,
+      minOffset: 80
     });
 
     expect(bounds.centeredX).toBe(200);
@@ -45,7 +45,7 @@ describe('portal preview stage utils', () => {
       hostHeight: 700,
       stageWidth: 800,
       stageHeight: 500,
-      minOffset: 80,
+      minOffset: 80
     });
 
     expect(bounds.centeredX).toBe(200);
@@ -62,7 +62,7 @@ describe('portal preview stage utils', () => {
       hostHeight: 700,
       stageWidth: 1200,
       stageHeight: 900,
-      minOffset: 80,
+      minOffset: 80
     });
 
     const offset = clampPortalPreviewOffset({ x: 80, y: -300 }, bounds);

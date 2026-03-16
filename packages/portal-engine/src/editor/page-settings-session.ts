@@ -36,10 +36,7 @@ export function createPortalPageSettingsSession<TSettings, TComponent = unknown>
     loading.value = true;
   }
 
-  function applyLoadedDetail(payload: {
-    settings: TSettings;
-    components: TComponent[];
-  }) {
+  function applyLoadedDetail(payload: { settings: TSettings; components: TComponent[] }) {
     persisted.value = options.clone(payload.settings);
     components.value = options.clone(payload.components);
     form.value = options.clone(payload.settings);
@@ -96,7 +93,7 @@ export function createPortalPageSettingsSession<TSettings, TComponent = unknown>
     }
 
     return {
-      shouldCloseDrawer,
+      shouldCloseDrawer
     };
   }
 
@@ -109,7 +106,9 @@ export function createPortalPageSettingsSession<TSettings, TComponent = unknown>
     pageShellPreviewDirty.value = false;
   }
 
-  function onDrawerClosed(persistedDetails: string): PortalPageSettingsSessionCloseResult<TSettings> {
+  function onDrawerClosed(
+    persistedDetails: string
+  ): PortalPageSettingsSessionCloseResult<TSettings> {
     let restoreShellDetails: string | null = null;
     let restoreRuntimeSettings: TSettings | null = null;
 
@@ -128,7 +127,7 @@ export function createPortalPageSettingsSession<TSettings, TComponent = unknown>
       editingTabId.value = '';
       return {
         restoreShellDetails,
-        restoreRuntimeSettings,
+        restoreRuntimeSettings
       };
     }
 
@@ -142,7 +141,7 @@ export function createPortalPageSettingsSession<TSettings, TComponent = unknown>
 
     return {
       restoreShellDetails,
-      restoreRuntimeSettings,
+      restoreRuntimeSettings
     };
   }
 
@@ -168,7 +167,7 @@ export function createPortalPageSettingsSession<TSettings, TComponent = unknown>
     markPageShellSaved,
     resetOnCurrentTabChange,
     onDrawerOpened,
-    onDrawerClosed,
+    onDrawerClosed
   };
 }
 

@@ -1,7 +1,7 @@
 import {
   registerPortalMaterialComponent,
   unregisterPortalMaterialComponent,
-  type RegisterPortalMaterialComponentOptions,
+  type RegisterPortalMaterialComponentOptions
 } from './material-component-loader';
 import { useEditorMaterials } from './useEditorMaterials';
 

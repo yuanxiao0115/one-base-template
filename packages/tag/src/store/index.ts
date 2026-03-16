@@ -42,7 +42,7 @@ export const useTagStore = defineStore('tag-store', {
       isUpdating: false,
       // 从 useTagState 移过来的状态
       activeIndex: -1,
-      currentSelect: null as TagItem | null,
+      currentSelect: null as TagItem | null
     };
   },
 
@@ -62,7 +62,7 @@ export const useTagStore = defineStore('tag-store', {
 
     getCurrentSelect(state) {
       return state.currentSelect;
-    },
+    }
   },
 
   actions: {
@@ -153,7 +153,12 @@ export const useTagStore = defineStore('tag-store', {
     /**
      * 更新标签页标题
      */
-    updateTagTitle(path: string, title: string, query?: Record<string, any>, params?: Record<string, any>) {
+    updateTagTitle(
+      path: string,
+      title: string,
+      query?: Record<string, any>,
+      params?: Record<string, any>
+    ) {
       this.handleTags('updateTitle', { path, title, query, params });
     },
 
@@ -171,8 +176,8 @@ export const useTagStore = defineStore('tag-store', {
      */
     setCurrentSelect(tag: TagItem | null) {
       this.currentSelect = tag;
-    },
-  },
+    }
+  }
 });
 
 // ===== Store 实例管理 =====

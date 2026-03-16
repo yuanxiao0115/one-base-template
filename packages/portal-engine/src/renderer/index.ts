@@ -4,7 +4,7 @@ export type {
   PortalPreviewDataSource,
   PortalPreviewNavigatePayload,
   PortalPreviewTabDetailResponse,
-  PortalPreviewTemplateDetailResponse,
+  PortalPreviewTemplateDetailResponse
 } from './portal-preview-panel.types';
 
 export { default as ConfigurablePortalHeader } from './shell/ConfigurablePortalHeader.vue';

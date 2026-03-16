@@ -7,10 +7,10 @@ import {
   normalizePortalParentId,
   normalizePortalTabId,
   normalizePortalTabName,
-  walkPortalTabs,
-} from "@one-base-template/portal-engine";
+  walkPortalTabs
+} from '@one-base-template/portal-engine';
 
-import type { PortalTab } from "../types";
+import type { PortalTab } from '../types';
 
 export { isPortalTabEditable };
 
@@ -42,6 +42,9 @@ export function containsTabId(tabs: PortalTab[] | undefined, tabId: string): boo
   return containsPortalTabId(tabs, tabId);
 }
 
-export function calcNextSort(tabs: PortalTab[] | undefined, parentId: PortalTab["parentId"]): number {
+export function calcNextSort(
+  tabs: PortalTab[] | undefined,
+  parentId: PortalTab['parentId']
+): number {
   return calcPortalTabNextSort(tabs, parentId);
 }

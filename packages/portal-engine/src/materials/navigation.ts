@@ -3,7 +3,7 @@ import type { PortalEngineContext } from '../runtime/context';
 import {
   getDefaultPortalEngineContext,
   readPortalEngineContextValue,
-  writePortalEngineContextValue,
+  writePortalEngineContextValue
 } from '../runtime/context';
 
 type MaybePromise<T> = T | Promise<T>;
@@ -39,12 +39,12 @@ export interface PortalCmsNavigation {
 
 const UNRESOLVED_LIST_RESULT: PortalCmsNavigationResult = {
   handled: false,
-  message: '当前应用未配置 CMS 列表跳转',
+  message: '当前应用未配置 CMS 列表跳转'
 };
 
 const UNRESOLVED_DETAIL_RESULT: PortalCmsNavigationResult = {
   handled: false,
-  message: '当前应用未配置 CMS 详情跳转',
+  message: '当前应用未配置 CMS 详情跳转'
 };
 
 const PORTAL_CMS_NAVIGATION_CONTEXT_KEY = Symbol('portal-engine.cms-navigation');
@@ -53,7 +53,9 @@ function createFallbackPortalCmsNavigation(): PortalCmsNavigation {
   return {};
 }
 
-export function getPortalCmsNavigation(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+export function getPortalCmsNavigation(
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
   return readPortalEngineContextValue<PortalCmsNavigation>(
     PORTAL_CMS_NAVIGATION_CONTEXT_KEY,
     context,
@@ -75,7 +77,7 @@ function normalizeNavigationResult(
 
   return {
     handled: value.handled,
-    message: value.message,
+    message: value.message
   };
 }
 
@@ -88,14 +90,20 @@ export function setPortalCmsNavigation(
     PORTAL_CMS_NAVIGATION_CONTEXT_KEY,
     {
       ...currentPortalCmsNavigation,
-      ...navigation,
+      ...navigation
     },
     context
   );
 }
 
-export function resetPortalCmsNavigation(context: PortalEngineContext = getDefaultPortalEngineContext()) {
-  return writePortalEngineContextValue(PORTAL_CMS_NAVIGATION_CONTEXT_KEY, createFallbackPortalCmsNavigation(), context);
+export function resetPortalCmsNavigation(
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
+  return writePortalEngineContextValue(
+    PORTAL_CMS_NAVIGATION_CONTEXT_KEY,
+    createFallbackPortalCmsNavigation(),
+    context
+  );
 }
 
 export async function navigatePortalCmsList(

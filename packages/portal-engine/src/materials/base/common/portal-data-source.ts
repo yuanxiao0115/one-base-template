@@ -1,4 +1,9 @@
-import { parseJsonArray, parseJsonObject, resolveValueByPath, toPositiveNumber } from './material-utils';
+import {
+  parseJsonArray,
+  parseJsonObject,
+  resolveValueByPath,
+  toPositiveNumber
+} from './material-utils';
 
 export type PortalDataMode = 'static' | 'api';
 export type PortalHttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH';
@@ -25,7 +30,9 @@ export interface LoadPortalRowsOptions {
   signal?: AbortSignal;
 }
 
-export interface LoadPortalRowsResult<Row extends Record<string, unknown> = Record<string, unknown>> {
+export interface LoadPortalRowsResult<
+  Row extends Record<string, unknown> = Record<string, unknown>
+> {
   success: boolean;
   rows: Row[];
   total: number;
@@ -46,7 +53,7 @@ const DEFAULT_PORTAL_DATA_SOURCE: PortalDataSourceModel = {
   successPath: 'code',
   successValue: '200',
   pageParamKey: 'currentPage',
-  pageSizeParamKey: 'pageSize',
+  pageSizeParamKey: 'pageSize'
 };
 
 function normalizeHttpMethod(value: unknown): PortalHttpMethod {
@@ -69,7 +76,7 @@ function normalizeRows<Row extends Record<string, unknown>>(rows: unknown): Row[
       }
       return {
         value: item,
-        __rowIndex: index,
+        __rowIndex: index
       } as unknown as Row;
     })
     .filter(Boolean);
@@ -81,14 +88,19 @@ function normalizeRequestUrl(baseUrl: string, query: Record<string, unknown>): s
     return '';
   }
 
-  const entries = Object.entries(query).filter(([, value]) => value !== undefined && value !== null && `${value}` !== '');
+  const entries = Object.entries(query).filter(
+    ([, value]) => value !== undefined && value !== null && `${value}` !== ''
+  );
 
   if (!entries.length) {
     return url;
   }
 
   try {
-    const currentOrigin = typeof window !== 'undefined' && window.location?.origin ? window.location.origin : 'http://localhost';
+    const currentOrigin =
+      typeof window !== 'undefined' && window.location?.origin
+        ? window.location.origin
+        : 'http://localhost';
     const normalizedUrl = new URL(url, currentOrigin);
 
     entries.forEach(([key, value]) => {
@@ -141,20 +153,32 @@ export function createDefaultPortalDataSourceModel(): PortalDataSourceModel {
   return { ...DEFAULT_PORTAL_DATA_SOURCE };
 }
 
-export function mergePortalDataSourceModel(value?: Partial<PortalDataSourceModel> | null): PortalDataSourceModel {
+export function mergePortalDataSourceModel(
+  value?: Partial<PortalDataSourceModel> | null
+): PortalDataSourceModel {
   const merged = {
     ...DEFAULT_PORTAL_DATA_SOURCE,
-    ...(value ?? {}),
+    ...value
   };
 
   return {
     mode: normalizeMode(merged.mode),
-    staticRowsJson: typeof merged.staticRowsJson === 'string' ? merged.staticRowsJson : DEFAULT_PORTAL_DATA_SOURCE.staticRowsJson,
+    staticRowsJson:
+      typeof merged.staticRowsJson === 'string'
+        ? merged.staticRowsJson
+        : DEFAULT_PORTAL_DATA_SOURCE.staticRowsJson,
     method: normalizeHttpMethod(merged.method),
     apiUrl: typeof merged.apiUrl === 'string' ? merged.apiUrl : DEFAULT_PORTAL_DATA_SOURCE.apiUrl,
-    headersJson: typeof merged.headersJson === 'string' ? merged.headersJson : DEFAULT_PORTAL_DATA_SOURCE.headersJson,
-    queryJson: typeof merged.queryJson === 'string' ? merged.queryJson : DEFAULT_PORTAL_DATA_SOURCE.queryJson,
-    bodyJson: typeof merged.bodyJson === 'string' ? merged.bodyJson : DEFAULT_PORTAL_DATA_SOURCE.bodyJson,
+    headersJson:
+      typeof merged.headersJson === 'string'
+        ? merged.headersJson
+        : DEFAULT_PORTAL_DATA_SOURCE.headersJson,
+    queryJson:
+      typeof merged.queryJson === 'string'
+        ? merged.queryJson
+        : DEFAULT_PORTAL_DATA_SOURCE.queryJson,
+    bodyJson:
+      typeof merged.bodyJson === 'string' ? merged.bodyJson : DEFAULT_PORTAL_DATA_SOURCE.bodyJson,
     listPath:
       typeof merged.listPath === 'string' && merged.listPath.trim().length
         ? merged.listPath
@@ -178,11 +202,13 @@ export function mergePortalDataSourceModel(value?: Partial<PortalDataSourceModel
     pageSizeParamKey:
       typeof merged.pageSizeParamKey === 'string' && merged.pageSizeParamKey.trim().length
         ? merged.pageSizeParamKey
-        : DEFAULT_PORTAL_DATA_SOURCE.pageSizeParamKey,
+        : DEFAULT_PORTAL_DATA_SOURCE.pageSizeParamKey
   };
 }
 
-export async function loadPortalDataSourceRows<Row extends Record<string, unknown> = Record<string, unknown>>(
+export async function loadPortalDataSourceRows<
+  Row extends Record<string, unknown> = Record<string, unknown>
+>(
   source: Partial<PortalDataSourceModel> | null | undefined,
   options: LoadPortalRowsOptions = {}
 ): Promise<LoadPortalRowsResult<Row>> {
@@ -194,7 +220,7 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
       success: true,
       rows,
       total: rows.length,
-      errorMessage: '',
+      errorMessage: ''
     };
   }
 
@@ -204,7 +230,7 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
       success: false,
       rows: [],
       total: 0,
-      errorMessage: '未配置接口地址',
+      errorMessage: '未配置接口地址'
     };
   }
 
@@ -222,7 +248,8 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
     query[normalizedSource.pageSizeParamKey] = pageSize;
   }
 
-  const requestUrl = method === 'GET' ? normalizeRequestUrl(url, query) : normalizeRequestUrl(url, query);
+  const requestUrl =
+    method === 'GET' ? normalizeRequestUrl(url, query) : normalizeRequestUrl(url, query);
   const requestHeaders: HeadersInit = {};
 
   Object.entries(headersObject).forEach(([key, value]) => {
@@ -246,11 +273,13 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
       headers: requestHeaders,
       body: requestBody,
       signal: options.signal,
-      credentials: 'include',
+      credentials: 'include'
     });
 
     const contentType = response.headers.get('content-type') || '';
-    const payload = contentType.includes('application/json') ? ((await response.json()) as unknown) : await response.text();
+    const payload = contentType.includes('application/json')
+      ? ((await response.json()) as unknown)
+      : await response.text();
 
     if (!response.ok) {
       return {
@@ -258,7 +287,7 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
         rows: [],
         total: 0,
         errorMessage: `请求失败（HTTP ${response.status}）`,
-        payload,
+        payload
       };
     }
 
@@ -268,7 +297,7 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
         rows: [],
         total: 0,
         errorMessage: '接口返回成功状态不匹配',
-        payload,
+        payload
       };
     }
 
@@ -281,7 +310,7 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
       rows,
       total: Math.max(rows.length, Math.max(0, total)),
       errorMessage: '',
-      payload,
+      payload
     };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
@@ -289,7 +318,7 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
         success: false,
         rows: [],
         total: 0,
-        errorMessage: '请求已取消',
+        errorMessage: '请求已取消'
       };
     }
 
@@ -298,7 +327,7 @@ export async function loadPortalDataSourceRows<Row extends Record<string, unknow
       success: false,
       rows: [],
       total: 0,
-      errorMessage: message,
+      errorMessage: message
     };
   }
 }

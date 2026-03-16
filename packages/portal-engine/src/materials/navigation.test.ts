@@ -1,15 +1,15 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 import {
   navigatePortalCmsDetail,
   navigatePortalCmsList,
   resetPortalCmsNavigation,
-  setPortalCmsNavigation,
+  setPortalCmsNavigation
 } from './navigation';
 
 function createRouterStub() {
   return {
-    push: vi.fn(),
+    push: vi.fn()
   };
 }
 
@@ -23,22 +23,22 @@ describe('portal cms navigation', () => {
       router,
       categoryId: 'cat-1',
       tabId: 'tab-1',
-      moreLink: '/frontPortal/cms/list',
+      moreLink: '/frontPortal/cms/list'
     });
     const detailResult = await navigatePortalCmsDetail({
       router,
       articleId: 'article-1',
       categoryId: 'cat-1',
-      tabId: 'tab-1',
+      tabId: 'tab-1'
     });
 
     expect(listResult).toEqual({
       handled: false,
-      message: '当前应用未配置 CMS 列表跳转',
+      message: '当前应用未配置 CMS 列表跳转'
     });
     expect(detailResult).toEqual({
       handled: false,
-      message: '当前应用未配置 CMS 详情跳转',
+      message: '当前应用未配置 CMS 详情跳转'
     });
     expect(router.push).not.toHaveBeenCalled();
   });
@@ -51,20 +51,20 @@ describe('portal cms navigation', () => {
     resetPortalCmsNavigation();
     setPortalCmsNavigation({
       openList,
-      openDetail,
+      openDetail
     });
 
     const listContext = {
       router,
       categoryId: 'cat-2',
       tabId: 'tab-2',
-      moreLink: '',
+      moreLink: ''
     };
     const detailContext = {
       router,
       articleId: 'article-2',
       categoryId: 'cat-2',
-      tabId: 'tab-2',
+      tabId: 'tab-2'
     };
 
     await expect(navigatePortalCmsList(listContext)).resolves.toEqual({ handled: true });

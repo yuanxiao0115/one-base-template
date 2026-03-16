@@ -72,7 +72,7 @@ function buildMenus(
       order,
       keepAlive: meta.keepAlive === true,
       external: isHttpUrl(fullPath) ? true : undefined,
-      children: children.length ? children : undefined,
+      children: children.length ? children : undefined
     });
   }
 
@@ -97,7 +97,7 @@ export function createStaticMenusFromRoutes(
 ): AppMenuItem[] {
   const resolved: Required<CreateStaticMenusOptions> = {
     rootPath: options.rootPath ?? '/',
-    sort: options.sort ?? true,
+    sort: options.sort ?? true
   };
 
   const root = routes.find((r) => r.path === resolved.rootPath);

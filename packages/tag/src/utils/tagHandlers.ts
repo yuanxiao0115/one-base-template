@@ -79,14 +79,18 @@ function handlePushOperation<T>(tags: TagItem[], value?: T | TagItem): TagHandle
   return {
     updatedTags,
     shouldCache: true,
-    result: updatedTags as T,
+    result: updatedTags as T
   };
 }
 
 /**
  * 处理 splice 操作
  */
-function handleSpliceOperation<T>(tags: TagItem[], value?: T | TagItem, position?: TagPosition): TagHandlerResult<T> {
+function handleSpliceOperation<T>(
+  tags: TagItem[],
+  value?: T | TagItem,
+  position?: TagPosition
+): TagHandlerResult<T> {
   if (!value || typeof value !== 'object') {
     return { updatedTags: tags, shouldCache: false };
   }
@@ -128,7 +132,7 @@ function handleSpliceOperation<T>(tags: TagItem[], value?: T | TagItem, position
   return {
     updatedTags: ensureHomeTagExists(updatedTags),
     shouldCache: true,
-    result: updatedTags as T,
+    result: updatedTags as T
   };
 }
 
@@ -156,7 +160,7 @@ function handleUnshiftOperation<T>(tags: TagItem[], value?: T | TagItem): TagHan
   return {
     updatedTags,
     shouldCache: true,
-    result: updatedTags as T,
+    result: updatedTags as T
   };
 }
 
@@ -168,7 +172,7 @@ function handleClearOperation<T>(): TagHandlerResult<T> {
   return {
     updatedTags,
     shouldCache: true,
-    result: updatedTags as T,
+    result: updatedTags as T
   };
 }
 
@@ -188,7 +192,7 @@ function handleEqualOperation<T>(value?: T | TagItem[]): TagHandlerResult<T> {
   return {
     updatedTags,
     shouldCache: true,
-    result: updatedTags as T,
+    result: updatedTags as T
   };
 }
 
@@ -216,8 +220,8 @@ function handleUpdateTitleOperation<T>(tags: TagItem[], value?: T | TagItem): Ta
         ...tag,
         meta: {
           ...tag.meta,
-          title: updateInfo.title,
-        },
+          title: updateInfo.title
+        }
       };
     }
     return tag;
@@ -226,7 +230,7 @@ function handleUpdateTitleOperation<T>(tags: TagItem[], value?: T | TagItem): Ta
   return {
     updatedTags,
     shouldCache: true,
-    result: updatedTags as T,
+    result: updatedTags as T
   };
 }
 
@@ -308,6 +312,6 @@ export function handleTags<T>(
   return {
     updatedTags,
     shouldCache,
-    result: result !== undefined ? result : (updatedTags as T),
+    result: result !== undefined ? result : (updatedTags as T)
   };
 }

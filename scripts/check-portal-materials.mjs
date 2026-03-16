@@ -11,7 +11,7 @@ const registryFile = path.join(portalEngineRoot, 'src/registry/materials-registr
 const fallbackFiles = {
   index: path.join(materialsRoot, 'static-fallbacks/index-fallbacks.ts'),
   content: path.join(materialsRoot, 'static-fallbacks/content-fallbacks.ts'),
-  style: path.join(materialsRoot, 'static-fallbacks/style-fallbacks.ts'),
+  style: path.join(materialsRoot, 'static-fallbacks/style-fallbacks.ts')
 };
 
 const SECTION_NAMES = ['index', 'content', 'style'];
@@ -118,7 +118,10 @@ for (const configFile of configFiles) {
     }
 
     const source = fs.readFileSync(vueFile, 'utf8');
-    const componentName = extractDefineOptionsName(source, toPosix(path.relative(repoRoot, vueFile)));
+    const componentName = extractDefineOptionsName(
+      source,
+      toPosix(path.relative(repoRoot, vueFile))
+    );
     if (componentName && componentName !== configName) {
       errors.push(
         `${configRelativePath}: ${section}.vue defineOptions.name=${componentName} 与 config.${section}.name=${configName} 不一致`
@@ -132,7 +135,9 @@ for (const configFile of configFiles) {
 
     const aliasPeer = toggleBasePrefix(derivedName);
     if (aliasPeer !== configName) {
-      errors.push(`${configRelativePath}: ${section}.name=${configName} 与路径推导名 ${derivedName} 不一致`);
+      errors.push(
+        `${configRelativePath}: ${section}.name=${configName} 与路径推导名 ${derivedName} 不一致`
+      );
       continue;
     }
 

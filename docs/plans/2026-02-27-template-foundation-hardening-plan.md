@@ -13,6 +13,7 @@
 ### Task 1: 落盘架构收口清单（P0/P1/P2）
 
 **Files:**
+
 - Create: `docs/plans/2026-02-27-template-foundation-hardening-plan.md`
 - Modify: `docs/plans/2026-02-27-template-foundation-hardening-checklist.md`
 
@@ -35,6 +36,7 @@
 ### Task 2: core 存储 key 命名空间化（兼容旧 key）
 
 **Files:**
+
 - Modify: `packages/core/src/createCore.ts`
 - Modify: `packages/core/src/context.ts`
 - Create: `packages/core/src/storage/namespace.ts`
@@ -67,15 +69,17 @@ Expected: 通过（作为改造前基线）
 **Step 4: 跑 typecheck/lint 校验 core**
 
 Run:
+
 - `pnpm -C packages/core typecheck`
 - `pnpm -C packages/core lint`
-Expected: 全通过
+  Expected: 全通过
 
 ---
 
 ### Task 3: admin 去耦 core 内部 key（初始路由决策下沉）
 
 **Files:**
+
 - Create: `packages/core/src/router/initial-path.ts`
 - Modify: `packages/core/src/index.ts`
 - Modify: `apps/admin/src/router/index.ts`
@@ -99,15 +103,17 @@ Expected: 通过（作为改造前基线）
 **Step 4: 跑 admin 校验**
 
 Run:
+
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/admin exec eslint src/router/index.ts`
-Expected: 通过
+  Expected: 通过
 
 ---
 
 ### Task 4: 先抽离通用鉴权编排（登录后引导流程）
 
 **Files:**
+
 - Create: `packages/core/src/auth/flow.ts`
 - Modify: `packages/core/src/index.ts`
 - Modify: `apps/admin/src/pages/login/LoginPage.vue`
@@ -126,15 +132,17 @@ Expected: 通过
 **Step 3: 回归 typecheck**
 
 Run:
+
 - `pnpm -C packages/core typecheck`
 - `pnpm -C apps/admin typecheck`
-Expected: 通过
+  Expected: 通过
 
 ---
 
 ### Task 5: 文档同步与全链路验证
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/architecture.md`
 - Modify: `apps/docs/docs/guide/layout-menu.md`
 - Modify: `apps/docs/docs/guide/adapter-sczfw.md`
@@ -149,6 +157,7 @@ Expected: 通过
 **Step 2: 运行验证命令**
 
 Run:
+
 - `pnpm -C packages/core typecheck`
 - `pnpm -C packages/core lint`
 - `pnpm -C apps/admin typecheck`
@@ -158,4 +167,3 @@ Run:
 **Step 3: 记录验证结论**
 
 - 结果写入 `.codex/testing.md` 与 `.codex/verification.md`
-

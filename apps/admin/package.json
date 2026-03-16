@@ -4,12 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "vp dev",
+    "build": "node ../../scripts/run-vp-build.mjs",
+    "preview": "vp preview",
     "typecheck": "vue-tsc --noEmit",
-    "test": "vitest --config vitest.config.ts",
-    "test:run": "vitest run --config vitest.config.ts",
+    "test": "vp test --config vitest.config.ts",
+    "test:run": "vp test run --config vitest.config.ts",
     "lint": "ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src",
     "lint:arch": "node ../../scripts/check-admin-arch.mjs",
     "lint:fix": "ultracite fix src",
@@ -34,9 +34,9 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
-    "@vue/test-utils": "^2.4.6",
     "@types/sortablejs": "^1.15.9",
     "@vitejs/plugin-vue": "^6.0.4",
+    "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.0.0",
     "happy-dom": "^20.0.10",
     "postcss": "^8.0.0",
@@ -45,7 +45,8 @@
     "ultracite": "^7.2.4",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^31.0.0",
-    "vite": "^8.0.0-beta.13",
-    "vitest": "^3.2.4"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

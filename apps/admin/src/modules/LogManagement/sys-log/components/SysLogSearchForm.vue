@@ -1,26 +1,26 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import type { FormInstance } from "element-plus";
+import { ref } from 'vue';
+import type { FormInstance } from 'element-plus';
 
-  const model = defineModel<{
-    operator: string;
-    clientIp: string;
-    module: string;
-    operationType: string;
-    operationResult: number | string;
-    userAccount: string;
-    nickName: string;
-    browserName: string;
-    clientOS: string;
-    tenantId: string;
-    time: string[];
-  }>({ required: true });
+const model = defineModel<{
+  operator: string;
+  clientIp: string;
+  module: string;
+  operationType: string;
+  operationResult: number | string;
+  userAccount: string;
+  nickName: string;
+  browserName: string;
+  clientOS: string;
+  tenantId: string;
+  time: string[];
+}>({ required: true });
 
-  const formRef = ref<FormInstance>();
+const formRef = ref<FormInstance>();
 
-  defineExpose({
-    resetFields: () => formRef.value?.resetFields?.(),
-  });
+defineExpose({
+  resetFields: () => formRef.value?.resetFields?.()
+});
 </script>
 
 <template>
@@ -34,7 +34,12 @@
     </el-form-item>
 
     <el-form-item label="操作类型" prop="operationType">
-      <el-select v-model="model.operationType" class="w-full" clearable placeholder="请选择操作类型">
+      <el-select
+        v-model="model.operationType"
+        class="w-full"
+        clearable
+        placeholder="请选择操作类型"
+      >
         <el-option label="新增" value="ADD" />
         <el-option label="修改" value="MODIFY" />
         <el-option label="删除" value="DELETE" />
@@ -49,7 +54,12 @@
     </el-form-item>
 
     <el-form-item label="操作结果" prop="operationResult">
-      <el-select v-model="model.operationResult" class="w-full" clearable placeholder="请选择操作结果">
+      <el-select
+        v-model="model.operationResult"
+        class="w-full"
+        clearable
+        placeholder="请选择操作结果"
+      >
         <el-option label="成功" :value="0" />
         <el-option label="失败" :value="1" />
       </el-select>

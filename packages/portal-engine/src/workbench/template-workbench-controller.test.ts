@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import type { BizResponse } from '../schema/types';
 
@@ -8,7 +8,7 @@ import { createTemplateWorkbenchController } from './template-workbench-controll
 function ok<T>(data: T): BizResponse<T> {
   return {
     code: 0,
-    data,
+    data
   };
 }
 
@@ -22,21 +22,21 @@ describe('template workbench controller', () => {
     const notify = {
       success: vi.fn(),
       error: vi.fn(),
-      warning: vi.fn(),
+      warning: vi.fn()
     };
     const confirm = vi.fn().mockResolvedValue(undefined);
     const api = {
       template: {
         detail: vi.fn(),
         update: vi.fn(),
-        hideToggle: vi.fn(),
+        hideToggle: vi.fn()
       },
       tab: {
         detail: vi.fn(),
         add: vi.fn(),
         update: vi.fn(),
-        delete: vi.fn(),
-      },
+        delete: vi.fn()
+      }
     };
 
     const controller = createTemplateWorkbenchController({
@@ -47,7 +47,7 @@ describe('template workbench controller', () => {
       notify,
       confirm: ({ message, title }) => confirm({ message, title }),
       syncRouteTabId,
-      openEditor,
+      openEditor
     });
 
     return {
@@ -59,7 +59,7 @@ describe('template workbench controller', () => {
       openEditor,
       notify,
       confirm,
-      api,
+      api
     };
   }
 
@@ -81,11 +81,11 @@ describe('template workbench controller', () => {
             children: [
               {
                 id: 'tab-route',
-                tabType: 2,
-              },
-            ],
-          },
-        ],
+                tabType: 2
+              }
+            ]
+          }
+        ]
       })
     );
 
@@ -121,9 +121,9 @@ describe('template workbench controller', () => {
           tabList: [
             {
               id: 'tab-old',
-              tabType: 2,
-            },
-          ],
+              tabType: 2
+            }
+          ]
         })
       )
       .mockResolvedValueOnce(
@@ -133,9 +133,9 @@ describe('template workbench controller', () => {
           tabList: [
             {
               id: 'tab-new',
-              tabType: 2,
-            },
-          ],
+              tabType: 2
+            }
+          ]
         })
       );
     api.template.update.mockResolvedValue(ok(true));
@@ -143,7 +143,7 @@ describe('template workbench controller', () => {
     await controller.onSubmitAttr({
       tabName: '新页面',
       tabType: 2,
-      sort: 1,
+      sort: 1
     });
 
     const addPayload = api.tab.add.mock.calls[0]?.[0] as Record<string, unknown>;
@@ -151,18 +151,18 @@ describe('template workbench controller', () => {
     expect(addPayload).toMatchObject({
       templateId: 'tpl-1',
       tabName: '新页面',
-      tabType: 2,
+      tabType: 2
     });
     expect(String(addPayload.pageLayout ?? '')).toContain('"settings"');
     expect(api.template.update).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'tpl-1',
-        tabIds: ['tab-old', 'tab-new'],
+        tabIds: ['tab-old', 'tab-new']
       })
     );
     expect(openEditor).toHaveBeenCalledWith({
       templateId: 'tpl-1',
-      tabId: 'tab-new',
+      tabId: 'tab-new'
     });
   });
 
@@ -175,13 +175,13 @@ describe('template workbench controller', () => {
       tabList: [
         {
           id: 'tab-1',
-          tabType: 2,
+          tabType: 2
         },
         {
           id: 'tab-2',
-          tabType: 2,
-        },
-      ],
+          tabType: 2
+        }
+      ]
     };
     api.tab.delete.mockResolvedValue(ok(true));
     api.template.detail.mockResolvedValue(
@@ -190,15 +190,15 @@ describe('template workbench controller', () => {
         tabList: [
           {
             id: 'tab-2',
-            tabType: 2,
-          },
-        ],
+            tabType: 2
+          }
+        ]
       })
     );
 
     await controller.deleteTab({
       id: 'tab-1',
-      tabType: 2,
+      tabType: 2
     });
 
     expect(notify.success).toHaveBeenCalledWith('删除成功');
@@ -216,21 +216,21 @@ describe('template workbench controller', () => {
           id: 'tab-1',
           tabType: 2,
           sort: 1,
-          parentId: 0,
+          parentId: 0
         },
         {
           id: 'tab-2',
           tabType: 2,
           sort: 2,
-          parentId: 0,
-        },
-      ],
+          parentId: 0
+        }
+      ]
     };
     api.tab.detail.mockImplementation(async ({ id }: { id: string }) =>
       ok({
         id,
         tabType: 2,
-        tabName: id,
+        tabName: id
       })
     );
     api.tab.update.mockResolvedValue(ok(true));
@@ -242,36 +242,36 @@ describe('template workbench controller', () => {
             id: 'tab-2',
             tabType: 2,
             sort: 1,
-            parentId: 0,
+            parentId: 0
           },
           {
             id: 'tab-1',
             tabType: 2,
             sort: 2,
-            parentId: 0,
-          },
-        ],
+            parentId: 0
+          }
+        ]
       })
     );
 
     await controller.onTreeSortDrop({
       draggingId: 'tab-1',
       dropId: 'tab-2',
-      dropType: 'after',
+      dropType: 'after'
     });
 
     expect(api.tab.update).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         id: 'tab-2',
-        sort: 1,
+        sort: 1
       })
     );
     expect(api.tab.update).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
         id: 'tab-1',
-        sort: 2,
+        sort: 2
       })
     );
     expect(notify.success).toHaveBeenCalledWith('页面排序已更新');

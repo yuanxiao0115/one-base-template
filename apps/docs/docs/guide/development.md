@@ -50,24 +50,11 @@ pnpm biome:ci
 }
 ```
 
-## Turborepo build.outputs 约定
+## Vite Task 运行约定
 
-- 根目录 `turbo.json` 的 `build.outputs` 继续约定真实构建产物默认写到 `dist/**`
-- 如果某个 workspace 的 `build` 脚本**只做 typecheck / 无文件产物**，必须在该包内新增 `turbo.json`，通过 package-level 配置把 `build.outputs` 显式覆写为 `[]`
-- 这样可以避免 Turborepo 在 cache miss 时输出 `no output files found for task ...#build` 的误报警告
-
-示例（以 typecheck-only 子包为例）：
-
-```json
-{
-  "extends": ["//"],
-  "tasks": {
-    "build": {
-      "outputs": []
-    }
-  }
-}
-```
+- 根目录 `pnpm build` 映射到 `vp run -r --filter "!one-base-template" build`，按 workspace 依赖顺序执行。
+- 对于只做 `typecheck` 的子包，`build` 脚本保持为 `pnpm typecheck` 即可，无需额外维护 task-runner 配置文件。
+- 如需对任务关系做更细粒度编排，可在根 `vite.config.ts` 的 `run.tasks` 中声明 `dependsOn/inputs/env`。
 
 ## 构建 chunk warning 排查优先级
 
@@ -118,6 +105,7 @@ pnpm biome:ci
 本仓库约定：**更新功能后，必须同步更新文档站点**（`apps/docs`）。
 
 常见需要更新文档的场景：
+
 - 新增/调整 env 变量
 - 新增布局模式、菜单行为、权限拦截逻辑
 - Adapter 接口变更（路径、字段映射、鉴权模式）
@@ -237,9 +225,9 @@ admin 已引入消息工具：`@one-base-template/ui`（`message` / `closeAllMes
 示例：
 
 ```ts
-message.success('保存成功')
-message('删除失败，请稍后重试', { type: 'error' })
-closeAllMessage()
+message.success('保存成功');
+message('删除失败，请稍后重试', { type: 'error' });
+closeAllMessage();
 ```
 
 迁移建议：
@@ -263,7 +251,7 @@ closeAllMessage()
 
 ```css
 /* apps/admin/src/styles/index.css */
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../../tailwind.config.ts";
 @source "../**/*.{vue,ts,tsx}";
 @source "../../../../packages/ui/src/**/*.{vue,ts,tsx}";
@@ -271,5 +259,5 @@ closeAllMessage()
 
 ```js
 // apps/admin/postcss.config.js
-tailwindcss({ base: path.dirname(fileURLToPath(import.meta.url)) })
+tailwindcss({ base: path.dirname(fileURLToPath(import.meta.url)) });
 ```

@@ -13,6 +13,7 @@
 ### Task 1: 创建 `packages/portal-engine` 包骨架
 
 **Files:**
+
 - Create: `packages/portal-engine/package.json`
 - Create: `packages/portal-engine/tsconfig.json`
 - Create: `packages/portal-engine/src/index.ts`
@@ -30,6 +31,7 @@
 **Step 3: 验证包可被 workspace 识别**
 
 Run:
+
 - `pnpm -C packages/portal-engine typecheck`
 - `pnpm -C packages/portal-engine lint`
 
@@ -38,6 +40,7 @@ Expected: 命令可执行（初期可无业务代码）。
 ### Task 2: 迁移 portal 基础类型与工具到 engine
 
 **Files:**
+
 - Move/Create: `packages/portal-engine/src/schema/types.ts`（来自 `apps/admin/src/modules/portal/types.ts`）
 - Move/Create: `packages/portal-engine/src/composables/useSchemaConfig.ts`
 - Move/Create: `packages/portal-engine/src/utils/deep.ts`
@@ -52,11 +55,13 @@ Expected: 命令可执行（初期可无业务代码）。
 - 每次改动后定向 typecheck。
 
 Run:
+
 - `pnpm -C apps/admin typecheck`
 
 ### Task 3: 迁移 pageLayout store 与渲染器核心
 
 **Files:**
+
 - Move/Create: `packages/portal-engine/src/stores/pageLayout.ts`
 - Move/Create: `packages/portal-engine/src/renderer/PortalGridRenderer.vue`
 - Move/Create: `packages/portal-engine/src/editor/{GridLayoutEditor.vue,PropertyPanel.vue,MaterialLibrary.vue}`
@@ -72,12 +77,14 @@ Run:
 - 仅页面编排层保留在 admin。
 
 Run:
+
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/admin lint`
 
 ### Task 4: 迁移物料注册与动态加载能力
 
 **Files:**
+
 - Move/Create: `packages/portal-engine/src/registry/materials-registry.ts`
 - Move/Create: `packages/portal-engine/src/registry/utils/{component-factory.ts,config-merger.ts}`
 - Move/Create: `packages/portal-engine/src/materials/useMaterials.ts`
@@ -96,12 +103,14 @@ Run:
 - 在 registry 中映射 `pb-*` 到 `cms-*`，保障老数据可渲染。
 
 Run:
+
 - `pnpm -C packages/portal-engine typecheck`
 - `pnpm -C apps/admin typecheck`
 
 ### Task 5: 建立动作协议与 target 注册机制（解耦跳转）
 
 **Files:**
+
 - Create: `packages/portal-engine/src/actions/types.ts`
 - Create: `packages/portal-engine/src/actions/execute-action.ts`
 - Create: `packages/portal-engine/src/actions/resolve-action-params.ts`
@@ -128,6 +137,7 @@ Run:
   - `carousel-text-list`
 
 Run:
+
 - `pnpm -C packages/portal-engine typecheck`
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/portal typecheck`
@@ -135,6 +145,7 @@ Run:
 ### Task 6: 迁移并去耦老项目 Container
 
 **Files:**
+
 - Create: `packages/portal-engine/src/container/CmsContainer.vue`
 - Create: `packages/portal-engine/src/container/types.ts`
 - Modify: `packages/portal-engine/src/index.ts`
@@ -152,12 +163,14 @@ Run:
 **Step 3: 在首批 cms 组件接入 CmsContainer**
 
 Run:
+
 - `pnpm -C packages/portal-engine typecheck`
 - `pnpm -C apps/admin typecheck`
 
 ### Task 7: 新增独立应用 `apps/portal`
 
 **Files:**
+
 - Create: `apps/portal/**`（可从 `apps/template` 复制）
 - Modify: `apps/portal/package.json`
 - Modify: `apps/portal/src/bootstrap/index.ts`
@@ -174,6 +187,7 @@ Run:
 **Step 3: portal 页面改为使用 portal-engine 渲染器**
 
 Run:
+
 - `pnpm -C apps/portal typecheck`
 - `pnpm -C apps/portal lint`
 - `pnpm -C apps/portal build`
@@ -181,6 +195,7 @@ Run:
 ### Task 8: adapter 层补齐 portal API 适配收口
 
 **Files:**
+
 - Create/Modify: `packages/adapters/src/portal/**`
 - Modify: `apps/admin/src/modules/portal/api/**`
 - Modify: `apps/portal/src/**`（接入 adapter）
@@ -192,12 +207,14 @@ Run:
 **Step 2: admin 与 portal 统一走同一适配契约**
 
 Run:
+
 - `pnpm -C packages/adapters typecheck`
 - `pnpm -C packages/adapters lint`
 
 ### Task 9: admin portal 页面改为“编排层”
 
 **Files:**
+
 - Modify: `apps/admin/src/modules/portal/pages/{PortalTemplateListPage.vue,PortalTemplateSettingPage.vue,PortalPageEditPage.vue,PortalPreviewRenderPage.vue}`
 - Modify: `apps/admin/src/modules/portal/module.ts`
 
@@ -208,12 +225,14 @@ Run:
 **Step 2: 保持 route 与菜单行为不变**
 
 Run:
+
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/admin lint`
 
 ### Task 10: 文档同步（必须同次完成）
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/portal-designer.md`
 - Create: `apps/docs/docs/guide/portal-engine.md`
 - Modify: `apps/docs/docs/.vitepress/config.ts`
@@ -229,12 +248,14 @@ Run:
 - alias 策略、Container 去耦策略、回滚方法。
 
 Run:
+
 - `pnpm -C apps/docs lint`
 - `pnpm -C apps/docs build`
 
 ### Task 11: 全仓回归与证据落盘
 
 **Files:**
+
 - Modify: `.codex/operations-log.md`
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`
@@ -242,6 +263,7 @@ Run:
 **Step 1: 全量验证**
 
 Run:
+
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm build`

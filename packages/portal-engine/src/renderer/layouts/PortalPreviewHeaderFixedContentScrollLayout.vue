@@ -1,14 +1,14 @@
 <script setup lang="ts">
-  import type { CSSProperties } from 'vue';
+import type { CSSProperties } from 'vue';
 
-  const props = withDefaults(
-    defineProps<{
-      contentScrollStyle?: CSSProperties;
-    }>(),
-    {
-      contentScrollStyle: () => ({}),
-    }
-  );
+const props = withDefaults(
+  defineProps<{
+    contentScrollStyle?: CSSProperties;
+  }>(),
+  {
+    contentScrollStyle: () => ({})
+  }
+);
 </script>
 
 <template>
@@ -26,28 +26,28 @@
 </template>
 
 <style scoped>
-  .preview-layout {
-    display: flex;
-    min-height: 0;
-    height: 100%;
-    flex-direction: column;
-  }
+.preview-layout {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
+}
 
-  .preview-layout__header,
-  .preview-layout__footer {
-    flex: none;
-    min-height: 0;
-  }
+.preview-layout__header,
+.preview-layout__footer {
+  flex: none;
+  min-height: 0;
+}
 
-  .preview-layout__content {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-  }
+.preview-layout__content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
 
-  .preview-layout__content-scroll {
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-  }
+.preview-layout__content-scroll {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
 </style>

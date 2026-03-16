@@ -1,5 +1,5 @@
 import { nextTick, ref } from 'vue';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import type { BizResponse } from '../schema/types';
 import { createPortalEngineContext } from '../runtime/context';
@@ -10,7 +10,7 @@ import { createTemplateWorkbenchPageController } from './template-workbench-page
 function ok<T>(data: T): BizResponse<T> {
   return {
     code: 0,
-    data,
+    data
   };
 }
 
@@ -28,12 +28,12 @@ describe('template workbench page controller', () => {
       setInteractionMode: vi.fn(),
       zoomIn: vi.fn(),
       zoomOut: vi.fn(),
-      resetView: vi.fn(),
+      resetView: vi.fn()
     });
     const notify = {
       success: vi.fn(),
       error: vi.fn(),
-      warning: vi.fn(),
+      warning: vi.fn()
     };
     const confirm = vi.fn().mockResolvedValue(undefined);
     const syncRouteTabId = vi.fn();
@@ -42,18 +42,18 @@ describe('template workbench page controller', () => {
       template: {
         detail: vi.fn(),
         update: vi.fn(),
-        hideToggle: vi.fn(),
+        hideToggle: vi.fn()
       },
       tab: {
         detail: vi.fn(),
         add: vi.fn(),
         update: vi.fn(),
-        delete: vi.fn(),
-      },
+        delete: vi.fn()
+      }
     };
     const pageSettingsApi = {
       getTabDetail: vi.fn(),
-      updateTab: vi.fn(),
+      updateTab: vi.fn()
     };
 
     setPageSettingsApi(pageSettingsApi, context);
@@ -69,7 +69,7 @@ describe('template workbench page controller', () => {
       syncRouteTabId,
       openEditor,
       resolvePreviewHref: ({ templateId: nextTemplateId, tabId, previewMode }) =>
-        `/portal/preview?templateId=${nextTemplateId}&tabId=${tabId}&previewMode=${String(previewMode)}`,
+        `/portal/preview?templateId=${nextTemplateId}&tabId=${tabId}&previewMode=${String(previewMode)}`
     });
 
     return {
@@ -84,7 +84,7 @@ describe('template workbench page controller', () => {
       syncRouteTabId,
       openEditor,
       api,
-      pageSettingsApi,
+      pageSettingsApi
     };
   }
 
@@ -105,11 +105,11 @@ describe('template workbench page controller', () => {
         pageLayout: JSON.stringify({
           settings: {
             basic: {
-              pageTitle: '页面A',
-            },
+              pageTitle: '页面A'
+            }
           },
-          component: [{ id: 'comp-1' }],
-        }),
+          component: [{ id: 'comp-1' }]
+        })
       })
     );
 
@@ -121,8 +121,8 @@ describe('template workbench page controller', () => {
     expect(previewMessages).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          type: 'preview-page-runtime',
-        }),
+          type: 'preview-page-runtime'
+        })
       ])
     );
   });
@@ -140,9 +140,9 @@ describe('template workbench page controller', () => {
         {
           id: 'tab-1',
           tabType: 2,
-          tabName: '页面A',
-        },
-      ],
+          tabName: '页面A'
+        }
+      ]
     };
     controller.shellSettingVisible.value = true;
 
@@ -156,20 +156,20 @@ describe('template workbench page controller', () => {
           {
             id: 'tab-1',
             tabType: 2,
-            tabName: '页面A',
-          },
-        ],
+            tabName: '页面A'
+          }
+        ]
       })
     );
 
     await controller.onSubmitShellSetting({
-      details: '{"header":{"title":"新标题"}}',
+      details: '{"header":{"title":"新标题"}}'
     });
 
     expect(api.template.update).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'tpl-1',
-        details: '{"header":{"title":"新标题"}}',
+        details: '{"header":{"title":"新标题"}}'
       })
     );
     expect(controller.shellSettingVisible.value).toBe(false);

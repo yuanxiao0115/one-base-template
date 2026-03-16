@@ -1,43 +1,43 @@
-import { createApp } from "vue";
-import { createPinia, setActivePinia } from "pinia";
-import { createRouter, createWebHistory } from "vue-router";
-import { setObHttpClient, setupRouterGuards } from "@one-base-template/core";
-import { registerMessageUtils } from "@one-base-template/ui";
+import { createApp } from 'vue';
+import { createPinia, setActivePinia } from 'pinia';
+import { createRouter, createWebHistory } from 'vue-router';
+import { setObHttpClient, setupRouterGuards } from '@one-base-template/core';
+import { registerMessageUtils } from '@one-base-template/ui';
 
-import App from "../App.vue";
-import { assembleRoutes } from "../router/assemble-routes";
-import { getAppEnv } from "../infra/env";
+import App from '../App.vue';
+import { assembleRoutes } from '../router/assemble-routes';
+import { getAppEnv } from '../infra/env';
 import {
   appLayoutMode,
   appSidebarCollapsedWidth,
   appSidebarWidth,
   appSystemSwitchStyle,
-  appTopbarHeight,
-} from "../config";
-import { routePaths } from "../router/constants";
-import { guardPublicRoutePaths } from "../router/public-routes";
+  appTopbarHeight
+} from '../config';
+import { routePaths } from '../router/constants';
+import { guardPublicRoutePaths } from '../router/public-routes';
 
-import { createAppHttp } from "./http";
-import { createAppAdapter } from "./adapter";
-import { installCore } from "./core";
-import { installAppShellPlugins } from "./plugins";
+import { createAppHttp } from './http';
+import { createAppAdapter } from './adapter';
+import { installCore } from './core';
+import { installAppShellPlugins } from './plugins';
 
-const DYNAMIC_IMPORT_RELOAD_KEY = "ob:route:dynamic-import-reload-target";
+const DYNAMIC_IMPORT_RELOAD_KEY = 'ob:route:dynamic-import-reload-target';
 const DYNAMIC_IMPORT_ERROR_MARKERS = [
-  "failed to fetch dynamically imported module",
-  "importing a module script failed",
-  "failed to load module script",
-  "loading chunk",
+  'failed to fetch dynamically imported module',
+  'importing a module script failed',
+  'failed to load module script',
+  'loading chunk'
 ];
 
 function isDynamicImportLoadError(error: unknown): boolean {
-  const text = error instanceof Error ? error.message : String(error || "");
+  const text = error instanceof Error ? error.message : String(error || '');
   const normalized = text.toLowerCase();
   return DYNAMIC_IMPORT_ERROR_MARKERS.some((marker) => normalized.includes(marker));
 }
 
 function installRouteDynamicImportRecovery(router: ReturnType<typeof createRouter>) {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return;
   }
 
@@ -47,7 +47,7 @@ function installRouteDynamicImportRecovery(router: ReturnType<typeof createRoute
     }
 
     const target =
-      typeof to?.fullPath === "string" && to.fullPath
+      typeof to?.fullPath === 'string' && to.fullPath
         ? to.fullPath
         : `${window.location.pathname}${window.location.search}${window.location.hash}`;
     const previousTarget = window.sessionStorage.getItem(DYNAMIC_IMPORT_RELOAD_KEY);
@@ -55,14 +55,14 @@ function installRouteDynamicImportRecovery(router: ReturnType<typeof createRoute
     if (previousTarget === target) {
       // 同一路由自动刷新后仍失败，停止自动重试，避免死循环。
       window.sessionStorage.removeItem(DYNAMIC_IMPORT_RELOAD_KEY);
-      console.error("[router] 动态模块加载失败，自动刷新未恢复，请手动刷新页面。", error);
+      console.error('[router] 动态模块加载失败，自动刷新未恢复，请手动刷新页面。', error);
       return;
     }
 
     window.sessionStorage.setItem(DYNAMIC_IMPORT_RELOAD_KEY, target);
-    console.warn("[router] 检测到动态模块加载失败，准备自动刷新恢复。", {
+    console.warn('[router] 检测到动态模块加载失败，准备自动刷新恢复。', {
       target,
-      reason: error instanceof Error ? error.message : String(error),
+      reason: error instanceof Error ? error.message : String(error)
     });
     window.location.assign(target);
   });
@@ -90,20 +90,20 @@ export async function bootstrapAdminApp() {
     enabledModules: appEnv.enabledModules,
     defaultSystemCode: appEnv.defaultSystemCode,
     systemHomeMap: appEnv.systemHomeMap,
-    storageNamespace: appEnv.storageNamespace,
+    storageNamespace: appEnv.storageNamespace
   });
   const { skipMenuAuthRouteNames } = routeAssemblyResult;
   const router = createRouter({
     history: createWebHistory(appEnv.baseUrl),
     routes: routeAssemblyResult.routes,
-    strict: true,
+    strict: true
   });
   app.use(router);
   installAppShellPlugins({
     app,
     pinia,
     router,
-    storageNamespace: appEnv.storageNamespace,
+    storageNamespace: appEnv.storageNamespace
   });
 
   const http = createAppHttp({
@@ -117,7 +117,7 @@ export async function bootstrapAdminApp() {
     clientSignatureSalt: appEnv.clientSignatureSalt,
     clientSignatureClientId: appEnv.clientSignatureClientId,
     pinia,
-    router,
+    router
   });
   setObHttpClient(http);
 
@@ -125,7 +125,7 @@ export async function bootstrapAdminApp() {
     backend: appEnv.backend,
     http,
     tokenKey: appEnv.tokenKey,
-    sczfwSystemPermissionCode: appEnv.sczfwSystemPermissionCode,
+    sczfwSystemPermissionCode: appEnv.sczfwSystemPermissionCode
   });
 
   installCore(app, {
@@ -139,7 +139,7 @@ export async function bootstrapAdminApp() {
     sidebarCollapsedWidth: appSidebarCollapsedWidth,
     storageNamespace: appEnv.storageNamespace,
     defaultSystemCode: appEnv.defaultSystemCode,
-    systemHomeMap: appEnv.systemHomeMap,
+    systemHomeMap: appEnv.systemHomeMap
   });
 
   setupRouterGuards(router, {
@@ -150,13 +150,13 @@ export async function bootstrapAdminApp() {
     allowedSkipMenuAuthRouteNames: skipMenuAuthRouteNames,
     onNavigationStart: () => {
       http.cancelRouteRequests();
-    },
+    }
   });
   installRouteDynamicImportRecovery(router);
 
   return {
     app,
     router,
-    pinia,
+    pinia
   };
 }

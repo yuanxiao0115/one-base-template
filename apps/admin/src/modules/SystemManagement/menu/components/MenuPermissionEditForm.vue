@@ -1,36 +1,42 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import type { FormInstance, FormRules } from "element-plus";
-  import type { CrudFormLike } from "@one-base-template/ui";
-  import type { PermissionTypeOption } from "../types";
-  import type { MenuPermissionForm, ParentOption } from "../form";
-  import MenuIconInput from "./MenuIconInput.vue";
+import { ref } from 'vue';
+import type { FormInstance, FormRules } from 'element-plus';
+import type { CrudFormLike } from '@one-base-template/ui';
+import type { PermissionTypeOption } from '../types';
+import type { MenuPermissionForm, ParentOption } from '../form';
+import MenuIconInput from './MenuIconInput.vue';
 
-  const props = defineProps<{
-    rules: FormRules<MenuPermissionForm>;
-    disabled: boolean;
-    parentOptions: ParentOption[];
-    resourceTypeOptions: PermissionTypeOption[];
-  }>();
+const props = defineProps<{
+  rules: FormRules<MenuPermissionForm>;
+  disabled: boolean;
+  parentOptions: ParentOption[];
+  resourceTypeOptions: PermissionTypeOption[];
+}>();
 
-  const model = defineModel<MenuPermissionForm>({ required: true });
-  const formRef = ref<FormInstance>();
+const model = defineModel<MenuPermissionForm>({ required: true });
+const formRef = ref<FormInstance>();
 
-  defineExpose<CrudFormLike>({
-    validate: (...args) => {
-      const [callback] = args;
-      if (callback) {
-        return formRef.value?.validate?.(callback);
-      }
-      return formRef.value?.validate?.();
-    },
-    clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
-    resetFields: (...args) => formRef.value?.resetFields?.(...args),
-  });
+defineExpose<CrudFormLike>({
+  validate: (...args) => {
+    const [callback] = args;
+    if (callback) {
+      return formRef.value?.validate?.(callback);
+    }
+    return formRef.value?.validate?.();
+  },
+  clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
+  resetFields: (...args) => formRef.value?.resetFields?.(...args)
+});
 </script>
 
 <template>
-  <el-form ref="formRef" :model :rules="props.rules" label-position="top" :disabled="props.disabled">
+  <el-form
+    ref="formRef"
+    :model
+    :rules="props.rules"
+    label-position="top"
+    :disabled="props.disabled"
+  >
     <el-form-item label="上级权限" prop="parentId">
       <el-select v-model="model.parentId" class="w-full" placeholder="请选择上级权限">
         <el-option
@@ -55,7 +61,12 @@
     </el-form-item>
 
     <el-form-item label="权限名称" prop="resourceName">
-      <el-input v-model.trim="model.resourceName" maxlength="30" show-word-limit placeholder="请输入权限名称" />
+      <el-input
+        v-model.trim="model.resourceName"
+        maxlength="30"
+        show-word-limit
+        placeholder="请输入权限名称"
+      />
     </el-form-item>
 
     <el-form-item label="权限标识" prop="permissionCode">

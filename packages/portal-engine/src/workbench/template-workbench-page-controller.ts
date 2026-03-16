@@ -4,34 +4,28 @@ import { findPortalTabById, isPortalTabEditable, normalizePortalTabName } from '
 import { usePortalCurrentTabActions } from '../editor/current-tab-actions';
 import {
   createPortalPageSettingsSession,
-  type PortalPageSettingsDrawerTab,
+  type PortalPageSettingsDrawerTab
 } from '../editor/page-settings-session';
 import {
   sendPreviewRuntime,
   sendPreviewShellDetails,
   sendPreviewViewport,
-  type PortalPreviewFrameTarget,
+  type PortalPreviewFrameTarget
 } from '../editor/preview-bridge';
-import {
-  getDefaultPortalEngineContext,
-  type PortalEngineContext,
-} from '../runtime/context';
-import {
-  normalizePortalPageSettingsV2,
-  type PortalPageSettingsV2,
-} from '../schema/page-settings';
+import { getDefaultPortalEngineContext, type PortalEngineContext } from '../runtime/context';
+import { normalizePortalPageSettingsV2, type PortalPageSettingsV2 } from '../schema/page-settings';
 import type { BizResponse, PortalTab } from '../schema/types';
 import { createPortalPageSettingsService } from '../services/page-settings';
 import {
   PREVIEW_MODE_SAFE,
   PREVIEW_VIEWPORT_DEFAULT,
   type PortalPreviewMode,
-  type PortalPreviewViewport,
+  type PortalPreviewViewport
 } from '../utils/preview';
 
 import {
   createTemplateWorkbenchController,
-  type CreateTemplateWorkbenchControllerOptions,
+  type CreateTemplateWorkbenchControllerOptions
 } from './template-workbench-controller';
 
 function cloneByJson<T>(input: T): T {
@@ -40,7 +34,13 @@ function cloneByJson<T>(input: T): T {
 
 function normalizeBizOk(res: BizResponse<unknown> | null | undefined): boolean {
   const code = res?.code;
-  return res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
+  return (
+    res?.success === true ||
+    code === 0 ||
+    code === 200 ||
+    String(code) === '0' ||
+    String(code) === '200'
+  );
 }
 
 export interface TemplateWorkbenchPagePreviewTarget extends PortalPreviewFrameTarget {
@@ -50,8 +50,10 @@ export interface TemplateWorkbenchPagePreviewTarget extends PortalPreviewFrameTa
   resetView: () => void;
 }
 
-export interface CreateTemplateWorkbenchPageControllerOptions
-  extends Omit<CreateTemplateWorkbenchControllerOptions, 'lockedTabId'> {
+export interface CreateTemplateWorkbenchPageControllerOptions extends Omit<
+  CreateTemplateWorkbenchControllerOptions,
+  'lockedTabId'
+> {
   context?: PortalEngineContext;
   clone?: <T>(value: T) => T;
   previewTarget: Readonly<Ref<TemplateWorkbenchPagePreviewTarget | null>>;
@@ -62,17 +64,21 @@ export interface CreateTemplateWorkbenchPageControllerOptions
   }) => string;
 }
 
-export function createTemplateWorkbenchPageController(options: CreateTemplateWorkbenchPageControllerOptions) {
+export function createTemplateWorkbenchPageController(
+  options: CreateTemplateWorkbenchPageControllerOptions
+) {
   const clone = options.clone || cloneByJson;
   const context = options.context || getDefaultPortalEngineContext();
   const pageSettingsService = createPortalPageSettingsService(undefined, context);
   const pageSettingsSession = createPortalPageSettingsSession<PortalPageSettingsV2>({
-    clone,
+    clone
   });
 
   const workbench = createTemplateWorkbenchController({
     ...options,
-    lockedTabId: computed(() => (pageSettingsSession.visible.value ? pageSettingsSession.editingTabId.value : '')),
+    lockedTabId: computed(() =>
+      pageSettingsSession.visible.value ? pageSettingsSession.editingTabId.value : ''
+    )
   });
 
   const shellSettingVisible = ref(false);
@@ -104,7 +110,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
     return options.resolvePreviewHref({
       templateId: options.templateId.value,
       tabId: workbench.currentTabId.value,
-      previewMode: previewMode.value,
+      previewMode: previewMode.value
     });
   });
 
@@ -116,7 +122,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
     return sendPreviewShellDetails(options.previewTarget.value, {
       details,
       templateId: options.templateId.value,
-      tabId: workbench.currentTabId.value,
+      tabId: workbench.currentTabId.value
     });
   }
 
@@ -129,7 +135,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
       templateId: options.templateId.value,
       tabId: workbench.currentTabId.value,
       width: previewViewport.value.width,
-      height: previewViewport.value.height,
+      height: previewViewport.value.height
     });
   }
 
@@ -147,11 +153,14 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
       templateId: options.templateId.value,
       tabId: workbench.currentTabId.value,
       settings: clone(normalizedSettings),
-      component: runtimeComponents,
+      component: runtimeComponents
     });
   }
 
-  async function openPageSettingsDrawer(tabId: string, targetTab: PortalPageSettingsDrawerTab = 'layout') {
+  async function openPageSettingsDrawer(
+    tabId: string,
+    targetTab: PortalPageSettingsDrawerTab = 'layout'
+  ) {
     if (!tabId || pageSettingsSession.loading.value) {
       return;
     }
@@ -174,7 +183,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
 
       pageSettingsSession.applyLoadedDetail({
         settings: detail.settings,
-        components: detail.components,
+        components: detail.components
       });
       postPageRuntimePreview(pageSettingsSession.form.value);
     } catch (error: unknown) {
@@ -199,7 +208,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
       await pageSettingsService.saveTabPageSettings({
         tabId: editingTabId,
         templateId: options.templateId.value,
-        settings,
+        settings
       });
       options.notify.success('页面设置保存成功');
       pageSettingsSession.markPageSettingsSaved(settings);
@@ -238,7 +247,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
       const res = await options.api.template.update({
         ...currentTemplate,
         id: options.templateId.value,
-        details: payload.details,
+        details: payload.details
       });
       if (!normalizeBizOk(res)) {
         options.notify.error(res?.message || '页眉页脚配置保存失败');
@@ -275,7 +284,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
       const res = await options.api.template.update({
         ...currentTemplate,
         id: options.templateId.value,
-        details: payload.details,
+        details: payload.details
       });
       if (!normalizeBizOk(res)) {
         options.notify.error(res?.message || '页面级页眉页脚配置保存失败');
@@ -298,7 +307,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
     openCurrentPageSettings,
     toggleCurrentTabHide,
     deleteCurrentTab,
-    openPreviewWindow,
+    openPreviewWindow
   } = usePortalCurrentTabActions<PortalTab, PortalPreviewMode>({
     templateId: options.templateId,
     currentTabId: workbench.currentTabId,
@@ -311,7 +320,7 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
     onOpenAttribute: workbench.openAttribute,
     onToggleHide: workbench.toggleHide,
     onDeleteTab: workbench.deleteTab,
-    isTabEditable: (tab) => isPortalTabEditable(tab.tabType),
+    isTabEditable: (tab) => isPortalTabEditable(tab.tabType)
   });
 
   function onPreviewScaleChange(value: number) {
@@ -350,11 +359,10 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
     postPreviewViewport();
     const draftDetails =
       (shellSettingVisible.value && shellPreviewDetailsDraft.value) ||
-      (
-        pageSettingsSession.visible.value &&
-        (pageSettingsSession.activeTab.value === 'header' || pageSettingsSession.activeTab.value === 'footer') &&
-        pageSettingsSession.pageShellPreviewDetailsDraft.value
-      ) ||
+      (pageSettingsSession.visible.value &&
+        (pageSettingsSession.activeTab.value === 'header' ||
+          pageSettingsSession.activeTab.value === 'footer') &&
+        pageSettingsSession.pageShellPreviewDetailsDraft.value) ||
       '';
 
     if (draftDetails) {
@@ -383,7 +391,9 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
       return;
     }
 
-    const closeState = pageSettingsSession.onDrawerClosed(workbench.templateInfo.value?.details || '');
+    const closeState = pageSettingsSession.onDrawerClosed(
+      workbench.templateInfo.value?.details || ''
+    );
     if (closeState.restoreShellDetails !== null) {
       postShellPreviewDetails(closeState.restoreShellDetails);
     }
@@ -409,12 +419,13 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
   });
 
   watch(
-    () => [
-      previewFrameSrc.value,
-      workbench.currentTabId.value,
-      shellSettingVisible.value,
-      shellPreviewDetailsDraft.value,
-    ] as const,
+    () =>
+      [
+        previewFrameSrc.value,
+        workbench.currentTabId.value,
+        shellSettingVisible.value,
+        shellPreviewDetailsDraft.value
+      ] as const,
     async ([, tabId, opened, draftDetails]) => {
       if (!(opened && draftDetails && tabId)) {
         return;
@@ -425,15 +436,18 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
   );
 
   watch(
-    () => [
-      previewFrameSrc.value,
-      workbench.currentTabId.value,
-      pageSettingsSession.visible.value,
-      pageSettingsSession.activeTab.value,
-      pageSettingsSession.pageShellPreviewDetailsDraft.value,
-    ] as const,
+    () =>
+      [
+        previewFrameSrc.value,
+        workbench.currentTabId.value,
+        pageSettingsSession.visible.value,
+        pageSettingsSession.activeTab.value,
+        pageSettingsSession.pageShellPreviewDetailsDraft.value
+      ] as const,
     async ([, tabId, opened, activeTab, draftDetails]) => {
-      if (!(opened && (activeTab === 'header' || activeTab === 'footer') && draftDetails && tabId)) {
+      if (
+        !(opened && (activeTab === 'header' || activeTab === 'footer') && draftDetails && tabId)
+      ) {
         return;
       }
       await nextTick();
@@ -482,8 +496,10 @@ export function createTemplateWorkbenchPageController(options: CreateTemplateWor
     onZoomInPreview,
     onZoomOutPreview,
     onResetPreviewView,
-    onPreviewFrameLoad,
+    onPreviewFrameLoad
   };
 }
 
-export type TemplateWorkbenchPageController = ReturnType<typeof createTemplateWorkbenchPageController>;
+export type TemplateWorkbenchPageController = ReturnType<
+  typeof createTemplateWorkbenchPageController
+>;

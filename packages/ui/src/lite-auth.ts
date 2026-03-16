@@ -1,1 +1,1 @@
-export { LoginBox, LoginBoxV2 } from './lite/auth'
+export { LoginBox, LoginBoxV2 } from './lite/auth';

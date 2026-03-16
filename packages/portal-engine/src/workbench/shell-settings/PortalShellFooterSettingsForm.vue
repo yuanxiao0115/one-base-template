@@ -1,51 +1,51 @@
 <script setup lang="ts">
-  import { computed } from "vue";
-  import { Delete, Plus } from "@element-plus/icons-vue";
+import { computed } from 'vue';
+import { Delete, Plus } from '@element-plus/icons-vue';
 
-  import type { PortalTemplateDetails } from "@one-base-template/portal-engine";
-  import PortalColorField from "../PortalColorField.vue";
+import type { PortalTemplateDetails } from '../../shell/template-details';
+import { ObColorField } from '@one-base-template/ui';
 
-  const props = defineProps<{
-    formState: PortalTemplateDetails;
-  }>();
+const props = defineProps<{
+  formState: PortalTemplateDetails;
+}>();
 
-  type ContainerWidthMode = "fixed" | "full";
+type ContainerWidthMode = 'fixed' | 'full';
 
-  const footerContainerWidthMode = computed<ContainerWidthMode>({
-    get() {
-      return props.formState.shell.footer.tokens.containerWidth === "100%" ? "full" : "fixed";
-    },
-    set(mode) {
-      if (mode === "full") {
-        props.formState.shell.footer.tokens.containerWidth = "100%";
-        return;
-      }
-      if (props.formState.shell.footer.tokens.containerWidth === "100%") {
-        props.formState.shell.footer.tokens.containerWidth = 1200;
-      }
-    },
-  });
-
-  const footerContainerWidthPx = computed<number>({
-    get() {
-      const width = props.formState.shell.footer.tokens.containerWidth;
-      return typeof width === "number" ? width : 1200;
-    },
-    set(value) {
-      props.formState.shell.footer.tokens.containerWidth = Number.isFinite(value) ? value : 1200;
-    },
-  });
-
-  function addFooterLink() {
-    props.formState.shell.footer.content.links.push({
-      label: "",
-      url: "",
-    });
+const footerContainerWidthMode = computed<ContainerWidthMode>({
+  get() {
+    return props.formState.shell.footer.tokens.containerWidth === '100%' ? 'full' : 'fixed';
+  },
+  set(mode) {
+    if (mode === 'full') {
+      props.formState.shell.footer.tokens.containerWidth = '100%';
+      return;
+    }
+    if (props.formState.shell.footer.tokens.containerWidth === '100%') {
+      props.formState.shell.footer.tokens.containerWidth = 1200;
+    }
   }
+});
 
-  function removeFooterLink(index: number) {
-    props.formState.shell.footer.content.links.splice(index, 1);
+const footerContainerWidthPx = computed<number>({
+  get() {
+    const width = props.formState.shell.footer.tokens.containerWidth;
+    return typeof width === 'number' ? width : 1200;
+  },
+  set(value) {
+    props.formState.shell.footer.tokens.containerWidth = Number.isFinite(value) ? value : 1200;
   }
+});
+
+function addFooterLink() {
+  props.formState.shell.footer.content.links.push({
+    label: '',
+    url: ''
+  });
+}
+
+function removeFooterLink(index: number) {
+  props.formState.shell.footer.content.links.splice(index, 1);
+}
 </script>
 
 <template>
@@ -62,12 +62,19 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item v-if="props.formState.shell.footer.behavior.fixedMode === 'fixed'" label="固定可滚动">
+      <el-form-item
+        v-if="props.formState.shell.footer.behavior.fixedMode === 'fixed'"
+        label="固定可滚动"
+      >
         <el-switch v-model="props.formState.shell.footer.behavior.scrollableWhenFixed" />
       </el-form-item>
 
       <el-form-item label="高度(px)">
-        <el-input-number v-model="props.formState.shell.footer.tokens.height" :min="56" :max="260" />
+        <el-input-number
+          v-model="props.formState.shell.footer.tokens.height"
+          :min="56"
+          :max="260"
+        />
       </el-form-item>
 
       <el-form-item label="内容宽度模式">
@@ -78,19 +85,24 @@
       </el-form-item>
 
       <el-form-item v-if="footerContainerWidthMode === 'fixed'" label="固定宽度(px)">
-        <el-input-number v-model="footerContainerWidthPx" :min="320" :max="1920" controls-position="right" />
+        <el-input-number
+          v-model="footerContainerWidthPx"
+          :min="320"
+          :max="1920"
+          controls-position="right"
+        />
       </el-form-item>
 
       <el-form-item label="背景色">
-        <PortalColorField v-model="props.formState.shell.footer.tokens.bgColor" />
+        <ObColorField v-model="props.formState.shell.footer.tokens.bgColor" />
       </el-form-item>
 
       <el-form-item label="主文字色">
-        <PortalColorField v-model="props.formState.shell.footer.tokens.textColor" />
+        <ObColorField v-model="props.formState.shell.footer.tokens.textColor" />
       </el-form-item>
 
       <el-form-item label="分割线色">
-        <PortalColorField v-model="props.formState.shell.footer.tokens.borderTopColor" />
+        <ObColorField v-model="props.formState.shell.footer.tokens.borderTopColor" />
       </el-form-item>
     </ObCard>
 
@@ -100,22 +112,34 @@
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.footer.behavior.showLinks" label="链接色">
-        <PortalColorField v-model="props.formState.shell.footer.tokens.linkColor" />
+        <ObColorField v-model="props.formState.shell.footer.tokens.linkColor" />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.footer.behavior.showLinks" label="友情链接">
         <div class="rows-panel">
           <div class="rows-header">
             <span>每项支持名称和跳转地址</span>
-            <el-button type="primary" plain size="small" :icon="Plus" @click="addFooterLink">新增链接</el-button>
+            <el-button type="primary" plain size="small" :icon="Plus" @click="addFooterLink"
+              >新增链接</el-button
+            >
           </div>
 
           <div v-if="!props.formState.shell.footer.content.links.length" class="empty">
             暂无链接项，请点击“新增链接”。
           </div>
 
-          <div v-for="(item, index) in props.formState.shell.footer.content.links" :key="index" class="row-grid">
-            <el-input v-model="item.label" maxlength="20" show-word-limit placeholder="链接名称" class="col-2" />
+          <div
+            v-for="(item, index) in props.formState.shell.footer.content.links"
+            :key="index"
+            class="row-grid"
+          >
+            <el-input
+              v-model="item.label"
+              maxlength="20"
+              show-word-limit
+              placeholder="链接名称"
+              class="col-2"
+            />
             <el-input
               v-model="item.url"
               type="textarea"
@@ -157,15 +181,23 @@
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.footer.behavior.showRecord" label="ICP备案号">
-        <el-input v-model="props.formState.shell.footer.content.icp" maxlength="20" show-word-limit />
+        <el-input
+          v-model="props.formState.shell.footer.content.icp"
+          maxlength="20"
+          show-word-limit
+        />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.footer.behavior.showRecord" label="公安备案号">
-        <el-input v-model="props.formState.shell.footer.content.policeRecord" maxlength="20" show-word-limit />
+        <el-input
+          v-model="props.formState.shell.footer.content.policeRecord"
+          maxlength="20"
+          show-word-limit
+        />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.footer.behavior.showRecord" label="次文字色">
-        <PortalColorField v-model="props.formState.shell.footer.tokens.mutedTextColor" />
+        <ObColorField v-model="props.formState.shell.footer.tokens.mutedTextColor" />
       </el-form-item>
     </ObCard>
 
@@ -175,7 +207,11 @@
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.footer.behavior.showContact" label="服务热线">
-        <el-input v-model="props.formState.shell.footer.content.servicePhone" maxlength="20" show-word-limit />
+        <el-input
+          v-model="props.formState.shell.footer.content.servicePhone"
+          maxlength="20"
+          show-word-limit
+        />
       </el-form-item>
 
       <el-form-item v-if="props.formState.shell.footer.behavior.showContact" label="服务邮箱">
@@ -202,29 +238,91 @@
 </template>
 
 <style scoped>
-  .settings-form {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 
-  .settings-card :deep(.ob-card__body .el-form-item) {
-    margin-bottom: 12px;
-  }
+.settings-card :deep(.ob-card__body .el-form-item) {
+  margin-bottom: 12px;
+}
 
-  .settings-card :deep(.ob-card__body .el-form-item:last-child) {
-    margin-bottom: 0;
-  }
+.settings-card :deep(.ob-card__body .el-form-item:last-child) {
+  margin-bottom: 0;
+}
 
-  .settings-card :deep(.ob-card__body .el-form-item__label) {
-    padding-bottom: 4px;
-    font-size: 12px;
-    color: #475569;
-    line-height: 1.45;
-  }
+.settings-card :deep(.ob-card__body .el-form-item__label) {
+  padding-bottom: 4px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.45;
+}
 
-  .settings-card :deep(.ob-card__body .el-form-item__content) {
-    min-height: 32px;
+.settings-card :deep(.ob-card__body .el-form-item__content) {
+  min-height: 32px;
+}
+
+.settings-card :deep(.ob-card__body .el-form-item__content > .el-input),
+.settings-card :deep(.ob-card__body .el-form-item__content > .el-textarea),
+.settings-card :deep(.ob-card__body .el-form-item__content > .el-select),
+.settings-card :deep(.ob-card__body .el-form-item__content > .el-input-number),
+.settings-card :deep(.ob-card__body .el-form-item__content > .portal-color-field) {
+  width: min(100%, 320px);
+}
+
+.settings-card :deep(.ob-card__body .el-form-item__content > .el-radio-group) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.rows-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #d7e1ed;
+  background: #f8fafc;
+}
+
+.rows-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.empty {
+  padding: 10px 8px;
+  border: 1px dashed #c9d6e4;
+  background: #fff;
+  color: #94a3b8;
+  font-size: 12px;
+  text-align: center;
+}
+
+.row-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) 28px;
+  gap: 8px;
+  align-items: start;
+}
+
+.col-2 {
+  grid-column: span 1;
+}
+
+.col-3 {
+  grid-column: span 1;
+}
+
+@media (max-width: 900px) {
+  .row-grid {
+    grid-template-columns: 1fr;
   }
 
   .settings-card :deep(.ob-card__body .el-form-item__content > .el-input),
@@ -232,69 +330,7 @@
   .settings-card :deep(.ob-card__body .el-form-item__content > .el-select),
   .settings-card :deep(.ob-card__body .el-form-item__content > .el-input-number),
   .settings-card :deep(.ob-card__body .el-form-item__content > .portal-color-field) {
-    width: min(100%, 320px);
-  }
-
-  .settings-card :deep(.ob-card__body .el-form-item__content > .el-radio-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 12px;
-  }
-
-  .rows-panel {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px;
-    border: 1px solid #d7e1ed;
-    background: #f8fafc;
   }
-
-  .rows-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    color: #64748b;
-    font-size: 12px;
-  }
-
-  .empty {
-    padding: 10px 8px;
-    border: 1px dashed #c9d6e4;
-    background: #fff;
-    color: #94a3b8;
-    font-size: 12px;
-    text-align: center;
-  }
-
-  .row-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) 28px;
-    gap: 8px;
-    align-items: start;
-  }
-
-  .col-2 {
-    grid-column: span 1;
-  }
-
-  .col-3 {
-    grid-column: span 1;
-  }
-
-  @media (max-width: 900px) {
-    .row-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .settings-card :deep(.ob-card__body .el-form-item__content > .el-input),
-    .settings-card :deep(.ob-card__body .el-form-item__content > .el-textarea),
-    .settings-card :deep(.ob-card__body .el-form-item__content > .el-select),
-    .settings-card :deep(.ob-card__body .el-form-item__content > .el-input-number),
-    .settings-card :deep(.ob-card__body .el-form-item__content > .portal-color-field) {
-      width: 100%;
-    }
-  }
+}
 </style>

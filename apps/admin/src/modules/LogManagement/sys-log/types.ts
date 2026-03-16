@@ -1,6 +1,6 @@
-import type { ApiPageData } from "@/shared/api/types";
+import type { ApiPageData } from '@/shared/api/types';
 
-export type { ApiResponse } from "@/shared/api/types";
+export type { ApiResponse } from '@/shared/api/types';
 
 export interface SysLogRecord {
   id: string;

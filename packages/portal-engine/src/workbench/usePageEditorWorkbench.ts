@@ -1,18 +1,18 @@
-import { onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted } from 'vue';
 
-import type { CreatePageEditorControllerOptions } from './page-editor-controller'
-import { createPageEditorController } from './page-editor-controller'
+import type { CreatePageEditorControllerOptions } from './page-editor-controller';
+import { createPageEditorController } from './page-editor-controller';
 
 export function usePageEditorWorkbench(options: CreatePageEditorControllerOptions) {
-  const controller = createPageEditorController(options)
+  const controller = createPageEditorController(options);
 
   onMounted(() => {
-    controller.mount()
-  })
+    controller.mount();
+  });
 
   onBeforeUnmount(() => {
-    controller.dispose()
-  })
+    controller.dispose();
+  });
 
-  return controller
+  return controller;
 }

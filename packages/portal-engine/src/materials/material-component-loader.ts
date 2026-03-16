@@ -178,7 +178,10 @@ function asRecord(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function resolveSectionName(config: unknown, section: PortalMaterialComponentSection): string | null {
+function resolveSectionName(
+  config: unknown,
+  section: PortalMaterialComponentSection
+): string | null {
   const sectionConfig = asRecord(asRecord(config)[section]);
   const name = sectionConfig.name;
   return typeof name === 'string' && name.trim().length > 0 ? name.trim() : null;
@@ -218,7 +221,10 @@ function resolveRegistryComponentNames(sections: PortalMaterialComponentSection[
   return Array.from(names);
 }
 
-function patchMissingNamesByBasePrefix(materialsMap: Record<string, Component>, missingNames: string[]): string[] {
+function patchMissingNamesByBasePrefix(
+  materialsMap: Record<string, Component>,
+  missingNames: string[]
+): string[] {
   const resolved: string[] = [];
 
   for (const missingName of missingNames) {
@@ -233,7 +239,10 @@ function patchMissingNamesByBasePrefix(materialsMap: Record<string, Component>, 
   return resolved;
 }
 
-function verifyRegistryCoverage(materialsMap: Record<string, Component>, sections: PortalMaterialComponentSection[]) {
+function verifyRegistryCoverage(
+  materialsMap: Record<string, Component>,
+  sections: PortalMaterialComponentSection[]
+) {
   if (!import.meta.env.DEV) {
     return;
   }
@@ -249,7 +258,7 @@ function verifyRegistryCoverage(materialsMap: Record<string, Component>, section
   if (finalMissingNames.length === 0) {
     if (resolvedAliases.length > 0) {
       console.warn('[portal-engine] 检测到 base 前缀命名差异，已自动补齐别名。', {
-        aliases: resolvedAliases,
+        aliases: resolvedAliases
       });
     }
     return;
@@ -263,7 +272,7 @@ function verifyRegistryCoverage(materialsMap: Record<string, Component>, section
     availableSample: Object.keys(materialsMap)
       .filter((name) => /-(index|content|style)$/.test(name))
       .sort()
-      .slice(0, 40),
+      .slice(0, 40)
   });
 }
 
@@ -278,7 +287,12 @@ export function createPortalMaterialsMap(options: CreatePortalMaterialsMapOption
   }
 
   for (const fallback of options.staticFallbacks ?? []) {
-    registerMaterialComponentByName(materialsMap, fallback.name, fallback.component, fallback.aliases);
+    registerMaterialComponentByName(
+      materialsMap,
+      fallback.name,
+      fallback.component,
+      fallback.aliases
+    );
   }
 
   for (const [name, component] of Object.entries(customMaterialComponents)) {

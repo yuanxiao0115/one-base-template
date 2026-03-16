@@ -34,7 +34,7 @@ export function withInstall(components: Record<string, Component>) {
       for (const key in components) {
         app.component(key, components[key]);
       }
-    },
+    }
   };
 }
 
@@ -56,7 +56,7 @@ export function withInstall(components: Record<string, Component>) {
  */
 export function createPlugin<T = any>(install: (app: App, options?: T) => void) {
   return {
-    install,
+    install
   };
 }
 
@@ -126,7 +126,7 @@ export function createReactiveState<T extends Record<string, any>>(initialState:
     state,
     setState,
     getState,
-    resetState,
+    resetState
   };
 }
 
@@ -151,7 +151,7 @@ export function createEmitter(emit: (event: string, ...args: any[]) => void) {
     change: (value: any) => emit('change', value),
     update: (value: any) => emit('update:modelValue', value),
     click: (event: Event) => emit('click', event),
-    custom: (eventName: string, ...args: any[]) => emit(eventName, ...args),
+    custom: (eventName: string, ...args: any[]) => emit(eventName, ...args)
   };
 }
 
@@ -202,7 +202,8 @@ export function createLifecycle(hooks: {
   onBeforeUnmount?: () => void;
   onBeforeUpdate?: () => void;
 }) {
-  const { onMounted, onUnmounted, onUpdated, onBeforeMount, onBeforeUnmount, onBeforeUpdate } = hooks;
+  const { onMounted, onUnmounted, onUpdated, onBeforeMount, onBeforeUnmount, onBeforeUpdate } =
+    hooks;
 
   return {
     mount: () => {
@@ -216,7 +217,7 @@ export function createLifecycle(hooks: {
     update: () => {
       onBeforeUpdate?.();
       onUpdated?.();
-    },
+    }
   };
 }
 
@@ -283,12 +284,12 @@ export function createFormValidator(rules: Record<string, any[]>) {
 
     return {
       valid: Object.keys(errors).length === 0,
-      errors,
+      errors
     };
   };
 
   return {
     validate,
-    rules,
+    rules
   };
 }

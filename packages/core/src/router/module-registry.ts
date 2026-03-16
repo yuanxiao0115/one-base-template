@@ -2,7 +2,7 @@ import type { EnabledModulesSetting } from '../config/platform-config';
 import type {
   AppModuleDeclarationModule,
   AppModuleManifest,
-  AppModuleManifestMeta,
+  AppModuleManifestMeta
 } from './module-assembly';
 
 export interface ModuleLoadEntry extends AppModuleManifestMeta {
@@ -77,11 +77,15 @@ export function toModuleDeclarationPath(manifestPath: string): string | null {
   return manifestPath.replace(/\/manifest\.ts$/, '/module.ts');
 }
 
-export function resolveModuleDeclarationCandidate(loaded: AppModuleDeclarationModule): AppModuleManifest | undefined {
+export function resolveModuleDeclarationCandidate(
+  loaded: AppModuleDeclarationModule
+): AppModuleManifest | undefined {
   return loaded.default ?? loaded.module;
 }
 
-export function validateModuleDeclaration(options: ValidateModuleDeclarationOptions): AppModuleManifest | null {
+export function validateModuleDeclaration(
+  options: ValidateModuleDeclarationOptions
+): AppModuleManifest | null {
   const { entry, candidate, onWarn } = options;
 
   if (!isValidAppModuleManifest(candidate)) {
@@ -90,26 +94,32 @@ export function validateModuleDeclaration(options: ValidateModuleDeclarationOpti
   }
 
   if (
-    candidate.id !== entry.id
-    || candidate.version !== entry.version
-    || candidate.moduleTier !== entry.moduleTier
-    || candidate.enabledByDefault !== entry.enabledByDefault
+    candidate.id !== entry.id ||
+    candidate.version !== entry.version ||
+    candidate.moduleTier !== entry.moduleTier ||
+    candidate.enabledByDefault !== entry.enabledByDefault
   ) {
-    onWarn(`模块清单与声明不一致：id=${entry.id}（manifest=${entry.manifestPath} module=${entry.modulePath}）`);
+    onWarn(
+      `模块清单与声明不一致：id=${entry.id}（manifest=${entry.manifestPath} module=${entry.modulePath}）`
+    );
     return null;
   }
 
   return candidate;
 }
 
-export function collectModuleLoadEntries(options: CollectModuleLoadEntriesOptions): ModuleLoadEntry[] {
+export function collectModuleLoadEntries(
+  options: CollectModuleLoadEntriesOptions
+): ModuleLoadEntry[] {
   const { manifestDefinitions, hasModuleDeclaration, onWarn } = options;
   const byId = new Map<string, ModuleLoadEntry>();
 
   for (const [path, mod] of Object.entries(manifestDefinitions)) {
     const candidate = mod.default ?? mod.moduleManifest;
     if (!isValidAppModuleManifestMeta(candidate)) {
-      onWarn(`忽略无效模块清单：${path}（要求 moduleTier 必填，且 optional 模块 enabledByDefault 必须为 false）`);
+      onWarn(
+        `忽略无效模块清单：${path}（要求 moduleTier 必填，且 optional 模块 enabledByDefault 必须为 false）`
+      );
       continue;
     }
 
@@ -132,7 +142,7 @@ export function collectModuleLoadEntries(options: CollectModuleLoadEntriesOption
     byId.set(candidate.id, {
       ...candidate,
       manifestPath: path,
-      modulePath,
+      modulePath
     });
   }
 
@@ -141,7 +151,9 @@ export function collectModuleLoadEntries(options: CollectModuleLoadEntriesOption
   return out;
 }
 
-export function pickEnabledModuleEntries(options: PickEnabledModuleEntriesOptions): ModuleLoadEntry[] {
+export function pickEnabledModuleEntries(
+  options: PickEnabledModuleEntriesOptions
+): ModuleLoadEntry[] {
   const { allModules, enabledModules, onWarn } = options;
 
   if (enabledModules === '*') {

@@ -1,8 +1,8 @@
 /* 参考 VXE 主题机制：https://vxetable.cn/#/start/theme */
 /* 通过覆盖 --vxe-ui-* 变量接入项目主题 token，避免在组件内重复维护色值。 */
 :root,
-[data-vxe-ui-theme="light"],
-[data-vxe-ui-theme="dark"] {
+[data-vxe-ui-theme='light'],
+[data-vxe-ui-theme='dark'] {
   --vxe-ui-font-color: var(--el-text-color-regular);
   --vxe-ui-font-lighten-color: var(--one-text-color-secondary);
   --vxe-ui-font-darken-color: var(--el-text-color-primary);
@@ -61,34 +61,20 @@
 
   --vxe-ui-table-header-background-color: var(--one-table-header-bg);
   --vxe-ui-table-column-to-row-background-color: var(--one-table-header-bg);
-  --vxe-ui-table-column-hover-background-color: var(
-    --one-color-primary-light-1
-  );
-  --vxe-ui-table-column-current-background-color: var(
-    --one-color-primary-light-1
-  );
-  --vxe-ui-table-column-hover-current-background-color: var(
-    --one-color-primary-light-2
-  );
+  --vxe-ui-table-column-hover-background-color: var(--one-color-primary-light-1);
+  --vxe-ui-table-column-current-background-color: var(--one-color-primary-light-1);
+  --vxe-ui-table-column-hover-current-background-color: var(--one-color-primary-light-2);
   --vxe-ui-table-border-color: var(--one-table-header-border-bottom-color);
   --vxe-ui-table-row-hover-background-color: var(--el-bg-color-overlay);
   --vxe-ui-table-row-striped-background-color: var(--el-bg-color-overlay);
   --vxe-ui-table-row-hover-striped-background-color: var(--el-bg-color-overlay);
   --vxe-ui-table-row-radio-checked-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-hover-radio-checked-background-color: var(
-    --el-bg-color-overlay
-  );
-  --vxe-ui-table-row-checkbox-checked-background-color: var(
-    --el-bg-color-overlay
-  );
-  --vxe-ui-table-row-hover-checkbox-checked-background-color: var(
-    --el-bg-color-overlay
-  );
+  --vxe-ui-table-row-hover-radio-checked-background-color: var(--el-bg-color-overlay);
+  --vxe-ui-table-row-checkbox-checked-background-color: var(--el-bg-color-overlay);
+  --vxe-ui-table-row-hover-checkbox-checked-background-color: var(--el-bg-color-overlay);
   --vxe-ui-table-row-current-background-color: var(--el-bg-color-overlay);
   --vxe-ui-table-row-hover-current-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-fixed-scrolling-box-shadow-color: var(
-    --one-mask-color-extra-light
-  );
+  --vxe-ui-table-fixed-scrolling-box-shadow-color: var(--one-mask-color-extra-light);
   --vxe-ui-table-drag-over-background-color: var(--one-fill-color-light);
 
   --vxe-ui-table-row-height-default: 56px;

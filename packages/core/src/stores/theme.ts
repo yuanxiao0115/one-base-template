@@ -74,7 +74,7 @@ const DEFAULT_SEMANTIC: Required<ThemeSemanticColors> = {
   success: '#00B42A',
   warning: '#FF7D00',
   error: '#F53F3F',
-  info: '#909399',
+  info: '#909399'
 };
 
 function normalizeHexColor(raw: string): string | null {
@@ -137,7 +137,7 @@ function readStoredThemeState(storageKey: string): StoredThemeState | null {
       mode,
       presetKey,
       customPrimary,
-      grayscale,
+      grayscale
     };
   } catch {
     return null;
@@ -151,7 +151,7 @@ function writeStoredThemeState(storageKey: string, state: StoredThemeState) {
     onPrimaryQuotaExceeded: () => {
       // 菜单缓存可重新拉取，优先清理避免主题切换失败
       removeByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
-    },
+    }
   });
 }
 
@@ -160,7 +160,7 @@ function resolveSemantic(theme: ThemeDefinition): Required<ThemeSemanticColors> 
     success: toHexColor(theme.semantic?.success) ?? DEFAULT_SEMANTIC.success,
     warning: toHexColor(theme.semantic?.warning) ?? DEFAULT_SEMANTIC.warning,
     error: toHexColor(theme.semantic?.error) ?? DEFAULT_SEMANTIC.error,
-    info: toHexColor(theme.semantic?.info) ?? DEFAULT_SEMANTIC.info,
+    info: toHexColor(theme.semantic?.info) ?? DEFAULT_SEMANTIC.info
   };
 }
 
@@ -191,7 +191,9 @@ export const useThemeStore = defineStore('ob-theme', () => {
   const onThemeApplied = ref<ThemeOptions['onThemeApplied']>();
 
   const currentTheme = computed(() => themes.value[themeKey.value]);
-  const currentSemantic = computed(() => resolveSemantic(currentTheme.value ?? { primary: '#409EFF' }));
+  const currentSemantic = computed(() =>
+    resolveSemantic(currentTheme.value ?? { primary: '#409EFF' })
+  );
   const currentPrimary = computed(() => {
     if (themeMode.value === 'custom' && customPrimary.value) {
       return customPrimary.value;
@@ -210,7 +212,8 @@ export const useThemeStore = defineStore('ob-theme', () => {
       throw new Error(`[theme] 主题主色非法: ${theme.primary}`);
     }
 
-    const primary = themeMode.value === 'custom' && customPrimary.value ? customPrimary.value : presetPrimary;
+    const primary =
+      themeMode.value === 'custom' && customPrimary.value ? customPrimary.value : presetPrimary;
     const semantic = resolveSemantic(theme);
 
     onThemeApplied.value?.({
@@ -222,7 +225,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
       semantic,
       theme,
       themes: themes.value,
-      storageKey: storageKey.value,
+      storageKey: storageKey.value
     });
   }
 
@@ -232,7 +235,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
       mode: themeMode.value,
       presetKey: themeKey.value,
       customPrimary: customPrimary.value,
-      grayscale: grayscale.value,
+      grayscale: grayscale.value
     };
     const serialized = JSON.stringify(nextState);
     if (serialized === lastPersistedState.value) {
@@ -257,10 +260,12 @@ export const useThemeStore = defineStore('ob-theme', () => {
     const fallbackPreset = pickInitialThemeKey(options.themes, options.defaultTheme);
     const stored = readStoredThemeState(storageKey.value);
 
-    themeKey.value = stored?.presetKey && themes.value[stored.presetKey] ? stored.presetKey : fallbackPreset;
+    themeKey.value =
+      stored?.presetKey && themes.value[stored.presetKey] ? stored.presetKey : fallbackPreset;
 
     const storedCustom = toHexColor(stored?.customPrimary);
-    const canUseCustom = allowCustomPrimary.value && stored?.mode === 'custom' && Boolean(storedCustom);
+    const canUseCustom =
+      allowCustomPrimary.value && stored?.mode === 'custom' && Boolean(storedCustom);
 
     themeMode.value = canUseCustom ? 'custom' : 'preset';
     customPrimary.value = canUseCustom ? storedCustom : null;
@@ -271,7 +276,7 @@ export const useThemeStore = defineStore('ob-theme', () => {
       mode: themeMode.value,
       presetKey: themeKey.value,
       customPrimary: customPrimary.value,
-      grayscale: grayscale.value,
+      grayscale: grayscale.value
     };
     const matchesStored = stored
       ? stored.version === THEME_STATE_VERSION &&
@@ -356,6 +361,6 @@ export const useThemeStore = defineStore('ob-theme', () => {
     setThemeMode,
     setCustomPrimary,
     resetCustomPrimary,
-    setGrayscale,
+    setGrayscale
   };
 });

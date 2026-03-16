@@ -4,14 +4,17 @@ import {
   buildPreviewViewportMessage,
   type PortalPreviewRuntimeData,
   type PortalPreviewShellDetailsData,
-  type PortalPreviewViewportData,
+  type PortalPreviewViewportData
 } from './messages';
 
 export interface PortalPreviewFrameTarget {
   postMessageToFrame: (message: unknown) => boolean;
 }
 
-function sendToPreviewFrame(target: PortalPreviewFrameTarget | null | undefined, message: unknown): boolean {
+function sendToPreviewFrame(
+  target: PortalPreviewFrameTarget | null | undefined,
+  message: unknown
+): boolean {
   if (!target || typeof target.postMessageToFrame !== 'function') {
     return false;
   }

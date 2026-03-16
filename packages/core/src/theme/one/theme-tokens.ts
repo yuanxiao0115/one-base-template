@@ -123,7 +123,7 @@ const BASE_STATIC_TOKENS: OneTokenMap = {
 
   '--one-table-header-bg': 'rgba(30, 38, 57, 0.03)',
   '--one-table-header-border-bottom-color': 'rgba(51, 51, 51, 0.0784)',
-  '--one-transfer-panel-hover-bg-color': '#E8F3FF',
+  '--one-transfer-panel-hover-bg-color': '#E8F3FF'
 };
 
 const PRESET_TOKENS: ThemePresetTokens = {
@@ -138,8 +138,8 @@ const PRESET_TOKENS: ThemePresetTokens = {
         light6: '#338DEC',
         light7: '#0F79E9',
         light8: '#0B61E2',
-        light9: '#0955DF',
-      },
+        light9: '#0955DF'
+      }
     },
     red: {
       primary: {
@@ -151,16 +151,66 @@ const PRESET_TOKENS: ThemePresetTokens = {
         light6: '#E81929',
         light7: '#C40000',
         light8: '#D60817',
-        light9: '#C5000F',
-      },
-    },
+        light9: '#C5000F'
+      }
+    }
   },
   palette: {
-    red: ['#FFE7DE', '#FCAA97', '#F77263', '#F03E3C', '#E60012', '#C50021', '#A5002A', '#85002E', '#6E0030'],
-    blue: ['#E1F1FD', '#B3D4F4', '#85AFDE', '#5F88BD', '#315791', '#23437C', '#183168', '#0F2254', '#091745'],
-    green: ['#DFFFE1', '#9AF6AA', '#65E687', '#3ECD72', '#0CAD57', '#089457', '#067C54', '#03644D', '#025348'],
-    yellow: ['#FEF8E5', '#FDEFCB', '#F9E2AF', '#F3D399', '#EBBE78', '#CA9857', '#A9753C', '#885626', '#703F17'],
-    gray: ['#F8F8F8', '#EEEEEE', '#CCCCCC', '#999999', '#666666', '#333333', '#112129', '#C9CDD4', '#1D2129'],
+    red: [
+      '#FFE7DE',
+      '#FCAA97',
+      '#F77263',
+      '#F03E3C',
+      '#E60012',
+      '#C50021',
+      '#A5002A',
+      '#85002E',
+      '#6E0030'
+    ],
+    blue: [
+      '#E1F1FD',
+      '#B3D4F4',
+      '#85AFDE',
+      '#5F88BD',
+      '#315791',
+      '#23437C',
+      '#183168',
+      '#0F2254',
+      '#091745'
+    ],
+    green: [
+      '#DFFFE1',
+      '#9AF6AA',
+      '#65E687',
+      '#3ECD72',
+      '#0CAD57',
+      '#089457',
+      '#067C54',
+      '#03644D',
+      '#025348'
+    ],
+    yellow: [
+      '#FEF8E5',
+      '#FDEFCB',
+      '#F9E2AF',
+      '#F3D399',
+      '#EBBE78',
+      '#CA9857',
+      '#A9753C',
+      '#885626',
+      '#703F17'
+    ],
+    gray: [
+      '#F8F8F8',
+      '#EEEEEE',
+      '#CCCCCC',
+      '#999999',
+      '#666666',
+      '#333333',
+      '#112129',
+      '#C9CDD4',
+      '#1D2129'
+    ]
   },
   feedback: {
     success: {
@@ -170,7 +220,7 @@ const PRESET_TOKENS: ThemePresetTokens = {
       light4: '#4CD263',
       light5: '#23C343',
       light6: '#00B42A',
-      light7: '#009A29',
+      light7: '#009A29'
     },
     warning: {
       light1: '#FFF7E8',
@@ -179,7 +229,7 @@ const PRESET_TOKENS: ThemePresetTokens = {
       light4: '#FFB65D',
       light5: '#FF9A2E',
       light6: '#FF7D00',
-      light7: '#D25F00',
+      light7: '#D25F00'
     },
     error: {
       light1: '#FFECE8',
@@ -188,7 +238,7 @@ const PRESET_TOKENS: ThemePresetTokens = {
       light4: '#F98981',
       light5: '#F76560',
       light6: '#F53F3F',
-      light7: '#CB2634',
+      light7: '#CB2634'
     },
     info: {
       light1: '#F4F4F5',
@@ -197,14 +247,14 @@ const PRESET_TOKENS: ThemePresetTokens = {
       light4: '#C8C9CC',
       light5: '#B1B3B8',
       light6: '#909399',
-      light7: '#73767A',
-    },
-  },
+      light7: '#73767A'
+    }
+  }
 };
 
 const ONE_STATIC_TOKENS: OneTokenMap = {
   ...BASE_STATIC_TOKENS,
-  ...buildPaletteTokensFromPreset(PRESET_TOKENS.palette),
+  ...buildPaletteTokensFromPreset(PRESET_TOKENS.palette)
 };
 
 function buildPaletteTokensFromPreset(palette: Record<PaletteKey, readonly string[]>): OneTokenMap {
@@ -247,7 +297,7 @@ function flattenPrimaryTokens(scale: PrimaryScale): OneTokenMap {
     '--one-color-primary-light-6': scale.light6,
     '--one-color-primary-light-7': scale.light7,
     '--one-color-primary-light-8': scale.light8,
-    '--one-color-primary-light-9': scale.light9,
+    '--one-color-primary-light-9': scale.light9
   };
 }
 
@@ -260,7 +310,7 @@ function flattenFeedbackTokens(name: FeedbackKey, scale: FeedbackScale): OneToke
     [`--one-color-${name}-light-4`]: scale.light4,
     [`--one-color-${name}-light-5`]: scale.light5,
     [`--one-color-${name}-light-6`]: scale.light6,
-    [`--one-color-${name}-light-7`]: scale.light7,
+    [`--one-color-${name}-light-7`]: scale.light7
   };
 }
 
@@ -290,7 +340,7 @@ function normalizePrimaryScale(scale: PrimaryScale): PrimaryScale {
     light6: normalizeHexColor(scale.light6),
     light7: normalizeHexColor(scale.light7),
     light8: normalizeHexColor(scale.light8),
-    light9: normalizeHexColor(scale.light9),
+    light9: normalizeHexColor(scale.light9)
   };
 }
 
@@ -312,7 +362,7 @@ export function buildPrimaryScale(customPrimary: string): PrimaryScale {
     light6: toUpperHex(mix(base, white, 0.2)),
     light7: base,
     light8: toUpperHex(mix(base, black, 0.1)),
-    light9: toUpperHex(mix(base, black, 0.2)),
+    light9: toUpperHex(mix(base, black, 0.2))
   };
 }
 
@@ -323,7 +373,7 @@ export function buildOneTokens(params: {
 }): OneTokenMap {
   return {
     ...buildOneStaticTokens(),
-    ...buildOneRuntimeTokens(params),
+    ...buildOneRuntimeTokens(params)
   };
 }
 
@@ -349,6 +399,6 @@ export function buildOneRuntimeTokens(params: {
   return {
     ...flattenPrimaryTokens(primary),
     ...feedback,
-    '--one-color-focus': 'var(--one-color-primary)',
+    '--one-color-focus': 'var(--one-color-primary)'
   };
 }

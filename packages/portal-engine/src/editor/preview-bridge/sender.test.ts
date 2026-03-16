@@ -1,27 +1,27 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 import {
   PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME,
   PORTAL_PREVIEW_MESSAGE_PAGE_READY,
   PORTAL_PREVIEW_MESSAGE_SHELL_DETAILS,
   PORTAL_PREVIEW_MESSAGE_VIEWPORT,
-  isPreviewPageReadyMessage,
+  isPreviewPageReadyMessage
 } from './messages';
 import {
   sendPreviewPageRuntimeToWindow,
   sendPreviewRuntime,
   sendPreviewShellDetails,
   sendPreviewViewport,
-  type PortalPreviewFrameTarget,
+  type PortalPreviewFrameTarget
 } from './sender';
 
 function createFrameTarget() {
   const postMessageToFrame = vi.fn().mockReturnValue(true);
   return {
     target: {
-      postMessageToFrame,
+      postMessageToFrame
     } satisfies PortalPreviewFrameTarget,
-    postMessageToFrame,
+    postMessageToFrame
   };
 }
 
@@ -32,7 +32,7 @@ describe('preview bridge sender', () => {
     const ok = sendPreviewShellDetails(target, {
       templateId: 'tpl-1',
       tabId: 'tab-1',
-      details: '{"shell":{}}',
+      details: '{"shell":{}}'
     });
 
     expect(ok).toBe(true);
@@ -41,8 +41,8 @@ describe('preview bridge sender', () => {
       data: {
         templateId: 'tpl-1',
         tabId: 'tab-1',
-        details: '{"shell":{}}',
-      },
+        details: '{"shell":{}}'
+      }
     });
   });
 
@@ -53,7 +53,7 @@ describe('preview bridge sender', () => {
       templateId: 'tpl-2',
       tabId: 'tab-2',
       width: 1440,
-      height: 900,
+      height: 900
     });
 
     expect(ok).toBe(true);
@@ -63,8 +63,8 @@ describe('preview bridge sender', () => {
         templateId: 'tpl-2',
         tabId: 'tab-2',
         width: 1440,
-        height: 900,
-      },
+        height: 900
+      }
     });
   });
 
@@ -77,7 +77,7 @@ describe('preview bridge sender', () => {
       templateId: 'tpl-3',
       tabId: 'tab-3',
       settings,
-      component,
+      component
     });
 
     expect(ok).toBe(true);
@@ -87,8 +87,8 @@ describe('preview bridge sender', () => {
         templateId: 'tpl-3',
         tabId: 'tab-3',
         settings,
-        component,
-      },
+        component
+      }
     });
   });
 
@@ -97,7 +97,7 @@ describe('preview bridge sender', () => {
       sendPreviewShellDetails(null, {
         templateId: 'tpl-1',
         tabId: 'tab-1',
-        details: '{}',
+        details: '{}'
       })
     ).toBe(false);
   });
@@ -105,7 +105,7 @@ describe('preview bridge sender', () => {
   it('应向预览窗口发送运行时消息', () => {
     const postMessage = vi.fn();
     const targetWindow = {
-      postMessage,
+      postMessage
     } as unknown as Window;
 
     const ok = sendPreviewPageRuntimeToWindow(targetWindow, {
@@ -114,8 +114,8 @@ describe('preview bridge sender', () => {
         templateId: 'tpl-4',
         tabId: 'tab-4',
         settings: { basic: { pageTitle: 'test' } },
-        component: [],
-      },
+        component: []
+      }
     });
 
     expect(ok).toBe(true);
@@ -126,8 +126,8 @@ describe('preview bridge sender', () => {
           templateId: 'tpl-4',
           tabId: 'tab-4',
           settings: { basic: { pageTitle: 'test' } },
-          component: [],
-        },
+          component: []
+        }
       },
       'https://portal.example.com'
     );
@@ -138,14 +138,14 @@ describe('preview bridge sender', () => {
       type: PORTAL_PREVIEW_MESSAGE_PAGE_READY,
       data: {
         tabId: 'tab-5',
-        templateId: 'tpl-5',
-      },
+        templateId: 'tpl-5'
+      }
     });
 
     expect(ok).toEqual({
       matched: true,
       tabId: 'tab-5',
-      templateId: 'tpl-5',
+      templateId: 'tpl-5'
     });
   });
 });

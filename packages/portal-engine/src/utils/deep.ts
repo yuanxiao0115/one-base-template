@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * 深拷贝（仅用于 portal schema 这类纯 JSON 数据）
@@ -25,7 +25,10 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return proto === Object.prototype || proto === null;
 }
 
-function cloneWithJsonSemantics(value: unknown, seen: WeakMap<object, unknown> = new WeakMap()): unknown {
+function cloneWithJsonSemantics(
+  value: unknown,
+  seen: WeakMap<object, unknown> = new WeakMap()
+): unknown {
   if (value === null) {
     return null;
   }

@@ -43,7 +43,7 @@ export const createComponent = (
     cmptWidth: width,
     cmptHeight: height,
     cmptIcon: icon,
-    cmptConfig: finalConfig,
+    cmptConfig: finalConfig
   };
 };
 
@@ -66,5 +66,14 @@ export const createComponentGroup = (
   baseConfig?: any
 ): ComponentConfig[] =>
   components.map((comp) =>
-    createComponent(comp.id, comp.type, comp.name, comp.width, comp.height, comp.icon, comp.config, baseConfig)
+    createComponent(
+      comp.id,
+      comp.type,
+      comp.name,
+      comp.width,
+      comp.height,
+      comp.icon,
+      comp.config,
+      baseConfig
+    )
   );

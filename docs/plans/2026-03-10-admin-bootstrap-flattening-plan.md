@@ -13,6 +13,7 @@
 ### Task 1: 压缩启动入口链路
 
 **Files:**
+
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/startup.ts`
 - Delete: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/admin-entry.ts`
 
@@ -34,6 +35,7 @@ Expected: 通过。
 ### Task 2: 收敛 router 与 guards 薄壳中转
 
 **Files:**
+
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/index.ts`
 - Delete: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/router.ts`
 - Delete: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/guards.ts`
@@ -56,6 +58,7 @@ Expected: 通过。
 ### Task 3: 同步规则与文档口径
 
 **Files:**
+
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/AGENTS.md`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/docs/docs/guide/architecture.md`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/docs/docs/guide/env.md`
@@ -74,6 +77,7 @@ Expected: 通过。
 ### Task 4: 回归验证与记录
 
 **Files:**
+
 - Modify: `/Users/haoqiuzhi/code/one-base-template/.codex/operations-log.md`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/.codex/testing.md`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/.codex/verification.md`
@@ -81,6 +85,7 @@ Expected: 通过。
 **Step 1: 执行验证命令**
 
 Run:
+
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/admin lint:arch`
 - `pnpm -C apps/admin lint`

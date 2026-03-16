@@ -10,7 +10,7 @@ export const PREVIEW_MODE_LIVE: PortalPreviewMode = 'live';
 
 export const PREVIEW_VIEWPORT_DEFAULT: PortalPreviewViewport = {
   width: 1920,
-  height: 1080,
+  height: 1080
 };
 
 export function resolvePreviewMode(value: unknown): PortalPreviewMode {
@@ -35,7 +35,7 @@ export function resolvePreviewViewport(width: unknown, height: unknown): PortalP
   const nextHeight = toPositiveInt(height) ?? PREVIEW_VIEWPORT_DEFAULT.height;
   return {
     width: nextWidth,
-    height: nextHeight,
+    height: nextHeight
   };
 }
 

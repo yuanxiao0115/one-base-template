@@ -17,68 +17,68 @@ export const STATIC_INDEX_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
   {
     name: 'base-transparent-placeholder-index',
     section: 'index',
-    component: TransparentPlaceholderIndex,
+    component: TransparentPlaceholderIndex
   },
   {
     name: 'base-iframe-container-index',
     section: 'index',
-    component: BaseIframeContainerIndex,
+    component: BaseIframeContainerIndex
   },
   {
     name: 'base-tab-container-index',
     section: 'index',
-    component: BaseTabContainerIndex,
+    component: BaseTabContainerIndex
   },
   {
     name: 'app-entrance-index',
     section: 'index',
     aliases: ['base-app-entrance-index'],
-    component: AppEntranceIndex,
+    component: AppEntranceIndex
   },
   {
     name: 'image-link-list-index',
     section: 'index',
     aliases: ['base-image-link-list-index'],
-    component: ImageLinkListIndex,
+    component: ImageLinkListIndex
   },
   {
     name: 'base-button-group-index',
     section: 'index',
-    component: BaseButtonGroupIndex,
+    component: BaseButtonGroupIndex
   },
   {
     name: 'base-search-box-index',
     section: 'index',
-    component: BaseSearchBoxIndex,
+    component: BaseSearchBoxIndex
   },
   {
     name: 'base-notice-index',
     section: 'index',
-    component: BaseNoticeIndex,
+    component: BaseNoticeIndex
   },
   {
     name: 'base-card-list-index',
     section: 'index',
-    component: BaseCardListIndex,
+    component: BaseCardListIndex
   },
   {
     name: 'base-form-index',
     section: 'index',
-    component: BaseFormIndex,
+    component: BaseFormIndex
   },
   {
     name: 'base-stat-index',
     section: 'index',
-    component: BaseStatIndex,
+    component: BaseStatIndex
   },
   {
     name: 'base-file-list-index',
     section: 'index',
-    component: BaseFileListIndex,
+    component: BaseFileListIndex
   },
   {
     name: 'base-timeline-index',
     section: 'index',
-    component: BaseTimelineIndex,
-  },
+    component: BaseTimelineIndex
+  }
 ];

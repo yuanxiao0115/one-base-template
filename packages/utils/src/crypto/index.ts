@@ -28,7 +28,7 @@ export class Crypto {
     const encrypted = CryptoJS.AES.encrypt(data, key, {
       iv,
       mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
+      padding: CryptoJS.pad.Pkcs7
     });
     return encrypted.toString();
   }
@@ -44,7 +44,7 @@ export class Crypto {
     const decrypted = CryptoJS.AES.decrypt(data, key, {
       iv,
       mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
+      padding: CryptoJS.pad.Pkcs7
     });
     return decrypted.toString(CryptoJS.enc.Utf8);
   }

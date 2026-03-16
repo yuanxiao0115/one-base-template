@@ -2,14 +2,14 @@ import { parseRuntimeConfig, type RuntimeConfig } from '@one-base-template/core'
 import {
   PlatformConfigLoadError,
   createRuntimeConfigLoader,
-  type PlatformConfigLoadErrorCode,
+  type PlatformConfigLoadErrorCode
 } from '@one-base-template/app-starter';
 
 const CONFIG_URL = `${import.meta.env.BASE_URL}platform-config.json`;
 
 const runtimeConfigLoader = createRuntimeConfigLoader<RuntimeConfig>({
   configUrl: CONFIG_URL,
-  parseConfig: parseRuntimeConfig,
+  parseConfig: parseRuntimeConfig
 });
 
 export { PlatformConfigLoadError };

@@ -51,7 +51,7 @@ export const HomeConfig = {
   /** 首页标签索引 */
   TAG_INDEX: TAG_CONSTANTS.HOME_TAG_INDEX,
   /** 菜单最小宽度 */
-  MENU_MIN_WIDTH: TAG_CONSTANTS.MENU_MIN_WIDTH,
+  MENU_MIN_WIDTH: TAG_CONSTANTS.MENU_MIN_WIDTH
 } as const;
 
 // ===== 事件相关类型重新导出 =====
@@ -95,7 +95,8 @@ function initializeTagStorage(): void {
  */
 export function useTagAPI() {
   // 获取各个模块的功能
-  const { tagOnClick, deleteDynamicTag, dynamicRouteTag, onFresh, onClickDrop } = useTagOperations();
+  const { tagOnClick, deleteDynamicTag, dynamicRouteTag, onFresh, onClickDrop } =
+    useTagOperations();
   const store = useTagStoreHook();
 
   return {
@@ -263,7 +264,7 @@ export function useTagAPI() {
      * 取消监听菜单选择事件
      * @param handler 事件处理函数（可选）
      */
-    offMenuSelect,
+    offMenuSelect
   };
 }
 

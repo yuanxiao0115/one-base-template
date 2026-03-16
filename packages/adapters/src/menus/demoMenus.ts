@@ -9,7 +9,7 @@ export function createDemoMenus(): AppMenuItem[] {
       path: '/home',
       title: '首页',
       order: 10,
-      keepAlive: true,
+      keepAlive: true
     },
     {
       path: '/demo',
@@ -20,21 +20,21 @@ export function createDemoMenus(): AppMenuItem[] {
           path: '/demo/page-a',
           title: '页面 A',
           order: 1,
-          keepAlive: true,
+          keepAlive: true
         },
         {
           path: '/demo/page-b',
           title: '页面 B',
           order: 2,
-          keepAlive: true,
-        },
-      ],
+          keepAlive: true
+        }
+      ]
     },
     {
       path: 'https://example.com',
       title: '外链示例',
       order: 30,
-      external: true,
-    },
+      external: true
+    }
   ];
 }

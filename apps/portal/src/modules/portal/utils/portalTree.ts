@@ -1,15 +1,15 @@
-import type { PortalTab } from "@one-base-template/portal-engine";
+import type { PortalTab } from '@one-base-template/portal-engine';
 
 export function findFirstPageTabId(tabs: PortalTab[] | undefined): string {
   if (!Array.isArray(tabs)) {
-    return "";
+    return '';
   }
 
   for (const tab of tabs) {
-    if (!tab || typeof tab !== "object") {
+    if (!tab || typeof tab !== 'object') {
       continue;
     }
-    if (tab.tabType === 2 && typeof tab.id === "string" && tab.id) {
+    if (tab.tabType === 2 && typeof tab.id === 'string' && tab.id) {
       return tab.id;
     }
 
@@ -19,5 +19,5 @@ export function findFirstPageTabId(tabs: PortalTab[] | undefined): string {
     }
   }
 
-  return "";
+  return '';
 }

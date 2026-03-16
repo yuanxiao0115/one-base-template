@@ -14,7 +14,7 @@ export {
   type PortalPreviewShellDetailsData,
   type PortalPreviewShellDetailsMessage,
   type PortalPreviewViewportData,
-  type PortalPreviewViewportMessage,
+  type PortalPreviewViewportMessage
 } from './messages';
 
 export {
@@ -22,5 +22,5 @@ export {
   sendPreviewRuntime,
   sendPreviewShellDetails,
   sendPreviewViewport,
-  type PortalPreviewFrameTarget,
+  type PortalPreviewFrameTarget
 } from './sender';

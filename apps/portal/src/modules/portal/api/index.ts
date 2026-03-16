@@ -1,2 +1,2 @@
-export { cmsApi } from "./cms";
-export { portalApiClient } from "./client";
+export { cmsApi } from './cms';
+export { portalApiClient } from './client';

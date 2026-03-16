@@ -13,81 +13,83 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, type CSSProperties } from 'vue';
-  import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
-  import type { LinkStyleModelType } from './LinkStyleConfig.vue';
+import { computed, type CSSProperties } from 'vue';
+import LayoutDisplay from '../common/layout/LayoutDisplay.vue';
+import type { LinkStyleModelType } from './LinkStyleConfig.vue';
 
-  // 链接项接口
-  interface LinkItem {
-    title: string;
-    url: string;
-    id?: string;
+// 链接项接口
+interface LinkItem {
+  title: string;
+  url: string;
+  id?: string;
+}
+
+const props = defineProps({
+  schema: {
+    type: Object,
+    required: true
   }
+});
 
-  const props = defineProps({
-    schema: {
-      type: Object,
-      required: true,
-    },
-  });
+// 从schema中获取内容数据
+const links = computed<LinkItem[]>(() => {
+  const schemaLinks = props.schema?.content?.links?.links;
+  return schemaLinks || [];
+});
 
-  // 从schema中获取内容数据
-  const links = computed<LinkItem[]>(() => {
-    const schemaLinks = props.schema?.content?.links?.links;
-    return schemaLinks || [];
-  });
+// 从schema中获取样式数据
+const styles = computed<LinkStyleModelType & Record<string, any>>(
+  () => props.schema?.style?.links || {}
+);
 
-  // 从schema中获取样式数据
-  const styles = computed<LinkStyleModelType & Record<string, any>>(() => props.schema?.style?.links || {});
+const linkStyleObj = computed<CSSProperties>(() => ({
+  color: styles.value.linkColor,
+  fontSize: `${styles.value.linkFontSize}px`,
+  fontWeight: styles.value.linkFontWeight,
+  textDecoration: 'none',
+  paddingRight: '15px',
+  marginRight: '10px',
+  borderRight: '1px solid #ddd',
+  '--link-hover-color': styles.value.hoverColor || '#d33a31'
+}));
 
-  const linkStyleObj = computed<CSSProperties>(() => ({
-    color: styles.value.linkColor,
-    fontSize: `${styles.value.linkFontSize}px`,
-    fontWeight: styles.value.linkFontWeight,
-    textDecoration: 'none',
-    paddingRight: '15px',
-    marginRight: '10px',
-    borderRight: '1px solid #ddd',
-    '--link-hover-color': styles.value.hoverColor || '#d33a31',
-  }));
-
-  // 组件名称定义，保持与原来一致
-  defineOptions({
-    name: 'cms-related-links-index',
-  });
+// 组件名称定义，保持与原来一致
+defineOptions({
+  name: 'cms-related-links-index'
+});
 </script>
 
 <style scoped>
-  .links-container {
-    display: flex;
-    width: 100%;
-    min-height: 40px;
-    flex-wrap: wrap;
-  }
+.links-container {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  flex-wrap: wrap;
+}
 
-  .link-item {
-    margin-right: 10px;
-    margin-bottom: 10px;
-    padding-right: 10px;
-  }
+.link-item {
+  margin-right: 10px;
+  margin-bottom: 10px;
+  padding-right: 10px;
+}
 
-  .link-item:first-child {
-    padding-left: 0;
-  }
+.link-item:first-child {
+  padding-left: 0;
+}
 
-  .link-item:last-child a {
-    border-right: none;
-  }
+.link-item:last-child a {
+  border-right: none;
+}
 
-  .link-item a:hover {
-    color: var(--link-hover-color);
-  }
+.link-item a:hover {
+  color: var(--link-hover-color);
+}
 
-  .empty-links-placeholder {
-    padding: 20px 0;
-    width: 100%;
-    font-size: 14px;
-    text-align: center;
-    color: #909399;
-  }
+.empty-links-placeholder {
+  padding: 20px 0;
+  width: 100%;
+  font-size: 14px;
+  text-align: center;
+  color: #909399;
+}
 </style>

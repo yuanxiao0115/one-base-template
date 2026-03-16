@@ -13,6 +13,7 @@
 ### Task 1: 新增 UI 上传组件 `ObImportUpload`
 
 **Files:**
+
 - Create: `packages/ui/src/components/upload/ImportUpload.vue`
 - Modify: `packages/ui/src/index.ts`
 - Modify: `packages/ui/src/plugin.ts`
@@ -30,6 +31,7 @@
 ### Task 2: 搭建 User 模块骨架与接口契约
 
 **Files:**
+
 - Create: `apps/admin/src/modules/UserManagement/user/api.ts`
 - Create: `apps/admin/src/modules/UserManagement/user/form.ts`
 - Create: `apps/admin/src/modules/UserManagement/user/const.ts`
@@ -50,6 +52,7 @@
 ### Task 3: 实现用户管理页面与子组件
 
 **Files:**
+
 - Create: `apps/admin/src/modules/UserManagement/user/page.vue`
 - Create: `apps/admin/src/modules/UserManagement/user/components/UserSearchForm.vue`
 - Create: `apps/admin/src/modules/UserManagement/user/components/UserEditForm.vue`
@@ -73,6 +76,7 @@
 ### Task 4: 文档与验证
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/crud-module-best-practice.md`
 - Modify: `.codex/operations-log.md`
 - Modify: `.codex/testing.md`
@@ -81,6 +85,7 @@
 **Step 1:** 补充“用户管理完整迁移 + 上传组件沉淀”章节（实现要点与文件路径）。
 
 **Step 2:** 执行验证命令并记录结果：
+
 - `pnpm -C packages/ui typecheck`
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/admin lint`
@@ -88,4 +93,3 @@
 - `pnpm -C apps/docs build`
 
 **Step 3:** 将关键操作、测试、验证结论同步写入 `.codex` 三个日志文件。
-

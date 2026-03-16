@@ -1,6 +1,13 @@
-export type { ApiResponse } from "@/shared/api/types";
+export type { ApiResponse } from '@/shared/api/types';
 
-type LooseField = string | number | boolean | null | undefined | Array<unknown> | Record<string, unknown>;
+type LooseField =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Array<unknown>
+  | Record<string, unknown>;
 
 export interface DictItem {
   itemName: string;
@@ -52,7 +59,7 @@ export interface OrgRecord {
   [key: string]: LooseField;
 }
 
-export type OrgContactNodeType = "org" | "user";
+export type OrgContactNodeType = 'org' | 'user';
 
 export interface OrgContactNodeBase {
   id: string;
@@ -64,14 +71,14 @@ export interface OrgContactNodeBase {
 }
 
 export type OrgContactOrgNode = OrgContactNodeBase & {
-  nodeType: "org";
+  nodeType: 'org';
   orgName: string;
   orgType: number;
   children?: OrgContactNode[];
 };
 
 export type OrgContactUserNode = OrgContactNodeBase & {
-  nodeType: "user";
+  nodeType: 'user';
   userId: string;
   nickName: string;
   phone: string;

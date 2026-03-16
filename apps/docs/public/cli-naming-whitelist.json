@@ -28,15 +28,7 @@
     "warn"
   ],
   "storeActionVerbs": ["set", "update", "reset", "clear", "load"],
-  "apiClientVerbs": [
-    "get",
-    "list",
-    "create",
-    "add",
-    "update",
-    "remove",
-    "delete"
-  ],
+  "apiClientVerbs": ["get", "list", "create", "add", "update", "remove", "delete"],
   "eventHandlerPrefix": "on",
   "composablePrefix": "use",
   "predicateVerbs": ["is", "has", "can", "should"],

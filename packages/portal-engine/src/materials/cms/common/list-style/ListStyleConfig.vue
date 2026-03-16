@@ -2,14 +2,14 @@
   <el-collapse-item title="列表样式" name="list">
     <el-form-item label="标题颜色">
       <div class="form-item-with-tip">
-        <PortalColorField v-model="modelValue.titleColor" show-alpha />
+        <ObColorField v-model="modelValue.titleColor" show-alpha />
         <div class="form-tip">列表标题文字颜色</div>
       </div>
     </el-form-item>
 
     <el-form-item label="标题悬停颜色">
       <div class="form-item-with-tip">
-        <PortalColorField v-model="modelValue.titleHoverColor" show-alpha />
+        <ObColorField v-model="modelValue.titleHoverColor" show-alpha />
         <div class="form-tip">鼠标悬停时的标题颜色</div>
       </div>
     </el-form-item>
@@ -17,7 +17,12 @@
     <el-form-item label="标题字体大小">
       <div class="form-item-with-tip">
         <div class="input-with-unit">
-          <el-input-number v-model="modelValue.titleFontSize" :min="12" :max="28" controls-position="right">
+          <el-input-number
+            v-model="modelValue.titleFontSize"
+            :min="12"
+            :max="28"
+            controls-position="right"
+          >
             <template #suffix> <span class="suffix-unit">px</span> </template>
           </el-input-number>
         </div>
@@ -41,7 +46,7 @@
 
     <el-form-item label="日期颜色">
       <div class="form-item-with-tip">
-        <PortalColorField v-model="modelValue.dateColor" show-alpha />
+        <ObColorField v-model="modelValue.dateColor" show-alpha />
         <div class="form-tip">发布时间文字颜色</div>
       </div>
     </el-form-item>
@@ -49,7 +54,12 @@
     <el-form-item label="日期字体大小">
       <div class="form-item-with-tip">
         <div class="input-with-unit">
-          <el-input-number v-model="modelValue.dateFontSize" :min="10" :max="20" controls-position="right">
+          <el-input-number
+            v-model="modelValue.dateFontSize"
+            :min="10"
+            :max="20"
+            controls-position="right"
+          >
             <template #suffix> <span class="suffix-unit">px</span> </template>
           </el-input-number>
         </div>
@@ -61,7 +71,7 @@
 
     <el-form-item label="圆点颜色">
       <div class="form-item-with-tip">
-        <PortalColorField v-model="modelValue.dotColor" show-alpha />
+        <ObColorField v-model="modelValue.dotColor" show-alpha />
         <div class="form-tip">列表圆点颜色</div>
       </div>
     </el-form-item>
@@ -69,7 +79,12 @@
     <el-form-item label="圆点大小">
       <div class="form-item-with-tip">
         <div class="input-with-unit">
-          <el-input-number v-model="modelValue.dotSize" :min="2" :max="12" controls-position="right">
+          <el-input-number
+            v-model="modelValue.dotSize"
+            :min="2"
+            :max="12"
+            controls-position="right"
+          >
             <template #suffix> <span class="suffix-unit">px</span> </template>
           </el-input-number>
         </div>
@@ -92,7 +107,7 @@
 
     <el-form-item label="分割线颜色">
       <div class="form-item-with-tip">
-        <PortalColorField v-model="modelValue.rowDividerColor" show-alpha />
+        <ObColorField v-model="modelValue.rowDividerColor" show-alpha />
         <div class="form-tip">列表项分割线颜色</div>
       </div>
     </el-form-item>
@@ -108,7 +123,12 @@
 
     <el-form-item label="分割线粗细">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.rowDividerWidth" :min="0" :max="4" controls-position="right">
+        <el-input-number
+          v-model="modelValue.rowDividerWidth"
+          :min="0"
+          :max="4"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">px</span> </template>
         </el-input-number>
       </div>
@@ -116,7 +136,12 @@
 
     <el-form-item label="行间距">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.rowPaddingY" :min="0" :max="20" controls-position="right">
+        <el-input-number
+          v-model="modelValue.rowPaddingY"
+          :min="0"
+          :max="20"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">px</span> </template>
         </el-input-number>
       </div>
@@ -127,7 +152,12 @@
     <el-form-item label="图片宽度">
       <div class="form-item-with-tip">
         <div class="input-with-unit">
-          <el-input-number v-model="modelValue.imageWidth" :min="60" :max="300" controls-position="right">
+          <el-input-number
+            v-model="modelValue.imageWidth"
+            :min="60"
+            :max="300"
+            controls-position="right"
+          >
             <template #suffix> <span class="suffix-unit">px</span> </template>
           </el-input-number>
         </div>
@@ -138,7 +168,12 @@
     <el-form-item label="图片高度">
       <div class="form-item-with-tip">
         <div class="input-with-unit">
-          <el-input-number v-model="modelValue.imageHeight" :min="40" :max="200" controls-position="right">
+          <el-input-number
+            v-model="modelValue.imageHeight"
+            :min="40"
+            :max="200"
+            controls-position="right"
+          >
             <template #suffix> <span class="suffix-unit">px</span> </template>
           </el-input-number>
         </div>
@@ -149,7 +184,12 @@
     <el-form-item label="图片圆角">
       <div class="form-item-with-tip">
         <div class="input-with-unit">
-          <el-input-number v-model="modelValue.imageBorderRadius" :min="0" :max="20" controls-position="right">
+          <el-input-number
+            v-model="modelValue.imageBorderRadius"
+            :min="0"
+            :max="20"
+            controls-position="right"
+          >
             <template #suffix> <span class="suffix-unit">px</span> </template>
           </el-input-number>
         </div>
@@ -160,68 +200,68 @@
 </template>
 
 <script setup lang="ts">
-  import PortalColorField from '../../../common/fields/PortalColorField.vue';
-  import type { ListStyleModelType } from './types';
+import { ObColorField } from '@one-base-template/ui';
+import type { ListStyleModelType } from './types';
 
-  const modelValue = defineModel<ListStyleModelType>({
-    default: () => ({
-      titleColor: '#303133',
-      titleHoverColor: '#0f79e9',
-      titleFontSize: 14,
-      titleFontWeight: 'normal',
-      dateColor: '#909399',
-      dateFontSize: 12,
-      dotColor: '#0f79e9',
-      dotSize: 6,
-      dotGap: 8,
-      rowDividerColor: 'rgba(0, 0, 0, 0.06)',
-      rowDividerStyle: 'solid',
-      rowDividerWidth: 1,
-      rowPaddingY: 8,
-      imageWidth: 80,
-      imageHeight: 55,
-      imageBorderRadius: 4,
-    }),
-  });
+const modelValue = defineModel<ListStyleModelType>({
+  default: () => ({
+    titleColor: '#303133',
+    titleHoverColor: '#0f79e9',
+    titleFontSize: 14,
+    titleFontWeight: 'normal',
+    dateColor: '#909399',
+    dateFontSize: 12,
+    dotColor: '#0f79e9',
+    dotSize: 6,
+    dotGap: 8,
+    rowDividerColor: 'rgba(0, 0, 0, 0.06)',
+    rowDividerStyle: 'solid',
+    rowDividerWidth: 1,
+    rowPaddingY: 8,
+    imageWidth: 80,
+    imageHeight: 55,
+    imageBorderRadius: 4
+  })
+});
 
-  defineOptions({
-    name: 'PbListStyleConfig',
-  });
+defineOptions({
+  name: 'PbListStyleConfig'
+});
 </script>
 
 <style scoped>
-  :deep(.el-divider__text) {
-    font-weight: 600;
-    color: var(--config-text, #0f172a);
-    letter-spacing: 0.2px;
-  }
+:deep(.el-divider__text) {
+  font-weight: 600;
+  color: var(--config-text, #0f172a);
+  letter-spacing: 0.2px;
+}
 
-  :deep(.el-form-item__label) {
-    font-weight: 500;
-    color: var(--config-muted, #64748b);
-  }
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: var(--config-muted, #64748b);
+}
 
-  .form-item-with-tip {
-    display: flex;
-    flex-direction: column;
-  }
+.form-item-with-tip {
+  display: flex;
+  flex-direction: column;
+}
 
-  .form-tip {
-    margin-top: 5px;
-    font-size: 12px;
-    color: var(--config-muted, #909399);
-    line-height: 1.4;
-  }
+.form-tip {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--config-muted, #909399);
+  line-height: 1.4;
+}
 
-  .input-with-unit {
-    display: flex;
-    align-items: center;
-    margin-right: 10px;
-  }
+.input-with-unit {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
 
-  .suffix-unit {
-    margin-right: 8px;
-    font-size: 14px;
-    color: var(--config-muted, #909399);
-  }
+.suffix-unit {
+  margin-right: 8px;
+  font-size: 14px;
+  color: var(--config-muted, #909399);
+}
 </style>

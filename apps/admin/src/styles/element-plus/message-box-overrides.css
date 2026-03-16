@@ -43,19 +43,13 @@
   height: 24px;
 }
 
-.el-message-box.ob-secondary-confirm
-  .el-message-box__headerbtn
-  .el-message-box__close {
+.el-message-box.ob-secondary-confirm .el-message-box__headerbtn .el-message-box__close {
   color: #666;
   font-size: 20px;
 }
 
-.el-message-box.ob-secondary-confirm
-  .el-message-box__headerbtn:focus
-  .el-message-box__close,
-.el-message-box.ob-secondary-confirm
-  .el-message-box__headerbtn:hover
-  .el-message-box__close {
+.el-message-box.ob-secondary-confirm .el-message-box__headerbtn:focus .el-message-box__close,
+.el-message-box.ob-secondary-confirm .el-message-box__headerbtn:hover .el-message-box__close {
   color: #333;
 }
 

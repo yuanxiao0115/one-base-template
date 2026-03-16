@@ -9,15 +9,15 @@
 ## 🎯 使用方式
 
 ```typescript
-import { useTagAPI } from '@one-base-template/tag'
+import { useTagAPI } from '@one-base-template/tag';
 
-const tagAPI = useTagAPI()
+const tagAPI = useTagAPI();
 
 // 使用各种功能
-tagAPI.tagOnClick(item) // 点击标签
-tagAPI.deleteDynamicTag(tag) // 删除标签
-tagAPI.dynamicRouteTag('/path') // 动态路由跳转
-tagAPI.refreshTag() // 刷新当前页
+tagAPI.tagOnClick(item); // 点击标签
+tagAPI.deleteDynamicTag(tag); // 删除标签
+tagAPI.dynamicRouteTag('/path'); // 动态路由跳转
+tagAPI.refreshTag(); // 刷新当前页
 ```
 
 ## 📚 完整 API 列表
@@ -244,17 +244,17 @@ tagAPI.refreshTag() // 刷新当前页
 
 ```typescript
 // 旧版本
-tagAPI.deleteMenu(tag, 'left')
+tagAPI.deleteMenu(tag, 'left');
 
 // 新版本
-tagAPI.deleteDynamicTag(tag, 'left')
+tagAPI.deleteDynamicTag(tag, 'left');
 
 // 配置变更
 // 旧版本
-setConfig({ homeName: 'Home', homeTitle: '首页' })
+setConfig({ homeName: 'Home', homeTitle: '首页' });
 
 // 新版本
-setConfig({ homeTitle: '首页' })
+setConfig({ homeTitle: '首页' });
 ```
 
 ## 💡 使用建议

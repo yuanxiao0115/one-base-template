@@ -24,26 +24,26 @@
 ### 2.1 典型用法
 
 ```ts
-import { createObHttp } from '@one-base-template/core'
+import { createObHttp } from '@one-base-template/core';
 
 const http = createObHttp({
   axios: { baseURL: '/api', withCredentials: true },
   auth: {
     mode: 'cookie', // cookie | token | mixed
-    getToken: () => localStorage.getItem('ob_token') || undefined,
+    getToken: () => localStorage.getItem('ob_token') || undefined
   },
   biz: {
     // 默认约定：{ code, data, message }
     successCodes: [0, 200],
-    logoutCodes: [401, 1000, 1003, 1020],
+    logoutCodes: [401, 1000, 1003, 1020]
   },
   hooks: {
     onBizError: ({ message }) => console.error(message),
-    onUnauthorized: () => console.warn('unauthorized'),
-  },
-})
+    onUnauthorized: () => console.warn('unauthorized')
+  }
+});
 
-await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } })
+await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } });
 ```
 
 ### 2.2 请求配置（ObHttpRequestConfig）
@@ -81,9 +81,9 @@ await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } })
 
 当 `$isDownload=true` 且 `download.autoDownload=true`（默认 true）时：
 
-1) 自动切换 `responseType=blob`
-2) 先对 blob 做“有限 JSON 探测”（避免后端返回 JSON 错误被当成文件下载）
-3) 若确认为文件流，则触发自动下载（可用 `hooks.onAutoDownload` 自定义）
+1. 自动切换 `responseType=blob`
+2. 先对 blob 做“有限 JSON 探测”（避免后端返回 JSON 错误被当成文件下载）
+3. 若确认为文件流，则触发自动下载（可用 `hooks.onAutoDownload` 自定义）
 
 ### 2.5 如何扩展自定义 `$xxx` 字段
 
@@ -92,8 +92,8 @@ await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } })
 ```ts
 declare module '@one-base-template/core' {
   interface ObHttpRequestConfig {
-    $isMatter?: boolean
-    $isReport?: boolean
+    $isMatter?: boolean;
+    $isReport?: boolean;
   }
 }
 ```
@@ -120,9 +120,10 @@ declare module '@one-base-template/core' {
 - `getInitialPath({ defaultSystemCode, systemHomeMap, storageNamespace, fallbackHome })`
 
 决策顺序：
-1) 命中 `systemHomeMap[当前系统]`
-2) 未命中时尝试菜单缓存的首个可访问叶子路径
-3) 全部未命中回退 `fallbackHome`
+
+1. 命中 `systemHomeMap[当前系统]`
+2. 未命中时尝试菜单缓存的首个可访问叶子路径
+3. 全部未命中回退 `fallbackHome`
 
 ## 5. 通用鉴权收口函数
 

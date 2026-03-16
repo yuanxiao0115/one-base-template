@@ -120,18 +120,18 @@ const crudPage = useCrudPage<FormModel, RowModel>({
     save: {
       buildPayload: ({ form }) => toPayload(form),
       request: async ({ mode, payload }) => {
-        const res = mode === 'create' ? await api.add(payload) : await api.update(payload)
-        if (res.code !== 200) throw new Error(res.message || '保存失败')
-        return res
+        const res = mode === 'create' ? await api.add(payload) : await api.update(payload);
+        if (res.code !== 200) throw new Error(res.message || '保存失败');
+        return res;
       },
       onSuccess: async ({ mode }) => {
-        message.success(mode === 'create' ? '新增成功' : '更新成功')
+        message.success(mode === 'create' ? '新增成功' : '更新成功');
       }
     }
   }
-})
+});
 
-const { table, editor, actions } = crudPage
+const { table, editor, actions } = crudPage;
 ```
 
 关键点：

@@ -234,7 +234,10 @@ export function isError(value: any): value is Error {
  * ```
  */
 export function isPromise(value: any): value is Promise<any> {
-  return value instanceof Promise || (value !== null && typeof value === 'object' && typeof value.then === 'function');
+  return (
+    value instanceof Promise ||
+    (value !== null && typeof value === 'object' && typeof value.then === 'function')
+  );
 }
 
 /**

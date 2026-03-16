@@ -3,7 +3,7 @@ import {
   setPortalCmsApi,
   setPortalCmsNavigation,
   setPortalPageSettingsApi,
-  type PortalCmsNavigation,
+  type PortalCmsNavigation
 } from '@one-base-template/portal-engine';
 
 import { cmsApi, portalApi } from '../api';
@@ -15,7 +15,9 @@ export interface PortalEngineAdminRegisterOptions {
 
 let initialized = false;
 
-export function setupPortalEngineForAdmin(options: PortalEngineAdminRegisterOptions = {}): PortalEngineContext {
+export function setupPortalEngineForAdmin(
+  options: PortalEngineAdminRegisterOptions = {}
+): PortalEngineContext {
   const context = getPortalEngineAdminContext();
 
   if (!initialized) {
@@ -23,7 +25,7 @@ export function setupPortalEngineForAdmin(options: PortalEngineAdminRegisterOpti
       {
         getCategoryTree: cmsApi.getCategoryTree,
         getUserArticlesByCategory: cmsApi.getUserArticlesByCategory,
-        getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory,
+        getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory
       },
       context
     );
@@ -31,7 +33,7 @@ export function setupPortalEngineForAdmin(options: PortalEngineAdminRegisterOpti
     setPortalPageSettingsApi(
       {
         getTabDetail: ({ id }) => portalApi.tab.detail({ id }),
-        updateTab: (payload) => portalApi.tab.update(payload),
+        updateTab: (payload) => portalApi.tab.update(payload)
       },
       context
     );

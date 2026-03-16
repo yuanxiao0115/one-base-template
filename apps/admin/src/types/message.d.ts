@@ -1,6 +1,6 @@
-import type { closeAllMessage, ObMessageFn } from "@one-base-template/ui";
+import type { closeAllMessage, ObMessageFn } from '@one-base-template/ui';
 
-declare module "vue" {
+declare module 'vue' {
   interface ComponentCustomProperties {
     /**
      * 全局消息提示工具（兼容老项目 message.ts 调用风格）。

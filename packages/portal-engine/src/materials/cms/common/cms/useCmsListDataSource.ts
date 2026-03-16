@@ -19,7 +19,7 @@ interface UseCmsListOptions {
 }
 
 const defaultOptions: UseCmsListOptions = {
-  autoLoad: true,
+  autoLoad: true
 };
 
 export const useCmsListDataSource = <T extends CmsListItem>(
@@ -28,7 +28,7 @@ export const useCmsListDataSource = <T extends CmsListItem>(
 ) => {
   const resolvedOptions = {
     ...defaultOptions,
-    ...options,
+    ...options
   };
   const columns = ref<any[]>([]);
   const articles = ref<CmsListItem[]>([]);
@@ -106,6 +106,6 @@ export const useCmsListDataSource = <T extends CmsListItem>(
     handleCategoryChange,
     handleRefresh,
     loadColumns,
-    loadArticlesByCategory,
+    loadArticlesByCategory
   };
 };

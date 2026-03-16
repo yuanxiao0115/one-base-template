@@ -1,1 +1,1 @@
-export { default as userManagementModule } from "./module";
+export { default as userManagementModule } from './module';

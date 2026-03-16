@@ -4,13 +4,18 @@ import type { AppMenuItem, MenuMode } from '../adapter/types';
 import { getCoreOptions } from '../context';
 import { useSystemStore } from './system';
 import { isHttpUrl } from '../utils/url';
-import { byteLength, readFromStorages, removeFromStorages, safeSetToStorage } from '../utils/storage';
+import {
+  byteLength,
+  readFromStorages,
+  removeFromStorages,
+  safeSetToStorage
+} from '../utils/storage';
 import {
   getWithLegacy,
   clearByPrefixes,
   removeWithLegacy,
   getNamespacedKey,
-  getNamespacedPrefix,
+  getNamespacedPrefix
 } from '../storage/namespace';
 
 const MENU_TREE_LEGACY_STORAGE_BASE_KEY = 'ob_menu_tree';
@@ -76,10 +81,14 @@ function writeStoredMenuTree(systemCode: string, tree: AppMenuItem[]) {
     onPrimaryQuotaExceeded: () => {
       // 清理所有菜单缓存（可再拉取），避免影响关键状态持久化（system/theme/layout）
       clearByPrefixes(
-        [MENU_TREE_STORAGE_BASE_PREFIX, MENU_TREE_LEGACY_STORAGE_BASE_KEY, MENU_PATH_INDEX_STORAGE_BASE_KEY],
+        [
+          MENU_TREE_STORAGE_BASE_PREFIX,
+          MENU_TREE_LEGACY_STORAGE_BASE_KEY,
+          MENU_PATH_INDEX_STORAGE_BASE_KEY
+        ],
         'local'
       );
-    },
+    }
   });
 
   if (key !== legacyKey) {
@@ -145,10 +154,14 @@ function writeStoredPathIndex(index: Record<string, string>) {
     fallback: 'session',
     onPrimaryQuotaExceeded: () => {
       clearByPrefixes(
-        [MENU_TREE_STORAGE_BASE_PREFIX, MENU_TREE_LEGACY_STORAGE_BASE_KEY, MENU_PATH_INDEX_STORAGE_BASE_KEY],
+        [
+          MENU_TREE_STORAGE_BASE_PREFIX,
+          MENU_TREE_LEGACY_STORAGE_BASE_KEY,
+          MENU_PATH_INDEX_STORAGE_BASE_KEY
+        ],
         'local'
       );
-    },
+    }
   });
 
   if (key !== MENU_PATH_INDEX_STORAGE_BASE_KEY) {
@@ -375,8 +388,13 @@ export const useMenuStore = defineStore('ob-menu', () => {
       const normalizedSystems = (Array.isArray(systems) ? systems : [])
         .map((s) => ({
           code: typeof s.code === 'string' ? s.code : '',
-          name: typeof s.name === 'string' && s.name ? s.name : typeof s.code === 'string' ? s.code : '',
-          menus: Array.isArray(s.menus) ? s.menus : [],
+          name:
+            typeof s.name === 'string' && s.name
+              ? s.name
+              : typeof s.code === 'string'
+                ? s.code
+                : '',
+          menus: Array.isArray(s.menus) ? s.menus : []
         }))
         .filter((s) => s.code && s.menus.length > 0);
 
@@ -498,6 +516,6 @@ export const useMenuStore = defineStore('ob-menu', () => {
     loadMenus,
     reset,
     isAllowed,
-    resolveSystemByMenuKey,
+    resolveSystemByMenuKey
   };
 });

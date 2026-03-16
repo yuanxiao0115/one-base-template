@@ -9,12 +9,12 @@ export {
   createDefaultUnifiedContainerContentConfig,
   createDefaultUnifiedContainerStyleConfig,
   mergeUnifiedContainerContentConfig,
-  mergeUnifiedContainerStyleConfig,
+  mergeUnifiedContainerStyleConfig
 } from './unified-container.defaults';
 
 export type {
   UnifiedContainerBorderStyle,
   UnifiedContainerContentConfig as UnifiedContainerContentConfigModel,
   UnifiedContainerSubtitleLayout,
-  UnifiedContainerStyleConfig as UnifiedContainerStyleConfigModel,
+  UnifiedContainerStyleConfig as UnifiedContainerStyleConfigModel
 } from './unified-container.types';

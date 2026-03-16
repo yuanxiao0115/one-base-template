@@ -10,11 +10,7 @@ export class PlatformConfigLoadError extends Error {
 
   readonly cause: unknown;
 
-  constructor(params: {
-    code: PlatformConfigLoadErrorCode;
-    message: string;
-    cause?: unknown;
-  }) {
+  constructor(params: { code: PlatformConfigLoadErrorCode; message: string; cause?: unknown }) {
     super(params.message);
     this.name = 'PlatformConfigLoadError';
     this.code = params.code;
@@ -78,14 +74,14 @@ function normalizeLoadError(error: unknown): PlatformConfigLoadError {
     return createLoadError({
       code: 'VALIDATION_FAILED',
       message,
-      cause: error,
+      cause: error
     });
   }
 
   return createLoadError({
     code: 'PARSE_FAILED',
     message: `[platform-config] 解析配置失败：${message}`,
-    cause: error,
+    cause: error
   });
 }
 
@@ -129,7 +125,7 @@ function readSnapshot<TConfig>(params: {
     throw createLoadError({
       code: 'FALLBACK_PARSE_FAILED',
       message: `[platform-config] 本地只读兜底快照不可用：${toErrorMessage(error)}`,
-      cause: error,
+      cause: error
     });
   }
 }
@@ -147,7 +143,7 @@ function writeSnapshot<TConfig>(params: {
   const snapshot: RuntimeConfigSnapshot<TConfig> = {
     version: 1,
     savedAt: new Date().toISOString(),
-    config,
+    config
   };
 
   try {
@@ -169,7 +165,7 @@ export function createRuntimeConfigLoader<TConfig>(
     localSnapshotKey = `${configUrl}:snapshot:v1`,
     fetcher = fetch,
     storage = getDefaultStorage(),
-    onWarn,
+    onWarn
   } = options;
 
   let cachedConfig: TConfig | null = null;
@@ -187,13 +183,13 @@ export function createRuntimeConfigLoader<TConfig>(
     try {
       const response = await fetcher(configUrl, {
         cache: 'no-store',
-        signal: controller?.signal,
+        signal: controller?.signal
       });
 
       if (!response.ok) {
         throw createLoadError({
           code: 'REQUEST_FAILED',
-          message: `[platform-config] 加载失败：${response.status} ${response.statusText}`,
+          message: `[platform-config] 加载失败：${response.status} ${response.statusText}`
         });
       }
 
@@ -203,7 +199,7 @@ export function createRuntimeConfigLoader<TConfig>(
         throw createLoadError({
           code: 'PARSE_FAILED',
           message: `[platform-config] JSON 解析失败：${toErrorMessage(error)}`,
-          cause: error,
+          cause: error
         });
       }
     } catch (error) {
@@ -211,7 +207,7 @@ export function createRuntimeConfigLoader<TConfig>(
         throw createLoadError({
           code: 'REQUEST_TIMEOUT',
           message: `[platform-config] 请求超时（>${requestTimeoutMs}ms）`,
-          cause: error,
+          cause: error
         });
       }
       throw error;
@@ -243,7 +239,7 @@ export function createRuntimeConfigLoader<TConfig>(
     throw createLoadError({
       code: 'REQUEST_FAILED',
       message: `[platform-config] 加载失败：${toErrorMessage(lastError)}`,
-      cause: lastError,
+      cause: lastError
     });
   }
 
@@ -255,7 +251,7 @@ export function createRuntimeConfigLoader<TConfig>(
     const snapshot = readSnapshot({
       storage,
       localSnapshotKey,
-      parseConfig,
+      parseConfig
     });
     if (!snapshot) {
       return null;
@@ -281,7 +277,7 @@ export function createRuntimeConfigLoader<TConfig>(
           writeSnapshot({
             storage,
             localSnapshotKey,
-            config: cachedConfig,
+            config: cachedConfig
           });
         }
         return cachedConfig;
@@ -318,6 +314,6 @@ export function createRuntimeConfigLoader<TConfig>(
     },
     isLoadError(error: unknown): error is PlatformConfigLoadError {
       return error instanceof PlatformConfigLoadError;
-    },
+    }
   };
 }

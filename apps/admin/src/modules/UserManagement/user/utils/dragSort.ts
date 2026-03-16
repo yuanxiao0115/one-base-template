@@ -12,12 +12,18 @@ export interface BuildAdjustOrgSortParams {
 
 export function moveArrayItem<T>(list: T[], oldIndex: number, newIndex: number): T[] {
   const array = Array.isArray(list) ? list.slice() : [];
-  if (oldIndex === newIndex || oldIndex < 0 || newIndex < 0 || oldIndex >= array.length || newIndex >= array.length) {
+  if (
+    oldIndex === newIndex ||
+    oldIndex < 0 ||
+    newIndex < 0 ||
+    oldIndex >= array.length ||
+    newIndex >= array.length
+  ) {
     return array;
   }
 
   const [moved] = array.splice(oldIndex, 1);
-  if (typeof moved === "undefined") {
+  if (typeof moved === 'undefined') {
     return array;
   }
   array.splice(newIndex, 0, moved);
@@ -31,7 +37,7 @@ export function calcGlobalIndex(pagination: PaginationLike, newIndex: number): n
 }
 
 export function buildAdjustOrgSortPayload(params: BuildAdjustOrgSortParams) {
-  if (!params.orgId && params.orgId !== "0") {
+  if (!params.orgId && params.orgId !== '0') {
     return null;
   }
   if (params.rowId == null) {
@@ -41,16 +47,16 @@ export function buildAdjustOrgSortPayload(params: BuildAdjustOrgSortParams) {
   return {
     orgId: params.orgId,
     id: String(params.rowId),
-    index: calcGlobalIndex(params.pagination, params.newIndex),
+    index: calcGlobalIndex(params.pagination, params.newIndex)
   };
 }
 
-export const dragHandleClass = "user-drag-handle";
+export const dragHandleClass = 'user-drag-handle';
 
 export function buildSortableOptions(onEnd: (evt: unknown) => void) {
   return {
     animation: 160,
     handle: `.${dragHandleClass}`,
-    onEnd,
+    onEnd
   };
 }

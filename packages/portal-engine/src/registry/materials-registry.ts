@@ -24,10 +24,7 @@ import transparentPlaceholderConfig from '../materials/base/transparent-placehol
 
 import baseConfig from '../materials/cms/common/base-config.json';
 import type { PortalEngineContext } from '../runtime/context';
-import {
-  getDefaultPortalEngineContext,
-  readPortalEngineContextValue,
-} from '../runtime/context';
+import { getDefaultPortalEngineContext, readPortalEngineContextValue } from '../runtime/context';
 import { createComponentGroup } from './utils/component-factory';
 import type {
   PortalMaterialCategory,
@@ -36,7 +33,7 @@ import type {
   PortalMaterialRegistry,
   PortalMaterialRegistryController,
   RegisterPortalMaterialOptions,
-  UnregisterPortalMaterialOptions,
+  UnregisterPortalMaterialOptions
 } from './materials-registry.types';
 
 const PORTAL_MATERIAL_REGISTRY_CONTEXT_KEY = Symbol('portal-engine.material-registry');
@@ -65,7 +62,7 @@ const MATERIAL_ICON_MAP = {
   imageTextList: 'ri:article-line',
   imageTextColumn: 'ri:image-line',
   documentCardList: 'ri:file-line',
-  carouselTextList: 'ri:slideshow-line',
+  carouselTextList: 'ri:slideshow-line'
 } as const;
 
 /**
@@ -83,7 +80,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 18,
       icon: MATERIAL_ICON_MAP.htmlBlock,
-      config: placeholderBlockConfig,
+      config: placeholderBlockConfig
     },
     {
       id: 'basic-transparent-placeholder',
@@ -92,7 +89,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 6,
       icon: MATERIAL_ICON_MAP.transparentPlaceholder,
-      config: transparentPlaceholderConfig,
+      config: transparentPlaceholderConfig
     },
     {
       id: 'basic-base-image',
@@ -101,7 +98,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 20,
       icon: MATERIAL_ICON_MAP.baseImage,
-      config: baseImageConfig,
+      config: baseImageConfig
     },
     {
       id: 'basic-base-carousel',
@@ -110,7 +107,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 24,
       icon: MATERIAL_ICON_MAP.baseCarousel,
-      config: baseCarouselConfig,
+      config: baseCarouselConfig
     },
     {
       id: 'basic-base-text',
@@ -119,7 +116,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 16,
       icon: MATERIAL_ICON_MAP.baseText,
-      config: baseTextConfig,
+      config: baseTextConfig
     },
     {
       id: 'basic-base-table',
@@ -128,7 +125,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 26,
       icon: MATERIAL_ICON_MAP.baseTable,
-      config: baseTableConfig,
+      config: baseTableConfig
     },
     {
       id: 'basic-base-iframe-container',
@@ -137,7 +134,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 26,
       icon: MATERIAL_ICON_MAP.baseIframeContainer,
-      config: baseIframeContainerConfig,
+      config: baseIframeContainerConfig
     },
     {
       id: 'basic-base-tab-container',
@@ -146,7 +143,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 28,
       icon: MATERIAL_ICON_MAP.baseTabContainer,
-      config: baseTabContainerConfig,
+      config: baseTabContainerConfig
     },
     {
       id: 'basic-app-entrance',
@@ -155,7 +152,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 20,
       icon: MATERIAL_ICON_MAP.appEntrance,
-      config: appEntranceConfig,
+      config: appEntranceConfig
     },
     {
       id: 'basic-image-link-list',
@@ -164,7 +161,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 20,
       icon: MATERIAL_ICON_MAP.imageLinkList,
-      config: imageLinkListConfig,
+      config: imageLinkListConfig
     },
     {
       id: 'basic-base-button-group',
@@ -173,7 +170,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 14,
       icon: MATERIAL_ICON_MAP.baseButtonGroup,
-      config: baseButtonGroupConfig,
+      config: baseButtonGroupConfig
     },
     {
       id: 'basic-base-search-box',
@@ -182,7 +179,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 14,
       icon: MATERIAL_ICON_MAP.baseSearchBox,
-      config: baseSearchBoxConfig,
+      config: baseSearchBoxConfig
     },
     {
       id: 'basic-base-notice',
@@ -191,7 +188,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 14,
       icon: MATERIAL_ICON_MAP.baseNotice,
-      config: baseNoticeConfig,
+      config: baseNoticeConfig
     },
     {
       id: 'basic-base-card-list',
@@ -200,7 +197,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 22,
       icon: MATERIAL_ICON_MAP.baseCardList,
-      config: baseCardListConfig,
+      config: baseCardListConfig
     },
     {
       id: 'basic-base-form',
@@ -209,7 +206,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 24,
       icon: MATERIAL_ICON_MAP.baseForm,
-      config: baseFormConfig,
+      config: baseFormConfig
     },
     {
       id: 'basic-base-stat',
@@ -218,7 +215,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 16,
       icon: MATERIAL_ICON_MAP.baseStat,
-      config: baseStatConfig,
+      config: baseStatConfig
     },
     {
       id: 'basic-base-file-list',
@@ -227,7 +224,7 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 20,
       icon: MATERIAL_ICON_MAP.baseFileList,
-      config: baseFileListConfig,
+      config: baseFileListConfig
     },
     {
       id: 'basic-base-timeline',
@@ -236,8 +233,8 @@ const basicComponents = createComponentGroup(
       width: 12,
       height: 20,
       icon: MATERIAL_ICON_MAP.baseTimeline,
-      config: baseTimelineConfig,
-    },
+      config: baseTimelineConfig
+    }
   ],
   baseConfig
 );
@@ -251,7 +248,7 @@ const cmsComponents = createComponentGroup(
       width: 12,
       height: 50,
       icon: MATERIAL_ICON_MAP.relatedLinks,
-      config: relatedLinksConfig,
+      config: relatedLinksConfig
     },
     {
       id: 'cms-image-text-list',
@@ -260,7 +257,7 @@ const cmsComponents = createComponentGroup(
       width: 12,
       height: 50,
       icon: MATERIAL_ICON_MAP.imageTextList,
-      config: imageTextListConfig,
+      config: imageTextListConfig
     },
     {
       id: 'cms-image-text-column',
@@ -269,7 +266,7 @@ const cmsComponents = createComponentGroup(
       width: 12,
       height: 50,
       icon: MATERIAL_ICON_MAP.imageTextColumn,
-      config: imageTextColumnConfig,
+      config: imageTextColumnConfig
     },
     {
       id: 'cms-document-card-list',
@@ -278,7 +275,7 @@ const cmsComponents = createComponentGroup(
       width: 12,
       height: 50,
       icon: MATERIAL_ICON_MAP.documentCardList,
-      config: documentCardListConfig,
+      config: documentCardListConfig
     },
     {
       id: 'cms-carousel-text-list',
@@ -287,8 +284,8 @@ const cmsComponents = createComponentGroup(
       width: 12,
       height: 50,
       icon: MATERIAL_ICON_MAP.carouselTextList,
-      config: carouselTextListConfig,
-    },
+      config: carouselTextListConfig
+    }
   ],
   baseConfig
 );
@@ -300,7 +297,7 @@ function cloneMaterialItem(item: PortalMaterialItem): PortalMaterialItem {
 function cloneMaterialCategory(category: PortalMaterialCategory): PortalMaterialCategory {
   return {
     ...category,
-    cmptList: category.cmptList.map((item) => cloneMaterialItem(item)),
+    cmptList: category.cmptList.map((item) => cloneMaterialItem(item))
   };
 }
 
@@ -334,7 +331,7 @@ function ensureMaterialCategory(
     name: categoryInput.name,
     title: categoryInput.title,
     cmptTypeName: categoryInput.cmptTypeName,
-    cmptList: [],
+    cmptList: []
   };
   categories.push(newCategory);
   return newCategory;
@@ -350,7 +347,7 @@ function hasMaterialConflict(
         return {
           categoryId: category.id,
           itemId: item.id,
-          itemType: item.type,
+          itemType: item.type
         };
       }
     }
@@ -358,7 +355,11 @@ function hasMaterialConflict(
   return null;
 }
 
-function removeMaterialByIdOrType(categories: PortalMaterialCategory[], id?: string, type?: string): boolean {
+function removeMaterialByIdOrType(
+  categories: PortalMaterialCategory[],
+  id?: string,
+  type?: string
+): boolean {
   if (!id && !type) {
     return false;
   }
@@ -432,15 +433,15 @@ const defaultCategories: PortalMaterialCategory[] = [
     name: '基础组件',
     cmptTypeName: '基础组件',
     title: '基础组件',
-    cmptList: basicComponents,
+    cmptList: basicComponents
   },
   {
     id: 'cms',
     name: 'CMS专区',
     cmptTypeName: 'CMS专区',
     title: 'CMS专区',
-    cmptList: cmsComponents,
-  },
+    cmptList: cmsComponents
+  }
 ];
 
 export function createPortalMaterialRegistry(
@@ -451,8 +452,9 @@ export function createPortalMaterialRegistry(
 
   return {
     categories: registry.categories,
-    registerPortalMaterial: (material, options) => registerPortalMaterialToRegistry(registry, material, options),
-    unregisterPortalMaterial: (options) => unregisterPortalMaterialFromRegistry(registry, options),
+    registerPortalMaterial: (material, options) =>
+      registerPortalMaterialToRegistry(registry, material, options),
+    unregisterPortalMaterial: (options) => unregisterPortalMaterialFromRegistry(registry, options)
   };
 }
 
@@ -460,7 +462,9 @@ function createDefaultRegistryController() {
   return createPortalMaterialRegistry(defaultCategories);
 }
 
-export function getPortalMaterialRegistryController(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+export function getPortalMaterialRegistryController(
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
   return readPortalEngineContextValue<PortalMaterialRegistryController>(
     PORTAL_MATERIAL_REGISTRY_CONTEXT_KEY,
     context,
@@ -472,7 +476,9 @@ function createPortalMaterialTypeAliases() {
   return {} as Record<string, string>;
 }
 
-export function getPortalMaterialTypeAliases(context: PortalEngineContext = getDefaultPortalEngineContext()) {
+export function getPortalMaterialTypeAliases(
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
   return readPortalEngineContextValue<Record<string, string>>(
     PORTAL_MATERIAL_TYPE_ALIASES_CONTEXT_KEY,
     context,
@@ -489,7 +495,7 @@ export function resolvePortalMaterialTypeAlias(type: string) {
 }
 
 export const portalMaterialsRegistry: PortalMaterialRegistry = {
-  categories: defaultRegistryController.categories,
+  categories: defaultRegistryController.categories
 };
 
 export const registerPortalMaterial = defaultRegistryController.registerPortalMaterial;

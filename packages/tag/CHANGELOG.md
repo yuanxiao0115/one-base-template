@@ -36,7 +36,6 @@
 ### Features
 
 - 🎨 **样式隔离优化**：完全解决样式污染问题
-
   - 将CSS变量从`:root`作用域化到`.tags-view`选择器内
   - 移除了全局样式导入，使用Vue scoped样式确保样式隔离
   - 样式现在完全不会影响其他组件
@@ -87,7 +86,6 @@
 ### Patch Changes
 
 - Initial release of @one-base-template/tag component - 标签页管理组件
-
   - 完整的标签页管理功能
   - 支持标签页的创建、关闭、刷新操作
   - 提供丰富的配置选项和事件回调

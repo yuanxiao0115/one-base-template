@@ -1,19 +1,19 @@
 <script setup lang="ts">
-  interface PortalTemplateWorkbenchShellProps {
-    loading?: boolean
-  }
+interface PortalTemplateWorkbenchShellProps {
+  loading?: boolean;
+}
 
-  const props = withDefaults(defineProps<PortalTemplateWorkbenchShellProps>(), {
-    loading: false,
-  })
+const props = withDefaults(defineProps<PortalTemplateWorkbenchShellProps>(), {
+  loading: false
+});
 
-  defineSlots<{
-    header?: () => unknown
-    tree?: () => unknown
-    toolbar?: () => unknown
-    preview?: () => unknown
-    dialogs?: () => unknown
-  }>()
+defineSlots<{
+  header?: () => unknown;
+  tree?: () => unknown;
+  toolbar?: () => unknown;
+  preview?: () => unknown;
+  dialogs?: () => unknown;
+}>();
 </script>
 
 <template>
@@ -38,63 +38,63 @@
 </template>
 
 <style scoped>
-  .page {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    background: #fff;
-  }
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #fff;
+}
 
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  background: #fff;
+}
+
+.tree-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid #e5ebf2;
+  overflow: hidden;
+  background: #fff;
+}
+
+.tree-content {
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: #fff;
+}
+
+.page :deep(.el-button) {
+  border-radius: 0;
+}
+
+.page :deep(.el-input__wrapper) {
+  border-radius: 0;
+}
+
+@media (max-width: 1366px) {
   .layout {
-    flex: 1;
-    min-height: 0;
-    display: grid;
-    grid-template-columns: 320px minmax(0, 1fr);
-    background: #fff;
+    grid-template-columns: 300px minmax(0, 1fr);
   }
+}
 
-  .tree-pane {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    border-right: 1px solid #e5ebf2;
-    overflow: hidden;
-    background: #fff;
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 340px minmax(0, 1fr);
   }
-
-  .tree-content {
-    flex: 1;
-    min-height: 0;
-  }
-
-  .editor-pane {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    background: #fff;
-  }
-
-  .page :deep(.el-button) {
-    border-radius: 0;
-  }
-
-  .page :deep(.el-input__wrapper) {
-    border-radius: 0;
-  }
-
-  @media (max-width: 1366px) {
-    .layout {
-      grid-template-columns: 300px minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 960px) {
-    .layout {
-      grid-template-columns: 1fr;
-      grid-template-rows: 340px minmax(0, 1fr);
-    }
-  }
+}
 </style>

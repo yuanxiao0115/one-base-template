@@ -33,7 +33,9 @@ export interface TableColumn {
   headerSlot?: string;
   hide?: boolean | ((column: TableColumn) => boolean);
   cellRenderer?: (params: TableColumnRendererParams) => VNodeChild;
-  headerRenderer?: (params: Omit<TableColumnRendererParams, 'row' | '$index' | 'index'>) => VNodeChild;
+  headerRenderer?: (
+    params: Omit<TableColumnRendererParams, 'row' | '$index' | 'index'>
+  ) => VNodeChild;
   [key: string]: unknown;
 }
 

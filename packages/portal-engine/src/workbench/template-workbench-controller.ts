@@ -8,11 +8,11 @@ import {
   isPortalTabEditable,
   normalizePortalParentId,
   normalizePortalTabId,
-  normalizePortalTabName,
+  normalizePortalTabName
 } from '../domain/tab-tree';
 import {
   buildPortalPageLayoutForSave,
-  createDefaultPortalPageSettingsV2,
+  createDefaultPortalPageSettingsV2
 } from '../schema/page-settings';
 import type { BizResponse, PortalTab, PortalTemplate } from '../schema/types';
 
@@ -31,10 +31,17 @@ export interface TemplateWorkbenchApi {
   template: {
     detail: (params: { id: string }) => Promise<BizResponse<PortalTemplate>>;
     update: (data: Partial<PortalTemplate>) => Promise<BizResponse<unknown>>;
-    hideToggle: (params: { id: string; tabId: string; isHide: number }) => Promise<BizResponse<unknown>>;
+    hideToggle: (params: {
+      id: string;
+      tabId: string;
+      isHide: number;
+    }) => Promise<BizResponse<unknown>>;
   };
   tab: {
-    detail: (params: { id: string; templateId?: string | number }) => Promise<BizResponse<PortalTab>>;
+    detail: (params: {
+      id: string;
+      templateId?: string | number;
+    }) => Promise<BizResponse<PortalTab>>;
     add: (data: Partial<PortalTab>) => Promise<BizResponse<unknown>>;
     update: (data: Partial<PortalTab>) => Promise<BizResponse<unknown>>;
     delete: (data: { id: string }) => Promise<BizResponse<unknown>>;
@@ -83,14 +90,24 @@ interface TabLocation {
 
 function normalizeBizOk(res: BizResponse<unknown> | null | undefined): boolean {
   const code = res?.code;
-  return res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
+  return (
+    res?.success === true ||
+    code === 0 ||
+    code === 200 ||
+    String(code) === '0' ||
+    String(code) === '200'
+  );
 }
 
 function cloneTabsForSort(source: PortalTab[]): PortalTab[] {
   return JSON.parse(JSON.stringify(source)) as PortalTab[];
 }
 
-function findTabLocationById(tabs: PortalTab[], tabId: string, parent: PortalTab | null = null): TabLocation | null {
+function findTabLocationById(
+  tabs: PortalTab[],
+  tabId: string,
+  parent: PortalTab | null = null
+): TabLocation | null {
   for (let index = 0; index < tabs.length; index += 1) {
     const node = tabs[index];
     if (!node || typeof node !== 'object') {
@@ -101,7 +118,7 @@ function findTabLocationById(tabs: PortalTab[], tabId: string, parent: PortalTab
         node,
         parent,
         siblings: tabs,
-        index,
+        index
       };
     }
     if (Array.isArray(node.children) && node.children.length > 0) {
@@ -114,7 +131,11 @@ function findTabLocationById(tabs: PortalTab[], tabId: string, parent: PortalTab
   return null;
 }
 
-function removeTabById(tabs: PortalTab[], tabId: string, parent: PortalTab | null = null): TabLocation | null {
+function removeTabById(
+  tabs: PortalTab[],
+  tabId: string,
+  parent: PortalTab | null = null
+): TabLocation | null {
   for (let index = 0; index < tabs.length; index += 1) {
     const node = tabs[index];
     if (!node || typeof node !== 'object') {
@@ -129,7 +150,7 @@ function removeTabById(tabs: PortalTab[], tabId: string, parent: PortalTab | nul
         node: removed,
         parent,
         siblings: tabs,
-        index,
+        index
       };
     }
     if (Array.isArray(node.children) && node.children.length > 0) {
@@ -159,7 +180,7 @@ function collectSortPatches(siblings: PortalTab[], parentId: number | string): T
       return {
         id,
         parentId,
-        sort: index + 1,
+        sort: index + 1
       };
     })
     .filter((item): item is TabSortPatch => Boolean(item));
@@ -176,7 +197,9 @@ function resolveCreatedTabId(value: unknown): string {
   return normalizePortalTabId(record.id) || normalizePortalTabId(record.tabId);
 }
 
-export function createTemplateWorkbenchController(options: CreateTemplateWorkbenchControllerOptions) {
+export function createTemplateWorkbenchController(
+  options: CreateTemplateWorkbenchControllerOptions
+) {
   const loading = ref(false);
   const creating = ref(false);
   const sortingTabs = ref(false);
@@ -194,7 +217,9 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
 
   const tabs = computed(() => templateInfo.value?.tabList ?? []);
   const currentTab = computed(() => findPortalTabById(tabs.value, currentTabId.value));
-  const currentTabName = computed(() => normalizePortalTabName(currentTab.value?.tabName, '未命名页面'));
+  const currentTabName = computed(() =>
+    normalizePortalTabName(currentTab.value?.tabName, '未命名页面')
+  );
   const currentLockedTabId = computed(() => options.lockedTabId?.value || '');
 
   function setCurrentTab(tabId: string, params?: { silentWhenLocked?: boolean }) {
@@ -231,7 +256,9 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
 
       const preferred = preferTabId || options.routeTabId.value;
       const nextTabId =
-        preferred && containsPortalTabId(tabs.value, preferred) ? preferred : findFirstPortalPageTabId(tabs.value);
+        preferred && containsPortalTabId(tabs.value, preferred)
+          ? preferred
+          : findFirstPortalPageTabId(tabs.value);
       setCurrentTab(nextTabId, { silentWhenLocked: true });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : '加载门户失败';
@@ -277,7 +304,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
     attrInitial.value = {
       tabType: 2,
       sort: calcPortalTabNextSort(tabs.value, parentId),
-      ...initial,
+      ...initial
     };
     attrVisible.value = true;
   }
@@ -346,7 +373,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
           tabType: submitTabType,
           sort: payload.sort,
           tabIcon: '',
-          order: 0,
+          order: 0
         };
 
         if (submitTabType === 3) {
@@ -382,7 +409,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
         if (submitTabType === 2) {
           options.openEditor({
             templateId: options.templateId.value,
-            tabId: newTabId,
+            tabId: newTabId
           });
           return;
         }
@@ -405,7 +432,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
         parentId: attrParentId.value,
         tabName: payload.tabName,
         tabType,
-        sort: payload.sort,
+        sort: payload.sort
       };
 
       if (tabType === 3) {
@@ -443,7 +470,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
     try {
       await options.confirm({
         message: `确定要${text}该页面吗？`,
-        title: '操作确认',
+        title: '操作确认'
       });
     } catch {
       return;
@@ -452,7 +479,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
     const res = await options.api.template.hideToggle({
       id: options.templateId.value,
       tabId,
-      isHide: next,
+      isHide: next
     });
     if (!normalizeBizOk(res)) {
       options.notify.error(res?.message || `${text}失败`);
@@ -475,7 +502,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
     try {
       await options.confirm({
         message: '确定要删除该页面吗？',
-        title: '删除确认',
+        title: '删除确认'
       });
     } catch {
       return;
@@ -516,13 +543,15 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
         parentId: patch.parentId,
         tabName,
         tabType,
-        sort: patch.sort,
+        sort: patch.sort
       };
 
       if (tabType === 3) {
         updateData.tabUrl = typeof detail.tabUrl === 'string' ? detail.tabUrl : '';
-        updateData.tabUrlOpenMode = typeof detail.tabUrlOpenMode === 'number' ? detail.tabUrlOpenMode : 1;
-        updateData.tabUrlSsoType = typeof detail.tabUrlSsoType === 'number' ? detail.tabUrlSsoType : 1;
+        updateData.tabUrlOpenMode =
+          typeof detail.tabUrlOpenMode === 'number' ? detail.tabUrlOpenMode : 1;
+        updateData.tabUrlSsoType =
+          typeof detail.tabUrlSsoType === 'number' ? detail.tabUrlSsoType : 1;
       }
 
       const updateRes = await options.api.tab.update(updateData);
@@ -565,7 +594,8 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
     } else {
       destinationParentId = normalizePortalParentId(dropLocation.parent);
       destinationSiblings = dropLocation.siblings;
-      const insertIndex = payload.dropType === 'before' ? dropLocation.index : dropLocation.index + 1;
+      const insertIndex =
+        payload.dropType === 'before' ? dropLocation.index : dropLocation.index + 1;
       destinationSiblings.splice(insertIndex, 0, removed.node);
     }
 
@@ -612,7 +642,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
 
     options.openEditor({
       templateId: options.templateId.value,
-      tabId,
+      tabId
     });
   }
 
@@ -642,7 +672,7 @@ export function createTemplateWorkbenchController(options: CreateTemplateWorkben
     toggleHide,
     deleteTab,
     onTreeSortDrop,
-    onEdit,
+    onEdit
   };
 }
 

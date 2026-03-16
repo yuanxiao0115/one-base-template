@@ -4,7 +4,7 @@ import type { PortalPreviewMode } from '../utils/preview';
 
 import type {
   CreateTemplateWorkbenchPageControllerOptions,
-  TemplateWorkbenchPageController,
+  TemplateWorkbenchPageController
 } from './template-workbench-page-controller';
 import { createTemplateWorkbenchPageController } from './template-workbench-page-controller';
 import {
@@ -13,7 +13,7 @@ import {
   buildPortalPreviewRouteLocation,
   resolvePortalTabIdFromQuery,
   resolvePortalTemplateIdFromQuery,
-  type PortalRouteQueryLike,
+  type PortalRouteQueryLike
 } from './template-workbench-route';
 
 interface RouteLocationPayload {
@@ -27,11 +27,11 @@ interface ResolveLocationPayload {
 }
 
 export interface UseTemplateWorkbenchPageByRouteOptions<
-  TController = TemplateWorkbenchPageController,
+  TController = TemplateWorkbenchPageController
 > extends Omit<
-    CreateTemplateWorkbenchPageControllerOptions,
-    'templateId' | 'routeTabId' | 'syncRouteTabId' | 'openEditor' | 'resolvePreviewHref'
-  > {
+  CreateTemplateWorkbenchPageControllerOptions,
+  'templateId' | 'routeTabId' | 'syncRouteTabId' | 'openEditor' | 'resolvePreviewHref'
+> {
   routeQuery: Readonly<Ref<PortalRouteQueryLike> | ComputedRef<PortalRouteQueryLike>>;
   replaceRouteQuery: (nextQuery: PortalRouteQueryLike) => Promise<unknown> | void;
   onReplaceRouteQueryError?: (error: unknown) => void;
@@ -55,7 +55,9 @@ export function useTemplateWorkbenchPageByRoute<TController = TemplateWorkbenchP
   const templateId = computed(() =>
     resolvePortalTemplateIdFromQuery(options.routeQuery.value, templateIdQueryKeys)
   );
-  const routeTabId = computed(() => resolvePortalTabIdFromQuery(options.routeQuery.value, tabIdQueryKey));
+  const routeTabId = computed(() =>
+    resolvePortalTabIdFromQuery(options.routeQuery.value, tabIdQueryKey)
+  );
 
   function syncRouteTabId(tabId: string) {
     const nextQuery = buildNextRouteQueryWithTabId(options.routeQuery.value, tabId, tabIdQueryKey);
@@ -91,13 +93,13 @@ export function useTemplateWorkbenchPageByRoute<TController = TemplateWorkbenchP
           previewRouteName,
           tabIdQueryKey
         )
-      ),
+      )
   });
 
   return {
     templateId,
     routeTabId,
     syncRouteTabId,
-    controller,
+    controller
   };
 }

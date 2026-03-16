@@ -13,27 +13,33 @@
 ### Task 1: 修复共享归一化正确性
 
 **Files:**
+
 - Modify: `apps/admin/src/shared/api/normalize.ts`
 - Modify: `apps/admin/src/modules/UserManagement/org/api.ts`
 - Test: `packages/core/src/hooks/__tests__/admin-normalize-compat.test.ts`
 
 **Step 1: 写失败测试（RED）**
+
 - 覆盖 `toNullableNumber('abc') === null`
 - 覆盖 `toBooleanValue('0') === false`
 
 **Step 2: 运行测试确认失败**
+
 - Run: `pnpm -C packages/core test:run src/hooks/__tests__/admin-normalize-compat.test.ts`
 
 **Step 3: 最小实现（GREEN）**
+
 - 修正 `toNullableNumber`：对字符串先显式 `Number(value)`，非法值返回 `null`
 - `org/api.ts` 将 `isExternal: Boolean(row.isExternal)` 改为 `toBooleanValue(row.isExternal)`
 
 **Step 4: 再跑测试确认通过**
+
 - Run: `pnpm -C packages/core test:run src/hooks/__tests__/admin-normalize-compat.test.ts`
 
 ### Task 2: 修复组织管理员弹窗交互死路与初始化竞态
 
 **Files:**
+
 - Modify: `apps/admin/src/modules/UserManagement/org/components/OrgManagerDialog.vue`
 
 **Step 1:** 允许“清空后保存”路径：`selectedUsers` 为空时跳过 add，仅执行 remove 分支。
@@ -47,6 +53,7 @@
 ### Task 3: 消除首屏重复查询与伪排序
 
 **Files:**
+
 - Modify: `apps/admin/src/modules/UserManagement/user/page.vue`
 - Modify: `apps/admin/src/modules/UserManagement/org/page.vue`
 - Modify: `apps/admin/src/modules/UserManagement/org/columns.tsx`
@@ -60,6 +67,7 @@
 ### Task 4: 文档与验证记录同步
 
 **Files:**
+
 - Modify: `.codex/operations-log.md`
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`

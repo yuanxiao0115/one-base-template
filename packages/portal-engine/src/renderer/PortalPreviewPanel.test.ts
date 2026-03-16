@@ -1,16 +1,22 @@
 /* eslint-disable vue/one-component-per-file */
 import { computed, defineComponent, nextTick, type CSSProperties } from 'vue';
 import { mount, type VueWrapper } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 import {
   PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME,
   PORTAL_PREVIEW_MESSAGE_SHELL_DETAILS,
-  PORTAL_PREVIEW_MESSAGE_VIEWPORT,
+  PORTAL_PREVIEW_MESSAGE_VIEWPORT
 } from '../editor/preview-bridge/messages';
-import { createDefaultPortalPageSettingsV2, type PortalPageSettingsV2 } from '../schema/page-settings';
+import {
+  createDefaultPortalPageSettingsV2,
+  type PortalPageSettingsV2
+} from '../schema/page-settings';
 import PortalPreviewPanel from './PortalPreviewPanel.vue';
-import type { PortalPreviewDataSource, PortalPreviewNavigatePayload } from './portal-preview-panel.types';
+import type {
+  PortalPreviewDataSource,
+  PortalPreviewNavigatePayload
+} from './portal-preview-panel.types';
 
 interface PortalPreviewPanelExposed {
   getRuntimeSnapshot: () => {
@@ -24,8 +30,8 @@ const ConfigurablePortalHeaderStub = defineComponent({
   props: {
     config: {
       type: Object,
-      default: () => ({}),
-    },
+      default: () => ({})
+    }
   },
   emits: ['navigate'],
   setup(props) {
@@ -34,7 +40,7 @@ const ConfigurablePortalHeaderStub = defineComponent({
       return typeof config.behavior?.title === 'string' ? config.behavior.title : '';
     });
     return {
-      titleText,
+      titleText
     };
   },
   template: `
@@ -43,17 +49,17 @@ const ConfigurablePortalHeaderStub = defineComponent({
       <button class="nav-tab-btn" @click="$emit('navigate', { key: 'tab-next', label: '下一页', tabId: 'tab-2' })">tab</button>
       <button class="nav-url-btn" @click="$emit('navigate', { key: 'url-next', label: '外链', url: 'https://example.com' })">url</button>
     </div>
-  `,
+  `
 });
 
 const ConfigurablePortalFooterStub = defineComponent({
   name: 'ConfigurablePortalFooter',
-  template: '<div class="configurable-footer-stub" />',
+  template: '<div class="configurable-footer-stub" />'
 });
 
 const PortalGridRendererStub = defineComponent({
   name: 'PortalGridRenderer',
-  template: '<div class="grid-renderer-stub" />',
+  template: '<div class="grid-renderer-stub" />'
 });
 
 const PortalPreviewLayoutStub = defineComponent({
@@ -61,13 +67,13 @@ const PortalPreviewLayoutStub = defineComponent({
   props: {
     contentScrollStyle: {
       type: Object,
-      default: () => ({}),
-    },
+      default: () => ({})
+    }
   },
   setup(props) {
     const contentStyle = computed(() => props.contentScrollStyle as CSSProperties);
     return {
-      contentStyle,
+      contentStyle
     };
   },
   template: `
@@ -76,7 +82,7 @@ const PortalPreviewLayoutStub = defineComponent({
       <div class="preview-layout-stub__content" :style="contentStyle"><slot name="content" /></div>
       <div class="preview-layout-stub__footer"><slot name="footer" /></div>
     </div>
-  `,
+  `
 });
 
 function createMockDataSource(): PortalPreviewDataSource {
@@ -90,18 +96,18 @@ function createMockDataSource(): PortalPreviewDataSource {
         templateId: 'tpl-1',
         pageLayout: JSON.stringify({
           settings,
-          component: [],
-        }),
-      },
+          component: []
+        })
+      }
     })),
     getTemplateDetail: vi.fn(async () => ({
       success: true,
       data: {
         id: 'tpl-1',
         details: '{}',
-        tabList: [],
-      },
-    })),
+        tabList: []
+      }
+    }))
   };
 }
 
@@ -114,14 +120,14 @@ function createWrapper(onNavigate?: (payload: PortalPreviewNavigatePayload) => v
       listenMessage: true,
       previewDataSource,
       materialsMap: {},
-      onNavigate,
+      onNavigate
     },
     global: {
       directives: {
         loading: {
           mounted: () => undefined,
-          updated: () => undefined,
-        },
+          updated: () => undefined
+        }
       },
       stubs: {
         ConfigurablePortalHeader: ConfigurablePortalHeaderStub,
@@ -132,14 +138,14 @@ function createWrapper(onNavigate?: (payload: PortalPreviewNavigatePayload) => v
         PortalPreviewHeaderFooterFixedContentScrollLayout: PortalPreviewLayoutStub,
         'el-button': true,
         'el-empty': true,
-        'el-result': true,
-      },
-    },
+        'el-result': true
+      }
+    }
   });
 
   return {
     wrapper,
-    previewDataSource,
+    previewDataSource
   };
 }
 
@@ -154,7 +160,7 @@ function dispatchMessage(type: string, data: unknown) {
   window.dispatchEvent(
     new MessageEvent('message', {
       origin: window.location.origin,
-      data: { type, data },
+      data: { type, data }
     })
   );
 }
@@ -178,15 +184,15 @@ describe('PortalPreviewPanel', () => {
         x: 0,
         y: 0,
         w: 6,
-        h: 4,
-      },
+        h: 4
+      }
     ];
 
     dispatchMessage(PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME, {
       templateId: 'tpl-1',
       tabId: 'tab-1',
       settings: nextSettings,
-      component: nextComponent,
+      component: nextComponent
     });
     await flushAsync();
 
@@ -211,11 +217,11 @@ describe('PortalPreviewPanel', () => {
         shell: {
           header: {
             behavior: {
-              title: '运行时壳层标题',
-            },
-          },
-        },
-      }),
+              title: '运行时壳层标题'
+            }
+          }
+        }
+      })
     });
     await flushAsync();
 
@@ -225,7 +231,7 @@ describe('PortalPreviewPanel', () => {
       templateId: 'tpl-1',
       tabId: 'tab-1',
       width: 1280,
-      height: 720,
+      height: 720
     });
     await flushAsync();
 
@@ -252,8 +258,8 @@ describe('PortalPreviewPanel', () => {
       item: {
         key: 'tab-next',
         label: '下一页',
-        tabId: 'tab-2',
-      },
+        tabId: 'tab-2'
+      }
     });
     expect(onNavigate).toHaveBeenNthCalledWith(2, {
       type: 'url',
@@ -261,8 +267,8 @@ describe('PortalPreviewPanel', () => {
       item: {
         key: 'url-next',
         label: '外链',
-        url: 'https://example.com',
-      },
+        url: 'https://example.com'
+      }
     });
 
     wrapper.unmount();

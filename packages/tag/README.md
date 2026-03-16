@@ -74,53 +74,53 @@ app.mount('#app')
 核心 API，提供 30+ 个标签页管理功能：
 
 ```typescript
-import { useTagAPI } from '@one-base-template/tag'
+import { useTagAPI } from '@one-base-template/tag';
 
-const tagAPI = useTagAPI()
+const tagAPI = useTagAPI();
 
 // 基础操作
-tagAPI.tagOnClick(tag) // 切换标签
-tagAPI.deleteDynamicTag(tag) // 删除标签
-tagAPI.dynamicRouteTag('/path') // 动态路由跳转
-tagAPI.refreshTag() // 刷新当前页
+tagAPI.tagOnClick(tag); // 切换标签
+tagAPI.deleteDynamicTag(tag); // 删除标签
+tagAPI.dynamicRouteTag('/path'); // 动态路由跳转
+tagAPI.refreshTag(); // 刷新当前页
 
 // 批量操作
-tagAPI.deleteDynamicTag(tag, 'left') // 删除左侧标签
-tagAPI.deleteDynamicTag(tag, 'right') // 删除右侧标签
-tagAPI.deleteDynamicTag(tag, 'other') // 删除其他标签
+tagAPI.deleteDynamicTag(tag, 'left'); // 删除左侧标签
+tagAPI.deleteDynamicTag(tag, 'right'); // 删除右侧标签
+tagAPI.deleteDynamicTag(tag, 'other'); // 删除其他标签
 
 // 状态访问
-tagAPI.multiTags // 所有标签列表（响应式）
-tagAPI.activeTag // 当前激活标签
+tagAPI.multiTags; // 所有标签列表（响应式）
+tagAPI.activeTag; // 当前激活标签
 
 // 配置管理
 tagAPI.configure({
   homePath: '/dashboard',
-  homeTitle: '控制台',
-})
+  homeTitle: '控制台'
+});
 ```
 
 ### 配置选项
 
 ```typescript
 interface OneTagOptions {
-  pinia: Pinia // 必需：Pinia 实例
-  router: Router // 必需：Vue Router 实例
-  homePath?: string // 首页路径，默认 '/'
-  homeTitle?: string // 首页标题，默认 '首页'
-  maxTags?: number // 最大标签数，默认 10
-  storageKey?: string // 存储键名，默认 'one-tags'
+  pinia: Pinia; // 必需：Pinia 实例
+  router: Router; // 必需：Vue Router 实例
+  homePath?: string; // 首页路径，默认 '/'
+  homeTitle?: string; // 首页标题，默认 '首页'
+  maxTags?: number; // 最大标签数，默认 10
+  storageKey?: string; // 存储键名，默认 'one-tags'
 }
 ```
 
 ### 常量
 
 ```typescript
-import { HomeConfig } from '@one-base-template/tag'
+import { HomeConfig } from '@one-base-template/tag';
 
-HomeConfig.PATH // 获取首页路径
-HomeConfig.TITLE // 获取首页标题
-HomeConfig.ICON // 获取首页图标
+HomeConfig.PATH; // 获取首页路径
+HomeConfig.TITLE; // 获取首页标题
+HomeConfig.ICON; // 获取首页图标
 ```
 
 ## 📖 文档
@@ -162,30 +162,30 @@ pnpm add @one-base-template/tag --registry=http://package.onecode.cmict.cloud/re
 
 ```typescript
 // main.ts
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import { createRouter, createWebHistory } from 'vue-router'
-import OneTag from '@one-base-template/tag'
-import '@one-base-template/tag/style' // 重要：引入样式文件
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import { createRouter, createWebHistory } from 'vue-router';
+import OneTag from '@one-base-template/tag';
+import '@one-base-template/tag/style'; // 重要：引入样式文件
 
-import App from './App.vue'
+import App from './App.vue';
 
-const app = createApp(App)
+const app = createApp(App);
 
 // 1. 创建 Pinia 实例
-const pinia = createPinia()
-app.use(pinia)
+const pinia = createPinia();
+app.use(pinia);
 
 // 2. 创建路由实例
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', component: () => import('./views/Home.vue') },
-    { path: '/about', component: () => import('./views/About.vue') },
+    { path: '/about', component: () => import('./views/About.vue') }
     // ... 其他路由
-  ],
-})
-app.use(router)
+  ]
+});
+app.use(router);
 
 // 3. 安装标签组件（必须在 pinia 和 router 之后）
 app.use(OneTag, {
@@ -193,10 +193,10 @@ app.use(OneTag, {
   router, // 必需
   homePath: '/', // 可选：首页路径
   homeTitle: '首页', // 可选：首页标题
-  maxTags: 10, // 可选：最大标签数
-})
+  maxTags: 10 // 可选：最大标签数
+});
 
-app.mount('#app')
+app.mount('#app');
 ```
 
 ### 3. 在组件中使用
@@ -216,20 +216,20 @@ app.mount('#app')
 </template>
 
 <script setup lang="ts">
-  // 组件会自动注册，直接使用即可
+// 组件会自动注册，直接使用即可
 </script>
 
 <style>
-  .app {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-  .main-content {
-    flex: 1;
-    overflow: auto;
-  }
+.main-content {
+  flex: 1;
+  overflow: auto;
+}
 </style>
 ```
 
@@ -237,32 +237,32 @@ app.mount('#app')
 
 ```typescript
 // 在任意组件中使用 API
-import { useTagAPI } from '@one-base-template/tag'
+import { useTagAPI } from '@one-base-template/tag';
 
 export default {
   setup() {
-    const tagAPI = useTagAPI()
+    const tagAPI = useTagAPI();
 
     // 编程式添加标签
     const addCustomTag = () => {
-      tagAPI.dynamicRouteTag('/custom-page')
-    }
+      tagAPI.dynamicRouteTag('/custom-page');
+    };
 
     // 刷新当前页面
     const refreshPage = () => {
-      tagAPI.refreshTag()
-    }
+      tagAPI.refreshTag();
+    };
 
     // 获取所有标签
-    const allTags = tagAPI.multiTags
+    const allTags = tagAPI.multiTags;
 
     return {
       addCustomTag,
       refreshPage,
-      allTags,
-    }
-  },
-}
+      allTags
+    };
+  }
+};
 ```
 
 ## 🎨 主题定制

@@ -12,7 +12,7 @@ export enum FileType {
   AUDIO = 'audio',
   DOCUMENT = 'document',
   ARCHIVE = 'archive',
-  OTHER = 'other',
+  OTHER = 'other'
 }
 
 /**
@@ -48,7 +48,7 @@ export function getFileInfo(file: File): FileInfo {
     type: file.type,
     lastModified: file.lastModified,
     extension,
-    category,
+    category
   };
 }
 
@@ -82,17 +82,26 @@ export function getFileExtension(fileName: string): string {
  */
 export function getFileCategory(mimeType: string, extension: string): FileType {
   // 图片类型
-  if (mimeType.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(extension)) {
+  if (
+    mimeType.startsWith('image/') ||
+    ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(extension)
+  ) {
     return FileType.IMAGE;
   }
 
   // 视频类型
-  if (mimeType.startsWith('video/') || ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(extension)) {
+  if (
+    mimeType.startsWith('video/') ||
+    ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(extension)
+  ) {
     return FileType.VIDEO;
   }
 
   // 音频类型
-  if (mimeType.startsWith('audio/') || ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'].includes(extension)) {
+  if (
+    mimeType.startsWith('audio/') ||
+    ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'].includes(extension)
+  ) {
     return FileType.AUDIO;
   }
 
@@ -356,7 +365,7 @@ export function getImageDimensions(file: File): Promise<{ width: number; height:
     img.onload = () => {
       resolve({
         width: img.naturalWidth,
-        height: img.naturalHeight,
+        height: img.naturalHeight
       });
       URL.revokeObjectURL(img.src);
     };
@@ -399,13 +408,7 @@ export function fileToBase64(file: File): Promise<string> {
  */
 export function base64ToBlob(base64: string, mimeType = ''): Blob {
   const byteCharacters = atob(base64);
-  const byteNumbers = new Array(byteCharacters.length);
-
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-
-  const byteArray = new Uint8Array(byteNumbers);
+  const byteArray = Uint8Array.from(byteCharacters, (character) => character.charCodeAt(0));
   return new Blob([byteArray], { type: mimeType });
 }
 

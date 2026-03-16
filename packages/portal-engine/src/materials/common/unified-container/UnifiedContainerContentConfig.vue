@@ -1,29 +1,29 @@
 <script setup lang="ts">
-  import { computed } from 'vue';
-  import { ObCard } from '@one-base-template/ui';
+import { computed } from 'vue';
+import { ObCard } from '@one-base-template/ui';
 
-  import MenuIconSelectorInput from './MenuIconSelectorInput.vue';
-  import {
-    createDefaultUnifiedContainerContentConfig,
-    mergeUnifiedContainerContentConfig,
-  } from './unified-container.defaults';
-  import type { UnifiedContainerContentConfig } from './unified-container.types';
+import MenuIconSelectorInput from './MenuIconSelectorInput.vue';
+import {
+  createDefaultUnifiedContainerContentConfig,
+  mergeUnifiedContainerContentConfig
+} from './unified-container.defaults';
+import type { UnifiedContainerContentConfig } from './unified-container.types';
 
-  const modelValue = defineModel<UnifiedContainerContentConfig>({
-    default: () => createDefaultUnifiedContainerContentConfig(),
-  });
+const modelValue = defineModel<UnifiedContainerContentConfig>({
+  default: () => createDefaultUnifiedContainerContentConfig()
+});
 
-  modelValue.value = mergeUnifiedContainerContentConfig(modelValue.value);
+modelValue.value = mergeUnifiedContainerContentConfig(modelValue.value);
 
-  const showExternalLinkFields = computed(() => modelValue.value.showExternalLink);
-  const subtitleLayoutOptions = [
-    { label: '下方', value: 'below' },
-    { label: '同行', value: 'inline' },
-  ] as const;
+const showExternalLinkFields = computed(() => modelValue.value.showExternalLink);
+const subtitleLayoutOptions = [
+  { label: '下方', value: 'below' },
+  { label: '同行', value: 'inline' }
+] as const;
 
-  defineOptions({
-    name: 'PortalUnifiedContainerContentConfig',
-  });
+defineOptions({
+  name: 'PortalUnifiedContainerContentConfig'
+});
 </script>
 
 <template>
@@ -35,11 +35,19 @@
         </el-form-item>
 
         <el-form-item label="容器标题">
-          <el-input v-model.trim="modelValue.title" :disabled="!modelValue.showTitle" placeholder="请输入标题" />
+          <el-input
+            v-model.trim="modelValue.title"
+            :disabled="!modelValue.showTitle"
+            placeholder="请输入标题"
+          />
         </el-form-item>
 
         <el-form-item label="副标题">
-          <el-input v-model.trim="modelValue.subtitle" :disabled="!modelValue.showTitle" placeholder="请输入副标题" />
+          <el-input
+            v-model.trim="modelValue.subtitle"
+            :disabled="!modelValue.showTitle"
+            placeholder="请输入副标题"
+          />
         </el-form-item>
 
         <el-form-item label="副标题位置">
@@ -81,7 +89,7 @@
 </template>
 
 <style scoped>
-  .unified-container-content-config {
-    padding: 2px 0 8px;
-  }
+.unified-container-content-config {
+  padding: 2px 0 8px;
+}
 </style>

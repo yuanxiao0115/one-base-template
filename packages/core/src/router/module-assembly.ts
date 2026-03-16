@@ -103,13 +103,15 @@ function createSkipAuthChecker(isSkipAuthRoute?: (route: RouteRecordRaw) => bool
   };
 }
 
-export function createModuleRouteAssemblyValidator(options: CreateModuleRouteAssemblyValidatorOptions): RouteAssemblyValidator {
+export function createModuleRouteAssemblyValidator(
+  options: CreateModuleRouteAssemblyValidatorOptions
+): RouteAssemblyValidator {
   const {
     reservedRoutePaths,
     reservedRouteNames,
     onWarn,
     isSkipAuthRoute: customSkipAuthChecker,
-    getRouteNameKey = toRouteNameKey,
+    getRouteNameKey = toRouteNameKey
   } = options;
 
   const isSkipAuthRoute = createSkipAuthChecker(customSkipAuthChecker);
@@ -125,27 +127,39 @@ export function createModuleRouteAssemblyValidator(options: CreateModuleRouteAss
     onWarn(message);
   }
 
-  function hasConflict(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): boolean {
+  function hasConflict(
+    route: RouteRecordRaw,
+    fullPath: string,
+    context: RouteCollectContext
+  ): boolean {
     const sourceLabel = getSourceLabel(context.source);
 
     if (reservedRoutePaths.has(fullPath)) {
-      reportConflict(`模块路由占用了保留 path：${fullPath}（module=${context.moduleId} source=${sourceLabel}），已跳过。`);
+      reportConflict(
+        `模块路由占用了保留 path：${fullPath}（module=${context.moduleId} source=${sourceLabel}），已跳过。`
+      );
       return true;
     }
 
     if (usedPaths.has(fullPath)) {
-      reportConflict(`检测到重复 path：${fullPath}（module=${context.moduleId} source=${sourceLabel}），已跳过后出现的定义。`);
+      reportConflict(
+        `检测到重复 path：${fullPath}（module=${context.moduleId} source=${sourceLabel}），已跳过后出现的定义。`
+      );
       return true;
     }
 
     const nameKey = getRouteName(route.name);
     if (nameKey && reservedRouteNames.has(nameKey)) {
-      reportConflict(`模块路由占用了保留 name：${nameKey}（module=${context.moduleId} source=${sourceLabel}），已跳过。`);
+      reportConflict(
+        `模块路由占用了保留 name：${nameKey}（module=${context.moduleId} source=${sourceLabel}），已跳过。`
+      );
       return true;
     }
 
     if (nameKey && usedNames.has(nameKey)) {
-      reportConflict(`检测到重复 name：${nameKey}（module=${context.moduleId} source=${sourceLabel}），已跳过后出现的定义。`);
+      reportConflict(
+        `检测到重复 name：${nameKey}（module=${context.moduleId} source=${sourceLabel}），已跳过后出现的定义。`
+      );
       return true;
     }
 
@@ -164,7 +178,9 @@ export function createModuleRouteAssemblyValidator(options: CreateModuleRouteAss
     }
 
     if (!routeName) {
-      onWarn(`skipMenuAuth 路由缺少 name：${fullPath}（module=${context.moduleId} source=${context.source}），该路由不会加入守卫白名单。`);
+      onWarn(
+        `skipMenuAuth 路由缺少 name：${fullPath}（module=${context.moduleId} source=${context.source}），该路由不会加入守卫白名单。`
+      );
       return;
     }
 
@@ -178,7 +194,9 @@ export function createModuleRouteAssemblyValidator(options: CreateModuleRouteAss
     }
 
     if (usedPaths.has(path)) {
-      reportConflict(`compat.routeAliases 路径与已装配路由冲突：${path}（module=${moduleId}），已跳过。`);
+      reportConflict(
+        `compat.routeAliases 路径与已装配路由冲突：${path}（module=${moduleId}），已跳过。`
+      );
       return true;
     }
 
@@ -197,7 +215,7 @@ export function createModuleRouteAssemblyValidator(options: CreateModuleRouteAss
     },
     warn(message: string) {
       onWarn(message);
-    },
+    }
   };
 }
 
@@ -224,10 +242,10 @@ function buildRouteTree(params: {
         routes: route.children,
         context: {
           ...context,
-          parentPath: fullPath,
+          parentPath: fullPath
         },
         validator,
-        rootPath,
+        rootPath
       });
     }
 
@@ -262,10 +280,12 @@ function applyActivePathMap(params: {
       if (meta.activePath === undefined) {
         nextRoute.meta = {
           ...meta,
-          activePath: compatActivePath,
+          activePath: compatActivePath
         };
       } else if (meta.activePath !== compatActivePath) {
-        validator.warn(`compat.activePathMap 与路由 meta.activePath 冲突：${fullPath}（module=${moduleId} source=${source}），已保留路由声明值。`);
+        validator.warn(
+          `compat.activePathMap 与路由 meta.activePath 冲突：${fullPath}（module=${moduleId} source=${source}），已保留路由声明值。`
+        );
       }
     }
 
@@ -277,7 +297,7 @@ function applyActivePathMap(params: {
         parentPath: fullPath,
         validator,
         rootPath,
-        activePathMap,
+        activePathMap
       });
     }
 
@@ -310,7 +330,9 @@ function buildAliasRoutesByCompat(params: {
     }
 
     if (fromPath === toPath) {
-      validator.warn(`compat.routeAliases from/to 相同：${fromPath}（module=${moduleId}），已跳过。`);
+      validator.warn(
+        `compat.routeAliases from/to 相同：${fromPath}（module=${moduleId}），已跳过。`
+      );
       continue;
     }
 
@@ -326,20 +348,23 @@ function buildAliasRoutesByCompat(params: {
       meta: {
         hideInMenu: true,
         hiddenTab: true,
-        ...(aliasActivePath ? { activePath: aliasActivePath } : {}),
-      },
+        ...(aliasActivePath ? { activePath: aliasActivePath } : {})
+      }
     });
   }
 
   return out;
 }
 
-export function buildModuleRoutes<TModule extends RouteAssemblyModule>(options: BuildModuleRoutesOptions<TModule>): RouteRecordRaw[] {
+export function buildModuleRoutes<TModule extends RouteAssemblyModule>(
+  options: BuildModuleRoutesOptions<TModule>
+): RouteRecordRaw[] {
   const { modules, source, validator, rootPath = '/' } = options;
   const out: RouteRecordRaw[] = [];
 
   for (const module of modules) {
-    const moduleRoutes = source === 'layout' ? module.routes.layout : (module.routes.standalone ?? []);
+    const moduleRoutes =
+      source === 'layout' ? module.routes.layout : (module.routes.standalone ?? []);
     const compatRoutes = applyActivePathMap({
       routes: moduleRoutes,
       source,
@@ -347,7 +372,7 @@ export function buildModuleRoutes<TModule extends RouteAssemblyModule>(options: 
       parentPath: rootPath,
       validator,
       rootPath,
-      activePathMap: module.compat?.activePathMap,
+      activePathMap: module.compat?.activePathMap
     });
 
     out.push(
@@ -356,11 +381,11 @@ export function buildModuleRoutes<TModule extends RouteAssemblyModule>(options: 
         context: {
           source,
           moduleId: module.id,
-          parentPath: rootPath,
+          parentPath: rootPath
         },
         validator,
-        rootPath,
-      }),
+        rootPath
+      })
     );
   }
 
@@ -368,7 +393,7 @@ export function buildModuleRoutes<TModule extends RouteAssemblyModule>(options: 
 }
 
 export function buildModuleAliasRoutes<TModule extends RouteAssemblyModule>(
-  options: BuildModuleAliasRoutesOptions<TModule>,
+  options: BuildModuleAliasRoutesOptions<TModule>
 ): RouteRecordRaw[] {
   const { modules, validator, rootPath = '/' } = options;
   const out: RouteRecordRaw[] = [];
@@ -384,8 +409,8 @@ export function buildModuleAliasRoutes<TModule extends RouteAssemblyModule>(
         moduleId: module.id,
         compat: module.compat,
         validator,
-        rootPath,
-      }),
+        rootPath
+      })
     );
   }
 

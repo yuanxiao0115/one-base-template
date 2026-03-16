@@ -44,7 +44,11 @@ function expectEnum<T extends string>(
   return undefined;
 }
 
-function expectString(raw: Record<string, unknown>, key: string, errors: string[]): string | undefined {
+function expectString(
+  raw: Record<string, unknown>,
+  key: string,
+  errors: string[]
+): string | undefined {
   const value = raw[key];
   if (isNonEmptyString(value)) {
     return value;
@@ -53,7 +57,11 @@ function expectString(raw: Record<string, unknown>, key: string, errors: string[
   return undefined;
 }
 
-function expectOptionalString(raw: Record<string, unknown>, key: string, errors: string[]): string | undefined {
+function expectOptionalString(
+  raw: Record<string, unknown>,
+  key: string,
+  errors: string[]
+): string | undefined {
   const value = raw[key];
   if (value == null || value === '') {
     return undefined;
@@ -73,30 +81,37 @@ function getPresetExpectedMenuMode(preset: MenuRoutePreset): MenuMode {
   return preset === 'static-single' ? 'static' : 'remote';
 }
 
-function normalizePresetRuntimeConfig(input: Record<string, unknown>, errors: string[]): {
+function normalizePresetRuntimeConfig(
+  input: Record<string, unknown>,
+  errors: string[]
+): {
   preset?: MenuRoutePreset;
   normalized: Record<string, unknown>;
 } {
   const rawPreset = input.preset;
   if (rawPreset == null || rawPreset === '') {
     return {
-      normalized: input,
+      normalized: input
     };
   }
 
   if (!isMenuRoutePreset(rawPreset)) {
     errors.push('"preset" 必须是 static-single/remote-single 之一');
     return {
-      normalized: input,
+      normalized: input
     };
   }
 
   const expectedMenuMode = getPresetExpectedMenuMode(rawPreset);
   if (input.menuMode != null && input.menuMode !== expectedMenuMode) {
-    errors.push(`preset=${rawPreset} 不允许 menuMode=${String(input.menuMode)}，应为 ${expectedMenuMode}`);
+    errors.push(
+      `preset=${rawPreset} 不允许 menuMode=${String(input.menuMode)}，应为 ${expectedMenuMode}`
+    );
   }
 
-  const fallbackSystemCode = isNonEmptyString(input.defaultSystemCode) ? input.defaultSystemCode : 'default';
+  const fallbackSystemCode = isNonEmptyString(input.defaultSystemCode)
+    ? input.defaultSystemCode
+    : 'default';
   const normalized: Record<string, unknown> = {
     preset: rawPreset,
     backend: 'default',
@@ -110,9 +125,9 @@ function normalizePresetRuntimeConfig(input: Record<string, unknown>, errors: st
     appcode: 'one-base-template',
     defaultSystemCode: fallbackSystemCode,
     systemHomeMap: {
-      [fallbackSystemCode]: '/home/index',
+      [fallbackSystemCode]: '/home/index'
     },
-    ...input,
+    ...input
   };
 
   // storageNamespace 未显式配置时与 appcode 对齐，降低最小配置成本。
@@ -122,11 +137,15 @@ function normalizePresetRuntimeConfig(input: Record<string, unknown>, errors: st
 
   return {
     preset: rawPreset,
-    normalized,
+    normalized
   };
 }
 
-function expectEnabledModules(raw: Record<string, unknown>, key: string, errors: string[]): EnabledModulesSetting {
+function expectEnabledModules(
+  raw: Record<string, unknown>,
+  key: string,
+  errors: string[]
+): EnabledModulesSetting {
   const value = raw[key];
   if (value == null || value === '*') {
     return '*';
@@ -190,7 +209,11 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   const appsource = expectString(normalized, 'appsource', errors);
   const appcode = expectString(normalized, 'appcode', errors);
   const clientSignatureSalt = expectOptionalString(normalized, 'clientSignatureSalt', errors);
-  const clientSignatureClientId = expectOptionalString(normalized, 'clientSignatureClientId', errors);
+  const clientSignatureClientId = expectOptionalString(
+    normalized,
+    'clientSignatureClientId',
+    errors
+  );
   const storageNamespace = expectOptionalString(normalized, 'storageNamespace', errors);
   const defaultSystemCode = expectOptionalString(normalized, 'defaultSystemCode', errors);
   const systemHomeMap = expectSystemHomeMap(normalized, 'systemHomeMap', errors);
@@ -229,6 +252,6 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
     clientSignatureClientId,
     storageNamespace,
     defaultSystemCode,
-    systemHomeMap: systemHomeMap!,
+    systemHomeMap: systemHomeMap!
   };
 }

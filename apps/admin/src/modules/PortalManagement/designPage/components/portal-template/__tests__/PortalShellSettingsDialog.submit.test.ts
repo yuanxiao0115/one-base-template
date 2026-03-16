@@ -1,9 +1,9 @@
 /* eslint-disable vue/one-component-per-file */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { defineComponent, h } from 'vue';
 import { mount } from '@vue/test-utils';
 
-import PortalShellSettingsDialog from '../PortalShellSettingsDialog.vue';
+import { PortalShellSettingsDialog } from '@one-base-template/portal-engine';
 
 interface ShellStateLike {
   shell: {
@@ -21,8 +21,8 @@ const ObCrudContainerStub = defineComponent({
   props: {
     modelValue: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   emits: ['update:modelValue', 'confirm', 'cancel', 'close'],
   setup(props, { slots, emit }) {
@@ -34,26 +34,26 @@ const ObCrudContainerStub = defineComponent({
           {
             type: 'button',
             'data-testid': 'confirm',
-            onClick: () => emit('confirm'),
+            onClick: () => emit('confirm')
           },
           'confirm'
-        ),
+        )
       ]);
-  },
+  }
 });
 
 const ElTabsStub = defineComponent({
   name: 'ElTabs',
   setup(_, { slots }) {
     return () => h('div', { 'data-testid': 'el-tabs' }, slots.default?.());
-  },
+  }
 });
 
 const ElTabPaneStub = defineComponent({
   name: 'ElTabPane',
   setup(_, { slots }) {
     return () => h('div', { 'data-testid': 'el-tab-pane' }, slots.default?.());
-  },
+  }
 });
 
 const HeaderFormStub = defineComponent({
@@ -61,8 +61,8 @@ const HeaderFormStub = defineComponent({
   props: {
     formState: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
   setup(props) {
     return () =>
@@ -73,11 +73,11 @@ const HeaderFormStub = defineComponent({
           'data-testid': 'disable-header',
           onClick: () => {
             (props.formState as ShellStateLike).shell.header.enabled = false;
-          },
+          }
         },
         'disable-header'
       );
-  },
+  }
 });
 
 const FooterFormStub = defineComponent({
@@ -85,8 +85,8 @@ const FooterFormStub = defineComponent({
   props: {
     formState: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
   setup(props) {
     return () =>
@@ -97,11 +97,11 @@ const FooterFormStub = defineComponent({
           'data-testid': 'disable-footer',
           onClick: () => {
             (props.formState as ShellStateLike).shell.footer.enabled = false;
-          },
+          }
         },
         'disable-footer'
       );
-  },
+  }
 });
 
 describe('PortalShellSettingsDialog submit', () => {
@@ -115,10 +115,10 @@ describe('PortalShellSettingsDialog submit', () => {
           pageFooter: 1,
           shell: {
             header: { enabled: true },
-            footer: { enabled: true },
+            footer: { enabled: true }
           },
-          pageOverrides: {},
-        }),
+          pageOverrides: {}
+        })
       },
       global: {
         stubs: {
@@ -128,9 +128,9 @@ describe('PortalShellSettingsDialog submit', () => {
           ElButton: true,
           ElTabs: ElTabsStub,
           ElTabPane: ElTabPaneStub,
-          ElDrawer: true,
-        },
-      },
+          ElDrawer: true
+        }
+      }
     });
 
     await wrapper.get("[data-testid='disable-header']").trigger('click');

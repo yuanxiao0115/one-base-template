@@ -71,6 +71,6 @@ export function createCore(options: CoreOptions): { install(app: App): void } {
 
       // 允许在模板侧通过 inject 或全局属性扩展，这里不强行注入任何内容
       void app;
-    },
+    }
   };
 }

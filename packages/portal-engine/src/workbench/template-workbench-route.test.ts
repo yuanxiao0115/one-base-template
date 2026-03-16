@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 
 import {
   buildNextRouteQueryWithTabId,
   buildPortalPageEditorRouteLocation,
   buildPortalPreviewRouteLocation,
   resolvePortalTabIdFromQuery,
-  resolvePortalTemplateIdFromQuery,
+  resolvePortalTemplateIdFromQuery
 } from './template-workbench-route';
 
 describe('template workbench route helpers', () => {
@@ -21,11 +21,11 @@ describe('template workbench route helpers', () => {
     expect(buildNextRouteQueryWithTabId({ tabId: 'tab-1', keep: 'yes' }, 'tab-1')).toBeNull();
     expect(buildNextRouteQueryWithTabId({ tabId: 'tab-1', keep: 'yes' }, 'tab-2')).toEqual({
       tabId: 'tab-2',
-      keep: 'yes',
+      keep: 'yes'
     });
     expect(buildNextRouteQueryWithTabId({ tabId: 'tab-1', keep: 'yes' }, '')).toEqual({
       tabId: undefined,
-      keep: 'yes',
+      keep: 'yes'
     });
   });
 
@@ -34,16 +34,16 @@ describe('template workbench route helpers', () => {
       path: '/portal/page/edit',
       query: {
         id: 'tpl-1',
-        tabId: 'tab-1',
-      },
+        tabId: 'tab-1'
+      }
     });
     expect(buildPortalPreviewRouteLocation('tpl-1', 'tab-1', 'live')).toEqual({
       name: 'PortalPreview',
       query: {
         templateId: 'tpl-1',
         tabId: 'tab-1',
-        previewMode: 'live',
-      },
+        previewMode: 'live'
+      }
     });
   });
 });

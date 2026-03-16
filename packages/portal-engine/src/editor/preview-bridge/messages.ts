@@ -70,24 +70,30 @@ function toObject(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>;
 }
 
-export function buildPreviewShellDetailsMessage(data: PortalPreviewShellDetailsData): PortalPreviewShellDetailsMessage {
+export function buildPreviewShellDetailsMessage(
+  data: PortalPreviewShellDetailsData
+): PortalPreviewShellDetailsMessage {
   return {
     type: PORTAL_PREVIEW_MESSAGE_SHELL_DETAILS,
-    data,
+    data
   };
 }
 
-export function buildPreviewViewportMessage(data: PortalPreviewViewportData): PortalPreviewViewportMessage {
+export function buildPreviewViewportMessage(
+  data: PortalPreviewViewportData
+): PortalPreviewViewportMessage {
   return {
     type: PORTAL_PREVIEW_MESSAGE_VIEWPORT,
-    data,
+    data
   };
 }
 
-export function buildPreviewRuntimeMessage(data: PortalPreviewRuntimeData): PortalPreviewRuntimeMessage {
+export function buildPreviewRuntimeMessage(
+  data: PortalPreviewRuntimeData
+): PortalPreviewRuntimeMessage {
   return {
     type: PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME,
-    data,
+    data
   };
 }
 
@@ -101,7 +107,7 @@ export function isPreviewPageReadyMessage(input: unknown): {
     return {
       matched: false,
       tabId: '',
-      templateId: '',
+      templateId: ''
     };
   }
 
@@ -109,7 +115,7 @@ export function isPreviewPageReadyMessage(input: unknown): {
     return {
       matched: false,
       tabId: '',
-      templateId: '',
+      templateId: ''
     };
   }
 
@@ -118,13 +124,13 @@ export function isPreviewPageReadyMessage(input: unknown): {
     return {
       matched: false,
       tabId: '',
-      templateId: '',
+      templateId: ''
     };
   }
 
   return {
     matched: true,
     tabId: normalizeString(dataLike.tabId),
-    templateId: normalizeString(dataLike.templateId),
+    templateId: normalizeString(dataLike.templateId)
   };
 }

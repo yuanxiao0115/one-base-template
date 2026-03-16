@@ -27,10 +27,10 @@ export function useTagRouteGuard() {
         title: route.meta?.title || route.name || '未命名页面',
         icon: route.meta?.icon,
         keepAlive: route.meta?.keepAlive,
-        ...route.meta,
+        ...route.meta
       },
       query: route.query || {},
-      params: route.params || {},
+      params: route.params || {}
     };
   }
 
@@ -139,7 +139,7 @@ export function useTagRouteGuard() {
           updatedTags: currentTags,
           newActiveTag: currentActiveTag || createHomeTag(),
           tagAdded: false,
-          error: '路由不应添加为标签',
+          error: '路由不应添加为标签'
         };
       }
 
@@ -152,7 +152,7 @@ export function useTagRouteGuard() {
           updatedTags: currentTags,
           newActiveTag: currentActiveTag || createHomeTag(),
           tagAdded: false,
-          error: '创建的标签无效',
+          error: '创建的标签无效'
         };
       }
 
@@ -165,7 +165,7 @@ export function useTagRouteGuard() {
           return {
             updatedTags: currentTags,
             newActiveTag: currentActiveTag || createHomeTag(),
-            tagAdded: false,
+            tagAdded: false
           };
         }
 
@@ -173,7 +173,7 @@ export function useTagRouteGuard() {
         return {
           updatedTags: currentTags,
           newActiveTag: existingTag,
-          tagAdded: false,
+          tagAdded: false
         };
       }
 
@@ -186,7 +186,7 @@ export function useTagRouteGuard() {
       return {
         updatedTags,
         newActiveTag: newTag,
-        tagAdded: true,
+        tagAdded: true
       };
     } catch (error) {
       console.error('处理路由变化失败:', error);
@@ -195,7 +195,7 @@ export function useTagRouteGuard() {
         updatedTags: currentTags,
         newActiveTag: currentActiveTag || createHomeTag(),
         tagAdded: false,
-        error: `处理失败: ${error}`,
+        error: `处理失败: ${error}`
       };
     }
   }
@@ -204,6 +204,6 @@ export function useTagRouteGuard() {
     createTagFromRoute,
     shouldAddRouteAsTag,
     processRouteChange,
-    findInsertPosition,
+    findInsertPosition
   };
 }

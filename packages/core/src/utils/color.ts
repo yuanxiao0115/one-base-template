@@ -38,7 +38,7 @@ export function mix(hex1: string, hex2: string, ratio: number): string {
   const mixed = {
     r: Math.round(c1.r + (c2.r - c1.r) * r),
     g: Math.round(c1.g + (c2.g - c1.g) * r),
-    b: Math.round(c1.b + (c2.b - c1.b) * r),
+    b: Math.round(c1.b + (c2.b - c1.b) * r)
   };
 
   return rgbToHex(mixed);

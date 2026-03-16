@@ -1,9 +1,9 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vite-plus/test';
 
 import {
   createPortalPageSettingsService,
   resetPortalPageSettingsApi,
-  setPortalPageSettingsApi,
+  setPortalPageSettingsApi
 } from './page-settings';
 
 describe('portal page settings service', () => {
@@ -29,13 +29,13 @@ describe('portal page settings service', () => {
           pageLayout: JSON.stringify({
             settings: {
               basic: {
-                pageTitle: '',
-              },
+                pageTitle: ''
+              }
             },
-            component: [{ i: 'm-1', x: 0, y: 0, w: 12, h: 6 }],
-          }),
-        },
-      }),
+            component: [{ i: 'm-1', x: 0, y: 0, w: 12, h: 6 }]
+          })
+        }
+      })
     });
 
     const service = createPortalPageSettingsService();
@@ -50,7 +50,7 @@ describe('portal page settings service', () => {
     const updateTab = vi.fn().mockResolvedValue({
       success: true,
       code: 200,
-      message: '',
+      message: ''
     });
 
     setPortalPageSettingsApi({
@@ -64,17 +64,17 @@ describe('portal page settings service', () => {
           pageLayout: JSON.stringify({
             settings: {
               basic: {
-                pageTitle: '原页面',
+                pageTitle: '原页面'
               },
               layout: {
-                mode: 'scroll',
-              },
+                mode: 'scroll'
+              }
             },
-            component: [{ i: 'm-2', x: 0, y: 0, w: 24, h: 8 }],
-          }),
-        },
+            component: [{ i: 'm-2', x: 0, y: 0, w: 24, h: 8 }]
+          })
+        }
       }),
-      updateTab,
+      updateTab
     });
 
     const service = createPortalPageSettingsService();
@@ -84,9 +84,9 @@ describe('portal page settings service', () => {
       templateId: 'tpl-input',
       settings: {
         basic: {
-          pageTitle: '新页面标题',
-        },
-      },
+          pageTitle: '新页面标题'
+        }
+      }
     });
 
     expect(updateTab).toHaveBeenCalledTimes(1);

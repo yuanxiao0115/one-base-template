@@ -10,7 +10,7 @@ yuanxiao owns this. Start: say hi + 1 motivating line.
 
 - `~/.codex` 的全局配置负责 **运行时角色、模型、system prompt、工具权限**。
 - 本仓库负责 **项目知识、目录边界、验证口径、文档入口、协作规则**。
-- **当用户明确指向本仓库时，默认只修改 `/Users/haoqiuzhi/code/one-base-template/**`；除非用户明确要求，否则不要修改 `~/.codex`、其他仓库或全局角色配置。**
+- **当用户明确指向本仓库时，默认只修改 `/Users/haoqiuzhi/code/one-base-template/**`；除非用户明确要求，否则不要修改 `~/.codex`、其他仓库或全局角色配置。\*\*
 - 在本仓库工作时，优先让仓库本身对 agent 可读：规则写进 `AGENTS.md`，项目知识写进 `apps/docs`，实施记录写进 `docs/plans` 与 `.codex/*.md`。
 
 ---
@@ -74,17 +74,17 @@ docs/
 
 ## 🗂️ 规则分层与适用范围（必须遵守）
 
-| 作用域 | 规则文件 | 说明 |
-| --- | --- | --- |
-| 全仓通用 | `/Users/haoqiuzhi/code/one-base-template/AGENTS.md` | 工作流、项目边界、协作规范、知识入口 |
-| admin 应用 | `/Users/haoqiuzhi/code/one-base-template/apps/admin/AGENTS.md` | 路由菜单、主题、表格、UserManagement 等实现细则 |
-| docs 站点 | `/Users/haoqiuzhi/code/one-base-template/apps/docs/AGENTS.md` | 文档结构、导航同步、构建校验 |
-| adapters 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/adapters/AGENTS.md` | 适配层契约、字段映射、mock / 真实接口边界 |
-| core 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/core/AGENTS.md` | 逻辑内核、主题 token、无 UI 依赖 |
-| portal-engine 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/portal-engine/AGENTS.md` | 门户引擎物料配置红线、统一封装组件复用约束 |
-| ui 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/ui/AGENTS.md` | 壳组件实现、样式 token、导出边界 |
-| tag 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/tag/AGENTS.md` | 主题样式资源与导出规范 |
-| utils 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/utils/AGENTS.md` | 工具函数语义、纯函数与可复用性 |
+| 作用域             | 规则文件                                                                   | 说明                                            |
+| ------------------ | -------------------------------------------------------------------------- | ----------------------------------------------- |
+| 全仓通用           | `/Users/haoqiuzhi/code/one-base-template/AGENTS.md`                        | 工作流、项目边界、协作规范、知识入口            |
+| admin 应用         | `/Users/haoqiuzhi/code/one-base-template/apps/admin/AGENTS.md`             | 路由菜单、主题、表格、UserManagement 等实现细则 |
+| docs 站点          | `/Users/haoqiuzhi/code/one-base-template/apps/docs/AGENTS.md`              | 文档结构、导航同步、构建校验                    |
+| adapters 子包      | `/Users/haoqiuzhi/code/one-base-template/packages/adapters/AGENTS.md`      | 适配层契约、字段映射、mock / 真实接口边界       |
+| core 子包          | `/Users/haoqiuzhi/code/one-base-template/packages/core/AGENTS.md`          | 逻辑内核、主题 token、无 UI 依赖                |
+| portal-engine 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/portal-engine/AGENTS.md` | 门户引擎物料配置红线、统一封装组件复用约束      |
+| ui 子包            | `/Users/haoqiuzhi/code/one-base-template/packages/ui/AGENTS.md`            | 壳组件实现、样式 token、导出边界                |
+| tag 子包           | `/Users/haoqiuzhi/code/one-base-template/packages/tag/AGENTS.md`           | 主题样式资源与导出规范                          |
+| utils 子包         | `/Users/haoqiuzhi/code/one-base-template/packages/utils/AGENTS.md`         | 工具函数语义、纯函数与可复用性                  |
 
 ### 规则落盘原则
 

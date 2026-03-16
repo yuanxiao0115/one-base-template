@@ -1,8 +1,15 @@
-import type { ApiPageData } from "@/shared/api/types";
+import type { ApiPageData } from '@/shared/api/types';
 
-export type { ApiResponse } from "@/shared/api/types";
+export type { ApiResponse } from '@/shared/api/types';
 
-type LooseField = string | number | boolean | null | undefined | Array<unknown> | Record<string, unknown>;
+type LooseField =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Array<unknown>
+  | Record<string, unknown>;
 
 export interface RoleOption {
   id: string;
@@ -40,7 +47,7 @@ export interface UserOption {
   [key: string]: LooseField;
 }
 
-export type RoleAssignContactNodeType = "org" | "user";
+export type RoleAssignContactNodeType = 'org' | 'user';
 
 export interface RoleAssignContactNodeBase {
   id: string;
@@ -52,14 +59,14 @@ export interface RoleAssignContactNodeBase {
 }
 
 export type RoleAssignContactOrgNode = RoleAssignContactNodeBase & {
-  nodeType: "org";
+  nodeType: 'org';
   orgName: string;
   orgType: number;
   children?: RoleAssignContactNode[];
 };
 
 export type RoleAssignContactUserNode = RoleAssignContactNodeBase & {
-  nodeType: "user";
+  nodeType: 'user';
   userId: string;
   nickName: string;
   userAccount: string;

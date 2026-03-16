@@ -1,19 +1,19 @@
 <script setup lang="ts">
-  import { computed } from 'vue';
-  import type { AppMenuItem } from '@one-base-template/core';
-  import MenuIcon from './MenuIcon.vue';
-  import MenuLabel from './MenuLabel.vue';
+import { computed } from 'vue';
+import type { AppMenuItem } from '@one-base-template/core';
+import MenuIcon from './MenuIcon.vue';
+import MenuLabel from './MenuLabel.vue';
 
-  defineOptions({
-    name: 'ObMenuItem',
-  });
+defineOptions({
+  name: 'ObMenuItem'
+});
 
-  const props = defineProps<{
-    item: AppMenuItem;
-    collapsed?: boolean;
-  }>();
+const props = defineProps<{
+  item: AppMenuItem;
+  collapsed?: boolean;
+}>();
 
-  const isCollapsed = computed(() => Boolean(props.collapsed));
+const isCollapsed = computed(() => Boolean(props.collapsed));
 </script>
 
 <template>
@@ -24,7 +24,12 @@
         <MenuLabel v-if="!isCollapsed" :title="props.item.title" class="ob-menu-item__label" />
       </div>
     </template>
-    <ObMenuItem v-for="child in props.item.children" :key="child.path" :item="child" :collapsed="isCollapsed" />
+    <ObMenuItem
+      v-for="child in props.item.children"
+      :key="child.path"
+      :item="child"
+      :collapsed="isCollapsed"
+    />
   </el-sub-menu>
 
   <el-menu-item v-else :index="props.item.path">
@@ -36,16 +41,16 @@
 </template>
 
 <style scoped>
-  .ob-menu-item__inner {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-width: 0;
-    gap: 8px;
-  }
+.ob-menu-item__inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+}
 
-  .ob-menu-item__label {
-    flex: 1;
-    min-width: 0;
-  }
+.ob-menu-item__label {
+  flex: 1;
+  min-width: 0;
+}
 </style>

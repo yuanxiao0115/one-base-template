@@ -24,14 +24,20 @@ export function clampPortalPreviewPercent(value: number, min = 50, max = 200): n
   return Math.min(max, Math.max(min, value));
 }
 
-export function calcPortalManualPanRange(hostSize: number, stageSize: number, minOffset = 80): number {
+export function calcPortalManualPanRange(
+  hostSize: number,
+  stageSize: number,
+  minOffset = 80
+): number {
   if (stageSize > hostSize) {
     return 0;
   }
   return Math.max((hostSize - stageSize) / 2, minOffset);
 }
 
-export function calcPortalPreviewPanBounds(input: PortalPreviewPanBoundsInput): PortalPreviewPanBounds {
+export function calcPortalPreviewPanBounds(
+  input: PortalPreviewPanBoundsInput
+): PortalPreviewPanBounds {
   const centeredX = (input.hostWidth - input.stageWidth) / 2;
 
   if (!input.manualMode) {
@@ -40,7 +46,7 @@ export function calcPortalPreviewPanBounds(input: PortalPreviewPanBoundsInput): 
       minX: 0,
       maxX: 0,
       minY: 0,
-      maxY: 0,
+      maxY: 0
     };
   }
 
@@ -67,7 +73,7 @@ export function calcPortalPreviewPanBounds(input: PortalPreviewPanBoundsInput): 
     minX,
     maxX,
     minY,
-    maxY,
+    maxY
   };
 }
 
@@ -77,7 +83,7 @@ export function clampPortalPreviewOffset(
 ): PortalPreviewStageOffset {
   return {
     x: Math.min(bounds.maxX, Math.max(bounds.minX, offset.x)),
-    y: Math.min(bounds.maxY, Math.max(bounds.minY, offset.y)),
+    y: Math.min(bounds.maxY, Math.max(bounds.minY, offset.y))
   };
 }
 
@@ -87,6 +93,6 @@ export function calcPortalPreviewStagePosition(
 ): PortalPreviewStageOffset {
   return {
     x: bounds.centeredX + offset.x,
-    y: offset.y,
+    y: offset.y
   };
 }

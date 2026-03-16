@@ -12,7 +12,7 @@
   "scripts": {
     "build": "pnpm typecheck",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "vp lint ."
   },
   "dependencies": {
     "@one-base-template/core": "workspace:*"

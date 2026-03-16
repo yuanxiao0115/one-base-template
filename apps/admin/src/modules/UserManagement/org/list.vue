@@ -1,44 +1,64 @@
 <script setup lang="ts">
-  import { Plus } from "@element-plus/icons-vue";
-  import OrgSearchForm from "./components/OrgSearchForm.vue";
-  import OrgEditForm from "./components/OrgEditForm.vue";
-  import OrgManagerDialog from "./components/OrgManagerDialog.vue";
-  import OrgLevelManageDialog from "./components/OrgLevelManageDialog.vue";
-  import { orgFormRules } from "./form";
-  import { useOrgPageState } from "./composables/useOrgPageState";
+import { Plus } from '@element-plus/icons-vue';
+import OrgSearchForm from './components/OrgSearchForm.vue';
+import OrgEditForm from './components/OrgEditForm.vue';
+import OrgManagerDialog from './components/OrgManagerDialog.vue';
+import OrgLevelManageDialog from './components/OrgLevelManageDialog.vue';
+import { orgFormRules } from './form';
+import { useOrgPageState } from './composables/useOrgPageState';
 
-  defineOptions({
-    name: "OrgManagementPage",
-  });
+defineOptions({
+  name: 'OrgManagementPage'
+});
 
-  // 页面仅保留编排层：组织管理查询、CRUD 与树数据加载逻辑统一下沉到 composable。
-  const pageState = useOrgPageState();
+// 页面仅保留编排层：组织管理查询、CRUD 与树数据加载逻辑统一下沉到 composable。
+const pageState = useOrgPageState();
 
-  const { refs } = pageState;
+const { refs } = pageState;
 
-  const { loading, dataList, treeConfig, tableColumns, searchForm, orgCategoryLabelMap, institutionalTypeLabelMap } =
-    pageState.table;
+const {
+  loading,
+  dataList,
+  treeConfig,
+  tableColumns,
+  searchForm,
+  orgCategoryLabelMap,
+  institutionalTypeLabelMap
+} = pageState.table;
 
-  const { crud, crudVisible, crudMode, crudTitle, crudReadonly, crudSubmitting, crudForm, checkOrgNameUnique } =
-    pageState.editor;
+const {
+  crud,
+  crudVisible,
+  crudMode,
+  crudTitle,
+  crudReadonly,
+  crudSubmitting,
+  crudForm,
+  checkOrgNameUnique
+} = pageState.editor;
 
-  const { orgTreeOptions, orgCategoryOptions, institutionalTypeOptions, orgLevelOptions, rootParentId } =
-    pageState.options;
+const {
+  orgTreeOptions,
+  orgCategoryOptions,
+  institutionalTypeOptions,
+  orgLevelOptions,
+  rootParentId
+} = pageState.options;
 
-  const { orgManagerVisible, orgManagerTarget, orgLevelDialogVisible } = pageState.dialogs;
+const { orgManagerVisible, orgManagerTarget, orgLevelDialogVisible } = pageState.dialogs;
 
-  const {
-    tableSearch,
-    onKeywordUpdate,
-    onResetSearch,
-    openLevelManageDialog,
-    openCreateRoot,
-    openCreateChild,
-    openManagerDialog,
-    handleDelete,
-    handleOrgManagerUpdated,
-    handleOrgLevelUpdated,
-  } = pageState.actions;
+const {
+  tableSearch,
+  onKeywordUpdate,
+  onResetSearch,
+  openLevelManageDialog,
+  openCreateRoot,
+  openCreateChild,
+  openManagerDialog,
+  handleDelete,
+  handleOrgManagerUpdated,
+  handleOrgLevelUpdated
+} = pageState.actions;
 </script>
 
 <template>
@@ -70,13 +90,17 @@
         >
           <template #orgName="{ row }">
             <div class="org-management-page__name-cell">
-              <el-tag size="small" type="info">{{ Number(row.orgType) === 1 ? '单位' : '部门' }}</el-tag>
+              <el-tag size="small" type="info">{{
+                Number(row.orgType) === 1 ? '单位' : '部门'
+              }}</el-tag>
               <span>{{ row.orgName }}</span>
               <el-tag v-if="row.isExternal" size="small" type="warning">外部</el-tag>
             </div>
           </template>
 
-          <template #orgCategory="{ row }"> {{ orgCategoryLabelMap[String(row.orgCategory)] || '--' }} </template>
+          <template #orgCategory="{ row }">
+            {{ orgCategoryLabelMap[String(row.orgCategory)] || '--' }}
+          </template>
 
           <template #institutionalType="{ row }">
             {{ institutionalTypeLabelMap[String(row.institutionalType)] || '--' }}
@@ -85,15 +109,33 @@
           <template #operation="{ row, size: actionSize }">
             <div class="org-management-page__actions">
               <ObActionButtons>
-                <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)">查看</el-button>
-                <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)">编辑</el-button>
-                <el-button link type="primary" :size="actionSize" @click="() => openCreateChild(row)"
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="() => crud.openDetail(row)"
+                  >查看</el-button
+                >
+                <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)"
+                  >编辑</el-button
+                >
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="() => openCreateChild(row)"
                   >新增下级组织</el-button
                 >
-                <el-button link type="primary" :size="actionSize" @click="() => openManagerDialog(row)"
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="() => openManagerDialog(row)"
                   >创建组织管理员</el-button
                 >
-                <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
+                <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+                  >删除</el-button
+                >
               </ObActionButtons>
             </div>
           </template>
@@ -143,15 +185,15 @@
 </template>
 
 <style scoped>
-  .org-management-page__name-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
+.org-management-page__name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
-  .org-management-page__actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-  }
+.org-management-page__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
 </style>

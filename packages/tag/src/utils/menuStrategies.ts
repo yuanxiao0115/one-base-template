@@ -66,7 +66,11 @@ export class HomePageMenuStrategy implements MenuStrategy {
     const { routeLength, tagsViews } = context;
 
     // 首页右键菜单：隐藏"关闭当前标签页"、"关闭左侧"、"关闭右侧"
-    hideMenuItems(tagsViews, [MENU_INDICES.CLOSE_CURRENT, MENU_INDICES.CLOSE_LEFT, MENU_INDICES.CLOSE_RIGHT]);
+    hideMenuItems(tagsViews, [
+      MENU_INDICES.CLOSE_CURRENT,
+      MENU_INDICES.CLOSE_LEFT,
+      MENU_INDICES.CLOSE_RIGHT
+    ]);
 
     // 根据是否有其他标签决定"关闭其他"和"关闭全部"
     if (routeLength <= 1) {
@@ -108,7 +112,11 @@ export class RegularPageMenuStrategy implements MenuStrategy {
   /**
    * 配置基于位置的菜单
    */
-  private configurePositionBasedMenus(currentIndex: number, routeLength: number, tagsViews: TagMenuItem[]): void {
+  private configurePositionBasedMenus(
+    currentIndex: number,
+    routeLength: number,
+    tagsViews: TagMenuItem[]
+  ): void {
     if (currentIndex === 1 && routeLength > 2) {
       // 第二个位置（首页右侧第一个），不显示"关闭左侧"
       hideMenuItems(tagsViews, [MENU_INDICES.CLOSE_LEFT]);
@@ -125,7 +133,7 @@ export class RegularPageMenuStrategy implements MenuStrategy {
     hideMenuItems(tagsViews, [
       MENU_INDICES.CLOSE_LEFT, // 关闭左侧
       MENU_INDICES.CLOSE_RIGHT, // 关闭右侧
-      MENU_INDICES.CLOSE_OTHER, // 关闭其他（只剩首页了）
+      MENU_INDICES.CLOSE_OTHER // 关闭其他（只剩首页了）
     ]);
   }
 }
@@ -142,7 +150,7 @@ export const MenuStrategyFactory = {
       return new HomePageMenuStrategy();
     }
     return new RegularPageMenuStrategy();
-  },
+  }
 } as const;
 
 /**
@@ -152,10 +160,17 @@ export const MenuConfigurator = {
   /**
    * 配置菜单状态
    */
-  configure(currentPath: string, query: Record<string, any>, multiTags: any[], tagsViews: TagMenuItem[]): void {
+  configure(
+    currentPath: string,
+    query: Record<string, any>,
+    multiTags: any[],
+    tagsViews: TagMenuItem[]
+  ): void {
     try {
       // 查找当前标签索引
-      const currentIndex = multiTags.findIndex((v) => v && isEqual(v.query || {}, query) && v.path === currentPath);
+      const currentIndex = multiTags.findIndex(
+        (v) => v && isEqual(v.query || {}, query) && v.path === currentPath
+      );
 
       // 创建上下文
       const context: MenuContext = {
@@ -163,7 +178,7 @@ export const MenuConfigurator = {
         query,
         currentIndex,
         routeLength: multiTags.length,
-        tagsViews,
+        tagsViews
       };
 
       // 重置菜单状态
@@ -177,5 +192,5 @@ export const MenuConfigurator = {
       // 发生错误时重置为默认状态
       resetMenuState(tagsViews);
     }
-  },
+  }
 } as const;

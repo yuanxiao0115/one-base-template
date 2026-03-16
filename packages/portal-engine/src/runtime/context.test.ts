@@ -1,17 +1,17 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 import { createPortalEngineContext } from './context';
 import { getPortalCmsApi, setPortalCmsApi } from '../materials/api';
 import {
   navigatePortalCmsList,
   resetPortalCmsNavigation,
-  setPortalCmsNavigation,
+  setPortalCmsNavigation
 } from '../materials/navigation';
 import { getPortalMaterialRegistryController } from '../registry/materials-registry';
 import {
   createPortalPageSettingsService,
   resetPortalPageSettingsApi,
-  setPortalPageSettingsApi,
+  setPortalPageSettingsApi
 } from '../services/page-settings';
 
 describe('portal engine context', () => {
@@ -24,19 +24,19 @@ describe('portal engine context', () => {
         getCategoryTree: vi.fn().mockResolvedValue({
           success: true,
           code: 200,
-          data: ['cat-a'],
-        }),
+          data: ['cat-a']
+        })
       },
       contextA
     );
 
     await expect(getPortalCmsApi(contextA).getCategoryTree()).resolves.toMatchObject({
       success: true,
-      data: ['cat-a'],
+      data: ['cat-a']
     });
     await expect(getPortalCmsApi(contextB).getCategoryTree()).resolves.toMatchObject({
       success: false,
-      message: expect.stringContaining('未配置'),
+      message: expect.stringContaining('未配置')
     });
   });
 
@@ -58,10 +58,10 @@ describe('portal engine context', () => {
             templateId: 'tpl-a',
             pageLayout: JSON.stringify({
               settings: {},
-              component: [],
-            }),
-          },
-        }),
+              component: []
+            })
+          }
+        })
       },
       contextA
     );
@@ -71,13 +71,13 @@ describe('portal engine context', () => {
 
     await expect(serviceA.loadTabPageSettings('tab-a')).resolves.toMatchObject({
       tab: {
-        id: 'tab-a',
+        id: 'tab-a'
       },
       settings: {
         basic: {
-          pageTitle: '页面 A',
-        },
-      },
+          pageTitle: '页面 A'
+        }
+      }
     });
     await expect(serviceB.loadTabPageSettings('tab-b')).rejects.toThrow('未配置');
   });
@@ -91,7 +91,7 @@ describe('portal engine context', () => {
     resetPortalCmsNavigation(contextB);
     setPortalCmsNavigation(
       {
-        openList,
+        openList
       },
       contextA
     );
@@ -100,7 +100,7 @@ describe('portal engine context', () => {
       navigatePortalCmsList(
         {
           router: { push: vi.fn() },
-          categoryId: 'cat-a',
+          categoryId: 'cat-a'
         },
         contextA
       )
@@ -110,13 +110,13 @@ describe('portal engine context', () => {
       navigatePortalCmsList(
         {
           router: { push: vi.fn() },
-          categoryId: 'cat-b',
+          categoryId: 'cat-b'
         },
         contextB
       )
     ).resolves.toEqual({
       handled: false,
-      message: '当前应用未配置 CMS 列表跳转',
+      message: '当前应用未配置 CMS 列表跳转'
     });
   });
 
@@ -138,25 +138,29 @@ describe('portal engine context', () => {
         cmptConfig: {
           index: { name: 'test-material-a-index' },
           content: { name: 'test-material-a-content' },
-          style: { name: 'test-material-a-style' },
-        },
+          style: { name: 'test-material-a-style' }
+        }
       },
       {
         category: {
           id: 'custom-test',
-          title: '自定义测试',
-        },
+          title: '自定义测试'
+        }
       }
     );
 
     expect(
       registryA.categories.some(
-        (category) => category.id === 'custom-test' && category.cmptList.some((item) => item.id === 'test-material-a')
+        (category) =>
+          category.id === 'custom-test' &&
+          category.cmptList.some((item) => item.id === 'test-material-a')
       )
     ).toBe(true);
     expect(
       registryB.categories.some(
-        (category) => category.id === 'custom-test' && category.cmptList.some((item) => item.id === 'test-material-a')
+        (category) =>
+          category.id === 'custom-test' &&
+          category.cmptList.some((item) => item.id === 'test-material-a')
       )
     ).toBe(false);
   });

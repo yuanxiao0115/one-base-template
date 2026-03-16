@@ -128,8 +128,8 @@ export const PORTAL_CUSTOM_HEADER_OPTIONS = [
   {
     key: 'news-government-v1',
     label: '新闻门户-政务红',
-    description: '红色政务风格，适配新闻门户等专题站点',
-  },
+    description: '红色政务风格，适配新闻门户等专题站点'
+  }
 ] as const;
 
 const DEFAULT_DETAILS: PortalTemplateDetails = {
@@ -158,7 +158,7 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
         shadow: '0 1px 4px rgba(15, 98, 207, 0.18)',
         actionBgColor: '#ffffff',
         actionTextColor: '#0f62cf',
-        actionBorderColor: 'rgba(255,255,255,0.45)',
+        actionBorderColor: 'rgba(255,255,255,0.45)'
       },
       behavior: {
         navSource: 'tabTree',
@@ -175,8 +175,8 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
         actionButtonUrl: '',
         showTopNotice: false,
         topNoticeText: '',
-        manualNavItems: [],
-      },
+        manualNavItems: []
+      }
     },
     footer: {
       enabled: true,
@@ -187,7 +187,7 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
         linkColor: '#2563eb',
         height: 80,
         containerWidth: 1200,
-        borderTopColor: '#e2e8f0',
+        borderTopColor: '#e2e8f0'
       },
       content: {
         description: '',
@@ -197,18 +197,18 @@ const DEFAULT_DETAILS: PortalTemplateDetails = {
         servicePhone: '',
         serviceEmail: '',
         address: '',
-        links: [],
+        links: []
       },
       behavior: {
         fixedMode: 'static',
         scrollableWhenFixed: true,
         showLinks: true,
         showRecord: true,
-        showContact: false,
-      },
-    },
+        showContact: false
+      }
+    }
   },
-  pageOverrides: {},
+  pageOverrides: {}
 };
 
 function deepCopy<T>(value: T): T {
@@ -245,7 +245,10 @@ function toEnabledNumber(value: unknown, fallback: number): number {
   return toBoolean(value, fallback === 1) ? 1 : 0;
 }
 
-function normalizeContainerWidth(value: unknown, fallback: PortalContainerWidth): PortalContainerWidth {
+function normalizeContainerWidth(
+  value: unknown,
+  fallback: PortalContainerWidth
+): PortalContainerWidth {
   if (typeof value === 'string') {
     const text = value.trim();
     if (text === '100%') {
@@ -286,7 +289,7 @@ function normalizeNavItems(input: unknown): PortalShellNavItem[] {
 
     const next: PortalShellNavItem = {
       key,
-      label,
+      label
     };
     if (tabId) {
       next.tabId = tabId;
@@ -320,7 +323,10 @@ function mergeHeaderConfig(input: unknown, fallback: PortalHeaderConfig): Portal
   next.tokens.logo = toText(tokens.logo, next.tokens.logo);
   next.tokens.logoWidth = toNumber(tokens.logoWidth, next.tokens.logoWidth);
   next.tokens.logoLeftMargin = toNumber(tokens.logoLeftMargin, next.tokens.logoLeftMargin);
-  next.tokens.containerWidth = normalizeContainerWidth(tokens.containerWidth, next.tokens.containerWidth);
+  next.tokens.containerWidth = normalizeContainerWidth(
+    tokens.containerWidth,
+    next.tokens.containerWidth
+  );
   next.tokens.sticky = toBoolean(tokens.sticky, next.tokens.sticky);
   next.tokens.zIndex = toNumber(tokens.zIndex, next.tokens.zIndex);
   next.tokens.shadow = toText(tokens.shadow, next.tokens.shadow);
@@ -330,16 +336,29 @@ function mergeHeaderConfig(input: unknown, fallback: PortalHeaderConfig): Portal
 
   const behavior = isObject(input.behavior) ? input.behavior : {};
   next.behavior.navSource = behavior.navSource === 'manual' ? 'manual' : 'tabTree';
-  next.behavior.navAlign = behavior.navAlign === 'center' || behavior.navAlign === 'right' ? behavior.navAlign : 'left';
+  next.behavior.navAlign =
+    behavior.navAlign === 'center' || behavior.navAlign === 'right' ? behavior.navAlign : 'left';
   next.behavior.title = toText(behavior.title, toText(behavior.brandName, next.behavior.title));
-  next.behavior.subTitle = toText(behavior.subTitle, toText(behavior.brandSubTitle, next.behavior.subTitle));
+  next.behavior.subTitle = toText(
+    behavior.subTitle,
+    toText(behavior.brandSubTitle, next.behavior.subTitle)
+  );
   next.behavior.titleLayout = behavior.titleLayout === 'divider' ? 'divider' : 'stack';
   next.behavior.titlePosition = behavior.titlePosition === 'leftEdge' ? 'leftEdge' : 'logoRight';
   next.behavior.titleFontSize = toNumber(behavior.titleFontSize, next.behavior.titleFontSize);
-  next.behavior.subTitleFontSize = toNumber(behavior.subTitleFontSize, next.behavior.subTitleFontSize);
+  next.behavior.subTitleFontSize = toNumber(
+    behavior.subTitleFontSize,
+    next.behavior.subTitleFontSize
+  );
   next.behavior.showUserCenter = toBoolean(behavior.showUserCenter, next.behavior.showUserCenter);
-  next.behavior.showActionButton = toBoolean(behavior.showActionButton, next.behavior.showActionButton);
-  next.behavior.actionButtonText = toText(behavior.actionButtonText, next.behavior.actionButtonText);
+  next.behavior.showActionButton = toBoolean(
+    behavior.showActionButton,
+    next.behavior.showActionButton
+  );
+  next.behavior.actionButtonText = toText(
+    behavior.actionButtonText,
+    next.behavior.actionButtonText
+  );
   next.behavior.actionButtonUrl = toText(behavior.actionButtonUrl, next.behavior.actionButtonUrl);
   next.behavior.showTopNotice = toBoolean(behavior.showTopNotice, next.behavior.showTopNotice);
   next.behavior.topNoticeText = toText(behavior.topNoticeText, next.behavior.topNoticeText);
@@ -362,7 +381,10 @@ function mergeFooterConfig(input: unknown, fallback: PortalFooterConfig): Portal
   next.tokens.mutedTextColor = toText(tokens.mutedTextColor, next.tokens.mutedTextColor);
   next.tokens.linkColor = toText(tokens.linkColor, next.tokens.linkColor);
   next.tokens.height = toNumber(tokens.height, next.tokens.height);
-  next.tokens.containerWidth = normalizeContainerWidth(tokens.containerWidth, next.tokens.containerWidth);
+  next.tokens.containerWidth = normalizeContainerWidth(
+    tokens.containerWidth,
+    next.tokens.containerWidth
+  );
   next.tokens.borderTopColor = toText(tokens.borderTopColor, next.tokens.borderTopColor);
 
   const content = isObject(input.content) ? input.content : {};
@@ -386,14 +408,17 @@ function mergeFooterConfig(input: unknown, fallback: PortalFooterConfig): Portal
       }
       return {
         label,
-        url,
+        url
       };
     })
     .filter((item): item is { label: string; url: string } => Boolean(item));
 
   const behavior = isObject(input.behavior) ? input.behavior : {};
   next.behavior.fixedMode = behavior.fixedMode === 'fixed' ? 'fixed' : 'static';
-  next.behavior.scrollableWhenFixed = toBoolean(behavior.scrollableWhenFixed, next.behavior.scrollableWhenFixed);
+  next.behavior.scrollableWhenFixed = toBoolean(
+    behavior.scrollableWhenFixed,
+    next.behavior.scrollableWhenFixed
+  );
   next.behavior.showLinks = toBoolean(behavior.showLinks, next.behavior.showLinks);
   next.behavior.showRecord = toBoolean(behavior.showRecord, next.behavior.showRecord);
   next.behavior.showContact = toBoolean(behavior.showContact, next.behavior.showContact);
@@ -401,7 +426,11 @@ function mergeFooterConfig(input: unknown, fallback: PortalFooterConfig): Portal
   return next;
 }
 
-function mergePageOverride(input: unknown, fallbackHeader: PortalHeaderConfig, fallbackFooter: PortalFooterConfig): PortalPageShellOverride {
+function mergePageOverride(
+  input: unknown,
+  fallbackHeader: PortalHeaderConfig,
+  fallbackFooter: PortalFooterConfig
+): PortalPageShellOverride {
   if (!isObject(input)) {
     return {};
   }
@@ -480,7 +509,11 @@ export function parsePortalTemplateDetails(raw: unknown): PortalTemplateDetails 
   next.shell.header.enabled = next.pageHeader === 1;
   next.shell.footer.enabled = next.pageFooter === 1;
 
-  next.pageOverrides = normalizePageOverrides(source.pageOverrides, next.shell.header, next.shell.footer);
+  next.pageOverrides = normalizePageOverrides(
+    source.pageOverrides,
+    next.shell.header,
+    next.shell.footer
+  );
 
   return next;
 }
@@ -496,22 +529,25 @@ export function buildPortalTemplateDetailsSchemaPreview(): PortalTemplateDetails
       headerOverrideEnabled: false,
       footerOverrideEnabled: false,
       header: {
-        enabled: true,
+        enabled: true
       },
       footer: {
-        enabled: true,
-      },
-    },
+        enabled: true
+      }
+    }
   };
   return sample;
 }
 
-export function resolvePortalShellForTab(details: PortalTemplateDetails, tabId: string): PortalResolvedShell {
+export function resolvePortalShellForTab(
+  details: PortalTemplateDetails,
+  tabId: string
+): PortalResolvedShell {
   const resolved: PortalResolvedShell = {
     pageHeader: details.pageHeader,
     pageFooter: details.pageFooter,
     header: deepCopy(details.shell.header),
-    footer: deepCopy(details.shell.footer),
+    footer: deepCopy(details.shell.footer)
   };
 
   const override = tabId ? details.pageOverrides?.[tabId] : undefined;
@@ -563,14 +599,14 @@ export function buildPortalHeaderNavItems(tabs: PortalTab[] | undefined): Portal
         items.push({
           key: `tab-${id}`,
           label,
-          tabId: id,
+          tabId: id
         });
       } else if (node.tabType === 3 && label) {
         const url = toText(node.tabUrl).trim();
         items.push({
           key: `link-${id || label}`,
           label,
-          url: url || undefined,
+          url: url || undefined
         });
       }
 
@@ -585,6 +621,8 @@ export function buildPortalHeaderNavItems(tabs: PortalTab[] | undefined): Portal
   return items;
 }
 
-export function getCustomHeaderOption(key: string): (typeof PORTAL_CUSTOM_HEADER_OPTIONS)[number] | null {
+export function getCustomHeaderOption(
+  key: string
+): (typeof PORTAL_CUSTOM_HEADER_OPTIONS)[number] | null {
   return PORTAL_CUSTOM_HEADER_OPTIONS.find((item) => item.key === key) ?? null;
 }

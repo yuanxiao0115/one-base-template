@@ -1,4 +1,4 @@
-import { obHttp } from "@one-base-template/core";
+import { obHttp } from '@one-base-template/core';
 
 interface BizResponse<T> {
   code?: unknown;
@@ -14,15 +14,15 @@ interface CaptchaBlockPuzzleData {
 }
 
 export async function loadCaptcha(params: { captchaKey: string }) {
-  return obHttp().get<BizResponse<CaptchaBlockPuzzleData>>("/cmict/auth/captcha/block-puzzle", {
+  return obHttp().get<BizResponse<CaptchaBlockPuzzleData>>('/cmict/auth/captcha/block-puzzle', {
     params,
-    $noErrorAlert: true,
+    $noErrorAlert: true
   });
 }
 
 export async function checkCaptcha(params: { captcha: string; captchaKey: string }) {
-  return obHttp().get<BizResponse<unknown>>("/cmict/auth/captcha/check", {
+  return obHttp().get<BizResponse<unknown>>('/cmict/auth/captcha/check', {
     params,
-    $noErrorAlert: true,
+    $noErrorAlert: true
   });
 }

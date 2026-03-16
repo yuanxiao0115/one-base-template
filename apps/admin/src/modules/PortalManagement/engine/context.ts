@@ -1,7 +1,10 @@
-import { createPortalEngineContext, type PortalEngineContext } from '@one-base-template/portal-engine';
+import {
+  createPortalEngineContext,
+  type PortalEngineContext
+} from '@one-base-template/portal-engine';
 
 let portalEngineAdminContext: PortalEngineContext = createPortalEngineContext({
-  appId: 'apps-admin-portal-management',
+  appId: 'apps-admin-portal-management'
 });
 
 export function getPortalEngineAdminContext() {
@@ -10,7 +13,7 @@ export function getPortalEngineAdminContext() {
 
 export function resetPortalEngineAdminContextForTesting() {
   portalEngineAdminContext = createPortalEngineContext({
-    appId: 'apps-admin-portal-management',
+    appId: 'apps-admin-portal-management'
   });
   return portalEngineAdminContext;
 }

@@ -24,7 +24,7 @@ export function useDropdownMenuDisplay() {
     { text: '关闭左侧标签页', disabled: true, show: false, icon: 'ri:text-direction-r' },
     { text: '关闭右侧标签页', disabled: true, show: false, icon: 'ri:text-direction-l' },
     { text: '关闭其他标签页', disabled: true, show: false, icon: 'ri:text-spacing' },
-    { text: '关闭全部标签页', disabled: true, show: false, icon: 'ri:subtract-line' },
+    { text: '关闭全部标签页', disabled: true, show: false, icon: 'ri:subtract-line' }
   ]);
 
   // ===== 工具函数 =====
@@ -111,7 +111,10 @@ export function useDropdownMenuDisplay() {
    * @param currentPath 当前激活页路径
    * @param currentQuery 当前激活页查询参数
    */
-  function configureDropdownMenu(currentPath?: string, currentQuery: Record<string, any> = {}): void {
+  function configureDropdownMenu(
+    currentPath?: string,
+    currentQuery: Record<string, any> = {}
+  ): void {
     const path = currentPath || route.path;
     const query = currentQuery || route.query || {};
 
@@ -119,7 +122,9 @@ export function useDropdownMenuDisplay() {
     resetDropdownMenuState();
 
     const routeLength = multiTags.value.length;
-    const currentIndex = multiTags.value.findIndex((v: any) => v && isEqual(v.query || {}, query) && v.path === path);
+    const currentIndex = multiTags.value.findIndex(
+      (v: any) => v && isEqual(v.query || {}, query) && v.path === path
+    );
 
     if (isHomePage(path)) {
       // 首页下拉菜单配置
@@ -139,6 +144,6 @@ export function useDropdownMenuDisplay() {
     // 方法
     configureDropdownMenu,
     resetDropdownMenuState,
-    isHomePage,
+    isHomePage
   };
 }

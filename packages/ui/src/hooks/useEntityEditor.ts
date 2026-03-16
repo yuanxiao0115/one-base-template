@@ -18,7 +18,7 @@ import type {
   CrudSaveContext,
   CrudSaveSuccessContext,
   UseEntityEditorOptions,
-  UseEntityEditorReturn,
+  UseEntityEditorReturn
 } from '@one-base-template/core';
 
 function getDefaultErrorMessage(entityName: string, context: CrudErrorContext<unknown>): string {
@@ -36,7 +36,7 @@ export function useEntityEditor<
   TRow = Record<string, unknown>,
   TDetail = TRow,
   TPayload = TForm,
-  TResult = unknown,
+  TResult = unknown
 >(
   options: UseEntityEditorOptions<TForm, TRow, TDetail, TPayload, TResult>
 ): UseEntityEditorReturn<TForm, TRow, TDetail, TResult> {
@@ -51,10 +51,13 @@ export function useEntityEditor<
         return;
       }
 
-      const fallbackMessage = getDefaultErrorMessage(options.entity.name, context as CrudErrorContext<unknown>);
+      const fallbackMessage = getDefaultErrorMessage(
+        options.entity.name,
+        context as CrudErrorContext<unknown>
+      );
       const message = error instanceof Error ? error.message : fallbackMessage;
       ElMessage.error(message);
-    },
+    }
   });
 
   const rawConfirm = crud.confirm;
@@ -72,7 +75,7 @@ export function useEntityEditor<
 
   return {
     ...crud,
-    confirm,
+    confirm
   };
 }
 
@@ -94,5 +97,5 @@ export type {
   CrudSaveSuccessContext,
   CrudBuildPayloadContext,
   UseEntityEditorOptions,
-  UseEntityEditorReturn,
+  UseEntityEditorReturn
 };

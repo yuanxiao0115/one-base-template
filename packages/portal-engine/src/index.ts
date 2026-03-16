@@ -224,6 +224,11 @@ export { default as PortalDesignerTreePanel } from './workbench/PortalDesignerTr
 export { default as PortalTabTree } from './workbench/PortalTabTree.vue';
 export { default as PortalDesignerActionStrip } from './workbench/PortalDesignerActionStrip.vue';
 export { default as PortalTabAttributeDialog } from './workbench/PortalTabAttributeDialog.vue';
+export { default as PortalPageSettingsForm } from './workbench/page-settings/PortalPageSettingsForm.vue';
+export { default as PortalPageSettingsDrawer } from './workbench/PortalPageSettingsDrawer.vue';
+export { default as PortalShellHeaderSettingsForm } from './workbench/shell-settings/PortalShellHeaderSettingsForm.vue';
+export { default as PortalShellFooterSettingsForm } from './workbench/shell-settings/PortalShellFooterSettingsForm.vue';
+export { default as PortalShellSettingsDialog } from './workbench/PortalShellSettingsDialog.vue';
 export type {
   CreateTemplateWorkbenchPageControllerOptions,
   TemplateWorkbenchPageController,
@@ -246,6 +251,11 @@ export {
 export type { UseTemplateWorkbenchPageByRouteOptions } from './workbench/useTemplateWorkbenchPageByRoute';
 export { useTemplateWorkbenchPageByRoute } from './workbench/useTemplateWorkbenchPageByRoute';
 export type {
+  PortalPreviewRouteParamsLike,
+  UsePortalPreviewPageByRouteOptions
+} from './workbench/usePortalPreviewPageByRoute';
+export { usePortalPreviewPageByRoute } from './workbench/usePortalPreviewPageByRoute';
+export type {
   CreatePageEditorControllerOptions,
   PortalPageEditorLayoutStore,
   PageEditorController,
@@ -254,6 +264,14 @@ export type {
   PortalPageEditorTabDetail
 } from './workbench/page-editor-controller';
 export { createPageEditorController } from './workbench/page-editor-controller';
+export type {
+  CreatePortalPreviewDataSourceOptions,
+  PortalPreviewBizResponseLike
+} from './workbench/preview-data-source';
+export {
+  createPortalPreviewDataSource,
+  isPortalPreviewBizOk
+} from './workbench/preview-data-source';
 export { usePageEditorWorkbench } from './workbench/usePageEditorWorkbench';
 export {
   calcPortalManualPanRange,
@@ -281,7 +299,7 @@ export {
   PortalPreviewHeaderFixedContentScrollLayout,
   PortalPreviewHeaderFooterFixedContentScrollLayout
 } from './renderer';
-export { PortalBorderField, PortalColorField, PortalSpacingField } from './materials/common/fields';
+export { PortalBorderField, PortalSpacingField } from './materials/common/fields';
 export {
   DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG,
   DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG,

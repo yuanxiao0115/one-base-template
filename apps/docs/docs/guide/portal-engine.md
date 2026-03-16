@@ -62,6 +62,12 @@ packages/portal-engine/src/
   - 下沉页面设置 load/save 逻辑（解析 pageLayout、合并 settings、构建保存 payload）。
   - 通过 API 注入实现跨应用复用，不在页面层散落 `tab.detail/tab.update` 细节。
 
+## 2026-03-16 颜色字段统一
+
+- `ObColorField` 作为颜色输入的唯一实现，维护位置：`packages/ui/src/components/field/ObColorField.vue`。
+- `portal-engine` 内部样式配置面板统一使用 `ObColorField`。
+- `PortalColorField` 已删除，不再保留兼容壳与兼容导出；新增代码必须使用 `ObColorField`。
+
 ## 2026-03-13 P1/P2 下沉（工作台编排继续收敛）
 
 - `editor/PortalDesignerPreviewFrame.vue`
@@ -99,6 +105,12 @@ packages/portal-engine/src/
   - 页面层仅注入 `routeQuery/replace/push/resolve` 能力，不再重复写路由拼装细节。
 - `workbench/template-workbench-route.ts`
   - 提供模板工作台路由辅助函数，统一 `query -> templateId/tabId` 解析与编辑页/预览页 location 构建。
+- `workbench/usePortalPreviewPageByRoute.ts`
+  - 下沉预览页路由编排（`tabId/templateId/previewMode/viewport` 解析与导航回写）。
+  - admin 预览页仅注入 `routeQuery/routeParams/replaceRouteQuery`，不再在页面内重复处理 query 与外链跳转。
+- `workbench/preview-data-source.ts`
+  - 下沉预览数据源组装（公开接口优先 + 失败回退管理接口）。
+  - admin 预览页改为注入 `tabPublic.detail/tab.detail/template.detail`，不再维护重复的 `BizResponse` 成功判定逻辑。
 - `workbench/PortalDesignerHeaderBar.vue`
   - 下沉模板工作台顶部栏（返回、刷新、页眉页脚入口），admin 页面不再维护同构头部组件。
 - `workbench/PortalDesignerTreePanel.vue`
@@ -400,7 +412,7 @@ function handleNavigate(payload: PortalPreviewNavigatePayload) {
 - 主版本规则文件：`packages/portal-engine/AGENTS.md`
 - 关键强制项（摘录）：
   - 分组标题必须使用 `ObCard`。
-  - 颜色配置必须优先使用 `PortalColorField`。
+  - 颜色配置必须优先使用 `ObColorField`。
   - 边距配置必须优先使用 `PortalSpacingField`。
   - 边框配置必须优先使用 `PortalBorderField`。
   - 标题/副标题/图标/外链能力优先复用 `materials/common/unified-container/**`。

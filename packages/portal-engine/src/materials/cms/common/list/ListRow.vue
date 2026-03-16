@@ -6,43 +6,43 @@
 </template>
 
 <script setup lang="ts">
-  import ListTitle from './ListTitle.vue';
+import ListTitle from './ListTitle.vue';
 
-  withDefaults(
-    defineProps<{
-      title?: string;
-      date?: string;
-      showDot?: boolean;
-      titleTag?: 'a' | 'div' | 'p' | 'span';
-      href?: string;
-      target?: string;
-    }>(),
-    {
-      title: '',
-      date: '',
-      showDot: false,
-      titleTag: 'div',
-      href: '',
-      target: '_blank',
-    }
-  );
+withDefaults(
+  defineProps<{
+    title?: string;
+    date?: string;
+    showDot?: boolean;
+    titleTag?: 'a' | 'div' | 'p' | 'span';
+    href?: string;
+    target?: string;
+  }>(),
+  {
+    title: '',
+    date: '',
+    showDot: false,
+    titleTag: 'div',
+    href: '',
+    target: '_blank'
+  }
+);
 
-  const emit = defineEmits<(e: 'click') => void>();
+const emit = defineEmits<(e: 'click') => void>();
 
-  const handleClick = () => {
-    emit('click');
-  };
+const handleClick = () => {
+  emit('click');
+};
 
-  defineOptions({
-    name: 'PbListRow',
-  });
+defineOptions({
+  name: 'PbListRow'
+});
 </script>
 
 <style scoped>
-  .cms-list-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-  }
+.cms-list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
 </style>

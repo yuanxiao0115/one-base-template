@@ -19,6 +19,7 @@
 - `apps/admin/src/main.ts` 直接传入 `beforeMount`，在回调中写 `app.use(...)`。
 
 优点：
+
 - main 仍可直接写 `app.use`，符合团队习惯。
 - bootstrap 内核保持稳定，不让同事改核心编排。
 - 对 portal/template 无破坏（可选参数）。
@@ -26,17 +27,21 @@
 ### 方案 B：把插件安装逻辑继续放 `bootstrap/plugins.ts`
 
 优点：
+
 - 启动职责集中。
 
 缺点：
+
 - 与用户诉求冲突：同事会继续改 bootstrap。
 
 ### 方案 C：新增 `main.plugins.ts`
 
 优点：
+
 - 结构更清晰。
 
 缺点：
+
 - 用户已明确不要抽离该文件。
 
 ## 决策

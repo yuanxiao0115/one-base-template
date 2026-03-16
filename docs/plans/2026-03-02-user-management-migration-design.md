@@ -39,11 +39,13 @@
 在当前仓库按模块化重新实现：保留老项目接口与交互语义，重构为当前标准组件与 hooks 架构。
 
 优点：
+
 - 与 `position/org` 结构一致，维护成本低
 - 业务行为可对齐老项目，体验一致
 - 可复用能力（导入组件）可沉淀到 `packages/ui`
 
 缺点：
+
 - 首次迁移工作量较大，需要完整字段映射与表单拆分
 
 ### 方案 B（不采用）
@@ -51,6 +53,7 @@
 直接复制老项目页面并最小改造。
 
 缺点：
+
 - 架构不统一，后续维护困难
 - 会引入大量旧项目壳组件依赖，不符合仓库边界约束
 
@@ -119,6 +122,7 @@ packages/ui/src/components/upload/
 - `errorMessage?: string`
 
 事件：
+
 - `uploaded(response)`
 - `failed(error)`
 
@@ -136,4 +140,3 @@ packages/ui/src/components/upload/
 - `pnpm -C apps/admin lint`
 - `pnpm -C apps/admin build`
 - `pnpm -C apps/docs build`
-

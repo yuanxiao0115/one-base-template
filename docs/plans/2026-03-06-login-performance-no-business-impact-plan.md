@@ -36,10 +36,12 @@
 - 已登录进入业务页时，仍走现有完整 admin bootstrap。
 
 **优点**
+
 - 只影响匿名页启动，不动业务主链路，风险最低。
 - 能直接绕开当前最重的两类开销：全量模块 registry、全量 UI 壳注册。
 
 **代价**
+
 - 需要维护两条启动链路：`public bootstrap` 与 `admin bootstrap`。
 
 ### 方案 B（备选）：继续单启动链路，但把模块与 UI 入口全部改成惰性
@@ -47,13 +49,16 @@
 - 在现有 bootstrap 内部继续保留单 app，只把模块注册和 UI 重组件改成按需加载。
 
 **优点**
+
 - 架构更统一。
 
 **代价**
+
 - 需要改动 `router/registry`、`module.ts`、`routes.ts`、`@one-base-template/ui` 入口，牵涉面大，验证成本高。
 - 比方案 A 更容易误伤业务页。
 
 **结论**
+
 - **先做方案 A**，把 `/login` 首屏问题从业务主壳中剥离出来；若收益不足，再评估方案 B 的第二阶段优化。
 
 ## 实施阶段
@@ -61,6 +66,7 @@
 ### Task 1：冻结现状并补齐回归基线
 
 **Files:**
+
 - Modify: `docs/plans/2026-03-06-login-performance-no-business-impact-plan.md`
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`
@@ -98,6 +104,7 @@
 ### Task 2：抽出公共匿名路由清单
 
 **Files:**
+
 - Create: `apps/admin/src/router/public-routes.ts`
 - Modify: `apps/admin/src/router/constants.ts`
 - Reuse: `apps/admin/src/bootstrap/router.ts`
@@ -129,6 +136,7 @@
 ### Task 3：新增轻量 public bootstrap
 
 **Files:**
+
 - Create: `apps/admin/src/bootstrap/public.ts`
 - Modify: `apps/admin/src/bootstrap/router.ts`
 - Reuse: `packages/ui/src/lite.ts`
@@ -163,6 +171,7 @@
 ### Task 4：在 `main.ts` 做路径级启动分流
 
 **Files:**
+
 - Modify: `apps/admin/src/main.ts`
 - Create: `apps/admin/src/bootstrap/public-route.ts`（如需要）
 
@@ -189,6 +198,7 @@
 ### Task 5：限制公共页进入重型 UI 入口
 
 **Files:**
+
 - Modify: `packages/ui/src/index.ts`
 - Modify: `packages/ui/src/plugin.ts`
 - Modify: `apps/admin/src/bootstrap/plugins.ts`
@@ -213,6 +223,7 @@
 ### Task 6：确认模块 registry 不再进入登录页启动链路
 
 **Files:**
+
 - Verify: `apps/admin/src/router/registry.ts`
 - Verify: `apps/admin/src/router/assemble-routes.ts`
 - Verify: `apps/admin/src/modules/**/module.ts`
@@ -240,6 +251,7 @@
 ### Task 7：补齐验证与性能对比
 
 **Files:**
+
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`
 
@@ -254,6 +266,7 @@ pnpm -C apps/docs build
 ```
 
 **Expected:**
+
 - 全部退出码 `0`
 
 **Step 2: 本地冒烟**
@@ -283,6 +296,7 @@ pnpm -C apps/docs build
 ### Task 8：再评估是否继续做全量业务壳减重
 
 **候选文件：**
+
 - `apps/admin/src/router/registry.ts`
 - `apps/admin/src/modules/**/module.ts`
 - `apps/admin/src/modules/**/routes*.ts`
@@ -290,9 +304,11 @@ pnpm -C apps/docs build
 - `packages/ui/src/plugin.ts`
 
 **目标：**
+
 - 让完整 admin 业务壳也减少首包和无关依赖预载。
 
 **前提：**
+
 - 第一阶段上线后无业务回归。
 - 登录页收益仍不足，或业务页首屏也需要继续优化。
 

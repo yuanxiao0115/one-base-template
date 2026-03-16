@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 
 import { createPortalPageSettingsSession } from './page-settings-session';
 
@@ -9,7 +9,7 @@ interface MockSettings {
 describe('portal page settings session', () => {
   function createSession() {
     return createPortalPageSettingsSession<MockSettings>({
-      clone: <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T,
+      clone: <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
     });
   }
 
@@ -23,7 +23,7 @@ describe('portal page settings session', () => {
 
     session.applyLoadedDetail({
       settings: { title: '页面A' },
-      components: [{ id: 'c1' }],
+      components: [{ id: 'c1' }]
     });
 
     expect(session.loading.value).toBe(false);

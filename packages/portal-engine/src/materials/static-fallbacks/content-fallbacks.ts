@@ -17,68 +17,68 @@ export const STATIC_CONTENT_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
   {
     name: 'base-transparent-placeholder-content',
     section: 'content',
-    component: TransparentPlaceholderContent,
+    component: TransparentPlaceholderContent
   },
   {
     name: 'base-iframe-container-content',
     section: 'content',
-    component: BaseIframeContainerContent,
+    component: BaseIframeContainerContent
   },
   {
     name: 'base-tab-container-content',
     section: 'content',
-    component: BaseTabContainerContent,
+    component: BaseTabContainerContent
   },
   {
     name: 'app-entrance-content',
     section: 'content',
     aliases: ['base-app-entrance-content'],
-    component: AppEntranceContent,
+    component: AppEntranceContent
   },
   {
     name: 'image-link-list-content',
     section: 'content',
     aliases: ['base-image-link-list-content'],
-    component: ImageLinkListContent,
+    component: ImageLinkListContent
   },
   {
     name: 'base-button-group-content',
     section: 'content',
-    component: BaseButtonGroupContent,
+    component: BaseButtonGroupContent
   },
   {
     name: 'base-search-box-content',
     section: 'content',
-    component: BaseSearchBoxContent,
+    component: BaseSearchBoxContent
   },
   {
     name: 'base-notice-content',
     section: 'content',
-    component: BaseNoticeContent,
+    component: BaseNoticeContent
   },
   {
     name: 'base-card-list-content',
     section: 'content',
-    component: BaseCardListContent,
+    component: BaseCardListContent
   },
   {
     name: 'base-form-content',
     section: 'content',
-    component: BaseFormContent,
+    component: BaseFormContent
   },
   {
     name: 'base-stat-content',
     section: 'content',
-    component: BaseStatContent,
+    component: BaseStatContent
   },
   {
     name: 'base-file-list-content',
     section: 'content',
-    component: BaseFileListContent,
+    component: BaseFileListContent
   },
   {
     name: 'base-timeline-content',
     section: 'content',
-    component: BaseTimelineContent,
-  },
+    component: BaseTimelineContent
+  }
 ];

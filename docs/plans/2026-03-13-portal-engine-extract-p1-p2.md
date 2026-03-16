@@ -15,6 +15,7 @@
 ### Task 1: 下沉 PortalDesignerPreviewFrame 与交互纯函数
 
 **Files:**
+
 - Create: `packages/portal-engine/src/editor/PortalDesignerPreviewFrame.vue`
 - Create: `packages/portal-engine/src/editor/preview-stage-utils.ts`
 - Test: `packages/portal-engine/src/editor/preview-stage-utils.test.ts`
@@ -33,6 +34,7 @@
 ### Task 2: 下沉 usePortalCurrentTabActions
 
 **Files:**
+
 - Create: `packages/portal-engine/src/editor/current-tab-actions.ts`
 - Test: `packages/portal-engine/src/editor/current-tab-actions.test.ts`
 - Modify: `packages/portal-engine/src/index.ts`
@@ -50,6 +52,7 @@
 ### Task 3: 抽离页面设置会话状态机
 
 **Files:**
+
 - Create: `packages/portal-engine/src/editor/page-settings-session.ts`
 - Test: `packages/portal-engine/src/editor/page-settings-session.test.ts`
 - Modify: `packages/portal-engine/src/index.ts`
@@ -66,6 +69,7 @@
 ### Task 4: 文档同步与全量验证
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/portal-engine.md`
 - Modify: `apps/docs/docs/guide/portal-designer.md`
 - Modify: `.codex/operations-log.md`

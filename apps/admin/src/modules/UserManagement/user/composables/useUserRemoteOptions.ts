@@ -1,7 +1,7 @@
-import type { Ref } from "vue";
-import { userApi } from "../api";
-import type { OrgTreeNode, PositionItem, RoleItem } from "../types";
-import { assertUniqueCheck, toUserUniqueSnapshot } from "../../shared/unique";
+import type { Ref } from 'vue';
+import { userApi } from '../api';
+import type { OrgTreeNode, PositionItem, RoleItem } from '../types';
+import { assertUniqueCheck, toUserUniqueSnapshot } from '../../shared/unique';
 
 interface UseUserRemoteOptionsParams {
   orgTreeData: Ref<OrgTreeNode[]>;
@@ -14,7 +14,7 @@ function getSortedOrgTree(nodes: OrgTreeNode[]): OrgTreeNode[] {
     .sort((a, b) => a.sort - b.sort)
     .map((item) => ({
       ...item,
-      children: Array.isArray(item.children) ? getSortedOrgTree(item.children) : [],
+      children: Array.isArray(item.children) ? getSortedOrgTree(item.children) : []
     }));
 }
 
@@ -24,7 +24,7 @@ export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
   async function loadOrgTree() {
     const response = await userApi.orgList();
     if (response.code !== 200) {
-      throw new Error(response.message || "加载组织树失败");
+      throw new Error(response.message || '加载组织树失败');
     }
 
     orgTreeData.value = getSortedOrgTree(Array.isArray(response.data) ? response.data : []);
@@ -33,7 +33,7 @@ export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
   async function loadPositionOptions() {
     const response = await userApi.positionList();
     if (response.code !== 200) {
-      throw new Error(response.message || "加载职位列表失败");
+      throw new Error(response.message || '加载职位列表失败');
     }
 
     positionOptions.value = Array.isArray(response.data) ? response.data : [];
@@ -42,25 +42,30 @@ export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
   async function loadRoleOptions() {
     const response = await userApi.roleList();
     if (response.code !== 200) {
-      throw new Error(response.message || "加载角色列表失败");
+      throw new Error(response.message || '加载角色列表失败');
     }
 
     roleOptions.value = Array.isArray(response.data) ? response.data : [];
   }
 
-  async function checkFieldUnique(params: { userId?: string; userAccount?: string; phone?: string; mail?: string }) {
+  async function checkFieldUnique(params: {
+    userId?: string;
+    userAccount?: string;
+    phone?: string;
+    mail?: string;
+  }) {
     const payload: {
       userId?: string;
       userAccount?: string;
       phone?: string;
       mail?: string;
     } = {
-      userId: params.userId,
+      userId: params.userId
     };
 
     if (params.userAccount !== undefined) {
       payload.userAccount = toUserUniqueSnapshot({
-        userAccount: params.userAccount,
+        userAccount: params.userAccount
       }).userAccount;
     }
 
@@ -73,17 +78,17 @@ export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
     }
 
     const response = await userApi.checkUnique(payload);
-    return assertUniqueCheck(response, "字段唯一性校验失败");
+    return assertUniqueCheck(response, '字段唯一性校验失败');
   }
 
   async function uploadAvatar(file: File, userId: string): Promise<boolean> {
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("userId", userId);
+    formData.append('file', file);
+    formData.append('userId', userId);
 
     const response = await userApi.manageEditPhoto(formData);
     if (response.code !== 200) {
-      throw new Error(response.message || "头像上传失败");
+      throw new Error(response.message || '头像上传失败');
     }
 
     return true;
@@ -94,6 +99,6 @@ export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
     loadPositionOptions,
     loadRoleOptions,
     checkFieldUnique,
-    uploadAvatar,
+    uploadAvatar
   };
 }

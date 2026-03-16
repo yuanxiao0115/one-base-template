@@ -1,10 +1,10 @@
-import { getPlatformConfig } from "../config/platform-config";
+import { getPlatformConfig } from '../config/platform-config';
 import type {
   EnabledModulesSetting,
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
-  PlatformMenuMode,
-} from "@one-base-template/core";
+  PlatformMenuMode
+} from '@one-base-template/core';
 
 export type BackendKind = PlatformBackendKind;
 export type AuthMode = PlatformAuthMode;
@@ -36,7 +36,7 @@ export interface AppEnv {
 }
 
 function isNonEmptyString(v: unknown): v is string {
-  return typeof v === "string" && v.length > 0;
+  return typeof v === 'string' && v.length > 0;
 }
 
 export function resolveSczfwHeaders(params: {
@@ -46,15 +46,15 @@ export function resolveSczfwHeaders(params: {
   appcode: string;
 }): Record<string, string> | undefined {
   const { backend, authorizationType, appsource, appcode } = params;
-  if (backend !== "sczfw") {
+  if (backend !== 'sczfw') {
     return undefined;
   }
 
   // sczfw 老项目请求头约定（由 platform-config.json 提供）。
   return {
-    "Authorization-Type": authorizationType,
+    'Authorization-Type': authorizationType,
     Appsource: appsource,
-    Appcode: appcode,
+    Appcode: appcode
   };
 }
 
@@ -71,11 +71,11 @@ export function resolveDefaultSystemCode(params: {
   if (isNonEmptyString(defaultSystemCode)) {
     return defaultSystemCode;
   }
-  if (backend !== "sczfw") {
+  if (backend !== 'sczfw') {
     return undefined;
   }
   // 与旧实现保持一致：sczfw 默认系统为 admin_server
-  return "admin_server";
+  return 'admin_server';
 }
 
 export function resolveBuildEnv(): BuildEnv {
@@ -86,7 +86,7 @@ export function resolveBuildEnv(): BuildEnv {
   return {
     isProd,
     baseUrl,
-    apiBaseUrl,
+    apiBaseUrl
   };
 }
 
@@ -104,14 +104,14 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     backend,
     authorizationType: runtime.authorizationType,
     appsource: runtime.appsource,
-    appcode: runtime.appcode,
+    appcode: runtime.appcode
   });
   const { clientSignatureSalt } = runtime;
   const { clientSignatureClientId } = runtime;
   const storageNamespace = runtime.storageNamespace || runtime.appcode;
   const defaultSystemCode = resolveDefaultSystemCode({
     backend,
-    defaultSystemCode: runtime.defaultSystemCode,
+    defaultSystemCode: runtime.defaultSystemCode
   });
   const { systemHomeMap } = runtime;
 
@@ -134,7 +134,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     storageNamespace,
     sczfwSystemPermissionCode,
     defaultSystemCode,
-    systemHomeMap,
+    systemHomeMap
   };
 }
 

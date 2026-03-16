@@ -1,10 +1,10 @@
-import type { AppUser, BackendAdapter, LoginPayload } from "@one-base-template/core";
+import type { AppUser, BackendAdapter, LoginPayload } from '@one-base-template/core';
 
-const USER_STORAGE_KEY = "template_auth_user";
+const USER_STORAGE_KEY = 'template_auth_user';
 
 function normalizeStorageNamespace(namespace: string): string {
   const value = namespace.trim();
-  return value || "template";
+  return value || 'template';
 }
 
 function buildUserKey(storageNamespace: string): string {
@@ -32,25 +32,28 @@ function clearStoredUser(storageNamespace: string) {
   localStorage.removeItem(buildUserKey(storageNamespace));
 }
 
-export function createTemplateLocalAdapter(params: { storageNamespace: string; tokenKey: string }): BackendAdapter {
+export function createTemplateLocalAdapter(params: {
+  storageNamespace: string;
+  tokenKey: string;
+}): BackendAdapter {
   const { storageNamespace, tokenKey } = params;
 
   return {
     auth: {
       async login(payload: LoginPayload) {
-        const username = typeof payload.username === "string" ? payload.username.trim() : "";
-        const password = typeof payload.password === "string" ? payload.password.trim() : "";
+        const username = typeof payload.username === 'string' ? payload.username.trim() : '';
+        const password = typeof payload.password === 'string' ? payload.password.trim() : '';
 
         if (!(username && password)) {
-          throw new Error("账号或密码不能为空");
+          throw new Error('账号或密码不能为空');
         }
 
         const user: AppUser = {
-          id: "template-user",
+          id: 'template-user',
           name: username,
           nickName: username,
-          roles: ["admin"],
-          permissions: ["*"],
+          roles: ['admin'],
+          permissions: ['*']
         };
 
         writeStoredUser(storageNamespace, user);
@@ -63,15 +66,15 @@ export function createTemplateLocalAdapter(params: { storageNamespace: string; t
       async fetchMe() {
         const stored = readStoredUser(storageNamespace);
         if (!stored) {
-          throw new Error("未登录");
+          throw new Error('未登录');
         }
         return stored;
-      },
+      }
     },
     menu: {
       async fetchMenuTree() {
         return [];
-      },
-    },
+      }
+    }
   };
 }

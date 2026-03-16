@@ -1,44 +1,44 @@
 <script setup lang="ts">
-  import { computed } from 'vue';
-  import { ObCard } from '@one-base-template/ui';
-  import {
-    createDefaultPortalDataSourceModel,
-    mergePortalDataSourceModel,
-    type PortalDataSourceModel,
-  } from './portal-data-source';
+import { computed } from 'vue';
+import { ObCard } from '@one-base-template/ui';
+import {
+  createDefaultPortalDataSourceModel,
+  mergePortalDataSourceModel,
+  type PortalDataSourceModel
+} from './portal-data-source';
 
-  withDefaults(
-    defineProps<{
-      title?: string;
-      staticJsonLabel?: string;
-      staticJsonPlaceholder?: string;
-      staticJsonMaxlength?: number;
-      staticMinRows?: number;
-      staticMaxRows?: number;
-      showPageParams?: boolean;
-    }>(),
-    {
-      title: '数据源',
-      staticJsonLabel: '静态数据 JSON 数组',
-      staticJsonPlaceholder: '例如：[{"title":"示例数据","id":"1"}]',
-      staticJsonMaxlength: 12000,
-      staticMinRows: 8,
-      staticMaxRows: 16,
-      showPageParams: true,
-    }
-  );
+withDefaults(
+  defineProps<{
+    title?: string;
+    staticJsonLabel?: string;
+    staticJsonPlaceholder?: string;
+    staticJsonMaxlength?: number;
+    staticMinRows?: number;
+    staticMaxRows?: number;
+    showPageParams?: boolean;
+  }>(),
+  {
+    title: '数据源',
+    staticJsonLabel: '静态数据 JSON 数组',
+    staticJsonPlaceholder: '例如：[{"title":"示例数据","id":"1"}]',
+    staticJsonMaxlength: 12000,
+    staticMinRows: 8,
+    staticMaxRows: 16,
+    showPageParams: true
+  }
+);
 
-  const modelValue = defineModel<PortalDataSourceModel>({
-    default: () => createDefaultPortalDataSourceModel(),
-  });
+const modelValue = defineModel<PortalDataSourceModel>({
+  default: () => createDefaultPortalDataSourceModel()
+});
 
-  modelValue.value = mergePortalDataSourceModel(modelValue.value);
+modelValue.value = mergePortalDataSourceModel(modelValue.value);
 
-  const isApiMode = computed(() => modelValue.value.mode === 'api');
+const isApiMode = computed(() => modelValue.value.mode === 'api');
 
-  defineOptions({
-    name: 'PortalDataSourceCard',
-  });
+defineOptions({
+  name: 'PortalDataSourceCard'
+});
 </script>
 
 <template>

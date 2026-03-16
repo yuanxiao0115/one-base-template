@@ -31,7 +31,11 @@
 在 `apps/admin/src/config/theme.ts` 注册主题（含展示名）：
 
 ```ts
-import { ONE_BUILTIN_THEMES, type CoreOptions, type ThemePrimaryScale } from '@one-base-template/core';
+import {
+  ONE_BUILTIN_THEMES,
+  type CoreOptions,
+  type ThemePrimaryScale
+} from '@one-base-template/core';
 
 const ADMIN_PURPLE_SCALE: ThemePrimaryScale = {
   light1: '#F3EBFF',
@@ -178,11 +182,11 @@ import { useThemeStore } from '@one-base-template/core';
 
 const themeStore = useThemeStore();
 
-themeStore.setTheme('adminOrange');   // 切内置/注册主题
-themeStore.setThemeMode('custom');    // 切到自定义模式
+themeStore.setTheme('adminOrange'); // 切内置/注册主题
+themeStore.setThemeMode('custom'); // 切到自定义模式
 themeStore.setCustomPrimary('#FF7D00');
-themeStore.resetCustomPrimary();      // 回到 preset
-themeStore.setGrayscale(true);        // 开启全局灰色模式
+themeStore.resetCustomPrimary(); // 回到 preset
+themeStore.setGrayscale(true); // 开启全局灰色模式
 ```
 
 ---
@@ -286,11 +290,11 @@ themeStore.setGrayscale(true);        // 开启全局灰色模式
 使用方式（推荐）：
 
 ```ts
-import { confirm } from '@one-base-template/ui'
+import { confirm } from '@one-base-template/ui';
 
-await confirm.warn('确定要删除该记录吗？', '删除确认')
-await confirm.success('操作即将生效，是否继续？', '成功信息')
-await confirm.error('该操作无法撤销，是否继续？', '失败信息')
+await confirm.warn('确定要删除该记录吗？', '删除确认');
+await confirm.success('操作即将生效，是否继续？', '成功信息');
+await confirm.error('该操作无法撤销，是否继续？', '失败信息');
 ```
 
 说明：

@@ -1,9 +1,9 @@
-import { reactive, ref } from "vue";
-import { useTable } from "@one-base-template/core";
-import { message } from "@one-base-template/ui";
-import sysLogColumns from "../columns";
-import { sysLogApi } from "../api";
-import type { SysLogRecord } from "../types";
+import { reactive, ref } from 'vue';
+import { useTable } from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
+import sysLogColumns from '../columns';
+import { sysLogApi } from '../api';
+import type { SysLogRecord } from '../types';
 
 interface SearchRefExpose {
   resetFields?: () => void;
@@ -24,20 +24,20 @@ interface SysLogSearchForm {
 }
 
 const SUCCESS_CODE = 200;
-const DETAIL_ERROR_MESSAGE = "获取操作日志详情失败";
-const DELETE_ERROR_MESSAGE = "删除操作日志失败";
+const DETAIL_ERROR_MESSAGE = '获取操作日志详情失败';
+const DELETE_ERROR_MESSAGE = '删除操作日志失败';
 const DEFAULT_SYS_LOG_SEARCH_FORM: SysLogSearchForm = {
-  operator: "",
-  clientIp: "",
-  module: "",
-  operationType: "",
-  operationResult: "",
-  userAccount: "",
-  nickName: "",
-  browserName: "",
-  clientOS: "",
-  tenantId: "",
-  time: [],
+  operator: '',
+  clientIp: '',
+  module: '',
+  operationType: '',
+  operationResult: '',
+  userAccount: '',
+  nickName: '',
+  browserName: '',
+  clientOS: '',
+  tenantId: '',
+  time: []
 };
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -45,7 +45,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 function isConfirmCanceled(error: unknown): boolean {
-  return error === "cancel" || error === "close";
+  return error === 'cancel' || error === 'close';
 }
 
 async function fetchSysLogDetail(id: string): Promise<SysLogRecord> {
@@ -66,7 +66,7 @@ async function deleteSysLog(id: string): Promise<void> {
 
 async function confirmDeleteSysLog(userAccount: string): Promise<boolean> {
   try {
-    await obConfirm.warn(`是否确认删除操作人账号为${userAccount}的这条数据`, "删除确认");
+    await obConfirm.warn(`是否确认删除操作人账号为${userAccount}的这条数据`, '删除确认');
     return true;
   } catch (error) {
     if (isConfirmCanceled(error)) {
@@ -77,19 +77,27 @@ async function confirmDeleteSysLog(userAccount: string): Promise<boolean> {
   }
 }
 
-function useSysLogTableState(tableRef: ReturnType<typeof ref>, searchRef: ReturnType<typeof ref<SearchRefExpose>>) {
+function useSysLogTableState(
+  tableRef: ReturnType<typeof ref>,
+  searchRef: ReturnType<typeof ref<SearchRefExpose>>
+) {
   const searchForm = reactive({ ...DEFAULT_SYS_LOG_SEARCH_FORM });
   const tableOpt = reactive({
     query: {
       api: sysLogApi.list,
       params: searchForm,
-      pagination: true,
-    },
+      pagination: true
+    }
   });
-  const { loading, dataList, pagination, onSearch, resetForm, handleSizeChange, handleCurrentChange } = useTable(
-    tableOpt,
-    tableRef
-  );
+  const {
+    loading,
+    dataList,
+    pagination,
+    onSearch,
+    resetForm,
+    handleSizeChange,
+    handleCurrentChange
+  } = useTable(tableOpt, tableRef);
 
   const tableSearch = async (keyword: string) => {
     searchForm.operator = keyword;
@@ -99,7 +107,7 @@ function useSysLogTableState(tableRef: ReturnType<typeof ref>, searchRef: Return
     searchForm.operator = keyword;
   };
   const onResetSearch = () => {
-    resetForm(searchRef, "operator");
+    resetForm(searchRef, 'operator');
   };
 
   return {
@@ -113,7 +121,7 @@ function useSysLogTableState(tableRef: ReturnType<typeof ref>, searchRef: Return
     handleCurrentChange,
     tableSearch,
     onKeywordUpdate,
-    onResetSearch,
+    onResetSearch
   };
 }
 
@@ -144,7 +152,7 @@ function useSysLogDetailState(onSearch: (resetPage?: boolean) => Promise<unknown
 
     try {
       await deleteSysLog(row.id);
-      message.success("删除操作日志成功");
+      message.success('删除操作日志成功');
       await onSearch(false);
     } catch (error) {
       message.error(getErrorMessage(error, DELETE_ERROR_MESSAGE));
@@ -156,7 +164,7 @@ function useSysLogDetailState(onSearch: (resetPage?: boolean) => Promise<unknown
     detailLoading,
     detailData,
     openDetail,
-    handleDelete,
+    handleDelete
   };
 }
 
@@ -169,19 +177,19 @@ export function useSysLogPageState() {
   return {
     refs: {
       tableRef,
-      searchRef,
+      searchRef
     },
     table: {
       loading: tableState.loading,
       dataList: tableState.dataList,
       pagination: tableState.pagination,
       tableColumns: tableState.tableColumns,
-      searchForm: tableState.searchForm,
+      searchForm: tableState.searchForm
     },
     detail: {
       detailVisible: detailState.detailVisible,
       detailLoading: detailState.detailLoading,
-      detailData: detailState.detailData,
+      detailData: detailState.detailData
     },
     actions: {
       tableSearch: tableState.tableSearch,
@@ -190,7 +198,7 @@ export function useSysLogPageState() {
       handleSizeChange: tableState.handleSizeChange,
       handleCurrentChange: tableState.handleCurrentChange,
       openDetail: detailState.openDetail,
-      handleDelete: detailState.handleDelete,
-    },
+      handleDelete: detailState.handleDelete
+    }
   };
 }

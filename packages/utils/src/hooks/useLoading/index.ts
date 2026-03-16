@@ -111,7 +111,7 @@ export function useLoading(options: UseLoadingOptions = {}): UseLoadingReturn {
     toggle,
     start,
     end,
-    withLoading,
+    withLoading
   };
 }
 

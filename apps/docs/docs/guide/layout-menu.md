@@ -10,6 +10,7 @@
 - `top`：顶部横向菜单
 
 配置项：
+
 - `apps/admin/src/config/layout.ts`：`appLayoutMode=side|top`
 - `apps/admin/src/config/layout.ts`：`appSystemSwitchStyle=dropdown|menu`（决定系统切换使用下拉或菜单样式）
 - `apps/admin/src/config/layout.ts`：`appTopbarHeight`（`ob-topbar` 高度，默认 `64px`）
@@ -61,9 +62,7 @@ defineOptions({ name: 'UserListPage' });
       <el-card class="mb-4">筛选条件</el-card>
     </template>
 
-    <el-card v-for="item in 30" :key="item" class="mb-4">
-      第 {{ item }} 行业务内容
-    </el-card>
+    <el-card v-for="item in 30" :key="item" class="mb-4"> 第 {{ item }} 行业务内容 </el-card>
   </ObPageContainer>
 </template>
 ```
@@ -139,10 +138,12 @@ defineOptions({ name: 'UserListPage' });
 适配 sczfw 时，`/cmict/admin/permission/my-tree` 可能一次返回多个根节点（每个根代表一个系统）。
 
 本模板约定：
+
 - 系统 code：根节点 `permissionCode`
 - 系统 name：优先用根节点 `title`，无则兜底 `resourceName/permissionCode`
 
 UI 行为：
+
 - 顶部系统切换：支持 `dropdown`（下拉）与 `menu`（顶栏菜单）两种样式
 - `menu` 样式使用 `el-menu(mode=horizontal)`，激活态背景 `#0955df`，字号 `14px`，并开启 `ellipsis` 以便宽度不足时自动折叠
 - 左侧菜单：展示 `menuStore.menus`（当前系统菜单树）
@@ -184,6 +185,7 @@ UI 行为：
 ## 非菜单路由（详情/编辑）与 meta.activePath
 
 详情/编辑类页面通常不出现在菜单里，但仍需要：
+
 - 菜单高亮正确
 - 权限校验“归属到某个菜单入口”
 
@@ -221,6 +223,7 @@ UI 行为：
 ```
 
 注意：
+
 - `skipMenuAuth` 只会跳过“菜单 allowedPaths 校验”，不会跳过登录校验（仍会被重定向到 `/login`）。
 - 该能力会放宽前端权限控制，应谨慎使用；**能用 `activePath` 归属到已有菜单时，优先用 `activePath`**。
 - admin 默认首页 `/home/index` 已按本地静态页处理，使用 `skipMenuAuth` 放行登录后访问，避免被远端菜单差异误拦截到 `403`。
@@ -228,17 +231,20 @@ UI 行为：
 ## 菜单 icon：class / url / minio id / iconify
 
 后端的 `menu.icon` 可能是：
+
 - iconfont class（如 `i-icon-xxx` / `icon-xxx` / `dj-icon-xxx` / `iconfont-od icon-xxx`）
 - iconify 名称（如 `ep:home-filled` / `ri:settings-3-line`）
 - url（http/https/data/blob）
 - minio 资源 id（需要额外请求拿图片）
 
 本模板做法：
+
 - UI：`packages/ui/src/components/menu/MenuIcon.vue`
 - core：`packages/core/src/stores/assets.ts`（IndexedDB 持久化 blob，刷新不重复拉取）
 - adapter：实现 `assets.fetchImageBlob({ id })`
 
 补充：
+
 - `dj-icon-*` 会自动叠加 `dj-icons` 基类，避免与 CP 的 `icon-*` 冲突。
 - legacy OD 菜单图标（如 `icon-huishouzhan`）会自动补齐 `iconfont-od` 基类。
 - `ep:*` / `ri:*` 图标通过 Iconify 离线集合渲染，不依赖运行时网络请求。

@@ -7,6 +7,8 @@ import {
   PortalDesignerHeaderBar,
   PortalDesignerPreviewFrame,
   PortalDesignerTreePanel,
+  PortalPageSettingsDrawer,
+  PortalShellSettingsDialog,
   PortalTabAttributeDialog,
   PortalTemplateWorkbenchShell,
   type PortalRouteQueryLike,
@@ -17,9 +19,6 @@ import {
 import { portalApi } from '../../api';
 import { setupPortalEngineForAdmin } from '../../engine/register';
 
-import PortalPageSettingsDrawer from '../components/portal-template/PortalPageSettingsDrawer.vue';
-import PortalShellSettingsDialog from '../components/portal-template/PortalShellSettingsDialog.vue';
-
 defineOptions({
   name: 'PortalDesigner'
 });
@@ -28,6 +27,14 @@ const route = useRoute();
 const router = useRouter();
 const portalEngineContext = setupPortalEngineForAdmin();
 const routeQuery = computed(() => route.query as PortalRouteQueryLike);
+const shellFormNotify = {
+  success: (text: string) => message.success(text),
+  error: (text: string) => message.error(text)
+};
+
+function resolvePortalResourceUrl(resourceId: string): string {
+  return `/cmict/file/resource/show?id=${encodeURIComponent(resourceId)}`;
+}
 
 const previewFrameRef = ref<TemplateWorkbenchPagePreviewTarget | null>(null);
 
@@ -224,6 +231,9 @@ void loadTemplate();
         :details="templateInfo?.details || ''"
         :tabs="templateInfo?.tabList || []"
         :current-tab-id="pageSettingsCurrentTabId"
+        :upload-resource="portalApi.resource.upload"
+        :resolve-resource-url="resolvePortalResourceUrl"
+        :notify="shellFormNotify"
         @preview-change="onPageSettingsPreviewChange"
         @preview-shell-change="onPageShellPreviewChange"
         @submit="onSubmitPageSettings"
@@ -235,6 +245,9 @@ void loadTemplate();
         :loading="shellSettingSaving"
         :details="templateInfo?.details || ''"
         :tabs="templateInfo?.tabList || []"
+        :upload-resource="portalApi.resource.upload"
+        :resolve-resource-url="resolvePortalResourceUrl"
+        :notify="shellFormNotify"
         @submit="onSubmitShellSetting"
         @preview-change="onShellPreviewChange"
       />

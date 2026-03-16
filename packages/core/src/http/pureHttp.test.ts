@@ -1,14 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const mocks = vi.hoisted(() => ({
   axiosCreate: vi.fn(),
-  axiosRequest: vi.fn(),
+  axiosRequest: vi.fn()
 }));
 
 vi.mock('axios', () => ({
   default: {
-    create: mocks.axiosCreate,
-  },
+    create: mocks.axiosCreate
+  }
 }));
 
 import { createObHttp } from './pureHttp';
@@ -17,19 +17,19 @@ describe('core createObHttp', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.axiosCreate.mockReturnValue({
-      request: mocks.axiosRequest,
+      request: mocks.axiosRequest
     });
     mocks.axiosRequest.mockResolvedValue({
       data: {
         code: 0,
         data: {
-          ok: true,
-        },
+          ok: true
+        }
       },
       headers: {},
       config: {},
       status: 200,
-      statusText: 'OK',
+      statusText: 'OK'
     });
   });
 
@@ -42,25 +42,27 @@ describe('core createObHttp', () => {
         await Promise.resolve();
         config.headers = {
           ...(config.headers as Record<string, unknown> | undefined),
-          'X-Test-Async': 'ready',
+          'X-Test-Async': 'ready'
         };
         steps.push('before:end');
-      },
+      }
     });
 
     mocks.axiosRequest.mockImplementation(async (config: Record<string, unknown>) => {
       const headers =
-        config.headers && typeof config.headers === 'object' ? (config.headers as Record<string, unknown>) : {};
+        config.headers && typeof config.headers === 'object'
+          ? (config.headers as Record<string, unknown>)
+          : {};
       steps.push(`request:${headers['X-Test-Async'] ?? 'missing'}`);
       return {
         data: {
           code: 0,
-          data: 'ok',
+          data: 'ok'
         },
         headers: {},
         config,
         status: 200,
-        statusText: 'OK',
+        statusText: 'OK'
       };
     });
 

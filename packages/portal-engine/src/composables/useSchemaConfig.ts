@@ -61,7 +61,7 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
     ...Object.keys(sections).reduce<SchemaObject>((acc, key) => {
       acc[key] = { ...sectionRefs[key]?.value };
       return acc;
-    }, {}),
+    }, {})
   });
 
   // 创建代理对象，直接暴露给组件使用
@@ -78,7 +78,7 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
           updateSchema();
         });
       },
-      enumerable: true,
+      enumerable: true
     });
   });
 
@@ -104,12 +104,12 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
             acc[key] = { ...toPlainObject(newVal[key]) };
           }
           return acc;
-        }, {}),
+        }, {})
       };
     },
     {
       immediate: true,
-      deep: true,
+      deep: true
     }
   );
 
@@ -133,7 +133,7 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
       ...Object.keys(sections).reduce<SchemaObject>((acc, key) => {
         acc[key] = { ...toPlainObject(contentData.value[key]) };
         return acc;
-      }, {}),
+      }, {})
     };
 
     onChange?.(schemaData);
@@ -142,6 +142,6 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
   return {
     sectionData,
     contentData,
-    updateSchema,
+    updateSchema
   };
 }
