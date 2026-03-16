@@ -1,4 +1,4 @@
-import { computed, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import type { CrudFormLike } from '@one-base-template/ui';
 import { useCrudPage } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
@@ -138,6 +138,10 @@ export function useRolePageState() {
   function handlePermissionSaved() {
     void onSearch(false);
   }
+
+  onMounted(() => {
+    void onSearch(false);
+  });
 
   return {
     refs: {

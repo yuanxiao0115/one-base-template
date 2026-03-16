@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import type { TreeInstance } from 'element-plus';
 import { roleApi } from '../api';
 import type { PermissionTreeNode } from '../types';
@@ -24,6 +24,8 @@ const treeRef = ref<TreeInstance>();
 const loading = ref(false);
 const submitting = ref(false);
 const treeData = ref<PermissionTreeNode[]>([]);
+const treeRenderSeed = ref(0);
+const checkedPermissionIds = ref<string[]>([]);
 
 const expandedAll = ref(true);
 const checkedAll = ref(false);
@@ -51,23 +53,28 @@ function getAllPermissionIds(list: PermissionTreeNode[]): string[] {
   return result;
 }
 
-function setExpanded(flag: boolean) {
-  const nodesMap = treeRef.value?.store.nodesMap || {};
-  Object.keys(nodesMap).forEach((key) => {
-    const currentNode = nodesMap[key];
-    if (currentNode) {
-      currentNode.expanded = flag;
-    }
-  });
+function getCurrentCheckedPermissionIds(): string[] {
+  const checkedKeys = treeRef.value?.getCheckedKeys(false) || [];
+  const halfCheckedKeys = treeRef.value?.getHalfCheckedKeys() || [];
+  return [...new Set([...checkedKeys, ...halfCheckedKeys].map((item) => String(item)))];
+}
+
+async function rerenderTreeWithExpandedState() {
+  checkedPermissionIds.value = getCurrentCheckedPermissionIds();
+  treeRenderSeed.value += 1;
+  await nextTick();
+  treeRef.value?.setCheckedKeys(checkedPermissionIds.value);
 }
 
 function setChecked(flag: boolean) {
   if (flag) {
     const allIds = getAllPermissionIds(treeData.value);
+    checkedPermissionIds.value = allIds;
     treeRef.value?.setCheckedKeys(allIds);
     return;
   }
 
+  checkedPermissionIds.value = [];
   treeRef.value?.setCheckedKeys([]);
 }
 
@@ -94,12 +101,13 @@ async function loadDialogData() {
       throw new Error(treeRes.message || '加载权限树失败');
     }
 
-    treeData.value = treeRes.data;
-
-    const checkedKeys = permissionIdRes.data;
-    treeRef.value?.setCheckedKeys([]);
-    treeRef.value?.setCheckedKeys(checkedKeys);
-    setExpanded(true);
+    treeData.value = Array.isArray(treeRes.data) ? treeRes.data : [];
+    checkedPermissionIds.value = Array.isArray(permissionIdRes.data)
+      ? permissionIdRes.data.map((item) => String(item))
+      : [];
+    treeRenderSeed.value += 1;
+    await nextTick();
+    treeRef.value?.setCheckedKeys(checkedPermissionIds.value);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '加载角色权限失败';
     message.error(errorMessage);
@@ -154,8 +162,8 @@ watch(
 
 watch(
   () => expandedAll.value,
-  (value) => {
-    setExpanded(value);
+  () => {
+    void rerenderTreeWithExpandedState();
   }
 );
 
@@ -183,12 +191,13 @@ watch(
 
       <el-scrollbar class="role-permission-dialog__tree">
         <el-tree
+          :key="`permission-tree-${props.roleId}-${treeRenderSeed}`"
           ref="treeRef"
           node-key="id"
           :data="treeData"
           :props="treeProps"
           show-checkbox
-          default-expand-all
+          :default-expand-all="expandedAll"
         />
       </el-scrollbar>
     </div>
