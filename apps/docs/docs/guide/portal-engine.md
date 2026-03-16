@@ -99,6 +99,16 @@ packages/portal-engine/src/
   - 页面层仅注入 `routeQuery/replace/push/resolve` 能力，不再重复写路由拼装细节。
 - `workbench/template-workbench-route.ts`
   - 提供模板工作台路由辅助函数，统一 `query -> templateId/tabId` 解析与编辑页/预览页 location 构建。
+- `workbench/PortalDesignerHeaderBar.vue`
+  - 下沉模板工作台顶部栏（返回、刷新、页眉页脚入口），admin 页面不再维护同构头部组件。
+- `workbench/PortalDesignerTreePanel.vue`
+  - 下沉左侧树面板壳（搜索、新建入口），并复用引擎内 `PortalTabTree`。
+- `workbench/PortalTabTree.vue`
+  - 下沉 tab 树交互组件（筛选、拖拽排序、节点动作菜单），统一依赖 `domain/tab-tree`。
+- `workbench/PortalDesignerActionStrip.vue`
+  - 下沉页面动作条（预览模式/视口、缩放、编辑/设置/隐藏/预览/删除），保持与工作台编排器事件契约一致。
+- `workbench/PortalTabAttributeDialog.vue`
+  - 下沉“页面属性弹窗”并移除 admin API 直连，改为 `loadTemplateList` 注入式加载门户模板选项，满足跨应用复用。
 
 ## admin 注册入口（必须）
 
@@ -108,18 +118,18 @@ packages/portal-engine/src/
 import {
   setPortalCmsApi,
   setPortalCmsNavigation,
-  setPortalPageSettingsApi,
+  setPortalPageSettingsApi
 } from '@one-base-template/portal-engine';
 
 setPortalCmsApi({
   getCategoryTree: cmsApi.getCategoryTree,
   getUserArticlesByCategory: cmsApi.getUserArticlesByCategory,
-  getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory,
+  getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory
 });
 
 setPortalPageSettingsApi({
   getTabDetail: ({ id }) => portalApi.tab.detail({ id }),
-  updateTab: (payload) => portalApi.tab.update(payload),
+  updateTab: (payload) => portalApi.tab.update(payload)
 });
 
 setPortalCmsNavigation(options.cmsNavigation ?? {});
@@ -143,19 +153,19 @@ const workbenchPage = useTemplateWorkbenchPage({
     template: {
       detail: portalApi.template.detail,
       update: portalApi.template.update,
-      hideToggle: portalApi.template.hideToggle,
+      hideToggle: portalApi.template.hideToggle
     },
     tab: {
       detail: portalApi.tab.detail,
       add: portalApi.tab.add,
       update: portalApi.tab.update,
-      delete: portalApi.tab.delete,
-    },
+      delete: portalApi.tab.delete
+    }
   },
   notify: {
     success: (text) => message.success(text),
     error: (text) => message.error(text),
-    warning: (text) => message.warning(text),
+    warning: (text) => message.warning(text)
   },
   confirm: async ({ message: text, title }) => {
     await confirm.warn(text, title);
@@ -164,18 +174,19 @@ const workbenchPage = useTemplateWorkbenchPage({
   openEditor: ({ templateId, tabId }) => {
     router.push({
       path: '/portal/page/edit',
-      query: { id: templateId, tabId },
+      query: { id: templateId, tabId }
     });
   },
   resolvePreviewHref: ({ templateId, tabId, previewMode }) =>
     router.resolve({
       name: 'PortalPreview',
-      query: { templateId, tabId, previewMode },
-    }).href,
+      query: { templateId, tabId, previewMode }
+    }).href
 });
 ```
 
 页面层保留的职责应收敛为：
+
 - 路由参数解析与 `router/message/confirm` 注入
 - 预览舞台、树面板、抽屉/对话框等壳组件拼装
 - 首次 `loadTemplate()` 触发与页面级返回动作
@@ -193,24 +204,24 @@ const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRout
     template: {
       detail: portalApi.template.detail,
       update: portalApi.template.update,
-      hideToggle: portalApi.template.hideToggle,
+      hideToggle: portalApi.template.hideToggle
     },
     tab: {
       detail: portalApi.tab.detail,
       add: portalApi.tab.add,
       update: portalApi.tab.update,
-      delete: portalApi.tab.delete,
-    },
+      delete: portalApi.tab.delete
+    }
   },
   notify: {
     success: (text) => message.success(text),
     error: (text) => message.error(text),
-    warning: (text) => message.warning(text),
+    warning: (text) => message.warning(text)
   },
   confirm: ({ message: text, title }) => confirm.warn(text, title),
   replaceRouteQuery: (nextQuery) => router.replace({ query: nextQuery }),
   pushRoute: ({ path, query }) => router.push({ path, query }),
-  resolveRouteHref: ({ name, query }) => router.resolve({ name, query }).href,
+  resolveRouteHref: ({ name, query }) => router.resolve({ name, query }).href
 });
 ```
 
@@ -219,7 +230,7 @@ const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRout
 `PortalPageEditPage.vue` 这类页面应优先消费 `usePageEditorWorkbench()`，让 admin 只保留路由与依赖注入：
 
 ```ts
-import { usePageEditorWorkbench } from '@one-base-template/portal-engine'
+import { usePageEditorWorkbench } from '@one-base-template/portal-engine';
 
 const workbench = usePageEditorWorkbench({
   tabId,
@@ -227,23 +238,24 @@ const workbench = usePageEditorWorkbench({
   api: {
     tab: {
       detail: portalApi.tab.detail,
-      update: portalApi.tab.update,
-    },
+      update: portalApi.tab.update
+    }
   },
   notify: {
     success: (text) => message.success(text),
     error: (text) => message.error(text),
-    warning: (text) => message.warning(text),
+    warning: (text) => message.warning(text)
   },
   resolvePreviewHref: ({ tabId, templateId, previewMode }) =>
     router.resolve({
       name: 'PortalPreview',
-      query: { tabId, templateId, previewMode },
-    }).href,
-})
+      query: { tabId, templateId, previewMode }
+    }).href
+});
 ```
 
 页面层建议仅保留：
+
 - `tabId/templateId` 路由参数解析
 - 返回跳转（如 `onBack`）
 - `PortalPageEditorWorkbench` 组件透传 `loading/saving/preview/pageSettingData` 与事件绑定
@@ -251,6 +263,7 @@ const workbench = usePageEditorWorkbench({
 ## 模板工作台壳层接入
 
 模板工作台页面建议统一使用 `PortalTemplateWorkbenchShell`，通过插槽装配业务组件：
+
 - `#header`：顶部栏（返回、刷新、页眉页脚入口）
 - `#tree`：左侧树面板
 - `#toolbar`：页面动作条
@@ -262,6 +275,7 @@ const workbench = usePageEditorWorkbench({
 `PortalPreviewPanel` 已下沉到 `packages/portal-engine/src/renderer/PortalPreviewPanel.vue`，消费者（admin/portal/其他应用）统一通过 props 注入能力，**不依赖 `apps/admin` 的本地 `portalApi` 或 `useMaterials` mock**。
 
 接入要点：
+
 1. 注入 `previewDataSource`：提供 `getTabDetail/getTemplateDetail` 两个异步函数。
 2. 注入 `materialsMap`：传入 `Record<string, Component>`，key 必须与 schema 的 `cmptConfig.index.name` 对齐。
 3. 注入 `onNavigate`：统一接收 tab/url 跳转事件，由消费者决定路由跳转或外链打开策略。
@@ -273,7 +287,7 @@ import { useRouter } from 'vue-router';
 import {
   PortalPreviewPanel,
   type PortalPreviewDataSource,
-  type PortalPreviewNavigatePayload,
+  type PortalPreviewNavigatePayload
 } from '@one-base-template/portal-engine';
 
 import BaseTextIndex from './materials/BaseTextIndex.vue';
@@ -282,20 +296,21 @@ import { request } from './infra/request';
 const router = useRouter();
 
 const materialsMap = {
-  'base-text-index': markRaw(BaseTextIndex),
+  'base-text-index': markRaw(BaseTextIndex)
 };
 
 const previewDataSource: PortalPreviewDataSource = {
   getTabDetail: (tabId) => request.get('/portal/tab/detail', { params: { id: tabId } }),
-  getTemplateDetail: (templateId) => request.get('/portal/template/detail', { params: { id: templateId } }),
+  getTemplateDetail: (templateId) =>
+    request.get('/portal/template/detail', { params: { id: templateId } })
 };
 
 function handleNavigate(payload: PortalPreviewNavigatePayload) {
   if (payload.type === 'tab' && payload.tabId) {
     router.replace({
       query: {
-        tabId: payload.tabId,
-      },
+        tabId: payload.tabId
+      }
     });
     return;
   }

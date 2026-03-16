@@ -1,144 +1,144 @@
 <script setup lang="ts">
-  import { computed, ref } from "vue";
-  import { useRoute, useRouter } from "vue-router";
-  import { confirm, message } from "@one-base-template/ui";
-  import {
-    PortalDesignerPreviewFrame,
-    PortalTemplateWorkbenchShell,
-    type PortalRouteQueryLike,
-    type TemplateWorkbenchPagePreviewTarget,
-    useTemplateWorkbenchPageByRoute,
-  } from "@one-base-template/portal-engine";
+import { computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { confirm, message } from '@one-base-template/ui';
+import {
+  PortalDesignerActionStrip,
+  PortalDesignerHeaderBar,
+  PortalDesignerPreviewFrame,
+  PortalDesignerTreePanel,
+  PortalTabAttributeDialog,
+  PortalTemplateWorkbenchShell,
+  type PortalRouteQueryLike,
+  type TemplateWorkbenchPagePreviewTarget,
+  useTemplateWorkbenchPageByRoute
+} from '@one-base-template/portal-engine';
 
-  import { portalApi } from "../../api";
-  import { setupPortalEngineForAdmin } from "../../engine/register";
+import { portalApi } from '../../api';
+import { setupPortalEngineForAdmin } from '../../engine/register';
 
-  import PortalDesignerActionStrip from "../components/portal-template/PortalDesignerActionStrip.vue";
-  import PortalDesignerHeaderBar from "../components/portal-template/PortalDesignerHeaderBar.vue";
-  import PortalDesignerTreePanel from "../components/portal-template/PortalDesignerTreePanel.vue";
-  import PortalPageSettingsDrawer from "../components/portal-template/PortalPageSettingsDrawer.vue";
-  import PortalShellSettingsDialog from "../components/portal-template/PortalShellSettingsDialog.vue";
-  import TabAttributeDialog from "../components/portal-template/TabAttributeDialog.vue";
+import PortalPageSettingsDrawer from '../components/portal-template/PortalPageSettingsDrawer.vue';
+import PortalShellSettingsDialog from '../components/portal-template/PortalShellSettingsDialog.vue';
 
-  defineOptions({
-    name: "PortalDesigner",
-  });
+defineOptions({
+  name: 'PortalDesigner'
+});
 
-  const route = useRoute();
-  const router = useRouter();
-  const portalEngineContext = setupPortalEngineForAdmin();
-  const routeQuery = computed(() => route.query as PortalRouteQueryLike);
+const route = useRoute();
+const router = useRouter();
+const portalEngineContext = setupPortalEngineForAdmin();
+const routeQuery = computed(() => route.query as PortalRouteQueryLike);
 
-  const previewFrameRef = ref<TemplateWorkbenchPagePreviewTarget | null>(null);
+const previewFrameRef = ref<TemplateWorkbenchPagePreviewTarget | null>(null);
 
-  const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRoute({
-    context: portalEngineContext,
-    routeQuery,
-    previewTarget: previewFrameRef,
-    api: {
-      template: {
-        detail: portalApi.template.detail,
-        update: portalApi.template.update,
-        hideToggle: portalApi.template.hideToggle,
-      },
-      tab: {
-        detail: portalApi.tab.detail,
-        add: portalApi.tab.add,
-        update: portalApi.tab.update,
-        delete: portalApi.tab.delete,
-      },
+const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRoute({
+  context: portalEngineContext,
+  routeQuery,
+  previewTarget: previewFrameRef,
+  api: {
+    template: {
+      detail: portalApi.template.detail,
+      update: portalApi.template.update,
+      hideToggle: portalApi.template.hideToggle
     },
-    notify: {
-      success: (text) => message.success(text),
-      error: (text) => message.error(text),
-      warning: (text) => message.warning(text),
-    },
-    confirm: async ({ message: text, title }) => {
-      await confirm.warn(text, title);
-    },
-    replaceRouteQuery: (nextQuery) => {
-      return router.replace({
-        query: nextQuery,
-      });
-    },
-    onReplaceRouteQueryError: (error) => {
-      console.warn("[PortalTemplateSettingPage] 更新路由参数失败", error);
-    },
-    pushRoute: ({ path, query }) => {
-      return router.push({
-        path,
-        query,
-      });
-    },
-    resolveRouteHref: ({ name, query }) =>
-      router.resolve({
-        name,
-        query,
-      }).href,
-  });
+    tab: {
+      detail: portalApi.tab.detail,
+      add: portalApi.tab.add,
+      update: portalApi.tab.update,
+      delete: portalApi.tab.delete
+    }
+  },
+  notify: {
+    success: (text) => message.success(text),
+    error: (text) => message.error(text),
+    warning: (text) => message.warning(text)
+  },
+  confirm: async ({ message: text, title }) => {
+    await confirm.warn(text, title);
+  },
+  replaceRouteQuery: (nextQuery) => {
+    return router.replace({
+      query: nextQuery
+    });
+  },
+  onReplaceRouteQueryError: (error) => {
+    console.warn('[PortalTemplateSettingPage] 更新路由参数失败', error);
+  },
+  pushRoute: ({ path, query }) => {
+    return router.push({
+      path,
+      query
+    });
+  },
+  resolveRouteHref: ({ name, query }) =>
+    router.resolve({
+      name,
+      query
+    }).href
+});
 
-  const {
-    loading,
-    creating,
-    sortingTabs,
-    templateInfo,
-    currentTabId,
-    currentTab,
-    attrVisible,
-    attrMode,
-    attrLoading,
-    attrInitial,
-    setCurrentTab,
-    loadTemplate,
-    openCreateRoot,
-    openCreateSibling,
-    openCreateChild,
-    openAttribute,
-    onSubmitAttr,
-    toggleHide,
-    deleteTab,
-    onTreeSortDrop,
-    onEdit,
-    shellSettingVisible,
-    shellSettingSaving,
-    previewScale,
-    previewInteractionMode,
-    previewViewport,
-    previewFrameSrc,
-    pageSettingsVisible,
-    pageSettingsActiveTab,
-    pageSettingsSaving,
-    pageShellSettingSaving,
-    pageSettingsForm,
-    pageSettingsCurrentTabId,
-    pageSettingsCurrentTabName,
-    editCurrentTab,
-    openCurrentPageSettings,
-    toggleCurrentTabHide,
-    deleteCurrentTab,
-    openPreviewWindow,
-    openShellSettings,
-    onShellPreviewChange,
-    onSubmitShellSetting,
-    onPageSettingsPreviewChange,
-    onPageShellPreviewChange,
-    onSubmitPageSettings,
-    onSubmitPageShellSetting,
-    onPreviewScaleChange,
-    onPreviewInteractionStateChange,
-    onPreviewChange,
-    onPreviewInteractionChange,
-    onZoomInPreview,
-    onZoomOutPreview,
-    onResetPreviewView,
-    onPreviewFrameLoad,
-  } = workbenchPage;
+const {
+  loading,
+  creating,
+  sortingTabs,
+  templateInfo,
+  currentTabId,
+  currentTab,
+  attrVisible,
+  attrMode,
+  attrLoading,
+  attrInitial,
+  setCurrentTab,
+  loadTemplate,
+  openCreateRoot,
+  openCreateSibling,
+  openCreateChild,
+  openAttribute,
+  onSubmitAttr,
+  toggleHide,
+  deleteTab,
+  onTreeSortDrop,
+  onEdit,
+  shellSettingVisible,
+  shellSettingSaving,
+  previewScale,
+  previewInteractionMode,
+  previewViewport,
+  previewFrameSrc,
+  pageSettingsVisible,
+  pageSettingsActiveTab,
+  pageSettingsSaving,
+  pageShellSettingSaving,
+  pageSettingsForm,
+  pageSettingsCurrentTabId,
+  pageSettingsCurrentTabName,
+  editCurrentTab,
+  openCurrentPageSettings,
+  toggleCurrentTabHide,
+  deleteCurrentTab,
+  openPreviewWindow,
+  openShellSettings,
+  onShellPreviewChange,
+  onSubmitShellSetting,
+  onPageSettingsPreviewChange,
+  onPageShellPreviewChange,
+  onSubmitPageSettings,
+  onSubmitPageShellSetting,
+  onPreviewScaleChange,
+  onPreviewInteractionStateChange,
+  onPreviewChange,
+  onPreviewInteractionChange,
+  onZoomInPreview,
+  onZoomOutPreview,
+  onResetPreviewView,
+  onPreviewFrameLoad
+} = workbenchPage;
 
-  function onBack() {
-    router.push("/portal/setting");
-  }
+function onBack() {
+  router.push('/portal/setting');
+}
 
-  void loadTemplate();
+void loadTemplate();
 </script>
 
 <template>
@@ -205,11 +205,12 @@
     </template>
 
     <template #dialogs>
-      <TabAttributeDialog
+      <PortalTabAttributeDialog
         v-model="attrVisible"
         :mode="attrMode"
         :loading="creating || attrLoading"
         :initial="attrInitial"
+        :load-template-list="portalApi.template.list"
         @submit="onSubmitAttr"
       />
 
