@@ -1,6 +1,7 @@
 export interface LatestRequestGuard {
   next: () => number;
   isLatest: (token: number) => boolean;
+  invalidate: () => void;
   reset: () => void;
   current: () => number;
 }
@@ -16,8 +17,11 @@ export function createLatestRequestGuard(): LatestRequestGuard {
     isLatest(inputToken: number) {
       return inputToken === token;
     },
+    invalidate() {
+      token += 1;
+    },
     reset() {
-      token = 0;
+      token += 1;
     },
     current() {
       return token;

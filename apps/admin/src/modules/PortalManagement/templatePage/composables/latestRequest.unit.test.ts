@@ -13,13 +13,15 @@ describe('PortalManagement/templatePage/latestRequest', () => {
     expect(guard.isLatest(token2)).toBe(true);
   });
 
-  it('应支持重置当前请求 token', () => {
+  it('应支持失效当前请求 token', () => {
     const guard = createLatestRequestGuard();
 
     const token1 = guard.next();
-    guard.reset();
+    guard.invalidate();
+    const token2 = guard.next();
 
     expect(guard.isLatest(token1)).toBe(false);
-    expect(guard.current()).toBe(0);
+    expect(guard.isLatest(token2)).toBe(true);
+    expect(token2).toBeGreaterThan(token1);
   });
 });

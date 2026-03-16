@@ -497,7 +497,7 @@ export function usePortalTemplateListPageState() {
       return;
     }
 
-    permissionDetailRequestGuard.reset();
+    permissionDetailRequestGuard.invalidate();
     pagePermissionDetailLoading.value = false;
     pagePermissionSubmitting.value = false;
 
