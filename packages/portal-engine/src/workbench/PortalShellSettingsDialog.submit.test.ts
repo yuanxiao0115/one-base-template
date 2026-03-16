@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { defineComponent, h } from 'vue';
 import { mount } from '@vue/test-utils';
 
-import { PortalShellSettingsDialog } from '@one-base-template/portal-engine';
+import PortalShellSettingsDialog from './PortalShellSettingsDialog.vue';
 
 interface ShellStateLike {
   shell: {

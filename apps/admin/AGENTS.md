@@ -91,6 +91,7 @@
 - CRUD 目录范式固定：`list.vue + api.ts + types.ts + routes.ts`；禁止恢复 `pages/page.vue`、`services` 中转或散乱接口分层。
 - 上传能力红线：导入类上传优先使用 `ObImportUpload`（`packages/ui`）；业务型 `el-upload` 仅允许在表单/领域组件内部使用，禁止在 `list.vue` 直接编排上传控件。
 - 页面禁止重复封装同构基础能力（消息、确认、CRUD 容器、表格容器）；已有公共组件满足诉求时必须复用。
+- 由 `@one-base-template/portal-engine` 导出的组件，其行为单测必须维护在 `packages/portal-engine/**`；`apps/admin` 仅保留消费层编排测试，禁止继续在业务目录维护引擎组件行为测试。
 
 ## 表格迁移（业务页侧）
 
