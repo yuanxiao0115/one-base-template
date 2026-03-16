@@ -239,14 +239,58 @@ const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRout
 
 ## 页面编辑消费者接入
 
-`PortalPageEditPage.vue` 这类页面应优先消费 `usePageEditorWorkbench()`，让 admin 只保留路由与依赖注入：
+`PortalPageEditPage.vue` 这类页面应优先消费 `usePageEditorWorkbenchByRoute()`，让 admin 只保留 route 注入与壳层拼装：
 
 ```ts
-import { usePageEditorWorkbench } from '@one-base-template/portal-engine';
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  usePageEditorWorkbenchByRoute,
+  type PortalRouteQueryLike
+} from '@one-base-template/portal-engine';
 
-const workbench = usePageEditorWorkbench({
+const route = useRoute();
+const router = useRouter();
+const routeQuery = computed(() => route.query as PortalRouteQueryLike);
+
+const {
   tabId,
   templateId,
+  backRouteLocation,
+  controller: workbench
+} = usePageEditorWorkbenchByRoute({
+  routeQuery,
+  resolveRouteHref: ({ name, query }) => router.resolve({ name, query }).href,
+  api: {
+    tab: {
+      detail: portalApi.tab.detail,
+      update: portalApi.tab.update
+    }
+  },
+  notify: {
+    success: (text) => message.success(text),
+    error: (text) => message.error(text),
+    warning: (text) => message.warning(text)
+  }
+});
+
+function onBack() {
+  router.push(backRouteLocation.value);
+}
+```
+
+页面层建议仅保留：
+
+- `route.query` 与 `router.resolve` 注入（`tabId/templateId` 解析由 `ByRoute` composable 统一处理）
+- 返回跳转（如 `onBack`）
+- `PortalPageEditorWorkbench` 组件透传 `loading/saving/preview/pageSettingData` 与事件绑定
+
+若页面已自行管理 `tabId/templateId`，仍可继续使用 `usePageEditorWorkbench()`：
+
+```ts
+const workbench = usePageEditorWorkbench({
+  tabId: computed(() => 'tab-1'),
+  templateId: computed(() => 'tpl-1'),
   api: {
     tab: {
       detail: portalApi.tab.detail,
@@ -265,12 +309,6 @@ const workbench = usePageEditorWorkbench({
     }).href
 });
 ```
-
-页面层建议仅保留：
-
-- `tabId/templateId` 路由参数解析
-- 返回跳转（如 `onBack`）
-- `PortalPageEditorWorkbench` 组件透传 `loading/saving/preview/pageSettingData` 与事件绑定
 
 ## 模板工作台壳层接入
 
