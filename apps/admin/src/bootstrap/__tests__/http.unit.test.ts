@@ -118,13 +118,17 @@ describe('bootstrap/http', () => {
     const options = mocks.createObHttpMock.mock.calls[0]?.[0] as ObHttpMockOptions;
     expect(options.axios.withCredentials).toBe(false);
     expect(options.axios.timeout).toBe(100_000);
-    expect(typeof options.beforeRequestCallback).toBe('function');
+    const beforeRequest = options.beforeRequestCallback;
+    expect(typeof beforeRequest).toBe('function');
     expect(mocks.sczfwCryptoLoadCount).toBe(0);
 
     const config = {
       headers: {}
     };
-    await options.beforeRequestCallback(config);
+    if (!beforeRequest) {
+      throw new Error('beforeRequestCallback 应已注入');
+    }
+    await beforeRequest(config);
 
     expect(mocks.createClientSignatureMock).toHaveBeenCalledWith({
       salt: 'salt-1',
