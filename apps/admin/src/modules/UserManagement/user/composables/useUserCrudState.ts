@@ -12,7 +12,13 @@ import type {
   UserListRecord,
   UserSavePayload
 } from '../types';
-import { createDefaultUserForm, toUserForm, toUserPayload, type UserForm } from '../form';
+import {
+  createDefaultUserForm,
+  createDefaultUserOrg,
+  toUserForm,
+  toUserPayload,
+  type UserForm
+} from '../form';
 import { userTypeOptions } from '../const';
 import {
   assertUniqueCheck,
@@ -125,22 +131,9 @@ export function useUserCrudState() {
 
           if (mode === 'create') {
             userUniqueSnapshot.value = null;
-            form.userOrgs = [
-              {
-                orgId: searchForm.orgId || '',
-                orgRankType: null,
-                ownSort: 1,
-                sort: 1,
-                status: 1,
-                postVos: [
-                  {
-                    postId: '',
-                    sort: 1,
-                    status: 1
-                  }
-                ]
-              }
-            ];
+            const defaultOrg = createDefaultUserOrg();
+            defaultOrg.orgId = searchForm.orgId || '';
+            form.userOrgs = [defaultOrg];
           }
         },
         async load({ row }) {

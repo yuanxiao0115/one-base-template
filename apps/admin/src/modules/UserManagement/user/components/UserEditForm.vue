@@ -218,7 +218,7 @@ async function removePost(orgIndex: number, postIndex: number) {
     return;
   }
 
-  if (!(row.postId || row.sort)) {
+  if (!row.postId) {
     posts.splice(postIndex, 1);
     return;
   }
@@ -325,7 +325,7 @@ defineExpose<CrudFormLike>({
       </el-col>
     </el-row>
 
-    <template v-for="(orgItem, orgIndex) in model.userOrgs" :key="orgIndex">
+    <template v-for="(orgItem, orgIndex) in model.userOrgs" :key="orgItem._key">
       <div class="ob-crud-container__item--full user-edit-form__org-title">
         <span>部门{{ orgIndex + 1 }}</span>
         <el-button v-if="!props.disabled" link type="danger" @click="() => removeOrg(orgIndex)"
@@ -433,7 +433,7 @@ defineExpose<CrudFormLike>({
 
       <el-row
         v-for="(postItem, postIndex) in orgItem.postVos"
-        :key="`post-${orgIndex}-${postIndex}`"
+        :key="postItem._key"
         :gutter="24"
         class="ob-crud-container__item--full"
       >

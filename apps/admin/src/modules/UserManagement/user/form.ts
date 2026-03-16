@@ -2,6 +2,7 @@ import type { FormRules } from 'element-plus';
 import type { UserDetailData, UserOrgPostRecord, UserOrgRecord, UserSavePayload } from './types';
 
 export interface UserOrgPostForm {
+  _key: string;
   id?: string;
   postId: string;
   sort: number;
@@ -9,6 +10,7 @@ export interface UserOrgPostForm {
 }
 
 export interface UserOrgForm {
+  _key: string;
   id?: string;
   orgId: string;
   orgRankType: number | null;
@@ -55,6 +57,12 @@ const nickNameReg =
   /^(([a-zA-Z0-9+.?·?a-zA-Z0-9+\u4e00-\u9fa50-9+·?\u4e00-\u9fa50-9+_()（）、]{2,20}$))/;
 const accountReg = /^[A-Za-z0-9_]{4,20}$/;
 const phoneReg = /^1[3-9]\d{9}$/;
+let userFormKeySeed = 0;
+
+function createUserFormKey(prefix: 'org' | 'post'): string {
+  userFormKeySeed += 1;
+  return `${prefix}-${Date.now()}-${userFormKeySeed}`;
+}
 
 function toNaturalNumber(value: unknown, fallback = 1): number {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -77,6 +85,7 @@ function trimText(value: string | undefined): string {
 
 export function createDefaultUserOrgPost(): UserOrgPostForm {
   return {
+    _key: createUserFormKey('post'),
     postId: '',
     sort: 1,
     status: 1
@@ -85,6 +94,7 @@ export function createDefaultUserOrgPost(): UserOrgPostForm {
 
 export function createDefaultUserOrg(): UserOrgForm {
   return {
+    _key: createUserFormKey('org'),
     orgId: '',
     orgRankType: null,
     ownSort: 1,
@@ -253,6 +263,7 @@ export const userAccountFormRules: FormRules<UserAccountForm> = {
 
 function toUserOrgPostForm(item: UserOrgPostRecord): UserOrgPostForm {
   return {
+    _key: createUserFormKey('post'),
     id: item.id,
     postId: item.postId || '',
     sort: toNaturalNumber(item.sort, 1),
@@ -262,6 +273,7 @@ function toUserOrgPostForm(item: UserOrgPostRecord): UserOrgPostForm {
 
 function toUserOrgForm(item: UserOrgRecord): UserOrgForm {
   return {
+    _key: createUserFormKey('org'),
     id: item.id,
     orgId: item.orgId || '',
     orgRankType: item.orgRankType == null ? null : toNaturalNumber(item.orgRankType, 0),
