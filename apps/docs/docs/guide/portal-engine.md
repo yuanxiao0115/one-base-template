@@ -94,6 +94,11 @@ packages/portal-engine/src/
 - `workbench/PortalTemplateWorkbenchShell.vue`
   - 下沉模板工作台壳层布局（header/tree/toolbar/preview/dialogs 五段插槽）。
   - admin 页面只保留业务组件拼装，不再维护重复布局样式。
+- `workbench/useTemplateWorkbenchPageByRoute.ts`
+  - 下沉模板工作台的路由编排（`templateId/tabId` 解析、`tabId` 路由同步、`openEditor` 与 `resolvePreviewHref` 组装）。
+  - 页面层仅注入 `routeQuery/replace/push/resolve` 能力，不再重复写路由拼装细节。
+- `workbench/template-workbench-route.ts`
+  - 提供模板工作台路由辅助函数，统一 `query -> templateId/tabId` 解析与编辑页/预览页 location 构建。
 
 ## admin 注册入口（必须）
 
@@ -174,6 +179,40 @@ const workbenchPage = useTemplateWorkbenchPage({
 - 路由参数解析与 `router/message/confirm` 注入
 - 预览舞台、树面板、抽屉/对话框等壳组件拼装
 - 首次 `loadTemplate()` 触发与页面级返回动作
+
+若希望进一步减少页面层路由样板代码，推荐直接使用 `useTemplateWorkbenchPageByRoute()`：
+
+```ts
+import { useTemplateWorkbenchPageByRoute } from '@one-base-template/portal-engine';
+
+const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRoute({
+  context: setupPortalEngineForAdmin(),
+  routeQuery: computed(() => route.query),
+  previewTarget: previewFrameRef,
+  api: {
+    template: {
+      detail: portalApi.template.detail,
+      update: portalApi.template.update,
+      hideToggle: portalApi.template.hideToggle,
+    },
+    tab: {
+      detail: portalApi.tab.detail,
+      add: portalApi.tab.add,
+      update: portalApi.tab.update,
+      delete: portalApi.tab.delete,
+    },
+  },
+  notify: {
+    success: (text) => message.success(text),
+    error: (text) => message.error(text),
+    warning: (text) => message.warning(text),
+  },
+  confirm: ({ message: text, title }) => confirm.warn(text, title),
+  replaceRouteQuery: (nextQuery) => router.replace({ query: nextQuery }),
+  pushRoute: ({ path, query }) => router.push({ path, query }),
+  resolveRouteHref: ({ name, query }) => router.resolve({ name, query }).href,
+});
+```
 
 ## 页面编辑消费者接入
 

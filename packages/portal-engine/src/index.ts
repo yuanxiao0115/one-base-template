@@ -219,6 +219,20 @@ export type {
 export { createTemplateWorkbenchPageController } from './workbench/template-workbench-page-controller';
 export { useTemplateWorkbenchPage } from './workbench/useTemplateWorkbenchPage';
 export type {
+  PortalRouteQueryLike,
+  PortalRouteQueryPrimitive,
+  PortalRouteQueryValue,
+} from './workbench/template-workbench-route';
+export {
+  buildNextRouteQueryWithTabId,
+  buildPortalPageEditorRouteLocation,
+  buildPortalPreviewRouteLocation,
+  resolvePortalTabIdFromQuery,
+  resolvePortalTemplateIdFromQuery,
+} from './workbench/template-workbench-route';
+export type { UseTemplateWorkbenchPageByRouteOptions } from './workbench/useTemplateWorkbenchPageByRoute';
+export { useTemplateWorkbenchPageByRoute } from './workbench/useTemplateWorkbenchPageByRoute';
+export type {
   CreatePageEditorControllerOptions,
   PortalPageEditorLayoutStore,
   PageEditorController,

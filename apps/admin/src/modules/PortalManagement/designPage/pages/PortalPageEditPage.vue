@@ -5,6 +5,8 @@
   import {
     PortalPageEditorWorkbench,
     portalMaterialsRegistry,
+    resolvePortalTabIdFromQuery,
+    resolvePortalTemplateIdFromQuery,
     usePageEditorWorkbench,
   } from "@one-base-template/portal-engine";
 
@@ -21,19 +23,8 @@
   const { materialsMap } = useEditorMaterials();
   const materialCategories = portalMaterialsRegistry.categories;
 
-  const tabId = computed(() => {
-    const v = route.query.tabId;
-    return typeof v === "string" ? v : "";
-  });
-
-  const templateId = computed(() => {
-    const id = route.query.id;
-    if (typeof id === "string") {
-      return id;
-    }
-    const templateId = route.query.templateId;
-    return typeof templateId === "string" ? templateId : "";
-  });
+  const tabId = computed(() => resolvePortalTabIdFromQuery(route.query));
+  const templateId = computed(() => resolvePortalTemplateIdFromQuery(route.query));
 
   const workbench = usePageEditorWorkbench({
     tabId,

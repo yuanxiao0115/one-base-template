@@ -5,8 +5,9 @@
   import {
     PortalDesignerPreviewFrame,
     PortalTemplateWorkbenchShell,
+    type PortalRouteQueryLike,
     type TemplateWorkbenchPagePreviewTarget,
-    useTemplateWorkbenchPage,
+    useTemplateWorkbenchPageByRoute,
   } from "@one-base-template/portal-engine";
 
   import { portalApi } from "../../api";
@@ -26,46 +27,13 @@
   const route = useRoute();
   const router = useRouter();
   const portalEngineContext = setupPortalEngineForAdmin();
-
-  const templateId = computed(() => {
-    const id = route.query.id;
-    if (typeof id === "string") {
-      return id;
-    }
-    const nextTemplateId = route.query.templateId;
-    return typeof nextTemplateId === "string" ? nextTemplateId : "";
-  });
-
-  const routeTabId = computed(() => {
-    const value = route.query.tabId;
-    return typeof value === "string" ? value : "";
-  });
-
-  function updateRouteTabId(tabId: string) {
-    const next = tabId || undefined;
-    const current = routeTabId.value || undefined;
-    if (current === next) {
-      return;
-    }
-
-    router
-      .replace({
-        query: {
-          ...route.query,
-          tabId: next,
-        },
-      })
-      .catch((error) => {
-        console.warn("[PortalTemplateSettingPage] 更新路由参数失败", error);
-      });
-  }
+  const routeQuery = computed(() => route.query as PortalRouteQueryLike);
 
   const previewFrameRef = ref<TemplateWorkbenchPagePreviewTarget | null>(null);
 
-  const workbenchPage = useTemplateWorkbenchPage({
+  const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRoute({
     context: portalEngineContext,
-    templateId,
-    routeTabId,
+    routeQuery,
     previewTarget: previewFrameRef,
     api: {
       template: {
@@ -88,24 +56,24 @@
     confirm: async ({ message: text, title }) => {
       await confirm.warn(text, title);
     },
-    syncRouteTabId: updateRouteTabId,
-    openEditor: ({ templateId: nextTemplateId, tabId }) => {
-      router.push({
-        path: "/portal/page/edit",
-        query: {
-          id: nextTemplateId,
-          tabId,
-        },
+    replaceRouteQuery: (nextQuery) => {
+      return router.replace({
+        query: nextQuery,
       });
     },
-    resolvePreviewHref: ({ templateId: nextTemplateId, tabId, previewMode }) =>
+    onReplaceRouteQueryError: (error) => {
+      console.warn("[PortalTemplateSettingPage] 更新路由参数失败", error);
+    },
+    pushRoute: ({ path, query }) => {
+      return router.push({
+        path,
+        query,
+      });
+    },
+    resolveRouteHref: ({ name, query }) =>
       router.resolve({
-        name: "PortalPreview",
-        query: {
-          templateId: nextTemplateId,
-          tabId,
-          previewMode,
-        },
+        name,
+        query,
       }).href,
   });
 
