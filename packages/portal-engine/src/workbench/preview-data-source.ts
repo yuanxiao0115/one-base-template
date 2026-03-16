@@ -3,11 +3,9 @@ import type {
   PortalPreviewTabDetailResponse,
   PortalPreviewTemplateDetailResponse
 } from '../renderer/portal-preview-panel.types';
+import { isPortalBizOk, type PortalBizResponseLike } from '../utils/biz-response';
 
-export interface PortalPreviewBizResponseLike {
-  code?: unknown;
-  success?: unknown;
-}
+export type PortalPreviewBizResponseLike = PortalBizResponseLike;
 
 export interface CreatePortalPreviewDataSourceOptions {
   getTabDetail: (tabId: string) => Promise<PortalPreviewTabDetailResponse>;
@@ -16,18 +14,9 @@ export interface CreatePortalPreviewDataSourceOptions {
   isBizOk?: (response: PortalPreviewBizResponseLike | null | undefined) => boolean;
 }
 
-export function isPortalPreviewBizOk(
+export const isPortalPreviewBizOk: (
   response: PortalPreviewBizResponseLike | null | undefined
-): boolean {
-  const code = response?.code;
-  return (
-    response?.success === true ||
-    code === 0 ||
-    code === 200 ||
-    String(code) === '0' ||
-    String(code) === '200'
-  );
-}
+) => boolean = isPortalBizOk;
 
 export function createPortalPreviewDataSource(
   options: CreatePortalPreviewDataSourceOptions

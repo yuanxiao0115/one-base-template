@@ -3,6 +3,7 @@ import { computed, nextTick, reactive, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 
 import type { PortalTab } from '../schema/types';
+import { isPortalBizOk } from '../utils/biz-response';
 
 type DialogMode = 'create' | 'edit';
 
@@ -130,14 +131,7 @@ function normalizeBizOk(res: BizResLike | null | undefined): boolean {
   if (!('code' in res) && !('success' in res)) {
     return true;
   }
-  const code = res?.code;
-  return (
-    res?.success === true ||
-    code === 0 ||
-    code === 200 ||
-    String(code) === '0' ||
-    String(code) === '200'
-  );
+  return isPortalBizOk(res);
 }
 
 function buildPortalTemplateLink(templateId: string): string {

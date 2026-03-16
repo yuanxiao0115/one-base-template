@@ -25,6 +25,7 @@ import {
 } from '../schema/page-settings';
 import type { PortalTab } from '../schema/types';
 import type { PortalLayoutItem } from '../stores/pageLayout';
+import { isPortalBizOk } from '../utils/biz-response';
 import PortalGridRenderer from './PortalGridRenderer.vue';
 import PortalPreviewGlobalScrollLayout from './layouts/PortalPreviewGlobalScrollLayout.vue';
 import PortalPreviewHeaderFixedContentScrollLayout from './layouts/PortalPreviewHeaderFixedContentScrollLayout.vue';
@@ -403,17 +404,6 @@ const headerWrapStyle = computed<CSSProperties>(() => {
   };
 });
 
-function normalizeBizOk(res: BizResLike | null | undefined): boolean {
-  const code = res?.code;
-  return (
-    res?.success === true ||
-    code === 0 ||
-    code === 200 ||
-    String(code) === '0' ||
-    String(code) === '200'
-  );
-}
-
 function normalizeLayoutItems(input: unknown): PortalLayoutItem[] {
   if (!Array.isArray(input)) {
     return [];
@@ -455,7 +445,7 @@ async function loadTemplateInfo(templateId: string) {
   }
 
   const res = await props.previewDataSource.getTemplateDetail(templateId);
-  if (!normalizeBizOk(res)) {
+  if (!isPortalBizOk(res)) {
     templateInfo.value = null;
     templateDetails.value = createDefaultPortalTemplateDetails();
     loadedTemplateId.value = '';
@@ -486,7 +476,7 @@ async function loadTabLayout(id: string) {
   try {
     const res = await props.previewDataSource.getTabDetail(id);
 
-    if (!normalizeBizOk(res)) {
+    if (!isPortalBizOk(res)) {
       errorMessage.value = typeof res?.message === 'string' ? res.message : '加载失败';
       layoutItems.value = [];
       return;

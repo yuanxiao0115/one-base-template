@@ -1,8 +1,13 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 
+import { isPortalBizOk } from '../utils/biz-response';
 import { createPortalPreviewDataSource, isPortalPreviewBizOk } from './preview-data-source';
 
 describe('preview-data-source', () => {
+  it('兼容导出应复用统一 Biz 判定方法', () => {
+    expect(isPortalPreviewBizOk).toBe(isPortalBizOk);
+  });
+
   it('应识别 success/code 成功响应', () => {
     expect(isPortalPreviewBizOk({ success: true })).toBe(true);
     expect(isPortalPreviewBizOk({ code: 200 })).toBe(true);

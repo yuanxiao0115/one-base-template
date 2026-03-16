@@ -15,6 +15,7 @@ import {
   createDefaultPortalPageSettingsV2
 } from '../schema/page-settings';
 import type { BizResponse, PortalTab, PortalTemplate } from '../schema/types';
+import { isPortalBizOk } from '../utils/biz-response';
 
 export interface TemplateWorkbenchConfirmParams {
   message: string;
@@ -86,17 +87,6 @@ interface TabLocation {
   parent: PortalTab | null;
   siblings: PortalTab[];
   index: number;
-}
-
-function normalizeBizOk(res: BizResponse<unknown> | null | undefined): boolean {
-  const code = res?.code;
-  return (
-    res?.success === true ||
-    code === 0 ||
-    code === 200 ||
-    String(code) === '0' ||
-    String(code) === '200'
-  );
 }
 
 function cloneTabsForSort(source: PortalTab[]): PortalTab[] {
@@ -245,7 +235,7 @@ export function createTemplateWorkbenchController(
     loading.value = true;
     try {
       const res = await options.api.template.detail({ id: options.templateId.value });
-      if (!normalizeBizOk(res)) {
+      if (!isPortalBizOk(res)) {
         options.notify.error(res?.message || '加载门户失败');
         templateInfo.value = null;
         currentTabId.value = '';
@@ -288,7 +278,7 @@ export function createTemplateWorkbenchController(
     currentTemplate.tabIds = nextIds;
 
     const res = await options.api.template.update(currentTemplate);
-    if (!normalizeBizOk(res)) {
+    if (!isPortalBizOk(res)) {
       options.notify.error(res?.message || '关联页面到模板失败');
       return;
     }
@@ -337,7 +327,7 @@ export function createTemplateWorkbenchController(
     attrLoading.value = true;
     try {
       const res = await options.api.tab.detail({ id });
-      if (!normalizeBizOk(res)) {
+      if (!isPortalBizOk(res)) {
         options.notify.error(res?.message || '加载页面详情失败');
         return;
       }
@@ -394,7 +384,7 @@ export function createTemplateWorkbenchController(
         }
 
         const res = await options.api.tab.add(data);
-        if (!normalizeBizOk(res)) {
+        if (!isPortalBizOk(res)) {
           options.notify.error(res?.message || '新建失败');
           return;
         }
@@ -442,7 +432,7 @@ export function createTemplateWorkbenchController(
       }
 
       const res = await options.api.tab.update(updateData);
-      if (!normalizeBizOk(res)) {
+      if (!isPortalBizOk(res)) {
         options.notify.error(res?.message || '保存失败');
         return;
       }
@@ -481,7 +471,7 @@ export function createTemplateWorkbenchController(
       tabId,
       isHide: next
     });
-    if (!normalizeBizOk(res)) {
+    if (!isPortalBizOk(res)) {
       options.notify.error(res?.message || `${text}失败`);
       return;
     }
@@ -509,7 +499,7 @@ export function createTemplateWorkbenchController(
     }
 
     const res = await options.api.tab.delete({ id: tabId });
-    if (!normalizeBizOk(res)) {
+    if (!isPortalBizOk(res)) {
       options.notify.error(res?.message || '删除失败');
       return;
     }
@@ -530,7 +520,7 @@ export function createTemplateWorkbenchController(
 
     for (const patch of patches) {
       const detailRes = await options.api.tab.detail({ id: patch.id });
-      if (!normalizeBizOk(detailRes)) {
+      if (!isPortalBizOk(detailRes)) {
         throw new Error(detailRes?.message || `加载页面详情失败：${patch.id}`);
       }
 
@@ -555,7 +545,7 @@ export function createTemplateWorkbenchController(
       }
 
       const updateRes = await options.api.tab.update(updateData);
-      if (!normalizeBizOk(updateRes)) {
+      if (!isPortalBizOk(updateRes)) {
         throw new Error(updateRes?.message || `更新页面排序失败：${patch.id}`);
       }
     }

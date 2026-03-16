@@ -19,6 +19,8 @@ export {
 } from './runtime/context';
 
 export type { BizResponse, PageResult, PortalTab, PortalTemplate } from './schema/types';
+export type { PortalBizResponseLike } from './utils/biz-response';
+export { isPortalBizOk } from './utils/biz-response';
 export type { PortalPreviewMode, PortalPreviewViewport } from './utils/preview';
 export {
   calcPreviewScale,

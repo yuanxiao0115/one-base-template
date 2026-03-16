@@ -7,6 +7,7 @@ import {
   PORTAL_CUSTOM_HEADER_OPTIONS,
   type PortalTemplateDetails
 } from '../../shell/template-details';
+import { isPortalBizOk } from '../../utils/biz-response';
 import { ObColorField } from '@one-base-template/ui';
 
 interface SelectOption {
@@ -85,17 +86,6 @@ const logoPreviewUrl = computed(() => {
   return `/cmict/file/resource/show?id=${encodeURIComponent(value)}`;
 });
 
-function normalizeBizOk(res: BizResLike | null | undefined): boolean {
-  const code = res?.code;
-  return (
-    res?.success === true ||
-    code === 0 ||
-    code === 200 ||
-    String(code) === '0' ||
-    String(code) === '200'
-  );
-}
-
 function createRowKey(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -162,7 +152,7 @@ async function uploadLogoRequest(options: ElUploadRequestOptions) {
     }
 
     const res = await props.uploadResource(options.file as File);
-    if (!normalizeBizOk(res)) {
+    if (!isPortalBizOk(res)) {
       throw new Error((res?.message as string) || 'Logo 上传失败');
     }
     const data = (res?.data ?? {}) as { id?: unknown; joinUrl?: unknown; savedPath?: unknown };

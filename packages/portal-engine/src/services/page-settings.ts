@@ -10,6 +10,7 @@ import {
   readPortalEngineContextValue,
   writePortalEngineContextValue
 } from '../runtime/context';
+import { isPortalBizOk } from '../utils/biz-response';
 
 interface PageLayoutJson {
   settings?: unknown;
@@ -67,17 +68,6 @@ function createFallbackPortalPageSettingsApi(): PortalPageSettingsApi {
       };
     }
   };
-}
-
-function normalizeBizOk(res: PortalPageSettingsApiResponse<unknown> | null | undefined): boolean {
-  const code = res?.code;
-  return (
-    res?.success === true ||
-    code === 0 ||
-    code === 200 ||
-    String(code) === '0' ||
-    String(code) === '200'
-  );
 }
 
 function normalizeIdLike(value: unknown): string {
@@ -187,7 +177,7 @@ export function createPortalPageSettingsService(
 
   async function loadTabPageSettings(tabId: string): Promise<PortalTabPageSettingsDetail> {
     const res = await resolvedApi.getTabDetail({ id: tabId });
-    if (!normalizeBizOk(res)) {
+    if (!isPortalBizOk(res)) {
       throw new Error(res?.message || '加载页面设置失败');
     }
 
@@ -234,7 +224,7 @@ export function createPortalPageSettingsService(
       pageLayout: JSON.stringify(pageLayout)
     });
 
-    if (!normalizeBizOk(res)) {
+    if (!isPortalBizOk(res)) {
       throw new Error(res?.message || '页面设置保存失败');
     }
   }

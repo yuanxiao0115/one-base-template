@@ -13,6 +13,7 @@ import {
 } from '../schema/page-settings';
 import type { BizResponse } from '../schema/types';
 import { usePortalPageLayoutStore, type PortalLayoutItem } from '../stores/pageLayout';
+import { isPortalBizOk } from '../utils/biz-response';
 import type { PortalPreviewMode } from '../utils/preview';
 
 interface PageLayoutJson {
@@ -75,17 +76,6 @@ export interface CreatePageEditorControllerOptions {
 const PREVIEW_WINDOW_NAME = 'portal-page-preview';
 const PREVIEW_RUNTIME_SYNC_DELAY = 160;
 const PREVIEW_RUNTIME_BOOTSTRAP_DELAYS = [180, 520] as const;
-
-function normalizeBizOk(res: BizResponse<unknown> | null | undefined): boolean {
-  const code = res?.code;
-  return (
-    res?.success === true ||
-    code === 0 ||
-    code === 200 ||
-    String(code) === '0' ||
-    String(code) === '200'
-  );
-}
 
 function normalizeLayoutItems(input: unknown): PortalLayoutItem[] {
   if (!Array.isArray(input)) {
@@ -300,7 +290,7 @@ export function createPageEditorController(options: CreatePageEditorControllerOp
     loading.value = true;
     try {
       const res = await options.api.tab.detail({ id });
-      if (!normalizeBizOk(res)) {
+      if (!isPortalBizOk(res)) {
         options.notify.error(res?.message || '加载页面失败');
         pageLayoutStore.reset();
         return;
@@ -355,7 +345,7 @@ export function createPageEditorController(options: CreatePageEditorControllerOp
         tabName: tabName.value || '页面',
         pageLayout: JSON.stringify(pageLayout)
       });
-      if (!normalizeBizOk(res)) {
+      if (!isPortalBizOk(res)) {
         options.notify.error(res?.message || '保存失败');
         return false;
       }
