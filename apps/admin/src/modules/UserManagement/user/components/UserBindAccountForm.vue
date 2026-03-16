@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 
 export interface UserBindOption {
@@ -9,10 +9,16 @@ export interface UserBindOption {
   phone: string;
 }
 
-const props = defineProps<{
-  disabled: boolean;
-  fetchUsers: (keyword: string) => Promise<UserBindOption[]>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    disabled: boolean;
+    fetchUsers: (keyword: string) => Promise<UserBindOption[]>;
+    minSearchLength?: number;
+  }>(),
+  {
+    minSearchLength: 2
+  }
+);
 
 const model = defineModel<{
   userIds: string[];
@@ -22,6 +28,8 @@ const formRef = ref<FormInstance>();
 const loading = ref(false);
 const options = ref<UserBindOption[]>([]);
 const selectedMap = ref<Record<string, UserBindOption>>({});
+const searchTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+const latestRequestToken = ref(0);
 
 const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
   userIds: [
@@ -45,10 +53,34 @@ const selectedUsers = computed<UserBindOption[]>(() =>
     .filter((item): item is UserBindOption => Boolean(item))
 );
 
+function normalizeKeyword(value: string): string {
+  return value.trim();
+}
+
+function cancelPendingSearch() {
+  if (!searchTimer.value) {
+    return;
+  }
+  clearTimeout(searchTimer.value);
+  searchTimer.value = null;
+}
+
 async function loadOptions(keyword = '') {
+  const normalizedKeyword = normalizeKeyword(keyword);
+  const currentToken = ++latestRequestToken.value;
+
+  if (normalizedKeyword.length < props.minSearchLength) {
+    options.value = [];
+    loading.value = false;
+    return;
+  }
+
   loading.value = true;
   try {
-    const rows = await props.fetchUsers(keyword);
+    const rows = await props.fetchUsers(normalizedKeyword);
+    if (currentToken !== latestRequestToken.value) {
+      return;
+    }
     options.value = rows;
 
     const patch: Record<string, UserBindOption> = {
@@ -61,12 +93,18 @@ async function loadOptions(keyword = '') {
 
     selectedMap.value = patch;
   } finally {
-    loading.value = false;
+    if (currentToken === latestRequestToken.value) {
+      loading.value = false;
+    }
   }
 }
 
 function handleRemoteSearch(keyword: string) {
-  void loadOptions(keyword.trim());
+  const normalizedKeyword = normalizeKeyword(keyword);
+  cancelPendingSearch();
+  searchTimer.value = setTimeout(() => {
+    void loadOptions(normalizedKeyword);
+  }, 250);
 }
 
 function onSelectionChange(ids: string[]) {
@@ -119,6 +157,11 @@ watch(
   },
   { immediate: true }
 );
+
+onBeforeUnmount(() => {
+  cancelPendingSearch();
+  latestRequestToken.value += 1;
+});
 
 defineExpose({
   validate: (...args: Parameters<NonNullable<FormInstance['validate']>>) => {

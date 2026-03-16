@@ -26,6 +26,8 @@ interface UseUserDialogStateOptions {
   onSearch: (goFirstPage?: boolean) => Promise<void>;
 }
 
+const MIN_USER_SEARCH_KEYWORD_LENGTH = 2;
+
 function getBindOptionsFromCorporateUsers(records: CorporateUserRecord[]): UserBindOption[] {
   return records.map((item) => ({
     id: item.userId,
@@ -121,7 +123,12 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
   }
 
   async function fetchBindUsers(keyword: string): Promise<UserBindOption[]> {
-    const response = await userApi.searchUsers({ nickName: keyword });
+    const normalizedKeyword = keyword.trim();
+    if (normalizedKeyword.length < MIN_USER_SEARCH_KEYWORD_LENGTH) {
+      return [];
+    }
+
+    const response = await userApi.searchUsers({ nickName: normalizedKeyword });
     if (response.code !== 200) {
       throw new Error(response.message || '加载用户列表失败');
     }
