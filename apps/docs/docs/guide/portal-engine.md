@@ -68,6 +68,16 @@ packages/portal-engine/src/
 - `portal-engine` 内部样式配置面板统一使用 `ObColorField`。
 - `PortalColorField` 已删除，不再保留兼容壳与兼容导出；新增代码必须使用 `ObColorField`。
 
+## 2026-03-16 稳定性与性能收口
+
+- `utils/biz-response.ts`
+  - 新增 `isPortalBizOk` 统一业务成功判定，替换 `renderer/workbench/services` 内部重复 `normalizeBizOk` 实现，降低多处判定漂移风险。
+- `workbench/template-workbench-page-controller.ts`
+  - 深拷贝默认策略改为“`structuredClone` 优先，失败后回退 JSON 克隆”，兼顾性能与兼容性。
+  - `postPageRuntimePreview` 去除运行态同步链路中的重复克隆，减少页面设置实时预览时的拷贝开销。
+- `editor/page-settings-session.ts`
+  - 抽屉关闭回滚场景只保留一次必要 clone，避免在回滚链路重复深拷贝。
+
 ## 2026-03-13 P1/P2 下沉（工作台编排继续收敛）
 
 - `editor/PortalDesignerPreviewFrame.vue`
