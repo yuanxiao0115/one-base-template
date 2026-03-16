@@ -243,6 +243,7 @@ export type {
 } from './workbench/template-workbench-route';
 export {
   buildNextRouteQueryWithTabId,
+  buildPortalPageEditorBackRouteLocation,
   buildPortalPageEditorRouteLocation,
   buildPortalPreviewRouteLocation,
   resolvePortalTabIdFromQuery,
@@ -273,6 +274,8 @@ export {
   isPortalPreviewBizOk
 } from './workbench/preview-data-source';
 export { usePageEditorWorkbench } from './workbench/usePageEditorWorkbench';
+export type { UsePageEditorWorkbenchByRouteOptions } from './workbench/usePageEditorWorkbenchByRoute';
+export { usePageEditorWorkbenchByRoute } from './workbench/usePageEditorWorkbenchByRoute';
 export {
   calcPortalManualPanRange,
   calcPortalPreviewPanBounds,

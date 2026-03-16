@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import {
   buildNextRouteQueryWithTabId,
+  buildPortalPageEditorBackRouteLocation,
   buildPortalPageEditorRouteLocation,
   buildPortalPreviewRouteLocation,
   resolvePortalTabIdFromQuery,
@@ -43,6 +44,20 @@ describe('template workbench route helpers', () => {
         templateId: 'tpl-1',
         tabId: 'tab-1',
         previewMode: 'live'
+      }
+    });
+  });
+
+  it('应构建编辑页返回路由 location', () => {
+    expect(buildPortalPageEditorBackRouteLocation('', 'tab-1')).toEqual({
+      path: '/portal/setting'
+    });
+
+    expect(buildPortalPageEditorBackRouteLocation('tpl-1', 'tab-1')).toEqual({
+      path: '/portal/design',
+      query: {
+        id: 'tpl-1',
+        tabId: 'tab-1'
       }
     });
   });

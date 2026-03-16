@@ -94,3 +94,25 @@ export function buildPortalPreviewRouteLocation(
     } satisfies PortalRouteQueryLike
   };
 }
+
+export function buildPortalPageEditorBackRouteLocation(
+  templateId: string,
+  tabId: string,
+  designRoutePath = '/portal/design',
+  templateListRoutePath = '/portal/setting',
+  tabIdQueryKey: string = DEFAULT_TAB_ID_QUERY_KEY
+) {
+  if (!templateId) {
+    return {
+      path: templateListRoutePath
+    };
+  }
+
+  return {
+    path: designRoutePath,
+    query: {
+      id: templateId,
+      [tabIdQueryKey]: tabId || undefined
+    } satisfies PortalRouteQueryLike
+  };
+}

@@ -5,9 +5,8 @@ import { message } from '@one-base-template/ui';
 import {
   PortalPageEditorWorkbench,
   portalMaterialsRegistry,
-  resolvePortalTabIdFromQuery,
-  resolvePortalTemplateIdFromQuery,
-  usePageEditorWorkbench
+  usePageEditorWorkbenchByRoute,
+  type PortalRouteQueryLike
 } from '@one-base-template/portal-engine';
 
 import { portalApi } from '../../api';
@@ -22,13 +21,15 @@ const router = useRouter();
 
 const { materialsMap } = useEditorMaterials();
 const materialCategories = portalMaterialsRegistry.categories;
+const routeQuery = computed(() => route.query as PortalRouteQueryLike);
 
-const tabId = computed(() => resolvePortalTabIdFromQuery(route.query));
-const templateId = computed(() => resolvePortalTemplateIdFromQuery(route.query));
-
-const workbench = usePageEditorWorkbench({
+const {
   tabId,
   templateId,
+  backRouteLocation,
+  controller: workbench
+} = usePageEditorWorkbenchByRoute({
+  routeQuery,
   api: {
     tab: {
       detail: portalApi.tab.detail,
@@ -40,14 +41,10 @@ const workbench = usePageEditorWorkbench({
     error: (text) => message.error(text),
     warning: (text) => message.warning(text)
   },
-  resolvePreviewHref: ({ tabId: nextTabId, templateId: nextTemplateId, previewMode }) =>
+  resolveRouteHref: ({ name, query }) =>
     router.resolve({
-      name: 'PortalPreview',
-      query: {
-        tabId: nextTabId,
-        templateId: nextTemplateId,
-        previewMode
-      }
+      name,
+      query
     }).href
 });
 
@@ -55,17 +52,7 @@ const { loading, saving, previewLoading, tabName, pageSettingData, savePage, pre
   workbench;
 
 function onBack() {
-  if (templateId.value) {
-    router.push({
-      path: '/portal/design',
-      query: {
-        id: templateId.value,
-        tabId: tabId.value
-      }
-    });
-    return;
-  }
-  router.push('/portal/setting');
+  router.push(backRouteLocation.value);
 }
 </script>
 
