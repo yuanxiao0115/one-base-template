@@ -2,12 +2,15 @@ import type { Ref } from 'vue';
 import { userApi } from '../api';
 import type { OrgTreeNode, PositionItem, RoleItem } from '../types';
 import { assertUniqueCheck, toUserUniqueSnapshot } from '../../shared/unique';
+import { createCachedAsyncLoader } from '../../shared/cachedAsyncLoader';
 
 interface UseUserRemoteOptionsParams {
   orgTreeData: Ref<OrgTreeNode[]>;
   positionOptions: Ref<PositionItem[]>;
   roleOptions: Ref<RoleItem[]>;
 }
+
+const REMOTE_OPTIONS_CACHE_TTL_MS = 5 * 60 * 1000;
 
 function getSortedOrgTree(nodes: OrgTreeNode[]): OrgTreeNode[] {
   return [...nodes]
@@ -21,31 +24,52 @@ function getSortedOrgTree(nodes: OrgTreeNode[]): OrgTreeNode[] {
 export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
   const { orgTreeData, positionOptions, roleOptions } = params;
 
-  async function loadOrgTree() {
-    const response = await userApi.orgList();
-    if (response.code !== 200) {
-      throw new Error(response.message || '加载组织树失败');
-    }
+  const orgTreeLoader = createCachedAsyncLoader<OrgTreeNode[]>(
+    async () => {
+      const response = await userApi.orgList();
+      if (response.code !== 200) {
+        throw new Error(response.message || '加载组织树失败');
+      }
 
-    orgTreeData.value = getSortedOrgTree(Array.isArray(response.data) ? response.data : []);
+      return getSortedOrgTree(Array.isArray(response.data) ? response.data : []);
+    },
+    { ttlMs: REMOTE_OPTIONS_CACHE_TTL_MS }
+  );
+
+  const positionOptionsLoader = createCachedAsyncLoader<PositionItem[]>(
+    async () => {
+      const response = await userApi.positionList();
+      if (response.code !== 200) {
+        throw new Error(response.message || '加载职位列表失败');
+      }
+
+      return Array.isArray(response.data) ? response.data : [];
+    },
+    { ttlMs: REMOTE_OPTIONS_CACHE_TTL_MS }
+  );
+
+  const roleOptionsLoader = createCachedAsyncLoader<RoleItem[]>(
+    async () => {
+      const response = await userApi.roleList();
+      if (response.code !== 200) {
+        throw new Error(response.message || '加载角色列表失败');
+      }
+
+      return Array.isArray(response.data) ? response.data : [];
+    },
+    { ttlMs: REMOTE_OPTIONS_CACHE_TTL_MS }
+  );
+
+  async function loadOrgTree(forceRefresh = false) {
+    orgTreeData.value = await orgTreeLoader.load({ force: forceRefresh });
   }
 
-  async function loadPositionOptions() {
-    const response = await userApi.positionList();
-    if (response.code !== 200) {
-      throw new Error(response.message || '加载职位列表失败');
-    }
-
-    positionOptions.value = Array.isArray(response.data) ? response.data : [];
+  async function loadPositionOptions(forceRefresh = false) {
+    positionOptions.value = await positionOptionsLoader.load({ force: forceRefresh });
   }
 
-  async function loadRoleOptions() {
-    const response = await userApi.roleList();
-    if (response.code !== 200) {
-      throw new Error(response.message || '加载角色列表失败');
-    }
-
-    roleOptions.value = Array.isArray(response.data) ? response.data : [];
+  async function loadRoleOptions(forceRefresh = false) {
+    roleOptions.value = await roleOptionsLoader.load({ force: forceRefresh });
   }
 
   async function checkFieldUnique(params: {
