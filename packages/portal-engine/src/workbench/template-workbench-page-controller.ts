@@ -14,8 +14,9 @@ import {
 } from '../editor/preview-bridge';
 import { getDefaultPortalEngineContext, type PortalEngineContext } from '../runtime/context';
 import { normalizePortalPageSettingsV2, type PortalPageSettingsV2 } from '../schema/page-settings';
-import type { BizResponse, PortalTab } from '../schema/types';
+import type { PortalTab } from '../schema/types';
 import { createPortalPageSettingsService } from '../services/page-settings';
+import { isPortalBizOk } from '../utils/biz-response';
 import {
   PREVIEW_MODE_SAFE,
   PREVIEW_VIEWPORT_DEFAULT,
@@ -29,18 +30,14 @@ import {
 } from './template-workbench-controller';
 
 function cloneByJson<T>(input: T): T {
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(input);
+    } catch {
+      // 预览配置中若混入不可结构化克隆字段，退回 JSON 语义拷贝。
+    }
+  }
   return JSON.parse(JSON.stringify(input)) as T;
-}
-
-function normalizeBizOk(res: BizResponse<unknown> | null | undefined): boolean {
-  const code = res?.code;
-  return (
-    res?.success === true ||
-    code === 0 ||
-    code === 200 ||
-    String(code) === '0' ||
-    String(code) === '200'
-  );
 }
 
 export interface TemplateWorkbenchPagePreviewTarget extends PortalPreviewFrameTarget {
@@ -146,13 +143,13 @@ export function createTemplateWorkbenchPageController(
 
     const normalizedSettings = normalizePortalPageSettingsV2(settings);
     const runtimeComponents = Array.isArray(pageSettingsSession.components.value)
-      ? clone(pageSettingsSession.components.value)
+      ? pageSettingsSession.components.value
       : [];
 
     return sendPreviewRuntime(options.previewTarget.value, {
       templateId: options.templateId.value,
       tabId: workbench.currentTabId.value,
-      settings: clone(normalizedSettings),
+      settings: normalizedSettings,
       component: runtimeComponents
     });
   }
@@ -249,7 +246,7 @@ export function createTemplateWorkbenchPageController(
         id: options.templateId.value,
         details: payload.details
       });
-      if (!normalizeBizOk(res)) {
+      if (!isPortalBizOk(res)) {
         options.notify.error(res?.message || '页眉页脚配置保存失败');
         return;
       }
@@ -286,7 +283,7 @@ export function createTemplateWorkbenchPageController(
         id: options.templateId.value,
         details: payload.details
       });
-      if (!normalizeBizOk(res)) {
+      if (!isPortalBizOk(res)) {
         options.notify.error(res?.message || '页面级页眉页脚配置保存失败');
         return;
       }

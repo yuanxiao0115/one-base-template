@@ -134,7 +134,7 @@ export function createPortalPageSettingsSession<TSettings, TComponent = unknown>
     if (persisted.value) {
       const restored = options.clone(persisted.value);
       form.value = restored;
-      restoreRuntimeSettings = options.clone(restored);
+      restoreRuntimeSettings = restored;
     }
 
     editingTabId.value = '';

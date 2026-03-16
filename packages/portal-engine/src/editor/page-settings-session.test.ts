@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 import { createPortalPageSettingsSession } from './page-settings-session';
 
@@ -78,5 +78,21 @@ describe('portal page settings session', () => {
     expect(session.persisted.value).toBeNull();
     expect(session.editingTabId.value).toBe('');
     expect(session.activeTab.value).toBe('layout');
+  });
+
+  it('关闭抽屉回滚运行态时应避免重复深拷贝', () => {
+    const clone = vi.fn((value: unknown) => JSON.parse(JSON.stringify(value)) as unknown);
+    const session = createPortalPageSettingsSession<MockSettings>({
+      clone: clone as <T>(value: T) => T
+    });
+
+    session.prepareOpen('tab-3');
+    session.applyLoadedDetail({ settings: { title: '性能优化' }, components: [] });
+    clone.mockClear();
+
+    const result = session.onDrawerClosed('persisted-details');
+
+    expect(result.restoreRuntimeSettings).toEqual({ title: '性能优化' });
+    expect(clone).toHaveBeenCalledTimes(1);
   });
 });

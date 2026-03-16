@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import type { BizResponse } from '../schema/types';
 import { createPortalEngineContext } from '../runtime/context';
+import { createDefaultPortalPageSettingsV2 } from '../schema/page-settings';
 import { setPortalPageSettingsApi as setPageSettingsApi } from '../services/page-settings';
 
 import { createTemplateWorkbenchPageController } from './template-workbench-page-controller';
@@ -15,7 +16,7 @@ function ok<T>(data: T): BizResponse<T> {
 }
 
 describe('template workbench page controller', () => {
-  function createController() {
+  function createController(options: { clone?: <T>(value: T) => T } = {}) {
     const context = createPortalEngineContext({ appId: 'test-template-workbench-page' });
     const templateId = ref('tpl-1');
     const routeTabId = ref('tab-1');
@@ -63,6 +64,7 @@ describe('template workbench page controller', () => {
       templateId,
       routeTabId,
       previewTarget,
+      clone: options.clone,
       api,
       notify,
       confirm: ({ message, title }) => confirm({ message, title }),
@@ -175,5 +177,18 @@ describe('template workbench page controller', () => {
     expect(controller.shellSettingVisible.value).toBe(false);
     expect(notify.success).toHaveBeenCalledWith('页眉页脚配置保存成功');
     expect(api.template.detail).toHaveBeenCalledWith({ id: 'tpl-1' });
+  });
+
+  it('预览运行态同步不应触发额外深拷贝', () => {
+    const clone = vi.fn((value: unknown) => JSON.parse(JSON.stringify(value)) as unknown);
+    const { controller } = createController({
+      clone: clone as <T>(value: T) => T
+    });
+    controller.currentTabId.value = 'tab-1';
+    clone.mockClear();
+
+    controller.onPageSettingsPreviewChange(createDefaultPortalPageSettingsV2());
+
+    expect(clone).toHaveBeenCalledTimes(0);
   });
 });
