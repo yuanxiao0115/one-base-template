@@ -31,6 +31,18 @@ function normalizeRouteParam(value: PortalPreviewRouteParamValue): string {
   return '';
 }
 
+function resolveTemplateWriteKey(
+  query: PortalRouteQueryLike,
+  templateIdQueryKeys: readonly string[]
+): string {
+  for (const key of templateIdQueryKeys) {
+    if (typeof query[key] !== 'undefined') {
+      return key;
+    }
+  }
+  return templateIdQueryKeys[0] || 'templateId';
+}
+
 export interface UsePortalPreviewPageByRouteOptions {
   routeQuery: Readonly<Ref<PortalRouteQueryLike> | ComputedRef<PortalRouteQueryLike>>;
   routeParams?: Readonly<
@@ -77,14 +89,26 @@ export function usePortalPreviewPageByRoute(options: UsePortalPreviewPageByRoute
 
   function onNavigate(payload: PortalPreviewNavigatePayload) {
     if (payload.type === 'tab') {
-      if (!payload.tabId) {
+      if (!payload.tabId || payload.tabId === tabId.value) {
         return;
       }
+      const templateWriteKey = resolveTemplateWriteKey(
+        options.routeQuery.value,
+        templateIdQueryKeys
+      );
       const nextQuery: PortalRouteQueryLike = {
         ...options.routeQuery.value,
-        [tabIdQueryKey]: payload.tabId,
-        templateId: templateId.value || undefined
+        [tabIdQueryKey]: payload.tabId
       };
+      for (const key of templateIdQueryKeys) {
+        if (key === templateWriteKey) {
+          continue;
+        }
+        if (typeof nextQuery[key] !== 'undefined') {
+          nextQuery[key] = undefined;
+        }
+      }
+      nextQuery[templateWriteKey] = templateId.value || undefined;
       const result = options.replaceRouteQuery(nextQuery);
       if (result && typeof (result as Promise<unknown>).catch === 'function') {
         void (result as Promise<unknown>).catch((error) => {

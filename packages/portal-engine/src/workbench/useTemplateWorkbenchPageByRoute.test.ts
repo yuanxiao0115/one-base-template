@@ -206,4 +206,111 @@ describe('useTemplateWorkbenchPageByRoute', () => {
     await Promise.resolve();
     expect(onReplaceRouteQueryError).toHaveBeenCalledWith(error);
   });
+
+  it('pushRoute 失败时应回调错误处理', async () => {
+    const error = new Error('push failed');
+    const onPushRouteError = vi.fn();
+    const pushRoute = vi.fn().mockRejectedValue(error);
+    const fixture = createFactoryFixture();
+
+    useTemplateWorkbenchPageByRoute({
+      routeQuery: computed(() => ({ id: 'tpl-1', tabId: 'tab-1' }) as PortalRouteQueryLike),
+      previewTarget: ref({
+        postMessageToFrame: vi.fn().mockReturnValue(true),
+        setInteractionMode: vi.fn(),
+        zoomIn: vi.fn(),
+        zoomOut: vi.fn(),
+        resetView: vi.fn()
+      }),
+      api: {
+        template: {
+          detail: vi.fn(),
+          update: vi.fn(),
+          hideToggle: vi.fn()
+        },
+        tab: {
+          detail: vi.fn(),
+          add: vi.fn(),
+          update: vi.fn(),
+          delete: vi.fn()
+        }
+      },
+      notify: {
+        success: vi.fn(),
+        error: vi.fn(),
+        warning: vi.fn()
+      },
+      confirm: vi.fn().mockResolvedValue(undefined),
+      replaceRouteQuery: vi.fn(),
+      pushRoute,
+      onPushRouteError,
+      resolveRouteHref: vi.fn().mockReturnValue('/resolved/PortalPreview'),
+      controllerFactory: fixture.controllerFactory
+    });
+
+    const capturedOptions = fixture.getCapturedOptions();
+    expect(capturedOptions).not.toBeNull();
+
+    capturedOptions!.openEditor({
+      templateId: 'tpl-2',
+      tabId: 'tab-9'
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(onPushRouteError).toHaveBeenCalledWith(error);
+  });
+
+  it('templateId 变化时应触发 controller.loadTemplate', async () => {
+    const routeQuery = ref<PortalRouteQueryLike>({
+      id: 'tpl-1',
+      tabId: 'tab-1'
+    });
+    const loadTemplate = vi.fn();
+    const controllerFactory = vi.fn().mockReturnValue({
+      marker: 'mock-controller',
+      loadTemplate
+    });
+
+    useTemplateWorkbenchPageByRoute({
+      routeQuery: computed(() => routeQuery.value),
+      previewTarget: ref({
+        postMessageToFrame: vi.fn().mockReturnValue(true),
+        setInteractionMode: vi.fn(),
+        zoomIn: vi.fn(),
+        zoomOut: vi.fn(),
+        resetView: vi.fn()
+      }),
+      api: {
+        template: {
+          detail: vi.fn(),
+          update: vi.fn(),
+          hideToggle: vi.fn()
+        },
+        tab: {
+          detail: vi.fn(),
+          add: vi.fn(),
+          update: vi.fn(),
+          delete: vi.fn()
+        }
+      },
+      notify: {
+        success: vi.fn(),
+        error: vi.fn(),
+        warning: vi.fn()
+      },
+      confirm: vi.fn().mockResolvedValue(undefined),
+      replaceRouteQuery: vi.fn(),
+      pushRoute: vi.fn(),
+      resolveRouteHref: vi.fn().mockReturnValue('/resolved/PortalPreview'),
+      controllerFactory
+    });
+
+    routeQuery.value = {
+      ...routeQuery.value,
+      id: 'tpl-2'
+    };
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(loadTemplate).toHaveBeenCalledTimes(1);
+  });
 });

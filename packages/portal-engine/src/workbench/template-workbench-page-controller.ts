@@ -1,4 +1,4 @@
-import { computed, nextTick, ref, watch, type Ref } from 'vue';
+import { computed, nextTick, ref, toRaw, watch, type Ref } from 'vue';
 
 import { findPortalTabById, isPortalTabEditable, normalizePortalTabName } from '../domain/tab-tree';
 import { usePortalCurrentTabActions } from '../editor/current-tab-actions';
@@ -38,6 +38,18 @@ function cloneByJson<T>(input: T): T {
     }
   }
   return JSON.parse(JSON.stringify(input)) as T;
+}
+
+function cloneSerializable<T>(input: T): T {
+  const rawInput = toRaw(input) as T;
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(rawInput);
+    } catch {
+      // 对不可结构化克隆数据降级为 JSON 克隆，保证 postMessage 可发送。
+    }
+  }
+  return cloneByJson(rawInput);
 }
 
 export interface TemplateWorkbenchPagePreviewTarget extends PortalPreviewFrameTarget {
@@ -149,8 +161,8 @@ export function createTemplateWorkbenchPageController(
     return sendPreviewRuntime(options.previewTarget.value, {
       templateId: options.templateId.value,
       tabId: workbench.currentTabId.value,
-      settings: normalizedSettings,
-      component: runtimeComponents
+      settings: cloneSerializable(normalizedSettings),
+      component: cloneSerializable(runtimeComponents)
     });
   }
 

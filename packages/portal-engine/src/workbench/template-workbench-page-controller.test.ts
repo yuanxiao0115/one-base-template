@@ -1,4 +1,4 @@
-import { nextTick, ref } from 'vue';
+import { nextTick, reactive, ref } from 'vue';
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import type { BizResponse } from '../schema/types';
@@ -179,16 +179,17 @@ describe('template workbench page controller', () => {
     expect(api.template.detail).toHaveBeenCalledWith({ id: 'tpl-1' });
   });
 
-  it('预览运行态同步不应触发额外深拷贝', () => {
-    const clone = vi.fn((value: unknown) => JSON.parse(JSON.stringify(value)) as unknown);
-    const { controller } = createController({
-      clone: clone as <T>(value: T) => T
-    });
+  it('预览运行态消息应可结构化克隆，避免 DataCloneError', () => {
+    const { controller, previewMessages } = createController();
     controller.currentTabId.value = 'tab-1';
-    clone.mockClear();
+    controller.pageSettingsComponents.value = reactive([{ i: 'comp-1', x: 0, y: 0, w: 1, h: 1 }]);
 
     controller.onPageSettingsPreviewChange(createDefaultPortalPageSettingsV2());
 
-    expect(clone).toHaveBeenCalledTimes(0);
+    const runtimeMessage = previewMessages.find(
+      (entry) => (entry as { type?: string } | null)?.type === 'preview-page-runtime'
+    );
+    expect(runtimeMessage).toBeTruthy();
+    expect(() => structuredClone(runtimeMessage)).not.toThrow();
   });
 });

@@ -1,4 +1,4 @@
-import { computed, type ComputedRef, type Ref } from 'vue';
+import { computed, watch, type ComputedRef, type Ref } from 'vue';
 
 import type { PortalPreviewMode } from '../utils/preview';
 
@@ -36,6 +36,7 @@ export interface UseTemplateWorkbenchPageByRouteOptions<
   replaceRouteQuery: (nextQuery: PortalRouteQueryLike) => Promise<unknown> | void;
   onReplaceRouteQueryError?: (error: unknown) => void;
   pushRoute: (payload: RouteLocationPayload) => Promise<unknown> | void;
+  onPushRouteError?: (error: unknown) => void;
   resolveRouteHref: (payload: ResolveLocationPayload) => string;
   editRoutePath?: string;
   previewRouteName?: string;
@@ -80,9 +81,15 @@ export function useTemplateWorkbenchPageByRoute<TController = TemplateWorkbenchP
     routeTabId,
     syncRouteTabId,
     openEditor: ({ templateId: nextTemplateId, tabId }) => {
-      void options.pushRoute(
+      const result = options.pushRoute(
         buildPortalPageEditorRouteLocation(nextTemplateId, tabId, editRoutePath, tabIdQueryKey)
       );
+      if (!result || typeof (result as Promise<unknown>).catch !== 'function') {
+        return;
+      }
+      void (result as Promise<unknown>).catch((error) => {
+        options.onPushRouteError?.(error);
+      });
     },
     resolvePreviewHref: ({ templateId: nextTemplateId, tabId, previewMode }) =>
       options.resolveRouteHref(
@@ -94,6 +101,17 @@ export function useTemplateWorkbenchPageByRoute<TController = TemplateWorkbenchP
           tabIdQueryKey
         )
       )
+  });
+
+  watch(templateId, (nextTemplateId, prevTemplateId) => {
+    if (!nextTemplateId || nextTemplateId === prevTemplateId) {
+      return;
+    }
+    const maybeController = controller as { loadTemplate?: (preferTabId?: string) => unknown };
+    if (typeof maybeController.loadTemplate !== 'function') {
+      return;
+    }
+    void maybeController.loadTemplate(routeTabId.value);
   });
 
   return {

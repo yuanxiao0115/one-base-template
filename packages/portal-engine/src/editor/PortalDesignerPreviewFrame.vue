@@ -353,8 +353,12 @@ function postMessageToFrame(message: unknown) {
   if (!targetWindow) {
     return false;
   }
-  targetWindow.postMessage(message, window.location.origin);
-  return true;
+  try {
+    targetWindow.postMessage(message, window.location.origin);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 watch(

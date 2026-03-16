@@ -76,6 +76,53 @@ describe('usePortalPreviewPageByRoute', () => {
     });
   });
 
+  it('tab 导航写回应沿用现有 template key（id）', () => {
+    const routeQuery = ref<PortalRouteQueryLike>({
+      id: 'tpl-3',
+      tabId: 'tab-old',
+      keep: 'yes'
+    });
+    const replaceRouteQuery = vi.fn();
+
+    const binding = usePortalPreviewPageByRoute({
+      routeQuery: computed(() => routeQuery.value),
+      replaceRouteQuery
+    });
+
+    binding.onNavigate({
+      type: 'tab',
+      tabId: 'tab-new',
+      item: { key: 'tab-new', label: 'Tab New' }
+    });
+
+    expect(replaceRouteQuery).toHaveBeenCalledWith({
+      id: 'tpl-3',
+      tabId: 'tab-new',
+      keep: 'yes'
+    });
+  });
+
+  it('tab 导航到当前 tab 时不应重复写回 query', () => {
+    const routeQuery = ref<PortalRouteQueryLike>({
+      templateId: 'tpl-3',
+      tabId: 'tab-old'
+    });
+    const replaceRouteQuery = vi.fn();
+
+    const binding = usePortalPreviewPageByRoute({
+      routeQuery: computed(() => routeQuery.value),
+      replaceRouteQuery
+    });
+
+    binding.onNavigate({
+      type: 'tab',
+      tabId: 'tab-old',
+      item: { key: 'tab-old', label: 'Tab Old' }
+    });
+
+    expect(replaceRouteQuery).not.toHaveBeenCalled();
+  });
+
   it('外链导航应调用 openWindow', () => {
     const openWindow = vi.fn();
 
