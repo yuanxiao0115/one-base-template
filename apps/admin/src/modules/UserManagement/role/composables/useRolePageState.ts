@@ -69,6 +69,9 @@ export function useRolePageState() {
           if (!payload.roleName) {
             throw new Error('角色名称不能为空');
           }
+          if (!payload.roleCode) {
+            throw new Error('角色编码不能为空');
+          }
           return payload;
         },
         request: async ({ mode, payload }) => {

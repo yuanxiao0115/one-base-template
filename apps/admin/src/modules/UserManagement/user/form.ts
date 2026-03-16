@@ -338,7 +338,7 @@ function toUserOrgPayload(item: UserOrgForm): UserOrgRecord {
     ownSort: toNaturalNumber(item.ownSort, 1),
     sort: toNaturalNumber(item.sort, 1),
     status: toNaturalNumber(item.status, 1),
-    postVos: postVos.length > 0 ? postVos : [toUserOrgPostPayload(createDefaultUserOrgPost())]
+    postVos
   };
 }
 
@@ -360,6 +360,6 @@ export function toUserPayload(form: UserForm): UserSavePayload {
     isExternal: Boolean(form.isExternal),
     remark: trimText(form.remark),
     roleIds: form.roleIds.map((item) => String(item)).filter(Boolean),
-    userOrgs: userOrgs.length > 0 ? userOrgs : [toUserOrgPayload(createDefaultUserOrg())]
+    userOrgs
   };
 }

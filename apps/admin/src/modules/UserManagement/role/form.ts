@@ -21,6 +21,13 @@ export const roleFormRules: FormRules<RoleForm> = {
       message: '请输入角色名称',
       trigger: 'blur'
     }
+  ],
+  roleCode: [
+    {
+      required: true,
+      message: '请输入角色编码',
+      trigger: 'blur'
+    }
   ]
 };
 

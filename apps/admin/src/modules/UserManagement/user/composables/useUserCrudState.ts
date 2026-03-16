@@ -30,6 +30,7 @@ import buildUserListParams from '../utils/buildUserListParams';
 import { useUserStatusActions } from './useUserStatusActions';
 import { useUserDragSort } from './useUserDragSort';
 import { useUserRemoteOptions } from './useUserRemoteOptions';
+import { validateUserSavePayload } from '../utils/validateUserSavePayload';
 
 interface SearchRefExpose {
   resetFields?: () => void;
@@ -152,6 +153,7 @@ export function useUserCrudState() {
       save: {
         buildPayload: async ({ form }) => {
           const payload = toUserPayload(form);
+          validateUserSavePayload(payload);
           const currentUnique = toUserUniqueSnapshot(payload);
 
           if (shouldCheckUserUnique(currentUnique, userUniqueSnapshot.value)) {
