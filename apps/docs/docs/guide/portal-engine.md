@@ -484,6 +484,17 @@ function handleNavigate(payload: PortalPreviewNavigatePayload) {
 
 > 推荐做法：先注册物料元数据（出现在物料库），再注册同名渲染组件（画布与预览可渲染）。
 
+### admin 端外部注册示例（不改 packages）
+
+- 当前仓库在 `apps/admin` 提供了“单容器”外部物料示例，用于验证引擎包外部扩展链路：
+  - 注册入口：`apps/admin/src/modules/PortalManagement/materials/external/register.ts`
+  - 物料定义：`apps/admin/src/modules/PortalManagement/materials/external/simple-container/register.ts`
+  - 组件实现：`apps/admin/src/modules/PortalManagement/materials/external/simple-container/{index,content,style}.vue`
+  - schema/默认配置：`apps/admin/src/modules/PortalManagement/materials/external/simple-container/model.ts`
+- admin 侧统一在 `setupPortalEngineForAdmin()` 内完成注册，确保设计器与预览都能拿到扩展物料：
+  - `apps/admin/src/modules/PortalManagement/engine/register.ts`
+- 该示例默认挂载到 `basic` 分类，物料名为“单容器”，内部使用单子画布承载组件（无页签 UI）。
+
 ## 维护建议
 
 - 新能力先判断是否可沉淀为共享引擎能力，再决定是否留在 `apps/admin`。
