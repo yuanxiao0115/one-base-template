@@ -68,9 +68,14 @@ watch(
   { immediate: true, deep: true }
 );
 
-const currentTabLayoutItems = computed(() =>
-  pageLayoutStore.getTabChildLayoutItems(props.item.i, activeTabId.value)
-);
+const currentTab = computed<BaseSimpleContainerTab<PortalLayoutItem> | null>(() => {
+  if (!activeTabId.value) {
+    return null;
+  }
+  return tabs.value.find((tab) => tab.id === activeTabId.value) || null;
+});
+
+const currentTabLayoutItems = computed(() => currentTab.value?.layoutItems || []);
 
 const selectedChildItemId = computed(() => {
   if (pageLayoutStore.currentSelectionType !== 'tab-child-item') {
@@ -118,8 +123,32 @@ function updateViewportWidth() {
   viewportWidth.value = Math.max(320, Math.round(window.innerWidth || 1920));
 }
 
-function getCurrentTab(): BaseSimpleContainerTab<PortalLayoutItem> | null {
-  return tabs.value.find((tab) => tab.id === activeTabId.value) || null;
+function commitTabs(
+  nextTabs: BaseSimpleContainerTab<PortalLayoutItem>[],
+  nextActiveTabId?: string
+) {
+  pageLayoutStore.updateTabContainerTabs(
+    props.item.i,
+    nextTabs,
+    nextActiveTabId || activeTabId.value
+  );
+}
+
+function updateCurrentTabLayoutItems(nextItems: PortalLayoutItem[]) {
+  const tab = currentTab.value;
+  if (!tab) {
+    return;
+  }
+
+  const nextTabs = tabs.value.map((item) =>
+    item.id === tab.id
+      ? {
+          ...item,
+          layoutItems: deepClone(nextItems)
+        }
+      : item
+  );
+  commitTabs(nextTabs, tab.id);
 }
 
 function selectParentContainer() {
@@ -141,7 +170,7 @@ function isBlockedNestedContainer(item: PortalLayoutItem): boolean {
 }
 
 function handleLayoutUpdated(nextLayout: LayoutUpdateItem[]) {
-  const tab = getCurrentTab();
+  const tab = currentTab.value;
   if (!tab) {
     return;
   }
@@ -152,7 +181,7 @@ function handleLayoutUpdated(nextLayout: LayoutUpdateItem[]) {
     return;
   }
 
-  pageLayoutStore.updateTabChildLayoutItems(props.item.i, tab.id, merged);
+  updateCurrentTabLayoutItems(merged);
 }
 
 function onDragOver(event: DragEvent) {
@@ -172,11 +201,11 @@ function onDrop(event: DragEvent) {
   event.stopPropagation();
   isDragOver.value = false;
 
-  const currentTab = getCurrentTab();
+  const targetTab = currentTab.value;
   const container =
     (event.currentTarget instanceof HTMLElement ? event.currentTarget : canvasRef.value) || null;
   const transferData = event.dataTransfer;
-  if (!(currentTab && container && transferData)) {
+  if (!(targetTab && container && transferData)) {
     return;
   }
 
@@ -258,12 +287,12 @@ function onDrop(event: DragEvent) {
   };
 
   const nextItems = [...currentTabLayoutItems.value, newItem];
-  pageLayoutStore.updateTabChildLayoutItems(props.item.i, currentTab.id, nextItems);
-  pageLayoutStore.selectTabChildItem(props.item.i, currentTab.id, newItem.i);
+  updateCurrentTabLayoutItems(nextItems);
+  pageLayoutStore.selectTabChildItem(props.item.i, targetTab.id, newItem.i);
 }
 
 function handleSelectChild(itemId: string) {
-  const tab = getCurrentTab();
+  const tab = currentTab.value;
   if (!tab) {
     return;
   }
@@ -272,12 +301,13 @@ function handleSelectChild(itemId: string) {
 }
 
 function handleDeleteChild(item: PortalLayoutItem) {
-  const tab = getCurrentTab();
+  const tab = currentTab.value;
   if (!tab) {
     return;
   }
 
-  pageLayoutStore.removeTabChildLayoutItem(props.item.i, tab.id, item.i);
+  const nextItems = currentTabLayoutItems.value.filter((layoutItem) => layoutItem.i !== item.i);
+  updateCurrentTabLayoutItems(nextItems);
   pageLayoutStore.selectTabContainer(props.item.i);
 }
 
@@ -310,6 +340,9 @@ onBeforeUnmount(() => {
             :margin="[marginX, marginY]"
             :prevent-collision="false"
             class="simple-container-editor__layout"
+            @dragover="onDragOver"
+            @dragleave="onDragLeave"
+            @drop="onDrop"
             @layout-updated="handleLayoutUpdated"
           >
             <div v-if="currentTabLayoutItems.length === 0" class="simple-container-editor__empty">
@@ -339,7 +372,11 @@ onBeforeUnmount(() => {
 
                 <component
                   :is="getComponent(child)"
-                  v-if="getComponentName(child) && !isBlockedNestedContainer(child)"
+                  v-if="
+                    getComponentName(child) &&
+                    getComponent(child) &&
+                    !isBlockedNestedContainer(child)
+                  "
                   :id="child.i"
                   :schema="child.component?.cmptConfig || {}"
                   :materials-map="props.materialsMap"

@@ -13,6 +13,7 @@ export interface BaseSimpleContainerTab<TLayoutItem = unknown> {
   id: string;
   title: string;
   layoutItems: TLayoutItem[];
+  [k: string]: unknown;
 }
 
 export interface BaseSimpleContainerBodyStyle {
