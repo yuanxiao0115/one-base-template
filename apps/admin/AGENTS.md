@@ -169,15 +169,12 @@
 - `apps/admin/src/styles/index.css` 禁止通过 CSS `@import` 引入本地 Element 覆盖文件；统一在 `apps/admin/src/bootstrap/admin-styles.ts` 显式导入 `styles/element-plus/*.css`（由 `bootstrap/startup.ts` 统一加载）。
 - `apps/admin/src/styles/team-overrides.css` 作为团队覆写样式唯一入口（由 `main.ts` 引入）；禁止在业务模块、页面组件里新增全局样式入口型 import。
 - admin 全局 `v-loading` 遮罩背景统一透明（含 fullscreen 场景），并统一 loading 图标主色与文案样式，禁止回退深色蒙层。
-- admin lint 已切换到 `Ultracite + Biome`（单引擎门禁，不再保留 ESLint/Stylelint 双轨脚本）。
+- admin lint 已切换到 `Vite Plus Lint`（单引擎门禁，不再保留 ESLint/Stylelint 双轨脚本）。
 - lint 门禁命令：
-  - `lint`：`ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src`（按 admin 子项目 `src` 范围统一门禁，warning 与 error 同级阻断）；
+  - `lint`：`vp lint .`（按 admin 子项目统一门禁）；
   - `lint:arch`：`node ../../scripts/check-admin-arch.mjs`（架构边界门禁，使用仓库脚本，不新增 ESLint 子配置；检测同时覆盖 `@/` alias 与相对路径 import，避免绕过）；
-  - `lint:fix`：`ultracite fix src`（按 admin 子项目 `src` 范围统一格式化与可自动修复项）；
-  - `lint:doctor`：`ultracite doctor`（诊断本地配置/环境）。
+  - `lint:fix`：`vp check --fix src`（按 admin 子项目 `src` 范围执行可自动修复项）。
 - admin 架构边界检查统一通过 `lint:arch` 脚本实现，禁止再为 admin 新增 `eslint.*` 架构门禁配置文件。
-- Biome 规则改为仓库根 `biome.jsonc` 全局维护；admin 不再保留本地 `biome.jsonc`。
-- `.vue` 文件启用 HTML-ish 全支持解析（`html.experimentalFullSupportEnabled=true`），降低模板场景误报。
 - 对于已在全局注入的能力（如 `obConfirm`），禁止为“消除 lint 未声明”而补显式 import；应在全局配置中声明 globals。
 - 命名必须“短、清楚、通用”，优先 `get/list/build/create/update/remove`。
 - 方法命名优先“动词 + 名词”结构（如 `getInitialPath`、`parseRuntimeConfig`、`clearByPrefixes`）。
@@ -188,7 +185,6 @@
 ```bash
 pnpm -C apps/admin dev
 pnpm -C apps/admin typecheck
-pnpm -C apps/admin lint:doctor
 pnpm -C apps/admin lint
 pnpm -C apps/admin lint:fix
 pnpm -C apps/admin build

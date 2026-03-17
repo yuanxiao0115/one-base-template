@@ -90,7 +90,7 @@ async function main() {
     'apps/admin/public/platform-config.json',
     'apps/docs/public/cli-naming-whitelist.json',
     'pnpm-lock.yaml',
-    'turbo.json'
+    'vite.config.ts'
   ];
 
   for (const relPath of mustFiles) {

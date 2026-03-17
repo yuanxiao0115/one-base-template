@@ -19,40 +19,20 @@ pnpm version:packages
 pnpm release:packages
 ```
 
-admin 常用 Biome 脚本（在仓库根目录执行）：
+admin 常用 lint 脚本（在仓库根目录执行）：
 
 ```bash
-pnpm biome:format
-pnpm biome:lint
-pnpm biome:check
-pnpm biome:unsafe
-pnpm biome:ci
+pnpm lint
+pnpm lint:arch
+pnpm -C apps/admin lint
+pnpm -C apps/admin lint:fix
 ```
 
-说明：Biome 配置统一维护在仓库根目录 `biome.jsonc`，`apps/admin` 不再单独维护 `biome.jsonc`。
-`pnpm biome:unsafe` 会启用 Biome 的不安全修复（`--unsafe`），可能引入行为变化，建议先在特性分支执行并完整回归。
-
-## Biome Monorepo 用法（Big Projects）
-
-- 统一在仓库根维护共享规则：`/biome.jsonc`
-- 根脚本直接对仓库运行，实际扫描范围由 `biome.jsonc` 的 `files.includes` 控制
-- 某个子项目需要差异规则时，再在子目录新增局部 `biome.jsonc`
-
-局部配置模板（继承根配置）：
-
-```json
-{
-  "root": false,
-  "extends": "//",
-  "files": {
-    "includes": ["src/**/*"]
-  }
-}
-```
+说明：仓库 lint 已统一走 `vp lint`，不再维护 Biome 配置文件。
 
 ## Vite Task 运行约定
 
-- 根目录 `pnpm build` 映射到 `vp run -r --filter "!one-base-template" build`，按 workspace 依赖顺序执行。
+- 根目录 `pnpm build` 映射到 `vp run -r build`，按 workspace 依赖顺序执行。
 - 对于只做 `typecheck` 的子包，`build` 脚本保持为 `pnpm typecheck` 即可，无需额外维护 task-runner 配置文件。
 - 如需对任务关系做更细粒度编排，可在根 `vite.config.ts` 的 `run.tasks` 中声明 `dependsOn/inputs/env`。
 

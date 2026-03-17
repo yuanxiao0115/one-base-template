@@ -3,9 +3,6 @@ node_modules
 # 构建产物
 dist
 
-# Turborepo
-.turbo
-
 # Vite
 .vite
 

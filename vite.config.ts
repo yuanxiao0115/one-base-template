@@ -106,7 +106,6 @@ export default defineConfig({
     ignorePatterns: [
       '**/dist/**',
       '**/node_modules/**',
-      '**/.turbo/**',
       '**/.vite/**',
       '**/.vitepress/cache/**',
       '**/public/fonts/**/iconfont.js'
@@ -249,6 +248,12 @@ export default defineConfig({
               ]
             }
           ]
+        }
+      },
+      {
+        files: ['apps/admin/src/bootstrap/**/*.{ts,tsx,vue}'],
+        rules: {
+          'no-restricted-imports': 'off'
         }
       },
       {

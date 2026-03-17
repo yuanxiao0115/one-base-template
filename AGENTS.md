@@ -19,7 +19,7 @@ yuanxiao owns this. Start: say hi + 1 motivating line.
 
 ### 技能优先原则（CRITICAL）
 
-在任何响应或行动之前，**优先检查并调用相关技能/规范**（例如：`turborepo`、`pnpm`、`vue-best-practices`、`vue-router-best-practices`、`pinia`、`vite`、`web-design-guidelines` 等）。
+在任何响应或行动之前，**优先检查并调用相关技能/规范**（例如：`pnpm`、`vue-best-practices`、`vue-router-best-practices`、`pinia`、`vite`、`web-design-guidelines` 等）。
 
 > 目标：避免靠“记忆”猜 API/最佳实践，减少返工与隐性风险。
 

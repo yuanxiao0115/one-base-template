@@ -8,9 +8,8 @@
     "build": "node ../../scripts/run-vp-build.mjs",
     "preview": "vp preview",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src",
-    "lint:fix": "ultracite fix src",
-    "lint:doctor": "ultracite doctor"
+    "lint": "vp lint .",
+    "lint:fix": "vp check --fix src"
   },
   "dependencies": {
     "@one-base-template/app-starter": "workspace:*",
@@ -24,7 +23,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",
-    "ultracite": "^7.2.4",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   }

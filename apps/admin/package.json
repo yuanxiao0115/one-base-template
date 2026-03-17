@@ -10,10 +10,9 @@
     "typecheck": "vue-tsc --noEmit",
     "test": "vp test --config vitest.config.ts",
     "test:run": "vp test run --config vitest.config.ts",
-    "lint": "ultracite check --error-on-warnings --javascript-formatter-enabled=false --css-formatter-enabled=false --html-formatter-enabled=false src",
+    "lint": "vp lint .",
     "lint:arch": "node ../../scripts/check-admin-arch.mjs",
-    "lint:fix": "ultracite fix src",
-    "lint:doctor": "ultracite doctor"
+    "lint:fix": "vp check --fix src"
   },
   "dependencies": {
     "@one-base-template/adapters": "workspace:*",
@@ -42,7 +41,6 @@
     "postcss": "^8.0.0",
     "sass": "^1.93.2",
     "tailwindcss": "^4.1.18",
-    "ultracite": "^7.2.4",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^31.0.0",
     "vite": "catalog:",
