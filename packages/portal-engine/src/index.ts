@@ -295,6 +295,7 @@ export {
 export { usePageEditorWorkbench } from './workbench/usePageEditorWorkbench';
 export type { UsePageEditorWorkbenchByRouteOptions } from './workbench/usePageEditorWorkbenchByRoute';
 export { usePageEditorWorkbenchByRoute } from './workbench/usePageEditorWorkbenchByRoute';
+export * from './public-designer';
 export {
   calcPortalManualPanRange,
   calcPortalPreviewPanBounds,

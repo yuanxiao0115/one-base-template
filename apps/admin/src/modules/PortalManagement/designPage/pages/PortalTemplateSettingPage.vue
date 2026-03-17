@@ -3,18 +3,20 @@ import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { confirm, message } from '@one-base-template/ui';
 import {
-  PortalDesignerActionStrip,
-  PortalDesignerHeaderBar,
-  PortalDesignerPreviewFrame,
-  PortalDesignerTreePanel,
   PortalPageSettingsDrawer,
   PortalShellSettingsDialog,
   PortalTabAttributeDialog,
-  PortalTemplateWorkbenchShell,
-  type PortalRouteQueryLike,
-  type TemplateWorkbenchPagePreviewTarget,
-  useTemplateWorkbenchPageByRoute
-} from '@one-base-template/portal-engine';
+  PortalTemplateDesignerHeader,
+  PortalTemplateDesignerLayout,
+  PortalTemplateDesignerPreview,
+  PortalTemplateDesignerSidebar,
+  PortalTemplateDesignerToolbar,
+  usePortalTemplateDesignerRoute
+} from '@one-base-template/portal-engine/designer';
+import type {
+  PortalDesignerRouteQueryLike,
+  PortalTemplateDesignerPreviewTarget
+} from '@one-base-template/portal-engine/designer';
 
 import { portalApi } from '../../api';
 import { setupPortalEngineForAdmin } from '../../engine/register';
@@ -26,7 +28,7 @@ defineOptions({
 const route = useRoute();
 const router = useRouter();
 const portalEngineContext = setupPortalEngineForAdmin();
-const routeQuery = computed(() => route.query as PortalRouteQueryLike);
+const routeQuery = computed(() => route.query as PortalDesignerRouteQueryLike);
 const shellFormNotify = {
   success: (text: string) => message.success(text),
   error: (text: string) => message.error(text)
@@ -36,9 +38,9 @@ function resolvePortalResourceUrl(resourceId: string): string {
   return `/cmict/file/resource/show?id=${encodeURIComponent(resourceId)}`;
 }
 
-const previewFrameRef = ref<TemplateWorkbenchPagePreviewTarget | null>(null);
+const previewFrameRef = ref<PortalTemplateDesignerPreviewTarget | null>(null);
 
-const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRoute({
+const { templateId, controller: workbenchPage } = usePortalTemplateDesignerRoute({
   context: portalEngineContext,
   routeQuery,
   previewTarget: previewFrameRef,
@@ -149,9 +151,9 @@ void loadTemplate();
 </script>
 
 <template>
-  <PortalTemplateWorkbenchShell :loading="loading">
+  <PortalTemplateDesignerLayout :loading="loading">
     <template #header>
-      <PortalDesignerHeaderBar
+      <PortalTemplateDesignerHeader
         :title="templateInfo?.templateName || '门户配置工作台'"
         :template-id="templateId"
         :loading="loading"
@@ -162,7 +164,7 @@ void loadTemplate();
     </template>
 
     <template #tree>
-      <PortalDesignerTreePanel
+      <PortalTemplateDesignerSidebar
         :tabs="templateInfo?.tabList ?? []"
         :current-tab-id="currentTabId"
         :sorting="sortingTabs"
@@ -179,7 +181,7 @@ void loadTemplate();
     </template>
 
     <template #toolbar>
-      <PortalDesignerActionStrip
+      <PortalTemplateDesignerToolbar
         :current-tab="currentTab"
         :preview-scale="previewScale"
         :interaction-mode="previewInteractionMode"
@@ -197,7 +199,7 @@ void loadTemplate();
     </template>
 
     <template #preview>
-      <PortalDesignerPreviewFrame
+      <PortalTemplateDesignerPreview
         ref="previewFrameRef"
         :template-id="templateId"
         :current-tab-id="currentTabId"
@@ -252,5 +254,5 @@ void loadTemplate();
         @preview-change="onShellPreviewChange"
       />
     </template>
-  </PortalTemplateWorkbenchShell>
+  </PortalTemplateDesignerLayout>
 </template>

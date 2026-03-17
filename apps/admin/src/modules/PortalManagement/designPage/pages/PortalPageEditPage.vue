@@ -3,10 +3,10 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { message } from '@one-base-template/ui';
 import {
-  PortalPageEditorWorkbench,
-  usePageEditorWorkbenchByRoute,
-  type PortalRouteQueryLike
-} from '@one-base-template/portal-engine';
+  PortalPageDesignerLayout,
+  type PortalDesignerRouteQueryLike,
+  usePortalPageDesignerRoute
+} from '@one-base-template/portal-engine/designer';
 
 import { portalApi } from '../../api';
 import { useEditorMaterials } from '../../materials/useEditorMaterials';
@@ -19,14 +19,14 @@ const route = useRoute();
 const router = useRouter();
 
 const { categories: materialCategories, materialsMap } = useEditorMaterials();
-const routeQuery = computed(() => route.query as PortalRouteQueryLike);
+const routeQuery = computed(() => route.query as PortalDesignerRouteQueryLike);
 
 const {
   tabId,
   templateId,
   backRouteLocation,
   controller: workbench
-} = usePageEditorWorkbenchByRoute({
+} = usePortalPageDesignerRoute({
   routeQuery,
   api: {
     tab: {
@@ -55,7 +55,7 @@ function onBack() {
 </script>
 
 <template>
-  <PortalPageEditorWorkbench
+  <PortalPageDesignerLayout
     :loading="loading"
     :saving="saving"
     :preview-loading="previewLoading"
