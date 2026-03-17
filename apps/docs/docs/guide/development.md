@@ -91,6 +91,22 @@ pnpm -C apps/admin lint:fix
 - Adapter 接口变更（路径、字段映射、鉴权模式）
 - 核心约定变更（例如路由/菜单/SSO 流程）
 
+## PortalManagement 注册链路回归
+
+涉及 `portal-engine` 物料注册、分类扩展或设计器导出变更时，提交前至少执行：
+
+```bash
+pnpm -C packages/portal-engine run verify:materials
+pnpm -C packages/portal-engine run test:run -- src/materials/registerMaterialExtensions.test.ts src/public-designer.test.ts
+pnpm -C apps/docs build
+```
+
+`verify:materials` 当前会覆盖三类门禁：
+
+- 物料 `config.json` / `defineOptions({ name })` / fallback alias 一致性
+- admin 扩展入口约束（`materialExtensions` 与 `materials/extensions/index.ts`）
+- 语义化导出约束（`@one-base-template/portal-engine/designer` / `internal`）
+
 ## AGENTS 规则分层维护
 
 仓库已启用“根目录全局规则 + 子项目专属规则”模式：

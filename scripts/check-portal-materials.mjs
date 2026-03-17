@@ -2,11 +2,37 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { URL } from 'node:url';
 
 const repoRoot = path.resolve(new URL('..', import.meta.url).pathname);
 const portalEngineRoot = path.join(repoRoot, 'packages/portal-engine');
 const materialsRoot = path.join(portalEngineRoot, 'src/materials');
 const registryFile = path.join(portalEngineRoot, 'src/registry/materials-registry.ts');
+const portalEngineIndexFile = path.join(portalEngineRoot, 'src/index.ts');
+const portalEnginePackageFile = path.join(portalEngineRoot, 'package.json');
+const portalDesignerExportFile = path.join(portalEngineRoot, 'src/public-designer.ts');
+const portalInternalExportFile = path.join(portalEngineRoot, 'src/internal/index.ts');
+const portalPublicDesignerTestFile = path.join(portalEngineRoot, 'src/public-designer.test.ts');
+const portalMaterialExtensionsContractFile = path.join(
+  portalEngineRoot,
+  'src/materials/extensions.ts'
+);
+const portalMaterialExtensionsRegisterFile = path.join(
+  portalEngineRoot,
+  'src/materials/registerMaterialExtensions.ts'
+);
+const adminPortalRegisterFile = path.join(
+  repoRoot,
+  'apps/admin/src/modules/PortalManagement/engine/register.ts'
+);
+const adminPortalMaterialExtensionsEntryFile = path.join(
+  repoRoot,
+  'apps/admin/src/modules/PortalManagement/materials/extensions/index.ts'
+);
+const legacyAdminMaterialRegistrationFile = path.join(
+  repoRoot,
+  'apps/admin/src/modules/PortalManagement/materials/admin-material-registration.ts'
+);
 
 const fallbackFiles = {
   index: path.join(materialsRoot, 'static-fallbacks/index-fallbacks.ts'),
@@ -19,6 +45,29 @@ const errors = [];
 
 function toPosix(relativePath) {
   return relativePath.split(path.sep).join('/');
+}
+
+function readTextFile(filePath, description) {
+  if (!fs.existsSync(filePath)) {
+    errors.push(`${description} 不存在: ${toPosix(path.relative(repoRoot, filePath))}`);
+    return '';
+  }
+  return fs.readFileSync(filePath, 'utf8');
+}
+
+function readJsonFile(filePath, description) {
+  const source = readTextFile(filePath, description);
+  if (!source) {
+    return null;
+  }
+  try {
+    return JSON.parse(source);
+  } catch (error) {
+    errors.push(
+      `${description} JSON 解析失败: ${toPosix(path.relative(repoRoot, filePath))} (${String(error)})`
+    );
+    return null;
+  }
 }
 
 function walkFiles(directory) {
@@ -91,6 +140,229 @@ function hasExplicitAlias(section, name, alias) {
   return source.includes(`name: '${name}'`) && source.includes(`'${alias}'`);
 }
 
+function assertIncludes(source, marker, errorMessage) {
+  if (!source.includes(marker)) {
+    errors.push(errorMessage);
+  }
+}
+
+function resolveExportEntryPath(entry, key) {
+  if (!entry) {
+    return '';
+  }
+  if (typeof entry === 'string') {
+    return key === 'default' ? entry : '';
+  }
+  if (typeof entry === 'object') {
+    const value = entry[key];
+    return typeof value === 'string' ? value : '';
+  }
+  return '';
+}
+
+function validateMaterialExtensionContracts() {
+  const extensionContractSource = readTextFile(
+    portalMaterialExtensionsContractFile,
+    'portal-engine 物料扩展协议文件'
+  );
+  if (extensionContractSource) {
+    assertIncludes(
+      extensionContractSource,
+      'export interface PortalMaterialExtension',
+      'materials/extensions.ts: 缺少 PortalMaterialExtension 导出'
+    );
+    assertIncludes(
+      extensionContractSource,
+      'materials: PortalMaterialDescriptor[]',
+      'materials/extensions.ts: PortalMaterialExtension 必须声明 materials 列表'
+    );
+  }
+
+  const extensionRegisterSource = readTextFile(
+    portalMaterialExtensionsRegisterFile,
+    'portal-engine 扩展注册实现文件'
+  );
+  if (extensionRegisterSource) {
+    assertIncludes(
+      extensionRegisterSource,
+      'export function registerMaterialExtensions',
+      'materials/registerMaterialExtensions.ts: 缺少 registerMaterialExtensions 导出'
+    );
+    assertIncludes(
+      extensionRegisterSource,
+      'export function unregisterMaterialExtensions',
+      'materials/registerMaterialExtensions.ts: 缺少 unregisterMaterialExtensions 导出'
+    );
+    assertIncludes(
+      extensionRegisterSource,
+      'resolveMaterialCategory(',
+      'materials/registerMaterialExtensions.ts: 缺少扩展分类解析逻辑'
+    );
+    assertIncludes(
+      extensionRegisterSource,
+      'registerPortalMaterialComponent(',
+      'materials/registerMaterialExtensions.ts: 缺少组件注册逻辑'
+    );
+  }
+}
+
+function validateAdminExtensionEntry() {
+  if (fs.existsSync(legacyAdminMaterialRegistrationFile)) {
+    errors.push(
+      `发现已废弃文件: ${toPosix(path.relative(repoRoot, legacyAdminMaterialRegistrationFile))}`
+    );
+  }
+
+  const extensionEntrySource = readTextFile(
+    adminPortalMaterialExtensionsEntryFile,
+    'admin 物料扩展入口文件'
+  );
+  if (extensionEntrySource) {
+    assertIncludes(
+      extensionEntrySource,
+      'PORTAL_ADMIN_MATERIAL_EXTENSIONS',
+      'materials/extensions/index.ts: 必须导出 PORTAL_ADMIN_MATERIAL_EXTENSIONS'
+    );
+    assertIncludes(
+      extensionEntrySource,
+      'PortalMaterialExtension[]',
+      'materials/extensions/index.ts: 扩展入口必须显式声明 PortalMaterialExtension[]'
+    );
+  }
+
+  const adminRegisterSource = readTextFile(adminPortalRegisterFile, 'admin Portal 注册入口文件');
+  if (adminRegisterSource) {
+    assertIncludes(
+      adminRegisterSource,
+      'materialExtensions?: PortalMaterialExtension[]',
+      'engine/register.ts: setupPortalEngineForAdmin 必须暴露 materialExtensions 参数'
+    );
+    assertIncludes(
+      adminRegisterSource,
+      'registerMaterialExtensions(context, [',
+      'engine/register.ts: 必须通过 registerMaterialExtensions 统一注册扩展'
+    );
+    assertIncludes(
+      adminRegisterSource,
+      '...PORTAL_ADMIN_MATERIAL_EXTENSIONS',
+      'engine/register.ts: 必须先注入 admin 默认扩展列表'
+    );
+    assertIncludes(
+      adminRegisterSource,
+      '...(options.materialExtensions ?? [])',
+      'engine/register.ts: 必须合并调用方传入 materialExtensions'
+    );
+  }
+}
+
+function validateDesignerPublicExports() {
+  const portalEnginePackageJson = readJsonFile(
+    portalEnginePackageFile,
+    'portal-engine package.json'
+  );
+  if (!portalEnginePackageJson || typeof portalEnginePackageJson !== 'object') {
+    return;
+  }
+
+  const exportMap = portalEnginePackageJson.exports;
+  if (!(exportMap && typeof exportMap === 'object')) {
+    return;
+  }
+
+  const designerExport = exportMap['./designer'];
+  const internalExport = exportMap['./internal'];
+  const hasSemanticSubpath = Boolean(designerExport || internalExport);
+  if (!hasSemanticSubpath) {
+    return;
+  }
+
+  if (!designerExport) {
+    errors.push('packages/portal-engine/package.json: 缺少 ./designer 子路径导出');
+  }
+  if (!internalExport) {
+    errors.push('packages/portal-engine/package.json: 缺少 ./internal 子路径导出');
+  }
+
+  const designerTypesPath = resolveExportEntryPath(designerExport, 'types');
+  const designerDefaultPath = resolveExportEntryPath(designerExport, 'default');
+  if (designerTypesPath && designerTypesPath !== './src/public-designer.ts') {
+    errors.push(
+      'packages/portal-engine/package.json: ./designer.types 必须指向 ./src/public-designer.ts'
+    );
+  }
+  if (designerDefaultPath && designerDefaultPath !== './src/public-designer.ts') {
+    errors.push(
+      'packages/portal-engine/package.json: ./designer.default 必须指向 ./src/public-designer.ts'
+    );
+  }
+
+  const internalTypesPath = resolveExportEntryPath(internalExport, 'types');
+  const internalDefaultPath = resolveExportEntryPath(internalExport, 'default');
+  if (internalTypesPath && internalTypesPath !== './src/internal/index.ts') {
+    errors.push(
+      'packages/portal-engine/package.json: ./internal.types 必须指向 ./src/internal/index.ts'
+    );
+  }
+  if (internalDefaultPath && internalDefaultPath !== './src/internal/index.ts') {
+    errors.push(
+      'packages/portal-engine/package.json: ./internal.default 必须指向 ./src/internal/index.ts'
+    );
+  }
+
+  const designerSource = readTextFile(portalDesignerExportFile, 'portal-engine 语义化导出文件');
+  const internalSource = readTextFile(portalInternalExportFile, 'portal-engine internal 导出文件');
+  const indexSource = readTextFile(portalEngineIndexFile, 'portal-engine 根导出文件');
+  readTextFile(portalPublicDesignerTestFile, 'portal-engine public designer 测试文件');
+
+  if (designerSource) {
+    const requiredDesignerSymbols = [
+      'PortalTemplateDesignerLayout',
+      'PortalTemplateDesignerHeader',
+      'PortalTemplateDesignerSidebar',
+      'PortalTemplateDesignerToolbar',
+      'PortalTemplateDesignerPreview',
+      'PortalPageDesignerLayout',
+      'PortalMaterialPalette',
+      'PortalPropertyInspector',
+      'usePortalTemplateDesignerRoute',
+      'usePortalPageDesignerRoute'
+    ];
+    for (const symbol of requiredDesignerSymbols) {
+      if (!designerSource.includes(symbol)) {
+        errors.push(`public-designer.ts: 缺少语义化导出符号 ${symbol}`);
+      }
+    }
+  }
+
+  if (internalSource) {
+    const requiredInternalSymbols = [
+      'PortalTemplateWorkbenchShell',
+      'PortalDesignerHeaderBar',
+      'PortalDesignerTreePanel',
+      'PortalDesignerActionStrip',
+      'PortalDesignerPreviewFrame',
+      'PortalPageEditorWorkbench',
+      'MaterialLibrary',
+      'PropertyPanel',
+      'useTemplateWorkbenchPageByRoute',
+      'usePageEditorWorkbenchByRoute'
+    ];
+    for (const symbol of requiredInternalSymbols) {
+      if (!internalSource.includes(symbol)) {
+        errors.push(`internal/index.ts: 缺少实现语义导出符号 ${symbol}`);
+      }
+    }
+  }
+
+  if (indexSource) {
+    assertIncludes(
+      indexSource,
+      './public-designer',
+      'src/index.ts: 根出口必须继续转发 public-designer 语义化导出'
+    );
+  }
+}
+
 const registrySource = fs.readFileSync(registryFile, 'utf8');
 const configFiles = walkFiles(materialsRoot).filter((file) => file.endsWith('/config.json'));
 
@@ -148,6 +420,10 @@ for (const configFile of configFiles) {
     }
   }
 }
+
+validateMaterialExtensionContracts();
+validateAdminExtensionEntry();
+validateDesignerPublicExports();
 
 if (errors.length > 0) {
   console.error('[portal-engine] 物料一致性检查失败：');

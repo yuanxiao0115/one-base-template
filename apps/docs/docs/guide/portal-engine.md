@@ -472,17 +472,18 @@ function handleNavigate(payload: PortalPreviewNavigatePayload) {
   - `inline`：副标题显示在主标题后方（同一行）。
 - 编辑侧在 `UnifiedContainerContentConfig` 提供“副标题位置”开关，渲染侧由 `UnifiedContainerDisplay` 统一消费，base 物料无需单独实现。
 
-## 运行时扩展 API
+## 物料扩展入口（推荐）
 
-- 物料元数据扩展：
-  - `registerPortalMaterial(material, options)`
-  - `unregisterPortalMaterial(options)`
-  - `createPortalMaterialRegistry(initialCategories?)`
-- 物料渲染组件扩展：
-  - `registerPortalMaterialComponent({ name, component, aliases?, strategy? })`
-  - `unregisterPortalMaterialComponent(name, aliases?)`
+- 默认物料分类与基础物料由 `packages/portal-engine` 内置，不需要在 `apps/admin` 再手工重复注册。
+- admin 侧统一通过 `setupPortalEngineForAdmin({ materialExtensions })` 扩展分类/物料。
+- 扩展声明文件固定放在：
+  - `apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
+- 扩展注册由引擎内部统一处理：
+  - `registerMaterialExtensions(context, extensions)`
+  - `unregisterMaterialExtensions(context, extensions)`
+- `context` 是唯一有效的注册作用域：分类、物料元数据、`index/content/style` 组件映射都与同一个 `PortalEngineContext` 绑定。
 
-> 推荐做法：先注册物料元数据（出现在物料库），再注册同名渲染组件（画布与预览可渲染）。
+> 低阶 API（如 `registerPortalMaterial`、`registerPortalMaterialComponent`）仍保留，但默认只建议在引擎内部或明确需要底层能力时使用；应用层优先走 `materialExtensions` 声明式入口。
 
 ### 内置单容器物料（base-simple-container）
 
@@ -499,23 +500,27 @@ function handleNavigate(payload: PortalPreviewNavigatePayload) {
   - 单容器内部禁止继续嵌套 `base-simple-container` 与 `base-tab-container`，避免多层容器造成编辑复杂度失控。
 - `apps/admin` 仅作为消费方使用引擎内置物料，不再维护外部“单容器”注册实现。
 
-### admin 最小注册示例（1 行开关）
+### admin 最小扩展示例
 
-- 示例目录（可直接复制）：
-  - `apps/admin/src/modules/PortalManagement/materials/examples/quick-register-demo/`
-  - `apps/admin/src/modules/PortalManagement/materials/admin-material-registration.ts`
-- `setupPortalEngineForAdmin` 新增了 `registerDemoMaterial` 开关，想临时验证 admin 外部注册时，只需：
+- 默认扩展声明入口：
+  - `apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
+- 管理侧注册入口：
+  - `apps/admin/src/modules/PortalManagement/engine/register.ts`
+- 典型调用方式：
 
 ```ts
 setupPortalEngineForAdmin({
-  registerDemoMaterial: true
+  materialExtensions: [...PORTAL_ADMIN_MATERIAL_EXTENSIONS]
 });
 ```
 
-- 该示例会自动完成两件事（无需手写 6 次注册调用）：
-  - 注册物料元数据到 admin 当前 context 的 registry
-  - 注册 `index/content/style` 三个组件到引擎组件映射
-- 示例物料通过 `import()` 按需懒加载，默认不会进入常规注册路径。
+- `quick-register-demo` 仅保留为示例，不作为正式注册主路径。
+
+## 设计器导出语义
+
+- 推荐业务页面从语义化入口消费设计器组件：
+  - `@one-base-template/portal-engine/designer`
+- `@one-base-template/portal-engine/internal` 仅用于保留实现语义（Workbench / ByRoute / Controller）和高级场景，不作为默认接入入口。
 
 ## 维护建议
 

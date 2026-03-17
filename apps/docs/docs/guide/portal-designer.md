@@ -481,21 +481,25 @@ type PageLayoutJson = {
 - 物料目录：`packages/portal-engine/src/materials/cms/**`
 - 物料注册表：`packages/portal-engine/src/registry/materials-registry.ts`
 - 动态加载：`packages/portal-engine/src/materials/useMaterials.ts`
-- 运行时扩展 API：
-  - `registerPortalMaterial` / `unregisterPortalMaterial`（注册/移除物料元数据）
-  - `registerPortalMaterialComponent` / `unregisterPortalMaterialComponent`（注册/移除运行时渲染组件）
+- 上下文化目录读取：
+  - `usePortalMaterialCatalog(context, { scene })`
+  - `scene='editor'` 返回编辑态 `categories + materialsMap`
+  - `scene='renderer'` 返回渲染态 `materialsMap`
 
-admin 端保留兼容入口（壳层）：
+admin 端扩展入口（正式）：
 
-- `apps/admin/src/modules/PortalManagement/materials/useMaterials.ts`
 - `apps/admin/src/modules/PortalManagement/engine/register.ts`
-- 兼容入口通过 `setupPortalEngineForAdmin()` 统一把 admin 的 `cmsApi + pageSettingsApi` 绑定到引擎，保证迁移后组件数据源与页面设置保存链路行为不变。
+- `apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
+- `setupPortalEngineForAdmin()` 会统一完成三件事：
+  - 绑定 admin 的 `cmsApi + pageSettingsApi`
+  - 注入 `PORTAL_ADMIN_MATERIAL_EXTENSIONS`
+  - 合并调用方传入的 `materialExtensions`
 
 动态加载策略：
 
 - `useEditorMaterials()` 负责编辑态，加载 `index/content/style` 三类组件
 - `useRendererMaterials()` 负责预览态/渲染态，只加载 `index` 运行态组件
-- 兼容入口 `useMaterials()` 默认等同于 `useEditorMaterials()`，用于历史调用方平滑迁移
+- `useMaterials()` 仅保留历史兼容，默认等同于 `useEditorMaterials()`
 - 组件 key 以 `defineOptions({ name })` 为准，必须与 `cmptConfig.index/content/style.name` 一致
 - 路径推导名与 config 名存在历史 `base-` 前缀差异时，必须在 `static-fallbacks/*.ts` 中显式声明 alias
 - `packages/portal-engine/src/materials/navigation.ts` 负责 CMS 物料点击导航注入：
@@ -514,3 +518,33 @@ packages/portal-engine/src/materials/cms/<material>/
 ```
 
 并在 `materials-registry.ts` 中注册到对应分类（并提供 icon、默认 config）。
+
+## 设计器导出语义（推荐）
+
+推荐业务页面优先从语义化入口导入：
+
+```ts
+import {
+  PortalTemplateDesignerLayout,
+  PortalTemplateDesignerHeader,
+  PortalTemplateDesignerSidebar,
+  PortalTemplateDesignerToolbar,
+  PortalTemplateDesignerPreview,
+  PortalPageDesignerLayout,
+  PortalMaterialPalette,
+  PortalPropertyInspector,
+  usePortalTemplateDesignerRoute,
+  usePortalPageDesignerRoute
+} from '@one-base-template/portal-engine/designer';
+```
+
+实现语义入口（`Workbench / Controller / ByRoute`）保留在：
+
+```ts
+import { PortalTemplateWorkbenchShell } from '@one-base-template/portal-engine/internal';
+```
+
+边界约束：
+
+- `designer`：默认给业务同学使用，名称一眼可读。
+- `internal`：用于框架封装与高级接入，避免页面层直接绑定实现细节名词。
