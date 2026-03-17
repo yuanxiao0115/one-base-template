@@ -132,6 +132,17 @@ export {
   unregisterPortalMaterialComponent,
   useMaterials
 } from './materials/useMaterials';
+export type {
+  PortalMaterialComponents,
+  PortalMaterialConfig,
+  PortalMaterialDescriptor,
+  PortalMaterialExtension,
+  PortalMaterialSectionAliases
+} from './materials/extensions';
+export {
+  registerMaterialExtensions,
+  unregisterMaterialExtensions
+} from './materials/registerMaterialExtensions';
 export { useEditorMaterials } from './materials/useEditorMaterials';
 export { useRendererMaterials } from './materials/useRendererMaterials';
 export type {

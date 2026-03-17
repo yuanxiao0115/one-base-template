@@ -1,5 +1,7 @@
 import {
+  registerMaterialExtensions,
   type PortalEngineContext,
+  type PortalMaterialExtension,
   setPortalCmsApi,
   setPortalCmsNavigation,
   setPortalPageSettingsApi,
@@ -7,10 +9,12 @@ import {
 } from '@one-base-template/portal-engine';
 
 import { cmsApi, portalApi } from '../api';
+import { PORTAL_ADMIN_MATERIAL_EXTENSIONS } from '../materials/extensions';
 import { getPortalEngineAdminContext, resetPortalEngineAdminContextForTesting } from './context';
 
 export interface PortalEngineAdminRegisterOptions {
   cmsNavigation?: Partial<PortalCmsNavigation>;
+  materialExtensions?: PortalMaterialExtension[];
   registerDemoMaterial?: boolean;
 }
 
@@ -92,6 +96,11 @@ export function setupPortalEngineForAdmin(
   if (options.cmsNavigation) {
     setPortalCmsNavigation(options.cmsNavigation, context);
   }
+
+  registerMaterialExtensions(context, [
+    ...PORTAL_ADMIN_MATERIAL_EXTENSIONS,
+    ...(options.materialExtensions ?? [])
+  ]);
 
   if (options.registerDemoMaterial) {
     ensureDemoMaterialRegistered(context);
