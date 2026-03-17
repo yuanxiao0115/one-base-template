@@ -3,6 +3,6 @@ import { useMaterials as usePortalEngineMaterials } from '@one-base-template/por
 import { setupPortalEngineForAdmin } from '../engine/register';
 
 export function useMaterials() {
-  setupPortalEngineForAdmin();
-  return usePortalEngineMaterials();
+  const context = setupPortalEngineForAdmin();
+  return usePortalEngineMaterials(context);
 }

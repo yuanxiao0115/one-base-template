@@ -4,7 +4,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { message } from '@one-base-template/ui';
 import {
   PortalPageEditorWorkbench,
-  portalMaterialsRegistry,
   usePageEditorWorkbenchByRoute,
   type PortalRouteQueryLike
 } from '@one-base-template/portal-engine';
@@ -19,8 +18,7 @@ defineOptions({
 const route = useRoute();
 const router = useRouter();
 
-const { materialsMap } = useEditorMaterials();
-const materialCategories = portalMaterialsRegistry.categories;
+const { categories: materialCategories, materialsMap } = useEditorMaterials();
 const routeQuery = computed(() => route.query as PortalRouteQueryLike);
 
 const {

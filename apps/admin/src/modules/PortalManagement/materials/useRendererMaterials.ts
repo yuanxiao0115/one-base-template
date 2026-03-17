@@ -3,6 +3,6 @@ import { useRendererMaterials as usePortalEngineRendererMaterials } from '@one-b
 import { setupPortalEngineForAdmin } from '../engine/register';
 
 export function useRendererMaterials() {
-  setupPortalEngineForAdmin();
-  return usePortalEngineRendererMaterials();
+  const context = setupPortalEngineForAdmin();
+  return usePortalEngineRendererMaterials(context);
 }

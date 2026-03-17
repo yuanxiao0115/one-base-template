@@ -84,21 +84,30 @@ export function registerAdminPortalMaterials(
       }
     );
 
-    registerPortalMaterialComponent({
-      name: indexName,
-      component: material.components.index,
-      strategy: 'replace'
-    });
-    registerPortalMaterialComponent({
-      name: contentName,
-      component: material.components.content,
-      strategy: 'replace'
-    });
-    registerPortalMaterialComponent({
-      name: styleName,
-      component: material.components.style,
-      strategy: 'replace'
-    });
+    registerPortalMaterialComponent(
+      {
+        name: indexName,
+        component: material.components.index,
+        strategy: 'replace'
+      },
+      context
+    );
+    registerPortalMaterialComponent(
+      {
+        name: contentName,
+        component: material.components.content,
+        strategy: 'replace'
+      },
+      context
+    );
+    registerPortalMaterialComponent(
+      {
+        name: styleName,
+        component: material.components.style,
+        strategy: 'replace'
+      },
+      context
+    );
   }
 }
 
@@ -126,7 +135,7 @@ export function unregisterAdminPortalMaterials(
       .filter(Boolean);
 
     for (const sectionName of sectionNames) {
-      unregisterPortalMaterialComponent(sectionName);
+      unregisterPortalMaterialComponent(sectionName, [], context);
     }
   }
 }

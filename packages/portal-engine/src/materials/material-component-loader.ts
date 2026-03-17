@@ -1,6 +1,8 @@
 import type { Component } from 'vue';
 
-import { portalMaterialsRegistry } from '../registry/materials-registry';
+import { getPortalMaterialRegistryController } from '../registry/materials-registry';
+import type { PortalEngineContext } from '../runtime/context';
+import { getDefaultPortalEngineContext, readPortalEngineContextValue } from '../runtime/context';
 
 export interface MaterialModule {
   default?: Component;
@@ -23,12 +25,29 @@ export interface RegisterPortalMaterialComponentOptions {
 }
 
 interface CreatePortalMaterialsMapOptions {
+  context?: PortalEngineContext;
   sections: PortalMaterialComponentSection[];
   modulesBySection: Partial<Record<PortalMaterialComponentSection, Record<string, MaterialModule>>>;
   staticFallbacks?: StaticMaterialFallback[];
 }
 
-const customMaterialComponents: Record<string, Component> = {};
+const PORTAL_CUSTOM_MATERIAL_COMPONENTS_CONTEXT_KEY = Symbol(
+  'portal-engine.custom-material-components'
+);
+
+function createCustomMaterialComponents() {
+  return {} as Record<string, Component>;
+}
+
+function getCustomMaterialComponents(
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
+  return readPortalEngineContextValue<Record<string, Component>>(
+    PORTAL_CUSTOM_MATERIAL_COMPONENTS_CONTEXT_KEY,
+    context,
+    createCustomMaterialComponents
+  );
+}
 
 function tryGetComponentName(mod: unknown): string | null {
   const component = (mod as MaterialModule | undefined)?.default;
@@ -101,9 +120,13 @@ function resolveRegisterNames(name: string, aliases: string[] = []): string[] {
   return Array.from(new Set([...getMaterialNameAliases(name), ...aliases]));
 }
 
-export function registerPortalMaterialComponent(options: RegisterPortalMaterialComponentOptions) {
+export function registerPortalMaterialComponent(
+  options: RegisterPortalMaterialComponentOptions,
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+) {
   const strategy = options.strategy === 'replace' ? 'replace' : 'reject';
   const names = resolveRegisterNames(options.name, options.aliases);
+  const customMaterialComponents = getCustomMaterialComponents(context);
 
   if (strategy === 'reject') {
     const conflict = names.find((name) => Boolean(customMaterialComponents[name]));
@@ -117,8 +140,13 @@ export function registerPortalMaterialComponent(options: RegisterPortalMaterialC
   }
 }
 
-export function unregisterPortalMaterialComponent(name: string, aliases: string[] = []): boolean {
+export function unregisterPortalMaterialComponent(
+  name: string,
+  aliases: string[] = [],
+  context: PortalEngineContext = getDefaultPortalEngineContext()
+): boolean {
   const names = resolveRegisterNames(name, aliases);
+  const customMaterialComponents = getCustomMaterialComponents(context);
   let removed = false;
   for (const aliasName of names) {
     if (customMaterialComponents[aliasName]) {
@@ -187,11 +215,15 @@ function resolveSectionName(
   return typeof name === 'string' && name.trim().length > 0 ? name.trim() : null;
 }
 
-function resolveRegistryComponentNames(sections: PortalMaterialComponentSection[]): string[] {
+function resolveRegistryComponentNames(
+  sections: PortalMaterialComponentSection[],
+  context: PortalEngineContext
+): string[] {
   const names = new Set<string>();
   const sectionSet = new Set(sections);
+  const registry = getPortalMaterialRegistryController(context);
 
-  for (const category of portalMaterialsRegistry.categories) {
+  for (const category of registry.categories) {
     for (const material of category.cmptList) {
       const config = asRecord(material.cmptConfig);
 
@@ -241,13 +273,14 @@ function patchMissingNamesByBasePrefix(
 
 function verifyRegistryCoverage(
   materialsMap: Record<string, Component>,
-  sections: PortalMaterialComponentSection[]
+  sections: PortalMaterialComponentSection[],
+  context: PortalEngineContext
 ) {
   if (!import.meta.env.DEV) {
     return;
   }
 
-  const requiredNames = resolveRegistryComponentNames(sections);
+  const requiredNames = resolveRegistryComponentNames(sections, context);
   const initialMissingNames = requiredNames.filter((name) => !materialsMap[name]);
   if (initialMissingNames.length === 0) {
     return;
@@ -277,6 +310,7 @@ function verifyRegistryCoverage(
 }
 
 export function createPortalMaterialsMap(options: CreatePortalMaterialsMapOptions) {
+  const context = options.context ?? getDefaultPortalEngineContext();
   const materialsMap: Record<string, Component> = {};
 
   for (const section of options.sections) {
@@ -295,11 +329,11 @@ export function createPortalMaterialsMap(options: CreatePortalMaterialsMapOption
     );
   }
 
-  for (const [name, component] of Object.entries(customMaterialComponents)) {
+  for (const [name, component] of Object.entries(getCustomMaterialComponents(context))) {
     materialsMap[name] = component;
   }
 
-  verifyRegistryCoverage(materialsMap, options.sections);
+  verifyRegistryCoverage(materialsMap, options.sections, context);
 
   return materialsMap;
 }

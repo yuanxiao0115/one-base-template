@@ -134,6 +134,12 @@ export {
 } from './materials/useMaterials';
 export { useEditorMaterials } from './materials/useEditorMaterials';
 export { useRendererMaterials } from './materials/useRendererMaterials';
+export type {
+  PortalMaterialCatalog,
+  PortalMaterialCatalogScene,
+  UsePortalMaterialCatalogOptions
+} from './materials/usePortalMaterialCatalog';
+export { usePortalMaterialCatalog } from './materials/usePortalMaterialCatalog';
 export { cmsApi, getPortalCmsApi, resetPortalCmsApi, setPortalCmsApi } from './materials/api';
 export type {
   PortalCmsDetailNavigationContext,

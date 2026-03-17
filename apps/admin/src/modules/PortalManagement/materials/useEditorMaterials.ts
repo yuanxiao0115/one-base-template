@@ -3,6 +3,6 @@ import { useEditorMaterials as usePortalEngineEditorMaterials } from '@one-base-
 import { setupPortalEngineForAdmin } from '../engine/register';
 
 export function useEditorMaterials() {
-  setupPortalEngineForAdmin();
-  return usePortalEngineEditorMaterials();
+  const context = setupPortalEngineForAdmin();
+  return usePortalEngineEditorMaterials(context);
 }
