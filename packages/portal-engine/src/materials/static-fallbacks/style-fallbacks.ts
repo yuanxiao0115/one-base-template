@@ -7,6 +7,7 @@ import BaseFormStyle from '../base/base-form/style.vue';
 import BaseIframeContainerStyle from '../base/base-iframe-container/style.vue';
 import BaseNoticeStyle from '../base/base-notice/style.vue';
 import BaseSearchBoxStyle from '../base/base-search-box/style.vue';
+import BaseSimpleContainerStyle from '../base/base-simple-container/style.vue';
 import BaseStatStyle from '../base/base-stat/style.vue';
 import BaseTabContainerStyle from '../base/base-tab-container/style.vue';
 import BaseTimelineStyle from '../base/base-timeline/style.vue';
@@ -28,6 +29,11 @@ export const STATIC_STYLE_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
     name: 'base-tab-container-style',
     section: 'style',
     component: BaseTabContainerStyle
+  },
+  {
+    name: 'base-simple-container-style',
+    section: 'style',
+    component: BaseSimpleContainerStyle
   },
   {
     name: 'app-entrance-style',

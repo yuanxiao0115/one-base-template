@@ -4,7 +4,9 @@ import type { Component, CSSProperties } from 'vue';
 import { GridItem, GridLayout } from 'grid-layout-plus';
 
 import { getPortalGridSettings, normalizePortalPageSettingsV2 } from '../schema/page-settings';
+import { BASE_SIMPLE_CONTAINER_INDEX_NAME } from '../materials/base/base-simple-container/model';
 import { hasLayoutGeometryChanged, mergeLayoutItems, type LayoutUpdateItem } from './layout-sync';
+import SimpleContainerEditorItem from './SimpleContainerEditorItem.vue';
 import TabContainerEditorItem from './TabContainerEditorItem.vue';
 import { deepClone } from '../utils/deep';
 import {
@@ -71,6 +73,10 @@ function isTransparentPlaceholder(item: PortalLayoutItem): boolean {
 
 function isTabContainer(item: PortalLayoutItem): boolean {
   return isTabContainerLayoutItem(item);
+}
+
+function isSimpleContainer(item: PortalLayoutItem): boolean {
+  return getComponentName(item) === BASE_SIMPLE_CONTAINER_INDEX_NAME;
 }
 
 function getComponentConfig(item: PortalLayoutItem) {
@@ -251,6 +257,13 @@ onBeforeUnmount(() => {
 
             <TabContainerEditorItem
               v-if="isTabContainer(item)"
+              :item="item"
+              :materials-map="props.materialsMap"
+              :page-setting-data="pageSettings"
+            />
+
+            <SimpleContainerEditorItem
+              v-else-if="isSimpleContainer(item)"
               :item="item"
               :materials-map="props.materialsMap"
               :page-setting-data="pageSettings"

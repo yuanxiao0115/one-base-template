@@ -7,10 +7,6 @@ import {
 } from '@one-base-template/portal-engine';
 
 import { cmsApi, portalApi } from '../api';
-import {
-  registerPortalExternalMaterialsForAdmin,
-  resetPortalExternalMaterialsForAdminTesting
-} from '../materials/external/register';
 import { getPortalEngineAdminContext, resetPortalEngineAdminContextForTesting } from './context';
 
 export interface PortalEngineAdminRegisterOptions {
@@ -25,8 +21,6 @@ export function setupPortalEngineForAdmin(
   const context = getPortalEngineAdminContext();
 
   if (!initialized) {
-    registerPortalExternalMaterialsForAdmin();
-
     setPortalCmsApi(
       {
         getCategoryTree: cmsApi.getCategoryTree,
@@ -56,6 +50,5 @@ export function setupPortalEngineForAdmin(
 
 export function resetPortalEngineAdminSetupForTesting() {
   initialized = false;
-  resetPortalExternalMaterialsForAdminTesting();
   resetPortalEngineAdminContextForTesting();
 }

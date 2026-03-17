@@ -1,0 +1,70 @@
+{
+  "index": {
+    "name": "base-simple-container-index"
+  },
+  "content": {
+    "name": "base-simple-container-content",
+    "container": {
+      "showTitle": true,
+      "title": "单容器",
+      "subtitle": "承载门户组件内容",
+      "icon": "",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "tabs": [
+      {
+        "id": "simple-container-tab-1",
+        "title": "容器内容",
+        "layoutItems": []
+      }
+    ],
+    "activeTabId": "simple-container-tab-1"
+  },
+  "style": {
+    "name": "base-simple-container-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "body": {
+      "backgroundColor": "transparent",
+      "borderStyle": "none",
+      "borderColor": "#dbe3f0",
+      "borderWidth": 0,
+      "borderRadius": 8,
+      "paddingTop": 8,
+      "paddingRight": 8,
+      "paddingBottom": 8,
+      "paddingLeft": 8
+    }
+  }
+}

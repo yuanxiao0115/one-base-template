@@ -10,6 +10,7 @@ import baseTextConfig from '../materials/base/base-text/config.json';
 import baseTableConfig from '../materials/base/base-table/config.json';
 import baseIframeContainerConfig from '../materials/base/base-iframe-container/config.json';
 import baseTabContainerConfig from '../materials/base/base-tab-container/config.json';
+import baseSimpleContainerConfig from '../materials/base/base-simple-container/config.json';
 import appEntranceConfig from '../materials/base/app-entrance/config.json';
 import imageLinkListConfig from '../materials/base/image-link-list/config.json';
 import baseButtonGroupConfig from '../materials/base/base-button-group/config.json';
@@ -48,6 +49,7 @@ const MATERIAL_ICON_MAP = {
   baseTable: 'ri:table-line',
   baseIframeContainer: 'ri:window-2-line',
   baseTabContainer: 'ri:apps-2-line',
+  baseSimpleContainer: 'ri:inbox-archive-line',
   appEntrance: 'ri:apps-2-line',
   imageLinkList: 'ri:gallery-line',
   baseButtonGroup: 'ri:cursor-line',
@@ -144,6 +146,15 @@ const basicComponents = createComponentGroup(
       height: 28,
       icon: MATERIAL_ICON_MAP.baseTabContainer,
       config: baseTabContainerConfig
+    },
+    {
+      id: 'basic-base-simple-container',
+      type: 'basic-base-simple-container',
+      name: '单容器',
+      width: 12,
+      height: 28,
+      icon: MATERIAL_ICON_MAP.baseSimpleContainer,
+      config: baseSimpleContainerConfig
     },
     {
       id: 'basic-app-entrance',

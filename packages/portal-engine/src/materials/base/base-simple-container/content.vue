@@ -5,7 +5,7 @@
     <el-form label-position="top">
       <ObCard title="容器说明">
         <el-alert
-          title="该容器不展示页签，内部默认维护一个子画布用于拖拽物料。"
+          title="单容器内部提供独立子画布，支持拖拽添加和编排物料。"
           type="info"
           :closable="false"
           show-icon
@@ -17,21 +17,21 @@
 
 <script setup lang="ts">
 import { ObCard } from '@one-base-template/ui';
-import {
-  createDefaultUnifiedContainerContentConfig,
-  mergeUnifiedContainerContentConfig,
-  UnifiedContainerContentConfig,
-  useSchemaConfig,
-  type UnifiedContainerContentConfigModel
-} from '@one-base-template/portal-engine';
 
+import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 import {
-  ensureAdminSimpleContainerTabs,
-  resolveAdminSimpleContainerActiveTabId,
-  ADMIN_SIMPLE_CONTAINER_CONTENT_NAME
+  UnifiedContainerContentConfig,
+  createDefaultUnifiedContainerContentConfig,
+  mergeUnifiedContainerContentConfig
+} from '../../common/unified-container';
+import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
+import {
+  BASE_SIMPLE_CONTAINER_CONTENT_NAME,
+  ensureBaseSimpleContainerTabs,
+  resolveBaseSimpleContainerActiveTabId
 } from './model';
 
-interface AdminSimpleContainerContentData {
+interface BaseSimpleContainerContentData {
   container: UnifiedContainerContentConfigModel;
   tabs: unknown;
   activeTabId: string;
@@ -46,8 +46,8 @@ const props = defineProps({
 
 const emit = defineEmits(['schemaChange']);
 
-const { sectionData } = useSchemaConfig<AdminSimpleContainerContentData>({
-  name: ADMIN_SIMPLE_CONTAINER_CONTENT_NAME,
+const { sectionData } = useSchemaConfig<BaseSimpleContainerContentData>({
+  name: BASE_SIMPLE_CONTAINER_CONTENT_NAME,
   sections: {
     container: {},
     tabs: {},
@@ -62,21 +62,21 @@ const { sectionData } = useSchemaConfig<AdminSimpleContainerContentData>({
 sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
 const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
 if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '容器组件';
+  sectionData.container.title = '单容器';
 }
 if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '用于承载多个门户组件';
+  sectionData.container.subtitle = '承载门户组件内容';
 }
 if (!sectionData.container.externalLinkText.trim()) {
   sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
 }
 
-const tabs = ensureAdminSimpleContainerTabs(sectionData.tabs);
+const tabs = ensureBaseSimpleContainerTabs(sectionData.tabs);
 sectionData.tabs = tabs;
-sectionData.activeTabId = resolveAdminSimpleContainerActiveTabId(tabs, sectionData.activeTabId);
+sectionData.activeTabId = resolveBaseSimpleContainerActiveTabId(tabs, sectionData.activeTabId);
 
 defineOptions({
-  name: ADMIN_SIMPLE_CONTAINER_CONTENT_NAME
+  name: 'base-simple-container-content'
 });
 </script>
 

@@ -484,20 +484,20 @@ function handleNavigate(payload: PortalPreviewNavigatePayload) {
 
 > 推荐做法：先注册物料元数据（出现在物料库），再注册同名渲染组件（画布与预览可渲染）。
 
-### admin 端外部注册示例（不改 packages）
+### 内置单容器物料（base-simple-container）
 
-- 当前仓库在 `apps/admin` 提供了“单容器”外部物料示例，用于验证引擎包外部扩展链路：
-  - 注册入口：`apps/admin/src/modules/PortalManagement/materials/external/register.ts`
-  - 物料定义：`apps/admin/src/modules/PortalManagement/materials/external/simple-container/register.ts`
-  - 组件实现：`apps/admin/src/modules/PortalManagement/materials/external/simple-container/{index,content,style}.vue`
-  - schema/默认配置：`apps/admin/src/modules/PortalManagement/materials/external/simple-container/model.ts`
-- admin 侧统一在 `setupPortalEngineForAdmin()` 内完成注册，确保设计器与预览都能拿到扩展物料：
-  - `apps/admin/src/modules/PortalManagement/engine/register.ts`
-- 该示例默认挂载到 `basic` 分类，物料名为“单容器”，内部使用单子画布承载组件（无页签 UI）。
-- 为复用现有可拖拽子画布能力，示例约定：
-  - `cmptConfig.index.name` 对齐 `base-tab-container-index`（接入内置编辑器协议）
-  - `content.name/style.name` 仍使用 admin 自定义命名（保留外部物料独立配置面板）
-  - 外部注册清单在 `materials/external/register.ts` 维护，新增物料只需追加一个注册项
+- 单容器能力已收敛到 `packages/portal-engine` 内置物料：
+  - schema/默认配置：`packages/portal-engine/src/materials/base/base-simple-container/config.json`
+  - 运行态组件：`packages/portal-engine/src/materials/base/base-simple-container/index.vue`
+  - 配置面板：`packages/portal-engine/src/materials/base/base-simple-container/{content,style}.vue`
+  - 编辑器内部子画布：`packages/portal-engine/src/editor/SimpleContainerEditorItem.vue`
+- 物料库注册路径：
+  - `packages/portal-engine/src/registry/materials-registry.ts`（新增 `basic-base-simple-container`）
+  - `packages/portal-engine/src/materials/static-fallbacks/{index,content,style}-fallbacks.ts`
+- 行为约束：
+  - 单容器不展示页签 UI，但内部使用单 tab 结构承载 `layoutItems`，复用引擎既有子画布协议。
+  - 单容器内部禁止继续嵌套 `base-simple-container` 与 `base-tab-container`，避免多层容器造成编辑复杂度失控。
+- `apps/admin` 仅作为消费方使用引擎内置物料，不再维护外部“单容器”注册实现。
 
 ## 维护建议
 

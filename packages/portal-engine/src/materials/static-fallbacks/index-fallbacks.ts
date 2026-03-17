@@ -7,6 +7,7 @@ import BaseFormIndex from '../base/base-form/index.vue';
 import BaseIframeContainerIndex from '../base/base-iframe-container/index.vue';
 import BaseNoticeIndex from '../base/base-notice/index.vue';
 import BaseSearchBoxIndex from '../base/base-search-box/index.vue';
+import BaseSimpleContainerIndex from '../base/base-simple-container/index.vue';
 import BaseStatIndex from '../base/base-stat/index.vue';
 import BaseTabContainerIndex from '../base/base-tab-container/index.vue';
 import BaseTimelineIndex from '../base/base-timeline/index.vue';
@@ -28,6 +29,11 @@ export const STATIC_INDEX_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
     name: 'base-tab-container-index',
     section: 'index',
     component: BaseTabContainerIndex
+  },
+  {
+    name: 'base-simple-container-index',
+    section: 'index',
+    component: BaseSimpleContainerIndex
   },
   {
     name: 'app-entrance-index',

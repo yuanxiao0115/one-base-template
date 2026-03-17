@@ -27,24 +27,24 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { ObCard, ObColorField } from '@one-base-template/ui';
-import {
-  PortalBorderField,
-  PortalSpacingField,
-  UnifiedContainerStyleConfig,
-  mergeUnifiedContainerStyleConfig,
-  useSchemaConfig,
-  type UnifiedContainerStyleConfigModel
-} from '@one-base-template/portal-engine';
 
+import { useSchemaConfig } from '../../../composables/useSchemaConfig';
+import PortalBorderField from '../../common/fields/PortalBorderField.vue';
+import PortalSpacingField from '../../common/fields/PortalSpacingField.vue';
 import {
-  ADMIN_SIMPLE_CONTAINER_STYLE_NAME,
-  mergeAdminSimpleContainerBodyStyle,
-  type AdminSimpleContainerBodyStyle
+  UnifiedContainerStyleConfig,
+  mergeUnifiedContainerStyleConfig
+} from '../../common/unified-container';
+import type { UnifiedContainerStyleConfigModel } from '../../common/unified-container';
+import {
+  BASE_SIMPLE_CONTAINER_STYLE_NAME,
+  mergeBaseSimpleContainerBodyStyle,
+  type BaseSimpleContainerBodyStyle
 } from './model';
 
-interface AdminSimpleContainerStyleData {
+interface BaseSimpleContainerStyleData {
   container: UnifiedContainerStyleConfigModel;
-  body: AdminSimpleContainerBodyStyle;
+  body: BaseSimpleContainerBodyStyle;
 }
 
 const props = defineProps({
@@ -56,8 +56,8 @@ const props = defineProps({
 
 const emit = defineEmits(['schemaChange']);
 
-const { sectionData } = useSchemaConfig<AdminSimpleContainerStyleData>({
-  name: ADMIN_SIMPLE_CONTAINER_STYLE_NAME,
+const { sectionData } = useSchemaConfig<BaseSimpleContainerStyleData>({
+  name: BASE_SIMPLE_CONTAINER_STYLE_NAME,
   sections: {
     container: {},
     body: {}
@@ -69,7 +69,7 @@ const { sectionData } = useSchemaConfig<AdminSimpleContainerStyleData>({
 });
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
-sectionData.body = mergeAdminSimpleContainerBodyStyle(sectionData.body);
+sectionData.body = mergeBaseSimpleContainerBodyStyle(sectionData.body);
 
 const bodyBorderValue = computed({
   get: () => ({
@@ -102,7 +102,7 @@ const bodyPaddingValue = computed({
 });
 
 defineOptions({
-  name: ADMIN_SIMPLE_CONTAINER_STYLE_NAME
+  name: 'base-simple-container-style'
 });
 </script>
 
