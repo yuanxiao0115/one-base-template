@@ -7,10 +7,12 @@ import {
 } from '@one-base-template/portal-engine';
 
 import { cmsApi, portalApi } from '../api';
+import { registerPortalAdminQuickDemoMaterial } from '../materials/examples/quick-register-demo/register';
 import { getPortalEngineAdminContext, resetPortalEngineAdminContextForTesting } from './context';
 
 export interface PortalEngineAdminRegisterOptions {
   cmsNavigation?: Partial<PortalCmsNavigation>;
+  registerDemoMaterial?: boolean;
 }
 
 let initialized = false;
@@ -43,6 +45,10 @@ export function setupPortalEngineForAdmin(
 
   if (options.cmsNavigation) {
     setPortalCmsNavigation(options.cmsNavigation, context);
+  }
+
+  if (options.registerDemoMaterial) {
+    registerPortalAdminQuickDemoMaterial(context);
   }
 
   return context;

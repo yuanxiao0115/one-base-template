@@ -499,6 +499,23 @@ function handleNavigate(payload: PortalPreviewNavigatePayload) {
   - 单容器内部禁止继续嵌套 `base-simple-container` 与 `base-tab-container`，避免多层容器造成编辑复杂度失控。
 - `apps/admin` 仅作为消费方使用引擎内置物料，不再维护外部“单容器”注册实现。
 
+### admin 最小注册示例（1 行开关）
+
+- 示例目录（可直接复制）：
+  - `apps/admin/src/modules/PortalManagement/materials/examples/quick-register-demo/`
+  - `apps/admin/src/modules/PortalManagement/materials/admin-material-registration.ts`
+- `setupPortalEngineForAdmin` 新增了 `registerDemoMaterial` 开关，想临时验证 admin 外部注册时，只需：
+
+```ts
+setupPortalEngineForAdmin({
+  registerDemoMaterial: true
+});
+```
+
+- 该示例会自动完成两件事（无需手写 6 次注册调用）：
+  - 注册物料元数据到 admin 当前 context 的 registry
+  - 注册 `index/content/style` 三个组件到引擎组件映射
+
 ## 维护建议
 
 - 新能力先判断是否可沉淀为共享引擎能力，再决定是否留在 `apps/admin`。
