@@ -7,7 +7,9 @@ import type {
 export const ADMIN_SIMPLE_CONTAINER_MATERIAL_ID = 'admin-simple-container';
 export const ADMIN_SIMPLE_CONTAINER_MATERIAL_TYPE = 'admin-simple-container';
 
-export const ADMIN_SIMPLE_CONTAINER_INDEX_NAME = 'admin-simple-container-index';
+// 复用 tab 容器内置编辑器（GridLayout + 子项拖拽），因此 index name 必须对齐 base-tab-container。
+export const ADMIN_SIMPLE_CONTAINER_INDEX_NAME = 'base-tab-container-index';
+export const ADMIN_SIMPLE_CONTAINER_LEGACY_INDEX_NAME = 'admin-simple-container-index';
 export const ADMIN_SIMPLE_CONTAINER_CONTENT_NAME = 'admin-simple-container-content';
 export const ADMIN_SIMPLE_CONTAINER_STYLE_NAME = 'admin-simple-container-style';
 
@@ -221,11 +223,13 @@ export function mergeAdminSimpleContainerBodyStyle(value: unknown): AdminSimpleC
 
 export interface AdminSimpleContainerSchema {
   content?: {
+    name?: string;
     container?: Partial<UnifiedContainerContentConfigModel>;
     tabs?: unknown;
     activeTabId?: string;
   };
   style?: {
+    name?: string;
     container?: Partial<UnifiedContainerStyleConfigModel>;
     body?: Partial<AdminSimpleContainerBodyStyle>;
   };

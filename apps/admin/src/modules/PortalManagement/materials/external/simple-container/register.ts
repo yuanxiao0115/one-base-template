@@ -13,6 +13,7 @@ import {
   adminSimpleContainerConfig,
   ADMIN_SIMPLE_CONTAINER_CONTENT_NAME,
   ADMIN_SIMPLE_CONTAINER_INDEX_NAME,
+  ADMIN_SIMPLE_CONTAINER_LEGACY_INDEX_NAME,
   ADMIN_SIMPLE_CONTAINER_MATERIAL_ID,
   ADMIN_SIMPLE_CONTAINER_MATERIAL_TYPE,
   ADMIN_SIMPLE_CONTAINER_STYLE_NAME
@@ -48,6 +49,7 @@ export function registerAdminSimpleContainerMaterial() {
   registerPortalMaterialComponent({
     name: ADMIN_SIMPLE_CONTAINER_INDEX_NAME,
     component: AdminSimpleContainerIndex,
+    aliases: [ADMIN_SIMPLE_CONTAINER_LEGACY_INDEX_NAME],
     strategy: 'replace'
   });
   registerPortalMaterialComponent({
@@ -69,7 +71,9 @@ export function resetAdminSimpleContainerMaterialForTesting() {
     return;
   }
 
-  unregisterPortalMaterialComponent(ADMIN_SIMPLE_CONTAINER_INDEX_NAME);
+  unregisterPortalMaterialComponent(ADMIN_SIMPLE_CONTAINER_INDEX_NAME, [
+    ADMIN_SIMPLE_CONTAINER_LEGACY_INDEX_NAME
+  ]);
   unregisterPortalMaterialComponent(ADMIN_SIMPLE_CONTAINER_CONTENT_NAME);
   unregisterPortalMaterialComponent(ADMIN_SIMPLE_CONTAINER_STYLE_NAME);
   unregisterPortalMaterial({

@@ -494,6 +494,10 @@ function handleNavigate(payload: PortalPreviewNavigatePayload) {
 - admin 侧统一在 `setupPortalEngineForAdmin()` 内完成注册，确保设计器与预览都能拿到扩展物料：
   - `apps/admin/src/modules/PortalManagement/engine/register.ts`
 - 该示例默认挂载到 `basic` 分类，物料名为“单容器”，内部使用单子画布承载组件（无页签 UI）。
+- 为复用现有可拖拽子画布能力，示例约定：
+  - `cmptConfig.index.name` 对齐 `base-tab-container-index`（接入内置编辑器协议）
+  - `content.name/style.name` 仍使用 admin 自定义命名（保留外部物料独立配置面板）
+  - 外部注册清单在 `materials/external/register.ts` 维护，新增物料只需追加一个注册项
 
 ## 维护建议
 

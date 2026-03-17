@@ -3,22 +3,40 @@ import {
   resetAdminSimpleContainerMaterialForTesting
 } from './simple-container/register';
 
-let initialized = false;
+interface PortalExternalMaterialRegistration {
+  key: string;
+  register: () => void;
+  reset: () => void;
+}
+
+const EXTERNAL_MATERIALS: PortalExternalMaterialRegistration[] = [
+  {
+    key: 'admin-simple-container',
+    register: registerAdminSimpleContainerMaterial,
+    reset: resetAdminSimpleContainerMaterialForTesting
+  }
+];
+
+const registeredMaterialKeys = new Set<string>();
 
 export function registerPortalExternalMaterialsForAdmin() {
-  if (initialized) {
-    return;
-  }
+  for (const item of EXTERNAL_MATERIALS) {
+    if (registeredMaterialKeys.has(item.key)) {
+      continue;
+    }
 
-  registerAdminSimpleContainerMaterial();
-  initialized = true;
+    item.register();
+    registeredMaterialKeys.add(item.key);
+  }
 }
 
 export function resetPortalExternalMaterialsForAdminTesting() {
-  if (!initialized) {
-    return;
-  }
+  for (const item of EXTERNAL_MATERIALS) {
+    if (!registeredMaterialKeys.has(item.key)) {
+      continue;
+    }
 
-  resetAdminSimpleContainerMaterialForTesting();
-  initialized = false;
+    item.reset();
+    registeredMaterialKeys.delete(item.key);
+  }
 }
