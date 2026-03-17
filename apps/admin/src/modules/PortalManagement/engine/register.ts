@@ -7,7 +7,6 @@ import {
 } from '@one-base-template/portal-engine';
 
 import { cmsApi, portalApi } from '../api';
-import { registerPortalAdminQuickDemoMaterial } from '../materials/examples/quick-register-demo/register';
 import { getPortalEngineAdminContext, resetPortalEngineAdminContextForTesting } from './context';
 
 export interface PortalEngineAdminRegisterOptions {
@@ -16,6 +15,53 @@ export interface PortalEngineAdminRegisterOptions {
 }
 
 let initialized = false;
+let demoMaterialRegistered = false;
+let demoMaterialLoadingPromise: Promise<void> | null = null;
+let demoMaterialModulePromise: Promise<
+  typeof import('../materials/examples/quick-register-demo/register')
+> | null = null;
+
+function getDemoMaterialModule() {
+  if (!demoMaterialModulePromise) {
+    demoMaterialModulePromise = import('../materials/examples/quick-register-demo/register');
+  }
+  return demoMaterialModulePromise;
+}
+
+function ensureDemoMaterialRegistered(context: PortalEngineContext) {
+  if (demoMaterialRegistered || demoMaterialLoadingPromise) {
+    return;
+  }
+
+  demoMaterialLoadingPromise = getDemoMaterialModule()
+    .then((mod) => {
+      mod.registerPortalAdminQuickDemoMaterial(context);
+      demoMaterialRegistered = true;
+    })
+    .catch((error: unknown) => {
+      console.warn('[PortalManagement] 注册示例物料失败', error);
+    })
+    .finally(() => {
+      demoMaterialLoadingPromise = null;
+    });
+}
+
+function cleanupDemoMaterialRegistration(context: PortalEngineContext) {
+  if (!(demoMaterialRegistered || demoMaterialLoadingPromise)) {
+    return;
+  }
+
+  demoMaterialRegistered = false;
+  demoMaterialLoadingPromise = null;
+
+  void getDemoMaterialModule()
+    .then((mod) => {
+      mod.unregisterPortalAdminQuickDemoMaterial(context);
+    })
+    .catch((error: unknown) => {
+      console.warn('[PortalManagement] 卸载示例物料失败', error);
+    });
+}
 
 export function setupPortalEngineForAdmin(
   options: PortalEngineAdminRegisterOptions = {}
@@ -48,13 +94,14 @@ export function setupPortalEngineForAdmin(
   }
 
   if (options.registerDemoMaterial) {
-    registerPortalAdminQuickDemoMaterial(context);
+    ensureDemoMaterialRegistered(context);
   }
 
   return context;
 }
 
 export function resetPortalEngineAdminSetupForTesting() {
+  cleanupDemoMaterialRegistration(getPortalEngineAdminContext());
   initialized = false;
   resetPortalEngineAdminContextForTesting();
 }

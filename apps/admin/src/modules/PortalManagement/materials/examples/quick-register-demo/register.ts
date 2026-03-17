@@ -1,7 +1,10 @@
 import type { PortalEngineContext } from '@one-base-template/portal-engine';
 
 import type { AdminPortalMaterialRegistration } from '../../admin-material-registration';
-import { registerAdminPortalMaterials } from '../../admin-material-registration';
+import {
+  registerAdminPortalMaterials,
+  unregisterAdminPortalMaterials
+} from '../../admin-material-registration';
 import { ADMIN_QUICK_DEMO_CONFIG } from './config';
 import AdminQuickDemoContent from './content.vue';
 import AdminQuickDemoIndex from './index.vue';
@@ -24,4 +27,8 @@ export const ADMIN_QUICK_DEMO_MATERIAL: AdminPortalMaterialRegistration = {
 
 export function registerPortalAdminQuickDemoMaterial(context: PortalEngineContext) {
   registerAdminPortalMaterials(context, [ADMIN_QUICK_DEMO_MATERIAL]);
+}
+
+export function unregisterPortalAdminQuickDemoMaterial(context: PortalEngineContext) {
+  unregisterAdminPortalMaterials(context, [ADMIN_QUICK_DEMO_MATERIAL]);
 }

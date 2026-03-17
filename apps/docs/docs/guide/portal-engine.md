@@ -515,6 +515,7 @@ setupPortalEngineForAdmin({
 - 该示例会自动完成两件事（无需手写 6 次注册调用）：
   - 注册物料元数据到 admin 当前 context 的 registry
   - 注册 `index/content/style` 三个组件到引擎组件映射
+- 示例物料通过 `import()` 按需懒加载，默认不会进入常规注册路径。
 
 ## 维护建议
 

@@ -1,6 +1,7 @@
 import {
   getPortalMaterialRegistryController,
   registerPortalMaterialComponent,
+  unregisterPortalMaterialComponent,
   type PortalEngineContext,
   type PortalMaterialCategoryInput
 } from '@one-base-template/portal-engine';
@@ -98,5 +99,34 @@ export function registerAdminPortalMaterials(
       component: material.components.style,
       strategy: 'replace'
     });
+  }
+}
+
+export function unregisterAdminPortalMaterials(
+  context: PortalEngineContext,
+  materials: AdminPortalMaterialRegistration[]
+) {
+  if (!materials.length) {
+    return;
+  }
+
+  const registryController = getPortalMaterialRegistryController(context);
+
+  for (const material of materials) {
+    registryController.unregisterPortalMaterial({
+      id: material.id,
+      type: material.type
+    });
+
+    const sectionNames = (['index', 'content', 'style'] as const)
+      .map((section) => {
+        const sectionConfig = material.config[section] as PortalMaterialConfigSection | undefined;
+        return typeof sectionConfig?.name === 'string' ? sectionConfig.name.trim() : '';
+      })
+      .filter(Boolean);
+
+    for (const sectionName of sectionNames) {
+      unregisterPortalMaterialComponent(sectionName);
+    }
   }
 }
