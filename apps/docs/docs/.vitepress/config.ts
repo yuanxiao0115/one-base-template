@@ -33,7 +33,7 @@ export default defineConfig({
       { text: '指南', link: '/guide/' },
       { text: '架构', link: '/guide/architecture' },
       { text: '模块', link: '/guide/module-system' },
-      { text: '扩展', link: '/guide/portal-designer' },
+      { text: '扩展', link: '/guide/portal/' },
       { text: '协作', link: '/guide/development' }
     ],
     sidebar: {
@@ -73,8 +73,10 @@ export default defineConfig({
         {
           text: '扩展能力',
           items: [
-            { text: '门户设计器（PC）', link: '/guide/portal-designer' },
-            { text: 'portal-engine 能力边界', link: '/guide/portal-engine' },
+            { text: '门户体系总览', link: '/guide/portal/' },
+            { text: 'PortalManagement 管理端接入', link: '/guide/portal/admin-designer' },
+            { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
+            { text: '门户物料扩展与注册', link: '/guide/portal/material-extension' },
             { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
           ]
         },
