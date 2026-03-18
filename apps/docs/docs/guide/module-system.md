@@ -17,7 +17,6 @@ apps/admin/src/modules/<module-id>/
   services/
   stores/
   components/
-  compat/
 ```
 
 `manifest.ts` 必填字段：
@@ -217,7 +216,7 @@ compat: {
 - `api/contracts.ts`：请求/响应类型
 - `api/client.ts`：唯一请求实现（统一从 `@one-base-template/core` 获取 `obHttp()`）
 - `services/*.ts`：页面用例编排
-- `compat/*.ts`：历史字段映射（如 `whiteList -> whiteDTOS`）
+- 协议兼容映射优先下沉到 `packages/adapters`（例如 `whiteList -> whiteDTOS`），不要在模块内新增 `compat/*.ts`
 
 对于 `apps/admin/src/modules/**` 的页面模块，建议进一步收敛为：
 

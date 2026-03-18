@@ -40,6 +40,12 @@ packages/portal-engine/src
   workbench/                      # 路由与页面编排控制器
 ```
 
+## 2026-03-18 并行优化结果
+
+- 权限能力：`PagePermissionDialog`、`PortalAuthorityDialog` 的 payload 归一化与数据源请求已抽离到 `templatePage/components/permission/*`。
+- 物料入口：admin 侧改为统一 `usePortalMaterials(scene)`，编辑态与预览态通过场景参数切换，不再维护三个并行 wrapper。
+- 协议兼容：模板详情接口的 `whiteList -> whiteDTOS` 兼容逻辑已下沉到 `packages/adapters`，`PortalManagement` 模块内不再保留同类 `compat` 映射文件。
+
 ## 路由总览（管理端）
 
 | 路由                                       | 作用                   |

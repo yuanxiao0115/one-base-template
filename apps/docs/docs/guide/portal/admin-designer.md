@@ -55,6 +55,21 @@
   - `usePortalTemplatePermissionCenter.ts`（门户权限 + 页面权限中心）
   - `template-list-helpers.ts`（normalize 与 ID 提取等纯函数）
 
+## 三线并行优化收口（2026-03-18）
+
+- 权限弹窗拆分：
+  - `templatePage/components/permission/permission-member-source.ts`：联系人树/人员搜索数据源。
+  - `templatePage/components/permission/permission-role-source.ts`：角色列表加载与分页降级。
+  - `templatePage/components/permission/permission-payload.ts`：页面权限与门户权限 payload 归一化。
+  - `PagePermissionDialog.vue` / `PortalAuthorityDialog.vue` 仅保留 UI 状态与事件编排。
+- materials 单入口：
+  - 新增 `materials/usePortalMaterials.ts`，统一按 `scene: 'editor' | 'renderer'` 取物料目录。
+  - 删除 `useMaterials.ts`、`useEditorMaterials.ts`、`useRendererMaterials.ts` 三个 wrapper。
+  - 编辑页与预览页均改为调用 `usePortalMaterials(scene)`。
+- 模板兼容下沉 adapters：
+  - `templatePage/api.ts` 不再依赖模块内 `compat/mapper.ts`。
+  - `whiteList -> whiteDTOS` 兼容统一放在 `@one-base-template/adapters` 的 `normalizePortalTemplateWhiteList`。
+
 ## 常见改造优先级
 
 1. **先改路由编排，不先改渲染细节**。
