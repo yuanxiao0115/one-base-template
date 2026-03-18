@@ -1,4 +1,4 @@
 import type { PortalMaterialExtension } from '@one-base-template/portal-engine';
 
-// admin 侧默认扩展入口：后续业务分类（如 OA/营销/专题）统一从这里声明。
-export const PORTAL_ADMIN_MATERIAL_EXTENSIONS: PortalMaterialExtension[] = [];
+// admin 侧默认扩展入口：复制 ./minimal-example.ts 的 helper 写法后再加入正式数组。
+export const PORTAL_ADMIN_MATERIAL_EXTENSIONS = [] satisfies PortalMaterialExtension[];
