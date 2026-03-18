@@ -44,6 +44,17 @@
 - `message/confirm` 注入。
 - 壳组件拼装。
 
+## 模块收敛（2026-03-18）
+
+- `PortalManagement/api.ts` 已收敛为兼容导出入口，领域实现拆到：
+  - `api/portal.ts`
+  - `api/cms.ts`
+  - `api/portal-authority.ts`
+- 模板列表状态编排 `usePortalTemplateListPageState.ts` 已拆分：
+  - `usePortalTemplateDialogActions.ts`（新建/编辑/复制/预览等模板动作）
+  - `usePortalTemplatePermissionCenter.ts`（门户权限 + 页面权限中心）
+  - `template-list-helpers.ts`（normalize 与 ID 提取等纯函数）
+
 ## 常见改造优先级
 
 1. **先改路由编排，不先改渲染细节**。
