@@ -3,8 +3,9 @@ import type {
   PersonnelNode,
   PersonnelSearchNodes
 } from '@/components/PersonnelSelector/types';
+import { normalizeIdLike, normalizeString } from './permission-common';
 
-interface PermissionMemberSourceApi {
+export interface PermissionMemberSourceApi {
   getOrgContactsLazy: (params: { parentId?: string }) => Promise<{ data?: unknown }>;
   searchContactUsers: (params: { search?: string }) => Promise<{ data?: unknown }>;
 }
@@ -12,20 +13,6 @@ interface PermissionMemberSourceApi {
 interface CreatePermissionMemberSourceOptions {
   api: PermissionMemberSourceApi;
   resolveRootParentId: () => string;
-}
-
-function normalizeIdLike(value: unknown): string {
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'number') {
-    return String(value);
-  }
-  return '';
-}
-
-function normalizeString(value: unknown): string {
-  return typeof value === 'string' ? value : '';
 }
 
 function toPersonnelNode(row: Record<string, unknown>): PersonnelNode | null {

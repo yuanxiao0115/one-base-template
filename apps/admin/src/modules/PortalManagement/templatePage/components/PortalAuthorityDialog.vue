@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { UserFilled } from '@element-plus/icons-vue';
 import { useAuthStore } from '@one-base-template/core';
-import { openPersonnelSelection } from '@/components/PersonnelSelector';
 import type { PersonnelSelectedUser } from '@/components/PersonnelSelector/types';
 
 import { portalAuthorityApi } from '../../api';
 import type { PortalTemplate } from '../../types';
-import { createPermissionMemberSource } from './permission/permission-member-source';
 import {
   buildTemplateAuthorityPayload,
   normalizeAuthorityUsers,
@@ -16,7 +14,9 @@ import {
   type AuthorityUserItem,
   type TemplateAuthorityPayload
 } from './permission/permission-payload';
-import { loadPermissionRoleOptions, type RoleOption } from './permission/permission-role-source';
+import { normalizeIdLike } from './permission/permission-common';
+import { usePermissionRoleOptions } from './permission/usePermissionRoleOptions';
+import { usePermissionUserSelection } from './permission/usePermissionUserSelection';
 
 type UserField = 'white' | 'black' | 'edit';
 
@@ -68,9 +68,6 @@ const form = reactive({
   configRoleIds: [] as string[]
 });
 
-const roleOptions = ref<RoleOption[]>([]);
-const roleLoading = ref(false);
-const pickingField = ref<UserField | ''>('');
 const authStore = useAuthStore();
 
 const personDisplay = computed(() => ({
@@ -104,25 +101,10 @@ watch(
   }
 );
 
-function normalizeIdLike(value: unknown): string {
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'number') {
-    return String(value);
-  }
-  return '';
-}
-
 const rootParentId = computed(() => {
   const user = authStore.user as AuthUserWithCompanyId | null;
   const companyId = normalizeIdLike(user?.companyId);
   return companyId || '0';
-});
-
-const { fetchNodes, searchNodes } = createPermissionMemberSource({
-  api: portalAuthorityApi,
-  resolveRootParentId: () => rootParentId.value
 });
 
 function hydrateFromInitial(initial: Partial<PortalTemplate> | undefined) {
@@ -145,18 +127,8 @@ function formatUserNames(list: AuthorityUserItem[]): string {
   return list.map((item) => item.typeName || item.typeId).join(', ');
 }
 
-async function ensureRoleOptions() {
-  if (roleOptions.value.length > 0 || roleLoading.value) {
-    return;
-  }
-
-  roleLoading.value = true;
-  try {
-    roleOptions.value = await loadPermissionRoleOptions(portalAuthorityApi);
-  } finally {
-    roleLoading.value = false;
-  }
-}
+const { roleOptions, roleLoading, ensureRoleOptions } =
+  usePermissionRoleOptions(portalAuthorityApi);
 
 function getUsersByField(field: UserField): AuthorityUserItem[] {
   if (field === 'white') {
@@ -180,50 +152,27 @@ function setUsersByField(field: UserField, users: AuthorityUserItem[]) {
   form.editUsers = users;
 }
 
-async function pickUsers(field: UserField) {
-  if (pickingField.value) {
-    return;
-  }
-  pickingField.value = field;
-  try {
-    const current = getUsersByField(field);
-    const result = await openPersonnelSelection({
-      title: '选择人员',
-      mode: 'person',
-      required: false,
-      users: current.map((item) => ({
-        id: item.typeId,
-        nickName: item.typeName
-      })),
-      model: {
-        userIds: current.map((item) => item.typeId)
-      },
-      fetchNodes,
-      searchNodes
-    }).catch(() => null);
-
-    if (!result) {
-      return;
+const { pickingField, pickUsers } = usePermissionUserSelection<UserField, AuthorityUserItem>({
+  api: portalAuthorityApi,
+  resolveRootParentId: () => rootParentId.value,
+  getUsersByField,
+  setUsersByField,
+  mapCurrentUserForDialog: (item) => ({
+    id: item.typeId,
+    nickName: item.typeName
+  }),
+  mapSelectedUser: (item: PersonnelSelectedUser) => {
+    const id = normalizeIdLike(item.id);
+    if (!id) {
+      return null;
     }
-
-    const users = (Array.isArray(result.users) ? result.users : [])
-      .map((item: PersonnelSelectedUser) => {
-        const id = normalizeIdLike(item.id);
-        if (!id) {
-          return null;
-        }
-        return {
-          typeId: id,
-          type: 0,
-          typeName: item.nickName || item.title || id
-        };
-      })
-      .filter((item): item is AuthorityUserItem => Boolean(item));
-    setUsersByField(field, users);
-  } finally {
-    pickingField.value = '';
+    return {
+      typeId: id,
+      type: 0,
+      typeName: item.nickName || item.title || id
+    };
   }
-}
+});
 
 function onCancel() {
   if (props.embedded) {

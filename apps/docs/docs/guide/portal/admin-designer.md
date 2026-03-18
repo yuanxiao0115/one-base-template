@@ -62,6 +62,8 @@
   - `templatePage/components/permission/permission-role-source.ts`：角色列表加载与分页降级。
   - `templatePage/components/permission/permission-payload.ts`：页面权限与门户权限 payload 归一化。
   - `PagePermissionDialog.vue` / `PortalAuthorityDialog.vue` 仅保留 UI 状态与事件编排。
+  - `templatePage/components/permission/usePermissionRoleOptions.ts`：统一角色选项加载状态（`roleOptions/roleLoading/ensureRoleOptions`）。
+  - `templatePage/components/permission/usePermissionUserSelection.ts`：统一选人弹窗编排（`pickUsers/pickingField`），两处权限弹窗复用同一实现。
 - materials 单入口：
   - 新增 `materials/usePortalMaterials.ts`，统一按 `scene: 'editor' | 'renderer'` 取物料目录。
   - 删除 `useMaterials.ts`、`useEditorMaterials.ts`、`useRendererMaterials.ts` 三个 wrapper。
@@ -69,6 +71,12 @@
 - 模板兼容下沉 adapters：
   - `templatePage/api.ts` 不再依赖模块内 `compat/mapper.ts`。
   - `whiteList -> whiteDTOS` 兼容统一放在 `@one-base-template/adapters` 的 `normalizePortalTemplateWhiteList`。
+
+## 注册链路补充（2026-03-18 P1）
+
+- `engine/register.ts` 新增扩展签名集合，`setupPortalEngineForAdmin()` 重复调用时会跳过已注册签名，避免同一扩展被重复注册。
+- 幂等策略不改变注册入口约束：页面层仍只允许通过 `setupPortalEngineForAdmin()` 触发引擎注入与扩展注册。
+- 单测覆盖：`engine/register.unit.test.ts` 新增“重复 setup 不重复注册同签名扩展”断言。
 
 ## 常见改造优先级
 

@@ -1,29 +1,17 @@
+import { normalizeIdLike, normalizeString } from './permission-common';
+
 export interface RoleOption {
   id: string;
   name: string;
 }
 
-interface PermissionRoleSourceApi {
+export interface PermissionRoleSourceApi {
   listRoles: () => Promise<{ data?: unknown }>;
   pageRoles: (params: {
     currentPage: number;
     pageSize: number;
     roleName?: string;
   }) => Promise<{ data?: { records?: unknown } }>;
-}
-
-function normalizeIdLike(value: unknown): string {
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'number') {
-    return String(value);
-  }
-  return '';
-}
-
-function normalizeString(value: unknown): string {
-  return typeof value === 'string' ? value : '';
 }
 
 function toRoleOption(row: unknown): RoleOption | null {

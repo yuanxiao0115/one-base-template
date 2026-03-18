@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import {
   definePortalMaterialCategory,
@@ -6,6 +6,7 @@ import {
   type PortalMaterialExtension,
   usePortalMaterialCatalog
 } from '@one-base-template/portal-engine';
+import * as portalEngine from '@one-base-template/portal-engine';
 
 import { PORTAL_ADMIN_MATERIAL_EXTENSIONS } from '../materials/extensions';
 import { resetPortalEngineAdminSetupForTesting, setupPortalEngineForAdmin } from './register';
@@ -107,5 +108,25 @@ describe('PortalManagement/engine/register', () => {
     expect(nextCatalog.categories.some((category) => category.id === 'reset-check-category')).toBe(
       false
     );
+  });
+
+  it('重复 setup 不应重复注册同签名扩展', () => {
+    const registerSpy = vi.spyOn(portalEngine, 'registerMaterialExtensions');
+    const runtimeExtension = definePortalMaterialExtension({
+      category: createTestCategory('idempotent-category')
+    });
+
+    try {
+      setupPortalEngineForAdmin({
+        materialExtensions: [runtimeExtension]
+      });
+      setupPortalEngineForAdmin({
+        materialExtensions: [runtimeExtension]
+      });
+
+      expect(registerSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      registerSpy.mockRestore();
+    }
   });
 });

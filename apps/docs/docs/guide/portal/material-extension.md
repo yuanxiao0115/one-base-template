@@ -34,6 +34,7 @@
 - 组件 `defineOptions({ name })` 必须与 schema 中 `cmptConfig.*.name` 对齐。
 - 历史命名差异必须显式写入 `static-fallbacks/*.ts`。
 - 避免在页面文件里临时注册物料；统一走 extension 声明。
+- `setupPortalEngineForAdmin()` 对 extension 注册做了签名幂等保护；重复 setup 不会重复注册同一扩展。
 
 ## 回归命令
 
