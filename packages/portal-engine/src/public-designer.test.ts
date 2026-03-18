@@ -134,6 +134,28 @@ describe('public designer exports', () => {
     expect(designerExports.usePortalPageDesignerRoute).toBe(usePortalPageDesignerRoute);
   });
 
+  it('package exports 应允许通过 root 路径导入', async () => {
+    const rootExports = await import('@one-base-template/portal-engine');
+
+    expect(rootExports.PortalTemplateDesignerLayout).toBe(PortalTemplateDesignerLayout);
+    expect(rootExports.PortalTemplateDesignerHeader).toBe(PortalTemplateDesignerHeader);
+    expect(rootExports.PortalTemplateDesignerSidebar).toBe(PortalTemplateDesignerSidebar);
+    expect(rootExports.PortalTemplateDesignerToolbar).toBe(PortalTemplateDesignerToolbar);
+    expect(rootExports.PortalTemplateDesignerPreview).toBe(PortalTemplateDesignerPreview);
+    expect(rootExports.PortalPageDesignerLayout).toBe(PortalPageDesignerLayout);
+    expect(rootExports.PortalPageDesignerSettingsDrawer).toBe(PortalPageDesignerSettingsDrawer);
+    expect(rootExports.PortalMaterialPalette).toBe(PortalMaterialPalette);
+    expect(rootExports.PortalPropertyInspector).toBe(PortalPropertyInspector);
+    expect(rootExports.PortalTemplateDesignerShellSettingsDrawer).toBe(
+      PortalTemplateDesignerShellSettingsDrawer
+    );
+    expect(rootExports.PortalTemplateDesignerPageAttributesDialog).toBe(
+      PortalTemplateDesignerPageAttributesDialog
+    );
+    expect(rootExports.usePortalTemplateDesignerRoute).toBe(usePortalTemplateDesignerRoute);
+    expect(rootExports.usePortalPageDesignerRoute).toBe(usePortalPageDesignerRoute);
+  });
+
   it('package exports 应允许通过 internal 子路径导入', async () => {
     const internalExports = await import('@one-base-template/portal-engine/internal');
 
