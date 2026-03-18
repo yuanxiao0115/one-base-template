@@ -520,6 +520,10 @@ setupPortalEngineForAdmin({
 
 - 推荐业务页面从语义化入口消费设计器组件：
   - `@one-base-template/portal-engine/designer`
+- 辅助设计器组件也优先使用语义化 alias，例如：
+  - `PortalPageDesignerSettingsDrawer`
+  - `PortalTemplateDesignerShellSettingsDrawer`
+  - `PortalTemplateDesignerPageAttributesDialog`
 - `@one-base-template/portal-engine/internal` 仅用于保留实现语义（Workbench / ByRoute / Controller）和高级场景，不作为默认接入入口。
 
 ## 维护建议

@@ -3,12 +3,12 @@ import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { confirm, message } from '@one-base-template/ui';
 import {
-  PortalPageSettingsDrawer,
-  PortalShellSettingsDialog,
-  PortalTabAttributeDialog,
+  PortalPageDesignerSettingsDrawer,
   PortalTemplateDesignerHeader,
   PortalTemplateDesignerLayout,
+  PortalTemplateDesignerPageAttributesDialog,
   PortalTemplateDesignerPreview,
+  PortalTemplateDesignerShellSettingsDrawer,
   PortalTemplateDesignerSidebar,
   PortalTemplateDesignerToolbar,
   usePortalTemplateDesignerRoute
@@ -214,7 +214,7 @@ void loadTemplate();
     </template>
 
     <template #dialogs>
-      <PortalTabAttributeDialog
+      <PortalTemplateDesignerPageAttributesDialog
         v-model="attrVisible"
         :mode="attrMode"
         :loading="creating || attrLoading"
@@ -223,7 +223,7 @@ void loadTemplate();
         @submit="onSubmitAttr"
       />
 
-      <PortalPageSettingsDrawer
+      <PortalPageDesignerSettingsDrawer
         v-model="pageSettingsVisible"
         v-model:active-tab="pageSettingsActiveTab"
         :loading="pageSettingsSaving"
@@ -242,7 +242,7 @@ void loadTemplate();
         @submit-shell="onSubmitPageShellSetting"
       />
 
-      <PortalShellSettingsDialog
+      <PortalTemplateDesignerShellSettingsDrawer
         v-model="shellSettingVisible"
         :loading="shellSettingSaving"
         :details="templateInfo?.details || ''"

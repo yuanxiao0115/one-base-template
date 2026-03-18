@@ -530,7 +530,10 @@ import {
   PortalTemplateDesignerSidebar,
   PortalTemplateDesignerToolbar,
   PortalTemplateDesignerPreview,
+  PortalTemplateDesignerPageAttributesDialog,
+  PortalTemplateDesignerShellSettingsDrawer,
   PortalPageDesignerLayout,
+  PortalPageDesignerSettingsDrawer,
   PortalMaterialPalette,
   PortalPropertyInspector,
   usePortalTemplateDesignerRoute,
@@ -547,4 +550,5 @@ import { PortalTemplateWorkbenchShell } from '@one-base-template/portal-engine/i
 边界约束：
 
 - `designer`：默认给业务同学使用，名称一眼可读。
+- `designer` 会继续把“页面设置抽屉 / 门户壳层设置抽屉 / 页面属性弹窗”这类辅助设计器组件补成语义化名字，页面层优先使用这些 alias。
 - `internal`：用于框架封装与高级接入，避免页面层直接绑定实现细节名词。

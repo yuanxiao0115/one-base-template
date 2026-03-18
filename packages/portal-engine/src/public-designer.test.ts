@@ -17,6 +17,9 @@ import {
   PortalDesignerPreviewFrame as InternalPortalDesignerPreviewFrame,
   PortalDesignerTreePanel as InternalPortalDesignerTreePanel,
   PortalPageEditorWorkbench as InternalPortalPageEditorWorkbench,
+  PortalPageSettingsDrawer as InternalPortalPageSettingsDrawer,
+  PortalShellSettingsDialog as InternalPortalShellSettingsDialog,
+  PortalTabAttributeDialog as InternalPortalTabAttributeDialog,
   PortalTemplateWorkbenchShell as InternalPortalTemplateWorkbenchShell,
   PropertyPanel as InternalPropertyPanel,
   usePageEditorWorkbenchByRoute as useInternalPageEditorWorkbenchByRoute,
@@ -24,11 +27,14 @@ import {
 } from './internal';
 import {
   PortalMaterialPalette as RootPortalMaterialPalette,
+  PortalPageDesignerSettingsDrawer as RootPortalPageDesignerSettingsDrawer,
   PortalPageDesignerLayout as RootPortalPageDesignerLayout,
   PortalPropertyInspector as RootPortalPropertyInspector,
   PortalTemplateDesignerHeader as RootPortalTemplateDesignerHeader,
   PortalTemplateDesignerLayout as RootPortalTemplateDesignerLayout,
+  PortalTemplateDesignerPageAttributesDialog as RootPortalTemplateDesignerPageAttributesDialog,
   PortalTemplateDesignerPreview as RootPortalTemplateDesignerPreview,
+  PortalTemplateDesignerShellSettingsDrawer as RootPortalTemplateDesignerShellSettingsDrawer,
   PortalTemplateDesignerSidebar as RootPortalTemplateDesignerSidebar,
   PortalTemplateDesignerToolbar as RootPortalTemplateDesignerToolbar,
   usePortalPageDesignerRoute as useRootPortalPageDesignerRoute,
@@ -36,11 +42,14 @@ import {
 } from './index';
 import {
   PortalMaterialPalette,
+  PortalPageDesignerSettingsDrawer,
   PortalPageDesignerLayout,
   PortalPropertyInspector,
+  PortalTemplateDesignerPageAttributesDialog,
   PortalTemplateDesignerHeader,
   PortalTemplateDesignerLayout,
   PortalTemplateDesignerPreview,
+  PortalTemplateDesignerShellSettingsDrawer,
   PortalTemplateDesignerSidebar,
   PortalTemplateDesignerToolbar,
   usePortalPageDesignerRoute,
@@ -59,6 +68,12 @@ describe('public designer exports', () => {
     expect(PortalPropertyInspector).toBe(PropertyPanel);
   });
 
+  it('辅助设计器组件也应提供语义化别名', () => {
+    expect(PortalPageDesignerSettingsDrawer).toBe(InternalPortalPageSettingsDrawer);
+    expect(PortalTemplateDesignerShellSettingsDrawer).toBe(InternalPortalShellSettingsDialog);
+    expect(PortalTemplateDesignerPageAttributesDialog).toBe(InternalPortalTabAttributeDialog);
+  });
+
   it('语义化 route composable 别名应映射到现有实现', () => {
     expect(usePortalTemplateDesignerRoute).toBe(useTemplateWorkbenchPageByRoute);
     expect(usePortalPageDesignerRoute).toBe(usePageEditorWorkbenchByRoute);
@@ -71,8 +86,15 @@ describe('public designer exports', () => {
     expect(RootPortalTemplateDesignerToolbar).toBe(PortalTemplateDesignerToolbar);
     expect(RootPortalTemplateDesignerPreview).toBe(PortalTemplateDesignerPreview);
     expect(RootPortalPageDesignerLayout).toBe(PortalPageDesignerLayout);
+    expect(RootPortalPageDesignerSettingsDrawer).toBe(PortalPageDesignerSettingsDrawer);
     expect(RootPortalMaterialPalette).toBe(PortalMaterialPalette);
     expect(RootPortalPropertyInspector).toBe(PortalPropertyInspector);
+    expect(RootPortalTemplateDesignerShellSettingsDrawer).toBe(
+      PortalTemplateDesignerShellSettingsDrawer
+    );
+    expect(RootPortalTemplateDesignerPageAttributesDialog).toBe(
+      PortalTemplateDesignerPageAttributesDialog
+    );
     expect(useRootPortalTemplateDesignerRoute).toBe(usePortalTemplateDesignerRoute);
     expect(useRootPortalPageDesignerRoute).toBe(usePortalPageDesignerRoute);
   });
@@ -99,8 +121,15 @@ describe('public designer exports', () => {
     expect(designerExports.PortalTemplateDesignerToolbar).toBe(PortalTemplateDesignerToolbar);
     expect(designerExports.PortalTemplateDesignerPreview).toBe(PortalTemplateDesignerPreview);
     expect(designerExports.PortalPageDesignerLayout).toBe(PortalPageDesignerLayout);
+    expect(designerExports.PortalPageDesignerSettingsDrawer).toBe(PortalPageDesignerSettingsDrawer);
     expect(designerExports.PortalMaterialPalette).toBe(PortalMaterialPalette);
     expect(designerExports.PortalPropertyInspector).toBe(PortalPropertyInspector);
+    expect(designerExports.PortalTemplateDesignerShellSettingsDrawer).toBe(
+      PortalTemplateDesignerShellSettingsDrawer
+    );
+    expect(designerExports.PortalTemplateDesignerPageAttributesDialog).toBe(
+      PortalTemplateDesignerPageAttributesDialog
+    );
     expect(designerExports.usePortalTemplateDesignerRoute).toBe(usePortalTemplateDesignerRoute);
     expect(designerExports.usePortalPageDesignerRoute).toBe(usePortalPageDesignerRoute);
   });
