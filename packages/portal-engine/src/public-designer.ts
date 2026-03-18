@@ -8,9 +8,6 @@ export { default as PortalTemplateDesignerSidebar } from './workbench/PortalDesi
 export { default as PortalPageDesignerSettingsDrawer } from './workbench/PortalPageSettingsDrawer.vue';
 export { default as PortalTemplateDesignerShellSettingsDrawer } from './workbench/PortalShellSettingsDialog.vue';
 export { default as PortalTemplateDesignerPageAttributesDialog } from './workbench/PortalTabAttributeDialog.vue';
-export { default as PortalPageSettingsDrawer } from './workbench/PortalPageSettingsDrawer.vue';
-export { default as PortalShellSettingsDialog } from './workbench/PortalShellSettingsDialog.vue';
-export { default as PortalTabAttributeDialog } from './workbench/PortalTabAttributeDialog.vue';
 export { default as PortalTemplateDesignerLayout } from './workbench/PortalTemplateWorkbenchShell.vue';
 export type { TemplateWorkbenchPagePreviewTarget as PortalTemplateDesignerPreviewTarget } from './workbench/template-workbench-page-controller';
 export type {

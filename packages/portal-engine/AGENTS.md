@@ -23,6 +23,7 @@
 - 物料配置默认值与回写必须走 `createDefault* + merge*`，禁止在页面内散落兜底常量。
 - 物料库图标必须使用可渲染的 `MenuIcon` 值（`ri:`/`ep:`/iconfont/资源 id），避免不可用图标导致空白占位。
 - 影响配置面板结构时，同步维护文档：`apps/docs/docs/guide/portal-engine.md`。
+- 设计器 public API 一旦补上语义化命名，开发阶段**直接删除旧 public 命名导出**，不保留 deprecated/兼容 alias；实现语义统一收敛到 `@one-base-template/portal-engine/internal`。
 
 ## 组件注册一致性（防再发）
 

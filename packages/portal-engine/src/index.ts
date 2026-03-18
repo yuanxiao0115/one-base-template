@@ -242,12 +242,9 @@ export { default as PortalDesignerHeaderBar } from './workbench/PortalDesignerHe
 export { default as PortalDesignerTreePanel } from './workbench/PortalDesignerTreePanel.vue';
 export { default as PortalTabTree } from './workbench/PortalTabTree.vue';
 export { default as PortalDesignerActionStrip } from './workbench/PortalDesignerActionStrip.vue';
-export { default as PortalTabAttributeDialog } from './workbench/PortalTabAttributeDialog.vue';
 export { default as PortalPageSettingsForm } from './workbench/page-settings/PortalPageSettingsForm.vue';
-export { default as PortalPageSettingsDrawer } from './workbench/PortalPageSettingsDrawer.vue';
 export { default as PortalShellHeaderSettingsForm } from './workbench/shell-settings/PortalShellHeaderSettingsForm.vue';
 export { default as PortalShellFooterSettingsForm } from './workbench/shell-settings/PortalShellFooterSettingsForm.vue';
-export { default as PortalShellSettingsDialog } from './workbench/PortalShellSettingsDialog.vue';
 export type {
   CreateTemplateWorkbenchPageControllerOptions,
   TemplateWorkbenchPageController,

@@ -132,6 +132,9 @@ describe('public designer exports', () => {
     );
     expect(designerExports.usePortalTemplateDesignerRoute).toBe(usePortalTemplateDesignerRoute);
     expect(designerExports.usePortalPageDesignerRoute).toBe(usePortalPageDesignerRoute);
+    expect('PortalPageSettingsDrawer' in designerExports).toBe(false);
+    expect('PortalShellSettingsDialog' in designerExports).toBe(false);
+    expect('PortalTabAttributeDialog' in designerExports).toBe(false);
   });
 
   it('package exports 应允许通过 root 路径导入', async () => {
@@ -154,6 +157,9 @@ describe('public designer exports', () => {
     );
     expect(rootExports.usePortalTemplateDesignerRoute).toBe(usePortalTemplateDesignerRoute);
     expect(rootExports.usePortalPageDesignerRoute).toBe(usePortalPageDesignerRoute);
+    expect('PortalPageSettingsDrawer' in rootExports).toBe(false);
+    expect('PortalShellSettingsDialog' in rootExports).toBe(false);
+    expect('PortalTabAttributeDialog' in rootExports).toBe(false);
   });
 
   it('package exports 应允许通过 internal 子路径导入', async () => {
