@@ -1,5 +1,5 @@
+import { normalizePortalTemplateWhiteList } from '@one-base-template/adapters';
 import { obHttp } from '@one-base-template/core';
-import { normalizeTemplateWhiteList } from '../compat/mapper';
 import type { BizResponse, PageResult, PortalTemplate, TemplateListParams } from './types';
 
 export const templateApi = {
@@ -12,7 +12,7 @@ export const templateApi = {
     const res = await obHttp().get<BizResponse<PortalTemplate>>('/cmict/portal/template/detail', {
       params
     });
-    return normalizeTemplateWhiteList(res);
+    return normalizePortalTemplateWhiteList(res);
   },
 
   getDetail: async (params: { id: string }) =>
