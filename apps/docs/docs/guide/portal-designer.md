@@ -9,6 +9,20 @@
 - 预览页允许 **匿名访问**（`meta.public=true`），用于同页渲染与新窗口预览。
 - **不移植**「页面模板」能力：创建时选择页面模板 / 存为模板 / 从历史模板加载等逻辑都不做。
 
+## 入口选择与扩展约定（2026-03-18）
+
+- admin 业务页面默认从 `@one-base-template/portal-engine/designer` 接入。
+- `@one-base-template/portal-engine/internal` 仅用于实现语义或高级编排场景，不作为默认入口。
+- admin 默认物料扩展入口固定为：
+  - `apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
+- 扩展推荐复用 helper：
+  - `definePortalMaterialCategory`
+  - `definePortalMaterial`
+  - `definePortalMaterialExtension`
+- 分类可独立扩展：允许先只注册 `category`，后续再增量挂载 `materials`。
+- 最小完整示例参考：
+  - `apps/admin/src/modules/PortalManagement/materials/extensions/minimal-example.ts`
+
 ## 目录收敛（2026-03-12）
 
 为减少跨目录切换与平铺组件膨胀，目录统一收敛为 `designPage`：
@@ -47,7 +61,7 @@
 - `src/domain/tab-tree.ts`（tab 树领域算法）
 - `src/services/page-settings.ts`（页面设置 load/save 服务，支持 API 注入）
 
-当前 admin 侧已改为直接引用 `@one-base-template/portal-engine` 导出，不再维护 `hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts`、`materials/registry/materials-registry.ts` 这类中转 re-export 层。
+当前 admin 侧已改为优先消费 `@one-base-template/portal-engine/designer`（必要时 `@one-base-template/portal-engine/internal`），不再维护 `hooks/useSchemaConfig.ts`、`utils/deep.ts`、`stores/pageLayout.ts`、`materials/registry/materials-registry.ts` 这类本地中转 re-export 层。
 另外 `MaterialLibrary` 已改为由页面注入 `categories`，不再直接依赖 admin 内的 registry 路径，便于 `apps/admin` 与后续 `apps/portal` 复用同一编辑器组件。
 
 2026-03-13 继续收敛结果：

@@ -97,7 +97,9 @@ pnpm -C apps/admin lint:fix
 
 ```bash
 pnpm -C packages/portal-engine run verify:materials
-pnpm -C packages/portal-engine run test:run -- src/materials/registerMaterialExtensions.test.ts src/public-designer.test.ts
+pnpm -C packages/portal-engine run test:run -- src/public-designer.test.ts src/materials/extensions.test.ts src/materials/registerMaterialExtensions.test.ts
+pnpm -C apps/admin run test:run -- src/modules/PortalManagement/engine/register.unit.test.ts
+pnpm -C apps/docs lint
 pnpm -C apps/docs build
 ```
 

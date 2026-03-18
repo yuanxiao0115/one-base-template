@@ -41,12 +41,87 @@ packages/portal-engine/src/
   - 负责消费者渲染入口与前台分流。
   - 复用 `portal-engine` 渲染器，不复制引擎内部逻辑。
 
+## 导出入口职责（2026-03-18）
+
+- `@one-base-template/portal-engine`（root）
+  - 仅承载稳定通用能力：runtime/schema/material API、稳定的工作台公共能力与语义化别名。
+  - 不再暴露旧 `public` 命名与实现语义命名组件。
+- `@one-base-template/portal-engine/designer`
+  - 作为 admin 默认业务接入入口，优先用于设计器路由与页面编排消费。
+  - 对外提供语义化的设计器 composable、组件与类型。
+- `@one-base-template/portal-engine/internal`
+  - 仅用于实现语义或高级接入场景（如工作台底层编排定制）。
+  - 业务页面不应默认依赖 `internal`。
+
+开发阶段命名规则：导出能力直接收敛到最终命名，不保留旧 `public` 命名。
+
 ## 常用接入点
 
 1. 物料接入：`packages/portal-engine/src/materials/cms/<material>/`
 2. 物料注册：`packages/portal-engine/src/registry/materials-registry.ts`
 3. 行为扩展：`packages/portal-engine/src/materials/navigation.ts`
 4. 页面渲染：`packages/portal-engine/src/renderer/PortalGridRenderer.vue`
+
+## 物料扩展 helper（extension helper）
+
+`portal-engine` 已提供三类 helper，用于降低 admin 扩展样板：
+
+- `definePortalMaterialCategory`
+- `definePortalMaterial`
+- `definePortalMaterialExtension`
+
+示例（新增分类 + 新增物料）：
+
+```ts
+import {
+  definePortalMaterialCategory,
+  definePortalMaterial,
+  definePortalMaterialExtension
+} from '@one-base-template/portal-engine';
+
+const topicCategory = definePortalMaterialCategory({
+  id: 'topic',
+  title: '专题专区',
+  name: '专题专区',
+  cmptTypeName: '专题专区'
+});
+
+const topicMaterial = definePortalMaterial({
+  id: 'topic-card',
+  type: 'topic-card',
+  name: '专题卡片',
+  icon: 'ri:apps-2-line',
+  config: {
+    index: { name: 'topic-card-index' }
+  },
+  components: {
+    index: TopicCardIndex
+  }
+});
+
+export const TOPIC_EXTENSION = definePortalMaterialExtension({
+  category: topicCategory,
+  materials: [topicMaterial]
+});
+```
+
+只扩分类（不立即挂物料）：
+
+```ts
+export const CATEGORY_ONLY_EXTENSION = definePortalMaterialExtension({
+  category: definePortalMaterialCategory({
+    id: 'marketing',
+    title: '营销专区',
+    name: '营销专区',
+    cmptTypeName: '营销专区'
+  })
+});
+```
+
+admin 默认扩展入口：
+
+- `apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
+- 最小完整示例：`apps/admin/src/modules/PortalManagement/materials/extensions/minimal-example.ts`
 
 ## 2026-03-13 P0 下沉（admin 消费者化）
 
