@@ -56,6 +56,19 @@ import {
   usePortalTemplateDesignerRoute
 } from './public-designer';
 
+const rootInternalDesignerSymbols = [
+  'PortalTemplateWorkbenchShell',
+  'PortalDesignerHeaderBar',
+  'PortalDesignerTreePanel',
+  'PortalDesignerActionStrip',
+  'PortalDesignerPreviewFrame',
+  'PortalPageEditorWorkbench',
+  'MaterialLibrary',
+  'PropertyPanel',
+  'useTemplateWorkbenchPageByRoute',
+  'usePageEditorWorkbenchByRoute'
+] as const;
+
 describe('public designer exports', () => {
   it('语义化组件别名应映射到现有实现', () => {
     expect(PortalTemplateDesignerLayout).toBe(PortalTemplateWorkbenchShell);
@@ -160,6 +173,9 @@ describe('public designer exports', () => {
     expect('PortalPageSettingsDrawer' in rootExports).toBe(false);
     expect('PortalShellSettingsDialog' in rootExports).toBe(false);
     expect('PortalTabAttributeDialog' in rootExports).toBe(false);
+    for (const symbol of rootInternalDesignerSymbols) {
+      expect(symbol in rootExports).toBe(false);
+    }
   });
 
   it('package exports 应允许通过 internal 子路径导入', async () => {

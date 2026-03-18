@@ -355,11 +355,28 @@ function validateDesignerPublicExports() {
   }
 
   if (indexSource) {
+    const forbiddenRootMarkers = [
+      'export { default as PropertyPanel }',
+      'export { default as MaterialLibrary }',
+      'export { default as PortalPageEditorWorkbench }',
+      'export { default as PortalDesignerPreviewFrame }',
+      'export { default as PortalTemplateWorkbenchShell }',
+      'export { default as PortalDesignerHeaderBar }',
+      'export { default as PortalDesignerTreePanel }',
+      'export { default as PortalDesignerActionStrip }',
+      'export { useTemplateWorkbenchPageByRoute }',
+      'export { usePageEditorWorkbenchByRoute }'
+    ];
     assertIncludes(
       indexSource,
       './public-designer',
       'src/index.ts: 根出口必须继续转发 public-designer 语义化导出'
     );
+    for (const marker of forbiddenRootMarkers) {
+      if (indexSource.includes(marker)) {
+        errors.push(`src/index.ts: root 不应继续暴露实现语义导出 ${marker}`);
+      }
+    }
   }
 }
 
