@@ -173,8 +173,23 @@ function validateMaterialExtensionContracts() {
     );
     assertIncludes(
       extensionContractSource,
-      'materials: PortalMaterialDescriptor[]',
-      'materials/extensions.ts: PortalMaterialExtension 必须声明 materials 列表'
+      'materials?: PortalMaterialDescriptor[]',
+      'materials/extensions.ts: PortalMaterialExtension 必须允许可选 materials 列表'
+    );
+    assertIncludes(
+      extensionContractSource,
+      'export function definePortalMaterialCategory',
+      'materials/extensions.ts: 缺少 definePortalMaterialCategory helper'
+    );
+    assertIncludes(
+      extensionContractSource,
+      'export function definePortalMaterial',
+      'materials/extensions.ts: 缺少 definePortalMaterial helper'
+    );
+    assertIncludes(
+      extensionContractSource,
+      'export function definePortalMaterialExtension',
+      'materials/extensions.ts: 缺少 definePortalMaterialExtension helper'
     );
   }
 
@@ -197,6 +212,11 @@ function validateMaterialExtensionContracts() {
       extensionRegisterSource,
       'resolveMaterialCategory(',
       'materials/registerMaterialExtensions.ts: 缺少扩展分类解析逻辑'
+    );
+    assertIncludes(
+      extensionRegisterSource,
+      'ensureExtensionCategory(',
+      'materials/registerMaterialExtensions.ts: 缺少分类保底注册逻辑'
     );
     assertIncludes(
       extensionRegisterSource,

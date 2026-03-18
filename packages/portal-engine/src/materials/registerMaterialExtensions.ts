@@ -1,4 +1,7 @@
-import type { PortalMaterialCategoryInput } from '../registry/materials-registry.types';
+import type {
+  PortalMaterialCategory,
+  PortalMaterialCategoryInput
+} from '../registry/materials-registry.types';
 import type { PortalEngineContext } from '../runtime/context';
 import { getDefaultPortalEngineContext } from '../runtime/context';
 import { getPortalMaterialRegistryController } from '../registry/materials-registry';
@@ -19,6 +22,33 @@ const DEFAULT_CATEGORY: PortalMaterialCategoryInput = {
   title: '基础组件',
   cmptTypeName: '基础组件'
 };
+
+function ensureExtensionCategory(
+  categories: PortalMaterialCategory[],
+  categoryInput: PortalMaterialCategoryInput
+) {
+  const existingCategory = categories.find((category) => category.id === categoryInput.id);
+  if (existingCategory) {
+    if (categoryInput.name !== undefined) {
+      existingCategory.name = categoryInput.name;
+    }
+    if (categoryInput.title !== undefined) {
+      existingCategory.title = categoryInput.title;
+    }
+    if (categoryInput.cmptTypeName !== undefined) {
+      existingCategory.cmptTypeName = categoryInput.cmptTypeName;
+    }
+    return;
+  }
+
+  categories.push({
+    id: categoryInput.id,
+    name: categoryInput.name,
+    title: categoryInput.title,
+    cmptTypeName: categoryInput.cmptTypeName,
+    cmptList: []
+  });
+}
 
 function resolveSectionName(config: PortalMaterialConfig, section: 'index' | 'content' | 'style') {
   const sectionConfig = config[section];
@@ -82,7 +112,11 @@ export function registerMaterialExtensions(
   const registryController = getPortalMaterialRegistryController(context);
 
   for (const extension of extensions) {
-    for (const material of extension.materials) {
+    if (extension.category) {
+      ensureExtensionCategory(registryController.categories, extension.category);
+    }
+
+    for (const material of extension.materials ?? []) {
       registryController.registerPortalMaterial(
         {
           id: material.id,
@@ -115,7 +149,7 @@ export function unregisterMaterialExtensions(
   const registryController = getPortalMaterialRegistryController(context);
 
   for (const extension of extensions) {
-    for (const material of extension.materials) {
+    for (const material of extension.materials ?? []) {
       registryController.unregisterPortalMaterial({
         id: material.id,
         type: material.type

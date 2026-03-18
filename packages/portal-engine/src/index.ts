@@ -140,6 +140,11 @@ export type {
   PortalMaterialSectionAliases
 } from './materials/extensions';
 export {
+  definePortalMaterial,
+  definePortalMaterialCategory,
+  definePortalMaterialExtension
+} from './materials/extensions';
+export {
   registerMaterialExtensions,
   unregisterMaterialExtensions
 } from './materials/registerMaterialExtensions';

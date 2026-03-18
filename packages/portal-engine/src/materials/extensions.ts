@@ -41,5 +41,31 @@ export interface PortalMaterialDescriptor {
 
 export interface PortalMaterialExtension {
   category?: PortalMaterialCategoryInput;
-  materials: PortalMaterialDescriptor[];
+  materials?: PortalMaterialDescriptor[];
+}
+
+export function definePortalMaterialCategory<const T extends PortalMaterialCategoryInput>(
+  category: T
+): T {
+  return category;
+}
+
+export function definePortalMaterial<const T extends PortalMaterialDescriptor>(material: T): T {
+  return material;
+}
+
+type DefinedPortalMaterialExtension<T extends PortalMaterialExtension> = Omit<T, 'materials'> &
+  PortalMaterialExtension & {
+    materials: T['materials'] extends PortalMaterialDescriptor[]
+      ? T['materials']
+      : PortalMaterialDescriptor[];
+  };
+
+export function definePortalMaterialExtension<const T extends PortalMaterialExtension>(
+  extension: T
+): DefinedPortalMaterialExtension<T> {
+  return {
+    ...extension,
+    materials: extension.materials ? [...extension.materials] : []
+  } as DefinedPortalMaterialExtension<T>;
 }
