@@ -8,11 +8,11 @@
 
 ## 页面入口与职责
 
-| 页面           | 文件                                             | 主要职责                           |
-| -------------- | ------------------------------------------------ | ---------------------------------- |
-| 门户设计工作台 | `designPage/pages/PortalTemplateSettingPage.vue` | 树结构编排、页面动作、壳层配置入口 |
-| 页面编辑器     | `designPage/pages/PortalPageEditPage.vue`        | 深度拖拽编辑、保存、预览           |
-| 预览渲染页     | `designPage/pages/PortalPreviewRenderPage.vue`   | 预览数据源装配、渲染态路由接入     |
+| 页面           | 文件                                       | 主要职责                           |
+| -------------- | ------------------------------------------ | ---------------------------------- |
+| 门户设计工作台 | `designPage/PortalTemplateSettingPage.vue` | 树结构编排、页面动作、壳层配置入口 |
+| 页面编辑器     | `designPage/PortalPageEditPage.vue`        | 深度拖拽编辑、保存、预览           |
+| 预览渲染页     | `designPage/PortalPreviewRenderPage.vue`   | 预览数据源装配、渲染态路由接入     |
 
 ## 路由与页面边界
 

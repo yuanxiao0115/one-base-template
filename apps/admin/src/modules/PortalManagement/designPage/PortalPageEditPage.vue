@@ -8,8 +8,8 @@ import {
   usePortalPageDesignerRoute
 } from '@one-base-template/portal-engine/designer';
 
-import { portalApi } from '../../api';
-import { useEditorMaterials } from '../../materials/useEditorMaterials';
+import { portalApi } from '../api';
+import { useEditorMaterials } from '../materials/useEditorMaterials';
 
 defineOptions({
   name: 'PortalPageEditor'

@@ -18,8 +18,8 @@ import type {
   PortalTemplateDesignerPreviewTarget
 } from '@one-base-template/portal-engine/designer';
 
-import { portalApi } from '../../api';
-import { setupPortalEngineForAdmin } from '../../engine/register';
+import { portalApi } from '../api';
+import { setupPortalEngineForAdmin } from '../engine/register';
 
 defineOptions({
   name: 'PortalDesigner'

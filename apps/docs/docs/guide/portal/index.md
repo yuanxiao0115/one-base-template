@@ -28,7 +28,7 @@
 ```text
 apps/admin/src/modules/PortalManagement
   api/                            # 领域 API（portal/cms/authority）
-  designPage/pages/               # 管理端三大页面入口（设计/编辑/预览）
+  designPage/                     # 管理端三大页面入口（设计/编辑/预览）
   templatePage/                   # 模板列表与权限配置（含 composables 拆分）
   engine/register.ts              # admin 注入 portal-engine 的唯一入口
   materials/extensions/           # admin 扩展物料声明入口

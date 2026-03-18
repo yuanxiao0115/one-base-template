@@ -11,8 +11,8 @@ import {
   type PortalPreviewRouteParamsLike
 } from '@one-base-template/portal-engine';
 
-import { portalApi } from '../../api';
-import { useRendererMaterials } from '../../materials/useRendererMaterials';
+import { portalApi } from '../api';
+import { useRendererMaterials } from '../materials/useRendererMaterials';
 
 defineOptions({
   name: 'PortalPreview'
