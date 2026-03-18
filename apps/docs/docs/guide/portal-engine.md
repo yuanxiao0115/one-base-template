@@ -161,10 +161,52 @@ setPortalCmsNavigation(options.cmsNavigation ?? {});
 
 ## 模板工作台消费者接入
 
-`PortalTemplateSettingPage.vue` 这类页面应优先消费 `useTemplateWorkbenchPage()`，而不是在页面层重新维护页面设置会话、预览桥与模板树状态：
+`PortalTemplateSettingPage.vue` 这类页面默认应从 `designer` 入口消费语义化 route helper，而不是在页面层重新维护页面设置会话、预览桥与模板树状态：
 
 ```ts
-import { useTemplateWorkbenchPage } from '@one-base-template/portal-engine';
+import { usePortalTemplateDesignerRoute } from '@one-base-template/portal-engine/designer';
+
+const { templateId, controller: workbenchPage } = usePortalTemplateDesignerRoute({
+  context: setupPortalEngineForAdmin(),
+  routeQuery: computed(() => route.query),
+  previewTarget: previewFrameRef,
+  api: {
+    template: {
+      detail: portalApi.template.detail,
+      update: portalApi.template.update,
+      hideToggle: portalApi.template.hideToggle
+    },
+    tab: {
+      detail: portalApi.tab.detail,
+      add: portalApi.tab.add,
+      update: portalApi.tab.update,
+      delete: portalApi.tab.delete
+    }
+  },
+  notify: {
+    success: (text) => message.success(text),
+    error: (text) => message.error(text),
+    warning: (text) => message.warning(text)
+  },
+  confirm: async ({ message: text, title }) => {
+    await confirm.warn(text, title);
+  },
+  replaceRouteQuery: (nextQuery) => router.replace({ query: nextQuery }),
+  pushRoute: ({ path, query }) => router.push({ path, query }),
+  resolveRouteHref: ({ name, query }) => router.resolve({ name, query }).href
+});
+```
+
+页面层保留的职责应收敛为：
+
+- 路由参数解析与 `router/message/confirm` 注入
+- 预览舞台、树面板、抽屉/对话框等壳组件拼装
+- 首次 `loadTemplate()` 触发与页面级返回动作
+
+若页面并不走标准 designer 路由模型，才回退到 `internal` 入口消费底层实现：
+
+```ts
+import { useTemplateWorkbenchPage } from '@one-base-template/portal-engine/internal';
 
 const workbenchPage = useTemplateWorkbenchPage({
   context: setupPortalEngineForAdmin(),
@@ -189,9 +231,7 @@ const workbenchPage = useTemplateWorkbenchPage({
     error: (text) => message.error(text),
     warning: (text) => message.warning(text)
   },
-  confirm: async ({ message: text, title }) => {
-    await confirm.warn(text, title);
-  },
+  confirm: ({ message: text, title }) => confirm.warn(text, title),
   syncRouteTabId: updateRouteTabId,
   openEditor: ({ templateId, tabId }) => {
     router.push({
@@ -207,68 +247,28 @@ const workbenchPage = useTemplateWorkbenchPage({
 });
 ```
 
-页面层保留的职责应收敛为：
-
-- 路由参数解析与 `router/message/confirm` 注入
-- 预览舞台、树面板、抽屉/对话框等壳组件拼装
-- 首次 `loadTemplate()` 触发与页面级返回动作
-
-若希望进一步减少页面层路由样板代码，推荐直接使用 `useTemplateWorkbenchPageByRoute()`：
-
-```ts
-import { useTemplateWorkbenchPageByRoute } from '@one-base-template/portal-engine';
-
-const { templateId, controller: workbenchPage } = useTemplateWorkbenchPageByRoute({
-  context: setupPortalEngineForAdmin(),
-  routeQuery: computed(() => route.query),
-  previewTarget: previewFrameRef,
-  api: {
-    template: {
-      detail: portalApi.template.detail,
-      update: portalApi.template.update,
-      hideToggle: portalApi.template.hideToggle
-    },
-    tab: {
-      detail: portalApi.tab.detail,
-      add: portalApi.tab.add,
-      update: portalApi.tab.update,
-      delete: portalApi.tab.delete
-    }
-  },
-  notify: {
-    success: (text) => message.success(text),
-    error: (text) => message.error(text),
-    warning: (text) => message.warning(text)
-  },
-  confirm: ({ message: text, title }) => confirm.warn(text, title),
-  replaceRouteQuery: (nextQuery) => router.replace({ query: nextQuery }),
-  pushRoute: ({ path, query }) => router.push({ path, query }),
-  resolveRouteHref: ({ name, query }) => router.resolve({ name, query }).href
-});
-```
-
 ## 页面编辑消费者接入
 
-`PortalPageEditPage.vue` 这类页面应优先消费 `usePageEditorWorkbenchByRoute()`，让 admin 只保留 route 注入与壳层拼装：
+`PortalPageEditPage.vue` 这类页面应优先消费 `designer` 入口的 `usePortalPageDesignerRoute()`，让 admin 只保留 route 注入与壳层拼装：
 
 ```ts
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
-  usePageEditorWorkbenchByRoute,
-  type PortalRouteQueryLike
-} from '@one-base-template/portal-engine';
+  usePortalPageDesignerRoute,
+  type PortalDesignerRouteQueryLike
+} from '@one-base-template/portal-engine/designer';
 
 const route = useRoute();
 const router = useRouter();
-const routeQuery = computed(() => route.query as PortalRouteQueryLike);
+const routeQuery = computed(() => route.query as PortalDesignerRouteQueryLike);
 
 const {
   tabId,
   templateId,
   backRouteLocation,
   controller: workbench
-} = usePageEditorWorkbenchByRoute({
+} = usePortalPageDesignerRoute({
   routeQuery,
   resolveRouteHref: ({ name, query }) => router.resolve({ name, query }).href,
   api: {
@@ -295,9 +295,11 @@ function onBack() {
 - 返回跳转（如 `onBack`）
 - `PortalPageEditorWorkbench` 组件透传 `loading/saving/preview/pageSettingData` 与事件绑定
 
-若页面已自行管理 `tabId/templateId`，仍可继续使用 `usePageEditorWorkbench()`：
+若页面已自行管理 `tabId/templateId`，仍可继续通过 `internal` 入口使用 `usePageEditorWorkbench()`：
 
 ```ts
+import { usePageEditorWorkbench } from '@one-base-template/portal-engine/internal';
+
 const workbench = usePageEditorWorkbench({
   tabId: computed(() => 'tab-1'),
   templateId: computed(() => 'tpl-1'),
@@ -322,13 +324,15 @@ const workbench = usePageEditorWorkbench({
 
 ## 模板工作台壳层接入
 
-模板工作台页面建议统一使用 `PortalTemplateWorkbenchShell`，通过插槽装配业务组件：
+模板工作台页面默认建议统一使用 `PortalTemplateDesignerLayout`，通过插槽装配业务组件：
 
 - `#header`：顶部栏（返回、刷新、页眉页脚入口）
 - `#tree`：左侧树面板
 - `#toolbar`：页面动作条
 - `#preview`：预览舞台
 - `#dialogs`：属性弹窗、页面设置抽屉、壳层设置抽屉
+
+若需要直接操作实现语义壳层或控制器，再从 `@one-base-template/portal-engine/internal` 引入 `PortalTemplateWorkbenchShell`、`useTemplateWorkbenchPage()` 等底层能力。
 
 ## PortalPreviewPanel 消费者接入（props 注入）
 
@@ -520,6 +524,7 @@ setupPortalEngineForAdmin({
 
 - 推荐业务页面从语义化入口消费设计器组件：
   - `@one-base-template/portal-engine/designer`
+- root `@one-base-template/portal-engine` 仅保留稳定通用能力与语义 alias，不再暴露 `Workbench / ByRoute / HeaderBar` 这类实现语义设计器导出。
 - 辅助设计器组件也优先使用语义化 alias，例如：
   - `PortalPageDesignerSettingsDrawer`
   - `PortalTemplateDesignerShellSettingsDrawer`
