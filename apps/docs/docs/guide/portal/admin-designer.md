@@ -61,6 +61,7 @@
   - `templatePage/components/permission/permission-member-source.ts`：联系人树/人员搜索数据源。
   - `templatePage/components/permission/permission-role-source.ts`：角色列表加载与分页降级。
   - `templatePage/components/permission/permission-payload.ts`：页面权限与门户权限 payload 归一化。
+  - `permission-payload` 在提交阶段统一去重 `roleIds/userIds/typeId`，避免重复授权项写入接口。
   - `PagePermissionDialog.vue` / `PortalAuthorityDialog.vue` 仅保留 UI 状态与事件编排。
   - `templatePage/components/permission/usePermissionRoleOptions.ts`：统一角色选项加载状态（`roleOptions/roleLoading/ensureRoleOptions`）。
   - `templatePage/components/permission/usePermissionUserSelection.ts`：统一选人弹窗编排（`pickUsers/pickingField`），两处权限弹窗复用同一实现。

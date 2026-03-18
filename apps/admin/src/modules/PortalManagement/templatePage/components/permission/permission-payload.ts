@@ -73,6 +73,55 @@ function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value : '';
 }
 
+function uniqueNormalizedIdList(values: unknown[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  values.forEach((item) => {
+    const id = normalizeIdLike(item);
+    if (!id || seen.has(id)) {
+      return;
+    }
+    seen.add(id);
+    result.push(id);
+  });
+  return result;
+}
+
+function uniqueSelectedUsersById(users: SelectedUserLite[]): SelectedUserLite[] {
+  const seen = new Set<string>();
+  const result: SelectedUserLite[] = [];
+  users.forEach((item) => {
+    const id = normalizeIdLike(item?.id);
+    if (!id || seen.has(id)) {
+      return;
+    }
+    seen.add(id);
+    result.push({
+      id,
+      nickName: normalizeString(item?.nickName) || id
+    });
+  });
+  return result;
+}
+
+function uniqueAuthorityUsersByTypeId(users: AuthorityUserItem[]): AuthorityUserItem[] {
+  const seen = new Set<string>();
+  const result: AuthorityUserItem[] = [];
+  users.forEach((item) => {
+    const typeId = normalizeIdLike(item?.typeId);
+    if (!typeId || seen.has(typeId)) {
+      return;
+    }
+    seen.add(typeId);
+    result.push({
+      typeId,
+      type: typeof item?.type === 'number' ? item.type : 0,
+      typeName: normalizeString(item?.typeName) || typeId
+    });
+  });
+  return result;
+}
+
 export function normalizeRoleIds(value: unknown): string[] {
   if (!value || typeof value !== 'object') {
     return [];
@@ -80,7 +129,7 @@ export function normalizeRoleIds(value: unknown): string[] {
   const obj = value as Record<string, unknown>;
   const roleIdsRaw = Array.isArray(obj.roleIds) ? obj.roleIds : [];
   const roleListRaw = Array.isArray(obj.roleList) ? obj.roleList : [];
-  const fromIds = roleIdsRaw.map(normalizeIdLike).filter(Boolean);
+  const fromIds = uniqueNormalizedIdList(roleIdsRaw);
   const fromList = roleListRaw
     .map((item) => {
       if (!item || typeof item !== 'object') {
@@ -90,29 +139,31 @@ export function normalizeRoleIds(value: unknown): string[] {
       return normalizeIdLike(row.id) || normalizeIdLike(row.roleId);
     })
     .filter(Boolean);
-  return Array.from(new Set([...fromIds, ...fromList]));
+  return uniqueNormalizedIdList([...fromIds, ...fromList]);
 }
 
 function normalizeUsersFromUnknown(value: unknown, fallbackIds?: unknown): SelectedUserLite[] {
   const fromUserList = Array.isArray(value)
-    ? value
-        .map((item) => {
-          if (!item || typeof item !== 'object') {
-            return null;
-          }
-          const row = item as Record<string, unknown>;
-          const id = normalizeIdLike(row.id) || normalizeIdLike(row.userId);
-          if (!id) {
-            return null;
-          }
-          const nickName =
-            normalizeString(row.nickName) ||
-            normalizeString(row.name) ||
-            normalizeString(row.title) ||
-            id;
-          return { id, nickName };
-        })
-        .filter((item): item is SelectedUserLite => Boolean(item))
+    ? uniqueSelectedUsersById(
+        value
+          .map((item) => {
+            if (!item || typeof item !== 'object') {
+              return null;
+            }
+            const row = item as Record<string, unknown>;
+            const id = normalizeIdLike(row.id) || normalizeIdLike(row.userId);
+            if (!id) {
+              return null;
+            }
+            const nickName =
+              normalizeString(row.nickName) ||
+              normalizeString(row.name) ||
+              normalizeString(row.title) ||
+              id;
+            return { id, nickName };
+          })
+          .filter((item): item is SelectedUserLite => Boolean(item))
+      )
     : [];
 
   if (fromUserList.length > 0) {
@@ -123,15 +174,17 @@ function normalizeUsersFromUnknown(value: unknown, fallbackIds?: unknown): Selec
     return [];
   }
 
-  return fallbackIds
-    .map((item) => {
-      const id = normalizeIdLike(item);
-      if (!id) {
-        return null;
-      }
-      return { id, nickName: id };
-    })
-    .filter((item): item is SelectedUserLite => Boolean(item));
+  return uniqueSelectedUsersById(
+    fallbackIds
+      .map((item) => {
+        const id = normalizeIdLike(item);
+        if (!id) {
+          return null;
+        }
+        return { id, nickName: id };
+      })
+      .filter((item): item is SelectedUserLite => Boolean(item))
+  );
 }
 
 export function normalizePermissionGroup(value: unknown): NormalizePermissionGroupResult {
@@ -149,7 +202,7 @@ export function normalizeAuthorityUsers(value: unknown): AuthorityUserItem[] {
   if (!Array.isArray(value)) {
     return [];
   }
-  return value
+  const rows = value
     .map((item) => {
       if (!item || typeof item !== 'object') {
         return null;
@@ -176,6 +229,7 @@ export function normalizeAuthorityUsers(value: unknown): AuthorityUserItem[] {
       };
     })
     .filter((item): item is AuthorityUserItem => Boolean(item));
+  return uniqueAuthorityUsersByTypeId(rows);
 }
 
 export function normalizeEditUsers(value: unknown, fallbackUserIds: unknown): AuthorityUserItem[] {
@@ -188,36 +242,47 @@ export function normalizeEditUsers(value: unknown, fallbackUserIds: unknown): Au
     return [];
   }
 
-  return fallbackUserIds
-    .map((item) => {
-      const id = normalizeIdLike(item);
-      if (!id) {
-        return null;
-      }
-      return {
-        typeId: id,
-        type: 0,
-        typeName: id
-      };
-    })
-    .filter((item): item is AuthorityUserItem => Boolean(item));
+  return uniqueAuthorityUsersByTypeId(
+    fallbackUserIds
+      .map((item) => {
+        const id = normalizeIdLike(item);
+        if (!id) {
+          return null;
+        }
+        return {
+          typeId: id,
+          type: 0,
+          typeName: id
+        };
+      })
+      .filter((item): item is AuthorityUserItem => Boolean(item))
+  );
 }
 
 export function buildPagePermissionPayload(form: PagePermissionFormLike): PagePermissionPayload {
   if (form.authType === 'role') {
     return {
       authType: 'role',
-      allowPerms: { roleIds: [...form.allowRoleIds], userIds: [] },
-      forbiddenPerms: { roleIds: [...form.forbiddenRoleIds], userIds: [] },
-      configPerms: { roleIds: [...form.configRoleIds], userIds: [] }
+      allowPerms: { roleIds: uniqueNormalizedIdList(form.allowRoleIds), userIds: [] },
+      forbiddenPerms: { roleIds: uniqueNormalizedIdList(form.forbiddenRoleIds), userIds: [] },
+      configPerms: { roleIds: uniqueNormalizedIdList(form.configRoleIds), userIds: [] }
     };
   }
 
   return {
     authType: 'person',
-    allowPerms: { roleIds: [], userIds: form.allowUsers.map((item) => item.id) },
-    forbiddenPerms: { roleIds: [], userIds: form.forbiddenUsers.map((item) => item.id) },
-    configPerms: { roleIds: [], userIds: form.configUsers.map((item) => item.id) }
+    allowPerms: {
+      roleIds: [],
+      userIds: uniqueNormalizedIdList(form.allowUsers.map((item) => item.id))
+    },
+    forbiddenPerms: {
+      roleIds: [],
+      userIds: uniqueNormalizedIdList(form.forbiddenUsers.map((item) => item.id))
+    },
+    configPerms: {
+      roleIds: [],
+      userIds: uniqueNormalizedIdList(form.configUsers.map((item) => item.id))
+    }
   };
 }
 
@@ -233,21 +298,21 @@ export function buildTemplateAuthorityPayload(
       whiteList: [],
       blackList: [],
       editUsers: [],
-      allowRole: { roleIds: [...form.allowRoleIds] },
-      forbiddenRole: { roleIds: [...form.forbiddenRoleIds] },
-      configRole: { roleIds: [...form.configRoleIds] }
+      allowRole: { roleIds: uniqueNormalizedIdList(form.allowRoleIds) },
+      forbiddenRole: { roleIds: uniqueNormalizedIdList(form.forbiddenRoleIds) },
+      configRole: { roleIds: uniqueNormalizedIdList(form.configRoleIds) }
     };
   }
 
-  const white = form.whiteUsers.map((item) => ({ ...item, type: 0 }));
-  const black = form.blackUsers.map((item) => ({ ...item, type: 0 }));
-  const edit = form.editUsers.map((item) => ({ ...item, type: 0 }));
+  const white = uniqueAuthorityUsersByTypeId(form.whiteUsers).map((item) => ({ ...item, type: 0 }));
+  const black = uniqueAuthorityUsersByTypeId(form.blackUsers).map((item) => ({ ...item, type: 0 }));
+  const edit = uniqueAuthorityUsersByTypeId(form.editUsers).map((item) => ({ ...item, type: 0 }));
 
   return {
     authType: 'person',
     whiteDTOS: white,
     blackDTOS: black,
-    userIds: edit.map((item) => item.typeId),
+    userIds: uniqueNormalizedIdList(edit.map((item) => item.typeId)),
     whiteList: white,
     blackList: black,
     editUsers: edit,

@@ -123,4 +123,79 @@ describe('permission-payload', () => {
       configRole: { roleIds: [] }
     });
   });
+
+  it('应在提交阶段去重 roleIds 与人员 ID', () => {
+    expect(
+      buildPagePermissionPayload({
+        authType: 'role',
+        allowRoleIds: ['r1', 'r1', 'r2', ''],
+        forbiddenRoleIds: ['r2', 'r2', 'r3'],
+        configRoleIds: ['r3', 'r3'],
+        allowUsers: [],
+        forbiddenUsers: [],
+        configUsers: []
+      })
+    ).toEqual({
+      authType: 'role',
+      allowPerms: { roleIds: ['r1', 'r2'], userIds: [] },
+      forbiddenPerms: { roleIds: ['r2', 'r3'], userIds: [] },
+      configPerms: { roleIds: ['r3'], userIds: [] }
+    });
+
+    expect(
+      buildPagePermissionPayload({
+        authType: 'person',
+        allowRoleIds: [],
+        forbiddenRoleIds: [],
+        configRoleIds: [],
+        allowUsers: [
+          { id: 'u1', nickName: '用户1' },
+          { id: 'u1', nickName: '用户1-重复' },
+          { id: '', nickName: '空ID' }
+        ],
+        forbiddenUsers: [
+          { id: 'u2', nickName: '用户2' },
+          { id: 'u2', nickName: '用户2-重复' }
+        ],
+        configUsers: [{ id: 'u3', nickName: '用户3' }]
+      })
+    ).toEqual({
+      authType: 'person',
+      allowPerms: { roleIds: [], userIds: ['u1'] },
+      forbiddenPerms: { roleIds: [], userIds: ['u2'] },
+      configPerms: { roleIds: [], userIds: ['u3'] }
+    });
+
+    expect(
+      buildTemplateAuthorityPayload({
+        authType: 'person',
+        whiteUsers: [
+          { typeId: 'u1', type: 1, typeName: '用户1' },
+          { typeId: 'u1', type: 2, typeName: '用户1-重复' }
+        ],
+        blackUsers: [
+          { typeId: 'u2', type: 1, typeName: '用户2' },
+          { typeId: '', type: 1, typeName: '空ID' }
+        ],
+        editUsers: [
+          { typeId: 'u3', type: 1, typeName: '用户3' },
+          { typeId: 'u3', type: 2, typeName: '用户3-重复' }
+        ],
+        allowRoleIds: ['r1', 'r1'],
+        forbiddenRoleIds: ['r2', 'r2'],
+        configRoleIds: ['r3', 'r3']
+      })
+    ).toEqual({
+      authType: 'person',
+      whiteDTOS: [{ typeId: 'u1', type: 0, typeName: '用户1' }],
+      blackDTOS: [{ typeId: 'u2', type: 0, typeName: '用户2' }],
+      userIds: ['u3'],
+      whiteList: [{ typeId: 'u1', type: 0, typeName: '用户1' }],
+      blackList: [{ typeId: 'u2', type: 0, typeName: '用户2' }],
+      editUsers: [{ typeId: 'u3', type: 0, typeName: '用户3' }],
+      allowRole: { roleIds: [] },
+      forbiddenRole: { roleIds: [] },
+      configRole: { roleIds: [] }
+    });
+  });
 });
