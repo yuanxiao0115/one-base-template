@@ -64,6 +64,7 @@
   - `PagePermissionDialog.vue` / `PortalAuthorityDialog.vue` 仅保留 UI 状态与事件编排。
   - `templatePage/components/permission/usePermissionRoleOptions.ts`：统一角色选项加载状态（`roleOptions/roleLoading/ensureRoleOptions`）。
   - `templatePage/components/permission/usePermissionUserSelection.ts`：统一选人弹窗编排（`pickUsers/pickingField`），两处权限弹窗复用同一实现。
+  - `usePermissionRoleOptions` 对同一 API 实例新增跨弹窗缓存与并发请求去重：同页多处权限弹窗首次打开时只请求一次角色数据，后续复用已加载结果。
 - materials 单入口：
   - 新增 `materials/usePortalMaterials.ts`，统一按 `scene: 'editor' | 'renderer'` 取物料目录。
   - 删除 `useMaterials.ts`、`useEditorMaterials.ts`、`useRendererMaterials.ts` 三个 wrapper。

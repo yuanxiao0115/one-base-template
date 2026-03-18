@@ -7,6 +7,28 @@ import {
   type RoleOption
 } from './permission-role-source';
 
+interface SharedRoleOptionsState {
+  loaded: boolean;
+  roleOptions: RoleOption[];
+  loadingPromise: Promise<RoleOption[]> | null;
+}
+
+const sharedRoleOptionsByApi = new WeakMap<PermissionRoleSourceApi, SharedRoleOptionsState>();
+
+function resolveSharedRoleOptionsState(api: PermissionRoleSourceApi): SharedRoleOptionsState {
+  const cached = sharedRoleOptionsByApi.get(api);
+  if (cached) {
+    return cached;
+  }
+  const created: SharedRoleOptionsState = {
+    loaded: false,
+    roleOptions: [],
+    loadingPromise: null
+  };
+  sharedRoleOptionsByApi.set(api, created);
+  return created;
+}
+
 export interface PermissionRoleOptionsState {
   roleOptions: Ref<RoleOption[]>;
   roleLoading: Ref<boolean>;
@@ -18,13 +40,30 @@ export function usePermissionRoleOptions(api: PermissionRoleSourceApi): Permissi
   const roleLoading = ref(false);
 
   async function ensureRoleOptions() {
-    if (roleOptions.value.length > 0 || roleLoading.value) {
+    if (roleOptions.value.length > 0) {
+      return;
+    }
+
+    const sharedState = resolveSharedRoleOptionsState(api);
+    if (sharedState.loaded) {
+      roleOptions.value = [...sharedState.roleOptions];
       return;
     }
 
     roleLoading.value = true;
     try {
-      roleOptions.value = await loadPermissionRoleOptions(api);
+      if (!sharedState.loadingPromise) {
+        sharedState.loadingPromise = loadPermissionRoleOptions(api)
+          .then((loadedOptions) => {
+            sharedState.roleOptions = loadedOptions;
+            sharedState.loaded = true;
+            return loadedOptions;
+          })
+          .finally(() => {
+            sharedState.loadingPromise = null;
+          });
+      }
+      roleOptions.value = await sharedState.loadingPromise;
     } finally {
       roleLoading.value = false;
     }
