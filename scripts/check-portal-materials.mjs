@@ -324,6 +324,12 @@ function validateDesignerPublicExports() {
       'PortalPageDesignerLayout',
       'PortalMaterialPalette',
       'PortalPropertyInspector',
+      'PortalTemplateDesignerPreviewTarget',
+      'PortalDesignerRouteQueryPrimitive',
+      'PortalDesignerRouteQueryValue',
+      'PortalDesignerRouteQueryLike',
+      'UsePortalTemplateDesignerRouteOptions',
+      'UsePortalPageDesignerRouteOptions',
       'usePortalTemplateDesignerRoute',
       'usePortalPageDesignerRoute'
     ];
@@ -365,13 +371,27 @@ function validateDesignerPublicExports() {
       'export { default as PortalDesignerTreePanel }',
       'export { default as PortalDesignerActionStrip }',
       'export { useTemplateWorkbenchPageByRoute }',
-      'export { usePageEditorWorkbenchByRoute }'
+      'export { usePageEditorWorkbenchByRoute }',
+      '  PortalRouteQueryPrimitive,\n',
+      '  PortalRouteQueryValue\n',
+      '  PortalRouteQueryLike,\n',
+      'export type { UseTemplateWorkbenchPageByRouteOptions }',
+      'export type { UsePageEditorWorkbenchByRouteOptions }'
+    ];
+    const requiredPreviewTypeMarkers = [
+      'PortalRouteQueryPrimitive as PortalPreviewRouteQueryPrimitive',
+      'PortalRouteQueryValue as PortalPreviewRouteQueryValue',
+      'PortalRouteQueryLike as PortalPreviewRouteQueryLike',
+      'UsePortalPreviewPageByRouteOptions as UsePortalPreviewRouteOptions'
     ];
     assertIncludes(
       indexSource,
       './public-designer',
       'src/index.ts: 根出口必须继续转发 public-designer 语义化导出'
     );
+    for (const marker of requiredPreviewTypeMarkers) {
+      assertIncludes(indexSource, marker, `src/index.ts: 缺少 preview 语义化类型导出 ${marker}`);
+    }
     for (const marker of forbiddenRootMarkers) {
       if (indexSource.includes(marker)) {
         errors.push(`src/index.ts: root 不应继续暴露实现语义导出 ${marker}`);

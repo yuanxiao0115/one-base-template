@@ -245,9 +245,9 @@ export type {
 export { createTemplateWorkbenchPageController } from './workbench/template-workbench-page-controller';
 export { useTemplateWorkbenchPage } from './workbench/useTemplateWorkbenchPage';
 export type {
-  PortalRouteQueryLike,
-  PortalRouteQueryPrimitive,
-  PortalRouteQueryValue
+  PortalRouteQueryLike as PortalPreviewRouteQueryLike,
+  PortalRouteQueryPrimitive as PortalPreviewRouteQueryPrimitive,
+  PortalRouteQueryValue as PortalPreviewRouteQueryValue
 } from './workbench/template-workbench-route';
 export {
   buildNextRouteQueryWithTabId,
@@ -257,10 +257,9 @@ export {
   resolvePortalTabIdFromQuery,
   resolvePortalTemplateIdFromQuery
 } from './workbench/template-workbench-route';
-export type { UseTemplateWorkbenchPageByRouteOptions } from './workbench/useTemplateWorkbenchPageByRoute';
 export type {
   PortalPreviewRouteParamsLike,
-  UsePortalPreviewPageByRouteOptions
+  UsePortalPreviewPageByRouteOptions as UsePortalPreviewRouteOptions
 } from './workbench/usePortalPreviewPageByRoute';
 export { usePortalPreviewPageByRoute } from './workbench/usePortalPreviewPageByRoute';
 export type {
@@ -281,7 +280,6 @@ export {
   isPortalPreviewBizOk
 } from './workbench/preview-data-source';
 export { usePageEditorWorkbench } from './workbench/usePageEditorWorkbench';
-export type { UsePageEditorWorkbenchByRouteOptions } from './workbench/usePageEditorWorkbenchByRoute';
 export * from './public-designer';
 export {
   calcPortalManualPanRange,

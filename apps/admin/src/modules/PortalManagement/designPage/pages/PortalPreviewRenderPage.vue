@@ -7,8 +7,8 @@ import {
   PortalPreviewPanel,
   usePortalPreviewPageByRoute,
   type PortalPreviewDataSource,
-  type PortalPreviewRouteParamsLike,
-  type PortalRouteQueryLike
+  type PortalPreviewRouteQueryLike,
+  type PortalPreviewRouteParamsLike
 } from '@one-base-template/portal-engine';
 
 import { portalApi } from '../../api';
@@ -21,7 +21,7 @@ defineOptions({
 const route = useRoute();
 const router = useRouter();
 const { materialsMap } = useRendererMaterials();
-const routeQuery = computed(() => route.query as PortalRouteQueryLike);
+const routeQuery = computed(() => route.query as PortalPreviewRouteQueryLike);
 const routeParams = computed(() => route.params as PortalPreviewRouteParamsLike);
 
 const { tabId, templateId, previewMode, previewViewport, onNavigate } = usePortalPreviewPageByRoute(
