@@ -179,6 +179,57 @@ describe('template workbench page controller', () => {
     expect(api.template.detail).toHaveBeenCalledWith({ id: 'tpl-1' });
   });
 
+  it('保存页面设置应复用会话数据，避免重复拉取 tab 详情', async () => {
+    const { controller, pageSettingsApi, notify, api } = createController();
+    controller.currentTabId.value = 'tab-1';
+    await nextTick();
+    controller.templateInfo.value = {
+      id: 'tpl-1',
+      templateName: '门户A',
+      tabList: [
+        {
+          id: 'tab-1',
+          tabType: 2,
+          tabName: '页面A'
+        }
+      ]
+    };
+    pageSettingsApi.getTabDetail.mockResolvedValue(
+      ok({
+        id: 'tab-1',
+        tabName: '页面A',
+        templateId: 'tpl-1',
+        pageLayout: JSON.stringify({
+          settings: createDefaultPortalPageSettingsV2(),
+          component: [{ i: 'comp-1', x: 0, y: 0, w: 12, h: 6 }]
+        })
+      })
+    );
+    pageSettingsApi.updateTab.mockResolvedValue(ok(true));
+    api.template.detail.mockResolvedValue(
+      ok({
+        id: 'tpl-1',
+        templateName: '门户A',
+        tabList: [
+          {
+            id: 'tab-1',
+            tabType: 2,
+            tabName: '页面A'
+          }
+        ]
+      })
+    );
+
+    await controller.openPageSettingsDrawer('tab-1');
+    expect(pageSettingsApi.getTabDetail).toHaveBeenCalledTimes(1);
+
+    await controller.onSubmitPageSettings(createDefaultPortalPageSettingsV2());
+
+    expect(pageSettingsApi.getTabDetail).toHaveBeenCalledTimes(1);
+    expect(pageSettingsApi.updateTab).toHaveBeenCalledTimes(1);
+    expect(notify.success).toHaveBeenCalledWith('页面设置保存成功');
+  });
+
   it('预览运行态消息应可结构化克隆，避免 DataCloneError', () => {
     const { controller, previewMessages } = createController();
     controller.currentTabId.value = 'tab-1';

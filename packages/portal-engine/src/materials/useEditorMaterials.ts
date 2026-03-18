@@ -1,10 +1,7 @@
 import type { PortalEngineContext } from '../runtime/context';
 
-import { usePortalMaterialCatalog } from './usePortalMaterialCatalog';
+import { createEditorPortalMaterialCatalog } from './catalog/editor';
 
 export function useEditorMaterials(context?: PortalEngineContext) {
-  return usePortalMaterialCatalog({
-    context,
-    scene: 'editor'
-  });
+  return createEditorPortalMaterialCatalog(context);
 }

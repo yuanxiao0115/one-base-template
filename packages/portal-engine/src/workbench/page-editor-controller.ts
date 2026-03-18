@@ -134,6 +134,8 @@ export function createPageEditorController(options: CreatePageEditorControllerOp
   let listenerWindow: Window | null = null;
   let previewRuntimeSyncTimer: ReturnType<typeof setTimeout> | null = null;
   let previewRuntimeBootstrapTimers: Array<ReturnType<typeof setTimeout>> = [];
+  let pendingRuntimeSignature = '';
+  let lastSentRuntimeSignature = '';
 
   function getOrigin(): string {
     return resolveWindow()?.location?.origin || '';
@@ -166,7 +168,20 @@ export function createPageEditorController(options: CreatePageEditorControllerOp
     previewRuntimeBootstrapTimers = [];
   }
 
-  function postPreviewRuntimeMessage(): boolean {
+  function getRuntimeSnapshotData(): PortalPreviewRuntimeData {
+    return {
+      tabId: options.tabId.value,
+      templateId: options.templateId.value,
+      settings: toPlainData(pageSettingData.value),
+      component: toPlainData(pageLayoutStore.layoutItems)
+    };
+  }
+
+  function getRuntimeSnapshotSignature(data: PortalPreviewRuntimeData): string {
+    return JSON.stringify(data);
+  }
+
+  function postPreviewRuntimeMessage(params?: { force?: boolean }): boolean {
     if (!options.tabId.value) {
       return false;
     }
@@ -174,38 +189,48 @@ export function createPageEditorController(options: CreatePageEditorControllerOp
     if (!targetWindow) {
       return false;
     }
+    const runtimeData = getRuntimeSnapshotData();
+    const signature = getRuntimeSnapshotSignature(runtimeData);
+    if (!params?.force && signature === lastSentRuntimeSignature) {
+      return true;
+    }
 
     const ok = sendRuntime(targetWindow, {
       origin: getOrigin(),
-      data: {
-        tabId: options.tabId.value,
-        templateId: options.templateId.value,
-        settings: toPlainData(pageSettingData.value),
-        component: toPlainData(pageLayoutStore.layoutItems)
-      }
+      data: runtimeData
     });
 
     if (!ok) {
       previewWindowRef.value = null;
       return false;
     }
+    lastSentRuntimeSignature = signature;
     return true;
   }
 
   function queuePreviewRuntimeSync() {
+    if (!getPreviewWindow()) {
+      return;
+    }
+    const signature = getRuntimeSnapshotSignature(getRuntimeSnapshotData());
+    if (signature === pendingRuntimeSignature || signature === lastSentRuntimeSignature) {
+      return;
+    }
+    pendingRuntimeSignature = signature;
     clearPreviewRuntimeSyncTimer();
     previewRuntimeSyncTimer = setTimeout(() => {
       previewRuntimeSyncTimer = null;
+      pendingRuntimeSignature = '';
       postPreviewRuntimeMessage();
     }, PREVIEW_RUNTIME_SYNC_DELAY);
   }
 
   function pushPreviewRuntimeBootstrapSync() {
-    postPreviewRuntimeMessage();
+    postPreviewRuntimeMessage({ force: true });
     clearPreviewRuntimeBootstrapTimers();
     previewRuntimeBootstrapTimers = PREVIEW_RUNTIME_BOOTSTRAP_DELAYS.map((delay) =>
       setTimeout(() => {
-        postPreviewRuntimeMessage();
+        postPreviewRuntimeMessage({ force: true });
       }, delay)
     );
   }
@@ -219,6 +244,7 @@ export function createPageEditorController(options: CreatePageEditorControllerOp
         previewWindowRef.value = null;
       }
       existing.focus();
+      lastSentRuntimeSignature = '';
       return existing;
     }
 
@@ -231,6 +257,7 @@ export function createPageEditorController(options: CreatePageEditorControllerOp
       return null;
     }
     previewWindowRef.value = opened;
+    lastSentRuntimeSignature = '';
     return opened;
   }
 
@@ -274,6 +301,8 @@ export function createPageEditorController(options: CreatePageEditorControllerOp
   function unmount() {
     clearPreviewRuntimeSyncTimer();
     clearPreviewRuntimeBootstrapTimers();
+    pendingRuntimeSignature = '';
+    lastSentRuntimeSignature = '';
     listenerWindow?.removeEventListener('message', onPreviewWindowMessage);
     listenerWindow = null;
     previewWindowRef.value = null;

@@ -47,6 +47,14 @@ export interface PortalTabPageSettingsDetail {
   components: unknown[];
 }
 
+export interface SaveTabPageSettingsDirectParams {
+  tabId: string;
+  templateId: string;
+  settings: unknown;
+  components: unknown[];
+  tabName?: string;
+}
+
 const PORTAL_PAGE_SETTINGS_API_CONTEXT_KEY = Symbol('portal-engine.page-settings-api');
 
 function createFallbackPortalPageSettingsApi(): PortalPageSettingsApi {
@@ -193,6 +201,22 @@ export function createPortalPageSettingsService(
     };
   }
 
+  async function saveTabPageSettingsDirect(params: SaveTabPageSettingsDirectParams): Promise<void> {
+    const fallbackTabName = typeof params.tabName === 'string' ? params.tabName.trim() : '';
+    const mergedSettings = normalizeSettingsWithFallback(params.settings, fallbackTabName);
+    const pageLayout = buildPortalPageLayoutForSave(mergedSettings, params.components);
+    const res = await resolvedApi.updateTab({
+      id: params.tabId,
+      templateId: params.templateId,
+      tabName: fallbackTabName || mergedSettings.basic.pageTitle || '页面',
+      pageLayout: JSON.stringify(pageLayout)
+    });
+
+    if (!isPortalBizOk(res)) {
+      throw new Error(res?.message || '页面设置保存失败');
+    }
+  }
+
   async function saveTabPageSettings(params: {
     tabId: string;
     templateId: string;
@@ -209,28 +233,24 @@ export function createPortalPageSettingsService(
       ),
       tabNameFallback
     );
-
-    const pageLayout = buildPortalPageLayoutForSave(mergedSettings, detail.components);
     const templateId = normalizeIdLike(detail.tab.templateId) || params.templateId;
     const tabName =
       (typeof detail.tab.tabName === 'string' && detail.tab.tabName.trim()) ||
       mergedSettings.basic.pageTitle ||
       '页面';
 
-    const res = await resolvedApi.updateTab({
-      id: params.tabId,
+    await saveTabPageSettingsDirect({
+      tabId: params.tabId,
       templateId,
       tabName,
-      pageLayout: JSON.stringify(pageLayout)
+      settings: mergedSettings,
+      components: detail.components
     });
-
-    if (!isPortalBizOk(res)) {
-      throw new Error(res?.message || '页面设置保存失败');
-    }
   }
 
   return {
     loadTabPageSettings,
-    saveTabPageSettings
+    saveTabPageSettings,
+    saveTabPageSettingsDirect
   };
 }

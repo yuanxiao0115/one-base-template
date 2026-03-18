@@ -104,4 +104,40 @@ describe('portal page settings service', () => {
     expect(pageLayout.settings?.basic?.pageTitle).toBe('新页面标题');
     expect(pageLayout.component).toHaveLength(1);
   });
+
+  it('direct 保存应跳过 getTabDetail 并直接落库', async () => {
+    const getTabDetail = vi.fn();
+    const updateTab = vi.fn().mockResolvedValue({
+      success: true,
+      code: 200,
+      message: ''
+    });
+    setPortalPageSettingsApi({
+      getTabDetail,
+      updateTab
+    });
+
+    const service = createPortalPageSettingsService();
+
+    await service.saveTabPageSettingsDirect({
+      tabId: 'tab-direct',
+      templateId: 'tpl-direct',
+      tabName: '直接保存页',
+      settings: {
+        basic: {
+          pageTitle: '直接保存页'
+        }
+      },
+      components: [{ i: 'direct-1', x: 0, y: 0, w: 12, h: 8 }]
+    });
+
+    expect(getTabDetail).not.toHaveBeenCalled();
+    expect(updateTab).toHaveBeenCalledTimes(1);
+    const firstCall = updateTab.mock.calls.at(0);
+    expect(firstCall).toBeDefined();
+    const payload = firstCall![0] as Record<string, unknown>;
+    expect(payload.id).toBe('tab-direct');
+    expect(payload.templateId).toBe('tpl-direct');
+    expect(payload.tabName).toBe('直接保存页');
+  });
 });

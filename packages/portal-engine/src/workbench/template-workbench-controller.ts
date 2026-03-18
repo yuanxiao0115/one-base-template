@@ -80,6 +80,11 @@ interface TabSortPatch {
   id: string;
   parentId: number | string;
   sort: number;
+  tabType: number;
+  tabName: string;
+  tabUrl: string;
+  tabUrlOpenMode: number;
+  tabUrlSsoType: number;
 }
 
 interface TabLocation {
@@ -170,7 +175,12 @@ function collectSortPatches(siblings: PortalTab[], parentId: number | string): T
       return {
         id,
         parentId,
-        sort: index + 1
+        sort: index + 1,
+        tabType: typeof item.tabType === 'number' ? item.tabType : 2,
+        tabName: normalizePortalTabName(item.tabName, `页面-${id}`),
+        tabUrl: typeof item.tabUrl === 'string' ? item.tabUrl : '',
+        tabUrlOpenMode: typeof item.tabUrlOpenMode === 'number' ? item.tabUrlOpenMode : 1,
+        tabUrlSsoType: typeof item.tabUrlSsoType === 'number' ? item.tabUrlSsoType : 1
       };
     })
     .filter((item): item is TabSortPatch => Boolean(item));
@@ -519,29 +529,19 @@ export function createTemplateWorkbenchController(
     }
 
     for (const patch of patches) {
-      const detailRes = await options.api.tab.detail({ id: patch.id });
-      if (!isPortalBizOk(detailRes)) {
-        throw new Error(detailRes?.message || `加载页面详情失败：${patch.id}`);
-      }
-
-      const detail = detailRes?.data ?? {};
-      const tabType = typeof detail.tabType === 'number' ? detail.tabType : 2;
-      const tabName = normalizePortalTabName(detail.tabName, `页面-${patch.id}`);
       const updateData: Record<string, unknown> = {
         id: patch.id,
         templateId: options.templateId.value,
         parentId: patch.parentId,
-        tabName,
-        tabType,
+        tabName: patch.tabName,
+        tabType: patch.tabType,
         sort: patch.sort
       };
 
-      if (tabType === 3) {
-        updateData.tabUrl = typeof detail.tabUrl === 'string' ? detail.tabUrl : '';
-        updateData.tabUrlOpenMode =
-          typeof detail.tabUrlOpenMode === 'number' ? detail.tabUrlOpenMode : 1;
-        updateData.tabUrlSsoType =
-          typeof detail.tabUrlSsoType === 'number' ? detail.tabUrlSsoType : 1;
+      if (patch.tabType === 3) {
+        updateData.tabUrl = patch.tabUrl ?? '';
+        updateData.tabUrlOpenMode = patch.tabUrlOpenMode ?? 1;
+        updateData.tabUrlSsoType = patch.tabUrlSsoType ?? 1;
       }
 
       const updateRes = await options.api.tab.update(updateData);

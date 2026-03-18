@@ -226,13 +226,6 @@ describe('template workbench controller', () => {
         }
       ]
     };
-    api.tab.detail.mockImplementation(async ({ id }: { id: string }) =>
-      ok({
-        id,
-        tabType: 2,
-        tabName: id
-      })
-    );
     api.tab.update.mockResolvedValue(ok(true));
     api.template.detail.mockResolvedValue(
       ok({
@@ -274,6 +267,7 @@ describe('template workbench controller', () => {
         sort: 2
       })
     );
+    expect(api.tab.detail).not.toHaveBeenCalled();
     expect(notify.success).toHaveBeenCalledWith('页面排序已更新');
   });
 });

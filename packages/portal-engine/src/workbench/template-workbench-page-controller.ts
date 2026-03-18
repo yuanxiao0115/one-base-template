@@ -214,10 +214,12 @@ export function createTemplateWorkbenchPageController(
 
     pageSettingsSession.saving.value = true;
     try {
-      await pageSettingsService.saveTabPageSettings({
+      await pageSettingsService.saveTabPageSettingsDirect({
         tabId: editingTabId,
         templateId: options.templateId.value,
-        settings
+        tabName: pageSettingsCurrentTabName.value,
+        settings,
+        components: pageSettingsSession.components.value
       });
       options.notify.success('页面设置保存成功');
       pageSettingsSession.markPageSettingsSaved(settings);

@@ -1,10 +1,7 @@
 import type { PortalEngineContext } from '../runtime/context';
 
-import { usePortalMaterialCatalog } from './usePortalMaterialCatalog';
+import { createRendererPortalMaterialCatalog } from './catalog/renderer';
 
 export function useRendererMaterials(context?: PortalEngineContext) {
-  return usePortalMaterialCatalog({
-    context,
-    scene: 'renderer'
-  });
+  return createRendererPortalMaterialCatalog(context);
 }
