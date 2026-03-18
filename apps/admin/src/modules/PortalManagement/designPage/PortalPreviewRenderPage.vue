@@ -12,7 +12,7 @@ import {
 } from '@one-base-template/portal-engine';
 
 import { portalApi } from '../api';
-import { useRendererMaterials } from '../materials/useRendererMaterials';
+import { usePortalMaterials } from '../materials/usePortalMaterials';
 
 defineOptions({
   name: 'PortalPreview'
@@ -20,7 +20,7 @@ defineOptions({
 
 const route = useRoute();
 const router = useRouter();
-const { materialsMap } = useRendererMaterials();
+const { materialsMap } = usePortalMaterials('renderer');
 const routeQuery = computed(() => route.query as PortalPreviewRouteQueryLike);
 const routeParams = computed(() => route.params as PortalPreviewRouteParamsLike);
 

@@ -9,7 +9,7 @@ import {
 } from '@one-base-template/portal-engine/designer';
 
 import { portalApi } from '../api';
-import { useEditorMaterials } from '../materials/useEditorMaterials';
+import { usePortalMaterials } from '../materials/usePortalMaterials';
 
 defineOptions({
   name: 'PortalPageEditor'
@@ -18,7 +18,7 @@ defineOptions({
 const route = useRoute();
 const router = useRouter();
 
-const { categories: materialCategories, materialsMap } = useEditorMaterials();
+const { categories: materialCategories, materialsMap } = usePortalMaterials('editor');
 const routeQuery = computed(() => route.query as PortalDesignerRouteQueryLike);
 
 const {
