@@ -3,38 +3,20 @@ import { computed, reactive, ref, watch } from 'vue';
 import { UserFilled } from '@element-plus/icons-vue';
 import { useAuthStore } from '@one-base-template/core';
 import { openPersonnelSelection } from '@/components/PersonnelSelector';
-import type {
-  PersonnelFetchNodes,
-  PersonnelNode,
-  PersonnelSearchNodes,
-  PersonnelSelectedUser
-} from '@/components/PersonnelSelector/types';
+import type { PersonnelSelectedUser } from '@/components/PersonnelSelector/types';
+
 import { portalAuthorityApi } from '../../api';
 import type { PortalTemplate } from '../../types';
-
-interface AuthorityUserItem {
-  typeId: string;
-  type: number;
-  typeName: string;
-}
-
-interface RoleOption {
-  id: string;
-  name: string;
-}
-
-interface TemplateAuthorityPayload {
-  authType: 'person' | 'role';
-  whiteDTOS: AuthorityUserItem[];
-  blackDTOS: AuthorityUserItem[];
-  userIds: string[];
-  whiteList: AuthorityUserItem[];
-  blackList: AuthorityUserItem[];
-  editUsers: AuthorityUserItem[];
-  allowRole: { roleIds: string[] };
-  forbiddenRole: { roleIds: string[] };
-  configRole: { roleIds: string[] };
-}
+import { createPermissionMemberSource } from './permission/permission-member-source';
+import {
+  buildTemplateAuthorityPayload,
+  normalizeAuthorityUsers,
+  normalizeEditUsers,
+  normalizeRoleIds,
+  type AuthorityUserItem,
+  type TemplateAuthorityPayload
+} from './permission/permission-payload';
+import { loadPermissionRoleOptions, type RoleOption } from './permission/permission-role-source';
 
 type UserField = 'white' | 'black' | 'edit';
 
@@ -132,91 +114,16 @@ function normalizeIdLike(value: unknown): string {
   return '';
 }
 
-function normalizeString(value: unknown): string {
-  return typeof value === 'string' ? value : '';
-}
-
-function normalizeRoleIds(value: unknown): string[] {
-  if (!value || typeof value !== 'object') {
-    return [];
-  }
-  const obj = value as Record<string, unknown>;
-  const roleIdsRaw = Array.isArray(obj.roleIds) ? obj.roleIds : [];
-  const roleListRaw = Array.isArray(obj.roleList) ? obj.roleList : [];
-  const fromIds = roleIdsRaw.map(normalizeIdLike).filter(Boolean);
-  const fromList = roleListRaw
-    .map((item) => {
-      if (!item || typeof item !== 'object') {
-        return '';
-      }
-      const row = item as Record<string, unknown>;
-      return normalizeIdLike(row.id) || normalizeIdLike(row.roleId);
-    })
-    .filter(Boolean);
-  return Array.from(new Set([...fromIds, ...fromList]));
-}
-
 const rootParentId = computed(() => {
   const user = authStore.user as AuthUserWithCompanyId | null;
   const companyId = normalizeIdLike(user?.companyId);
   return companyId || '0';
 });
 
-function normalizeAuthorityUsers(value: unknown): AuthorityUserItem[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value
-    .map((item) => {
-      if (!item || typeof item !== 'object') {
-        return null;
-      }
-      const row = item as Record<string, unknown>;
-      const typeId =
-        normalizeIdLike(row.typeId) ||
-        normalizeIdLike(row.id) ||
-        normalizeIdLike(row.userId) ||
-        normalizeIdLike(row.value);
-      if (!typeId) {
-        return null;
-      }
-      const typeName =
-        normalizeString(row.typeName) ||
-        normalizeString(row.nickName) ||
-        normalizeString(row.name) ||
-        normalizeString(row.title) ||
-        typeId;
-      return {
-        typeId,
-        type: typeof row.type === 'number' ? row.type : 0,
-        typeName
-      };
-    })
-    .filter((item): item is AuthorityUserItem => Boolean(item));
-}
-
-function normalizeEditUsers(value: unknown, fallbackUserIds: unknown): AuthorityUserItem[] {
-  const fromItems = normalizeAuthorityUsers(value);
-  if (fromItems.length > 0) {
-    return fromItems;
-  }
-  if (!Array.isArray(fallbackUserIds)) {
-    return [];
-  }
-  return fallbackUserIds
-    .map((item) => {
-      const id = normalizeIdLike(item);
-      if (!id) {
-        return null;
-      }
-      return {
-        typeId: id,
-        type: 0,
-        typeName: id
-      };
-    })
-    .filter((item): item is AuthorityUserItem => Boolean(item));
-}
+const { fetchNodes, searchNodes } = createPermissionMemberSource({
+  api: portalAuthorityApi,
+  resolveRootParentId: () => rootParentId.value
+});
 
 function hydrateFromInitial(initial: Partial<PortalTemplate> | undefined) {
   const payload = (initial || {}) as Record<string, unknown>;
@@ -238,76 +145,6 @@ function formatUserNames(list: AuthorityUserItem[]): string {
   return list.map((item) => item.typeName || item.typeId).join(', ');
 }
 
-function toPersonnelNode(row: Record<string, unknown>): PersonnelNode | null {
-  const id = normalizeIdLike(row.id);
-  if (!id) {
-    return null;
-  }
-  const nodeTypeRaw = normalizeString(row.nodeType);
-  const hasUser = Boolean(normalizeIdLike(row.userId)) || Boolean(normalizeString(row.nickName));
-  const nodeType =
-    nodeTypeRaw === 'org' || nodeTypeRaw === 'user' ? nodeTypeRaw : hasUser ? 'user' : 'org';
-  const parentId = normalizeIdLike(row.parentId) || '0';
-  const companyId = normalizeIdLike(row.companyId) || '0';
-  const title =
-    normalizeString(row.title) ||
-    normalizeString(row.orgName) ||
-    normalizeString(row.nickName) ||
-    normalizeString(row.userAccount) ||
-    id;
-
-  if (nodeType === 'org') {
-    return {
-      id,
-      parentId,
-      companyId,
-      title,
-      orgName: normalizeString(row.orgName) || title,
-      orgType: typeof row.orgType === 'number' ? row.orgType : 0,
-      nodeType: 'org'
-    };
-  }
-
-  return {
-    id,
-    parentId,
-    companyId,
-    title,
-    userId: normalizeIdLike(row.userId) || id,
-    nickName: normalizeString(row.nickName) || title,
-    userAccount: normalizeString(row.userAccount),
-    phone: normalizeString(row.phone),
-    nodeType: 'user'
-  };
-}
-
-const fetchNodes: PersonnelFetchNodes = async ({ parentId }) => {
-  const normalizedParentId = normalizeIdLike(parentId);
-  const requestParentId =
-    !normalizedParentId || normalizedParentId === '0' ? rootParentId.value : normalizedParentId;
-  const res = await portalAuthorityApi.getOrgContactsLazy({
-    parentId: requestParentId
-  });
-  const rows = Array.isArray(res?.data) ? res.data : [];
-  return rows
-    .map((item) =>
-      item && typeof item === 'object' ? toPersonnelNode(item as Record<string, unknown>) : null
-    )
-    .filter((item): item is PersonnelNode => Boolean(item));
-};
-
-const searchNodes: PersonnelSearchNodes = async ({ keyword }) => {
-  const res = await portalAuthorityApi.searchContactUsers({
-    search: keyword
-  });
-  const rows = Array.isArray(res?.data) ? res.data : [];
-  return rows
-    .map((item) =>
-      item && typeof item === 'object' ? toPersonnelNode(item as Record<string, unknown>) : null
-    )
-    .filter((item): item is PersonnelNode => Boolean(item && item.nodeType === 'user'));
-};
-
 async function ensureRoleOptions() {
   if (roleOptions.value.length > 0 || roleLoading.value) {
     return;
@@ -315,44 +152,7 @@ async function ensureRoleOptions() {
 
   roleLoading.value = true;
   try {
-    const listRes = await portalAuthorityApi.listRoles();
-    const rows = Array.isArray(listRes?.data) ? listRes.data : [];
-    roleOptions.value = rows
-      .map((item) => {
-        const id = normalizeIdLike(item?.id);
-        if (!id) {
-          return null;
-        }
-        const name = normalizeString(item?.name) || normalizeString(item?.roleName) || id;
-        return { id, name };
-      })
-      .filter((item): item is RoleOption => Boolean(item));
-    if (roleOptions.value.length > 0) {
-      return;
-    }
-  } catch {
-    // 这里降级到分页接口，避免不同后端版本只提供 page 时无法配置权限。
-  } finally {
-    roleLoading.value = false;
-  }
-
-  roleLoading.value = true;
-  try {
-    const pageRes = await portalAuthorityApi.pageRoles({
-      currentPage: 1,
-      pageSize: 500
-    });
-    const records = Array.isArray(pageRes?.data?.records) ? pageRes.data.records : [];
-    roleOptions.value = records
-      .map((item) => {
-        const id = normalizeIdLike(item?.id);
-        if (!id) {
-          return null;
-        }
-        const name = normalizeString(item?.name) || normalizeString(item?.roleName) || id;
-        return { id, name };
-      })
-      .filter((item): item is RoleOption => Boolean(item));
+    roleOptions.value = await loadPermissionRoleOptions(portalAuthorityApi);
   } finally {
     roleLoading.value = false;
   }
@@ -432,47 +232,10 @@ function onCancel() {
   visible.value = false;
 }
 
-function buildTemplateAuthorityPayload(): TemplateAuthorityPayload {
-  const isRole = form.authType === 'role';
-
-  if (isRole) {
-    return {
-      authType: 'role',
-      whiteDTOS: [],
-      blackDTOS: [],
-      userIds: [],
-      whiteList: [],
-      blackList: [],
-      editUsers: [],
-      allowRole: { roleIds: [...form.allowRoleIds] },
-      forbiddenRole: { roleIds: [...form.forbiddenRoleIds] },
-      configRole: { roleIds: [...form.configRoleIds] }
-    };
-  }
-
-  const white = form.whiteUsers.map((item) => ({ ...item, type: 0 }));
-  const black = form.blackUsers.map((item) => ({ ...item, type: 0 }));
-  const edit = form.editUsers.map((item) => ({ ...item, type: 0 }));
-
-  return {
-    authType: 'person',
-    whiteDTOS: white,
-    blackDTOS: black,
-    userIds: edit.map((item) => item.typeId),
-    whiteList: white,
-    blackList: black,
-    editUsers: edit,
-    allowRole: { roleIds: [] },
-    forbiddenRole: { roleIds: [] },
-    configRole: { roleIds: [] }
-  };
-}
-
 function onSubmit() {
-  emit('submit', buildTemplateAuthorityPayload());
+  emit('submit', buildTemplateAuthorityPayload(form));
 }
 </script>
-
 <template>
   <template v-if="props.embedded">
     <div class="authority-panel authority-panel--embedded">
