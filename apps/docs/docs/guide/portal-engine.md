@@ -44,8 +44,8 @@ packages/portal-engine/src/
 ## 导出入口职责（2026-03-18）
 
 - `@one-base-template/portal-engine`（root）
-  - 仅承载稳定通用能力：runtime/schema/material API、稳定的工作台公共能力与语义化别名。
-  - 不再暴露旧 `public` 命名与实现语义命名组件。
+  - 仅承载稳定通用能力：runtime/schema/material API、preview 渲染公共能力与语义化 designer alias。
+  - 不再暴露旧 `public` 命名，以及原始 workbench/controller/form/route helper。
 - `@one-base-template/portal-engine/designer`
   - 作为 admin 默认业务接入入口，优先用于设计器路由与页面编排消费。
   - 对外提供语义化的设计器 composable、组件与类型。

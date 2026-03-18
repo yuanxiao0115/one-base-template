@@ -228,54 +228,15 @@ export {
   type PortalPreviewViewportMessage
 } from './editor/preview-bridge';
 export type {
-  CreateTemplateWorkbenchControllerOptions,
-  SubmitTabAttributePayload,
-  TemplateWorkbenchApi,
-  TemplateWorkbenchConfirmParams,
-  TemplateWorkbenchController,
-  TemplateWorkbenchNotifier,
-  TreeSortDropPayload
-} from './workbench/template-workbench-controller';
-export { createTemplateWorkbenchController } from './workbench/template-workbench-controller';
-export { useTemplateWorkbench } from './workbench/useTemplateWorkbench';
-export { default as PortalTabTree } from './workbench/PortalTabTree.vue';
-export { default as PortalPageSettingsForm } from './workbench/page-settings/PortalPageSettingsForm.vue';
-export { default as PortalShellHeaderSettingsForm } from './workbench/shell-settings/PortalShellHeaderSettingsForm.vue';
-export { default as PortalShellFooterSettingsForm } from './workbench/shell-settings/PortalShellFooterSettingsForm.vue';
-export type {
-  CreateTemplateWorkbenchPageControllerOptions,
-  TemplateWorkbenchPageController,
-  TemplateWorkbenchPagePreviewTarget
-} from './workbench/template-workbench-page-controller';
-export { createTemplateWorkbenchPageController } from './workbench/template-workbench-page-controller';
-export { useTemplateWorkbenchPage } from './workbench/useTemplateWorkbenchPage';
-export type {
   PortalRouteQueryLike as PortalPreviewRouteQueryLike,
   PortalRouteQueryPrimitive as PortalPreviewRouteQueryPrimitive,
   PortalRouteQueryValue as PortalPreviewRouteQueryValue
-} from './workbench/template-workbench-route';
-export {
-  buildNextRouteQueryWithTabId,
-  buildPortalPageEditorBackRouteLocation,
-  buildPortalPageEditorRouteLocation,
-  buildPortalPreviewRouteLocation,
-  resolvePortalTabIdFromQuery,
-  resolvePortalTemplateIdFromQuery
 } from './workbench/template-workbench-route';
 export type {
   PortalPreviewRouteParamsLike,
   UsePortalPreviewPageByRouteOptions as UsePortalPreviewRouteOptions
 } from './workbench/usePortalPreviewPageByRoute';
 export { usePortalPreviewPageByRoute } from './workbench/usePortalPreviewPageByRoute';
-export type {
-  CreatePageEditorControllerOptions,
-  PortalPageEditorLayoutStore,
-  PageEditorController,
-  PortalPageEditorApi,
-  PortalPageEditorNotifier,
-  PortalPageEditorTabDetail
-} from './workbench/page-editor-controller';
-export { createPageEditorController } from './workbench/page-editor-controller';
 export type {
   CreatePortalPreviewDataSourceOptions,
   PortalPreviewBizResponseLike
@@ -284,7 +245,6 @@ export {
   createPortalPreviewDataSource,
   isPortalPreviewBizOk
 } from './workbench/preview-data-source';
-export { usePageEditorWorkbench } from './workbench/usePageEditorWorkbench';
 export * from './public-designer';
 export {
   calcPortalManualPanRange,

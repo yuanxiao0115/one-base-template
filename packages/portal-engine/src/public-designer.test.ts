@@ -69,6 +69,30 @@ const rootInternalDesignerSymbols = [
   'usePageEditorWorkbenchByRoute'
 ] as const;
 
+const rootInternalWorkbenchSymbols = [
+  'createTemplateWorkbenchController',
+  'useTemplateWorkbench',
+  'PortalTabTree',
+  'PortalPageSettingsForm',
+  'PortalShellHeaderSettingsForm',
+  'PortalShellFooterSettingsForm',
+  'createTemplateWorkbenchPageController',
+  'useTemplateWorkbenchPage',
+  'buildNextRouteQueryWithTabId',
+  'buildPortalPageEditorBackRouteLocation',
+  'buildPortalPageEditorRouteLocation',
+  'buildPortalPreviewRouteLocation',
+  'resolvePortalTabIdFromQuery',
+  'resolvePortalTemplateIdFromQuery',
+  'createPageEditorController',
+  'usePageEditorWorkbench'
+] as const;
+
+const internalWorkbenchSymbols = [
+  ...rootInternalDesignerSymbols,
+  ...rootInternalWorkbenchSymbols
+] as const;
+
 describe('public designer exports', () => {
   it('语义化组件别名应映射到现有实现', () => {
     expect(PortalTemplateDesignerLayout).toBe(PortalTemplateWorkbenchShell);
@@ -176,6 +200,9 @@ describe('public designer exports', () => {
     for (const symbol of rootInternalDesignerSymbols) {
       expect(symbol in rootExports).toBe(false);
     }
+    for (const symbol of rootInternalWorkbenchSymbols) {
+      expect(symbol in rootExports).toBe(false);
+    }
   });
 
   it('package exports 应允许通过 internal 子路径导入', async () => {
@@ -191,5 +218,8 @@ describe('public designer exports', () => {
     expect(internalExports.PropertyPanel).toBe(PropertyPanel);
     expect(internalExports.useTemplateWorkbenchPageByRoute).toBe(useTemplateWorkbenchPageByRoute);
     expect(internalExports.usePageEditorWorkbenchByRoute).toBe(usePageEditorWorkbenchByRoute);
+    for (const symbol of internalWorkbenchSymbols) {
+      expect(symbol in internalExports).toBe(true);
+    }
   });
 });
