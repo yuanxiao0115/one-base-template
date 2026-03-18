@@ -98,10 +98,15 @@ pnpm -C apps/admin lint:fix
 ```bash
 pnpm -C packages/portal-engine run verify:materials
 pnpm -C packages/portal-engine run test:run -- src/public-designer.test.ts src/materials/extensions.test.ts src/materials/registerMaterialExtensions.test.ts
-pnpm -C apps/admin run test:run -- src/modules/PortalManagement/engine/register.unit.test.ts
+pnpm -C apps/admin run test:run:file -- src/modules/PortalManagement/engine/register.unit.test.ts
 pnpm -C apps/docs lint
 pnpm -C apps/docs build
 ```
+
+说明：
+
+- `pnpm -C apps/admin run test:run` 当前会连带执行整组 admin 测试。
+- 只想精确回归单文件时，统一使用 `pnpm -C apps/admin run test:run:file -- <path>`。
 
 `verify:materials` 当前会覆盖三类门禁：
 
