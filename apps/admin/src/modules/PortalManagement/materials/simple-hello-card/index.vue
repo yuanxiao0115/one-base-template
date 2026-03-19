@@ -1,99 +1,62 @@
 <script setup lang="ts">
 import { computed, type CSSProperties } from 'vue';
-
-interface HelloCardSchema {
-  content?: {
-    basic?: {
-      title?: string;
-      description?: string;
-      showBadge?: boolean;
-      badgeText?: string;
-    };
-  };
-  style?: {
-    card?: {
-      backgroundColor?: string;
-      titleColor?: string;
-      descriptionColor?: string;
-      badgeBackgroundColor?: string;
-      badgeTextColor?: string;
-      borderColor?: string;
-      borderRadius?: number;
-      paddingY?: number;
-      paddingX?: number;
-    };
-  };
-}
+import {
+  mergePortalSimpleHelloCardBasicConfig,
+  mergePortalSimpleHelloCardStyleConfig,
+  PORTAL_SIMPLE_HELLO_CARD_INDEX_NAME,
+  type PortalSimpleHelloCardSchema
+} from './defaults';
 
 const props = defineProps<{
-  schema?: HelloCardSchema;
+  schema?: PortalSimpleHelloCardSchema;
 }>();
 
-const basicContent = computed(() => props.schema?.content?.basic ?? {});
-const cardStyle = computed(() => props.schema?.style?.card ?? {});
-
-const titleText = computed(() => {
-  const value = basicContent.value.title;
-  return typeof value === 'string' && value.trim() ? value.trim() : '简易欢迎卡片';
-});
-
-const descriptionText = computed(() => {
-  const value = basicContent.value.description;
-  return typeof value === 'string' && value.trim()
-    ? value.trim()
-    : '这是一个最小注册示例物料，可直接拖拽到画布查看效果。';
-});
-
-const badgeVisible = computed(() => basicContent.value.showBadge === true);
-const badgeText = computed(() => {
-  const value = basicContent.value.badgeText;
-  return typeof value === 'string' && value.trim() ? value.trim() : 'DEMO';
-});
-
-function clampNumber(value: unknown, fallback: number, min: number, max: number) {
-  const normalized = Number(value);
-  if (!Number.isFinite(normalized)) {
-    return fallback;
-  }
-  return Math.min(max, Math.max(min, normalized));
-}
+const basicContent = computed(() =>
+  mergePortalSimpleHelloCardBasicConfig(props.schema?.content?.basic)
+);
+const cardStyle = computed(() => mergePortalSimpleHelloCardStyleConfig(props.schema?.style?.card));
 
 const cardStyleObject = computed<CSSProperties>(() => ({
-  border: `1px solid ${cardStyle.value.borderColor || '#cbd5e1'}`,
-  borderRadius: `${clampNumber(cardStyle.value.borderRadius, 8, 0, 40)}px`,
-  background:
-    cardStyle.value.backgroundColor || 'linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%)',
-  padding: `${clampNumber(cardStyle.value.paddingY, 16, 0, 48)}px ${clampNumber(cardStyle.value.paddingX, 16, 0, 48)}px`
+  border: `1px solid ${cardStyle.value.borderColor}`,
+  borderRadius: `${cardStyle.value.borderRadius}px`,
+  background: cardStyle.value.backgroundColor,
+  padding: `${cardStyle.value.paddingY}px ${cardStyle.value.paddingX}px`
 }));
 
 const titleStyleObject = computed<CSSProperties>(() => ({
-  color: cardStyle.value.titleColor || '#1e293b'
+  color: cardStyle.value.titleColor
 }));
 
 const descriptionStyleObject = computed<CSSProperties>(() => ({
-  color: cardStyle.value.descriptionColor || '#475569'
+  color: cardStyle.value.descriptionColor
 }));
 
 const badgeStyleObject = computed<CSSProperties>(() => ({
-  color: cardStyle.value.badgeTextColor || '#ffffff',
-  background: cardStyle.value.badgeBackgroundColor || '#2563eb'
+  color: cardStyle.value.badgeTextColor,
+  background: cardStyle.value.badgeBackgroundColor
 }));
 
 defineOptions({
-  name: 'portal-simple-hello-card-index'
+  name: PORTAL_SIMPLE_HELLO_CARD_INDEX_NAME
 });
 </script>
 
 <template>
   <section class="portal-simple-hello-card" :style="cardStyleObject">
     <div class="portal-simple-hello-card__header">
-      <h3 class="portal-simple-hello-card__title" :style="titleStyleObject">{{ titleText }}</h3>
-      <span v-if="badgeVisible" class="portal-simple-hello-card__badge" :style="badgeStyleObject">
-        {{ badgeText }}
+      <h3 class="portal-simple-hello-card__title" :style="titleStyleObject">
+        {{ basicContent.title }}
+      </h3>
+      <span
+        v-if="basicContent.showBadge"
+        class="portal-simple-hello-card__badge"
+        :style="badgeStyleObject"
+      >
+        {{ basicContent.badgeText }}
       </span>
     </div>
     <p class="portal-simple-hello-card__desc" :style="descriptionStyleObject">
-      {{ descriptionText }}
+      {{ basicContent.description }}
     </p>
   </section>
 </template>

@@ -83,7 +83,8 @@
 
 - `engine/register.ts` 新增扩展签名集合，`setupPortalEngineForAdmin()` 重复调用时会跳过已注册签名，避免同一扩展被重复注册。
 - 幂等策略不改变注册入口约束：页面层仍只允许通过 `setupPortalEngineForAdmin()` 触发引擎注入与扩展注册。
-- `materials/extensions/index.ts` 为 admin 物料扩展声明唯一入口，不再维护 `materials/examples/**` 与 `registerDemoMaterial` 示例开关。
+- `materials/extensions/index.ts` 为 admin 物料扩展声明唯一入口，不再维护 `materials/examples/**` 与 `registerDemoMaterial` 示例开关；入口通过 `import.meta.glob('../*/material.ts')` 自动收集物料 descriptor。
+- admin 自定义物料目录固定结构为 `material.ts + defaults.ts + index.vue + content.vue + style.vue`，默认值集中在 `defaults.ts`，并复用于注册初始配置与编辑面板 merge 兜底。
 - 单测覆盖：`engine/register.unit.test.ts` 新增“重复 setup 不重复注册同签名扩展”断言。
 
 ## 常见改造优先级

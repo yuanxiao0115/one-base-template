@@ -1,50 +1,49 @@
 import {
-  definePortalMaterial,
-  definePortalMaterialCategory,
   definePortalMaterialExtension,
+  type PortalMaterialDescriptor,
   type PortalMaterialExtension
 } from '@one-base-template/portal-engine';
-import PortalSimpleHelloCardContent from '../simple-hello-card/content.vue';
-import PortalSimpleHelloCardIndex from '../simple-hello-card/index.vue';
-import PortalSimpleHelloCardStyle from '../simple-hello-card/style.vue';
 
-// admin 侧唯一扩展入口：直接在这里罗列“需要注册到 PortalManagement 的物料扩展”。
-// 约束：不保留 examples/demo 分叉目录，新增物料时只维护这个数组。
-const portalAdminDemoCategory = definePortalMaterialCategory({
-  id: 'portal-admin',
-  title: '管理端示例',
-  name: '管理端示例',
-  cmptTypeName: '管理端示例'
+interface PortalAdminMaterialModule {
+  PORTAL_ADMIN_MATERIAL?: PortalMaterialDescriptor;
+  default?: PortalMaterialDescriptor;
+}
+
+const portalAdminMaterialModules = import.meta.glob<PortalAdminMaterialModule>('../*/material.ts', {
+  eager: true
 });
 
-const portalSimpleHelloCardMaterial = definePortalMaterial({
-  id: 'portal-simple-hello-card',
-  type: 'portal-simple-hello-card',
-  name: '简易欢迎卡片',
-  icon: 'ri:chat-smile-2-line',
-  width: 12,
-  height: 8,
-  config: {
-    index: {
-      name: 'portal-simple-hello-card-index'
-    },
-    content: {
-      name: 'portal-simple-hello-card-content'
-    },
-    style: {
-      name: 'portal-simple-hello-card-style'
-    }
-  },
-  components: {
-    index: PortalSimpleHelloCardIndex,
-    content: PortalSimpleHelloCardContent,
-    style: PortalSimpleHelloCardStyle
+function resolvePortalAdminMaterial(
+  modulePath: string,
+  moduleValue: PortalAdminMaterialModule
+): PortalMaterialDescriptor {
+  const material = moduleValue.PORTAL_ADMIN_MATERIAL ?? moduleValue.default;
+  if (!material) {
+    throw new Error(`[PortalManagement] ${modulePath} 缺少 PORTAL_ADMIN_MATERIAL 导出`);
   }
-});
+  return material;
+}
+
+function collectPortalAdminMaterials(): PortalMaterialDescriptor[] {
+  const materials = Object.entries(portalAdminMaterialModules)
+    .map(([modulePath, moduleValue]) => resolvePortalAdminMaterial(modulePath, moduleValue))
+    .sort((a, b) => a.type.localeCompare(b.type));
+
+  const typeSet = new Set<string>();
+  materials.forEach((material) => {
+    if (typeSet.has(material.type)) {
+      throw new Error(`[PortalManagement] 物料 type 重复: ${material.type}`);
+    }
+    typeSet.add(material.type);
+  });
+
+  return materials;
+}
+
+const portalAdminMaterials = collectPortalAdminMaterials();
 
 export const PORTAL_ADMIN_MATERIAL_EXTENSIONS = [
   definePortalMaterialExtension({
-    category: portalAdminDemoCategory,
-    materials: [portalSimpleHelloCardMaterial]
+    materials: portalAdminMaterials
   })
 ] satisfies PortalMaterialExtension[];

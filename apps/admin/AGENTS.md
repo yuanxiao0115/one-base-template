@@ -68,6 +68,8 @@
 - 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定为：`/portal/setting`、`/portal/design`、`/portal/page/edit`、`/portal/preview`（`/resource/portal/setting` 仅作为兼容 alias），禁止再通过 `compat.routeAliases` 为该模块做旧路径别名兜底。
 - `PortalManagement` 的设计能力统一收敛到 `designPage` 目录，**页面入口直接放在 `designPage/*.vue`，不再新增 `designPage/pages` 冗余层级**；若后续恢复组件目录，仍需按页面边界分组（如 `portal-template`、`preview-render`），禁止在 `components` 根目录平铺堆叠组件。
 - `PortalManagement/materials` 目录禁止再维护 `examples/demo` 分叉；admin 物料扩展统一只在 `materials/extensions/index.ts` 直接罗列注册项，`engine/register.ts` 不再提供 `registerDemoMaterial` 这类示例开关。
+- `PortalManagement/materials` 每个物料目录固定结构为 `material.ts + defaults.ts + index.vue + content.vue + style.vue`；`extensions/index.ts` 必须通过 `import.meta.glob('../*/material.ts')` 自动聚合注册，禁止回退手工 import 每个组件。
+- `PortalManagement/materials` 的默认值必须集中在各物料 `defaults.ts`，并同时用于 `material.ts` 的 `config` 初始值与 `content/style/index` 的 merge 兜底，避免默认值散落到多个文件。
 - `PortalManagement` 的“可承载子组件拖拽”容器物料统一在 `packages/portal-engine` 内开发与注册，`apps/admin` 仅做消费，禁止再在 admin 模块内注册同类容器物料。
 - 门户容器物料若需要内部拖拽子画布，必须复用引擎既有 pageLayout + GridLayout 子项协议；禁止在 admin 侧实现并维护平行拖拽协议。
 - `PortalManagement/designPage/components/portal-template` 中涉及壳层（门户级）能力时，入口必须放在顶部栏（`PortalDesignerHeaderBar`）；页面工具栏（`PortalDesignerActionStrip`）只允许放页面级动作，禁止放门户级页眉页脚配置入口。

@@ -60,19 +60,14 @@
 <script setup lang="ts">
 import { ObCard, ObColorField } from '@one-base-template/ui';
 import { useSchemaConfig } from '@one-base-template/portal-engine';
+import {
+  mergePortalSimpleHelloCardStyleConfig,
+  PORTAL_SIMPLE_HELLO_CARD_STYLE_NAME,
+  type PortalSimpleHelloCardStyleConfig
+} from './defaults';
 
 interface HelloCardStyleData {
-  card: {
-    backgroundColor: string;
-    titleColor: string;
-    descriptionColor: string;
-    badgeBackgroundColor: string;
-    badgeTextColor: string;
-    borderColor: string;
-    borderRadius: number;
-    paddingY: number;
-    paddingX: number;
-  };
+  card: PortalSimpleHelloCardStyleConfig;
 }
 
 const props = defineProps({
@@ -85,7 +80,7 @@ const props = defineProps({
 const emit = defineEmits(['schemaChange']);
 
 const { sectionData } = useSchemaConfig<HelloCardStyleData>({
-  name: 'portal-simple-hello-card-style',
+  name: PORTAL_SIMPLE_HELLO_CARD_STYLE_NAME,
   sections: {
     card: {}
   },
@@ -95,46 +90,10 @@ const { sectionData } = useSchemaConfig<HelloCardStyleData>({
   }
 });
 
-sectionData.card = {
-  backgroundColor:
-    typeof sectionData.card?.backgroundColor === 'string' && sectionData.card.backgroundColor.trim()
-      ? sectionData.card.backgroundColor
-      : '#eff6ff',
-  titleColor:
-    typeof sectionData.card?.titleColor === 'string' && sectionData.card.titleColor.trim()
-      ? sectionData.card.titleColor
-      : '#1e293b',
-  descriptionColor:
-    typeof sectionData.card?.descriptionColor === 'string' &&
-    sectionData.card.descriptionColor.trim()
-      ? sectionData.card.descriptionColor
-      : '#475569',
-  badgeBackgroundColor:
-    typeof sectionData.card?.badgeBackgroundColor === 'string' &&
-    sectionData.card.badgeBackgroundColor.trim()
-      ? sectionData.card.badgeBackgroundColor
-      : '#2563eb',
-  badgeTextColor:
-    typeof sectionData.card?.badgeTextColor === 'string' && sectionData.card.badgeTextColor.trim()
-      ? sectionData.card.badgeTextColor
-      : '#ffffff',
-  borderColor:
-    typeof sectionData.card?.borderColor === 'string' && sectionData.card.borderColor.trim()
-      ? sectionData.card.borderColor
-      : '#cbd5e1',
-  borderRadius: Number.isFinite(Number(sectionData.card?.borderRadius))
-    ? Number(sectionData.card.borderRadius)
-    : 8,
-  paddingY: Number.isFinite(Number(sectionData.card?.paddingY))
-    ? Number(sectionData.card.paddingY)
-    : 16,
-  paddingX: Number.isFinite(Number(sectionData.card?.paddingX))
-    ? Number(sectionData.card.paddingX)
-    : 16
-};
+sectionData.card = mergePortalSimpleHelloCardStyleConfig(sectionData.card);
 
 defineOptions({
-  name: 'portal-simple-hello-card-style'
+  name: PORTAL_SIMPLE_HELLO_CARD_STYLE_NAME
 });
 </script>
 

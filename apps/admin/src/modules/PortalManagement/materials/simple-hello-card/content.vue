@@ -43,14 +43,14 @@
 <script setup lang="ts">
 import { ObCard } from '@one-base-template/ui';
 import { useSchemaConfig } from '@one-base-template/portal-engine';
+import {
+  mergePortalSimpleHelloCardBasicConfig,
+  PORTAL_SIMPLE_HELLO_CARD_CONTENT_NAME,
+  type PortalSimpleHelloCardBasicConfig
+} from './defaults';
 
 interface HelloCardContentData {
-  basic: {
-    title: string;
-    description: string;
-    showBadge: boolean;
-    badgeText: string;
-  };
+  basic: PortalSimpleHelloCardBasicConfig;
 }
 
 const props = defineProps({
@@ -63,7 +63,7 @@ const props = defineProps({
 const emit = defineEmits(['schemaChange']);
 
 const { sectionData } = useSchemaConfig<HelloCardContentData>({
-  name: 'portal-simple-hello-card-content',
+  name: PORTAL_SIMPLE_HELLO_CARD_CONTENT_NAME,
   sections: {
     basic: {}
   },
@@ -73,24 +73,10 @@ const { sectionData } = useSchemaConfig<HelloCardContentData>({
   }
 });
 
-sectionData.basic = {
-  title:
-    typeof sectionData.basic?.title === 'string' && sectionData.basic.title.trim()
-      ? sectionData.basic.title
-      : '简易欢迎卡片',
-  description:
-    typeof sectionData.basic?.description === 'string' && sectionData.basic.description.trim()
-      ? sectionData.basic.description
-      : '这是一个最小注册示例物料，可直接拖拽到画布查看效果。',
-  showBadge: sectionData.basic?.showBadge === true,
-  badgeText:
-    typeof sectionData.basic?.badgeText === 'string' && sectionData.basic.badgeText.trim()
-      ? sectionData.basic.badgeText
-      : 'DEMO'
-};
+sectionData.basic = mergePortalSimpleHelloCardBasicConfig(sectionData.basic);
 
 defineOptions({
-  name: 'portal-simple-hello-card-content'
+  name: PORTAL_SIMPLE_HELLO_CARD_CONTENT_NAME
 });
 </script>
 
