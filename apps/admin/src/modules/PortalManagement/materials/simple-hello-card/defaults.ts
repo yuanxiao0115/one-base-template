@@ -31,51 +31,19 @@ function toRecord(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function normalizeText(value: unknown, fallback: string): string {
-  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
-}
-
-function normalizeNumber(value: unknown, fallback: number, min: number, max: number): number {
-  const normalized = Number(value);
-  if (!Number.isFinite(normalized)) {
-    return fallback;
-  }
-  return Math.min(max, Math.max(min, normalized));
+function mergeWithDefaults<T extends Record<string, unknown>>(defaults: T, value: unknown): T {
+  return {
+    ...defaults,
+    ...toRecord(value)
+  };
 }
 
 export function mergePortalSimpleHelloCardBasicConfig(value?: unknown) {
-  const fallback = PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.content.basic;
-  const input = toRecord(value);
-  const merged = {
-    ...fallback,
-    ...input
-  };
-  return {
-    title: normalizeText(merged.title, fallback.title),
-    description: normalizeText(merged.description, fallback.description),
-    showBadge: merged.showBadge === true,
-    badgeText: normalizeText(merged.badgeText, fallback.badgeText)
-  };
+  return mergeWithDefaults(PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.content.basic, value);
 }
 
 export function mergePortalSimpleHelloCardStyleConfig(value?: unknown) {
-  const fallback = PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.style.card;
-  const input = toRecord(value);
-  const merged = {
-    ...fallback,
-    ...input
-  };
-  return {
-    backgroundColor: normalizeText(merged.backgroundColor, fallback.backgroundColor),
-    titleColor: normalizeText(merged.titleColor, fallback.titleColor),
-    descriptionColor: normalizeText(merged.descriptionColor, fallback.descriptionColor),
-    badgeBackgroundColor: normalizeText(merged.badgeBackgroundColor, fallback.badgeBackgroundColor),
-    badgeTextColor: normalizeText(merged.badgeTextColor, fallback.badgeTextColor),
-    borderColor: normalizeText(merged.borderColor, fallback.borderColor),
-    borderRadius: normalizeNumber(merged.borderRadius, fallback.borderRadius, 0, 40),
-    paddingY: normalizeNumber(merged.paddingY, fallback.paddingY, 0, 48),
-    paddingX: normalizeNumber(merged.paddingX, fallback.paddingX, 0, 48)
-  };
+  return mergeWithDefaults(PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.style.card, value);
 }
 
 export function createPortalSimpleHelloCardMaterialConfig(): PortalMaterialConfig {
