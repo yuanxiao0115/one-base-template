@@ -21,6 +21,9 @@
 
 - `materials` 目录不再维护 `examples/demo` 分叉目录。
 - 需要注册的扩展直接在 `materials/extensions/index.ts` 数组中罗列。
+- 当前最小示例物料：
+  - 组件文件：`apps/admin/src/modules/PortalManagement/materials/simple-hello-card/index.vue`
+  - 注册入口：`apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
 
 ## 最小流程
 
