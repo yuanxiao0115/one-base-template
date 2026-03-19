@@ -87,7 +87,6 @@ import {
 import { mergePortalLinkConfig, type PortalLinkConfig } from '../common/portal-link';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -111,6 +110,27 @@ interface BaseCardListContentData {
   };
 }
 
+const BASE_CARD_LIST_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '卡片列表',
+  subtitle: '支持静态与接口数据映射'
+});
+
+const BASE_CARD_LIST_CONTENT_DATA_SOURCE_DEFAULTS = {
+  ...createDefaultPortalDataSourceModel(),
+  staticRowsJson:
+    '[{"id":"1","title":"示例卡片一","description":"这是一个卡片描述","cover":"","publishTime":"2026-03-10"}]'
+};
+
+const BASE_CARD_LIST_CONTENT_LIST_DEFAULTS = {
+  titleKey: 'title',
+  descriptionKey: 'description',
+  imageKey: 'cover',
+  dateKey: 'publishTime',
+  idKey: 'id',
+  pageSize: 6,
+  showPagination: true
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -123,9 +143,15 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<BaseCardListContentData>({
   name: 'base-card-list-content',
   sections: {
-    container: {},
-    dataSource: {},
-    list: {}
+    container: {
+      defaultValue: BASE_CARD_LIST_CONTENT_CONTAINER_DEFAULTS
+    },
+    dataSource: {
+      defaultValue: BASE_CARD_LIST_CONTENT_DATA_SOURCE_DEFAULTS
+    },
+    list: {
+      defaultValue: BASE_CARD_LIST_CONTENT_LIST_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -136,35 +162,34 @@ const { sectionData } = useSchemaConfig<BaseCardListContentData>({
 sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
 sectionData.dataSource = mergePortalDataSourceModel(sectionData.dataSource);
 if (!sectionData.dataSource.staticRowsJson.trim()) {
-  sectionData.dataSource = {
-    ...createDefaultPortalDataSourceModel(),
-    staticRowsJson:
-      '[{"id":"1","title":"示例卡片一","description":"这是一个卡片描述","cover":"","publishTime":"2026-03-10"}]'
-  };
+  sectionData.dataSource = { ...BASE_CARD_LIST_CONTENT_DATA_SOURCE_DEFAULTS };
 }
 
 sectionData.list = {
   titleKey:
     typeof sectionData.list?.titleKey === 'string' && sectionData.list.titleKey.trim()
       ? sectionData.list.titleKey
-      : 'title',
+      : BASE_CARD_LIST_CONTENT_LIST_DEFAULTS.titleKey,
   descriptionKey:
     typeof sectionData.list?.descriptionKey === 'string' && sectionData.list.descriptionKey.trim()
       ? sectionData.list.descriptionKey
-      : 'description',
+      : BASE_CARD_LIST_CONTENT_LIST_DEFAULTS.descriptionKey,
   imageKey:
     typeof sectionData.list?.imageKey === 'string' && sectionData.list.imageKey.trim()
       ? sectionData.list.imageKey
-      : 'cover',
+      : BASE_CARD_LIST_CONTENT_LIST_DEFAULTS.imageKey,
   dateKey:
     typeof sectionData.list?.dateKey === 'string' && sectionData.list.dateKey.trim()
       ? sectionData.list.dateKey
-      : 'publishTime',
+      : BASE_CARD_LIST_CONTENT_LIST_DEFAULTS.dateKey,
   idKey:
     typeof sectionData.list?.idKey === 'string' && sectionData.list.idKey.trim()
       ? sectionData.list.idKey
-      : 'id',
-  pageSize: Number(sectionData.list?.pageSize) > 0 ? Number(sectionData.list.pageSize) : 6,
+      : BASE_CARD_LIST_CONTENT_LIST_DEFAULTS.idKey,
+  pageSize:
+    Number(sectionData.list?.pageSize) > 0
+      ? Number(sectionData.list.pageSize)
+      : BASE_CARD_LIST_CONTENT_LIST_DEFAULTS.pageSize,
   showPagination: sectionData.list?.showPagination !== false,
   link: mergePortalLinkConfig(
     sectionData.list?.link || {
@@ -184,17 +209,6 @@ if (!sectionData.list.link.paramKey.trim()) {
 }
 if (!sectionData.list.link.valueKey.trim()) {
   sectionData.list.link.valueKey = sectionData.list.idKey;
-}
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '卡片列表';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '支持静态与接口数据映射';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
 }
 
 defineOptions({

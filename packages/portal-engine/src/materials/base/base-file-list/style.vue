@@ -116,6 +116,20 @@ interface BaseFileListStyleData {
   };
 }
 
+const BASE_FILE_LIST_STYLE_DEFAULTS: BaseFileListStyleData['file'] = {
+  rowGap: 8,
+  rowPaddingY: 10,
+  dividerColor: '#e2e8f0',
+  nameColor: '#0f172a',
+  metaColor: '#64748b',
+  linkColor: '#2563eb',
+  iconColor: '#0ea5e9',
+  nameFontSize: 14,
+  metaFontSize: 12,
+  paginationAlign: 'right',
+  paginationTopGap: 10
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -129,7 +143,9 @@ const { sectionData } = useSchemaConfig<BaseFileListStyleData>({
   name: 'base-file-list-style',
   sections: {
     container: {},
-    file: {}
+    file: {
+      defaultValue: BASE_FILE_LIST_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -139,26 +155,32 @@ const { sectionData } = useSchemaConfig<BaseFileListStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.file = {
-  rowGap: Number.isFinite(Number(sectionData.file?.rowGap)) ? Number(sectionData.file.rowGap) : 8,
+  rowGap: Number.isFinite(Number(sectionData.file?.rowGap))
+    ? Number(sectionData.file.rowGap)
+    : BASE_FILE_LIST_STYLE_DEFAULTS.rowGap,
   rowPaddingY: Number.isFinite(Number(sectionData.file?.rowPaddingY))
     ? Number(sectionData.file.rowPaddingY)
-    : 10,
-  dividerColor: sectionData.file?.dividerColor || '#e2e8f0',
-  nameColor: sectionData.file?.nameColor || '#0f172a',
-  metaColor: sectionData.file?.metaColor || '#64748b',
-  linkColor: sectionData.file?.linkColor || '#2563eb',
-  iconColor: sectionData.file?.iconColor || '#0ea5e9',
+    : BASE_FILE_LIST_STYLE_DEFAULTS.rowPaddingY,
+  dividerColor: sectionData.file?.dividerColor || BASE_FILE_LIST_STYLE_DEFAULTS.dividerColor,
+  nameColor: sectionData.file?.nameColor || BASE_FILE_LIST_STYLE_DEFAULTS.nameColor,
+  metaColor: sectionData.file?.metaColor || BASE_FILE_LIST_STYLE_DEFAULTS.metaColor,
+  linkColor: sectionData.file?.linkColor || BASE_FILE_LIST_STYLE_DEFAULTS.linkColor,
+  iconColor: sectionData.file?.iconColor || BASE_FILE_LIST_STYLE_DEFAULTS.iconColor,
   nameFontSize:
-    Number(sectionData.file?.nameFontSize) > 0 ? Number(sectionData.file.nameFontSize) : 14,
+    Number(sectionData.file?.nameFontSize) > 0
+      ? Number(sectionData.file.nameFontSize)
+      : BASE_FILE_LIST_STYLE_DEFAULTS.nameFontSize,
   metaFontSize:
-    Number(sectionData.file?.metaFontSize) > 0 ? Number(sectionData.file.metaFontSize) : 12,
+    Number(sectionData.file?.metaFontSize) > 0
+      ? Number(sectionData.file.metaFontSize)
+      : BASE_FILE_LIST_STYLE_DEFAULTS.metaFontSize,
   paginationAlign:
     sectionData.file?.paginationAlign === 'left' || sectionData.file?.paginationAlign === 'center'
       ? sectionData.file.paginationAlign
-      : 'right',
+      : BASE_FILE_LIST_STYLE_DEFAULTS.paginationAlign,
   paginationTopGap: Number.isFinite(Number(sectionData.file?.paginationTopGap))
     ? Number(sectionData.file.paginationTopGap)
-    : 10
+    : BASE_FILE_LIST_STYLE_DEFAULTS.paginationTopGap
 };
 
 defineOptions({

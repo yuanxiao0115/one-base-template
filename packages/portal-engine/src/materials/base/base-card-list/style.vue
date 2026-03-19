@@ -130,6 +130,22 @@ interface BaseCardListStyleData {
   };
 }
 
+const BASE_CARD_LIST_STYLE_DEFAULTS: BaseCardListStyleData['list'] = {
+  columns: 3,
+  gap: 12,
+  cardPadding: 12,
+  cardRadius: 10,
+  cardBorderColor: '#e2e8f0',
+  cardBgColor: '#ffffff',
+  imageHeight: 120,
+  titleColor: '#0f172a',
+  descriptionColor: '#64748b',
+  dateColor: '#94a3b8',
+  titleFontSize: 14,
+  descriptionFontSize: 12,
+  dateFontSize: 12
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -143,7 +159,9 @@ const { sectionData } = useSchemaConfig<BaseCardListStyleData>({
   name: 'base-card-list-style',
   sections: {
     container: {},
-    list: {}
+    list: {
+      defaultValue: BASE_CARD_LIST_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -153,29 +171,42 @@ const { sectionData } = useSchemaConfig<BaseCardListStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.list = {
-  columns: Math.min(4, Math.max(1, Number(sectionData.list?.columns) || 3)),
-  gap: Number.isFinite(Number(sectionData.list?.gap)) ? Number(sectionData.list.gap) : 12,
+  columns: Math.min(
+    4,
+    Math.max(1, Number(sectionData.list?.columns) || BASE_CARD_LIST_STYLE_DEFAULTS.columns)
+  ),
+  gap: Number.isFinite(Number(sectionData.list?.gap))
+    ? Number(sectionData.list.gap)
+    : BASE_CARD_LIST_STYLE_DEFAULTS.gap,
   cardPadding: Number.isFinite(Number(sectionData.list?.cardPadding))
     ? Number(sectionData.list.cardPadding)
-    : 12,
+    : BASE_CARD_LIST_STYLE_DEFAULTS.cardPadding,
   cardRadius: Number.isFinite(Number(sectionData.list?.cardRadius))
     ? Number(sectionData.list.cardRadius)
-    : 10,
-  cardBorderColor: sectionData.list?.cardBorderColor || '#e2e8f0',
-  cardBgColor: sectionData.list?.cardBgColor || '#ffffff',
+    : BASE_CARD_LIST_STYLE_DEFAULTS.cardRadius,
+  cardBorderColor:
+    sectionData.list?.cardBorderColor || BASE_CARD_LIST_STYLE_DEFAULTS.cardBorderColor,
+  cardBgColor: sectionData.list?.cardBgColor || BASE_CARD_LIST_STYLE_DEFAULTS.cardBgColor,
   imageHeight:
-    Number(sectionData.list?.imageHeight) > 0 ? Number(sectionData.list.imageHeight) : 120,
-  titleColor: sectionData.list?.titleColor || '#0f172a',
-  descriptionColor: sectionData.list?.descriptionColor || '#64748b',
-  dateColor: sectionData.list?.dateColor || '#94a3b8',
+    Number(sectionData.list?.imageHeight) > 0
+      ? Number(sectionData.list.imageHeight)
+      : BASE_CARD_LIST_STYLE_DEFAULTS.imageHeight,
+  titleColor: sectionData.list?.titleColor || BASE_CARD_LIST_STYLE_DEFAULTS.titleColor,
+  descriptionColor:
+    sectionData.list?.descriptionColor || BASE_CARD_LIST_STYLE_DEFAULTS.descriptionColor,
+  dateColor: sectionData.list?.dateColor || BASE_CARD_LIST_STYLE_DEFAULTS.dateColor,
   titleFontSize:
-    Number(sectionData.list?.titleFontSize) > 0 ? Number(sectionData.list.titleFontSize) : 14,
+    Number(sectionData.list?.titleFontSize) > 0
+      ? Number(sectionData.list.titleFontSize)
+      : BASE_CARD_LIST_STYLE_DEFAULTS.titleFontSize,
   descriptionFontSize:
     Number(sectionData.list?.descriptionFontSize) > 0
       ? Number(sectionData.list.descriptionFontSize)
-      : 12,
+      : BASE_CARD_LIST_STYLE_DEFAULTS.descriptionFontSize,
   dateFontSize:
-    Number(sectionData.list?.dateFontSize) > 0 ? Number(sectionData.list.dateFontSize) : 12
+    Number(sectionData.list?.dateFontSize) > 0
+      ? Number(sectionData.list.dateFontSize)
+      : BASE_CARD_LIST_STYLE_DEFAULTS.dateFontSize
 };
 
 defineOptions({

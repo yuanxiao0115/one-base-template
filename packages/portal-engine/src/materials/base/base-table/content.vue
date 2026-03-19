@@ -351,7 +351,6 @@ import { ObCard } from '@one-base-template/ui';
 import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -411,6 +410,41 @@ interface BaseTableContentData {
   };
 }
 
+const BASE_TABLE_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '数据表格',
+  subtitle: '支持静态 JSON 与接口返回映射'
+});
+
+const BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS: BaseTableContentData['dataSource'] = {
+  mode: 'static',
+  staticRowsJson: '[\n  {"title":"示例新闻","publishTime":"2026-03-01","id":"1"}\n]',
+  method: 'GET',
+  apiUrl: '',
+  headersJson: '{}',
+  queryJson: '{}',
+  bodyJson: '{}',
+  listPath: 'data.records',
+  totalPath: 'data.total',
+  successPath: 'code',
+  successValue: '200',
+  pageParamKey: 'currentPage',
+  pageSizeParamKey: 'pageSize'
+};
+
+const BASE_TABLE_CONTENT_TABLE_DEFAULTS: BaseTableContentData['table'] = {
+  showHeader: true,
+  showPagination: true,
+  showRowDivider: true,
+  showDot: false,
+  dotFieldKey: '',
+  dotTruthyValue: '',
+  pageSize: 10,
+  pageSizes: [10, 20, 50],
+  emptyText: '暂无数据',
+  tablePropsJson: '{}',
+  columns: []
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -423,9 +457,15 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<BaseTableContentData>({
   name: 'base-table-content',
   sections: {
-    container: {},
-    dataSource: {},
-    table: {}
+    container: {
+      defaultValue: BASE_TABLE_CONTENT_CONTAINER_DEFAULTS
+    },
+    dataSource: {
+      defaultValue: BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS
+    },
+    table: {
+      defaultValue: BASE_TABLE_CONTENT_TABLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -480,50 +520,57 @@ sectionData.dataSource = {
   staticRowsJson:
     typeof sectionData.dataSource?.staticRowsJson === 'string'
       ? sectionData.dataSource.staticRowsJson
-      : '[\n  {"title":"示例新闻","publishTime":"2026-03-01","id":"1"}\n]',
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.staticRowsJson,
   method:
     sectionData.dataSource?.method === 'POST' ||
     sectionData.dataSource?.method === 'PUT' ||
     sectionData.dataSource?.method === 'PATCH'
       ? sectionData.dataSource.method
-      : 'GET',
-  apiUrl: typeof sectionData.dataSource?.apiUrl === 'string' ? sectionData.dataSource.apiUrl : '',
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.method,
+  apiUrl:
+    typeof sectionData.dataSource?.apiUrl === 'string'
+      ? sectionData.dataSource.apiUrl
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.apiUrl,
   headersJson:
     typeof sectionData.dataSource?.headersJson === 'string'
       ? sectionData.dataSource.headersJson
-      : '{}',
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.headersJson,
   queryJson:
-    typeof sectionData.dataSource?.queryJson === 'string' ? sectionData.dataSource.queryJson : '{}',
+    typeof sectionData.dataSource?.queryJson === 'string'
+      ? sectionData.dataSource.queryJson
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.queryJson,
   bodyJson:
-    typeof sectionData.dataSource?.bodyJson === 'string' ? sectionData.dataSource.bodyJson : '{}',
+    typeof sectionData.dataSource?.bodyJson === 'string'
+      ? sectionData.dataSource.bodyJson
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.bodyJson,
   listPath:
     typeof sectionData.dataSource?.listPath === 'string' && sectionData.dataSource.listPath.trim()
       ? sectionData.dataSource.listPath
-      : 'data.records',
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.listPath,
   totalPath:
     typeof sectionData.dataSource?.totalPath === 'string' && sectionData.dataSource.totalPath.trim()
       ? sectionData.dataSource.totalPath
-      : 'data.total',
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.totalPath,
   successPath:
     typeof sectionData.dataSource?.successPath === 'string' &&
     sectionData.dataSource.successPath.trim()
       ? sectionData.dataSource.successPath
-      : 'code',
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.successPath,
   successValue:
     typeof sectionData.dataSource?.successValue === 'string' &&
     sectionData.dataSource.successValue.trim()
       ? sectionData.dataSource.successValue
-      : '200',
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.successValue,
   pageParamKey:
     typeof sectionData.dataSource?.pageParamKey === 'string' &&
     sectionData.dataSource.pageParamKey.trim()
       ? sectionData.dataSource.pageParamKey
-      : 'currentPage',
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.pageParamKey,
   pageSizeParamKey:
     typeof sectionData.dataSource?.pageSizeParamKey === 'string' &&
     sectionData.dataSource.pageSizeParamKey.trim()
       ? sectionData.dataSource.pageSizeParamKey
-      : 'pageSize'
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.pageSizeParamKey
 };
 
 const rawColumns = Array.isArray(sectionData.table?.columns) ? sectionData.table.columns : [];
@@ -536,32 +583,26 @@ sectionData.table = {
     typeof sectionData.table?.dotFieldKey === 'string' ? sectionData.table.dotFieldKey : '',
   dotTruthyValue:
     typeof sectionData.table?.dotTruthyValue === 'string' ? sectionData.table.dotTruthyValue : '',
-  pageSize: Math.max(1, toPositiveNumber(sectionData.table?.pageSize, 10)),
+  pageSize: Math.max(
+    1,
+    toPositiveNumber(sectionData.table?.pageSize, BASE_TABLE_CONTENT_TABLE_DEFAULTS.pageSize)
+  ),
   pageSizes:
     Array.isArray(sectionData.table?.pageSizes) && sectionData.table.pageSizes.length
       ? sectionData.table.pageSizes.map((item) => Math.max(1, Number(item) || 10))
-      : [10, 20, 50],
+      : [...BASE_TABLE_CONTENT_TABLE_DEFAULTS.pageSizes],
   emptyText:
     typeof sectionData.table?.emptyText === 'string' && sectionData.table.emptyText.trim()
       ? sectionData.table.emptyText
-      : '暂无数据',
+      : BASE_TABLE_CONTENT_TABLE_DEFAULTS.emptyText,
   tablePropsJson:
-    typeof sectionData.table?.tablePropsJson === 'string' ? sectionData.table.tablePropsJson : '{}',
+    typeof sectionData.table?.tablePropsJson === 'string'
+      ? sectionData.table.tablePropsJson
+      : BASE_TABLE_CONTENT_TABLE_DEFAULTS.tablePropsJson,
   columns: rawColumns.length
     ? rawColumns.map((item, index) => normalizeColumn(item, index))
     : [createColumn(1)]
 };
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '数据表格';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '支持静态 JSON 与接口返回映射';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
-}
 
 const pageSizesText = computed({
   get: () => sectionData.table.pageSizes.join(','),
@@ -570,7 +611,9 @@ const pageSizesText = computed({
       .map((item) => Number(item))
       .filter((item) => Number.isFinite(item) && item > 0)
       .map((item) => Math.floor(item));
-    sectionData.table.pageSizes = values.length ? values : [10, 20, 50];
+    sectionData.table.pageSizes = values.length
+      ? values
+      : [...BASE_TABLE_CONTENT_TABLE_DEFAULTS.pageSizes];
   }
 });
 

@@ -96,7 +96,6 @@ import {
 import { mergePortalLinkConfig, type PortalLinkConfig } from '../common/portal-link';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -121,6 +120,28 @@ interface BaseFileListContentData {
   };
 }
 
+const BASE_FILE_LIST_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '文件列表',
+  subtitle: '支持附件下载与详情跳转'
+});
+
+const BASE_FILE_LIST_CONTENT_DATA_SOURCE_DEFAULTS = {
+  ...createDefaultPortalDataSourceModel(),
+  staticRowsJson:
+    '[{"id":"1","name":"操作手册.pdf","size":"2.4MB","publishTime":"2026-03-10","url":""}]'
+};
+
+const BASE_FILE_LIST_CONTENT_FILE_DEFAULTS = {
+  nameKey: 'name',
+  sizeKey: 'size',
+  timeKey: 'publishTime',
+  urlKey: 'url',
+  idKey: 'id',
+  showIcon: true,
+  pageSize: 8,
+  showPagination: true
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -133,9 +154,15 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<BaseFileListContentData>({
   name: 'base-file-list-content',
   sections: {
-    container: {},
-    dataSource: {},
-    file: {}
+    container: {
+      defaultValue: BASE_FILE_LIST_CONTENT_CONTAINER_DEFAULTS
+    },
+    dataSource: {
+      defaultValue: BASE_FILE_LIST_CONTENT_DATA_SOURCE_DEFAULTS
+    },
+    file: {
+      defaultValue: BASE_FILE_LIST_CONTENT_FILE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -146,36 +173,35 @@ const { sectionData } = useSchemaConfig<BaseFileListContentData>({
 sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
 sectionData.dataSource = mergePortalDataSourceModel(sectionData.dataSource);
 if (!sectionData.dataSource.staticRowsJson.trim()) {
-  sectionData.dataSource = {
-    ...createDefaultPortalDataSourceModel(),
-    staticRowsJson:
-      '[{"id":"1","name":"操作手册.pdf","size":"2.4MB","publishTime":"2026-03-10","url":""}]'
-  };
+  sectionData.dataSource = { ...BASE_FILE_LIST_CONTENT_DATA_SOURCE_DEFAULTS };
 }
 
 sectionData.file = {
   nameKey:
     typeof sectionData.file?.nameKey === 'string' && sectionData.file.nameKey.trim()
       ? sectionData.file.nameKey
-      : 'name',
+      : BASE_FILE_LIST_CONTENT_FILE_DEFAULTS.nameKey,
   sizeKey:
     typeof sectionData.file?.sizeKey === 'string' && sectionData.file.sizeKey.trim()
       ? sectionData.file.sizeKey
-      : 'size',
+      : BASE_FILE_LIST_CONTENT_FILE_DEFAULTS.sizeKey,
   timeKey:
     typeof sectionData.file?.timeKey === 'string' && sectionData.file.timeKey.trim()
       ? sectionData.file.timeKey
-      : 'publishTime',
+      : BASE_FILE_LIST_CONTENT_FILE_DEFAULTS.timeKey,
   urlKey:
     typeof sectionData.file?.urlKey === 'string' && sectionData.file.urlKey.trim()
       ? sectionData.file.urlKey
-      : 'url',
+      : BASE_FILE_LIST_CONTENT_FILE_DEFAULTS.urlKey,
   idKey:
     typeof sectionData.file?.idKey === 'string' && sectionData.file.idKey.trim()
       ? sectionData.file.idKey
-      : 'id',
+      : BASE_FILE_LIST_CONTENT_FILE_DEFAULTS.idKey,
   showIcon: sectionData.file?.showIcon !== false,
-  pageSize: Number(sectionData.file?.pageSize) > 0 ? Number(sectionData.file.pageSize) : 8,
+  pageSize:
+    Number(sectionData.file?.pageSize) > 0
+      ? Number(sectionData.file.pageSize)
+      : BASE_FILE_LIST_CONTENT_FILE_DEFAULTS.pageSize,
   showPagination: sectionData.file?.showPagination !== false,
   link: mergePortalLinkConfig(
     sectionData.file?.link || {
@@ -195,17 +221,6 @@ if (!sectionData.file.link.paramKey.trim()) {
 }
 if (!sectionData.file.link.valueKey.trim()) {
   sectionData.file.link.valueKey = sectionData.file.idKey;
-}
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '文件列表';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '支持附件下载与详情跳转';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
 }
 
 defineOptions({

@@ -128,6 +128,22 @@ interface BaseTableStyleData {
   };
 }
 
+const BASE_TABLE_STYLE_DEFAULTS: BaseTableStyleData['table'] = {
+  headerBgColor: '#f8fafc',
+  headerTextColor: '#334155',
+  headerFontSize: 14,
+  headerRadius: 8,
+  rowTextColor: '#334155',
+  rowFontSize: 14,
+  rowHoverBgColor: '#f8fafc',
+  dividerColor: '#e2e8f0',
+  linkColor: '#2563eb',
+  dotColor: '#2563eb',
+  dotSize: 6,
+  paginationAlign: 'right',
+  paginationTopGap: 12
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -141,7 +157,9 @@ const { sectionData } = useSchemaConfig<BaseTableStyleData>({
   name: 'base-table-style',
   sections: {
     container: {},
-    table: {}
+    table: {
+      defaultValue: BASE_TABLE_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -151,28 +169,35 @@ const { sectionData } = useSchemaConfig<BaseTableStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.table = {
-  headerBgColor: sectionData.table?.headerBgColor || '#f8fafc',
-  headerTextColor: sectionData.table?.headerTextColor || '#334155',
+  headerBgColor: sectionData.table?.headerBgColor || BASE_TABLE_STYLE_DEFAULTS.headerBgColor,
+  headerTextColor: sectionData.table?.headerTextColor || BASE_TABLE_STYLE_DEFAULTS.headerTextColor,
   headerFontSize:
-    Number(sectionData.table?.headerFontSize) > 0 ? Number(sectionData.table.headerFontSize) : 14,
+    Number(sectionData.table?.headerFontSize) > 0
+      ? Number(sectionData.table.headerFontSize)
+      : BASE_TABLE_STYLE_DEFAULTS.headerFontSize,
   headerRadius: Number.isFinite(Number(sectionData.table?.headerRadius))
     ? Number(sectionData.table.headerRadius)
-    : 8,
-  rowTextColor: sectionData.table?.rowTextColor || '#334155',
+    : BASE_TABLE_STYLE_DEFAULTS.headerRadius,
+  rowTextColor: sectionData.table?.rowTextColor || BASE_TABLE_STYLE_DEFAULTS.rowTextColor,
   rowFontSize:
-    Number(sectionData.table?.rowFontSize) > 0 ? Number(sectionData.table.rowFontSize) : 14,
-  rowHoverBgColor: sectionData.table?.rowHoverBgColor || '#f8fafc',
-  dividerColor: sectionData.table?.dividerColor || '#e2e8f0',
-  linkColor: sectionData.table?.linkColor || '#2563eb',
-  dotColor: sectionData.table?.dotColor || '#2563eb',
-  dotSize: Number(sectionData.table?.dotSize) > 0 ? Number(sectionData.table.dotSize) : 6,
+    Number(sectionData.table?.rowFontSize) > 0
+      ? Number(sectionData.table.rowFontSize)
+      : BASE_TABLE_STYLE_DEFAULTS.rowFontSize,
+  rowHoverBgColor: sectionData.table?.rowHoverBgColor || BASE_TABLE_STYLE_DEFAULTS.rowHoverBgColor,
+  dividerColor: sectionData.table?.dividerColor || BASE_TABLE_STYLE_DEFAULTS.dividerColor,
+  linkColor: sectionData.table?.linkColor || BASE_TABLE_STYLE_DEFAULTS.linkColor,
+  dotColor: sectionData.table?.dotColor || BASE_TABLE_STYLE_DEFAULTS.dotColor,
+  dotSize:
+    Number(sectionData.table?.dotSize) > 0
+      ? Number(sectionData.table.dotSize)
+      : BASE_TABLE_STYLE_DEFAULTS.dotSize,
   paginationAlign:
     sectionData.table?.paginationAlign === 'left' || sectionData.table?.paginationAlign === 'center'
       ? sectionData.table.paginationAlign
-      : 'right',
+      : BASE_TABLE_STYLE_DEFAULTS.paginationAlign,
   paginationTopGap: Number.isFinite(Number(sectionData.table?.paginationTopGap))
     ? Number(sectionData.table.paginationTopGap)
-    : 12
+    : BASE_TABLE_STYLE_DEFAULTS.paginationTopGap
 };
 
 defineOptions({
