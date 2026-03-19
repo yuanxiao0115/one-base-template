@@ -5,9 +5,9 @@ import {
   PREVIEW_VIEWPORT_DEFAULT,
   resolvePreviewMode,
   resolvePreviewViewport
-} from '@one-base-template/portal-engine';
+} from './preview';
 
-describe('PortalManagement/utils/preview', () => {
+describe('portal preview utils', () => {
   it('应解析 previewMode，非法值回退 safe', () => {
     expect(resolvePreviewMode('safe')).toBe('safe');
     expect(resolvePreviewMode('live')).toBe('live');

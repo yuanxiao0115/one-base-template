@@ -54,6 +54,7 @@
   - `usePortalTemplateDialogActions.ts`（新建/编辑/复制/预览等模板动作）
   - `usePortalTemplatePermissionCenter.ts`（门户权限 + 页面权限中心）
   - `template-list-helpers.ts`（normalize 与 ID 提取等纯函数）
+- 模块边界清理：`PortalManagement/utils` 已移除；原先仅验证引擎导出的测试统一迁移到 `packages/portal-engine/src/{editor,schema,utils,shell}/*.test.ts`。
 
 ## 三线并行优化收口（2026-03-18）
 

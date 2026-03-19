@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
-import {
-  hasLayoutGeometryChanged,
-  mergeLayoutItems,
-  type LayoutUpdateItem,
-  type PortalLayoutItem
-} from '@one-base-template/portal-engine';
+import type { PortalLayoutItem } from '../stores/pageLayout';
+import { hasLayoutGeometryChanged, mergeLayoutItems, type LayoutUpdateItem } from './layout-sync';
 
 describe('GridLayout 同步守卫', () => {
   it('相同几何布局不应判定为变更，且应保留旧 component 配置', () => {

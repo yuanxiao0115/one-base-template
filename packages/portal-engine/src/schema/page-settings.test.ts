@@ -4,7 +4,7 @@ import {
   normalizePortalPageSettingsV2,
   resolvePortalPageRuntimeSettings,
   validatePortalPageSettingsV2
-} from '@one-base-template/portal-engine';
+} from './page-settings';
 
 describe('Portal 页面设置V2', () => {
   it('应兼容旧 settings.gridData 并转为 V2 layout', () => {

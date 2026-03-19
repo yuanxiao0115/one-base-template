@@ -5,9 +5,9 @@ import {
   createDefaultPortalTemplateDetails,
   parsePortalTemplateDetails,
   resolvePortalShellForTab
-} from '@one-base-template/portal-engine';
+} from './template-details';
 
-describe('PortalManagement/utils/templateDetails', () => {
+describe('portal template details shell', () => {
   it('应在 details 缺失或非法时回退默认配置', () => {
     expect(parsePortalTemplateDetails('')).toEqual(createDefaultPortalTemplateDetails());
     expect(parsePortalTemplateDetails('invalid-json')).toEqual(
