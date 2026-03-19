@@ -125,6 +125,22 @@ interface BaseTextStyleData {
   };
 }
 
+const BASE_TEXT_STYLE_DEFAULTS: BaseTextStyleData['text'] = {
+  align: 'left',
+  fontSize: 15,
+  fontWeight: 400,
+  lineHeight: 1.7,
+  letterSpacing: 0,
+  textColor: '#334155',
+  backgroundColor: 'transparent',
+  padding: 0,
+  borderStyle: 'none',
+  borderWidth: 0,
+  borderColor: '#e2e8f0',
+  borderRadius: 0,
+  maxLines: 0
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -138,7 +154,9 @@ const { sectionData } = useSchemaConfig<BaseTextStyleData>({
   name: 'base-text-style',
   sections: {
     container: {},
-    text: {}
+    text: {
+      defaultValue: BASE_TEXT_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -153,31 +171,37 @@ sectionData.text = {
     sectionData.text?.align === 'right' ||
     sectionData.text?.align === 'justify'
       ? sectionData.text.align
-      : 'left',
-  fontSize: Number(sectionData.text?.fontSize) > 0 ? Number(sectionData.text.fontSize) : 15,
+      : BASE_TEXT_STYLE_DEFAULTS.align,
+  fontSize:
+    Number(sectionData.text?.fontSize) > 0
+      ? Number(sectionData.text.fontSize)
+      : BASE_TEXT_STYLE_DEFAULTS.fontSize,
   fontWeight: Number.isFinite(Number(sectionData.text?.fontWeight))
     ? Number(sectionData.text.fontWeight)
-    : 400,
-  lineHeight: Number(sectionData.text?.lineHeight) > 0 ? Number(sectionData.text.lineHeight) : 1.7,
+    : BASE_TEXT_STYLE_DEFAULTS.fontWeight,
+  lineHeight:
+    Number(sectionData.text?.lineHeight) > 0
+      ? Number(sectionData.text.lineHeight)
+      : BASE_TEXT_STYLE_DEFAULTS.lineHeight,
   letterSpacing: Number.isFinite(Number(sectionData.text?.letterSpacing))
     ? Number(sectionData.text.letterSpacing)
-    : 0,
-  textColor: sectionData.text?.textColor || '#334155',
-  backgroundColor: sectionData.text?.backgroundColor || 'transparent',
+    : BASE_TEXT_STYLE_DEFAULTS.letterSpacing,
+  textColor: sectionData.text?.textColor || BASE_TEXT_STYLE_DEFAULTS.textColor,
+  backgroundColor: sectionData.text?.backgroundColor || BASE_TEXT_STYLE_DEFAULTS.backgroundColor,
   padding: Number.isFinite(Number(sectionData.text?.padding))
     ? Number(sectionData.text.padding)
-    : 0,
-  borderStyle: sectionData.text?.borderStyle || 'none',
+    : BASE_TEXT_STYLE_DEFAULTS.padding,
+  borderStyle: sectionData.text?.borderStyle || BASE_TEXT_STYLE_DEFAULTS.borderStyle,
   borderWidth: Number.isFinite(Number(sectionData.text?.borderWidth))
     ? Number(sectionData.text.borderWidth)
-    : 0,
-  borderColor: sectionData.text?.borderColor || '#e2e8f0',
+    : BASE_TEXT_STYLE_DEFAULTS.borderWidth,
+  borderColor: sectionData.text?.borderColor || BASE_TEXT_STYLE_DEFAULTS.borderColor,
   borderRadius: Number.isFinite(Number(sectionData.text?.borderRadius))
     ? Number(sectionData.text.borderRadius)
-    : 0,
+    : BASE_TEXT_STYLE_DEFAULTS.borderRadius,
   maxLines: Number.isFinite(Number(sectionData.text?.maxLines))
     ? Number(sectionData.text.maxLines)
-    : 0
+    : BASE_TEXT_STYLE_DEFAULTS.maxLines
 };
 
 const textBorderValue = computed({

@@ -78,6 +78,17 @@ interface BaseNoticeStyleData {
   };
 }
 
+const BASE_NOTICE_STYLE_DEFAULTS: BaseNoticeStyleData['notice'] = {
+  height: 40,
+  radius: 8,
+  backgroundColor: '#f8fafc',
+  borderColor: '#e2e8f0',
+  textColor: '#0f172a',
+  textFontSize: 14,
+  bulletColor: '#ef4444',
+  iconColor: '#f59e0b'
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -91,7 +102,9 @@ const { sectionData } = useSchemaConfig<BaseNoticeStyleData>({
   name: 'base-notice-style',
   sections: {
     container: {},
-    notice: {}
+    notice: {
+      defaultValue: BASE_NOTICE_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -101,17 +114,23 @@ const { sectionData } = useSchemaConfig<BaseNoticeStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.notice = {
-  height: Number(sectionData.notice?.height) > 0 ? Number(sectionData.notice.height) : 40,
+  height:
+    Number(sectionData.notice?.height) > 0
+      ? Number(sectionData.notice.height)
+      : BASE_NOTICE_STYLE_DEFAULTS.height,
   radius: Number.isFinite(Number(sectionData.notice?.radius))
     ? Number(sectionData.notice.radius)
-    : 8,
-  backgroundColor: sectionData.notice?.backgroundColor || '#f8fafc',
-  borderColor: sectionData.notice?.borderColor || '#e2e8f0',
-  textColor: sectionData.notice?.textColor || '#0f172a',
+    : BASE_NOTICE_STYLE_DEFAULTS.radius,
+  backgroundColor:
+    sectionData.notice?.backgroundColor || BASE_NOTICE_STYLE_DEFAULTS.backgroundColor,
+  borderColor: sectionData.notice?.borderColor || BASE_NOTICE_STYLE_DEFAULTS.borderColor,
+  textColor: sectionData.notice?.textColor || BASE_NOTICE_STYLE_DEFAULTS.textColor,
   textFontSize:
-    Number(sectionData.notice?.textFontSize) > 0 ? Number(sectionData.notice.textFontSize) : 14,
-  bulletColor: sectionData.notice?.bulletColor || '#ef4444',
-  iconColor: sectionData.notice?.iconColor || '#f59e0b'
+    Number(sectionData.notice?.textFontSize) > 0
+      ? Number(sectionData.notice.textFontSize)
+      : BASE_NOTICE_STYLE_DEFAULTS.textFontSize,
+  bulletColor: sectionData.notice?.bulletColor || BASE_NOTICE_STYLE_DEFAULTS.bulletColor,
+  iconColor: sectionData.notice?.iconColor || BASE_NOTICE_STYLE_DEFAULTS.iconColor
 };
 
 defineOptions({

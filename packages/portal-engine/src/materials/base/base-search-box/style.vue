@@ -78,6 +78,17 @@ interface BaseSearchBoxStyleData {
   };
 }
 
+const BASE_SEARCH_BOX_STYLE_DEFAULTS: BaseSearchBoxStyleData['search'] = {
+  height: 40,
+  radius: 8,
+  inputBgColor: '#ffffff',
+  inputBorderColor: '#d0d7e2',
+  inputTextColor: '#0f172a',
+  buttonBgColor: '#2563eb',
+  buttonTextColor: '#ffffff',
+  buttonWidth: 96
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -91,7 +102,9 @@ const { sectionData } = useSchemaConfig<BaseSearchBoxStyleData>({
   name: 'base-search-box-style',
   sections: {
     container: {},
-    search: {}
+    search: {
+      defaultValue: BASE_SEARCH_BOX_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -101,17 +114,25 @@ const { sectionData } = useSchemaConfig<BaseSearchBoxStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.search = {
-  height: Number(sectionData.search?.height) > 0 ? Number(sectionData.search.height) : 40,
+  height:
+    Number(sectionData.search?.height) > 0
+      ? Number(sectionData.search.height)
+      : BASE_SEARCH_BOX_STYLE_DEFAULTS.height,
   radius: Number.isFinite(Number(sectionData.search?.radius))
     ? Number(sectionData.search.radius)
-    : 8,
-  inputBgColor: sectionData.search?.inputBgColor || '#ffffff',
-  inputBorderColor: sectionData.search?.inputBorderColor || '#d0d7e2',
-  inputTextColor: sectionData.search?.inputTextColor || '#0f172a',
-  buttonBgColor: sectionData.search?.buttonBgColor || '#2563eb',
-  buttonTextColor: sectionData.search?.buttonTextColor || '#ffffff',
+    : BASE_SEARCH_BOX_STYLE_DEFAULTS.radius,
+  inputBgColor: sectionData.search?.inputBgColor || BASE_SEARCH_BOX_STYLE_DEFAULTS.inputBgColor,
+  inputBorderColor:
+    sectionData.search?.inputBorderColor || BASE_SEARCH_BOX_STYLE_DEFAULTS.inputBorderColor,
+  inputTextColor:
+    sectionData.search?.inputTextColor || BASE_SEARCH_BOX_STYLE_DEFAULTS.inputTextColor,
+  buttonBgColor: sectionData.search?.buttonBgColor || BASE_SEARCH_BOX_STYLE_DEFAULTS.buttonBgColor,
+  buttonTextColor:
+    sectionData.search?.buttonTextColor || BASE_SEARCH_BOX_STYLE_DEFAULTS.buttonTextColor,
   buttonWidth:
-    Number(sectionData.search?.buttonWidth) > 0 ? Number(sectionData.search.buttonWidth) : 96
+    Number(sectionData.search?.buttonWidth) > 0
+      ? Number(sectionData.search.buttonWidth)
+      : BASE_SEARCH_BOX_STYLE_DEFAULTS.buttonWidth
 };
 
 defineOptions({

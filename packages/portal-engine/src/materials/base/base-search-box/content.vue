@@ -66,7 +66,6 @@ import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 import PortalActionLinkField from '../common/PortalActionLinkField.vue';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -91,6 +90,18 @@ interface BaseSearchBoxContentData {
   };
 }
 
+const BASE_SEARCH_BOX_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '搜索框',
+  subtitle: '支持关键字跳转'
+});
+
+const BASE_SEARCH_BOX_CONTENT_SEARCH_DEFAULTS = {
+  placeholder: '请输入关键字',
+  buttonText: '搜索',
+  defaultKeyword: '',
+  keywordParamKey: 'keyword'
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -103,8 +114,12 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<BaseSearchBoxContentData>({
   name: 'base-search-box-content',
   sections: {
-    container: {},
-    search: {}
+    container: {
+      defaultValue: BASE_SEARCH_BOX_CONTENT_CONTAINER_DEFAULTS
+    },
+    search: {
+      defaultValue: BASE_SEARCH_BOX_CONTENT_SEARCH_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -117,18 +132,20 @@ sectionData.search = {
   placeholder:
     typeof sectionData.search?.placeholder === 'string'
       ? sectionData.search.placeholder
-      : '请输入关键字',
+      : BASE_SEARCH_BOX_CONTENT_SEARCH_DEFAULTS.placeholder,
   buttonText:
     typeof sectionData.search?.buttonText === 'string' && sectionData.search.buttonText.trim()
       ? sectionData.search.buttonText
-      : '搜索',
+      : BASE_SEARCH_BOX_CONTENT_SEARCH_DEFAULTS.buttonText,
   defaultKeyword:
-    typeof sectionData.search?.defaultKeyword === 'string' ? sectionData.search.defaultKeyword : '',
+    typeof sectionData.search?.defaultKeyword === 'string'
+      ? sectionData.search.defaultKeyword
+      : BASE_SEARCH_BOX_CONTENT_SEARCH_DEFAULTS.defaultKeyword,
   keywordParamKey:
     typeof sectionData.search?.keywordParamKey === 'string' &&
     sectionData.search.keywordParamKey.trim()
       ? sectionData.search.keywordParamKey
-      : 'keyword',
+      : BASE_SEARCH_BOX_CONTENT_SEARCH_DEFAULTS.keywordParamKey,
   link: mergePortalLinkConfig(
     sectionData.search?.link || {
       path: sectionData.search?.linkPath,
@@ -162,17 +179,6 @@ watch(
     sectionData.search.link.valueKey = 'keyword';
   }
 );
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '搜索框';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '支持关键字跳转';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
-}
 
 defineOptions({
   name: 'base-search-box-content'

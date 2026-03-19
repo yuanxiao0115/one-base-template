@@ -69,7 +69,6 @@ import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 import PortalActionLinkField from '../common/PortalActionLinkField.vue';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -99,6 +98,17 @@ interface BaseNoticeContentData {
   };
 }
 
+const BASE_NOTICE_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '通知公告',
+  subtitle: '支持滚动展示与跳转'
+});
+
+const BASE_NOTICE_CONTENT_NOTICE_DEFAULTS = {
+  autoplay: true,
+  interval: 3500,
+  showBullet: true
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -111,8 +121,12 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<BaseNoticeContentData>({
   name: 'base-notice-content',
   sections: {
-    container: {},
-    notice: {}
+    container: {
+      defaultValue: BASE_NOTICE_CONTENT_CONTAINER_DEFAULTS
+    },
+    notice: {
+      defaultValue: BASE_NOTICE_CONTENT_NOTICE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -152,17 +166,6 @@ sectionData.notice = {
     ? sectionData.notice.items.map((item, index) => normalizeNoticeItem(item, index))
     : [createNoticeItem(1), createNoticeItem(2)]
 };
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '通知公告';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '支持滚动展示与跳转';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
-}
 
 function addItem() {
   sectionData.notice.items.push(createNoticeItem(sectionData.notice.items.length + 1));

@@ -37,7 +37,6 @@ import { ObCard } from '@one-base-template/ui';
 import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -49,6 +48,16 @@ interface BaseTextContentData {
     asHtml: boolean;
   };
 }
+
+const BASE_TEXT_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '文字组件',
+  subtitle: '支持普通文本和 HTML 文本'
+});
+
+const BASE_TEXT_CONTENT_TEXT_DEFAULTS: BaseTextContentData['text'] = {
+  value: '',
+  asHtml: false
+};
 
 const props = defineProps({
   schema: {
@@ -62,8 +71,12 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<BaseTextContentData>({
   name: 'base-text-content',
   sections: {
-    container: {},
-    text: {}
+    container: {
+      defaultValue: BASE_TEXT_CONTENT_CONTAINER_DEFAULTS
+    },
+    text: {
+      defaultValue: BASE_TEXT_CONTENT_TEXT_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -73,20 +86,12 @@ const { sectionData } = useSchemaConfig<BaseTextContentData>({
 
 sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
 sectionData.text = {
-  value: typeof sectionData.text?.value === 'string' ? sectionData.text.value : '',
+  value:
+    typeof sectionData.text?.value === 'string'
+      ? sectionData.text.value
+      : BASE_TEXT_CONTENT_TEXT_DEFAULTS.value,
   asHtml: sectionData.text?.asHtml === true
 };
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '文字组件';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '支持普通文本和 HTML 文本';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
-}
 
 defineOptions({
   name: 'base-text-content'
