@@ -14,10 +14,17 @@ import {
 } from './permission/permission-payload';
 import { normalizeIdLike } from './permission/permission-common';
 import { createPermissionFieldAccessor } from './permission/permission-field-accessor';
+import {
+  PAGE_PERMISSION_ROLE_FIELDS,
+  PAGE_PERMISSION_USER_FIELDS,
+  type PagePermissionRoleFieldKey,
+  type PagePermissionUserFieldKey
+} from './permission/permission-form-fields';
 import { usePermissionRoleOptions } from './permission/usePermissionRoleOptions';
 import { usePermissionUserSelection } from './permission/usePermissionUserSelection';
 
-type UserField = 'allow' | 'forbidden' | 'config';
+type UserField = PagePermissionUserFieldKey;
+type RoleField = PagePermissionRoleFieldKey;
 
 interface AuthUserWithCompanyId {
   companyId?: number | string | null;
@@ -133,6 +140,9 @@ function hydrateFromInitial(initial: Partial<PortalTab> | undefined) {
 const { roleOptions, roleLoading, ensureRoleOptions } =
   usePermissionRoleOptions(portalAuthorityApi);
 
+const roleFields: ReadonlyArray<{ key: RoleField; label: string }> = PAGE_PERMISSION_ROLE_FIELDS;
+const userFields: ReadonlyArray<{ field: UserField; label: string }> = PAGE_PERMISSION_USER_FIELDS;
+
 const { getByField: getUsersByField, setByField: setUsersByField } = createPermissionFieldAccessor<
   typeof form,
   UserField,
@@ -164,6 +174,22 @@ const { pickingField, pickUsers } = usePermissionUserSelection<UserField, Select
   }
 });
 
+function getRoleIds(field: RoleField): string[] {
+  return form[field];
+}
+
+function updateRoleIds(field: RoleField, value: string[]) {
+  form[field] = Array.isArray(value) ? value : [];
+}
+
+function resolvePersonDisplay(field: UserField): string {
+  return personDisplay.value[field];
+}
+
+function pickUsersByField(field: UserField) {
+  void pickUsers(field);
+}
+
 function onCancel() {
   if (props.embedded) {
     return;
@@ -187,49 +213,14 @@ function onSubmit() {
         </el-form-item>
 
         <template v-if="form.authType === 'role'">
-          <el-form-item label="可访问角色">
+          <el-form-item
+            v-for="item in roleFields"
+            :key="`embedded-role-${item.key}`"
+            :label="item.label"
+          >
             <el-select
-              v-model="form.allowRoleIds"
-              multiple
-              collapse-tags
-              collapse-tags-tooltip
-              filterable
-              :loading="roleLoading"
-              placeholder="请选择"
-              class="permission-role-select"
-            >
-              <el-option
-                v-for="role in roleOptions"
-                :key="role.id"
-                :label="role.name"
-                :value="role.id"
-              />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="不可访问角色">
-            <el-select
-              v-model="form.forbiddenRoleIds"
-              multiple
-              collapse-tags
-              collapse-tags-tooltip
-              filterable
-              :loading="roleLoading"
-              placeholder="请选择"
-              class="permission-role-select"
-            >
-              <el-option
-                v-for="role in roleOptions"
-                :key="role.id"
-                :label="role.name"
-                :value="role.id"
-              />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="可维护角色">
-            <el-select
-              v-model="form.configRoleIds"
+              :model-value="getRoleIds(item.key)"
+              @update:model-value="updateRoleIds(item.key, $event)"
               multiple
               collapse-tags
               collapse-tags-tooltip
@@ -249,58 +240,24 @@ function onSubmit() {
         </template>
 
         <template v-else>
-          <el-form-item label="可访问者">
+          <el-form-item
+            v-for="item in userFields"
+            :key="`embedded-user-${item.field}`"
+            :label="item.label"
+          >
             <el-input
-              :model-value="personDisplay.allow"
+              :model-value="resolvePersonDisplay(item.field)"
               readonly
               placeholder="请选择"
-              @click="pickUsers('allow')"
+              @click="pickUsersByField(item.field)"
               class="permission-user-input"
             >
               <template #append>
                 <el-button
                   class="picker-trigger"
                   :icon="UserFilled"
-                  :loading="pickingField === 'allow'"
-                  @click="pickUsers('allow')"
-                />
-              </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item label="不可访问者">
-            <el-input
-              :model-value="personDisplay.forbidden"
-              readonly
-              placeholder="请选择"
-              @click="pickUsers('forbidden')"
-              class="permission-user-input"
-            >
-              <template #append>
-                <el-button
-                  class="picker-trigger"
-                  :icon="UserFilled"
-                  :loading="pickingField === 'forbidden'"
-                  @click="pickUsers('forbidden')"
-                />
-              </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item label="可维护人员">
-            <el-input
-              :model-value="personDisplay.config"
-              readonly
-              placeholder="请选择"
-              @click="pickUsers('config')"
-              class="permission-user-input"
-            >
-              <template #append>
-                <el-button
-                  class="picker-trigger"
-                  :icon="UserFilled"
-                  :loading="pickingField === 'config'"
-                  @click="pickUsers('config')"
+                  :loading="pickingField === item.field"
+                  @click="pickUsersByField(item.field)"
                 />
               </template>
             </el-input>
@@ -334,49 +291,14 @@ function onSubmit() {
       </el-form-item>
 
       <template v-if="form.authType === 'role'">
-        <el-form-item label="可访问角色">
+        <el-form-item
+          v-for="item in roleFields"
+          :key="`dialog-role-${item.key}`"
+          :label="item.label"
+        >
           <el-select
-            v-model="form.allowRoleIds"
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            filterable
-            :loading="roleLoading"
-            placeholder="请选择"
-            class="permission-role-select"
-          >
-            <el-option
-              v-for="role in roleOptions"
-              :key="role.id"
-              :label="role.name"
-              :value="role.id"
-            />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="不可访问角色">
-          <el-select
-            v-model="form.forbiddenRoleIds"
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            filterable
-            :loading="roleLoading"
-            placeholder="请选择"
-            class="permission-role-select"
-          >
-            <el-option
-              v-for="role in roleOptions"
-              :key="role.id"
-              :label="role.name"
-              :value="role.id"
-            />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="可维护角色">
-          <el-select
-            v-model="form.configRoleIds"
+            :model-value="getRoleIds(item.key)"
+            @update:model-value="updateRoleIds(item.key, $event)"
             multiple
             collapse-tags
             collapse-tags-tooltip
@@ -396,58 +318,24 @@ function onSubmit() {
       </template>
 
       <template v-else>
-        <el-form-item label="可访问者">
+        <el-form-item
+          v-for="item in userFields"
+          :key="`dialog-user-${item.field}`"
+          :label="item.label"
+        >
           <el-input
-            :model-value="personDisplay.allow"
+            :model-value="resolvePersonDisplay(item.field)"
             readonly
             placeholder="请选择"
-            @click="pickUsers('allow')"
+            @click="pickUsersByField(item.field)"
             class="permission-user-input"
           >
             <template #append>
               <el-button
                 class="picker-trigger"
                 :icon="UserFilled"
-                :loading="pickingField === 'allow'"
-                @click="pickUsers('allow')"
-              />
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <el-form-item label="不可访问者">
-          <el-input
-            :model-value="personDisplay.forbidden"
-            readonly
-            placeholder="请选择"
-            @click="pickUsers('forbidden')"
-            class="permission-user-input"
-          >
-            <template #append>
-              <el-button
-                class="picker-trigger"
-                :icon="UserFilled"
-                :loading="pickingField === 'forbidden'"
-                @click="pickUsers('forbidden')"
-              />
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <el-form-item label="可维护人员">
-          <el-input
-            :model-value="personDisplay.config"
-            readonly
-            placeholder="请选择"
-            @click="pickUsers('config')"
-            class="permission-user-input"
-          >
-            <template #append>
-              <el-button
-                class="picker-trigger"
-                :icon="UserFilled"
-                :loading="pickingField === 'config'"
-                @click="pickUsers('config')"
+                :loading="pickingField === item.field"
+                @click="pickUsersByField(item.field)"
               />
             </template>
           </el-input>
