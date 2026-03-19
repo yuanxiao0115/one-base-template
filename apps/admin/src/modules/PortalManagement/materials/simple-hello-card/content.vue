@@ -43,13 +43,10 @@
 <script setup lang="ts">
 import { ObCard } from '@one-base-template/ui';
 import { useSchemaConfig } from '@one-base-template/portal-engine';
-import {
-  mergePortalSimpleHelloCardBasicConfig,
-  type PortalSimpleHelloCardBasicConfig
-} from './defaults';
+import { mergePortalSimpleHelloCardBasicConfig } from './defaults';
 
 interface HelloCardContentData {
-  basic: PortalSimpleHelloCardBasicConfig;
+  basic: ReturnType<typeof mergePortalSimpleHelloCardBasicConfig>;
 }
 
 const props = defineProps({

@@ -2,12 +2,14 @@
 import { computed, type CSSProperties } from 'vue';
 import {
   mergePortalSimpleHelloCardBasicConfig,
-  mergePortalSimpleHelloCardStyleConfig,
-  type PortalSimpleHelloCardSchema
+  mergePortalSimpleHelloCardStyleConfig
 } from './defaults';
 
 const props = defineProps<{
-  schema?: PortalSimpleHelloCardSchema;
+  schema?: {
+    content?: { basic?: unknown };
+    style?: { card?: unknown };
+  };
 }>();
 
 const basicContent = computed(() =>

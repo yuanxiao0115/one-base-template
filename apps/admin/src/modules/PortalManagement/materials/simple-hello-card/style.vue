@@ -60,13 +60,10 @@
 <script setup lang="ts">
 import { ObCard, ObColorField } from '@one-base-template/ui';
 import { useSchemaConfig } from '@one-base-template/portal-engine';
-import {
-  mergePortalSimpleHelloCardStyleConfig,
-  type PortalSimpleHelloCardStyleConfig
-} from './defaults';
+import { mergePortalSimpleHelloCardStyleConfig } from './defaults';
 
 interface HelloCardStyleData {
-  card: PortalSimpleHelloCardStyleConfig;
+  card: ReturnType<typeof mergePortalSimpleHelloCardStyleConfig>;
 }
 
 const props = defineProps({

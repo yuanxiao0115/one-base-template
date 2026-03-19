@@ -1,37 +1,6 @@
 import type { PortalMaterialConfig } from '@one-base-template/portal-engine';
 
-export interface PortalSimpleHelloCardBasicConfig {
-  title: string;
-  description: string;
-  showBadge: boolean;
-  badgeText: string;
-}
-
-export interface PortalSimpleHelloCardStyleConfig {
-  backgroundColor: string;
-  titleColor: string;
-  descriptionColor: string;
-  badgeBackgroundColor: string;
-  badgeTextColor: string;
-  borderColor: string;
-  borderRadius: number;
-  paddingY: number;
-  paddingX: number;
-}
-
-export interface PortalSimpleHelloCardSchema {
-  content?: {
-    basic?: Partial<PortalSimpleHelloCardBasicConfig>;
-  };
-  style?: {
-    card?: Partial<PortalSimpleHelloCardStyleConfig>;
-  };
-}
-
-export const PORTAL_SIMPLE_HELLO_CARD_DEFAULTS: {
-  content: { basic: PortalSimpleHelloCardBasicConfig };
-  style: { card: PortalSimpleHelloCardStyleConfig };
-} = {
+export const PORTAL_SIMPLE_HELLO_CARD_DEFAULTS = {
   content: {
     basic: {
       title: '简易欢迎卡片',
@@ -53,7 +22,14 @@ export const PORTAL_SIMPLE_HELLO_CARD_DEFAULTS: {
       paddingX: 16
     }
   }
-};
+} as const;
+
+function toRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+  return value as Record<string, unknown>;
+}
 
 function normalizeText(value: unknown, fallback: string): string {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback;
@@ -67,13 +43,12 @@ function normalizeNumber(value: unknown, fallback: number, min: number, max: num
   return Math.min(max, Math.max(min, normalized));
 }
 
-export function mergePortalSimpleHelloCardBasicConfig(
-  value?: Partial<PortalSimpleHelloCardBasicConfig> | null
-): PortalSimpleHelloCardBasicConfig {
+export function mergePortalSimpleHelloCardBasicConfig(value?: unknown) {
   const fallback = PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.content.basic;
+  const input = toRecord(value);
   const merged = {
     ...fallback,
-    ...value
+    ...input
   };
   return {
     title: normalizeText(merged.title, fallback.title),
@@ -83,13 +58,12 @@ export function mergePortalSimpleHelloCardBasicConfig(
   };
 }
 
-export function mergePortalSimpleHelloCardStyleConfig(
-  value?: Partial<PortalSimpleHelloCardStyleConfig> | null
-): PortalSimpleHelloCardStyleConfig {
+export function mergePortalSimpleHelloCardStyleConfig(value?: unknown) {
   const fallback = PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.style.card;
+  const input = toRecord(value);
   const merged = {
     ...fallback,
-    ...value
+    ...input
   };
   return {
     backgroundColor: normalizeText(merged.backgroundColor, fallback.backgroundColor),
