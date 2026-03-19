@@ -15,16 +15,10 @@ import { getPortalEngineAdminContext, resetPortalEngineAdminContextForTesting } 
 export interface PortalEngineAdminRegisterOptions {
   cmsNavigation?: Partial<PortalCmsNavigation>;
   materialExtensions?: PortalMaterialExtension[];
-  registerDemoMaterial?: boolean;
 }
 
 let initialized = false;
 const registeredMaterialExtensionSignatures = new Set<string>();
-let demoMaterialRegistered = false;
-let demoMaterialLoadingPromise: Promise<void> | null = null;
-let demoMaterialModulePromise: Promise<
-  typeof import('../materials/examples/quick-register-demo/register')
-> | null = null;
 
 function resolveSectionName(config: unknown, section: 'index' | 'content' | 'style'): string {
   if (!config || typeof config !== 'object') {
@@ -83,15 +77,12 @@ function resolveMaterialExtensionSignature(extension: PortalMaterialExtension): 
   });
 }
 
-function registerMaterialExtensionsIfNeeded(
-  context: PortalEngineContext,
-  extensions: PortalMaterialExtension[]
-) {
+function collectPendingMaterialExtensions(extensions: PortalMaterialExtension[]) {
   if (!extensions.length) {
-    return;
+    return [] as PortalMaterialExtension[];
   }
 
-  const pending = extensions.filter((extension) => {
+  return extensions.filter((extension) => {
     const signature = resolveMaterialExtensionSignature(extension);
     if (registeredMaterialExtensionSignatures.has(signature)) {
       return false;
@@ -99,61 +90,29 @@ function registerMaterialExtensionsIfNeeded(
     registeredMaterialExtensionSignatures.add(signature);
     return true;
   });
+}
 
+function rollbackMaterialExtensionSignatures(extensions: PortalMaterialExtension[]) {
+  extensions.forEach((extension) => {
+    registeredMaterialExtensionSignatures.delete(resolveMaterialExtensionSignature(extension));
+  });
+}
+
+function registerMaterialExtensionsIfNeeded(
+  context: PortalEngineContext,
+  extensions: PortalMaterialExtension[]
+) {
+  const pending = collectPendingMaterialExtensions(extensions);
   if (!pending.length) {
     return;
   }
 
   try {
-    registerMaterialExtensions(context, pending);
+    registerMaterialExtensions(context, [...pending]);
   } catch (error: unknown) {
-    pending.forEach((extension) => {
-      registeredMaterialExtensionSignatures.delete(resolveMaterialExtensionSignature(extension));
-    });
+    rollbackMaterialExtensionSignatures(pending);
     throw error;
   }
-}
-
-function getDemoMaterialModule() {
-  if (!demoMaterialModulePromise) {
-    demoMaterialModulePromise = import('../materials/examples/quick-register-demo/register');
-  }
-  return demoMaterialModulePromise;
-}
-
-function ensureDemoMaterialRegistered(context: PortalEngineContext) {
-  if (demoMaterialRegistered || demoMaterialLoadingPromise) {
-    return;
-  }
-
-  demoMaterialLoadingPromise = getDemoMaterialModule()
-    .then((mod) => {
-      mod.registerPortalAdminQuickDemoMaterial(context);
-      demoMaterialRegistered = true;
-    })
-    .catch((error: unknown) => {
-      console.warn('[PortalManagement] 注册示例物料失败', error);
-    })
-    .finally(() => {
-      demoMaterialLoadingPromise = null;
-    });
-}
-
-function cleanupDemoMaterialRegistration(context: PortalEngineContext) {
-  if (!(demoMaterialRegistered || demoMaterialLoadingPromise)) {
-    return;
-  }
-
-  demoMaterialRegistered = false;
-  demoMaterialLoadingPromise = null;
-
-  void getDemoMaterialModule()
-    .then((mod) => {
-      mod.unregisterPortalAdminQuickDemoMaterial(context);
-    })
-    .catch((error: unknown) => {
-      console.warn('[PortalManagement] 卸载示例物料失败', error);
-    });
 }
 
 export function setupPortalEngineForAdmin(
@@ -191,15 +150,10 @@ export function setupPortalEngineForAdmin(
     ...(options.materialExtensions ?? [])
   ]);
 
-  if (options.registerDemoMaterial) {
-    ensureDemoMaterialRegistered(context);
-  }
-
   return context;
 }
 
 export function resetPortalEngineAdminSetupForTesting() {
-  cleanupDemoMaterialRegistration(getPortalEngineAdminContext());
   initialized = false;
   registeredMaterialExtensionSignatures.clear();
   resetPortalEngineAdminContextForTesting();

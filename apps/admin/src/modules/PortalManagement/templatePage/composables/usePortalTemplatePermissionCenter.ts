@@ -1,15 +1,17 @@
 import { computed, ref, type Ref } from 'vue';
+import type {
+  PagePermissionSubmitPayload,
+  TemplatePagePermissionTreeNode
+} from '@one-base-template/portal-engine';
+import {
+  buildPortalTabPermissionUpdatePayload,
+  buildTemplatePagePermissionTree,
+  collectTemplatePagePermissionTabs
+} from '@one-base-template/portal-engine';
 import { message } from '@one-base-template/ui';
 
 import { portalApi, templateApi } from '../../api';
 import type { PortalTab } from '../../types';
-import {
-  buildPortalTabPermissionUpdatePayload,
-  buildTemplatePagePermissionTree,
-  collectTemplatePagePermissionTabs,
-  type PagePermissionSubmitPayload,
-  type TemplatePagePermissionTreeNode
-} from '../../utils/pagePermission';
 import type { PortalTemplate } from '../types';
 import { createLatestRequestGuard } from './latestRequest';
 import {

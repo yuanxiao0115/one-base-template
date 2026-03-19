@@ -1,10 +1,10 @@
 # 门户物料扩展与注册
 
-> 适用范围：`packages/portal-engine/src/materials/**`、`apps/admin/src/modules/PortalManagement/materials/extensions/**`
+> 适用范围：`packages/portal-engine/src/materials/**`、`apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
 
 ## 固定入口
 
-- admin 扩展声明入口：
+- admin 扩展声明入口（唯一）：
   - `apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
 - admin 注册执行入口：
   - `apps/admin/src/modules/PortalManagement/engine/register.ts`
@@ -17,15 +17,16 @@
 - `definePortalMaterial`
 - `definePortalMaterialExtension`
 
-最小示例参考：
+新增规则：
 
-- `apps/admin/src/modules/PortalManagement/materials/extensions/minimal-example.ts`
+- `materials` 目录不再维护 `examples/demo` 分叉目录。
+- 需要注册的扩展直接在 `materials/extensions/index.ts` 数组中罗列。
 
 ## 最小流程
 
 1. 在引擎内新增物料目录：`materials/cms/<material>/`。
 2. 补齐 `config.json + index.vue + content.vue + style.vue`。
-3. 在 admin 扩展入口声明 extension。
+3. 在 `materials/extensions/index.ts` 直接声明 extension。
 4. 通过 `setupPortalEngineForAdmin()` 统一注册。
 5. 跑 `verify:materials` 与 docs 构建。
 

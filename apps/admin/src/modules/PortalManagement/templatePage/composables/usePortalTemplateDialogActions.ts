@@ -1,8 +1,8 @@
 import { ref } from 'vue';
 import type { Router } from 'vue-router';
+import { findFirstPortalPageTabId } from '@one-base-template/portal-engine';
 import { message } from '@one-base-template/ui';
 
-import { findFirstPageTabId } from '../../utils/portalTree';
 import { templateApi } from '../api';
 import type { BizResponse, PortalTemplate } from '../types';
 import { extractTemplateId, normalizeBizOk } from './template-list-helpers';
@@ -219,7 +219,7 @@ export function usePortalTemplateDialogActions(options: UsePortalTemplateDialogA
       }
 
       const tpl = res.data;
-      const tabIdFromTree = findFirstPageTabId(tpl?.tabList);
+      const tabIdFromTree = findFirstPortalPageTabId(tpl?.tabList);
       const tabId = tabIdFromTree || (Array.isArray(tpl?.tabIds) ? tpl?.tabIds?.[0] || '' : '');
       if (!tabId) {
         message.warning('该模板暂无可预览页面');

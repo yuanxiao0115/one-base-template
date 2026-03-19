@@ -68,16 +68,6 @@ describe('PortalManagement/engine/register', () => {
     }
   });
 
-  it('registerDemoMaterial 默认为 false，不应注册 admin quick demo 物料', () => {
-    const context = setupPortalEngineForAdmin();
-    const { materialsMap } = usePortalMaterialCatalog({
-      context,
-      scene: 'editor'
-    });
-
-    expect(materialsMap['admin-quick-demo-index']).toBeUndefined();
-  });
-
   it('reset 后应重建 context，并清空前一次测试注册的分类状态', () => {
     const firstContext = setupPortalEngineForAdmin({
       materialExtensions: [

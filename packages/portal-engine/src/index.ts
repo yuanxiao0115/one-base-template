@@ -115,6 +115,18 @@ export {
   walkPortalTabs
 } from './domain/tab-tree';
 export type {
+  PagePermissionGroupPayload,
+  PagePermissionSubmitPayload,
+  PortalTabPermissionUpdatePayload,
+  TemplatePagePermissionTabOption,
+  TemplatePagePermissionTreeNode
+} from './domain/page-permission';
+export {
+  buildPortalTabPermissionUpdatePayload,
+  buildTemplatePagePermissionTree,
+  collectTemplatePagePermissionTabs
+} from './domain/page-permission';
+export type {
   PortalPageSettingsApi,
   PortalPageSettingsApiResponse,
   PortalPageSettingsTabLike,

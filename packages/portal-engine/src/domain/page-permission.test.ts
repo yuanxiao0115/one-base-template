@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import type { PortalTab } from '../schema/types';
 import {
   buildPortalTabPermissionUpdatePayload,
   buildTemplatePagePermissionTree,
   collectTemplatePagePermissionTabs,
   type PagePermissionSubmitPayload
-} from './pagePermission';
+} from './page-permission';
 
-describe('PortalManagement/utils/pagePermission', () => {
+describe('domain/page-permission', () => {
   it('应递归提取可编辑页面并去重', () => {
     const tabs = [
       {
@@ -22,9 +23,9 @@ describe('PortalManagement/utils/pagePermission', () => {
       { id: 'tab-home', tabType: 2, tabName: '首页重复' },
       { id: 'tab-news', tabType: 2, tabName: '新闻页' },
       { id: '', tabType: 2, tabName: '无效页' }
-    ];
+    ] as PortalTab[];
 
-    const result = collectTemplatePagePermissionTabs(tabs as never);
+    const result = collectTemplatePagePermissionTabs(tabs);
 
     expect(result).toEqual([
       { tabId: 'tab-home', tabName: '首页' },
@@ -46,7 +47,7 @@ describe('PortalManagement/utils/pagePermission', () => {
       templateId: 'tpl-1',
       sort: 3,
       tabType: 2
-    };
+    } as Partial<PortalTab>;
 
     const result = buildPortalTabPermissionUpdatePayload(detail, payload);
 
@@ -104,9 +105,9 @@ describe('PortalManagement/utils/pagePermission', () => {
         ]
       },
       { id: 'tab-alone', tabType: 2, tabName: '独立页' }
-    ];
+    ] as PortalTab[];
 
-    const result = buildTemplatePagePermissionTree(tabs as never);
+    const result = buildTemplatePagePermissionTree(tabs);
 
     expect(result).toEqual([
       {

@@ -1,5 +1,10 @@
-import type { PortalTab } from '../types';
-import { isPortalTabEditable, normalizeIdLike, walkTabs } from './portalTree';
+import type { PortalTab } from '../schema/types';
+import {
+  isPortalTabEditable,
+  normalizePortalTabId,
+  normalizePortalTabName,
+  walkPortalTabs
+} from './tab-tree';
 
 export interface PagePermissionGroupPayload {
   roleIds: string[];
@@ -38,7 +43,7 @@ export interface PortalTabPermissionUpdatePayload extends Partial<PortalTab> {
 }
 
 function normalizeRequiredIdLike(value: unknown, field: string): string {
-  const normalized = normalizeIdLike(value);
+  const normalized = normalizePortalTabId(value);
   if (normalized) {
     return normalized;
   }
@@ -68,14 +73,14 @@ function normalizeRoleIds(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];
   }
-  return value.map((item) => normalizeIdLike(item)).filter(Boolean);
+  return value.map((item) => normalizePortalTabId(item)).filter(Boolean);
 }
 
 function normalizeUserIds(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];
   }
-  return value.map((item) => normalizeIdLike(item)).filter(Boolean);
+  return value.map((item) => normalizePortalTabId(item)).filter(Boolean);
 }
 
 function normalizePermissionGroup(group: unknown): PagePermissionGroupPayload {
@@ -95,12 +100,12 @@ export function collectTemplatePagePermissionTabs(
   const options: TemplatePagePermissionTabOption[] = [];
   const seen = new Set<string>();
 
-  walkTabs(tabs, (tab) => {
+  walkPortalTabs(tabs, (tab) => {
     if (!isPortalTabEditable(tab.tabType)) {
       return;
     }
 
-    const tabId = normalizeIdLike(tab.id);
+    const tabId = normalizePortalTabId(tab.id);
     if (!tabId || seen.has(tabId)) {
       return;
     }
@@ -108,8 +113,7 @@ export function collectTemplatePagePermissionTabs(
     seen.add(tabId);
     options.push({
       tabId,
-      tabName:
-        typeof tab.tabName === 'string' && tab.tabName.trim() ? tab.tabName.trim() : `页面-${tabId}`
+      tabName: normalizePortalTabName(tab.tabName, `页面-${tabId}`)
     });
   });
 
@@ -127,9 +131,7 @@ export function buildTemplatePagePermissionTree(
   }
 
   function resolveTabLabel(tab: PortalTab, fallbackId: string): string {
-    return typeof tab.tabName === 'string' && tab.tabName.trim()
-      ? tab.tabName.trim()
-      : `页面-${fallbackId}`;
+    return normalizePortalTabName(tab.tabName, `页面-${fallbackId}`);
   }
 
   function walk(nodes: PortalTab[] | undefined): TemplatePagePermissionTreeNode[] {
@@ -144,7 +146,7 @@ export function buildTemplatePagePermissionTree(
       }
 
       const children = walk(tab.children);
-      const tabId = normalizeIdLike(tab.id);
+      const tabId = normalizePortalTabId(tab.id);
       const label = resolveTabLabel(tab, tabId || String(autoGroupId + 1));
 
       if (isPortalTabEditable(tab.tabType) && tabId) {

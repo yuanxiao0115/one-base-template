@@ -69,6 +69,7 @@
   - `templatePage/components/permission/usePermissionUserSelection.ts`：统一选人弹窗编排（`pickUsers/pickingField`），两处权限弹窗复用同一实现。
   - `usePermissionRoleOptions` 对同一 API 实例新增跨弹窗缓存与并发请求去重：同页多处权限弹窗首次打开时只请求一次角色数据，后续复用已加载结果。
   - `permission-member-source` 对同一 API 新增跨弹窗缓存与并发请求去重：组织节点与搜索关键字在同会话内按参数复用结果，减少重复接口请求。
+  - 页面权限树与更新 payload 组装已下沉 `@one-base-template/portal-engine` 的 `domain/page-permission`，`PortalManagement` 不再保留同构 `utils/pagePermission.ts`。
 - materials 单入口：
   - 新增 `materials/usePortalMaterials.ts`，统一按 `scene: 'editor' | 'renderer'` 取物料目录。
   - 删除 `useMaterials.ts`、`useEditorMaterials.ts`、`useRendererMaterials.ts` 三个 wrapper。
@@ -81,6 +82,7 @@
 
 - `engine/register.ts` 新增扩展签名集合，`setupPortalEngineForAdmin()` 重复调用时会跳过已注册签名，避免同一扩展被重复注册。
 - 幂等策略不改变注册入口约束：页面层仍只允许通过 `setupPortalEngineForAdmin()` 触发引擎注入与扩展注册。
+- `materials/extensions/index.ts` 为 admin 物料扩展声明唯一入口，不再维护 `materials/examples/**` 与 `registerDemoMaterial` 示例开关。
 - 单测覆盖：`engine/register.unit.test.ts` 新增“重复 setup 不重复注册同签名扩展”断言。
 
 ## 常见改造优先级
