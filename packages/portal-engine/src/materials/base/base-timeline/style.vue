@@ -100,6 +100,19 @@ interface BaseTimelineStyleData {
   };
 }
 
+const BASE_TIMELINE_STYLE_DEFAULTS: BaseTimelineStyleData['timeline'] = {
+  lineColor: '#cbd5e1',
+  pointColor: '#2563eb',
+  timeColor: '#64748b',
+  titleColor: '#0f172a',
+  contentColor: '#475569',
+  timeFontSize: 12,
+  titleFontSize: 14,
+  contentFontSize: 12,
+  rowGap: 14,
+  timeWidth: 120
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -113,7 +126,9 @@ const { sectionData } = useSchemaConfig<BaseTimelineStyleData>({
   name: 'base-timeline-style',
   sections: {
     container: {},
-    timeline: {}
+    timeline: {
+      defaultValue: BASE_TIMELINE_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -123,26 +138,30 @@ const { sectionData } = useSchemaConfig<BaseTimelineStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.timeline = {
-  lineColor: sectionData.timeline?.lineColor || '#cbd5e1',
-  pointColor: sectionData.timeline?.pointColor || '#2563eb',
-  timeColor: sectionData.timeline?.timeColor || '#64748b',
-  titleColor: sectionData.timeline?.titleColor || '#0f172a',
-  contentColor: sectionData.timeline?.contentColor || '#475569',
+  lineColor: sectionData.timeline?.lineColor || BASE_TIMELINE_STYLE_DEFAULTS.lineColor,
+  pointColor: sectionData.timeline?.pointColor || BASE_TIMELINE_STYLE_DEFAULTS.pointColor,
+  timeColor: sectionData.timeline?.timeColor || BASE_TIMELINE_STYLE_DEFAULTS.timeColor,
+  titleColor: sectionData.timeline?.titleColor || BASE_TIMELINE_STYLE_DEFAULTS.titleColor,
+  contentColor: sectionData.timeline?.contentColor || BASE_TIMELINE_STYLE_DEFAULTS.contentColor,
   timeFontSize:
-    Number(sectionData.timeline?.timeFontSize) > 0 ? Number(sectionData.timeline.timeFontSize) : 12,
+    Number(sectionData.timeline?.timeFontSize) > 0
+      ? Number(sectionData.timeline.timeFontSize)
+      : BASE_TIMELINE_STYLE_DEFAULTS.timeFontSize,
   titleFontSize:
     Number(sectionData.timeline?.titleFontSize) > 0
       ? Number(sectionData.timeline.titleFontSize)
-      : 14,
+      : BASE_TIMELINE_STYLE_DEFAULTS.titleFontSize,
   contentFontSize:
     Number(sectionData.timeline?.contentFontSize) > 0
       ? Number(sectionData.timeline.contentFontSize)
-      : 12,
+      : BASE_TIMELINE_STYLE_DEFAULTS.contentFontSize,
   rowGap: Number.isFinite(Number(sectionData.timeline?.rowGap))
     ? Number(sectionData.timeline.rowGap)
-    : 14,
+    : BASE_TIMELINE_STYLE_DEFAULTS.rowGap,
   timeWidth:
-    Number(sectionData.timeline?.timeWidth) > 0 ? Number(sectionData.timeline.timeWidth) : 120
+    Number(sectionData.timeline?.timeWidth) > 0
+      ? Number(sectionData.timeline.timeWidth)
+      : BASE_TIMELINE_STYLE_DEFAULTS.timeWidth
 };
 
 defineOptions({

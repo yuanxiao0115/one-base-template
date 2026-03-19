@@ -81,7 +81,6 @@ import {
 import { mergePortalLinkConfig, type PortalLinkConfig } from '../common/portal-link';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -104,6 +103,25 @@ interface BaseStatContentData {
   };
 }
 
+const BASE_STAT_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '统计卡片',
+  subtitle: '支持静态与接口统计数据'
+});
+
+const BASE_STAT_CONTENT_DATA_SOURCE_DEFAULTS = {
+  ...createDefaultPortalDataSourceModel(),
+  staticRowsJson: '[{"id":"1","title":"访问量","value":3280,"unit":"次","trend":"+12.5%"}]'
+};
+
+const BASE_STAT_CONTENT_STAT_DEFAULTS = {
+  titleKey: 'title',
+  valueKey: 'value',
+  unitKey: 'unit',
+  trendKey: 'trend',
+  idKey: 'id',
+  maxDisplayCount: 8
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -116,9 +134,15 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<BaseStatContentData>({
   name: 'base-stat-content',
   sections: {
-    container: {},
-    dataSource: {},
-    stat: {}
+    container: {
+      defaultValue: BASE_STAT_CONTENT_CONTAINER_DEFAULTS
+    },
+    dataSource: {
+      defaultValue: BASE_STAT_CONTENT_DATA_SOURCE_DEFAULTS
+    },
+    stat: {
+      defaultValue: BASE_STAT_CONTENT_STAT_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -129,35 +153,34 @@ const { sectionData } = useSchemaConfig<BaseStatContentData>({
 sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
 sectionData.dataSource = mergePortalDataSourceModel(sectionData.dataSource);
 if (!sectionData.dataSource.staticRowsJson.trim()) {
-  sectionData.dataSource = {
-    ...createDefaultPortalDataSourceModel(),
-    staticRowsJson: '[{"id":"1","title":"访问量","value":3280,"unit":"次","trend":"+12.5%"}]'
-  };
+  sectionData.dataSource = { ...BASE_STAT_CONTENT_DATA_SOURCE_DEFAULTS };
 }
 
 sectionData.stat = {
   titleKey:
     typeof sectionData.stat?.titleKey === 'string' && sectionData.stat.titleKey.trim()
       ? sectionData.stat.titleKey
-      : 'title',
+      : BASE_STAT_CONTENT_STAT_DEFAULTS.titleKey,
   valueKey:
     typeof sectionData.stat?.valueKey === 'string' && sectionData.stat.valueKey.trim()
       ? sectionData.stat.valueKey
-      : 'value',
+      : BASE_STAT_CONTENT_STAT_DEFAULTS.valueKey,
   unitKey:
     typeof sectionData.stat?.unitKey === 'string' && sectionData.stat.unitKey.trim()
       ? sectionData.stat.unitKey
-      : 'unit',
+      : BASE_STAT_CONTENT_STAT_DEFAULTS.unitKey,
   trendKey:
     typeof sectionData.stat?.trendKey === 'string' && sectionData.stat.trendKey.trim()
       ? sectionData.stat.trendKey
-      : 'trend',
+      : BASE_STAT_CONTENT_STAT_DEFAULTS.trendKey,
   idKey:
     typeof sectionData.stat?.idKey === 'string' && sectionData.stat.idKey.trim()
       ? sectionData.stat.idKey
-      : 'id',
+      : BASE_STAT_CONTENT_STAT_DEFAULTS.idKey,
   maxDisplayCount:
-    Number(sectionData.stat?.maxDisplayCount) > 0 ? Number(sectionData.stat.maxDisplayCount) : 8,
+    Number(sectionData.stat?.maxDisplayCount) > 0
+      ? Number(sectionData.stat.maxDisplayCount)
+      : BASE_STAT_CONTENT_STAT_DEFAULTS.maxDisplayCount,
   link: mergePortalLinkConfig(
     sectionData.stat?.link || {
       path: sectionData.stat?.linkPath,
@@ -167,17 +190,6 @@ sectionData.stat = {
     }
   )
 };
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '统计卡片';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '支持静态与接口统计数据';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
-}
 
 defineOptions({
   name: 'base-stat-content'

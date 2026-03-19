@@ -79,7 +79,6 @@ import {
 import { mergePortalLinkConfig, type PortalLinkConfig } from '../common/portal-link';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -101,6 +100,25 @@ interface BaseTimelineContentData {
   };
 }
 
+const BASE_TIMELINE_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '时间轴',
+  subtitle: '支持静态与接口时间线数据'
+});
+
+const BASE_TIMELINE_CONTENT_DATA_SOURCE_DEFAULTS = {
+  ...createDefaultPortalDataSourceModel(),
+  staticRowsJson:
+    '[{"id":"1","time":"2026-03-10","title":"发布通知","content":"门户基础物料版本发布"}]'
+};
+
+const BASE_TIMELINE_CONTENT_TIMELINE_DEFAULTS = {
+  timeKey: 'time',
+  titleKey: 'title',
+  contentKey: 'content',
+  idKey: 'id',
+  maxDisplayCount: 10
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -113,9 +131,15 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<BaseTimelineContentData>({
   name: 'base-timeline-content',
   sections: {
-    container: {},
-    dataSource: {},
-    timeline: {}
+    container: {
+      defaultValue: BASE_TIMELINE_CONTENT_CONTAINER_DEFAULTS
+    },
+    dataSource: {
+      defaultValue: BASE_TIMELINE_CONTENT_DATA_SOURCE_DEFAULTS
+    },
+    timeline: {
+      defaultValue: BASE_TIMELINE_CONTENT_TIMELINE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -126,34 +150,30 @@ const { sectionData } = useSchemaConfig<BaseTimelineContentData>({
 sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
 sectionData.dataSource = mergePortalDataSourceModel(sectionData.dataSource);
 if (!sectionData.dataSource.staticRowsJson.trim()) {
-  sectionData.dataSource = {
-    ...createDefaultPortalDataSourceModel(),
-    staticRowsJson:
-      '[{"id":"1","time":"2026-03-10","title":"发布通知","content":"门户基础物料版本发布"}]'
-  };
+  sectionData.dataSource = { ...BASE_TIMELINE_CONTENT_DATA_SOURCE_DEFAULTS };
 }
 
 sectionData.timeline = {
   timeKey:
     typeof sectionData.timeline?.timeKey === 'string' && sectionData.timeline.timeKey.trim()
       ? sectionData.timeline.timeKey
-      : 'time',
+      : BASE_TIMELINE_CONTENT_TIMELINE_DEFAULTS.timeKey,
   titleKey:
     typeof sectionData.timeline?.titleKey === 'string' && sectionData.timeline.titleKey.trim()
       ? sectionData.timeline.titleKey
-      : 'title',
+      : BASE_TIMELINE_CONTENT_TIMELINE_DEFAULTS.titleKey,
   contentKey:
     typeof sectionData.timeline?.contentKey === 'string' && sectionData.timeline.contentKey.trim()
       ? sectionData.timeline.contentKey
-      : 'content',
+      : BASE_TIMELINE_CONTENT_TIMELINE_DEFAULTS.contentKey,
   idKey:
     typeof sectionData.timeline?.idKey === 'string' && sectionData.timeline.idKey.trim()
       ? sectionData.timeline.idKey
-      : 'id',
+      : BASE_TIMELINE_CONTENT_TIMELINE_DEFAULTS.idKey,
   maxDisplayCount:
     Number(sectionData.timeline?.maxDisplayCount) > 0
       ? Number(sectionData.timeline.maxDisplayCount)
-      : 10,
+      : BASE_TIMELINE_CONTENT_TIMELINE_DEFAULTS.maxDisplayCount,
   link: mergePortalLinkConfig(
     sectionData.timeline?.link || {
       path: sectionData.timeline?.linkPath,
@@ -169,17 +189,6 @@ if (!sectionData.timeline.link.paramKey.trim()) {
 }
 if (!sectionData.timeline.link.valueKey.trim()) {
   sectionData.timeline.link.valueKey = sectionData.timeline.idKey;
-}
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '时间轴';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '支持静态与接口时间线数据';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
 }
 
 defineOptions({

@@ -117,6 +117,21 @@ interface ImageLinkListStyleData {
   };
 }
 
+const IMAGE_LINK_LIST_STYLE_DEFAULTS: ImageLinkListStyleData['list'] = {
+  cardBgColor: '#ffffff',
+  cardBorderColor: '#e2e8f0',
+  cardRadius: 10,
+  imageHeight: 140,
+  titleColor: '#0f172a',
+  descriptionColor: '#64748b',
+  tagBgColor: '#e0f2fe',
+  tagTextColor: '#0369a1',
+  titleFontSize: 15,
+  descriptionFontSize: 12,
+  rowGap: 12,
+  columnGap: 12
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -130,7 +145,9 @@ const { sectionData } = useSchemaConfig<ImageLinkListStyleData>({
   name: 'image-link-list-style',
   sections: {
     container: {},
-    list: {}
+    list: {
+      defaultValue: IMAGE_LINK_LIST_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -140,27 +157,35 @@ const { sectionData } = useSchemaConfig<ImageLinkListStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.list = {
-  cardBgColor: sectionData.list?.cardBgColor || '#ffffff',
-  cardBorderColor: sectionData.list?.cardBorderColor || '#e2e8f0',
+  cardBgColor: sectionData.list?.cardBgColor || IMAGE_LINK_LIST_STYLE_DEFAULTS.cardBgColor,
+  cardBorderColor:
+    sectionData.list?.cardBorderColor || IMAGE_LINK_LIST_STYLE_DEFAULTS.cardBorderColor,
   cardRadius: Number.isFinite(Number(sectionData.list?.cardRadius))
     ? Number(sectionData.list.cardRadius)
-    : 10,
+    : IMAGE_LINK_LIST_STYLE_DEFAULTS.cardRadius,
   imageHeight:
-    Number(sectionData.list?.imageHeight) > 0 ? Number(sectionData.list.imageHeight) : 140,
-  titleColor: sectionData.list?.titleColor || '#0f172a',
-  descriptionColor: sectionData.list?.descriptionColor || '#64748b',
-  tagBgColor: sectionData.list?.tagBgColor || '#e0f2fe',
-  tagTextColor: sectionData.list?.tagTextColor || '#0369a1',
+    Number(sectionData.list?.imageHeight) > 0
+      ? Number(sectionData.list.imageHeight)
+      : IMAGE_LINK_LIST_STYLE_DEFAULTS.imageHeight,
+  titleColor: sectionData.list?.titleColor || IMAGE_LINK_LIST_STYLE_DEFAULTS.titleColor,
+  descriptionColor:
+    sectionData.list?.descriptionColor || IMAGE_LINK_LIST_STYLE_DEFAULTS.descriptionColor,
+  tagBgColor: sectionData.list?.tagBgColor || IMAGE_LINK_LIST_STYLE_DEFAULTS.tagBgColor,
+  tagTextColor: sectionData.list?.tagTextColor || IMAGE_LINK_LIST_STYLE_DEFAULTS.tagTextColor,
   titleFontSize:
-    Number(sectionData.list?.titleFontSize) > 0 ? Number(sectionData.list.titleFontSize) : 15,
+    Number(sectionData.list?.titleFontSize) > 0
+      ? Number(sectionData.list.titleFontSize)
+      : IMAGE_LINK_LIST_STYLE_DEFAULTS.titleFontSize,
   descriptionFontSize:
     Number(sectionData.list?.descriptionFontSize) > 0
       ? Number(sectionData.list.descriptionFontSize)
-      : 12,
-  rowGap: Number.isFinite(Number(sectionData.list?.rowGap)) ? Number(sectionData.list.rowGap) : 12,
+      : IMAGE_LINK_LIST_STYLE_DEFAULTS.descriptionFontSize,
+  rowGap: Number.isFinite(Number(sectionData.list?.rowGap))
+    ? Number(sectionData.list.rowGap)
+    : IMAGE_LINK_LIST_STYLE_DEFAULTS.rowGap,
   columnGap: Number.isFinite(Number(sectionData.list?.columnGap))
     ? Number(sectionData.list.columnGap)
-    : 12
+    : IMAGE_LINK_LIST_STYLE_DEFAULTS.columnGap
 };
 
 defineOptions({

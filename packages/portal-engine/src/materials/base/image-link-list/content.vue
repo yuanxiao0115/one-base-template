@@ -94,7 +94,6 @@ import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 import PortalActionLinkField from '../common/PortalActionLinkField.vue';
 import {
   UnifiedContainerContentConfig,
-  createDefaultUnifiedContainerContentConfig,
   mergeUnifiedContainerContentConfig
 } from '../../common/unified-container';
 import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
@@ -122,6 +121,16 @@ interface ImageLinkListContentData {
   };
 }
 
+const IMAGE_LINK_LIST_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '图文链接列表',
+  subtitle: '图片+标题组合导航'
+});
+
+const IMAGE_LINK_LIST_CONTENT_LIST_DEFAULTS = {
+  columnCount: 3,
+  showDescription: true
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -134,8 +143,12 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<ImageLinkListContentData>({
   name: 'image-link-list-content',
   sections: {
-    container: {},
-    list: {}
+    container: {
+      defaultValue: IMAGE_LINK_LIST_CONTENT_CONTAINER_DEFAULTS
+    },
+    list: {
+      defaultValue: IMAGE_LINK_LIST_CONTENT_LIST_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -167,23 +180,18 @@ function normalizeItem(item: Partial<ImageLinkItem>, index: number): ImageLinkIt
 
 sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
 sectionData.list = {
-  columnCount: Math.min(4, Math.max(1, Number(sectionData.list?.columnCount) || 3)),
+  columnCount: Math.min(
+    4,
+    Math.max(
+      1,
+      Number(sectionData.list?.columnCount) || IMAGE_LINK_LIST_CONTENT_LIST_DEFAULTS.columnCount
+    )
+  ),
   showDescription: sectionData.list?.showDescription !== false,
   items: Array.isArray(sectionData.list?.items)
     ? sectionData.list.items.map((item, index) => normalizeItem(item, index))
     : [createItem(1), createItem(2)]
 };
-
-const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-if (!sectionData.container.title.trim()) {
-  sectionData.container.title = '图文链接列表';
-}
-if (!sectionData.container.subtitle.trim()) {
-  sectionData.container.subtitle = '图片+标题组合导航';
-}
-if (!sectionData.container.externalLinkText.trim()) {
-  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
-}
 
 function addItem() {
   sectionData.list.items.push(createItem(sectionData.list.items.length + 1));

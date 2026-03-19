@@ -135,6 +135,23 @@ interface BaseStatStyleData {
   };
 }
 
+const BASE_STAT_STYLE_DEFAULTS: BaseStatStyleData['stat'] = {
+  columns: 4,
+  gap: 12,
+  cardPadding: 12,
+  cardRadius: 10,
+  cardBgColor: '#f8fafc',
+  cardBorderColor: '#e2e8f0',
+  titleColor: '#64748b',
+  valueColor: '#0f172a',
+  unitColor: '#334155',
+  trendColor: '#16a34a',
+  titleFontSize: 12,
+  valueFontSize: 24,
+  unitFontSize: 12,
+  trendFontSize: 12
+};
+
 const props = defineProps({
   schema: {
     type: Object,
@@ -148,7 +165,9 @@ const { sectionData } = useSchemaConfig<BaseStatStyleData>({
   name: 'base-stat-style',
   sections: {
     container: {},
-    stat: {}
+    stat: {
+      defaultValue: BASE_STAT_STYLE_DEFAULTS
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
@@ -158,28 +177,41 @@ const { sectionData } = useSchemaConfig<BaseStatStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.stat = {
-  columns: Math.min(6, Math.max(1, Number(sectionData.stat?.columns) || 4)),
-  gap: Number.isFinite(Number(sectionData.stat?.gap)) ? Number(sectionData.stat.gap) : 12,
+  columns: Math.min(
+    6,
+    Math.max(1, Number(sectionData.stat?.columns) || BASE_STAT_STYLE_DEFAULTS.columns)
+  ),
+  gap: Number.isFinite(Number(sectionData.stat?.gap))
+    ? Number(sectionData.stat.gap)
+    : BASE_STAT_STYLE_DEFAULTS.gap,
   cardPadding: Number.isFinite(Number(sectionData.stat?.cardPadding))
     ? Number(sectionData.stat.cardPadding)
-    : 12,
+    : BASE_STAT_STYLE_DEFAULTS.cardPadding,
   cardRadius: Number.isFinite(Number(sectionData.stat?.cardRadius))
     ? Number(sectionData.stat.cardRadius)
-    : 10,
-  cardBgColor: sectionData.stat?.cardBgColor || '#f8fafc',
-  cardBorderColor: sectionData.stat?.cardBorderColor || '#e2e8f0',
-  titleColor: sectionData.stat?.titleColor || '#64748b',
-  valueColor: sectionData.stat?.valueColor || '#0f172a',
-  unitColor: sectionData.stat?.unitColor || '#334155',
-  trendColor: sectionData.stat?.trendColor || '#16a34a',
+    : BASE_STAT_STYLE_DEFAULTS.cardRadius,
+  cardBgColor: sectionData.stat?.cardBgColor || BASE_STAT_STYLE_DEFAULTS.cardBgColor,
+  cardBorderColor: sectionData.stat?.cardBorderColor || BASE_STAT_STYLE_DEFAULTS.cardBorderColor,
+  titleColor: sectionData.stat?.titleColor || BASE_STAT_STYLE_DEFAULTS.titleColor,
+  valueColor: sectionData.stat?.valueColor || BASE_STAT_STYLE_DEFAULTS.valueColor,
+  unitColor: sectionData.stat?.unitColor || BASE_STAT_STYLE_DEFAULTS.unitColor,
+  trendColor: sectionData.stat?.trendColor || BASE_STAT_STYLE_DEFAULTS.trendColor,
   titleFontSize:
-    Number(sectionData.stat?.titleFontSize) > 0 ? Number(sectionData.stat.titleFontSize) : 12,
+    Number(sectionData.stat?.titleFontSize) > 0
+      ? Number(sectionData.stat.titleFontSize)
+      : BASE_STAT_STYLE_DEFAULTS.titleFontSize,
   valueFontSize:
-    Number(sectionData.stat?.valueFontSize) > 0 ? Number(sectionData.stat.valueFontSize) : 24,
+    Number(sectionData.stat?.valueFontSize) > 0
+      ? Number(sectionData.stat.valueFontSize)
+      : BASE_STAT_STYLE_DEFAULTS.valueFontSize,
   unitFontSize:
-    Number(sectionData.stat?.unitFontSize) > 0 ? Number(sectionData.stat.unitFontSize) : 12,
+    Number(sectionData.stat?.unitFontSize) > 0
+      ? Number(sectionData.stat.unitFontSize)
+      : BASE_STAT_STYLE_DEFAULTS.unitFontSize,
   trendFontSize:
-    Number(sectionData.stat?.trendFontSize) > 0 ? Number(sectionData.stat.trendFontSize) : 12
+    Number(sectionData.stat?.trendFontSize) > 0
+      ? Number(sectionData.stat.trendFontSize)
+      : BASE_STAT_STYLE_DEFAULTS.trendFontSize
 };
 
 defineOptions({
