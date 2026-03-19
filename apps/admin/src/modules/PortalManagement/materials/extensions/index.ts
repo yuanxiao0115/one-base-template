@@ -4,7 +4,9 @@ import {
   definePortalMaterialExtension,
   type PortalMaterialExtension
 } from '@one-base-template/portal-engine';
+import PortalSimpleHelloCardContent from '../simple-hello-card/content.vue';
 import PortalSimpleHelloCardIndex from '../simple-hello-card/index.vue';
+import PortalSimpleHelloCardStyle from '../simple-hello-card/style.vue';
 
 // admin 侧唯一扩展入口：直接在这里罗列“需要注册到 PortalManagement 的物料扩展”。
 // 约束：不保留 examples/demo 分叉目录，新增物料时只维护这个数组。
@@ -25,10 +27,18 @@ const portalSimpleHelloCardMaterial = definePortalMaterial({
   config: {
     index: {
       name: 'portal-simple-hello-card-index'
+    },
+    content: {
+      name: 'portal-simple-hello-card-content'
+    },
+    style: {
+      name: 'portal-simple-hello-card-style'
     }
   },
   components: {
-    index: PortalSimpleHelloCardIndex
+    index: PortalSimpleHelloCardIndex,
+    content: PortalSimpleHelloCardContent,
+    style: PortalSimpleHelloCardStyle
   }
 });
 

@@ -1,0 +1,101 @@
+<template>
+  <div class="content-config">
+    <el-form label-position="top">
+      <ObCard title="内容设置">
+        <el-form-item label="标题">
+          <el-input
+            v-model="sectionData.basic.title"
+            maxlength="40"
+            show-word-limit
+            placeholder="请输入卡片标题"
+          />
+        </el-form-item>
+
+        <el-form-item label="描述">
+          <el-input
+            v-model="sectionData.basic.description"
+            type="textarea"
+            :autosize="{ minRows: 3, maxRows: 6 }"
+            maxlength="200"
+            show-word-limit
+            placeholder="请输入卡片描述"
+          />
+        </el-form-item>
+
+        <el-form-item label="显示角标">
+          <el-switch v-model="sectionData.basic.showBadge" />
+        </el-form-item>
+
+        <el-form-item label="角标文本">
+          <el-input
+            v-model="sectionData.basic.badgeText"
+            maxlength="16"
+            show-word-limit
+            :disabled="sectionData.basic.showBadge !== true"
+            placeholder="例如：NEW / DEMO"
+          />
+        </el-form-item>
+      </ObCard>
+    </el-form>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ObCard } from '@one-base-template/ui';
+import { useSchemaConfig } from '@one-base-template/portal-engine';
+
+interface HelloCardContentData {
+  basic: {
+    title: string;
+    description: string;
+    showBadge: boolean;
+    badgeText: string;
+  };
+}
+
+const props = defineProps({
+  schema: {
+    type: Object,
+    required: true
+  }
+});
+
+const emit = defineEmits(['schemaChange']);
+
+const { sectionData } = useSchemaConfig<HelloCardContentData>({
+  name: 'portal-simple-hello-card-content',
+  sections: {
+    basic: {}
+  },
+  schema: props.schema,
+  onChange: (newSchema) => {
+    emit('schemaChange', 'content', newSchema);
+  }
+});
+
+sectionData.basic = {
+  title:
+    typeof sectionData.basic?.title === 'string' && sectionData.basic.title.trim()
+      ? sectionData.basic.title
+      : '简易欢迎卡片',
+  description:
+    typeof sectionData.basic?.description === 'string' && sectionData.basic.description.trim()
+      ? sectionData.basic.description
+      : '这是一个最小注册示例物料，可直接拖拽到画布查看效果。',
+  showBadge: sectionData.basic?.showBadge === true,
+  badgeText:
+    typeof sectionData.basic?.badgeText === 'string' && sectionData.basic.badgeText.trim()
+      ? sectionData.basic.badgeText
+      : 'DEMO'
+};
+
+defineOptions({
+  name: 'portal-simple-hello-card-content'
+});
+</script>
+
+<style scoped>
+.content-config {
+  padding: 2px 0 8px;
+}
+</style>
