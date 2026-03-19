@@ -28,23 +28,31 @@ export interface PortalSimpleHelloCardSchema {
   };
 }
 
-const DEFAULT_PORTAL_SIMPLE_HELLO_CARD_BASIC_CONFIG: PortalSimpleHelloCardBasicConfig = {
-  title: '简易欢迎卡片',
-  description: '这是一个最小注册示例物料，可直接拖拽到画布查看效果。',
-  showBadge: true,
-  badgeText: 'DEMO'
-};
-
-const DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG: PortalSimpleHelloCardStyleConfig = {
-  backgroundColor: '#eff6ff',
-  titleColor: '#1e293b',
-  descriptionColor: '#475569',
-  badgeBackgroundColor: '#2563eb',
-  badgeTextColor: '#ffffff',
-  borderColor: '#cbd5e1',
-  borderRadius: 8,
-  paddingY: 16,
-  paddingX: 16
+export const PORTAL_SIMPLE_HELLO_CARD_DEFAULTS: {
+  content: { basic: PortalSimpleHelloCardBasicConfig };
+  style: { card: PortalSimpleHelloCardStyleConfig };
+} = {
+  content: {
+    basic: {
+      title: '简易欢迎卡片',
+      description: '这是一个最小注册示例物料，可直接拖拽到画布查看效果。',
+      showBadge: true,
+      badgeText: 'DEMO'
+    }
+  },
+  style: {
+    card: {
+      backgroundColor: '#eff6ff',
+      titleColor: '#1e293b',
+      descriptionColor: '#475569',
+      badgeBackgroundColor: '#2563eb',
+      badgeTextColor: '#ffffff',
+      borderColor: '#cbd5e1',
+      borderRadius: 8,
+      paddingY: 16,
+      paddingX: 16
+    }
+  }
 };
 
 function normalizeText(value: unknown, fallback: string): string {
@@ -59,100 +67,56 @@ function normalizeNumber(value: unknown, fallback: number, min: number, max: num
   return Math.min(max, Math.max(min, normalized));
 }
 
-export function createDefaultPortalSimpleHelloCardBasicConfig(): PortalSimpleHelloCardBasicConfig {
-  return { ...DEFAULT_PORTAL_SIMPLE_HELLO_CARD_BASIC_CONFIG };
-}
-
-export function createDefaultPortalSimpleHelloCardStyleConfig(): PortalSimpleHelloCardStyleConfig {
-  return { ...DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG };
-}
-
 export function mergePortalSimpleHelloCardBasicConfig(
   value?: Partial<PortalSimpleHelloCardBasicConfig> | null
 ): PortalSimpleHelloCardBasicConfig {
+  const fallback = PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.content.basic;
   const merged = {
-    ...DEFAULT_PORTAL_SIMPLE_HELLO_CARD_BASIC_CONFIG,
+    ...fallback,
     ...value
   };
   return {
-    title: normalizeText(merged.title, DEFAULT_PORTAL_SIMPLE_HELLO_CARD_BASIC_CONFIG.title),
-    description: normalizeText(
-      merged.description,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_BASIC_CONFIG.description
-    ),
+    title: normalizeText(merged.title, fallback.title),
+    description: normalizeText(merged.description, fallback.description),
     showBadge: merged.showBadge === true,
-    badgeText: normalizeText(
-      merged.badgeText,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_BASIC_CONFIG.badgeText
-    )
+    badgeText: normalizeText(merged.badgeText, fallback.badgeText)
   };
 }
 
 export function mergePortalSimpleHelloCardStyleConfig(
   value?: Partial<PortalSimpleHelloCardStyleConfig> | null
 ): PortalSimpleHelloCardStyleConfig {
+  const fallback = PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.style.card;
   const merged = {
-    ...DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG,
+    ...fallback,
     ...value
   };
   return {
-    backgroundColor: normalizeText(
-      merged.backgroundColor,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.backgroundColor
-    ),
-    titleColor: normalizeText(
-      merged.titleColor,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.titleColor
-    ),
-    descriptionColor: normalizeText(
-      merged.descriptionColor,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.descriptionColor
-    ),
-    badgeBackgroundColor: normalizeText(
-      merged.badgeBackgroundColor,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.badgeBackgroundColor
-    ),
-    badgeTextColor: normalizeText(
-      merged.badgeTextColor,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.badgeTextColor
-    ),
-    borderColor: normalizeText(
-      merged.borderColor,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.borderColor
-    ),
-    borderRadius: normalizeNumber(
-      merged.borderRadius,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.borderRadius,
-      0,
-      40
-    ),
-    paddingY: normalizeNumber(
-      merged.paddingY,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.paddingY,
-      0,
-      48
-    ),
-    paddingX: normalizeNumber(
-      merged.paddingX,
-      DEFAULT_PORTAL_SIMPLE_HELLO_CARD_STYLE_CONFIG.paddingX,
-      0,
-      48
-    )
+    backgroundColor: normalizeText(merged.backgroundColor, fallback.backgroundColor),
+    titleColor: normalizeText(merged.titleColor, fallback.titleColor),
+    descriptionColor: normalizeText(merged.descriptionColor, fallback.descriptionColor),
+    badgeBackgroundColor: normalizeText(merged.badgeBackgroundColor, fallback.badgeBackgroundColor),
+    badgeTextColor: normalizeText(merged.badgeTextColor, fallback.badgeTextColor),
+    borderColor: normalizeText(merged.borderColor, fallback.borderColor),
+    borderRadius: normalizeNumber(merged.borderRadius, fallback.borderRadius, 0, 40),
+    paddingY: normalizeNumber(merged.paddingY, fallback.paddingY, 0, 48),
+    paddingX: normalizeNumber(merged.paddingX, fallback.paddingX, 0, 48)
   };
 }
 
 export function createPortalSimpleHelloCardMaterialConfig(): PortalMaterialConfig {
+  const defaults = PORTAL_SIMPLE_HELLO_CARD_DEFAULTS;
   return {
     index: {
       name: 'portal-simple-hello-card-index'
     },
     content: {
       name: 'portal-simple-hello-card-content',
-      basic: createDefaultPortalSimpleHelloCardBasicConfig()
+      basic: { ...defaults.content.basic }
     },
     style: {
       name: 'portal-simple-hello-card-style',
-      card: createDefaultPortalSimpleHelloCardStyleConfig()
+      card: { ...defaults.style.card }
     }
   };
 }
