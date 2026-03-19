@@ -1,57 +1,67 @@
 <script setup lang="ts">
-  import { Delete, Plus, Search } from "@element-plus/icons-vue";
-  import RoleAssignMemberSelectForm from "./components/RoleAssignMemberSelectForm.vue";
-  import { useRoleAssignPageState } from "./composables/useRoleAssignPageState";
+import { Delete, Plus, Search } from '@element-plus/icons-vue';
+import RoleAssignMemberSelectForm from './components/RoleAssignMemberSelectForm.vue';
+import { useRoleAssignPageState } from './composables/useRoleAssignPageState';
 
-  defineOptions({
-    name: "RoleAssignPage",
-  });
+defineOptions({
+  name: 'RoleAssignPage'
+});
 
-  const pageState = useRoleAssignPageState();
+const pageState = useRoleAssignPageState();
 
-  const { refs } = pageState;
+const { refs } = pageState;
 
-  const { loading, dataList, tableColumns, tablePagination, selectedNum, searchForm, currentRoleName } =
-    pageState.table;
+const {
+  loading,
+  dataList,
+  tableColumns,
+  tablePagination,
+  selectedNum,
+  searchForm,
+  currentRoleName
+} = pageState.table;
 
-  const { roleLoading, roleKeyword, roleList, currentRole } = pageState.roles;
+const { roleLoading, roleKeyword, roleList, currentRole } = pageState.roles;
 
-  const { memberDialogVisible, memberDialogLoading, memberDialogSubmitting, memberForm } = pageState.dialogs;
+const { memberDialogVisible, memberDialogLoading, memberDialogSubmitting, memberForm } =
+  pageState.dialogs;
 
-  const {
-    onRoleKeywordUpdate,
-    onRoleKeywordSearch,
-    onRoleKeywordClear,
-    selectRole,
-    tableSearch,
-    onKeywordUpdate,
-    onResetSearch,
-    handleSelectionChange,
-    handleSizeChange,
-    handleCurrentChange,
-    onSelectionCancel,
-    handleRemove,
-    fetchContactNodes,
-    searchContactUsers,
-    openAddMembersDialog,
-    closeAddMembersDialog,
-    submitAddMembersDialog,
-  } = pageState.actions;
+const {
+  onRoleKeywordUpdate,
+  onRoleKeywordSearch,
+  onRoleKeywordClear,
+  selectRole,
+  tableSearch,
+  onKeywordUpdate,
+  onResetSearch,
+  handleSelectionChange,
+  handleSizeChange,
+  handleCurrentChange,
+  onSelectionCancel,
+  handleRemove,
+  fetchContactNodes,
+  searchContactUsers,
+  openAddMembersDialog,
+  closeAddMembersDialog,
+  submitAddMembersDialog
+} = pageState.actions;
 
-  function onRoleMenuSelect(roleId: string) {
-    const target = roleList.value.find((item) => String(item.id) === roleId);
-    if (!target) {
-      return;
-    }
-    void selectRole(target);
+function onRoleMenuSelect(roleId: string) {
+  const target = roleList.value.find((item) => String(item.id) === roleId);
+  if (!target) {
+    return;
   }
+  void selectRole(target);
+}
 </script>
 
 <template>
   <ObPageContainer padding="0" overflow="hidden" left-width="248px">
     <template #left>
       <section class="flex flex-col h-full min-h-0">
-        <div class="flex font-medium items-center justify-between mb-2 text-[var(--el-text-color-primary)] text-sm">
+        <div
+          class="flex font-medium items-center justify-between mb-2 text-[var(--el-text-color-primary)] text-sm"
+        >
           <span>角色列表</span>
           <el-tag size="small" type="info">{{ roleList.length }}</el-tag>
         </div>
@@ -120,7 +130,9 @@
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="danger" :size="actionSize" @click="() => handleRemove(row)">移除</el-button>
+              <el-button link type="danger" :size="actionSize" @click="() => handleRemove(row)"
+                >移除</el-button
+              >
             </ObActionButtons>
           </template>
         </ObVxeTable>
@@ -150,24 +162,24 @@
 </template>
 
 <style scoped>
-  :deep(.ob-page-container__left) {
-    padding: 16px 12px;
-    margin-right: 16px;
-    background-color: #fff;
-  }
+:deep(.ob-page-container__left) {
+  padding: 16px 12px;
+  margin-right: 16px;
+  background-color: #fff;
+}
 
-  .role-assign-page__role-menu {
-    --el-menu-item-height: 40px;
-    border-right: none;
-    background: transparent;
-  }
+.role-assign-page__role-menu {
+  --el-menu-item-height: 40px;
+  border-right: none;
+  background: transparent;
+}
 
-  .role-assign-page__role-search :deep(.el-input__wrapper) {
-    border-radius: 0;
-  }
+.role-assign-page__role-search :deep(.el-input__wrapper) {
+  border-radius: 0;
+}
 
-  .role-assign-page__role-menu :deep(.el-menu-item),
-  .role-assign-page__role-menu :deep(.el-menu-item.is-active) {
-    border-radius: 0;
-  }
+.role-assign-page__role-menu :deep(.el-menu-item),
+.role-assign-page__role-menu :deep(.el-menu-item.is-active) {
+  border-radius: 0;
+}
 </style>

@@ -1,7 +1,7 @@
-import { type ComputedRef, type Ref, ref } from "vue";
-import { message } from "@one-base-template/ui";
-import { orgApi } from "../api";
-import type { OrgRecord } from "../types";
+import { type ComputedRef, type Ref, ref } from 'vue';
+import { message } from '@one-base-template/ui';
+import { orgApi } from '../api';
+import type { OrgRecord } from '../types';
 
 interface SearchRefExpose {
   resetFields?: () => void;
@@ -57,7 +57,7 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
   function saveCacheRows(parentId: string, rows: OrgRecord[]) {
     treeChildrenCache.set(parentId, {
       data: rows,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     });
   }
 
@@ -75,7 +75,7 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
     try {
       const response = await orgApi.getOrgTree({ parentId });
       if (response.code !== 200) {
-        throw new Error(response.message || "加载下级组织失败");
+        throw new Error(response.message || '加载下级组织失败');
       }
 
       const rows = Array.isArray(response.data) ? response.data : [];
@@ -86,7 +86,7 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
       saveCacheRows(parentId, rows);
       return rows;
     } catch (error) {
-      message.error(getErrorMessage(error, "加载下级组织失败"));
+      message.error(getErrorMessage(error, '加载下级组织失败'));
       return [];
     }
   }
@@ -119,8 +119,8 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
       return;
     }
 
-    treeChildrenCache.delete(String(row.id || ""));
-    treeChildrenCache.delete(String(row.parentId || ""));
+    treeChildrenCache.delete(String(row.id || ''));
+    treeChildrenCache.delete(String(row.parentId || ''));
   }
 
   function tableSearch(keyword: string) {
@@ -135,7 +135,7 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
 
   function onResetSearch() {
     clearTreeCache();
-    resetForm(searchRef, "orgName");
+    resetForm(searchRef, 'orgName');
   }
 
   return {
@@ -148,6 +148,6 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
     invalidateDeletedRowCache,
     tableSearch,
     onKeywordUpdate,
-    onResetSearch,
+    onResetSearch
   };
 }

@@ -136,4 +136,3 @@ interface PortalActionTargetRegistryItem {
 2. 同一 schema 在 admin 与 portal 中可执行一致业务 target。
 3. target 未映射时按“阻断并提示”生效。
 4. typecheck/lint/build 通过。
-

@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 
 // 统一时区，减少日期工具在不同环境下的波动。
 process.env.TZ = 'Asia/Shanghai';

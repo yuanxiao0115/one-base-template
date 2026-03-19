@@ -13,6 +13,7 @@
 ### Task 1: 下沉共享 normalize 工具
 
 **Files:**
+
 - Create: `apps/admin/src/shared/api/normalize.ts`
 - Delete: `apps/admin/src/modules/UserManagement/shared/normalize.ts`
 - Modify: `apps/admin/src/modules/UserManagement/user/api.ts`
@@ -27,6 +28,7 @@
 ### Task 2: 验证跨模块复用
 
 **Files:**
+
 - Modify: `apps/admin/src/modules/demo/org-management/api.ts`
 
 **Step 1:** 复用共享的 `toStringValue` / `toNumberValue`，删除本地重复实现。
@@ -36,6 +38,7 @@
 ### Task 3: 文档与验证
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/module-system.md`
 - Modify: `.codex/operations-log.md`
 - Modify: `.codex/testing.md`
@@ -44,6 +47,7 @@
 **Step 1:** 在模块系统文档补充“跨模块可复用 API normalize 工具”的约定与路径。
 
 **Step 2:** 执行验证命令并记录结果：
+
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/docs build`
 

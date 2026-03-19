@@ -1,5 +1,8 @@
-import { setPortalCmsApi, useMaterials as usePortalEngineMaterials } from "@one-base-template/portal-engine";
-import { cmsApi } from "../api";
+import {
+  setPortalCmsApi,
+  useRendererMaterials as usePortalEngineRendererMaterials
+} from '@one-base-template/portal-engine';
+import { cmsApi } from '../api';
 
 let cmsApiBound = false;
 
@@ -11,7 +14,7 @@ function ensureCmsApiBound() {
   setPortalCmsApi({
     getCategoryTree: cmsApi.getCategoryTree,
     getUserArticlesByCategory: cmsApi.getUserArticlesByCategory,
-    getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory,
+    getUserCarouselsByCategory: cmsApi.getUserCarouselsByCategory
   });
 
   cmsApiBound = true;
@@ -19,5 +22,5 @@ function ensureCmsApiBound() {
 
 export function useMaterials() {
   ensureCmsApiBound();
-  return usePortalEngineMaterials();
+  return usePortalEngineRendererMaterials();
 }

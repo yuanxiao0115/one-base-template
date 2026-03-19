@@ -12,9 +12,9 @@
   "scripts": {
     "build": "pnpm typecheck",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "test": "vitest",
-    "test:run": "vitest run"
+    "lint": "vp lint .",
+    "test": "vp test",
+    "test:run": "vp test run"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",
@@ -32,6 +32,7 @@
     "@types/node": "^24.3.3",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^20.0.10",
-    "vitest": "^3.2.4"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

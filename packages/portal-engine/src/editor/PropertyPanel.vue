@@ -1,68 +1,68 @@
 <script setup lang="ts">
-  import { computed } from 'vue';
-  import type { Component } from 'vue';
+import { computed } from 'vue';
+import type { Component } from 'vue';
 
-  import { deepClone, deepEqual } from '../utils/deep';
-  import { usePortalPageLayoutStore } from '../stores/pageLayout';
+import { deepClone, deepEqual } from '../utils/deep';
+import { usePortalPageLayoutStore } from '../stores/pageLayout';
 
-  type PortalSchemaSection = Record<string, unknown>;
+type PortalSchemaSection = Record<string, unknown>;
 
-  const props = defineProps<{
-    materialsMap: Record<string, Component>;
-  }>();
+const props = defineProps<{
+  materialsMap: Record<string, Component>;
+}>();
 
-  const pageLayoutStore = usePortalPageLayoutStore();
+const pageLayoutStore = usePortalPageLayoutStore();
 
-  const currentLayoutItem = computed(() => pageLayoutStore.currentLayoutItem);
+const currentLayoutItem = computed(() => pageLayoutStore.currentLayoutItem);
 
-  const configForm = computed<PortalSchemaSection>({
-    get: () => pageLayoutStore.configForm as PortalSchemaSection,
-    set: (value) => pageLayoutStore.updateCurrentItemConfig(deepClone(value)),
-  });
+const configForm = computed<PortalSchemaSection>({
+  get: () => pageLayoutStore.configForm as PortalSchemaSection,
+  set: (value) => pageLayoutStore.updateCurrentItemConfig(deepClone(value))
+});
 
-  const activeName = computed<'content' | 'style'>({
-    get: () => pageLayoutStore.activeName,
-    set: (value) => (pageLayoutStore.activeName = value),
-  });
+const activeName = computed<'content' | 'style'>({
+  get: () => pageLayoutStore.activeName,
+  set: (value) => (pageLayoutStore.activeName = value)
+});
 
-  const loadingComponents = computed(() => pageLayoutStore.loadingComponents);
-  const currentSelectionType = computed(() => pageLayoutStore.currentSelectionType);
-  const currentRootLayoutItemId = computed(() => pageLayoutStore.currentRootLayoutItemId);
-  const currentTabId = computed(() => pageLayoutStore.currentTabId);
-  const isTabChildSelection = computed(() => currentSelectionType.value === 'tab-child-item');
+const loadingComponents = computed(() => pageLayoutStore.loadingComponents);
+const currentSelectionType = computed(() => pageLayoutStore.currentSelectionType);
+const currentRootLayoutItemId = computed(() => pageLayoutStore.currentRootLayoutItemId);
+const currentTabId = computed(() => pageLayoutStore.currentTabId);
+const isTabChildSelection = computed(() => currentSelectionType.value === 'tab-child-item');
 
-  const contentComponentName = computed(() => pageLayoutStore.contentComponentName);
-  const styleComponentName = computed(() => pageLayoutStore.styleComponentName);
-  const componentBaseName = computed(() => pageLayoutStore.componentBaseName);
+const contentComponentName = computed(() => pageLayoutStore.contentComponentName);
+const styleComponentName = computed(() => pageLayoutStore.styleComponentName);
+const componentBaseName = computed(() => pageLayoutStore.componentBaseName);
 
-  const componentExists = computed(() => {
-    if (!componentBaseName.value) {
-      return false;
-    }
-    return Boolean(props.materialsMap[componentBaseName.value]);
-  });
+const componentExists = computed(() => {
+  if (!componentBaseName.value) {
+    return false;
+  }
+  return Boolean(props.materialsMap[componentBaseName.value]);
+});
 
-  function handleSchemaChange(type: 'content' | 'style', value: unknown) {
-    if (!currentLayoutItem.value) {
-      return;
-    }
-
-    const current = configForm.value?.[type];
-    if (deepEqual(current, value)) {
-      return;
-    }
-
-    const nextConfig = deepClone(configForm.value || {});
-    nextConfig[type] = deepClone(value);
-    pageLayoutStore.updateCurrentItemConfig(nextConfig);
+function handleSchemaChange(type: 'content' | 'style', value: unknown) {
+  if (!currentLayoutItem.value) {
+    return;
   }
 
-  function backToTabContainer() {
-    if (!currentRootLayoutItemId.value) {
-      return;
-    }
-    pageLayoutStore.selectTabContainer(currentRootLayoutItemId.value);
+  const current = configForm.value?.[type];
+  if (deepEqual(current, value)) {
+    return;
   }
+
+  const nextConfig = deepClone(configForm.value || {});
+  nextConfig[type] = deepClone(value);
+  pageLayoutStore.updateCurrentItemConfig(nextConfig);
+}
+
+function backToTabContainer() {
+  if (!currentRootLayoutItemId.value) {
+    return;
+  }
+  pageLayoutStore.selectTabContainer(currentRootLayoutItemId.value);
+}
 </script>
 
 <template>
@@ -71,7 +71,9 @@
       <div class="panel-header">
         <div class="title-row">
           <div class="title">{{ componentBaseName || '-' }} 配置</div>
-          <el-button v-if="isTabChildSelection" size="small" plain @click="backToTabContainer">返回 Tab 容器</el-button>
+          <el-button v-if="isTabChildSelection" size="small" plain @click="backToTabContainer"
+            >返回 Tab 容器</el-button
+          >
         </div>
         <div class="meta">
           <div>ID: {{ currentLayoutItem.i }}</div>
@@ -142,85 +144,85 @@
 </template>
 
 <style scoped>
-  .panel {
-    display: flex;
-    overflow: auto;
-    border-left: 1px solid var(--el-border-color-lighter);
-    width: 360px;
-    height: 100%;
-    background: var(--el-bg-color);
-    flex-direction: column;
-  }
+.panel {
+  display: flex;
+  overflow: auto;
+  border-left: 1px solid var(--el-border-color-lighter);
+  width: 360px;
+  height: 100%;
+  background: var(--el-bg-color);
+  flex-direction: column;
+}
 
-  .panel-inner {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    flex-direction: column;
-  }
+.panel-inner {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
 
-  .panel-header {
-    border-bottom: 1px solid var(--el-border-color-lighter);
-    padding: 12px 12px 10px;
-  }
+.panel-header {
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  padding: 12px 12px 10px;
+}
 
-  .title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--el-text-color-primary);
-  }
+.title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--el-text-color-primary);
+}
 
-  .title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 
-  .meta {
-    margin-top: 8px;
-    border-radius: 8px;
-    padding: 10px;
-    font-size: 12px;
-    color: var(--el-text-color-secondary);
-    background: var(--el-fill-color-lighter);
-    display: grid;
-    gap: 4px;
-  }
+.meta {
+  margin-top: 8px;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  background: var(--el-fill-color-lighter);
+  display: grid;
+  gap: 4px;
+}
 
-  .panel-error {
-    padding: 12px;
-  }
+.panel-error {
+  padding: 12px;
+}
 
-  .tabs :deep(.el-tabs__header) {
-    margin: 0;
-    padding: 0 12px;
-  }
+.tabs :deep(.el-tabs__header) {
+  margin: 0;
+  padding: 0 12px;
+}
 
-  .tabs :deep(.el-tabs__content) {
-    padding: 12px;
-  }
+.tabs :deep(.el-tabs__content) {
+  padding: 12px;
+}
 
-  .skeleton {
-    padding: 10px 0;
-  }
+.skeleton {
+  padding: 10px 0;
+}
 
-  .empty {
-    padding: 16px 0 6px;
-    text-align: center;
-  }
+.empty {
+  padding: 16px 0 6px;
+  text-align: center;
+}
 
-  .empty-tip {
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--el-text-color-secondary);
-  }
+.empty-tip {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
 
-  .panel-empty {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 0;
-  }
+.panel-empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
 </style>

@@ -1,19 +1,19 @@
-import { computed, onMounted, reactive, ref } from "vue";
-import { useAuthStore, useCrudPage } from "@one-base-template/core";
-import { message } from "@one-base-template/ui";
-import { orgColumns } from "../columns";
-import { orgApi } from "../api";
-import type { OrgRecord, OrgSavePayload } from "../types";
-import { defaultOrgForm, type OrgForm, toOrgForm, toOrgPayload } from "../form";
+import { computed, onMounted, reactive, ref } from 'vue';
+import { useAuthStore, useCrudPage } from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
+import { orgColumns } from '../columns';
+import { orgApi } from '../api';
+import type { OrgRecord, OrgSavePayload } from '../types';
+import { defaultOrgForm, type OrgForm, toOrgForm, toOrgPayload } from '../form';
 import {
   assertUniqueCheck,
   type OrgUniqueSnapshot,
   shouldCheckOrgUnique,
-  toOrgUniqueSnapshot,
-} from "../../shared/unique";
-import { useOrgTreeQuery } from "./useOrgTreeQuery";
-import { useOrgTreeOptions } from "./useOrgTreeOptions";
-import { useOrgDictionaryOptions } from "./useOrgDictionaryOptions";
+  toOrgUniqueSnapshot
+} from '../../shared/unique';
+import { useOrgTreeQuery } from './useOrgTreeQuery';
+import { useOrgTreeOptions } from './useOrgTreeOptions';
+import { useOrgDictionaryOptions } from './useOrgDictionaryOptions';
 
 interface AuthUserWithCompanyId {
   companyId?: number | string | null;
@@ -23,8 +23,12 @@ interface SearchRefExpose {
   resetFields?: () => void;
 }
 
-function getDictLabelMap(items: Array<{ itemValue?: number | string; itemName?: string }>): Record<string, string> {
-  return Object.fromEntries(items.map((item) => [String(item.itemValue ?? ""), item.itemName ?? ""]));
+function getDictLabelMap(
+  items: Array<{ itemValue?: number | string; itemName?: string }>
+): Record<string, string> {
+  return Object.fromEntries(
+    items.map((item) => [String(item.itemValue ?? ''), item.itemName ?? ''])
+  );
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -39,10 +43,10 @@ export function useOrgPageState() {
   const editFormRef = ref();
 
   const searchForm = reactive({
-    orgName: "",
+    orgName: ''
   });
 
-  const createParentId = ref("0");
+  const createParentId = ref('0');
   const orgUniqueSnapshot = ref<OrgUniqueSnapshot | null>(null);
 
   const orgManagerVisible = ref(false);
@@ -56,23 +60,28 @@ export function useOrgPageState() {
     const user = authStore.user as AuthUserWithCompanyId | null;
     const companyId = user?.companyId;
 
-    if (typeof companyId === "number" && Number.isFinite(companyId)) {
+    if (typeof companyId === 'number' && Number.isFinite(companyId)) {
       return String(companyId);
     }
 
-    if (typeof companyId === "string" && companyId.trim()) {
+    if (typeof companyId === 'string' && companyId.trim()) {
       return companyId.trim();
     }
 
-    return "0";
+    return '0';
   });
 
   const { orgTreeOptions, loadOrgTreeOptions } = useOrgTreeOptions({
-    rootParentId,
+    rootParentId
   });
 
-  const { orgCategoryOptions, institutionalTypeOptions, orgLevelOptions, loadDictOptions, loadOrgLevelOptions } =
-    useOrgDictionaryOptions();
+  const {
+    orgCategoryOptions,
+    institutionalTypeOptions,
+    orgLevelOptions,
+    loadDictOptions,
+    loadOrgLevelOptions
+  } = useOrgDictionaryOptions();
 
   const tableOpt = reactive({
     query: {
@@ -81,7 +90,7 @@ export function useOrgPageState() {
         if (inSearchMode.value) {
           return orgApi.searchOrgList({
             parentId,
-            orgName: searchForm.orgName,
+            orgName: searchForm.orgName
           });
         }
 
@@ -89,28 +98,28 @@ export function useOrgPageState() {
       },
       params: searchForm,
       pagination: false,
-      immediate: false,
+      immediate: false
     },
     remove: {
       api: async (payload: { id: string }) => orgApi.deleteOrg(payload),
       deleteConfirm: {
-        nameKey: "orgName",
+        nameKey: 'orgName',
         requireInput: true,
-        title: "删除确认",
-        message: "此操作不可逆，请输入组织名称「{name}」确认删除",
-        inputPlaceholder: "请输入组织名称",
-        confirmButtonText: "确认删除",
+        title: '删除确认',
+        message: '此操作不可逆，请输入组织名称「{name}」确认删除',
+        inputPlaceholder: '请输入组织名称',
+        confirmButtonText: '确认删除'
       },
       onSuccess: () => {
-        message.success("删除组织成功");
+        message.success('删除组织成功');
         invalidateDeletedRowCache();
       },
       onError: (error: unknown) => {
         clearDeletingRow();
-        const errorMessage = error instanceof Error ? error.message : "删除组织失败";
+        const errorMessage = error instanceof Error ? error.message : '删除组织失败';
         message.error(errorMessage);
-      },
-    },
+      }
+    }
   });
 
   const crudPage = useCrudPage<OrgForm, OrgRecord, OrgRecord, OrgSavePayload>({
@@ -118,21 +127,21 @@ export function useOrgPageState() {
     tableRef,
     editor: {
       entity: {
-        name: "组织",
+        name: '组织'
       },
       form: {
         create: () => ({
           ...defaultOrgForm,
-          parentId: rootParentId.value,
+          parentId: rootParentId.value
         }),
-        ref: editFormRef,
+        ref: editFormRef
       },
       detail: {
         async beforeOpen({ mode, row, form }) {
           await Promise.all([loadDictOptions(), loadOrgLevelOptions()]);
-          await loadOrgTreeOptions(mode === "create" ? undefined : row?.id);
+          await loadOrgTreeOptions(mode === 'create' ? undefined : row?.id);
 
-          if (mode === "create") {
+          if (mode === 'create') {
             orgUniqueSnapshot.value = null;
             form.parentId = createParentId.value || rootParentId.value;
           }
@@ -142,46 +151,47 @@ export function useOrgPageState() {
           const mapped = toOrgForm(detail);
           orgUniqueSnapshot.value = toOrgUniqueSnapshot(mapped);
           return mapped;
-        },
+        }
       },
       save: {
         buildPayload: async ({ form }) => {
           const payload = toOrgPayload(form, rootParentId.value);
           const currentUnique = toOrgUniqueSnapshot({
             orgName: payload.orgName,
-            parentId: payload.parentId,
+            parentId: payload.parentId
           });
 
           if (shouldCheckOrgUnique(currentUnique, orgUniqueSnapshot.value)) {
             const uniqueResponse = await orgApi.checkUnique({
               orgName: payload.orgName,
               parentId: payload.parentId,
-              orgId: payload.id,
+              orgId: payload.id
             });
 
-            const isUnique = assertUniqueCheck(uniqueResponse, "组织名称校验失败");
+            const isUnique = assertUniqueCheck(uniqueResponse, '组织名称校验失败');
             if (!isUnique) {
-              throw new Error("已存在相同组织名称");
+              throw new Error('已存在相同组织名称');
             }
           }
 
           return payload;
         },
         request: async ({ mode, payload }) => {
-          const response = mode === "create" ? await orgApi.addOrg(payload) : await orgApi.updateOrg(payload);
+          const response =
+            mode === 'create' ? await orgApi.addOrg(payload) : await orgApi.updateOrg(payload);
 
           if (response.code !== 200) {
-            throw new Error(response.message || "保存组织失败");
+            throw new Error(response.message || '保存组织失败');
           }
 
           return response;
         },
         onSuccess: async ({ mode }) => {
-          message.success(mode === "create" ? "新增组织成功" : "更新组织成功");
+          message.success(mode === 'create' ? '新增组织成功' : '更新组织成功');
           clearTreeCache();
-        },
-      },
-    },
+        }
+      }
+    }
   });
 
   const { loading, dataList, onSearch, resetForm } = crudPage.table;
@@ -209,13 +219,13 @@ export function useOrgPageState() {
     invalidateDeletedRowCache,
     tableSearch,
     onKeywordUpdate,
-    onResetSearch,
+    onResetSearch
   } = useOrgTreeQuery({
     inSearchMode,
     searchForm,
     searchRef,
     onSearch,
-    resetForm,
+    resetForm
   });
 
   const treeConfig = computed<Record<string, unknown> | undefined>(() => {
@@ -225,11 +235,11 @@ export function useOrgPageState() {
 
     return {
       lazy: true,
-      trigger: "cell",
+      trigger: 'cell',
       reserve: true,
-      hasChildField: "hasChildren",
-      childrenField: "children",
-      loadMethod: loadTreeChildren,
+      hasChildField: 'hasChildren',
+      childrenField: 'children',
+      loadMethod: loadTreeChildren
     };
   });
 
@@ -249,11 +259,15 @@ export function useOrgPageState() {
     clearDeletingRowIfMatched(row);
   }
 
-  async function checkOrgNameUnique(params: { orgName: string; parentId?: string; orgId?: string }) {
+  async function checkOrgNameUnique(params: {
+    orgName: string;
+    parentId?: string;
+    orgId?: string;
+  }) {
     const parentId = params.parentId || rootParentId.value;
     const currentUnique = toOrgUniqueSnapshot({
       orgName: params.orgName,
-      parentId,
+      parentId
     });
 
     if (params.orgId && !shouldCheckOrgUnique(currentUnique, orgUniqueSnapshot.value)) {
@@ -263,10 +277,10 @@ export function useOrgPageState() {
     const response = await orgApi.checkUnique({
       orgName: params.orgName,
       parentId,
-      orgId: params.orgId,
+      orgId: params.orgId
     });
 
-    return assertUniqueCheck(response, "组织名称校验失败");
+    return assertUniqueCheck(response, '组织名称校验失败');
   }
 
   function openManagerDialog(row: OrgRecord) {
@@ -290,7 +304,7 @@ export function useOrgPageState() {
     try {
       await Promise.all([loadDictOptions(), loadOrgLevelOptions()]);
     } catch (error) {
-      message.error(getErrorMessage(error, "初始化组织管理配置失败"));
+      message.error(getErrorMessage(error, '初始化组织管理配置失败'));
     }
 
     await onSearch(false);
@@ -300,7 +314,7 @@ export function useOrgPageState() {
     refs: {
       tableRef,
       searchRef,
-      editFormRef,
+      editFormRef
     },
     table: {
       loading,
@@ -309,7 +323,7 @@ export function useOrgPageState() {
       tableColumns,
       searchForm,
       orgCategoryLabelMap,
-      institutionalTypeLabelMap,
+      institutionalTypeLabelMap
     },
     editor: {
       crud,
@@ -319,19 +333,19 @@ export function useOrgPageState() {
       crudReadonly,
       crudSubmitting,
       crudForm,
-      checkOrgNameUnique,
+      checkOrgNameUnique
     },
     options: {
       orgTreeOptions,
       orgCategoryOptions,
       institutionalTypeOptions,
       orgLevelOptions,
-      rootParentId,
+      rootParentId
     },
     dialogs: {
       orgManagerVisible,
       orgManagerTarget,
-      orgLevelDialogVisible,
+      orgLevelDialogVisible
     },
     actions: {
       tableSearch,
@@ -343,7 +357,7 @@ export function useOrgPageState() {
       openManagerDialog,
       handleDelete,
       handleOrgManagerUpdated,
-      handleOrgLevelUpdated,
-    },
+      handleOrgLevelUpdated
+    }
   };
 }

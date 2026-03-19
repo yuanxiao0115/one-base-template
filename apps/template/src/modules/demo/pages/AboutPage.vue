@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  defineOptions({
-    name: "TemplateAboutPage",
-  });
+defineOptions({
+  name: 'TemplateAboutPage'
+});
 </script>
 
 <template>

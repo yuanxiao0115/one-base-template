@@ -1,17 +1,17 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import type { FormInstance } from "element-plus";
+import { ref } from 'vue';
+import type { FormInstance } from 'element-plus';
 
-  const model = defineModel<{
-    categoryName: string;
-    isShow: string;
-  }>({ required: true });
+const model = defineModel<{
+  categoryName: string;
+  isShow: string;
+}>({ required: true });
 
-  const formRef = ref<FormInstance>();
+const formRef = ref<FormInstance>();
 
-  defineExpose({
-    resetFields: () => formRef.value?.resetFields?.(),
-  });
+defineExpose({
+  resetFields: () => formRef.value?.resetFields?.()
+});
 </script>
 
 <template>

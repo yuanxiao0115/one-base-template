@@ -4,7 +4,12 @@
 
     <el-form-item label="图片宽度">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.imageWidth" :min="80" :max="400" controls-position="right">
+        <el-input-number
+          v-model="modelValue.imageWidth"
+          :min="80"
+          :max="400"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">px</span> </template>
         </el-input-number>
       </div>
@@ -12,7 +17,12 @@
 
     <el-form-item label="图片高度">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.imageHeight" :min="120" :max="600" controls-position="right">
+        <el-input-number
+          v-model="modelValue.imageHeight"
+          :min="120"
+          :max="600"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">px</span> </template>
         </el-input-number>
       </div>
@@ -20,7 +30,12 @@
 
     <el-form-item label="图片圆角">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.imageBorderRadius" :min="0" :max="40" controls-position="right">
+        <el-input-number
+          v-model="modelValue.imageBorderRadius"
+          :min="0"
+          :max="40"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">px</span> </template>
         </el-input-number>
       </div>
@@ -72,27 +87,42 @@
     </el-form-item>
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-2" label="按钮文字颜色">
-      <PortalColorField v-model="modelValue.moreTextColor" show-alpha />
+      <ObColorField v-model="modelValue.moreTextColor" show-alpha />
     </el-form-item>
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-3" label="按钮字体大小">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.moreFontSize" :min="10" :max="24" controls-position="right">
+        <el-input-number
+          v-model="modelValue.moreFontSize"
+          :min="10"
+          :max="24"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">px</span> </template>
         </el-input-number>
       </div>
     </el-form-item>
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-4" label="按钮背景色">
-      <PortalColorField v-model="modelValue.moreBgColor" show-alpha />
+      <ObColorField v-model="modelValue.moreBgColor" show-alpha />
     </el-form-item>
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-5" label="按钮内边距">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.morePaddingX" :min="0" :max="24" controls-position="right">
+        <el-input-number
+          v-model="modelValue.morePaddingX"
+          :min="0"
+          :max="24"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">左右</span> </template>
         </el-input-number>
-        <el-input-number v-model="modelValue.morePaddingY" :min="0" :max="24" controls-position="right">
+        <el-input-number
+          v-model="modelValue.morePaddingY"
+          :min="0"
+          :max="24"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">上下</span> </template>
         </el-input-number>
       </div>
@@ -100,7 +130,12 @@
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-6" label="按钮圆角">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.moreBorderRadius" :min="0" :max="24" controls-position="right">
+        <el-input-number
+          v-model="modelValue.moreBorderRadius"
+          :min="0"
+          :max="24"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">px</span> </template>
         </el-input-number>
       </div>
@@ -115,10 +150,20 @@
 
     <el-form-item v-if="modelValue.showMore" key="el-form-item-8" label="按钮偏移">
       <div class="input-with-unit">
-        <el-input-number v-model="modelValue.moreOffsetX" :min="0" :max="60" controls-position="right">
+        <el-input-number
+          v-model="modelValue.moreOffsetX"
+          :min="0"
+          :max="60"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">X</span> </template>
         </el-input-number>
-        <el-input-number v-model="modelValue.moreOffsetY" :min="0" :max="60" controls-position="right">
+        <el-input-number
+          v-model="modelValue.moreOffsetY"
+          :min="0"
+          :max="60"
+          controls-position="right"
+        >
           <template #suffix> <span class="suffix-unit">Y</span> </template>
         </el-input-number>
       </div>
@@ -131,123 +176,123 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
-  import PortalColorField from '../../common/fields/PortalColorField.vue';
-  import SelectImg from '../../SelectImg.vue';
+import { ObColorField } from '@one-base-template/ui';
+import { ref, watch } from 'vue';
+import SelectImg from '../../SelectImg.vue';
 
-  export interface ImageConfigModelType {
-    imageUrl?: string;
-    imageWidth: number;
-    imageHeight: number;
-    imageBorderRadius: number;
-    imagePosition: 'left' | 'right';
-    imageRepeat: 'no-repeat' | 'repeat-x' | 'repeat-y' | 'repeat';
-    imageSize: '100% 100%' | 'auto' | 'contain' | 'cover';
-    imageBgPosition:
-      | 'bottom'
-      | 'center'
-      | 'left bottom'
-      | 'left center'
-      | 'left top'
-      | 'left'
-      | 'right bottom'
-      | 'right center'
-      | 'right top'
-      | 'right'
-      | 'top';
-    showMore: boolean;
-    moreText: string;
-    moreLink: string;
-    moreTextColor: string;
-    moreFontSize: number;
-    moreBgColor: string;
-    morePaddingX: number;
-    morePaddingY: number;
-    moreBorderRadius: number;
-    moreAlign: 'left' | 'right';
-    moreOffsetX: number;
-    moreOffsetY: number;
+export interface ImageConfigModelType {
+  imageUrl?: string;
+  imageWidth: number;
+  imageHeight: number;
+  imageBorderRadius: number;
+  imagePosition: 'left' | 'right';
+  imageRepeat: 'no-repeat' | 'repeat-x' | 'repeat-y' | 'repeat';
+  imageSize: '100% 100%' | 'auto' | 'contain' | 'cover';
+  imageBgPosition:
+    | 'bottom'
+    | 'center'
+    | 'left bottom'
+    | 'left center'
+    | 'left top'
+    | 'left'
+    | 'right bottom'
+    | 'right center'
+    | 'right top'
+    | 'right'
+    | 'top';
+  showMore: boolean;
+  moreText: string;
+  moreLink: string;
+  moreTextColor: string;
+  moreFontSize: number;
+  moreBgColor: string;
+  morePaddingX: number;
+  morePaddingY: number;
+  moreBorderRadius: number;
+  moreAlign: 'left' | 'right';
+  moreOffsetX: number;
+  moreOffsetY: number;
+}
+
+const modelValue = defineModel<ImageConfigModelType>({
+  default: () => ({
+    imageUrl: '',
+    imageWidth: 200,
+    imageHeight: 240,
+    imageBorderRadius: 0,
+    imagePosition: 'left',
+    imageRepeat: 'no-repeat',
+    imageSize: 'cover',
+    imageBgPosition: 'center',
+    showMore: false,
+    moreText: '更多',
+    moreLink: '',
+    moreTextColor: '#ffffff',
+    moreFontSize: 14,
+    moreBgColor: '#0f79e9',
+    morePaddingX: 10,
+    morePaddingY: 6,
+    moreBorderRadius: 4,
+    moreAlign: 'right',
+    moreOffsetX: 0,
+    moreOffsetY: 0
+  })
+});
+
+const imageId = ref('');
+
+if (modelValue.value?.imageUrl) {
+  imageId.value = modelValue.value.imageUrl;
+}
+
+watch(imageId, (newVal) => {
+  if (newVal) {
+    modelValue.value.imageUrl = newVal;
+  } else {
+    modelValue.value.imageUrl = '';
   }
+});
 
-  const modelValue = defineModel<ImageConfigModelType>({
-    default: () => ({
-      imageUrl: '',
-      imageWidth: 200,
-      imageHeight: 240,
-      imageBorderRadius: 0,
-      imagePosition: 'left',
-      imageRepeat: 'no-repeat',
-      imageSize: 'cover',
-      imageBgPosition: 'center',
-      showMore: false,
-      moreText: '更多',
-      moreLink: '',
-      moreTextColor: '#ffffff',
-      moreFontSize: 14,
-      moreBgColor: '#0f79e9',
-      morePaddingX: 10,
-      morePaddingY: 6,
-      moreBorderRadius: 4,
-      moreAlign: 'right',
-      moreOffsetX: 0,
-      moreOffsetY: 0,
-    }),
-  });
-
-  const imageId = ref('');
-
-  if (modelValue.value?.imageUrl) {
-    imageId.value = modelValue.value.imageUrl;
-  }
-
-  watch(imageId, (newVal) => {
-    if (newVal) {
-      modelValue.value.imageUrl = newVal;
-    } else {
-      modelValue.value.imageUrl = '';
-    }
-  });
-
-  defineOptions({
-    name: 'PbImageTextColumnImageConfig',
-  });
+defineOptions({
+  name: 'PbImageTextColumnImageConfig'
+});
 </script>
 
 <style scoped>
-  .image-config {
-    --config-border: #e2e8f0;
+.image-config {
+  --config-border: #e2e8f0;
 
-    --config-surface: #f8fafc;
+  --config-surface: #f8fafc;
 
-    --config-surface-strong: #fff;
+  --config-surface-strong: #fff;
 
-    --config-text: #0f172a;
+  --config-text: #0f172a;
 
-    --config-muted: #64748b;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+  --config-muted: #64748b;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  .image-config :deep(.el-divider__text) {
-    font-weight: 600;
-    color: var(--config-text);
-    letter-spacing: 0.2px;
-  }
+.image-config :deep(.el-divider__text) {
+  font-weight: 600;
+  color: var(--config-text);
+  letter-spacing: 0.2px;
+}
 
-  .image-config :deep(.el-form-item__label) {
-    font-weight: 500;
-    color: var(--config-muted);
-  }
+.image-config :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: var(--config-muted);
+}
 
-  .input-with-unit {
-    display: flex;
-    align-items: center;
-  }
+.input-with-unit {
+  display: flex;
+  align-items: center;
+}
 
-  .suffix-unit {
-    margin-right: 8px;
-    font-size: 14px;
-    color: var(--config-muted);
-  }
+.suffix-unit {
+  margin-right: 8px;
+  font-size: 14px;
+  color: var(--config-muted);
+}
 </style>

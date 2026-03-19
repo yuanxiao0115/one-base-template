@@ -1,32 +1,42 @@
-import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
-import { useCrudPage, type UseCrudPageReturn } from './useCrudPage'
+import { mount } from '@vue/test-utils';
+import { defineComponent, h } from 'vue';
+import { describe, expect, it, vi } from 'vite-plus/test';
+import { useCrudPage, type UseCrudPageReturn } from './useCrudPage';
 
 function mountUseCrudPage(
-  options: Parameters<typeof useCrudPage<Record<string, unknown>, { id: number }, { id: number }>>[0]
-): { crudPage: UseCrudPageReturn<Record<string, unknown>, { id: number }, { id: number }, unknown>; unmount: () => void } {
-  let crudPage: UseCrudPageReturn<Record<string, unknown>, { id: number }, { id: number }, unknown> | null = null
+  options: Parameters<
+    typeof useCrudPage<Record<string, unknown>, { id: number }, { id: number }>
+  >[0]
+): {
+  crudPage: UseCrudPageReturn<Record<string, unknown>, { id: number }, { id: number }, unknown>;
+  unmount: () => void;
+} {
+  let crudPage: UseCrudPageReturn<
+    Record<string, unknown>,
+    { id: number },
+    { id: number },
+    unknown
+  > | null = null;
 
   const TestComponent = defineComponent({
     setup() {
-      crudPage = useCrudPage<Record<string, unknown>, { id: number }, { id: number }>(options)
-      return () => h('div')
+      crudPage = useCrudPage<Record<string, unknown>, { id: number }, { id: number }>(options);
+      return () => h('div');
     }
-  })
+  });
 
-  const wrapper = mount(TestComponent)
+  const wrapper = mount(TestComponent);
 
   if (!crudPage) {
-    throw new Error('useCrudPage 挂载失败')
+    throw new Error('useCrudPage 挂载失败');
   }
 
   return {
     crudPage,
     unmount: () => {
-      wrapper.unmount()
+      wrapper.unmount();
     }
-  }
+  };
 }
 
 describe('useCrudPage', () => {
@@ -39,7 +49,7 @@ describe('useCrudPage', () => {
         currentPage: Number(params.page || 1),
         pageSize: Number(params.size || 10)
       }
-    }))
+    }));
 
     const { crudPage, unmount } = mountUseCrudPage({
       table: {
@@ -59,17 +69,17 @@ describe('useCrudPage', () => {
           request: async () => ({})
         }
       }
-    })
+    });
 
-    crudPage.table.pagination.currentPage = 3
-    await crudPage.editor.openCreate()
-    await crudPage.actions.confirm()
+    crudPage.table.pagination.currentPage = 3;
+    await crudPage.editor.openCreate();
+    await crudPage.actions.confirm();
 
-    expect(queryApi).toHaveBeenCalledTimes(1)
-    expect(queryApi.mock.calls[0]?.[0]).toMatchObject({ page: 3 })
+    expect(queryApi).toHaveBeenCalledTimes(1);
+    expect(queryApi.mock.calls[0]?.[0]).toMatchObject({ page: 3 });
 
-    unmount()
-  })
+    unmount();
+  });
 
   it('refreshAfterSave=first 时保存后回到第一页', async () => {
     const queryApi = vi.fn(async (params: Record<string, unknown>) => ({
@@ -80,7 +90,7 @@ describe('useCrudPage', () => {
         currentPage: Number(params.page || 1),
         pageSize: Number(params.size || 10)
       }
-    }))
+    }));
 
     const { crudPage, unmount } = mountUseCrudPage({
       table: {
@@ -103,17 +113,17 @@ describe('useCrudPage', () => {
       behavior: {
         refreshAfterSave: 'first'
       }
-    })
+    });
 
-    crudPage.table.pagination.currentPage = 5
-    await crudPage.editor.openCreate()
-    await crudPage.actions.confirm()
+    crudPage.table.pagination.currentPage = 5;
+    await crudPage.editor.openCreate();
+    await crudPage.actions.confirm();
 
-    expect(queryApi).toHaveBeenCalledTimes(1)
-    expect(queryApi.mock.calls[0]?.[0]).toMatchObject({ page: 1 })
+    expect(queryApi).toHaveBeenCalledTimes(1);
+    expect(queryApi.mock.calls[0]?.[0]).toMatchObject({ page: 1 });
 
-    unmount()
-  })
+    unmount();
+  });
 
   it('refreshAfterSave=none 时保存后不触发列表刷新', async () => {
     const queryApi = vi.fn(async () => ({
@@ -122,7 +132,7 @@ describe('useCrudPage', () => {
         records: [{ id: 1 }],
         total: 1
       }
-    }))
+    }));
 
     const { crudPage, unmount } = mountUseCrudPage({
       table: {
@@ -145,18 +155,18 @@ describe('useCrudPage', () => {
       behavior: {
         refreshAfterSave: 'none'
       }
-    })
+    });
 
-    await crudPage.editor.openCreate()
-    await crudPage.actions.confirm()
+    await crudPage.editor.openCreate();
+    await crudPage.actions.confirm();
 
-    expect(queryApi).not.toHaveBeenCalled()
+    expect(queryApi).not.toHaveBeenCalled();
 
-    unmount()
-  })
+    unmount();
+  });
 
   it('actions.remove 会透传到 table.deleteRow', async () => {
-    const deleteApi = vi.fn(async () => ({ code: 200 }))
+    const deleteApi = vi.fn(async () => ({ code: 200 }));
 
     const { crudPage, unmount } = mountUseCrudPage({
       table: {
@@ -176,13 +186,13 @@ describe('useCrudPage', () => {
           create: () => ({ name: '' })
         }
       }
-    })
+    });
 
-    await crudPage.actions.remove({ id: 9 })
+    await crudPage.actions.remove({ id: 9 });
 
-    expect(deleteApi).toHaveBeenCalledTimes(1)
-    expect(deleteApi).toHaveBeenCalledWith({ id: 9 })
+    expect(deleteApi).toHaveBeenCalledTimes(1);
+    expect(deleteApi).toHaveBeenCalledWith({ id: 9 });
 
-    unmount()
-  })
-})
+    unmount();
+  });
+});

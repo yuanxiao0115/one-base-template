@@ -1,27 +1,27 @@
-import { createApp } from "vue";
-import { createPinia, setActivePinia } from "pinia";
-import ElementPlus from "element-plus";
+import { createApp } from 'vue';
+import { createPinia, setActivePinia } from 'pinia';
+import ElementPlus from 'element-plus';
 import {
   ONE_BUILTIN_THEMES,
   createCore,
   createStaticMenusFromRoutes,
   setObHttpClient,
-  setupRouterGuards,
-} from "@one-base-template/core";
-import { registerOneLiteUiComponents } from "@one-base-template/ui/lite";
-import "@one-base-template/tag/style";
+  setupRouterGuards
+} from '@one-base-template/core';
+import { registerOneLiteUiComponents } from '@one-base-template/ui/lite';
+import '@one-base-template/tag/style';
 
-import App from "@/App.vue";
-import { appEnv } from "@/infra/env";
+import App from '@/App.vue';
+import { appEnv } from '@/infra/env';
 import {
   APP_FORBIDDEN_ROUTE_PATH,
   APP_LOGIN_ROUTE_PATH,
-  APP_PUBLIC_ROUTE_PATHS,
-} from "@/router/constants";
-import { createAppRouter } from "@/router";
-import { portalRoutes } from "@/router/routes";
-import { createAppAdapter } from "./adapter";
-import { createAppHttp } from "./http";
+  APP_PUBLIC_ROUTE_PATHS
+} from '@/router/constants';
+import { createAppRouter } from '@/router';
+import { portalRoutes } from '@/router/routes';
+import { createAppAdapter } from './adapter';
+import { createAppHttp } from './http';
 
 export function bootstrapPortalApp() {
   const app = createApp(App);
@@ -35,11 +35,11 @@ export function bootstrapPortalApp() {
   app.use(ElementPlus);
 
   registerOneLiteUiComponents(app, {
-    prefix: "Ob",
+    prefix: 'Ob',
     aliases: false,
     include: {
-      PageContainer: false,
-    },
+      PageContainer: false
+    }
   });
 
   const http = createAppHttp({
@@ -53,7 +53,7 @@ export function bootstrapPortalApp() {
     clientSignatureSalt: appEnv.clientSignatureSalt,
     clientSignatureClientId: appEnv.clientSignatureClientId,
     pinia,
-    router,
+    router
   });
   setObHttpClient(http);
 
@@ -61,10 +61,13 @@ export function bootstrapPortalApp() {
     backend: appEnv.backend,
     http,
     tokenKey: appEnv.tokenKey,
-    sczfwSystemPermissionCode: appEnv.sczfwSystemPermissionCode,
+    sczfwSystemPermissionCode: appEnv.sczfwSystemPermissionCode
   });
 
-  const staticMenus = appEnv.menuMode === "static" ? createStaticMenusFromRoutes(portalRoutes, { rootPath: "/" }) : undefined;
+  const staticMenus =
+    appEnv.menuMode === 'static'
+      ? createStaticMenusFromRoutes(portalRoutes, { rootPath: '/' })
+      : undefined;
 
   app.use(
     createCore({
@@ -74,26 +77,26 @@ export function bootstrapPortalApp() {
       staticMenus,
       sso: {
         enabled: false,
-        routePath: "/sso",
-        strategies: [],
+        routePath: '/sso',
+        strategies: []
       },
       theme: {
-        defaultTheme: "blue",
+        defaultTheme: 'blue',
         allowCustomPrimary: true,
         storageNamespace: appEnv.storageNamespace,
         themes: {
-          ...ONE_BUILTIN_THEMES,
-        },
+          ...ONE_BUILTIN_THEMES
+        }
       },
       layout: {
-        defaultMode: "top",
-        persist: true,
+        defaultMode: 'top',
+        persist: true
       },
       systems: {
         defaultCode: appEnv.defaultSystemCode,
         homeMap: appEnv.systemHomeMap,
-        fallbackHome: "/portal/index",
-      },
+        fallbackHome: '/portal/index'
+      }
     })
   );
 
@@ -103,12 +106,12 @@ export function bootstrapPortalApp() {
     forbiddenRoutePath: APP_FORBIDDEN_ROUTE_PATH,
     onNavigationStart: () => {
       http.cancelRouteRequests();
-    },
+    }
   });
 
   return {
     app,
     router,
-    pinia,
+    pinia
   };
 }

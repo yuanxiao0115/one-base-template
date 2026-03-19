@@ -15,19 +15,19 @@ export interface ExecuteSsoCallbackStrategyOptions {
 export async function executeSsoCallbackStrategy(options: ExecuteSsoCallbackStrategyOptions) {
   const { searchParams, handlers } = options;
 
-  const token = searchParams.get("token");
-  const type = searchParams.get("type");
-  const userToken = searchParams.get("Usertoken");
-  const moaToken = searchParams.get("moaToken");
-  const ticket = searchParams.get("ticket");
-  const sourceCode = searchParams.get("sourceCode");
+  const token = searchParams.get('token');
+  const type = searchParams.get('type');
+  const userToken = searchParams.get('Usertoken');
+  const moaToken = searchParams.get('moaToken');
+  const ticket = searchParams.get('ticket');
+  const sourceCode = searchParams.get('sourceCode');
 
-  if (sourceCode === "zhxt" && token) {
+  if (sourceCode === 'zhxt' && token) {
     await handlers.onZhxt({ token });
     return;
   }
 
-  if (sourceCode === "YDBG" && token) {
+  if (sourceCode === 'YDBG' && token) {
     await handlers.onYdbg({ token });
     return;
   }
@@ -35,7 +35,7 @@ export async function executeSsoCallbackStrategy(options: ExecuteSsoCallbackStra
   if (ticket) {
     await handlers.onTicket({
       ticket,
-      redirectUrlRaw: searchParams.get("redirectUrl"),
+      redirectUrlRaw: searchParams.get('redirectUrl')
     });
     return;
   }
@@ -55,5 +55,5 @@ export async function executeSsoCallbackStrategy(options: ExecuteSsoCallbackStra
     return;
   }
 
-  throw new Error("登录参数无效");
+  throw new Error('登录参数无效');
 }

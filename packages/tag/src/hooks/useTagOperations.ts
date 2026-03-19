@@ -116,7 +116,7 @@ export function useTagOperations() {
 
       router.push({
         path: nextActiveTag.path,
-        query: nextActiveTag.query || {},
+        query: nextActiveTag.query || {}
       });
     }
   }
@@ -136,7 +136,7 @@ export function useTagOperations() {
         meta: selectRoute.meta,
         name: selectRoute.name,
         query: selectRoute?.query || {},
-        params: selectRoute?.params || {},
+        params: selectRoute?.params || {}
       };
     } else {
       // 下拉菜单操作当前激活页
@@ -144,7 +144,7 @@ export function useTagOperations() {
         path: route.path,
         meta: route.meta,
         query: route.query || {},
-        params: route.params || {},
+        params: route.params || {}
       };
     }
     console.log(key, item, selectRoute);
@@ -202,7 +202,7 @@ export function useTagOperations() {
     // 通过路由跳转来触发标签添加，新标签会插入到当前标签的右侧
     router.push({
       path: value,
-      query: route.query || {},
+      query: route.query || {}
     });
   }
 
@@ -213,7 +213,7 @@ export function useTagOperations() {
     if (item?.path) {
       router.push({
         path: item.path,
-        query: item.query || {},
+        query: item.query || {}
       });
     }
   }
@@ -224,6 +224,6 @@ export function useTagOperations() {
     deleteDynamicTag,
     onClickDrop,
     dynamicRouteTag,
-    tagOnClick,
+    tagOnClick
   };
 }

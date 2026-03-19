@@ -23,17 +23,17 @@
 
 ## 仓库中的知识入口
 
-| 入口 | 作用 | 何时优先阅读 |
-| --- | --- | --- |
-| `AGENTS.md` | 全仓工作流、边界、验证、协作规则 | 进入仓库后的第一站 |
-| `apps/*/AGENTS.md`、`packages/*/AGENTS.md` | 子项目专属约束 | 确认改动落点后立即阅读 |
-| `apps/docs/docs/guide/architecture.md` | 目录结构、启动链路、分层边界 | 改动跨目录、跨包时 |
-| `apps/docs/docs/guide/development.md` | 验证命令、维护流程、文档同步要求 | 实施前与完成前 |
-| `apps/docs/docs/guide/agents-scope.md` | 规则分层、作用域映射 | 新增或调整规则时 |
-| `docs/plans/*.md` | 已批准设计稿、实施计划、范围冻结 | 承接已有设计 / 历史上下文时 |
-| `.codex/operations-log.md` | 历史操作与降级记录 | 开工前必须阅读 |
-| `.codex/testing.md` | 测试命令与结果 | 准备验证时 |
-| `.codex/verification.md` | 完成前的闭环结论 | 准备宣告完成时 |
+| 入口                                       | 作用                             | 何时优先阅读                |
+| ------------------------------------------ | -------------------------------- | --------------------------- |
+| `AGENTS.md`                                | 全仓工作流、边界、验证、协作规则 | 进入仓库后的第一站          |
+| `apps/*/AGENTS.md`、`packages/*/AGENTS.md` | 子项目专属约束                   | 确认改动落点后立即阅读      |
+| `apps/docs/docs/guide/architecture.md`     | 目录结构、启动链路、分层边界     | 改动跨目录、跨包时          |
+| `apps/docs/docs/guide/development.md`      | 验证命令、维护流程、文档同步要求 | 实施前与完成前              |
+| `apps/docs/docs/guide/agents-scope.md`     | 规则分层、作用域映射             | 新增或调整规则时            |
+| `docs/plans/*.md`                          | 已批准设计稿、实施计划、范围冻结 | 承接已有设计 / 历史上下文时 |
+| `.codex/operations-log.md`                 | 历史操作与降级记录               | 开工前必须阅读              |
+| `.codex/testing.md`                        | 测试命令与结果                   | 准备验证时                  |
+| `.codex/verification.md`                   | 完成前的闭环结论                 | 准备宣告完成时              |
 
 ## 推荐工作流（项目版）
 

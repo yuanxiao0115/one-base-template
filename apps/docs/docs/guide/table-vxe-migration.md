@@ -7,7 +7,7 @@
 - 支持后续大批量迁移，不在业务页重复造轮子
 
 > 说明：`ObVxeTable` 内部已补齐 VXE 分页组件注册与样式引入，业务页无需再手动额外引入分页器资源。
-> 
+>
 > 默认采用“容器自适应撑满”布局：在 `ObPageContainer + ObTableBox` 结构下，表格区域会自动填充 `one-table-bar__content`，分页器固定显示在底部。
 >
 > `ObTableBox` 默认采用“搜索框 + 筛选图标按钮”样式，`ObVxeTable` 默认视觉向旧 puretable 页靠拢（浅灰表头、底部分页左总数右分页）。
@@ -28,12 +28,12 @@
 
 ## 组件与 Hook 对应关系
 
-| 能力 | 新实现 | 兼容目标 |
-| --- | --- | --- |
-| 表格头工具条 | `ObTableBox` / `TableBox`（导出名） | 保留旧 ObTableBox 的快捷搜索、抽屉筛选、已选条 |
-| 表格主体 | `ObVxeTable` / `VxeTable` | 对齐 pure-table 常用 props/events/expose |
-| 旧标签过渡 | `PureTableCompat`（admin 内） | 允许局部继续使用 `<PureTableCompat>` 过渡 |
-| 表格数据管理 | `useTable`（`@one-base-template/core`） | 旧 API 不破坏 + 新 API 增量能力 |
+| 能力         | 新实现                                  | 兼容目标                                       |
+| ------------ | --------------------------------------- | ---------------------------------------------- |
+| 表格头工具条 | `ObTableBox` / `TableBox`（导出名）     | 保留旧 ObTableBox 的快捷搜索、抽屉筛选、已选条 |
+| 表格主体     | `ObVxeTable` / `VxeTable`               | 对齐 pure-table 常用 props/events/expose       |
+| 旧标签过渡   | `PureTableCompat`（admin 内）           | 允许局部继续使用 `<PureTableCompat>` 过渡      |
+| 表格数据管理 | `useTable`（`@one-base-template/core`） | 旧 API 不破坏 + 新 API 增量能力                |
 
 ## 首期迁移策略
 
@@ -137,14 +137,14 @@
 示例（旧写法可直接复用）：
 
 ```ts
-import type { TableColumnList } from '@one-base-template/ui'
+import type { TableColumnList } from '@one-base-template/ui';
 
 export const columns: TableColumnList = [
   { type: 'selection', width: 56 },
   { label: '登录账号', prop: 'userAccount', minWidth: 150 },
   { label: '登录时间', prop: 'createTime', sortable: 'custom' },
   { label: '操作', slot: 'action', fixed: 'right', width: 140 }
-]
+];
 ```
 
 ### 列对齐规范（统一）
@@ -174,7 +174,7 @@ export const columns: TableColumnList = [
 ## useTable：分区配置
 
 ```ts
-import { useTable } from '@one-base-template/core'
+import { useTable } from '@one-base-template/core';
 
 const table = useTable({
   query: {
@@ -195,7 +195,7 @@ const table = useTable({
     payloadKey: 'id',
     onSuccess: () => message.success('删除成功')
   }
-})
+});
 ```
 
 新增能力：

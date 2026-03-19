@@ -14,7 +14,9 @@ function renderBootstrapError(error: unknown) {
     return;
   }
 
-  const title = isPlatformConfigLoadError(error) ? 'Template 启动失败（配置错误）' : 'Template 启动失败';
+  const title = isPlatformConfigLoadError(error)
+    ? 'Template 启动失败（配置错误）'
+    : 'Template 启动失败';
   const detail = toErrorMessage(error);
 
   appRoot.innerHTML = `
@@ -34,5 +36,5 @@ void startAppWithRuntimeConfig({
     const { bootstrapTemplateApp } = await import('@/bootstrap');
     return bootstrapTemplateApp();
   },
-  onError: renderBootstrapError,
+  onError: renderBootstrapError
 });

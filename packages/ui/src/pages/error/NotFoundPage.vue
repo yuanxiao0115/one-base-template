@@ -1,28 +1,28 @@
 <script setup lang="ts">
-  import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
-  defineOptions({
-    name: 'OneNotFoundPage',
-  });
+defineOptions({
+  name: 'OneNotFoundPage'
+});
 
-  const router = useRouter();
-  const route = useRoute();
+const router = useRouter();
+const route = useRoute();
 
-  async function onBack() {
-    // 优先返回上一页；若是直达 404（无历史记录），兜底跳回首页。
-    if (window.history.length > 1) {
-      await router.back();
-      return;
-    }
-
-    const from = route.query.from;
-    if (typeof from === 'string' && from.startsWith('/')) {
-      await router.push(from);
-      return;
-    }
-
-    await router.push('/');
+async function onBack() {
+  // 优先返回上一页；若是直达 404（无历史记录），兜底跳回首页。
+  if (window.history.length > 1) {
+    await router.back();
+    return;
   }
+
+  const from = route.query.from;
+  if (typeof from === 'string' && from.startsWith('/')) {
+    await router.push(from);
+    return;
+  }
+
+  await router.push('/');
+}
 </script>
 
 <template>

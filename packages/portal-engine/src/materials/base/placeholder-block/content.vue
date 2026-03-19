@@ -20,77 +20,77 @@
 </template>
 
 <script setup lang="ts">
-  import { ObCard } from '@one-base-template/ui';
-  import { useSchemaConfig } from '../../../composables/useSchemaConfig';
-  import {
-    UnifiedContainerContentConfig,
-    createDefaultUnifiedContainerContentConfig,
-    mergeUnifiedContainerContentConfig,
-  } from '../../common/unified-container';
-  import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
+import { ObCard } from '@one-base-template/ui';
+import { useSchemaConfig } from '../../../composables/useSchemaConfig';
+import {
+  UnifiedContainerContentConfig,
+  createDefaultUnifiedContainerContentConfig,
+  mergeUnifiedContainerContentConfig
+} from '../../common/unified-container';
+import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
 
-  const props = defineProps({
-    schema: {
-      type: Object,
-      required: true,
-    },
-  });
-
-  const emit = defineEmits(['schemaChange']);
-
-  interface BlockContentData {
-    container: UnifiedContainerContentConfigModel;
-    block: {
-      html: string;
-    };
+const props = defineProps({
+  schema: {
+    type: Object,
+    required: true
   }
+});
 
-  const { sectionData } = useSchemaConfig<BlockContentData>({
-    name: 'base-placeholder-block-content',
-    sections: {
-      container: {},
-      block: {},
-    },
-    schema: props.schema,
-    onChange: (newSchema) => {
-      emit('schemaChange', 'content', newSchema);
-    },
-  });
+const emit = defineEmits(['schemaChange']);
 
-  sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
-  sectionData.block = {
-    html: typeof sectionData.block?.html === 'string' ? sectionData.block.html : '',
+interface BlockContentData {
+  container: UnifiedContainerContentConfigModel;
+  block: {
+    html: string;
   };
+}
 
-  const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-  if (!sectionData.container.title.trim()) {
-    sectionData.container.title = 'HTML模块';
+const { sectionData } = useSchemaConfig<BlockContentData>({
+  name: 'base-placeholder-block-content',
+  sections: {
+    container: {},
+    block: {}
+  },
+  schema: props.schema,
+  onChange: (newSchema) => {
+    emit('schemaChange', 'content', newSchema);
   }
-  if (!sectionData.container.subtitle.trim()) {
-    sectionData.container.subtitle = '支持在属性面板输入 HTML 内容';
-  }
-  if (sectionData.container.externalLinkText.trim().length === 0) {
-    sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
-  }
+});
 
-  defineOptions({
-    name: 'base-placeholder-block-content',
-  });
+sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
+sectionData.block = {
+  html: typeof sectionData.block?.html === 'string' ? sectionData.block.html : ''
+};
+
+const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
+if (!sectionData.container.title.trim()) {
+  sectionData.container.title = 'HTML模块';
+}
+if (!sectionData.container.subtitle.trim()) {
+  sectionData.container.subtitle = '支持在属性面板输入 HTML 内容';
+}
+if (sectionData.container.externalLinkText.trim().length === 0) {
+  sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
+}
+
+defineOptions({
+  name: 'base-placeholder-block-content'
+});
 </script>
 
 <style scoped>
-  .content-config {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+.content-config {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  .content-form {
-    margin-top: 2px;
-  }
+.content-form {
+  margin-top: 2px;
+}
 
-  .content-tip {
-    font-size: 12px;
-    color: #64748b;
-  }
+.content-tip {
+  font-size: 12px;
+  color: #64748b;
+}
 </style>

@@ -8,6 +8,7 @@ import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
 import KeepAliveView from './components/view/KeepAliveView.vue';
 import FontIcon from './components/icon/FontIcon.vue';
 import ObCard from './components/card/ObCard.vue';
+import ObColorField from './components/field/ObColorField.vue';
 import PageContainer from './components/container/PageContainer.vue';
 import CrudContainer from './components/container/CrudContainer.vue';
 import Tree from './components/tree/Tree.vue';
@@ -16,7 +17,11 @@ import TableBox from './components/table/TableBox.vue';
 import VxeTable from './components/table/VxeTable.vue';
 import ImportUpload from './components/upload/ImportUpload.vue';
 import { setUseTableDefaults, type UseTableDefaults } from '@one-base-template/core';
-import { ONE_UI_GLOBAL_CONFIG_KEY, createOneUiGlobalConfig, type CrudContainerGlobalConfig } from './config';
+import {
+  ONE_UI_GLOBAL_CONFIG_KEY,
+  createOneUiGlobalConfig,
+  type CrudContainerGlobalConfig
+} from './config';
 
 const UI_COMPONENTS = {
   AdminLayout,
@@ -28,13 +33,14 @@ const UI_COMPONENTS = {
   KeepAliveView,
   FontIcon,
   Card: ObCard,
+  ColorField: ObColorField,
   PageContainer,
   CrudContainer,
   Tree,
   ActionButtons,
   TableBox,
   VxeTable,
-  ImportUpload,
+  ImportUpload
 } as const;
 
 export type OneUiComponentName = keyof typeof UI_COMPONENTS;
@@ -79,16 +85,18 @@ export function registerOneUiComponents(app: App, options: OneUiPluginOptions = 
   const prefix = options.prefix?.trim() || 'Ob';
   const aliases = options.aliases ?? false;
 
-  (Object.entries(UI_COMPONENTS) as [OneUiComponentName, Component][]).forEach(([name, component]) => {
-    if (!shouldRegister(options, name)) {
-      return;
-    }
+  (Object.entries(UI_COMPONENTS) as [OneUiComponentName, Component][]).forEach(
+    ([name, component]) => {
+      if (!shouldRegister(options, name)) {
+        return;
+      }
 
-    registerComponent(app, `${prefix}${name}`, component);
-    if (aliases) {
-      registerComponent(app, name, component);
+      registerComponent(app, `${prefix}${name}`, component);
+      if (aliases) {
+        registerComponent(app, name, component);
+      }
     }
-  });
+  );
 }
 
 export const OneUiPlugin = {
@@ -96,7 +104,7 @@ export const OneUiPlugin = {
     app.provide(
       ONE_UI_GLOBAL_CONFIG_KEY,
       createOneUiGlobalConfig({
-        crudContainer: options?.crudContainer,
+        crudContainer: options?.crudContainer
       })
     );
 
@@ -105,7 +113,7 @@ export const OneUiPlugin = {
     }
 
     registerOneUiComponents(app, options);
-  },
+  }
 };
 
 export default OneUiPlugin;

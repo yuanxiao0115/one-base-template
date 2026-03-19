@@ -3,12 +3,12 @@ export {
   createRuntimeConfigLoader,
   type PlatformConfigLoadErrorCode,
   type RuntimeConfigLoader,
-  type RuntimeConfigLoaderOptions,
+  type RuntimeConfigLoaderOptions
 } from './runtime-config-loader';
 export {
   startAppWithRuntimeConfig,
   type AppLike,
   type BootstrapResultLike,
   type RouterLike,
-  type StartAppWithRuntimeConfigOptions,
+  type StartAppWithRuntimeConfigOptions
 } from './startup';

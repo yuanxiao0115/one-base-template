@@ -1,264 +1,283 @@
 <script setup lang="ts">
-  import { computed, ref } from "vue";
-  import type { FormInstance, FormItemRule, FormRules, UploadProps } from "element-plus";
-  import { Delete, Plus } from "@element-plus/icons-vue";
-  import type { CrudFormLike } from "@one-base-template/ui";
-  import { message } from "@one-base-template/ui";
-  import type { OrgTreeNode, PositionItem, RoleItem } from "../types";
-  import { createDefaultUserOrg, createDefaultUserOrgPost, type UserForm } from "../form";
-  import { genderOptions, orgRankTypeOptions, userTypeOptions } from "../const";
-  import { tryConfirmWarn } from "../../shared/confirm";
+import { computed, ref } from 'vue';
+import type { FormInstance, FormItemRule, FormRules, UploadProps } from 'element-plus';
+import { Delete, Plus } from '@element-plus/icons-vue';
+import type { CrudFormLike } from '@one-base-template/ui';
+import { message } from '@one-base-template/ui';
+import type { OrgTreeNode, PositionItem, RoleItem } from '../types';
+import { createDefaultUserOrg, createDefaultUserOrgPost, type UserForm } from '../form';
+import { genderOptions, orgRankTypeOptions, userTypeOptions } from '../const';
+import { tryConfirmWarn } from '../../shared/confirm';
 
-  const props = defineProps<{
-    mode: "create" | "detail" | "edit";
-    rules: FormRules<UserForm>;
-    disabled: boolean;
-    orgTreeOptions: OrgTreeNode[];
-    positionOptions: PositionItem[];
-    roleOptions: RoleItem[];
-    checkUnique: (params: { userId?: string; userAccount?: string; phone?: string; mail?: string }) => Promise<boolean>;
-    uploadAvatar: (file: File, userId: string) => Promise<boolean>;
-  }>();
+const props = defineProps<{
+  mode: 'create' | 'detail' | 'edit';
+  rules: FormRules<UserForm>;
+  disabled: boolean;
+  orgTreeOptions: OrgTreeNode[];
+  positionOptions: PositionItem[];
+  roleOptions: RoleItem[];
+  checkUnique: (params: {
+    userId?: string;
+    userAccount?: string;
+    phone?: string;
+    mail?: string;
+  }) => Promise<boolean>;
+  uploadAvatar: (file: File, userId: string) => Promise<boolean>;
+}>();
 
-  const model = defineModel<UserForm>({ required: true });
+const model = defineModel<UserForm>({ required: true });
 
-  const formRef = ref<FormInstance>();
-  const uploadLoading = ref(false);
-  const avatarTimestamp = ref(Date.now());
+const formRef = ref<FormInstance>();
+const uploadLoading = ref(false);
+const avatarTimestamp = ref(Date.now());
 
-  const isCreateMode = computed(() => props.mode === "create");
-  const avatarSrc = computed(() => {
-    if (!model.value.id) {
-      return "";
+const isCreateMode = computed(() => props.mode === 'create');
+const avatarSrc = computed(() => {
+  if (!model.value.id) {
+    return '';
+  }
+  return `/cmict/file/user/avatar/${model.value.id}?timestamp=${avatarTimestamp.value}`;
+});
+
+const uniqueAccountRule: FormItemRule = {
+  trigger: 'blur',
+  validator: (_, value, callback) => {
+    const account = String(value || '').trim();
+    if (!account || props.mode === 'detail') {
+      callback();
+      return;
     }
-    return `/cmict/file/user/avatar/${model.value.id}?timestamp=${avatarTimestamp.value}`;
-  });
 
-  const uniqueAccountRule: FormItemRule = {
-    trigger: "blur",
-    validator: (_, value, callback) => {
-      const account = String(value || "").trim();
-      if (!account || props.mode === "detail") {
+    void props
+      .checkUnique({
+        userId: model.value.id,
+        userAccount: account,
+        phone: model.value.phone,
+        mail: model.value.mail
+      })
+      .then((isUnique) => {
+        if (!isUnique) {
+          callback(new Error('已存在相同登录账号'));
+          return;
+        }
         callback();
-        return;
-      }
+      })
+      .catch((error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : '登录账号校验失败';
+        callback(new Error(errorMessage));
+      });
+  }
+};
 
-      void props
-        .checkUnique({
-          userId: model.value.id,
-          userAccount: account,
-          phone: model.value.phone,
-          mail: model.value.mail,
-        })
-        .then((isUnique) => {
-          if (!isUnique) {
-            callback(new Error("已存在相同登录账号"));
-            return;
-          }
-          callback();
-        })
-        .catch((error: unknown) => {
-          const errorMessage = error instanceof Error ? error.message : "登录账号校验失败";
-          callback(new Error(errorMessage));
-        });
-    },
-  };
-
-  const uniquePhoneRule: FormItemRule = {
-    trigger: "blur",
-    validator: (_, value, callback) => {
-      const phone = String(value || "").trim();
-      if (!phone || props.mode === "detail") {
-        callback();
-        return;
-      }
-
-      void props
-        .checkUnique({
-          userId: model.value.id,
-          userAccount: model.value.userAccount,
-          phone,
-          mail: model.value.mail,
-        })
-        .then((isUnique) => {
-          if (!isUnique) {
-            callback(new Error("已存在相同手机号"));
-            return;
-          }
-          callback();
-        })
-        .catch((error: unknown) => {
-          const errorMessage = error instanceof Error ? error.message : "手机号校验失败";
-          callback(new Error(errorMessage));
-        });
-    },
-  };
-
-  const uniqueMailRule: FormItemRule = {
-    trigger: "blur",
-    validator: (_, value, callback) => {
-      const mail = String(value || "").trim();
-      if (!mail || props.mode === "detail") {
-        callback();
-        return;
-      }
-
-      void props
-        .checkUnique({
-          userId: model.value.id,
-          userAccount: model.value.userAccount,
-          phone: model.value.phone,
-          mail,
-        })
-        .then((isUnique) => {
-          if (!isUnique) {
-            callback(new Error("已存在相同邮箱"));
-            return;
-          }
-          callback();
-        })
-        .catch((error: unknown) => {
-          const errorMessage = error instanceof Error ? error.message : "邮箱校验失败";
-          callback(new Error(errorMessage));
-        });
-    },
-  };
-
-  const mergedRules = computed<FormRules<UserForm>>(() => {
-    const baseRules = props.rules || {};
-    const accountRules = Array.isArray(baseRules.userAccount)
-      ? [...baseRules.userAccount]
-      : baseRules.userAccount
-        ? [baseRules.userAccount]
-        : [];
-
-    const phoneRules = Array.isArray(baseRules.phone) ? [...baseRules.phone] : baseRules.phone ? [baseRules.phone] : [];
-
-    const mailRules = Array.isArray(baseRules.mail) ? [...baseRules.mail] : baseRules.mail ? [baseRules.mail] : [];
-
-    return {
-      ...baseRules,
-      userAccount: [...accountRules, uniqueAccountRule],
-      phone: [...phoneRules, uniquePhoneRule],
-      mail: [...mailRules, uniqueMailRule],
-    };
-  });
-
-  function ensureOrgRow() {
-    if (!Array.isArray(model.value.userOrgs) || model.value.userOrgs.length === 0) {
-      model.value.userOrgs = [createDefaultUserOrg()];
+const uniquePhoneRule: FormItemRule = {
+  trigger: 'blur',
+  validator: (_, value, callback) => {
+    const phone = String(value || '').trim();
+    if (!phone || props.mode === 'detail') {
+      callback();
+      return;
     }
+
+    void props
+      .checkUnique({
+        userId: model.value.id,
+        userAccount: model.value.userAccount,
+        phone,
+        mail: model.value.mail
+      })
+      .then((isUnique) => {
+        if (!isUnique) {
+          callback(new Error('已存在相同手机号'));
+          return;
+        }
+        callback();
+      })
+      .catch((error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : '手机号校验失败';
+        callback(new Error(errorMessage));
+      });
+  }
+};
+
+const uniqueMailRule: FormItemRule = {
+  trigger: 'blur',
+  validator: (_, value, callback) => {
+    const mail = String(value || '').trim();
+    if (!mail || props.mode === 'detail') {
+      callback();
+      return;
+    }
+
+    void props
+      .checkUnique({
+        userId: model.value.id,
+        userAccount: model.value.userAccount,
+        phone: model.value.phone,
+        mail
+      })
+      .then((isUnique) => {
+        if (!isUnique) {
+          callback(new Error('已存在相同邮箱'));
+          return;
+        }
+        callback();
+      })
+      .catch((error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : '邮箱校验失败';
+        callback(new Error(errorMessage));
+      });
+  }
+};
+
+const mergedRules = computed<FormRules<UserForm>>(() => {
+  const baseRules = props.rules || {};
+  const accountRules = Array.isArray(baseRules.userAccount)
+    ? [...baseRules.userAccount]
+    : baseRules.userAccount
+      ? [baseRules.userAccount]
+      : [];
+
+  const phoneRules = Array.isArray(baseRules.phone)
+    ? [...baseRules.phone]
+    : baseRules.phone
+      ? [baseRules.phone]
+      : [];
+
+  const mailRules = Array.isArray(baseRules.mail)
+    ? [...baseRules.mail]
+    : baseRules.mail
+      ? [baseRules.mail]
+      : [];
+
+  return {
+    ...baseRules,
+    userAccount: [...accountRules, uniqueAccountRule],
+    phone: [...phoneRules, uniquePhoneRule],
+    mail: [...mailRules, uniqueMailRule]
+  };
+});
+
+function ensureOrgRow() {
+  if (!Array.isArray(model.value.userOrgs) || model.value.userOrgs.length === 0) {
+    model.value.userOrgs = [createDefaultUserOrg()];
+  }
+}
+
+function addOrg() {
+  ensureOrgRow();
+  model.value.userOrgs.push(createDefaultUserOrg());
+}
+
+async function removeOrg(index: number) {
+  if (!Array.isArray(model.value.userOrgs) || model.value.userOrgs.length <= 1) {
+    message.warning('至少保留一个部门');
+    return;
   }
 
-  function addOrg() {
-    ensureOrgRow();
-    model.value.userOrgs.push(createDefaultUserOrg());
+  const row = model.value.userOrgs[index];
+  if (!row) {
+    return;
   }
 
-  async function removeOrg(index: number) {
-    if (!Array.isArray(model.value.userOrgs) || model.value.userOrgs.length <= 1) {
-      message.warning("至少保留一个部门");
-      return;
-    }
-
-    const row = model.value.userOrgs[index];
-    if (!row) {
-      return;
-    }
-
-    const hasData = Boolean(row.orgId) || (row.postVos || []).some((post) => Boolean(post.postId));
-    if (!hasData) {
-      model.value.userOrgs.splice(index, 1);
-      return;
-    }
-
-    const confirmed = await tryConfirmWarn("是否删除此部门配置？", "提示");
-    if (!confirmed) {
-      return;
-    }
+  const hasData = Boolean(row.orgId) || (row.postVos || []).some((post) => Boolean(post.postId));
+  if (!hasData) {
     model.value.userOrgs.splice(index, 1);
+    return;
   }
 
-  function addPost(orgIndex: number) {
-    const org = model.value.userOrgs[orgIndex];
-    if (!org) {
-      return;
-    }
-    org.postVos = Array.isArray(org.postVos) ? org.postVos : [];
-    org.postVos.push(createDefaultUserOrgPost());
+  const confirmed = await tryConfirmWarn('是否删除此部门配置？', '提示');
+  if (!confirmed) {
+    return;
+  }
+  model.value.userOrgs.splice(index, 1);
+}
+
+function addPost(orgIndex: number) {
+  const org = model.value.userOrgs[orgIndex];
+  if (!org) {
+    return;
+  }
+  org.postVos = Array.isArray(org.postVos) ? org.postVos : [];
+  org.postVos.push(createDefaultUserOrgPost());
+}
+
+async function removePost(orgIndex: number, postIndex: number) {
+  const org = model.value.userOrgs[orgIndex];
+  if (!org) {
+    return;
   }
 
-  async function removePost(orgIndex: number, postIndex: number) {
-    const org = model.value.userOrgs[orgIndex];
-    if (!org) {
-      return;
-    }
+  const posts = Array.isArray(org.postVos) ? org.postVos : [];
+  if (posts.length <= 1) {
+    message.warning('至少保留一个职位');
+    return;
+  }
 
-    const posts = Array.isArray(org.postVos) ? org.postVos : [];
-    if (posts.length <= 1) {
-      message.warning("至少保留一个职位");
-      return;
-    }
+  const row = posts[postIndex];
+  if (!row) {
+    return;
+  }
 
-    const row = posts[postIndex];
-    if (!row) {
-      return;
-    }
-
-    if (!(row.postId || row.sort)) {
-      posts.splice(postIndex, 1);
-      return;
-    }
-
-    const confirmed = await tryConfirmWarn("是否删除此职位配置？", "提示");
-    if (!confirmed) {
-      return;
-    }
+  if (!row.postId) {
     posts.splice(postIndex, 1);
+    return;
   }
 
-  const beforeUploadAvatar: UploadProps["beforeUpload"] = async (file) => {
-    if (!model.value.id) {
-      message.warning("请先保存用户后再上传头像");
-      return false;
-    }
+  const confirmed = await tryConfirmWarn('是否删除此职位配置？', '提示');
+  if (!confirmed) {
+    return;
+  }
+  posts.splice(postIndex, 1);
+}
 
-    if (uploadLoading.value) {
-      return false;
-    }
-
-    uploadLoading.value = true;
-    try {
-      const success = await props.uploadAvatar(file, model.value.id);
-      if (success) {
-        avatarTimestamp.value = Date.now();
-        message.success("头像更新成功");
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "头像上传失败";
-      message.error(errorMessage);
-    } finally {
-      uploadLoading.value = false;
-    }
-
+const beforeUploadAvatar: UploadProps['beforeUpload'] = async (file) => {
+  if (!model.value.id) {
+    message.warning('请先保存用户后再上传头像');
     return false;
-  };
+  }
 
-  defineExpose<CrudFormLike>({
-    validate: (...args) => {
-      const [callback] = args;
-      if (callback) {
-        return formRef.value?.validate?.(callback);
-      }
-      return formRef.value?.validate?.();
-    },
-    clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
-    resetFields: (...args) => formRef.value?.resetFields?.(...args),
-  });
+  if (uploadLoading.value) {
+    return false;
+  }
+
+  uploadLoading.value = true;
+  try {
+    const success = await props.uploadAvatar(file, model.value.id);
+    if (success) {
+      avatarTimestamp.value = Date.now();
+      message.success('头像更新成功');
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : '头像上传失败';
+    message.error(errorMessage);
+  } finally {
+    uploadLoading.value = false;
+  }
+
+  return false;
+};
+
+defineExpose<CrudFormLike>({
+  validate: (...args) => {
+    const [callback] = args;
+    if (callback) {
+      return formRef.value?.validate?.(callback);
+    }
+    return formRef.value?.validate?.();
+  },
+  clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
+  resetFields: (...args) => formRef.value?.resetFields?.(...args)
+});
 </script>
 
 <template>
-  <el-form ref="formRef" :model :rules="mergedRules" label-position="top" :disabled="props.disabled">
+  <el-form
+    ref="formRef"
+    :model
+    :rules="mergedRules"
+    label-position="top"
+    :disabled="props.disabled"
+  >
     <el-row v-if="!isCreateMode" :gutter="24" class="ob-crud-container__item--full">
       <el-col :span="4">
         <div class="user-edit-form__avatar">
@@ -285,21 +304,33 @@
     <el-row :gutter="24" class="ob-crud-container__item--full">
       <el-col :span="12">
         <el-form-item label="姓名" prop="nickName">
-          <el-input v-model.trim="model.nickName" maxlength="20" show-word-limit placeholder="请输入姓名" />
+          <el-input
+            v-model.trim="model.nickName"
+            maxlength="20"
+            show-word-limit
+            placeholder="请输入姓名"
+          />
         </el-form-item>
       </el-col>
 
       <el-col v-if="isCreateMode" :span="12">
         <el-form-item label="登录账号" prop="userAccount">
-          <el-input v-model.trim="model.userAccount" maxlength="20" show-word-limit placeholder="请输入登录账号" />
+          <el-input
+            v-model.trim="model.userAccount"
+            maxlength="20"
+            show-word-limit
+            placeholder="请输入登录账号"
+          />
         </el-form-item>
       </el-col>
     </el-row>
 
-    <template v-for="(orgItem, orgIndex) in model.userOrgs" :key="orgIndex">
+    <template v-for="(orgItem, orgIndex) in model.userOrgs" :key="orgItem._key">
       <div class="ob-crud-container__item--full user-edit-form__org-title">
         <span>部门{{ orgIndex + 1 }}</span>
-        <el-button v-if="!props.disabled" link type="danger" @click="() => removeOrg(orgIndex)">删除部门</el-button>
+        <el-button v-if="!props.disabled" link type="danger" @click="() => removeOrg(orgIndex)"
+          >删除部门</el-button
+        >
       </div>
 
       <el-row :gutter="24" class="ob-crud-container__item--full">
@@ -333,7 +364,12 @@
 
         <el-col :span="8">
           <el-form-item label="岗位类型" :prop="`userOrgs.${orgIndex}.orgRankType`">
-            <el-select v-model="orgItem.orgRankType" placeholder="请选择岗位类型" clearable class="w-full">
+            <el-select
+              v-model="orgItem.orgRankType"
+              placeholder="请选择岗位类型"
+              clearable
+              class="w-full"
+            >
               <el-option
                 v-for="option in orgRankTypeOptions"
                 :key="option.value"
@@ -348,16 +384,19 @@
           <el-form-item
             label="多职排序"
             :prop="`userOrgs.${orgIndex}.ownSort`"
-            :rules="[{
-              required: true,
-              message: '请输入自然数排序',
-              trigger: 'blur'
-            }, {
-              type: 'number',
-              min: 0,
-              message: '格式错误，请输入自然数',
-              trigger: 'blur'
-            }]"
+            :rules="[
+              {
+                required: true,
+                message: '请输入自然数排序',
+                trigger: 'blur'
+              },
+              {
+                type: 'number',
+                min: 0,
+                message: '格式错误，请输入自然数',
+                trigger: 'blur'
+              }
+            ]"
           >
             <el-input-number v-model="orgItem.ownSort" :min="0" :max="9999" class="w-full" />
           </el-form-item>
@@ -367,16 +406,19 @@
           <el-form-item
             label="排序"
             :prop="`userOrgs.${orgIndex}.sort`"
-            :rules="[{
-              required: true,
-              message: '请输入自然数排序',
-              trigger: 'blur'
-            }, {
-              type: 'number',
-              min: 0,
-              message: '格式错误，请输入自然数',
-              trigger: 'blur'
-            }]"
+            :rules="[
+              {
+                required: true,
+                message: '请输入自然数排序',
+                trigger: 'blur'
+              },
+              {
+                type: 'number',
+                min: 0,
+                message: '格式错误，请输入自然数',
+                trigger: 'blur'
+              }
+            ]"
           >
             <el-input-number v-model="orgItem.sort" :min="0" :max="9999" class="w-full" />
           </el-form-item>
@@ -384,12 +426,14 @@
       </el-row>
 
       <el-form-item class="ob-crud-container__item--full">
-        <el-button class="user-edit-form__add-btn" :icon="Plus" @click="() => addPost(orgIndex)">新增职位</el-button>
+        <el-button class="user-edit-form__add-btn" :icon="Plus" @click="() => addPost(orgIndex)"
+          >新增职位</el-button
+        >
       </el-form-item>
 
       <el-row
         v-for="(postItem, postIndex) in orgItem.postVos"
-        :key="`post-${orgIndex}-${postIndex}`"
+        :key="postItem._key"
         :gutter="24"
         class="ob-crud-container__item--full"
       >
@@ -403,7 +447,13 @@
               trigger: ['change', 'blur']
             }"
           >
-            <el-select v-model="postItem.postId" placeholder="请选择职位" filterable clearable class="w-full">
+            <el-select
+              v-model="postItem.postId"
+              placeholder="请选择职位"
+              filterable
+              clearable
+              class="w-full"
+            >
               <el-option
                 v-for="option in props.positionOptions"
                 :key="option.id"
@@ -418,16 +468,19 @@
           <el-form-item
             label="职位排序"
             :prop="`userOrgs.${orgIndex}.postVos.${postIndex}.sort`"
-            :rules="[{
-              required: true,
-              message: '请输入自然数排序',
-              trigger: 'blur'
-            }, {
-              type: 'number',
-              min: 0,
-              message: '格式错误，请输入自然数',
-              trigger: 'blur'
-            }]"
+            :rules="[
+              {
+                required: true,
+                message: '请输入自然数排序',
+                trigger: 'blur'
+              },
+              {
+                type: 'number',
+                min: 0,
+                message: '格式错误，请输入自然数',
+                trigger: 'blur'
+              }
+            ]"
           >
             <div class="user-edit-form__post-sort">
               <el-input-number v-model="postItem.sort" :min="0" :max="9999" class="w-full" />
@@ -451,8 +504,20 @@
     <el-row :gutter="24" class="ob-crud-container__item--full">
       <el-col :span="12">
         <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="model.roleIds" multiple clearable filterable placeholder="请选择角色" class="w-full">
-            <el-option v-for="role in props.roleOptions" :key="role.id" :label="role.roleName" :value="role.id" />
+          <el-select
+            v-model="model.roleIds"
+            multiple
+            clearable
+            filterable
+            placeholder="请选择角色"
+            class="w-full"
+          >
+            <el-option
+              v-for="role in props.roleOptions"
+              :key="role.id"
+              :label="role.roleName"
+              :value="role.id"
+            />
           </el-select>
         </el-form-item>
       </el-col>
@@ -461,7 +526,12 @@
         <el-form-item label="手机号" prop="phone">
           <div class="user-edit-form__phone-item">
             <el-input v-model.trim="model.phone" placeholder="请输入手机号" clearable />
-            <el-switch v-model="model.phoneShow" inline-prompt active-text="显示" inactive-text="隐藏" />
+            <el-switch
+              v-model="model.phoneShow"
+              inline-prompt
+              active-text="显示"
+              inactive-text="隐藏"
+            />
           </div>
         </el-form-item>
       </el-col>
@@ -530,49 +600,49 @@
 </template>
 
 <style scoped>
-  .user-edit-form__avatar {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
+.user-edit-form__avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
 
-  .user-edit-form__meta {
-    color: var(--one-text-color-secondary, var(--el-text-color-secondary));
-    line-height: 1.8;
-  }
+.user-edit-form__meta {
+  color: var(--one-text-color-secondary, var(--el-text-color-secondary));
+  line-height: 1.8;
+}
 
-  .user-edit-form__org-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 40px;
-    padding: 0 12px;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--one-text-color-primary, var(--el-text-color-primary));
-    background: var(--el-fill-color-light);
-  }
+.user-edit-form__org-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding: 0 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--one-text-color-primary, var(--el-text-color-primary));
+  background: var(--el-fill-color-light);
+}
 
-  .user-edit-form__add-btn {
-    width: 100%;
-    border-style: dashed;
-  }
+.user-edit-form__add-btn {
+  width: 100%;
+  border-style: dashed;
+}
 
-  .user-edit-form__post-sort {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.user-edit-form__post-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .user-edit-form__phone-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.user-edit-form__phone-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .user-edit-form__phone-item .el-input {
-    flex: 1;
-  }
+.user-edit-form__phone-item .el-input {
+  flex: 1;
+}
 </style>

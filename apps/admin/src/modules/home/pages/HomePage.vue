@@ -1,28 +1,28 @@
 <script setup lang="ts">
-  import { useRouter } from "vue-router";
+import { useRouter } from 'vue-router';
 
-  const router = useRouter();
+const router = useRouter();
 
-  const goPermissionPage = async (): Promise<void> => {
-    await router.push("/system/permission");
-  };
+const goPermissionPage = async (): Promise<void> => {
+  await router.push('/system/permission');
+};
 
-  const mockSsoToken = async (): Promise<void> => {
-    await router.push("/sso?token=demo&redirect=%2Fhome");
-  };
+const mockSsoToken = async (): Promise<void> => {
+  await router.push('/sso?token=demo&redirect=%2Fhome');
+};
 
-  const mockSsoTicket = async (): Promise<void> => {
-    await router.push("/sso?ticket=st-demo&redirect=%2Fhome");
-  };
+const mockSsoTicket = async (): Promise<void> => {
+  await router.push('/sso?ticket=st-demo&redirect=%2Fhome');
+};
 
-  const staticMenuModeHint = [
-    "你可以通过 apps/admin/public/platform-config.json 的 menuMode=static",
-    "切换为静态菜单模式。",
-  ].join(" ");
+const staticMenuModeHint = [
+  '你可以通过 apps/admin/public/platform-config.json 的 menuMode=static',
+  '切换为静态菜单模式。'
+].join(' ');
 
-  defineOptions({
-    name: "HomePage",
-  });
+defineOptions({
+  name: 'HomePage'
+});
 </script>
 
 <template>

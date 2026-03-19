@@ -1,0 +1,246 @@
+import { nextTick, reactive, ref } from 'vue';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+
+import type { BizResponse } from '../schema/types';
+import { createPortalEngineContext } from '../runtime/context';
+import { createDefaultPortalPageSettingsV2 } from '../schema/page-settings';
+import { setPortalPageSettingsApi as setPageSettingsApi } from '../services/page-settings';
+
+import { createTemplateWorkbenchPageController } from './template-workbench-page-controller';
+
+function ok<T>(data: T): BizResponse<T> {
+  return {
+    code: 0,
+    data
+  };
+}
+
+describe('template workbench page controller', () => {
+  function createController(options: { clone?: <T>(value: T) => T } = {}) {
+    const context = createPortalEngineContext({ appId: 'test-template-workbench-page' });
+    const templateId = ref('tpl-1');
+    const routeTabId = ref('tab-1');
+    const previewMessages: unknown[] = [];
+    const previewTarget = ref({
+      postMessageToFrame: (message: unknown) => {
+        previewMessages.push(message);
+        return true;
+      },
+      setInteractionMode: vi.fn(),
+      zoomIn: vi.fn(),
+      zoomOut: vi.fn(),
+      resetView: vi.fn()
+    });
+    const notify = {
+      success: vi.fn(),
+      error: vi.fn(),
+      warning: vi.fn()
+    };
+    const confirm = vi.fn().mockResolvedValue(undefined);
+    const syncRouteTabId = vi.fn();
+    const openEditor = vi.fn();
+    const api = {
+      template: {
+        detail: vi.fn(),
+        update: vi.fn(),
+        hideToggle: vi.fn()
+      },
+      tab: {
+        detail: vi.fn(),
+        add: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn()
+      }
+    };
+    const pageSettingsApi = {
+      getTabDetail: vi.fn(),
+      updateTab: vi.fn()
+    };
+
+    setPageSettingsApi(pageSettingsApi, context);
+
+    const controller = createTemplateWorkbenchPageController({
+      context,
+      templateId,
+      routeTabId,
+      previewTarget,
+      clone: options.clone,
+      api,
+      notify,
+      confirm: ({ message, title }) => confirm({ message, title }),
+      syncRouteTabId,
+      openEditor,
+      resolvePreviewHref: ({ templateId: nextTemplateId, tabId, previewMode }) =>
+        `/portal/preview?templateId=${nextTemplateId}&tabId=${tabId}&previewMode=${String(previewMode)}`
+    });
+
+    return {
+      controller,
+      context,
+      templateId,
+      routeTabId,
+      previewTarget,
+      previewMessages,
+      notify,
+      confirm,
+      syncRouteTabId,
+      openEditor,
+      api,
+      pageSettingsApi
+    };
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('打开页面设置后应加载详情并向预览舞台发送运行时消息', async () => {
+    const { controller, pageSettingsApi, previewMessages } = createController();
+
+    controller.currentTabId.value = 'tab-1';
+    await nextTick();
+    pageSettingsApi.getTabDetail.mockResolvedValue(
+      ok({
+        id: 'tab-1',
+        tabName: '页面A',
+        templateId: 'tpl-1',
+        pageLayout: JSON.stringify({
+          settings: {
+            basic: {
+              pageTitle: '页面A'
+            }
+          },
+          component: [{ id: 'comp-1' }]
+        })
+      })
+    );
+
+    await controller.openPageSettingsDrawer('tab-1');
+
+    expect(controller.pageSettingsVisible.value).toBe(true);
+    expect(controller.pageSettingsCurrentTabId.value).toBe('tab-1');
+    expect(controller.pageSettingsForm.value?.basic.pageTitle).toBe('页面A');
+    expect(previewMessages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'preview-page-runtime'
+        })
+      ])
+    );
+  });
+
+  it('保存页眉页脚后应关闭抽屉并刷新模板', async () => {
+    const { controller, api, notify } = createController();
+
+    controller.currentTabId.value = 'tab-1';
+    await nextTick();
+    controller.templateInfo.value = {
+      id: 'tpl-1',
+      templateName: '门户A',
+      details: '{"header":{}}',
+      tabList: [
+        {
+          id: 'tab-1',
+          tabType: 2,
+          tabName: '页面A'
+        }
+      ]
+    };
+    controller.shellSettingVisible.value = true;
+
+    api.template.update.mockResolvedValue(ok(true));
+    api.template.detail.mockResolvedValue(
+      ok({
+        id: 'tpl-1',
+        templateName: '门户A',
+        details: '{"header":{"title":"新标题"}}',
+        tabList: [
+          {
+            id: 'tab-1',
+            tabType: 2,
+            tabName: '页面A'
+          }
+        ]
+      })
+    );
+
+    await controller.onSubmitShellSetting({
+      details: '{"header":{"title":"新标题"}}'
+    });
+
+    expect(api.template.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'tpl-1',
+        details: '{"header":{"title":"新标题"}}'
+      })
+    );
+    expect(controller.shellSettingVisible.value).toBe(false);
+    expect(notify.success).toHaveBeenCalledWith('页眉页脚配置保存成功');
+    expect(api.template.detail).toHaveBeenCalledWith({ id: 'tpl-1' });
+  });
+
+  it('保存页面设置应复用会话数据，避免重复拉取 tab 详情', async () => {
+    const { controller, pageSettingsApi, notify, api } = createController();
+    controller.currentTabId.value = 'tab-1';
+    await nextTick();
+    controller.templateInfo.value = {
+      id: 'tpl-1',
+      templateName: '门户A',
+      tabList: [
+        {
+          id: 'tab-1',
+          tabType: 2,
+          tabName: '页面A'
+        }
+      ]
+    };
+    pageSettingsApi.getTabDetail.mockResolvedValue(
+      ok({
+        id: 'tab-1',
+        tabName: '页面A',
+        templateId: 'tpl-1',
+        pageLayout: JSON.stringify({
+          settings: createDefaultPortalPageSettingsV2(),
+          component: [{ i: 'comp-1', x: 0, y: 0, w: 12, h: 6 }]
+        })
+      })
+    );
+    pageSettingsApi.updateTab.mockResolvedValue(ok(true));
+    api.template.detail.mockResolvedValue(
+      ok({
+        id: 'tpl-1',
+        templateName: '门户A',
+        tabList: [
+          {
+            id: 'tab-1',
+            tabType: 2,
+            tabName: '页面A'
+          }
+        ]
+      })
+    );
+
+    await controller.openPageSettingsDrawer('tab-1');
+    expect(pageSettingsApi.getTabDetail).toHaveBeenCalledTimes(1);
+
+    await controller.onSubmitPageSettings(createDefaultPortalPageSettingsV2());
+
+    expect(pageSettingsApi.getTabDetail).toHaveBeenCalledTimes(1);
+    expect(pageSettingsApi.updateTab).toHaveBeenCalledTimes(1);
+    expect(notify.success).toHaveBeenCalledWith('页面设置保存成功');
+  });
+
+  it('预览运行态消息应可结构化克隆，避免 DataCloneError', () => {
+    const { controller, previewMessages } = createController();
+    controller.currentTabId.value = 'tab-1';
+    controller.pageSettingsComponents.value = reactive([{ i: 'comp-1', x: 0, y: 0, w: 1, h: 1 }]);
+
+    controller.onPageSettingsPreviewChange(createDefaultPortalPageSettingsV2());
+
+    const runtimeMessage = previewMessages.find(
+      (entry) => (entry as { type?: string } | null)?.type === 'preview-page-runtime'
+    );
+    expect(runtimeMessage).toBeTruthy();
+    expect(() => structuredClone(runtimeMessage)).not.toThrow();
+  });
+});

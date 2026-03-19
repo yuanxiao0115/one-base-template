@@ -1,11 +1,11 @@
-export type PersonnelSelectMode = "org" | "person" | "position" | "role";
-export type PersonnelSelectionField = "userIds" | "orgIds" | "roleIds" | "positionIds";
+export type PersonnelSelectMode = 'org' | 'person' | 'position' | 'role';
+export type PersonnelSelectionField = 'userIds' | 'orgIds' | 'roleIds' | 'positionIds';
 
 /**
  * 选择器节点类型，预留 org/role/position 扩展能力。
  * 当前角色分配已落地 org + user。
  */
-export type PersonnelNodeType = "org" | "position" | "role" | "user";
+export type PersonnelNodeType = 'org' | 'position' | 'role' | 'user';
 
 export interface PersonnelBreadcrumbNode {
   id: string;
@@ -20,14 +20,14 @@ export interface PersonnelNodeBase {
 }
 
 export type PersonnelOrgNode = PersonnelNodeBase & {
-  nodeType: "org";
+  nodeType: 'org';
   companyId: string;
   orgName: string;
   orgType: number;
 };
 
 export type PersonnelUserNode = PersonnelNodeBase & {
-  nodeType: "user";
+  nodeType: 'user';
   companyId: string;
   userId: string;
   nickName: string;
@@ -36,18 +36,22 @@ export type PersonnelUserNode = PersonnelNodeBase & {
 };
 
 export type PersonnelRoleNode = PersonnelNodeBase & {
-  nodeType: "role";
+  nodeType: 'role';
   roleId: string;
   roleName: string;
 };
 
 export type PersonnelPositionNode = PersonnelNodeBase & {
-  nodeType: "position";
+  nodeType: 'position';
   positionId: string;
   positionName: string;
 };
 
-export type PersonnelNode = PersonnelOrgNode | PersonnelPositionNode | PersonnelRoleNode | PersonnelUserNode;
+export type PersonnelNode =
+  | PersonnelOrgNode
+  | PersonnelPositionNode
+  | PersonnelRoleNode
+  | PersonnelUserNode;
 
 export interface PersonnelSelectedItem {
   id: string;
@@ -57,19 +61,19 @@ export interface PersonnelSelectedItem {
 }
 
 export type PersonnelSelectedOrg = PersonnelSelectedItem & {
-  nodeType: "org";
+  nodeType: 'org';
 };
 
 export type PersonnelSelectedRole = PersonnelSelectedItem & {
-  nodeType: "role";
+  nodeType: 'role';
 };
 
 export type PersonnelSelectedPosition = PersonnelSelectedItem & {
-  nodeType: "position";
+  nodeType: 'position';
 };
 
 export type PersonnelSelectedUser = PersonnelSelectedItem & {
-  nodeType: "user";
+  nodeType: 'user';
   nickName: string;
   userAccount: string;
   phone: string;
@@ -99,4 +103,7 @@ export type PersonnelFetchNodes = (params: {
   mode: PersonnelSelectMode;
 }) => Promise<PersonnelNode[]>;
 
-export type PersonnelSearchNodes = (params: { keyword: string; mode: PersonnelSelectMode }) => Promise<PersonnelNode[]>;
+export type PersonnelSearchNodes = (params: {
+  keyword: string;
+  mode: PersonnelSelectMode;
+}) => Promise<PersonnelNode[]>;

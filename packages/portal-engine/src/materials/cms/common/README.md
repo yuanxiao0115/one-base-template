@@ -5,7 +5,7 @@
 ## 基本用法
 
 ```typescript
-import { useSchemaConfig } from "../../../hooks/useSchemaConfig";
+import { useSchemaConfig } from '../../../hooks/useSchemaConfig';
 
 // 定义你的数据类型
 interface TitleConfig {
@@ -25,29 +25,28 @@ interface ComponentData {
 }
 
 // 使用hooks
-const { sectionData, contentData, updateSchema } =
-  useSchemaConfig<ComponentData>({
-    name: "your-component-name",
-    sections: {
-      title: {
-        defaultValue: {
-          title: "",
-          showMore: false
-        }
-      },
-      layout: {
-        defaultValue: {
-          layout: "default",
-          contentGap: 16
-        }
+const { sectionData, contentData, updateSchema } = useSchemaConfig<ComponentData>({
+  name: 'your-component-name',
+  sections: {
+    title: {
+      defaultValue: {
+        title: '',
+        showMore: false
       }
     },
-    schema: props.schema, // 传入的初始schema
-    onChange: newSchema => {
-      // 当任何子组件数据变化时，这里会收到更新后的完整schema
-      emit("schemaChange", newSchema);
+    layout: {
+      defaultValue: {
+        layout: 'default',
+        contentGap: 16
+      }
     }
-  });
+  },
+  schema: props.schema, // 传入的初始schema
+  onChange: (newSchema) => {
+    // 当任何子组件数据变化时，这里会收到更新后的完整schema
+    emit('schemaChange', newSchema);
+  }
+});
 
 // 然后在模板中直接使用
 // <TitleConfig v-model="sectionData.title" />
@@ -66,13 +65,11 @@ const { sectionData, contentData, updateSchema } =
 ## 数据更新流程
 
 1. **子组件内部属性变化**：如`sectionData.title.title = "新标题"`
-
    - hooks内部的深度监听会检测到这一变化
    - 自动将变化同步到contentData
    - 触发onChange回调通知父组件
 
 2. **整个对象变化**：如`sectionData.title = { title: "新标题", ... }`
-
    - 通过Object.defineProperty的setter捕获变化
    - 自动将变化同步到contentData
    - 触发onChange回调通知父组件

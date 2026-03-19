@@ -12,16 +12,17 @@
   "scripts": {
     "build": "pnpm typecheck",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "test": "vitest",
-    "test:run": "vitest run"
+    "lint": "vp lint .",
+    "test": "vp test",
+    "test:run": "vp test run"
   },
   "devDependencies": {
-    "@types/qs": "^6.14.0",
     "@types/node": "^24.3.3",
+    "@types/qs": "^6.14.0",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^20.0.10",
-    "vitest": "^3.2.4"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   },
   "dependencies": {
     "axios": "^1.0.0",

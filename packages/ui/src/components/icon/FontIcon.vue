@@ -1,76 +1,76 @@
 <script setup lang="ts">
-  import { computed, type CSSProperties } from 'vue';
+import { computed, type CSSProperties } from 'vue';
 
-  type FontLibrary = 'cp' | 'dj' | 'om';
+type FontLibrary = 'cp' | 'dj' | 'om';
 
-  const props = withDefaults(
-    defineProps<{
-      name: string;
-      library?: FontLibrary;
-      size?: string | number;
-      color?: string;
-      tag?: string;
-    }>(),
-    {
-      library: 'cp',
-      size: undefined,
-      color: undefined,
-      tag: 'i',
-    }
-  );
+const props = withDefaults(
+  defineProps<{
+    name: string;
+    library?: FontLibrary;
+    size?: string | number;
+    color?: string;
+    tag?: string;
+  }>(),
+  {
+    library: 'cp',
+    size: undefined,
+    color: undefined,
+    tag: 'i'
+  }
+);
 
-  interface FontLibraryConfig {
-    baseClass: string;
-    prefix: string;
+interface FontLibraryConfig {
+  baseClass: string;
+  prefix: string;
+}
+
+const LIBRARY_CONFIG: Record<FontLibrary, FontLibraryConfig> = {
+  cp: {
+    baseClass: 'iconfont',
+    prefix: 'icon-'
+  },
+  dj: {
+    baseClass: 'dj-icons',
+    prefix: 'dj-icon-'
+  },
+  om: {
+    baseClass: 'i-icon-menu',
+    prefix: 'i-icon-'
+  }
+};
+
+const resolvedConfig = computed(() => LIBRARY_CONFIG[props.library]);
+
+const resolvedIconClass = computed(() => {
+  const raw = props.name.trim();
+  if (!raw) {
+    return '';
   }
 
-  const LIBRARY_CONFIG: Record<FontLibrary, FontLibraryConfig> = {
-    cp: {
-      baseClass: 'iconfont',
-      prefix: 'icon-',
-    },
-    dj: {
-      baseClass: 'dj-icons',
-      prefix: 'dj-icon-',
-    },
-    om: {
-      baseClass: 'i-icon-menu',
-      prefix: 'i-icon-',
-    },
-  };
+  const { prefix } = resolvedConfig.value;
+  return raw.startsWith(prefix) ? raw : `${prefix}${raw}`;
+});
 
-  const resolvedConfig = computed(() => LIBRARY_CONFIG[props.library]);
+const iconClasses = computed(() => {
+  if (!resolvedIconClass.value) {
+    return [];
+  }
+  return [resolvedConfig.value.baseClass, resolvedIconClass.value];
+});
 
-  const resolvedIconClass = computed(() => {
-    const raw = props.name.trim();
-    if (!raw) {
-      return '';
-    }
+const iconStyle = computed<CSSProperties>(() => {
+  const style: CSSProperties = {};
 
-    const { prefix } = resolvedConfig.value;
-    return raw.startsWith(prefix) ? raw : `${prefix}${raw}`;
-  });
+  if (props.size != null && props.size !== '') {
+    style.fontSize = typeof props.size === 'number' ? `${props.size}px` : props.size;
+  }
 
-  const iconClasses = computed(() => {
-    if (!resolvedIconClass.value) {
-      return [];
-    }
-    return [resolvedConfig.value.baseClass, resolvedIconClass.value];
-  });
+  if (props.color) {
+    style.color = props.color;
+  }
 
-  const iconStyle = computed<CSSProperties>(() => {
-    const style: CSSProperties = {};
-
-    if (props.size != null && props.size !== '') {
-      style.fontSize = typeof props.size === 'number' ? `${props.size}px` : props.size;
-    }
-
-    if (props.color) {
-      style.color = props.color;
-    }
-
-    return style;
-  });
+  return style;
+});
 </script>
 
 <template>

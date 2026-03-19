@@ -97,6 +97,7 @@
 - `systemHomeMap`: 系统首页映射（`{ [systemCode]: "/path" }`）
 
 布局说明：
+
 - `layoutMode` 与 `systemSwitchStyle` 不再由 `platform-config.json` 提供
 - 请在 `apps/admin/src/config/layout.ts` 中通过代码配置布局与系统切换样式（含 `topbarHeight` / `sidebarWidth` / `sidebarCollapsedWidth`）
 

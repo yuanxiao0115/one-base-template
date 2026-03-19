@@ -19,55 +19,22 @@ pnpm version:packages
 pnpm release:packages
 ```
 
-admin 常用 Biome 脚本（在仓库根目录执行）：
+admin 常用 lint 脚本（在仓库根目录执行）：
 
 ```bash
-pnpm biome:format
-pnpm biome:lint
-pnpm biome:check
-pnpm biome:unsafe
-pnpm biome:ci
+pnpm lint
+pnpm lint:arch
+pnpm -C apps/admin lint
+pnpm -C apps/admin lint:fix
 ```
 
-说明：Biome 配置统一维护在仓库根目录 `biome.jsonc`，`apps/admin` 不再单独维护 `biome.jsonc`。
-`pnpm biome:unsafe` 会启用 Biome 的不安全修复（`--unsafe`），可能引入行为变化，建议先在特性分支执行并完整回归。
+说明：仓库 lint 已统一走 `vp lint`，不再维护 Biome 配置文件。
 
-## Biome Monorepo 用法（Big Projects）
+## Vite Task 运行约定
 
-- 统一在仓库根维护共享规则：`/biome.jsonc`
-- 根脚本直接对仓库运行，实际扫描范围由 `biome.jsonc` 的 `files.includes` 控制
-- 某个子项目需要差异规则时，再在子目录新增局部 `biome.jsonc`
-
-局部配置模板（继承根配置）：
-
-```json
-{
-  "root": false,
-  "extends": "//",
-  "files": {
-    "includes": ["src/**/*"]
-  }
-}
-```
-
-## Turborepo build.outputs 约定
-
-- 根目录 `turbo.json` 的 `build.outputs` 继续约定真实构建产物默认写到 `dist/**`
-- 如果某个 workspace 的 `build` 脚本**只做 typecheck / 无文件产物**，必须在该包内新增 `turbo.json`，通过 package-level 配置把 `build.outputs` 显式覆写为 `[]`
-- 这样可以避免 Turborepo 在 cache miss 时输出 `no output files found for task ...#build` 的误报警告
-
-示例（以 typecheck-only 子包为例）：
-
-```json
-{
-  "extends": ["//"],
-  "tasks": {
-    "build": {
-      "outputs": []
-    }
-  }
-}
-```
+- 根目录 `pnpm build` 映射到 `vp run -r build`，按 workspace 依赖顺序执行。
+- 对于只做 `typecheck` 的子包，`build` 脚本保持为 `pnpm typecheck` 即可，无需额外维护 task-runner 配置文件。
+- 如需对任务关系做更细粒度编排，可在根 `vite.config.ts` 的 `run.tasks` 中声明 `dependsOn/inputs/env`。
 
 ## 构建 chunk warning 排查优先级
 
@@ -80,12 +47,17 @@ pnpm biome:ci
   - 路由壳组件改走 `@one-base-template/ui/shell`
   - 登录页优先直引 `@one-base-template/ui/lite-auth`，避免再经 `ui/lite` barrel 把 `one-ui-shell` 借道带回匿名首屏
 - `admin` 的构建后处理会继续收紧 `index-*` / `admin-auth-*` / `LoginPage-*` / `lite-*` 的 preload map，避免登录相关页面提前拉起 `one-ui-shell` / `vxe` / `portal-engine` 等业务壳资源
+- `admin-app-shell-*` 的 built preload map 也必须做同口径裁剪；`pnpm check:admin:bundle` 统计的 `startup dependency map` 需按构建后真实生效的 blocked prefixes 计算，不能再按未过滤的原始 `m.f` 列表误判
 - 第四批补充（admin）：
   - preload 阻断前缀新增 `iconify-ri-*`（避免登录与运行时入口预拉 Remix Icon 全量集合）
   - `index-*` / `admin-runtime-*` 入口额外阻断 `element-plus-*` 预加载，避免非必要首屏抢占带宽
 - 登录或未授权流程如果只是做状态清理或只读访问，优先补“细粒度子出口 + 动态 import”：
   - 当前 `tags` 清理固定走 `@one-base-template/tag/store`
   - 不要静态 import `@one-base-template/tag` 根入口
+- `sczfw` 的 `Client-Signature` 生成也应采用同一思路：
+  - `createObHttp()` 已支持异步 `beforeRequestCallback`
+  - admin / portal 的签名逻辑统一在请求发出前 `await import('.../infra/sczfw/crypto')`
+  - 目标是把 `gm-crypto` 挪出冷启动依赖图，而不是继续静态挂在 `bootstrap/http.ts`
 - 这类性能边界建议通过“源码约束测试或构建校验”固化；当前若仓库测试资产处于清理阶段，可先以 `typecheck/lint/build` 作为临时门禁。
 - 离线 Iconify 数据按集合拆成独立异步 chunk：
   - `ep` / `ri` 图标集合不再直接塞进应用主入口
@@ -113,10 +85,34 @@ pnpm biome:ci
 本仓库约定：**更新功能后，必须同步更新文档站点**（`apps/docs`）。
 
 常见需要更新文档的场景：
+
 - 新增/调整 env 变量
 - 新增布局模式、菜单行为、权限拦截逻辑
 - Adapter 接口变更（路径、字段映射、鉴权模式）
 - 核心约定变更（例如路由/菜单/SSO 流程）
+
+## PortalManagement 注册链路回归
+
+涉及 `portal-engine` 物料注册、分类扩展或设计器导出变更时，提交前至少执行：
+
+```bash
+pnpm -C packages/portal-engine run verify:materials
+pnpm -C packages/portal-engine run test:run -- src/public-designer.test.ts src/materials/extensions.test.ts src/materials/registerMaterialExtensions.test.ts
+pnpm -C apps/admin run test:run:file -- src/modules/PortalManagement/engine/register.unit.test.ts
+pnpm -C apps/docs lint
+pnpm -C apps/docs build
+```
+
+说明：
+
+- `pnpm -C apps/admin run test:run` 当前会连带执行整组 admin 测试。
+- 只想精确回归单文件时，统一使用 `pnpm -C apps/admin run test:run:file -- <path>`。
+
+`verify:materials` 当前会覆盖三类门禁：
+
+- 物料 `config.json` / `defineOptions({ name })` / fallback alias 一致性
+- admin 扩展入口约束（`materialExtensions` 与 `materials/extensions/index.ts`）
+- 语义化导出约束（`@one-base-template/portal-engine/designer` / `internal`）
 
 ## AGENTS 规则分层维护
 
@@ -232,9 +228,9 @@ admin 已引入消息工具：`@one-base-template/ui`（`message` / `closeAllMes
 示例：
 
 ```ts
-message.success('保存成功')
-message('删除失败，请稍后重试', { type: 'error' })
-closeAllMessage()
+message.success('保存成功');
+message('删除失败，请稍后重试', { type: 'error' });
+closeAllMessage();
 ```
 
 迁移建议：
@@ -258,7 +254,7 @@ closeAllMessage()
 
 ```css
 /* apps/admin/src/styles/index.css */
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../../tailwind.config.ts";
 @source "../**/*.{vue,ts,tsx}";
 @source "../../../../packages/ui/src/**/*.{vue,ts,tsx}";
@@ -266,5 +262,5 @@ closeAllMessage()
 
 ```js
 // apps/admin/postcss.config.js
-tailwindcss({ base: path.dirname(fileURLToPath(import.meta.url)) })
+tailwindcss({ base: path.dirname(fileURLToPath(import.meta.url)) });
 ```

@@ -36,7 +36,11 @@ export function normalizeRoutePath(path: string, rootPath = '/'): string {
  * - 相对路径与 parentPath 拼接
  * - 空路径回退 parentPath（再归一化）
  */
-export function buildRouteFullPath(parentPath: string, currentPath: string, rootPath = '/'): string {
+export function buildRouteFullPath(
+  parentPath: string,
+  currentPath: string,
+  rootPath = '/'
+): string {
   if (!currentPath) {
     return normalizeRoutePath(parentPath || rootPath, rootPath);
   }

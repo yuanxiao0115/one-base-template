@@ -88,38 +88,38 @@ export function useContextMenuDisplay() {
       icon: 'ep:refresh-right',
       text: '重新加载',
       disabled: false,
-      show: true,
+      show: true
     },
     {
       icon: 'ep:close',
       text: '关闭当前标签页',
       disabled: false,
-      show: true,
+      show: true
     },
     {
       icon: 'ri:text-direction-r',
       text: '关闭左侧标签页',
       disabled: false,
-      show: true,
+      show: true
     },
     {
       icon: 'ri:text-direction-l',
       text: '关闭右侧标签页',
       disabled: false,
-      show: true,
+      show: true
     },
     {
       icon: 'ri:text-spacing',
       text: '关闭其他标签页',
       disabled: false,
-      show: true,
+      show: true
     },
     {
       icon: 'ri:subtract-line',
       text: '关闭全部标签页',
       disabled: false,
-      show: true,
-    },
+      show: true
+    }
   ]);
 
   // ===== 计算属性 =====
@@ -234,7 +234,11 @@ export function useContextMenuDisplay() {
    * @param routeLength 路由总数
    * @param isActiveTab 是否为激活标签（用于右键菜单区分）
    */
-  function configureRegularPageMenu(currentIndex: number, routeLength: number, isActiveTab = true): void {
+  function configureRegularPageMenu(
+    currentIndex: number,
+    routeLength: number,
+    isActiveTab = true
+  ): void {
     // 如果不是激活标签，隐藏重新加载菜单项
     if (!isActiveTab) {
       hideMenuItems([MENU_INDICES.REFRESH]);
@@ -247,7 +251,7 @@ export function useContextMenuDisplay() {
         MENU_INDICES.CLOSE_LEFT,
         MENU_INDICES.CLOSE_RIGHT,
         MENU_INDICES.CLOSE_OTHER,
-        MENU_INDICES.CLOSE_ALL,
+        MENU_INDICES.CLOSE_ALL
       ]);
       return;
     }
@@ -299,7 +303,9 @@ export function useContextMenuDisplay() {
     );
 
     // 判断操作页是否为激活页
-    const isActiveTab = activePath ? operatedPath === activePath && isEqual(operatedQuery, activeQuery) : true; // 如果没有传入激活页信息，默认认为是激活页
+    const isActiveTab = activePath
+      ? operatedPath === activePath && isEqual(operatedQuery, activeQuery)
+      : true; // 如果没有传入激活页信息，默认认为是激活页
 
     if (isHomePage(operatedPath)) {
       // 首页菜单配置
@@ -316,7 +322,10 @@ export function useContextMenuDisplay() {
    * @param currentPath 当前激活页路径
    * @param currentQuery 当前激活页查询参数
    */
-  function configureDropdownMenu(currentPath?: string, currentQuery: Record<string, any> = {}): void {
+  function configureDropdownMenu(
+    currentPath?: string,
+    currentQuery: Record<string, any> = {}
+  ): void {
     const path = currentPath || route.path;
     const query = currentQuery || route.query || {};
 
@@ -326,7 +335,9 @@ export function useContextMenuDisplay() {
     });
 
     const routeLength = multiTags.value.length;
-    const currentIndex = multiTags.value.findIndex((v: any) => v && isEqual(v.query || {}, query) && v.path === path);
+    const currentIndex = multiTags.value.findIndex(
+      (v: any) => v && isEqual(v.query || {}, query) && v.path === path
+    );
 
     if (isHomePage(path)) {
       // 首页下拉菜单配置
@@ -405,7 +416,7 @@ export function useContextMenuDisplay() {
     // 工具方法
     isHomePage,
     hideMenuItems,
-    showMenuItems,
+    showMenuItems
   };
 }
 

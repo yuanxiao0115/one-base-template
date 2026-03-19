@@ -1,43 +1,43 @@
 <script setup lang="ts">
-  import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
-  defineOptions({
-    name: 'OneForbiddenPage',
-  });
+defineOptions({
+  name: 'OneForbiddenPage'
+});
 
-  const router = useRouter();
-  const route = useRoute();
+const router = useRouter();
+const route = useRoute();
 
-  function resolveFromPath() {
-    const from = route.query.from;
-    if (typeof from === 'string' && from.startsWith('/')) {
-      return from;
-    }
-    return null;
+function resolveFromPath() {
+  const from = route.query.from;
+  if (typeof from === 'string' && from.startsWith('/')) {
+    return from;
+  }
+  return null;
+}
+
+async function onBack() {
+  if (window.history.length > 1) {
+    await router.back();
+    return;
   }
 
-  async function onBack() {
-    if (window.history.length > 1) {
-      await router.back();
-      return;
-    }
-
-    const fromPath = resolveFromPath();
-    if (fromPath) {
-      await router.push(fromPath);
-      return;
-    }
-
-    await router.push('/');
+  const fromPath = resolveFromPath();
+  if (fromPath) {
+    await router.push(fromPath);
+    return;
   }
 
-  async function onGoHome() {
-    await router.push('/');
-  }
+  await router.push('/');
+}
 
-  async function onGoLogin() {
-    await router.push('/login');
-  }
+async function onGoHome() {
+  await router.push('/');
+}
+
+async function onGoLogin() {
+  await router.push('/login');
+}
 </script>
 
 <template>

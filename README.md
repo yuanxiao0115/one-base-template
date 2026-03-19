@@ -1,6 +1,6 @@
 # one-base-template
 
-Vue 3 + Vite 8(beta) + Tailwind(v4) + Element Plus + Pinia + Vue Router 的 Monorepo 脚手架（pnpm workspaces + Turborepo）。
+Vue 3 + Vite Plus + Tailwind(v4) + Element Plus + Pinia + Vue Router 的 Monorepo 脚手架（pnpm workspaces + Vite Task）。
 
 目标：提供一个“可拆可切”的后台壳模板，核心逻辑沉到 `packages/core`，UI 壳沉到 `packages/ui`，不同项目只需要替换 Adapter 与页面样式即可。
 
@@ -36,6 +36,36 @@ pnpm check:naming
 pnpm verify
 ```
 
+## Vite Plus 使用说明
+
+本项目已经切换为 Vite Plus（`vp`），日常仍可直接用 `pnpm` 脚本，也可直接使用 `vp` 命令：
+
+```bash
+# 安装依赖（等价于 pnpm install）
+vp install
+
+# 启动指定应用
+vp run --filter admin dev
+vp run --filter portal dev
+vp run --filter template dev
+
+# 全仓任务
+vp run -r lint
+vp run -r test:run
+vp run -r typecheck
+vp run -r build
+
+# 单仓质量检查
+vp lint .
+vp test run
+```
+
+说明：
+
+- 根脚本已统一通过 `vp run` 编排（见根 `package.json`）。
+- `apps/admin` / `apps/portal` / `apps/template` 的 `build` 使用了包装脚本过滤 Rolldown 插件耗时噪音日志，不影响失败退出码。
+- 文档站 `apps/docs` 的 `build` 使用包装脚本过滤 VitePress 上游已知弃用提示，不影响真实错误输出。
+
 ## 文档站点（VitePress）
 
 文档项目位于：`/Users/haoqiuzhi/code/one-base-template/apps/docs`
@@ -52,7 +82,7 @@ pnpm -C apps/docs dev
 pnpm -C apps/docs build
 ```
 
-说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `pnpm -C apps/admin dev`）；`pnpm dev:portal` 启动门户消费者应用（等价于 `pnpm -C apps/portal dev`）；`pnpm dev:template` 启动最小静态菜单示例（等价于 `pnpm -C apps/template dev`）。如需用 Turborepo 启动可尝试 `pnpm dev:turbo`（部分环境下 turbo 对 dev server 的进程托管可能不稳定）。
+说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `vp run --filter admin dev`）；`pnpm dev:portal` 启动门户消费者应用（等价于 `vp run --filter portal dev`）；`pnpm dev:template` 启动最小静态菜单示例（等价于 `vp run --filter template dev`）；`pnpm dev:all` 启动全部 workspace 的 dev 任务。
 
 `apps/admin` 开发默认通过 Vite 代理直连后端（配置 `VITE_API_BASE_URL`）：
 

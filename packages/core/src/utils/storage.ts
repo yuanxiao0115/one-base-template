@@ -38,7 +38,10 @@ export function byteLength(text: string): number {
   }
 }
 
-export function readFromStorages(key: string, kinds: StorageKind[] = ['local', 'session']): string | null {
+export function readFromStorages(
+  key: string,
+  kinds: StorageKind[] = ['local', 'session']
+): string | null {
   for (const kind of kinds) {
     const storage = getStorage(kind);
     if (!storage) {

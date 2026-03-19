@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite-plus';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'node:path';
 import fs from 'node:fs';
@@ -27,7 +27,9 @@ const renameCssPlugin = () => {
       }
 
       // 处理根目录的 CSS 文件
-      const cssFiles = fs.readdirSync(distDir).filter((file) => file.endsWith('.css') && file !== 'index.css');
+      const cssFiles = fs
+        .readdirSync(distDir)
+        .filter((file) => file.endsWith('.css') && file !== 'index.css');
 
       // 如果找到其他 CSS 文件，重命名为 index.css
       if (cssFiles.length > 0) {
@@ -54,7 +56,7 @@ const renameCssPlugin = () => {
           console.log('Removed empty assets directory');
         }
       }
-    },
+    }
   };
 };
 
@@ -64,7 +66,8 @@ export default defineConfig({
     lib: {
       entry: resolve(import.meta.dirname, 'src/index.ts'),
       name: 'OneTag',
-      fileName: (format) => `index.${format === 'es' ? 'js' : format === 'umd' ? 'umd.cjs' : format}`,
+      fileName: (format) =>
+        `index.${format === 'es' ? 'js' : format === 'umd' ? 'umd.cjs' : format}`
     },
     rollupOptions: {
       external: ['vue', 'vue-router', 'pinia'],
@@ -72,16 +75,16 @@ export default defineConfig({
         globals: {
           vue: 'Vue',
           'vue-router': 'VueRouter',
-          pinia: 'Pinia',
+          pinia: 'Pinia'
         },
-        exports: 'named', // 使用命名导出，避免混合导出警告
+        exports: 'named' // 使用命名导出，避免混合导出警告
       },
       // 排除测试文件
       input: {
-        index: resolve(import.meta.dirname, 'src/index.ts'),
+        index: resolve(import.meta.dirname, 'src/index.ts')
       },
       // 保守的 Tree Shaking 配置
-      treeshake: true,
+      treeshake: true
     },
     emptyOutDir: true,
     cssCodeSplit: false,
@@ -107,33 +110,33 @@ export default defineConfig({
         // 压缩循环
         loops: true,
         // 内联函数
-        inline: true,
+        inline: true
       },
       mangle: {
         // 混淆所有变量名
         toplevel: true,
         // 混淆属性名（谨慎使用）
-        properties: false,
+        properties: false
       },
       format: {
         // 移除所有注释
         comments: false,
         // 移除多余的分号
-        semicolons: false,
-      },
+        semicolons: false
+      }
     },
     // 启用 gzip 压缩报告
     reportCompressedSize: true,
     // CSS 压缩选项
-    cssMinify: 'lightningcss',
+    cssMinify: 'lightningcss'
   },
   css: {
     // CSS 预处理器配置
-    preprocessorOptions: {},
+    preprocessorOptions: {}
   },
   resolve: {
     alias: {
-      '@': resolve(import.meta.dirname, 'src'),
-    },
-  },
+      '@': resolve(import.meta.dirname, 'src')
+    }
+  }
 });

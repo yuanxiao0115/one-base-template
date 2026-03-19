@@ -1,9 +1,16 @@
-import type { AxiosProgressEvent } from "axios";
-import type { ApiPageData } from "@/shared/api/types";
+import type { AxiosProgressEvent } from 'axios';
+import type { ApiPageData } from '@/shared/api/types';
 
-export type { ApiResponse } from "@/shared/api/types";
+export type { ApiResponse } from '@/shared/api/types';
 
-type LooseField = string | number | boolean | null | undefined | Array<unknown> | Record<string, unknown>;
+type LooseField =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Array<unknown>
+  | Record<string, unknown>;
 
 export interface ContentAttachment {
   id?: string;
@@ -46,7 +53,7 @@ export interface ContentDetail extends ContentRecord {
 export interface ContentPageParams {
   articleTitle?: string;
   cmsCategoryId?: string;
-  articleType?: number | "";
+  articleType?: number | '';
   currentPage?: number;
   pageSize?: number;
 }

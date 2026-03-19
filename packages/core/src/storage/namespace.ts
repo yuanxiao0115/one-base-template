@@ -1,5 +1,10 @@
 import { tryGetCoreOptions } from '../context';
-import { type StorageKind, readFromStorages, removeByPrefixes, removeFromStorages } from '../utils/storage';
+import {
+  type StorageKind,
+  readFromStorages,
+  removeByPrefixes,
+  removeFromStorages
+} from '../utils/storage';
 
 function normalizeNamespace(value: string | undefined): string | undefined {
   if (!value) {
@@ -47,7 +52,7 @@ export function getWithLegacy(
     if (scopedValue != null) {
       return {
         key: scopedKey,
-        value: scopedValue,
+        value: scopedValue
       };
     }
   }
@@ -59,7 +64,7 @@ export function getWithLegacy(
 
   return {
     key: baseKey,
-    value: legacyValue,
+    value: legacyValue
   };
 }
 
@@ -80,7 +85,9 @@ export function clearByPrefixes(
   kind: StorageKind = 'local',
   explicitNamespace?: string
 ): number {
-  const scopedPrefixes = basePrefixes.map((prefix) => getNamespacedPrefix(prefix, explicitNamespace));
+  const scopedPrefixes = basePrefixes.map((prefix) =>
+    getNamespacedPrefix(prefix, explicitNamespace)
+  );
   const allPrefixes = Array.from(new Set([...basePrefixes, ...scopedPrefixes]));
   return removeByPrefixes(allPrefixes, kind);
 }

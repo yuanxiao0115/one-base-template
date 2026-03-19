@@ -86,7 +86,11 @@ export interface SsoAdapter {
   /** 有的后端 token 需要换会话，可选 */
   exchangeToken?(token: string): Promise<void>;
   exchangeTicket?(payload: { ticket: string; serviceUrl?: string }): Promise<void>;
-  exchangeOAuthCode?(payload: { code: string; state?: string; redirectUri?: string }): Promise<void>;
+  exchangeOAuthCode?(payload: {
+    code: string;
+    state?: string;
+    redirectUri?: string;
+  }): Promise<void>;
 }
 
 export interface AssetAdapter {

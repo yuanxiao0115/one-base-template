@@ -4,7 +4,7 @@ import {
   DEFAULT_MODE,
   DEFAULT_RESET_ON_CLOSE,
   DEFAULT_RESET_ON_CREATE_OPEN,
-  buildDefaultCrudTitle,
+  buildDefaultCrudTitle
 } from './constants';
 import type {
   CrudContainerType,
@@ -14,7 +14,7 @@ import type {
   CrudOpenCreateOptions,
   CrudOpenRowOptions,
   UseEntityEditorOptions,
-  UseEntityEditorReturn,
+  UseEntityEditorReturn
 } from './types';
 
 function isObjectRecord(value: unknown): value is Record<string, unknown> {
@@ -30,7 +30,7 @@ function mergeFormState<TForm>(base: TForm, patch?: Partial<TForm>): TForm {
   }
   return {
     ...base,
-    ...patch,
+    ...patch
   } as TForm;
 }
 
@@ -65,7 +65,7 @@ export function useEntityEditor<
   TRow = Record<string, unknown>,
   TDetail = TRow,
   TPayload = TForm,
-  TResult = unknown,
+  TResult = unknown
 >(
   options: UseEntityEditorOptions<TForm, TRow, TDetail, TPayload, TResult>
 ): UseEntityEditorReturn<TForm, TRow, TDetail, TResult> {
@@ -100,7 +100,8 @@ export function useEntityEditor<
   const title = computed(() => {
     const buildFn =
       entity.buildTitle ??
-      ((ctx: { mode: CrudMode; entityName: string }) => buildDefaultCrudTitle(ctx.mode, ctx.entityName));
+      ((ctx: { mode: CrudMode; entityName: string }) =>
+        buildDefaultCrudTitle(ctx.mode, ctx.entityName));
     return buildFn({ mode: mode.value, entityName });
   });
 
@@ -145,13 +146,13 @@ export function useEntityEditor<
       await beforeOpen({
         mode: nextMode,
         row,
-        form: form.value,
+        form: form.value
       });
     } catch (error) {
       emitError(error, {
         mode: nextMode,
         stage: 'beforeOpen',
-        row,
+        row
       });
     }
   }
@@ -163,7 +164,10 @@ export function useEntityEditor<
     form.value = mergeFormState(form.value, patchForm);
   }
 
-  async function assignDetailToForm(nextMode: Exclude<CrudMode, 'create'>, row: TRow): Promise<void> {
+  async function assignDetailToForm(
+    nextMode: Exclude<CrudMode, 'create'>,
+    row: TRow
+  ): Promise<void> {
     let detail: TDetail;
 
     try {
@@ -172,7 +176,7 @@ export function useEntityEditor<
       emitError(error, {
         mode: nextMode,
         stage: 'loadDetail',
-        row,
+        row
       });
       detail = row as unknown as TDetail;
     }
@@ -183,7 +187,7 @@ export function useEntityEditor<
       const mapped = mapDetailToForm({
         mode: nextMode,
         row,
-        detail,
+        detail
       });
       form.value = mergeFormState(form.value, mapped);
       return;
@@ -194,7 +198,11 @@ export function useEntityEditor<
     }
   }
 
-  async function openByMode(nextMode: CrudMode, row: TRow | null, patchForm?: Partial<TForm>): Promise<void> {
+  async function openByMode(
+    nextMode: CrudMode,
+    row: TRow | null,
+    patchForm?: Partial<TForm>
+  ): Promise<void> {
     mode.value = nextMode;
     currentRow.value = row;
 
@@ -258,7 +266,7 @@ export function useEntityEditor<
         ? await buildPayload({
             mode: submitMode,
             form: formSnapshot,
-            row: rowSnapshot,
+            row: rowSnapshot
           })
         : (formSnapshot as unknown as TPayload);
 
@@ -267,7 +275,7 @@ export function useEntityEditor<
             mode: submitMode,
             form: formSnapshot,
             payload,
-            row: rowSnapshot,
+            row: rowSnapshot
           })
         : (undefined as TResult);
 
@@ -279,7 +287,7 @@ export function useEntityEditor<
           form: formSnapshot,
           payload,
           row: rowSnapshot,
-          result,
+          result
         });
       }
 
@@ -288,7 +296,7 @@ export function useEntityEditor<
       emitError(error, {
         mode: submitMode,
         stage: 'save',
-        row: rowSnapshot,
+        row: rowSnapshot
       });
       throw error;
     } finally {
@@ -313,7 +321,7 @@ export function useEntityEditor<
     confirm,
     close,
     resetForm,
-    setFormRef,
+    setFormRef
   };
 }
 
@@ -335,7 +343,7 @@ export type {
   CrudSaveContext,
   CrudSaveSuccessContext,
   UseEntityEditorOptions,
-  UseEntityEditorReturn,
+  UseEntityEditorReturn
 } from './types';
 
 export default useEntityEditor;

@@ -1,14 +1,14 @@
-import { resolveAppRedirectTarget } from "@one-base-template/core";
-import { DEFAULT_FALLBACK_HOME } from "@/config/systems";
-import type { BackendKind } from "@/infra/env";
+import { resolveAppRedirectTarget } from '@one-base-template/core';
+import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
+import type { BackendKind } from '@/infra/env';
 import {
   loginByDesktop,
   loginByExternal,
   loginByTicket,
   loginByYdbg,
-  loginByZhxt,
-} from "@/shared/services/auth-remote-service";
-import { executeSsoCallbackStrategy } from "@/shared/services/sso-callback-strategy";
+  loginByZhxt
+} from '@/shared/services/auth-remote-service';
+import { executeSsoCallbackStrategy } from '@/shared/services/sso-callback-strategy';
 
 interface RouteQueryLike {
   token?: unknown;
@@ -54,22 +54,22 @@ function pickDirectLoginToken(routeQuery: RouteQueryLike, enabled: boolean) {
     return null;
   }
 
-  return typeof routeQuery.token === "string" && routeQuery.token ? routeQuery.token : null;
+  return typeof routeQuery.token === 'string' && routeQuery.token ? routeQuery.token : null;
 }
 
 function resolveLoginFallback(backend: BackendKind) {
-  return backend === "sczfw" ? DEFAULT_FALLBACK_HOME : "/";
+  return backend === 'sczfw' ? DEFAULT_FALLBACK_HOME : '/';
 }
 
 export function resolveLoginScenario(options: ResolveLoginScenarioOptions): LoginScenario {
   const { backend, routeQuery } = options;
-  const useSczfwScenario = backend === "sczfw";
+  const useSczfwScenario = backend === 'sczfw';
 
   return {
     useVerifyLogin: useSczfwScenario,
     shouldLoadLoginPageConfig: useSczfwScenario,
     fallback: resolveLoginFallback(backend),
-    directLoginToken: pickDirectLoginToken(routeQuery, useSczfwScenario),
+    directLoginToken: pickDirectLoginToken(routeQuery, useSczfwScenario)
   };
 }
 
@@ -82,26 +82,26 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
     searchParams,
     onDefaultSsoCallback,
     onAuthenticatedRedirect,
-    onFinalizeAuthSession,
+    onFinalizeAuthSession
   } = options;
 
   const storage = options.storage ?? localStorage;
   const locationLike = options.locationLike ?? window.location;
 
-  if (backend !== "sczfw") {
+  if (backend !== 'sczfw') {
     const { redirect } = await onDefaultSsoCallback();
     const target = resolveAppRedirectTarget(redirect, {
       fallback: DEFAULT_FALLBACK_HOME,
-      baseUrl,
+      baseUrl
     });
     await onAuthenticatedRedirect(target);
     return;
   }
 
-  const redirectUrlRaw = searchParams.get("redirectUrl") ?? searchParams.get("redirect");
+  const redirectUrlRaw = searchParams.get('redirectUrl') ?? searchParams.get('redirect');
   const redirect = resolveAppRedirectTarget(redirectUrlRaw, {
     fallback: DEFAULT_FALLBACK_HOME,
-    baseUrl,
+    baseUrl
   });
 
   async function setTokenAndBootstrap(token: string) {
@@ -114,7 +114,7 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
     const res = await loginByZhxt(token);
     const authToken = res.data?.authToken;
     if (!authToken) {
-      throw new Error(res.message || "智慧协同单点登录失败");
+      throw new Error(res.message || '智慧协同单点登录失败');
     }
     await setTokenAndBootstrap(authToken);
   }
@@ -123,35 +123,37 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
     const res = await loginByYdbg(token);
     const authToken = res.data?.authToken;
     if (!authToken) {
-      throw new Error(res.message || "移动办公单点登录失败");
+      throw new Error(res.message || '移动办公单点登录失败');
     }
     await setTokenAndBootstrap(authToken);
   }
 
   async function handleTicket(ticket: string, ticketRedirectUrlRaw: string | null) {
-    const serviceUrl = ticketRedirectUrlRaw ? `${locationLike.origin}/${ticketRedirectUrlRaw}` : locationLike.href;
+    const serviceUrl = ticketRedirectUrlRaw
+      ? `${locationLike.origin}/${ticketRedirectUrlRaw}`
+      : locationLike.href;
 
     const res = await loginByTicket({
       ticket,
-      serviceUrl,
+      serviceUrl
     });
 
     const authToken = res.data?.authToken;
     if (!authToken) {
-      throw new Error(res.message || "票据验证失败");
+      throw new Error(res.message || '票据验证失败');
     }
     await setTokenAndBootstrap(authToken);
   }
 
-  async function handleExternalSso(params: { from: "om" | "portal"; token: string }) {
+  async function handleExternalSso(params: { from: 'om' | 'portal'; token: string }) {
     const res = await loginByExternal({
       from: params.from,
-      token: params.token,
+      token: params.token
     });
 
     const authToken = res.data?.token ?? res.data?.authToken;
     if (!authToken) {
-      throw new Error(res.message || "SSO 登录失败");
+      throw new Error(res.message || 'SSO 登录失败');
     }
     storage.setItem(tokenKey, authToken);
 
@@ -181,16 +183,16 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
       },
       onMoaToken: async ({ token }) => {
         await handleExternalSso({
-          from: "om",
-          token,
+          from: 'om',
+          token
         });
       },
       onUserToken: async ({ token }) => {
         await handleExternalSso({
-          from: "portal",
-          token,
+          from: 'portal',
+          token
         });
-      },
-    },
+      }
+    }
   });
 }

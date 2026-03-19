@@ -9,7 +9,7 @@ function escapeHtml(input: string): string {
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
-    .replaceAll('"', "&quot;")
+    .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 }
 
@@ -40,5 +40,5 @@ void startAppWithRuntimeConfig({
     const { bootstrapPortalApp } = await import('@/bootstrap');
     return bootstrapPortalApp();
   },
-  onError: renderBootstrapError,
+  onError: renderBootstrapError
 });

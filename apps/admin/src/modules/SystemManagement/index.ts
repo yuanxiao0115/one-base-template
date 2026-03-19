@@ -1,1 +1,1 @@
-export { default as systemManagementModule } from "./module";
+export { default as systemManagementModule } from './module';

@@ -1,34 +1,42 @@
 <script setup lang="ts">
-  import { Plus } from "@element-plus/icons-vue";
-  import MenuPermissionEditForm from "./components/MenuPermissionEditForm.vue";
-  import MenuPermissionSearchForm from "./components/MenuPermissionSearchForm.vue";
-  import { useMenuManagementPageState } from "./composables/useMenuManagementPageState";
+import { Plus } from '@element-plus/icons-vue';
+import MenuPermissionEditForm from './components/MenuPermissionEditForm.vue';
+import MenuPermissionSearchForm from './components/MenuPermissionSearchForm.vue';
+import { useMenuManagementPageState } from './composables/useMenuManagementPageState';
 
-  defineOptions({
-    name: "SystemMenuManagementPage",
-  });
+defineOptions({
+  name: 'SystemMenuManagementPage'
+});
 
-  const pageState = useMenuManagementPageState();
+const pageState = useMenuManagementPageState();
 
-  const { refs } = pageState;
+const { refs } = pageState;
 
-  const { loading, dataList, tableColumns, tableTreeConfig, searchForm } = pageState.table;
+const { loading, dataList, tableColumns, tableTreeConfig, searchForm } = pageState.table;
 
-  const { resourceTypeOptions, parentOptions } = pageState.options;
+const { resourceTypeOptions, parentOptions } = pageState.options;
 
-  const { crud, crudVisible, crudMode, crudTitle, crudReadonly, crudSubmitting, crudForm, menuPermissionFormRules } =
-    pageState.editor;
+const {
+  crud,
+  crudVisible,
+  crudMode,
+  crudTitle,
+  crudReadonly,
+  crudSubmitting,
+  crudForm,
+  menuPermissionFormRules
+} = pageState.editor;
 
-  const {
-    tableSearch,
-    onKeywordUpdate,
-    onResetSearch,
-    openCreateDialog,
-    openEditDialog,
-    handleCreateCommand,
-    handleDelete,
-    onConfirmCrud,
-  } = pageState.actions;
+const {
+  tableSearch,
+  onKeywordUpdate,
+  onResetSearch,
+  openCreateDialog,
+  openEditDialog,
+  handleCreateCommand,
+  handleDelete,
+  onConfirmCrud
+} = pageState.actions;
 </script>
 
 <template>
@@ -81,20 +89,34 @@
                 </template>
               </el-dropdown>
 
-              <el-button link type="primary" :size="actionSize" @click="() => openEditDialog('edit', row)"
+              <el-button
+                link
+                type="primary"
+                :size="actionSize"
+                @click="() => openEditDialog('edit', row)"
                 >编辑</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="() => openEditDialog('detail', row)"
+              <el-button
+                link
+                type="primary"
+                :size="actionSize"
+                @click="() => openEditDialog('detail', row)"
                 >查看</el-button
               >
-              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)">删除</el-button>
+              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+                >删除</el-button
+              >
             </ObActionButtons>
           </template>
         </ObVxeTable>
       </template>
 
       <template #drawer>
-        <MenuPermissionSearchForm :ref="refs.searchRef" v-model="searchForm" :resource-type-options />
+        <MenuPermissionSearchForm
+          :ref="refs.searchRef"
+          v-model="searchForm"
+          :resource-type-options
+        />
       </template>
     </ObTableBox>
   </ObPageContainer>
@@ -125,25 +147,25 @@
 </template>
 
 <style scoped>
-  .system-menu-management-page__icon-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    min-width: 0;
-  }
+.system-menu-management-page__icon-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
 
-  .system-menu-management-page__icon-preview {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-  }
+.system-menu-management-page__icon-preview {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
 
-  .system-menu-management-page__icon-text {
-    min-width: 0;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+.system-menu-management-page__icon-text {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>

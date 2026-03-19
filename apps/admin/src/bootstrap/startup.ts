@@ -20,6 +20,6 @@ export async function startAdminApp(options: StartAdminAppOptions = {}) {
       return bootstrapAdminApp();
     },
     beforeMount: options.beforeMount,
-    onError: renderBootstrapError,
+    onError: renderBootstrapError
   });
 }

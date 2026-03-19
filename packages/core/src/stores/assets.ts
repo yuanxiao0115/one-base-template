@@ -156,7 +156,10 @@ export const useAssetStore = defineStore('ob-assets', () => {
     return blob;
   }
 
-  async function getImageUrl(id: string, options: GetImageUrlOptions = {}): Promise<string | undefined> {
+  async function getImageUrl(
+    id: string,
+    options: GetImageUrlOptions = {}
+  ): Promise<string | undefined> {
     const key = id.trim();
     if (!key) {
       return undefined;
@@ -245,6 +248,6 @@ export const useAssetStore = defineStore('ob-assets', () => {
     errors,
     getImageUrl,
     revokeImageUrl,
-    clearMemoryCache,
+    clearMemoryCache
   };
 });

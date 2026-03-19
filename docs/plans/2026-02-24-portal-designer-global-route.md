@@ -13,6 +13,7 @@
 ### Task 1: 将 designer/layout 迁移为顶层路由
 
 **Files:**
+
 - Modify: `apps/admin/src/router/index.ts`
 - Modify: `apps/admin/src/modules/portal/routes.ts`
 
@@ -35,10 +36,12 @@
 **Step 3: 本地验证**
 
 Run:
+
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/admin build`
 
 Expected:
+
 - typecheck/build 通过
 - 访问 `/portal/designer?templateId=...` 不再显示侧栏/通用顶部栏
 - `/portal/designer` / `/portal/layout` 不会生成新的 Tab（`meta.hiddenTab` 生效）
@@ -49,4 +52,3 @@ Expected:
 git add apps/admin/src/router/index.ts apps/admin/src/modules/portal/routes.ts
 git commit -m "fix(portal): make designer/layout global fullscreen routes"
 ```
-

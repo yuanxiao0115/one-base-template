@@ -85,7 +85,9 @@ export interface CrudDetailOptions<TForm, TRow, TDetail> {
 export interface CrudSaveOptions<TForm, TRow, TPayload, TResult> {
   buildPayload?: (context: CrudBuildPayloadContext<TForm, TRow>) => Promise<TPayload> | TPayload;
   request?: (context: CrudSaveContext<TForm, TRow, TPayload>) => Promise<TResult>;
-  onSuccess?: (context: CrudSaveSuccessContext<TForm, TRow, TPayload, TResult>) => Promise<void> | void;
+  onSuccess?: (
+    context: CrudSaveSuccessContext<TForm, TRow, TPayload, TResult>
+  ) => Promise<void> | void;
 }
 
 export interface UseEntityEditorOptions<TForm, TRow, TDetail, TPayload, TResult> {

@@ -1,15 +1,15 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import ArticleAuditPanel from "./components/ArticleAuditPanel.vue";
-  import CommentAuditPanel from "./components/CommentAuditPanel.vue";
+import { ref } from 'vue';
+import ArticleAuditPanel from './components/ArticleAuditPanel.vue';
+import CommentAuditPanel from './components/CommentAuditPanel.vue';
 
-  type AuditTabName = "article" | "comment";
+type AuditTabName = 'article' | 'comment';
 
-  defineOptions({
-    name: "CmsAuditManagementPage",
-  });
+defineOptions({
+  name: 'CmsAuditManagementPage'
+});
 
-  const activeTab = ref<AuditTabName>("article");
+const activeTab = ref<AuditTabName>('article');
 </script>
 
 <template>
@@ -26,34 +26,34 @@
 </template>
 
 <style scoped>
-  .cms-audit-page__tabs {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    flex-direction: column;
-    background: var(--el-bg-color);
-  }
+.cms-audit-page__tabs {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  background: var(--el-bg-color);
+}
 
-  .cms-audit-page__tabs :deep(.el-tabs__header) {
-    margin-bottom: 0;
-    padding: 0 16px;
-    background: #fff;
-  }
+.cms-audit-page__tabs :deep(.el-tabs__header) {
+  margin-bottom: 0;
+  padding: 0 16px;
+  background: #fff;
+}
 
-  .cms-audit-page__tabs :deep(.el-tabs__content) {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-  }
+.cms-audit-page__tabs :deep(.el-tabs__content) {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
 
-  .cms-audit-page__tabs :deep(.el-tab-pane) {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-  }
+.cms-audit-page__tabs :deep(.el-tab-pane) {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
 
-  .cms-audit-page__panel {
-    flex: 1;
-    min-height: 0;
-  }
+.cms-audit-page__panel {
+  flex: 1;
+  min-height: 0;
+}
 </style>

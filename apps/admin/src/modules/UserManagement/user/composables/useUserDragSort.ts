@@ -1,8 +1,13 @@
-import { nextTick, onBeforeUnmount, ref, type Ref, watch } from "vue";
-import type Sortable from "sortablejs";
-import { userApi } from "../api";
-import type { UserListRecord } from "../types";
-import { buildAdjustOrgSortPayload, buildSortableOptions, moveArrayItem, type PaginationLike } from "../utils/dragSort";
+import { nextTick, onBeforeUnmount, ref, type Ref, watch } from 'vue';
+import type Sortable from 'sortablejs';
+import { userApi } from '../api';
+import type { UserListRecord } from '../types';
+import {
+  buildAdjustOrgSortPayload,
+  buildSortableOptions,
+  moveArrayItem,
+  type PaginationLike
+} from '../utils/dragSort';
 
 interface SortableCtor {
   create: (element: HTMLElement, options?: Record<string, unknown>) => Sortable;
@@ -36,7 +41,8 @@ export function useUserDragSort(options: UseUserDragSortOptions) {
     }
 
     return (
-      tableEl.querySelector(".vxe-table--body-wrapper tbody") || tableEl.querySelector(".vxe-table--main-body tbody")
+      tableEl.querySelector('.vxe-table--body-wrapper tbody') ||
+      tableEl.querySelector('.vxe-table--main-body tbody')
     );
   }
 
@@ -49,9 +55,11 @@ export function useUserDragSort(options: UseUserDragSortOptions) {
     if (sortableCtor.value) {
       return sortableCtor.value;
     }
-    const imported = await import("sortablejs");
+    const imported = await import('sortablejs');
     const importedRecord = imported as unknown as Record<string, unknown>;
-    const ctor = ("default" in importedRecord ? importedRecord.default : importedRecord) as SortableCtor;
+    const ctor = (
+      'default' in importedRecord ? importedRecord.default : importedRecord
+    ) as SortableCtor;
     sortableCtor.value = ctor;
     return ctor;
   }
@@ -78,7 +86,7 @@ export function useUserDragSort(options: UseUserDragSortOptions) {
       orgId: orgId.value,
       rowId: currentRow.id,
       newIndex,
-      pagination,
+      pagination
     });
 
     if (!payload) {
@@ -88,7 +96,7 @@ export function useUserDragSort(options: UseUserDragSortOptions) {
     try {
       const response = await userApi.adjustOrgSort(payload);
       if (response.code !== 200) {
-        throw new Error(response.message || "用户排序更新失败");
+        throw new Error(response.message || '用户排序更新失败');
       }
     } catch {
       await onSearch(false);

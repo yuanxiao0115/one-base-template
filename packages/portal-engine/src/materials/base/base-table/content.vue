@@ -174,15 +174,30 @@
         </template>
 
         <el-form-item label="每页条数">
-          <el-input-number v-model="sectionData.table.pageSize" :min="1" :max="200" controls-position="right" />
+          <el-input-number
+            v-model="sectionData.table.pageSize"
+            :min="1"
+            :max="200"
+            controls-position="right"
+          />
         </el-form-item>
 
         <el-form-item label="分页大小选项（逗号分隔）">
-          <el-input v-model.trim="pageSizesText" maxlength="120" show-word-limit placeholder="例如：10,20,50" />
+          <el-input
+            v-model.trim="pageSizesText"
+            maxlength="120"
+            show-word-limit
+            placeholder="例如：10,20,50"
+          />
         </el-form-item>
 
         <el-form-item label="空数据文案">
-          <el-input v-model.trim="sectionData.table.emptyText" maxlength="40" show-word-limit placeholder="例如：暂无数据" />
+          <el-input
+            v-model.trim="sectionData.table.emptyText"
+            maxlength="40"
+            show-word-limit
+            placeholder="例如：暂无数据"
+          />
         </el-form-item>
 
         <el-form-item label="el-table 扩展属性 JSON">
@@ -199,16 +214,29 @@
 
       <ObCard title="列配置">
         <div class="column-list">
-          <div v-if="!sectionData.table.columns.length" class="column-empty">暂无列，请点击“新增列”。</div>
+          <div v-if="!sectionData.table.columns.length" class="column-empty">
+            暂无列，请点击“新增列”。
+          </div>
 
-          <div v-for="(column, index) in sectionData.table.columns" :key="column.id" class="column-card">
+          <div
+            v-for="(column, index) in sectionData.table.columns"
+            :key="column.id"
+            class="column-card"
+          >
             <div class="column-card__header">
               <span>列 {{ index + 1 }}</span>
-              <el-button text type="danger" :icon="Delete" @click="removeColumn(index)">删除</el-button>
+              <el-button text type="danger" :icon="Delete" @click="removeColumn(index)"
+                >删除</el-button
+              >
             </div>
 
             <el-form-item label="列标题">
-              <el-input v-model.trim="column.label" maxlength="30" show-word-limit placeholder="例如：标题" />
+              <el-input
+                v-model.trim="column.label"
+                maxlength="30"
+                show-word-limit
+                placeholder="例如：标题"
+              />
             </el-form-item>
 
             <el-form-item label="字段 key">
@@ -221,7 +249,12 @@
             </el-form-item>
 
             <el-form-item label="列宽(px，0为自适应)">
-              <el-input-number v-model="column.width" :min="0" :max="1200" controls-position="right" />
+              <el-input-number
+                v-model="column.width"
+                :min="0"
+                :max="1200"
+                controls-position="right"
+              />
             </el-form-item>
 
             <el-form-item label="对齐方式">
@@ -253,7 +286,12 @@
               </el-form-item>
 
               <el-form-item label="携带参数 key">
-                <el-input v-model.trim="column.linkParamKey" maxlength="60" show-word-limit placeholder="例如：id" />
+                <el-input
+                  v-model.trim="column.linkParamKey"
+                  maxlength="60"
+                  show-word-limit
+                  placeholder="例如：id"
+                />
               </el-form-item>
 
               <el-form-item label="参数取值字段 key">
@@ -307,268 +345,328 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue';
-  import { Delete, Plus } from '@element-plus/icons-vue';
-  import { ObCard } from '@one-base-template/ui';
-  import { useSchemaConfig } from '../../../composables/useSchemaConfig';
-  import {
-    UnifiedContainerContentConfig,
-    createDefaultUnifiedContainerContentConfig,
-    mergeUnifiedContainerContentConfig,
-  } from '../../common/unified-container';
-  import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
-  import { normalizeStringArray, toPositiveNumber } from '../common/material-utils';
+import { computed } from 'vue';
+import { Delete, Plus } from '@element-plus/icons-vue';
+import { ObCard } from '@one-base-template/ui';
+import { useSchemaConfig } from '../../../composables/useSchemaConfig';
+import {
+  UnifiedContainerContentConfig,
+  mergeUnifiedContainerContentConfig
+} from '../../common/unified-container';
+import type { UnifiedContainerContentConfigModel } from '../../common/unified-container';
+import { normalizeStringArray, toPositiveNumber } from '../common/material-utils';
 
-  type DataModeType = 'static' | 'api';
-  type HttpMethodType = 'GET' | 'POST' | 'PUT' | 'PATCH';
-  type ColumnAlignType = 'left' | 'center' | 'right';
-  type LinkOpenType = 'router' | 'newTab' | 'current';
+type DataModeType = 'static' | 'api';
+type HttpMethodType = 'GET' | 'POST' | 'PUT' | 'PATCH';
+type ColumnAlignType = 'left' | 'center' | 'right';
+type LinkOpenType = 'router' | 'newTab' | 'current';
 
-  interface TableColumnModel {
-    id: string;
-    label: string;
-    fieldKey: string;
-    width: number;
-    align: ColumnAlignType;
-    ellipsis: boolean;
-    isLink: boolean;
-    linkPath: string;
-    linkParamKey: string;
-    linkValueKey: string;
-    openType: LinkOpenType;
+interface TableColumnModel {
+  id: string;
+  label: string;
+  fieldKey: string;
+  width: number;
+  align: ColumnAlignType;
+  ellipsis: boolean;
+  isLink: boolean;
+  linkPath: string;
+  linkParamKey: string;
+  linkValueKey: string;
+  openType: LinkOpenType;
+  showDot: boolean;
+  dotFieldKey: string;
+  dotTruthyValue: string;
+}
+
+interface BaseTableContentData {
+  container: UnifiedContainerContentConfigModel;
+  dataSource: {
+    mode: DataModeType;
+    staticRowsJson: string;
+    method: HttpMethodType;
+    apiUrl: string;
+    headersJson: string;
+    queryJson: string;
+    bodyJson: string;
+    listPath: string;
+    totalPath: string;
+    successPath: string;
+    successValue: string;
+    pageParamKey: string;
+    pageSizeParamKey: string;
+  };
+  table: {
+    showHeader: boolean;
+    showPagination: boolean;
+    showRowDivider: boolean;
     showDot: boolean;
     dotFieldKey: string;
     dotTruthyValue: string;
-  }
+    pageSize: number;
+    pageSizes: number[];
+    emptyText: string;
+    tablePropsJson: string;
+    columns: TableColumnModel[];
+  };
+}
 
-  interface BaseTableContentData {
-    container: UnifiedContainerContentConfigModel;
+const BASE_TABLE_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
+  title: '数据表格',
+  subtitle: '支持静态 JSON 与接口返回映射'
+});
+
+const BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS: BaseTableContentData['dataSource'] = {
+  mode: 'static',
+  staticRowsJson: '[\n  {"title":"示例新闻","publishTime":"2026-03-01","id":"1"}\n]',
+  method: 'GET',
+  apiUrl: '',
+  headersJson: '{}',
+  queryJson: '{}',
+  bodyJson: '{}',
+  listPath: 'data.records',
+  totalPath: 'data.total',
+  successPath: 'code',
+  successValue: '200',
+  pageParamKey: 'currentPage',
+  pageSizeParamKey: 'pageSize'
+};
+
+const BASE_TABLE_CONTENT_TABLE_DEFAULTS: BaseTableContentData['table'] = {
+  showHeader: true,
+  showPagination: true,
+  showRowDivider: true,
+  showDot: false,
+  dotFieldKey: '',
+  dotTruthyValue: '',
+  pageSize: 10,
+  pageSizes: [10, 20, 50],
+  emptyText: '暂无数据',
+  tablePropsJson: '{}',
+  columns: []
+};
+
+const props = defineProps({
+  schema: {
+    type: Object,
+    required: true
+  }
+});
+
+const emit = defineEmits(['schemaChange']);
+
+const { sectionData } = useSchemaConfig<BaseTableContentData>({
+  name: 'base-table-content',
+  sections: {
+    container: {
+      defaultValue: BASE_TABLE_CONTENT_CONTAINER_DEFAULTS
+    },
     dataSource: {
-      mode: DataModeType;
-      staticRowsJson: string;
-      method: HttpMethodType;
-      apiUrl: string;
-      headersJson: string;
-      queryJson: string;
-      bodyJson: string;
-      listPath: string;
-      totalPath: string;
-      successPath: string;
-      successValue: string;
-      pageParamKey: string;
-      pageSizeParamKey: string;
-    };
+      defaultValue: BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS
+    },
     table: {
-      showHeader: boolean;
-      showPagination: boolean;
-      showRowDivider: boolean;
-      showDot: boolean;
-      dotFieldKey: string;
-      dotTruthyValue: string;
-      pageSize: number;
-      pageSizes: number[];
-      emptyText: string;
-      tablePropsJson: string;
-      columns: TableColumnModel[];
-    };
+      defaultValue: BASE_TABLE_CONTENT_TABLE_DEFAULTS
+    }
+  },
+  schema: props.schema,
+  onChange: (newSchema) => {
+    emit('schemaChange', 'content', newSchema);
   }
+});
 
-  const props = defineProps({
-    schema: {
-      type: Object,
-      required: true,
-    },
-  });
+function createColumn(seed: number): TableColumnModel {
+  return {
+    id: `column-${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${seed}`,
+    label: `列${seed}`,
+    fieldKey: '',
+    width: 0,
+    align: 'left',
+    ellipsis: true,
+    isLink: false,
+    linkPath: '',
+    linkParamKey: 'id',
+    linkValueKey: 'id',
+    openType: 'router',
+    showDot: false,
+    dotFieldKey: '',
+    dotTruthyValue: ''
+  };
+}
 
-  const emit = defineEmits(['schemaChange']);
+function normalizeColumn(item: Partial<TableColumnModel>, index: number): TableColumnModel {
+  const align = item.align === 'center' || item.align === 'right' ? item.align : 'left';
+  const openType: LinkOpenType =
+    item.openType === 'newTab' || item.openType === 'current' ? item.openType : 'router';
+  return {
+    id: String(item.id || `column-${index + 1}`),
+    label: String(item.label || `列${index + 1}`),
+    fieldKey: String(item.fieldKey || ''),
+    width: Number.isFinite(Number(item.width)) ? Number(item.width) : 0,
+    align,
+    ellipsis: item.ellipsis !== false,
+    isLink: item.isLink === true,
+    linkPath: String(item.linkPath || ''),
+    linkParamKey: String(item.linkParamKey || 'id'),
+    linkValueKey: String(item.linkValueKey || item.fieldKey || 'id'),
+    openType,
+    showDot: item.showDot === true,
+    dotFieldKey: String(item.dotFieldKey || ''),
+    dotTruthyValue: String(item.dotTruthyValue || '')
+  };
+}
 
-  const { sectionData } = useSchemaConfig<BaseTableContentData>({
-    name: 'base-table-content',
-    sections: {
-      container: {},
-      dataSource: {},
-      table: {},
-    },
-    schema: props.schema,
-    onChange: (newSchema) => {
-      emit('schemaChange', 'content', newSchema);
-    },
-  });
-
-  function createColumn(seed: number): TableColumnModel {
-    return {
-      id: `column-${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${seed}`,
-      label: `列${seed}`,
-      fieldKey: '',
-      width: 0,
-      align: 'left',
-      ellipsis: true,
-      isLink: false,
-      linkPath: '',
-      linkParamKey: 'id',
-      linkValueKey: 'id',
-      openType: 'router',
-      showDot: false,
-      dotFieldKey: '',
-      dotTruthyValue: '',
-    };
-  }
-
-  function normalizeColumn(item: Partial<TableColumnModel>, index: number): TableColumnModel {
-    const align = item.align === 'center' || item.align === 'right' ? item.align : 'left';
-    const openType: LinkOpenType =
-      item.openType === 'newTab' || item.openType === 'current' ? item.openType : 'router';
-    return {
-      id: String(item.id || `column-${index + 1}`),
-      label: String(item.label || `列${index + 1}`),
-      fieldKey: String(item.fieldKey || ''),
-      width: Number.isFinite(Number(item.width)) ? Number(item.width) : 0,
-      align,
-      ellipsis: item.ellipsis !== false,
-      isLink: item.isLink === true,
-      linkPath: String(item.linkPath || ''),
-      linkParamKey: String(item.linkParamKey || 'id'),
-      linkValueKey: String(item.linkValueKey || item.fieldKey || 'id'),
-      openType,
-      showDot: item.showDot === true,
-      dotFieldKey: String(item.dotFieldKey || ''),
-      dotTruthyValue: String(item.dotTruthyValue || ''),
-    };
-  }
-
-  sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
-  sectionData.dataSource = {
-    mode: sectionData.dataSource?.mode === 'api' ? 'api' : 'static',
-    staticRowsJson:
-      typeof sectionData.dataSource?.staticRowsJson === 'string'
-        ? sectionData.dataSource.staticRowsJson
-        : '[\n  {"title":"示例新闻","publishTime":"2026-03-01","id":"1"}\n]',
-    method:
-      sectionData.dataSource?.method === 'POST' ||
-      sectionData.dataSource?.method === 'PUT' ||
-      sectionData.dataSource?.method === 'PATCH'
-        ? sectionData.dataSource.method
-        : 'GET',
-    apiUrl: typeof sectionData.dataSource?.apiUrl === 'string' ? sectionData.dataSource.apiUrl : '',
-    headersJson: typeof sectionData.dataSource?.headersJson === 'string' ? sectionData.dataSource.headersJson : '{}',
-    queryJson: typeof sectionData.dataSource?.queryJson === 'string' ? sectionData.dataSource.queryJson : '{}',
-    bodyJson: typeof sectionData.dataSource?.bodyJson === 'string' ? sectionData.dataSource.bodyJson : '{}',
-    listPath: typeof sectionData.dataSource?.listPath === 'string' && sectionData.dataSource.listPath.trim()
+sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
+sectionData.dataSource = {
+  mode: sectionData.dataSource?.mode === 'api' ? 'api' : 'static',
+  staticRowsJson:
+    typeof sectionData.dataSource?.staticRowsJson === 'string'
+      ? sectionData.dataSource.staticRowsJson
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.staticRowsJson,
+  method:
+    sectionData.dataSource?.method === 'POST' ||
+    sectionData.dataSource?.method === 'PUT' ||
+    sectionData.dataSource?.method === 'PATCH'
+      ? sectionData.dataSource.method
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.method,
+  apiUrl:
+    typeof sectionData.dataSource?.apiUrl === 'string'
+      ? sectionData.dataSource.apiUrl
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.apiUrl,
+  headersJson:
+    typeof sectionData.dataSource?.headersJson === 'string'
+      ? sectionData.dataSource.headersJson
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.headersJson,
+  queryJson:
+    typeof sectionData.dataSource?.queryJson === 'string'
+      ? sectionData.dataSource.queryJson
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.queryJson,
+  bodyJson:
+    typeof sectionData.dataSource?.bodyJson === 'string'
+      ? sectionData.dataSource.bodyJson
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.bodyJson,
+  listPath:
+    typeof sectionData.dataSource?.listPath === 'string' && sectionData.dataSource.listPath.trim()
       ? sectionData.dataSource.listPath
-      : 'data.records',
-    totalPath: typeof sectionData.dataSource?.totalPath === 'string' && sectionData.dataSource.totalPath.trim()
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.listPath,
+  totalPath:
+    typeof sectionData.dataSource?.totalPath === 'string' && sectionData.dataSource.totalPath.trim()
       ? sectionData.dataSource.totalPath
-      : 'data.total',
-    successPath:
-      typeof sectionData.dataSource?.successPath === 'string' && sectionData.dataSource.successPath.trim()
-        ? sectionData.dataSource.successPath
-        : 'code',
-    successValue:
-      typeof sectionData.dataSource?.successValue === 'string' && sectionData.dataSource.successValue.trim()
-        ? sectionData.dataSource.successValue
-        : '200',
-    pageParamKey:
-      typeof sectionData.dataSource?.pageParamKey === 'string' && sectionData.dataSource.pageParamKey.trim()
-        ? sectionData.dataSource.pageParamKey
-        : 'currentPage',
-    pageSizeParamKey:
-      typeof sectionData.dataSource?.pageSizeParamKey === 'string' && sectionData.dataSource.pageSizeParamKey.trim()
-        ? sectionData.dataSource.pageSizeParamKey
-        : 'pageSize',
-  };
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.totalPath,
+  successPath:
+    typeof sectionData.dataSource?.successPath === 'string' &&
+    sectionData.dataSource.successPath.trim()
+      ? sectionData.dataSource.successPath
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.successPath,
+  successValue:
+    typeof sectionData.dataSource?.successValue === 'string' &&
+    sectionData.dataSource.successValue.trim()
+      ? sectionData.dataSource.successValue
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.successValue,
+  pageParamKey:
+    typeof sectionData.dataSource?.pageParamKey === 'string' &&
+    sectionData.dataSource.pageParamKey.trim()
+      ? sectionData.dataSource.pageParamKey
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.pageParamKey,
+  pageSizeParamKey:
+    typeof sectionData.dataSource?.pageSizeParamKey === 'string' &&
+    sectionData.dataSource.pageSizeParamKey.trim()
+      ? sectionData.dataSource.pageSizeParamKey
+      : BASE_TABLE_CONTENT_DATA_SOURCE_DEFAULTS.pageSizeParamKey
+};
 
-  const rawColumns = Array.isArray(sectionData.table?.columns) ? sectionData.table.columns : [];
-  sectionData.table = {
-    showHeader: sectionData.table?.showHeader !== false,
-    showPagination: sectionData.table?.showPagination !== false,
-    showRowDivider: sectionData.table?.showRowDivider !== false,
-    showDot: sectionData.table?.showDot === true,
-    dotFieldKey: typeof sectionData.table?.dotFieldKey === 'string' ? sectionData.table.dotFieldKey : '',
-    dotTruthyValue: typeof sectionData.table?.dotTruthyValue === 'string' ? sectionData.table.dotTruthyValue : '',
-    pageSize: Math.max(1, toPositiveNumber(sectionData.table?.pageSize, 10)),
-    pageSizes:
-      Array.isArray(sectionData.table?.pageSizes) && sectionData.table.pageSizes.length
-        ? sectionData.table.pageSizes.map((item) => Math.max(1, Number(item) || 10))
-        : [10, 20, 50],
-    emptyText: typeof sectionData.table?.emptyText === 'string' && sectionData.table.emptyText.trim()
+const rawColumns = Array.isArray(sectionData.table?.columns) ? sectionData.table.columns : [];
+sectionData.table = {
+  showHeader: sectionData.table?.showHeader !== false,
+  showPagination: sectionData.table?.showPagination !== false,
+  showRowDivider: sectionData.table?.showRowDivider !== false,
+  showDot: sectionData.table?.showDot === true,
+  dotFieldKey:
+    typeof sectionData.table?.dotFieldKey === 'string' ? sectionData.table.dotFieldKey : '',
+  dotTruthyValue:
+    typeof sectionData.table?.dotTruthyValue === 'string' ? sectionData.table.dotTruthyValue : '',
+  pageSize: Math.max(
+    1,
+    toPositiveNumber(sectionData.table?.pageSize, BASE_TABLE_CONTENT_TABLE_DEFAULTS.pageSize)
+  ),
+  pageSizes:
+    Array.isArray(sectionData.table?.pageSizes) && sectionData.table.pageSizes.length
+      ? sectionData.table.pageSizes.map((item) => Math.max(1, Number(item) || 10))
+      : [...BASE_TABLE_CONTENT_TABLE_DEFAULTS.pageSizes],
+  emptyText:
+    typeof sectionData.table?.emptyText === 'string' && sectionData.table.emptyText.trim()
       ? sectionData.table.emptyText
-      : '暂无数据',
-    tablePropsJson: typeof sectionData.table?.tablePropsJson === 'string' ? sectionData.table.tablePropsJson : '{}',
-    columns: rawColumns.length ? rawColumns.map((item, index) => normalizeColumn(item, index)) : [createColumn(1)],
-  };
+      : BASE_TABLE_CONTENT_TABLE_DEFAULTS.emptyText,
+  tablePropsJson:
+    typeof sectionData.table?.tablePropsJson === 'string'
+      ? sectionData.table.tablePropsJson
+      : BASE_TABLE_CONTENT_TABLE_DEFAULTS.tablePropsJson,
+  columns: rawColumns.length
+    ? rawColumns.map((item, index) => normalizeColumn(item, index))
+    : [createColumn(1)]
+};
 
-  const defaultContainerContent = createDefaultUnifiedContainerContentConfig();
-  if (!sectionData.container.title.trim()) {
-    sectionData.container.title = '数据表格';
+const pageSizesText = computed({
+  get: () => sectionData.table.pageSizes.join(','),
+  set: (value: string) => {
+    const values = normalizeStringArray(value)
+      .map((item) => Number(item))
+      .filter((item) => Number.isFinite(item) && item > 0)
+      .map((item) => Math.floor(item));
+    sectionData.table.pageSizes = values.length
+      ? values
+      : [...BASE_TABLE_CONTENT_TABLE_DEFAULTS.pageSizes];
   }
-  if (!sectionData.container.subtitle.trim()) {
-    sectionData.container.subtitle = '支持静态 JSON 与接口返回映射';
-  }
-  if (!sectionData.container.externalLinkText.trim()) {
-    sectionData.container.externalLinkText = defaultContainerContent.externalLinkText;
-  }
+});
 
-  const pageSizesText = computed({
-    get: () => sectionData.table.pageSizes.join(','),
-    set: (value: string) => {
-      const values = normalizeStringArray(value)
-        .map((item) => Number(item))
-        .filter((item) => Number.isFinite(item) && item > 0)
-        .map((item) => Math.floor(item));
-      sectionData.table.pageSizes = values.length ? values : [10, 20, 50];
-    },
-  });
+function addColumn() {
+  sectionData.table.columns.push(createColumn(sectionData.table.columns.length + 1));
+}
 
-  function addColumn() {
-    sectionData.table.columns.push(createColumn(sectionData.table.columns.length + 1));
-  }
+function removeColumn(index: number) {
+  sectionData.table.columns.splice(index, 1);
+}
 
-  function removeColumn(index: number) {
-    sectionData.table.columns.splice(index, 1);
-  }
-
-  defineOptions({
-    name: 'base-table-content',
-  });
+defineOptions({
+  name: 'base-table-content'
+});
 </script>
 
 <style scoped>
-  .content-config {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+.content-config {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  .column-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 10px;
-  }
+.column-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 10px;
+}
 
-  .column-empty {
-    border: 1px dashed var(--el-border-color);
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 12px;
-    color: #64748b;
-    background: #f8fafc;
-  }
+.column-empty {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  color: #64748b;
+  background: #f8fafc;
+}
 
-  .column-card {
-    border: 1px solid var(--el-border-color-lighter);
-    border-radius: 8px;
-    padding: 12px;
-    background: #fff;
-  }
+.column-card {
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
 
-  .column-card__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #334155;
-  }
+.column-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
 </style>

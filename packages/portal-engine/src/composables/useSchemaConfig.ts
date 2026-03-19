@@ -36,6 +36,21 @@ function toPlainObject(value: unknown): SchemaObject {
   return value as SchemaObject;
 }
 
+function mergeSectionValue(section: SectionConfig | undefined, value: unknown): SchemaObject {
+  return {
+    ...toPlainObject(section?.defaultValue),
+    ...toPlainObject(value)
+  };
+}
+
+function resolveSectionValue(
+  sections: Record<string, SectionConfig>,
+  key: string,
+  source?: Record<string, unknown>
+): SchemaObject {
+  return mergeSectionValue(sections[key], source?.[key]);
+}
+
 /**
  * 用于管理多个子组件数据与 schema 同步的 hooks
  *
@@ -51,7 +66,7 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
 
   // 初始化响应式数据 - 使用 schema 中的数据
   Object.keys(sections).forEach((key) => {
-    const initialValue = schema?.[key] ? { ...toPlainObject(schema[key]) } : {};
+    const initialValue = resolveSectionValue(sections, key, schema);
     sectionRefs[key] = ref(initialValue as SchemaObject);
   });
 
@@ -61,7 +76,7 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
     ...Object.keys(sections).reduce<SchemaObject>((acc, key) => {
       acc[key] = { ...sectionRefs[key]?.value };
       return acc;
-    }, {}),
+    }, {})
   });
 
   // 创建代理对象，直接暴露给组件使用
@@ -71,14 +86,14 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
     Object.defineProperty(sectionData, key, {
       get: () => sectionRefs[key]?.value,
       set: (newValue) => {
-        const obj = toPlainObject(newValue);
+        const obj = mergeSectionValue(sections[key], newValue);
         sectionRefs[key]!.value = obj;
         contentData.value[key] = { ...obj };
         nextTick(() => {
           updateSchema();
         });
       },
-      enumerable: true,
+      enumerable: true
     });
   });
 
@@ -90,26 +105,24 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
         return;
       }
 
+      const normalizedSchema = toPlainObject(newVal);
+
       Object.keys(sections).forEach((key) => {
-        if (newVal[key]) {
-          sectionRefs[key]!.value = { ...toPlainObject(newVal[key]) };
-        }
+        sectionRefs[key]!.value = resolveSectionValue(sections, key, normalizedSchema);
       });
 
       contentData.value = {
-        ...newVal,
-        name: typeof newVal.name === 'string' ? newVal.name : name,
+        ...normalizedSchema,
+        name: typeof normalizedSchema.name === 'string' ? normalizedSchema.name : name,
         ...Object.keys(sections).reduce<SchemaObject>((acc, key) => {
-          if (newVal[key]) {
-            acc[key] = { ...toPlainObject(newVal[key]) };
-          }
+          acc[key] = resolveSectionValue(sections, key, normalizedSchema);
           return acc;
-        }, {}),
+        }, {})
       };
     },
     {
       immediate: true,
-      deep: true,
+      deep: true
     }
   );
 
@@ -133,7 +146,7 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
       ...Object.keys(sections).reduce<SchemaObject>((acc, key) => {
         acc[key] = { ...toPlainObject(contentData.value[key]) };
         return acc;
-      }, {}),
+      }, {})
     };
 
     onChange?.(schemaData);
@@ -142,6 +155,6 @@ export function useSchemaConfig<T extends object = Record<string, unknown>>(
   return {
     sectionData,
     contentData,
-    updateSchema,
+    updateSchema
   };
 }

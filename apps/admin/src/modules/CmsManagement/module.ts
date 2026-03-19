@@ -1,13 +1,13 @@
-import type { AppModuleManifest } from "@one-base-template/core";
-import { moduleManifest } from "./manifest";
-import layoutRoutes from "./routes";
+import type { AppModuleManifest } from '@one-base-template/core';
+import { moduleManifest } from './manifest';
+import layoutRoutes from './routes';
 
 const cmsManagementModule: AppModuleManifest = {
   ...moduleManifest,
-  apiNamespace: "cms-management",
+  apiNamespace: 'cms-management',
   routes: {
-    layout: layoutRoutes,
-  },
+    layout: layoutRoutes
+  }
 };
 
 export default cmsManagementModule;

@@ -1,16 +1,24 @@
-import type { RouteRecordRaw } from "vue-router";
-import { type EnabledModulesSetting, buildFixedRoutes, getInitialPath } from "@one-base-template/core";
-import { AdminLayout } from "@one-base-template/ui/shell";
-import { DEFAULT_FALLBACK_HOME } from "../config/systems";
-import { buildAliasRoutes, buildRoutes, createRouteAssemblyValidator } from "./route-assembly-builder";
-import { publicRoutes } from "./public-routes";
+import type { RouteRecordRaw } from 'vue-router';
+import {
+  type EnabledModulesSetting,
+  buildFixedRoutes,
+  getInitialPath
+} from '@one-base-template/core';
+import { AdminLayout } from '@one-base-template/ui/shell';
+import { DEFAULT_FALLBACK_HOME } from '../config/systems';
+import {
+  buildAliasRoutes,
+  buildRoutes,
+  createRouteAssemblyValidator
+} from './route-assembly-builder';
+import { publicRoutes } from './public-routes';
 
-import { getEnabledModules } from "./registry";
-import { routePaths } from "./constants";
+import { getEnabledModules } from './registry';
+import { routePaths } from './constants';
 
 const PUBLIC_ROUTE_META = Object.freeze({
   public: true,
-  hiddenTab: true,
+  hiddenTab: true
 });
 type RouteAssemblyArtifacts = {
   standaloneRoutes: RouteRecordRaw[];
@@ -30,13 +38,15 @@ export interface AppRouteAssemblyOptions {
   storageNamespace: string;
 }
 
-function getDefaultHomePath(options: Pick<AppRouteAssemblyOptions, "defaultSystemCode" | "systemHomeMap" | "storageNamespace">): string {
+function getDefaultHomePath(
+  options: Pick<AppRouteAssemblyOptions, 'defaultSystemCode' | 'systemHomeMap' | 'storageNamespace'>
+): string {
   const { defaultSystemCode, systemHomeMap, storageNamespace } = options;
   return getInitialPath({
     defaultSystemCode,
     systemHomeMap,
     storageNamespace,
-    fallbackHome: DEFAULT_FALLBACK_HOME,
+    fallbackHome: DEFAULT_FALLBACK_HOME
   });
 }
 
@@ -54,28 +64,30 @@ function collectModuleRoutes(params: {
   return {
     standaloneRoutes: buildRoutes({
       modules,
-      source: "standalone",
-      validator,
+      source: 'standalone',
+      validator
     }),
     aliasRoutes: buildAliasRoutes({
       modules,
-      validator,
+      validator
     }),
     layoutRoutes: buildRoutes({
       modules,
-      source: "layout",
-      validator,
-    }),
+      source: 'layout',
+      validator
+    })
   };
 }
 
-export async function assembleRoutes(options: AppRouteAssemblyOptions): Promise<AppRouteAssemblyResult> {
+export async function assembleRoutes(
+  options: AppRouteAssemblyOptions
+): Promise<AppRouteAssemblyResult> {
   const modules = await getEnabledModules(options.enabledModules);
   const validator = createRouteAssemblyValidator();
 
   const { standaloneRoutes, aliasRoutes, layoutRoutes } = collectModuleRoutes({
     modules,
-    validator,
+    validator
   });
 
   // 路由顺序保持“模块 standalone -> 历史 alias -> 固定公共路由”，与守卫白名单生成保持一致。
@@ -90,14 +102,14 @@ export async function assembleRoutes(options: AppRouteAssemblyOptions): Promise<
       publicRouteMeta: PUBLIC_ROUTE_META,
       publicRoutes,
       // 通配 404 使用 replace，避免无效地址回退后再次命中通配造成历史栈污染。
-      notFoundCatchallPath: routePaths.catchall,
-    }),
+      notFoundCatchallPath: routePaths.catchall
+    })
   ];
 
   const skipMenuAuthRouteNames = validator.listSkipAuthRouteNames();
 
   return {
     routes,
-    skipMenuAuthRouteNames,
+    skipMenuAuthRouteNames
   };
 }

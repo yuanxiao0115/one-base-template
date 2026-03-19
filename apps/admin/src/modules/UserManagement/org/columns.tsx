@@ -1,62 +1,62 @@
-import type { TableColumnList } from "@one-base-template/ui";
+import type { TableColumnList } from '@one-base-template/ui';
 
 export const orgColumns: TableColumnList = [
   {
-    label: "组织全称",
-    prop: "orgName",
+    label: '组织全称',
+    prop: 'orgName',
     minWidth: 220,
     treeNode: true,
-    slot: "orgName",
-    showOverflowTooltip: true,
+    slot: 'orgName',
+    showOverflowTooltip: true
   },
   {
-    label: "组织简称",
-    prop: "briefName",
+    label: '组织简称',
+    prop: 'briefName',
     minWidth: 180,
-    showOverflowTooltip: true,
+    showOverflowTooltip: true
   },
   {
-    label: "排序",
-    prop: "sort",
+    label: '排序',
+    prop: 'sort',
     width: 90,
-    align: "right",
+    align: 'right'
   },
   {
-    label: "组织类型",
-    prop: "orgCategory",
+    label: '组织类型',
+    prop: 'orgCategory',
     minWidth: 150,
-    slot: "orgCategory",
+    slot: 'orgCategory'
   },
   {
-    label: "等级",
-    prop: "orgLevelName",
+    label: '等级',
+    prop: 'orgLevelName',
     minWidth: 120,
-    showOverflowTooltip: true,
+    showOverflowTooltip: true
   },
   {
-    label: "机构类别",
-    prop: "institutionalType",
+    label: '机构类别',
+    prop: 'institutionalType',
     minWidth: 150,
-    slot: "institutionalType",
+    slot: 'institutionalType'
   },
   {
-    label: "统一社会信用代码",
-    prop: "uscc",
+    label: '统一社会信用代码',
+    prop: 'uscc',
     minWidth: 180,
-    showOverflowTooltip: true,
+    showOverflowTooltip: true
   },
   {
-    label: "创建时间",
-    prop: "createTime",
-    minWidth: 180,
+    label: '创建时间',
+    prop: 'createTime',
+    minWidth: 180
   },
   {
-    label: "操作",
-    fixed: "right",
+    label: '操作',
+    fixed: 'right',
     width: 280,
-    align: "right",
-    slot: "operation",
-  },
+    align: 'right',
+    slot: 'operation'
+  }
 ];
 
 export default orgColumns;

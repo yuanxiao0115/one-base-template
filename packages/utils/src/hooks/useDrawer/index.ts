@@ -12,7 +12,7 @@ export enum DrawerMode {
   Add = 'add',
   Update = 'update',
   View = 'view',
-  Copy = 'copy',
+  Copy = 'copy'
 }
 
 /**
@@ -127,7 +127,7 @@ export function useDrawer(options: UseDrawerOptions = {}): UseDrawerReturn {
     onSuccess,
     onError,
     size: defaultSize = '50%',
-    direction: defaultDirection = 'rtl',
+    direction: defaultDirection = 'rtl'
   } = options;
 
   const visible: Ref<boolean> = ref(false);
@@ -144,7 +144,7 @@ export function useDrawer(options: UseDrawerOptions = {}): UseDrawerReturn {
       [DrawerMode.Add]: '新增',
       [DrawerMode.Update]: '编辑',
       [DrawerMode.View]: '查看',
-      [DrawerMode.Copy]: '复制',
+      [DrawerMode.Copy]: '复制'
     };
     return `${modeText[mode.value]}${baseTitle}`;
   });
@@ -167,7 +167,11 @@ export function useDrawer(options: UseDrawerOptions = {}): UseDrawerReturn {
     // 重置详情数据
     detailData.value = {};
 
-    if (newMode === DrawerMode.Update || newMode === DrawerMode.View || newMode === DrawerMode.Copy) {
+    if (
+      newMode === DrawerMode.Update ||
+      newMode === DrawerMode.View ||
+      newMode === DrawerMode.Copy
+    ) {
       try {
         if (detailApi) {
           // 使用API获取详情
@@ -281,7 +285,7 @@ export function useDrawer(options: UseDrawerOptions = {}): UseDrawerReturn {
     openDrawer,
     closeDrawer,
     submit,
-    resetForm,
+    resetForm
   };
 }
 

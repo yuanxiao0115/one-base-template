@@ -1,39 +1,45 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import type { FormInstance, FormRules } from "element-plus";
-  import type { CrudFormLike } from "@one-base-template/ui";
-  import type { ColumnForm, ColumnTreeOption } from "../form";
+import { ref } from 'vue';
+import type { FormInstance, FormRules } from 'element-plus';
+import type { CrudFormLike } from '@one-base-template/ui';
+import type { ColumnForm, ColumnTreeOption } from '../form';
 
-  const props = defineProps<{
-    rules: FormRules<ColumnForm>;
-    disabled: boolean;
-    columnTreeOptions: ColumnTreeOption[];
-  }>();
+const props = defineProps<{
+  rules: FormRules<ColumnForm>;
+  disabled: boolean;
+  columnTreeOptions: ColumnTreeOption[];
+}>();
 
-  const model = defineModel<ColumnForm>({ required: true });
-  const formRef = ref<FormInstance>();
+const model = defineModel<ColumnForm>({ required: true });
+const formRef = ref<FormInstance>();
 
-  function handleParentChange(value: string | undefined) {
-    if (value && model.value.id && value === model.value.id) {
-      model.value.parentCategoryId = "";
-    }
+function handleParentChange(value: string | undefined) {
+  if (value && model.value.id && value === model.value.id) {
+    model.value.parentCategoryId = '';
   }
+}
 
-  defineExpose<CrudFormLike>({
-    validate: (...args) => {
-      const [callback] = args;
-      if (callback) {
-        return formRef.value?.validate?.(callback);
-      }
-      return formRef.value?.validate?.();
-    },
-    clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
-    resetFields: (...args) => formRef.value?.resetFields?.(...args),
-  });
+defineExpose<CrudFormLike>({
+  validate: (...args) => {
+    const [callback] = args;
+    if (callback) {
+      return formRef.value?.validate?.(callback);
+    }
+    return formRef.value?.validate?.();
+  },
+  clearValidate: (...args) => formRef.value?.clearValidate?.(...args),
+  resetFields: (...args) => formRef.value?.resetFields?.(...args)
+});
 </script>
 
 <template>
-  <el-form ref="formRef" :model :rules="props.rules" label-position="top" :disabled="props.disabled">
+  <el-form
+    ref="formRef"
+    :model
+    :rules="props.rules"
+    label-position="top"
+    :disabled="props.disabled"
+  >
     <el-form-item label="上级栏目" prop="parentCategoryId">
       <el-tree-select
         v-model="model.parentCategoryId"
@@ -50,7 +56,12 @@
     </el-form-item>
 
     <el-form-item label="栏目名称" prop="categoryName">
-      <el-input v-model.trim="model.categoryName" maxlength="50" show-word-limit placeholder="请输入栏目名称" />
+      <el-input
+        v-model.trim="model.categoryName"
+        maxlength="50"
+        show-word-limit
+        placeholder="请输入栏目名称"
+      />
     </el-form-item>
 
     <el-form-item label="是否显示" prop="isShow">

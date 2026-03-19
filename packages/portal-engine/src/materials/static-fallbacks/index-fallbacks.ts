@@ -1,0 +1,90 @@
+import type { StaticMaterialFallback } from '../material-component-loader';
+import AppEntranceIndex from '../base/app-entrance/index.vue';
+import BaseButtonGroupIndex from '../base/base-button-group/index.vue';
+import BaseCardListIndex from '../base/base-card-list/index.vue';
+import BaseFileListIndex from '../base/base-file-list/index.vue';
+import BaseFormIndex from '../base/base-form/index.vue';
+import BaseIframeContainerIndex from '../base/base-iframe-container/index.vue';
+import BaseNoticeIndex from '../base/base-notice/index.vue';
+import BaseSearchBoxIndex from '../base/base-search-box/index.vue';
+import BaseSimpleContainerIndex from '../base/base-simple-container/index.vue';
+import BaseStatIndex from '../base/base-stat/index.vue';
+import BaseTabContainerIndex from '../base/base-tab-container/index.vue';
+import BaseTimelineIndex from '../base/base-timeline/index.vue';
+import ImageLinkListIndex from '../base/image-link-list/index.vue';
+import TransparentPlaceholderIndex from '../base/transparent-placeholder/index.vue';
+
+export const STATIC_INDEX_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
+  {
+    name: 'base-transparent-placeholder-index',
+    section: 'index',
+    component: TransparentPlaceholderIndex
+  },
+  {
+    name: 'base-iframe-container-index',
+    section: 'index',
+    component: BaseIframeContainerIndex
+  },
+  {
+    name: 'base-tab-container-index',
+    section: 'index',
+    component: BaseTabContainerIndex
+  },
+  {
+    name: 'base-simple-container-index',
+    section: 'index',
+    component: BaseSimpleContainerIndex
+  },
+  {
+    name: 'app-entrance-index',
+    section: 'index',
+    aliases: ['base-app-entrance-index'],
+    component: AppEntranceIndex
+  },
+  {
+    name: 'image-link-list-index',
+    section: 'index',
+    aliases: ['base-image-link-list-index'],
+    component: ImageLinkListIndex
+  },
+  {
+    name: 'base-button-group-index',
+    section: 'index',
+    component: BaseButtonGroupIndex
+  },
+  {
+    name: 'base-search-box-index',
+    section: 'index',
+    component: BaseSearchBoxIndex
+  },
+  {
+    name: 'base-notice-index',
+    section: 'index',
+    component: BaseNoticeIndex
+  },
+  {
+    name: 'base-card-list-index',
+    section: 'index',
+    component: BaseCardListIndex
+  },
+  {
+    name: 'base-form-index',
+    section: 'index',
+    component: BaseFormIndex
+  },
+  {
+    name: 'base-stat-index',
+    section: 'index',
+    component: BaseStatIndex
+  },
+  {
+    name: 'base-file-list-index',
+    section: 'index',
+    component: BaseFileListIndex
+  },
+  {
+    name: 'base-timeline-index',
+    section: 'index',
+    component: BaseTimelineIndex
+  }
+];

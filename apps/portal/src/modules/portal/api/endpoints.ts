@@ -1,16 +1,16 @@
 export const portalEndpoints = {
   tab: {
-    detail: "/cmict/portal/tab/detail",
+    detail: '/cmict/portal/tab/detail'
   },
   templatePublic: {
-    getDetail: "/cmict/portal/public/portal/template/get-detail",
+    getDetail: '/cmict/portal/public/portal/template/get-detail'
   },
   tabPublic: {
-    detail: "/cmict/portal/public/portal/tab/detail",
+    detail: '/cmict/portal/public/portal/tab/detail'
   },
   cms: {
-    categoryTree: "/cmict/cms/cmsCategory/tree",
-    userArticleListPrefix: "/cmict/cms/cmsUser/category",
-    userCarouselListPrefix: "/cmict/cms/cmsUser/category",
-  },
+    categoryTree: '/cmict/cms/cmsCategory/tree',
+    userArticleListPrefix: '/cmict/cms/cmsUser/category',
+    userCarouselListPrefix: '/cmict/cms/cmsUser/category'
+  }
 } as const;

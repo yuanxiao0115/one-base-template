@@ -13,6 +13,7 @@
 ### Task 1: 固化共享拆包策略
 
 **Files:**
+
 - Create: `scripts/vite/manual-chunks.ts`
 
 **Step 1: 写最小实现**
@@ -23,6 +24,7 @@
 - 负责标准化路径并基于 `id` 返回 chunk 名称
 
 覆盖：
+
 - `vue-vendor`
 - `element-plus`
 - `vxe`
@@ -42,6 +44,7 @@
 ### Task 2: 接入 admin 的 build 拆包
 
 **Files:**
+
 - Modify: `apps/admin/vite.config.ts`
 
 **Step 1: 接入 helper**
@@ -51,6 +54,7 @@
 **Step 2: admin feature chunk**
 
 至少拆出：
+
 - `admin-portal`
 - `admin-user-management`
 - `admin-system-management`
@@ -59,6 +63,7 @@
 ### Task 3: 接入 portal / template 的 build 拆包
 
 **Files:**
+
 - Modify: `apps/portal/vite.config.ts`
 - Modify: `apps/template/vite.config.ts`
 
@@ -69,11 +74,13 @@ portal/template 复用同一 helper，仅拆 vendor + workspace shell + app page
 ### Task 4: 更新文档
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/development.md`
 
 **Step 1: 记录构建拆包约定**
 
 补充：
+
 - 共享 `manualChunks` helper 的位置
 - 为什么当前不直接改异步路由
 - 构建 warning 的排查优先级
@@ -81,6 +88,7 @@ portal/template 复用同一 helper，仅拆 vendor + workspace shell + app page
 ### Task 5: 验证与记录
 
 **Files:**
+
 - Modify: `.codex/operations-log.md`
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`
@@ -88,6 +96,7 @@ portal/template 复用同一 helper，仅拆 vendor + workspace shell + app page
 **Step 1: 运行验证**
 
 Run:
+
 - `pnpm build`
 - `pnpm -C apps/docs lint`
 

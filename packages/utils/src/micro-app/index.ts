@@ -48,13 +48,16 @@ export interface MicroAppDependencies {
  * )
  * ```
  */
-export function getMicroData(otherParams: Record<string, any>, dependencies: MicroAppDependencies): MicroAppData {
+export function getMicroData(
+  otherParams: Record<string, any>,
+  dependencies: MicroAppDependencies
+): MicroAppData {
   return {
     token: dependencies.getToken(),
     userInfo: dependencies.getUserInfo(),
     logOutFn: dependencies.getLogoutFn(),
     closeActiveTag: dependencies.closeActiveTag,
-    ...otherParams,
+    ...otherParams
   };
 }
 
@@ -152,12 +155,15 @@ export interface IframeDependencies {
  * )
  * ```
  */
-export function getIframeData(otherParams: Record<string, any>, dependencies: IframeDependencies): IframeData {
+export function getIframeData(
+  otherParams: Record<string, any>,
+  dependencies: IframeDependencies
+): IframeData {
   return {
     token: dependencies.getToken(),
     userInfo: dependencies.getUserInfo(),
     href: window.location.href,
-    ...otherParams,
+    ...otherParams
   };
 }
 
@@ -176,7 +182,10 @@ export function getIframeData(otherParams: Record<string, any>, dependencies: If
  * })
  * ```
  */
-export async function sendBaseInfo(dom: HTMLIFrameElement | null, dependencies: IframeDependencies): Promise<void> {
+export async function sendBaseInfo(
+  dom: HTMLIFrameElement | null,
+  dependencies: IframeDependencies
+): Promise<void> {
   try {
     let frontAllMenu: any[] = [];
     if (dependencies.getFrontAllMenu) {
@@ -225,12 +234,12 @@ export interface SystemConfig {
 export const defaultSystemList: SystemConfig[] = [
   {
     name: '供应链',
-    systemId: 'SUbV0ZhV',
+    systemId: 'SUbV0ZhV'
   },
   {
     name: '区域净利润',
-    systemId: 'G99MnQ1D',
-  },
+    systemId: 'G99MnQ1D'
+  }
 ];
 
 /**

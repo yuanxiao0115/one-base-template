@@ -5,7 +5,11 @@ import { fileURLToPath } from 'node:url';
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const adminSrcDir = path.join(rootDir, 'apps/admin/src');
 const targetExtensions = new Set(['.ts', '.tsx', '.vue']);
-const importMetaEnvAllowList = new Set(['infra/env.ts', 'config/platform-config.ts', 'shared/logger.ts']);
+const importMetaEnvAllowList = new Set([
+  'infra/env.ts',
+  'config/platform-config.ts',
+  'shared/logger.ts'
+]);
 
 /**
  * @typedef {{ file: string; line: number; column: number; message: string }} Violation
@@ -75,7 +79,7 @@ function pushViolationByIndex(file, content, index, message, violations) {
     file,
     line: position.line,
     column: position.column,
-    message,
+    message
   });
 }
 
@@ -151,7 +155,7 @@ function collectImportSources(content) {
     }
     imports.push({
       source,
-      index: match.index ?? 0,
+      index: match.index ?? 0
     });
   }
 
@@ -162,7 +166,7 @@ function collectImportSources(content) {
     }
     imports.push({
       source,
-      index: match.index ?? 0,
+      index: match.index ?? 0
     });
   }
 
@@ -265,7 +269,7 @@ async function main() {
           absolutePath,
           content,
           item.index,
-          "禁止在页面/组件/store 直接引用 infra/http，请改用 service 或在 API 层通过 @one-base-template/core 的 obHttp() 获取。",
+          '禁止在页面/组件/store 直接引用 infra/http，请改用 service 或在 API 层通过 @one-base-template/core 的 obHttp() 获取。',
           violations
         );
       }
@@ -309,7 +313,7 @@ async function main() {
       absolutePath,
       content,
       /\bapp\._context\b/g,
-      "禁止依赖 Vue 私有 API app._context，请通过显式参数传递 appContext。",
+      '禁止依赖 Vue 私有 API app._context，请通过显式参数传递 appContext。',
       violations
     );
 

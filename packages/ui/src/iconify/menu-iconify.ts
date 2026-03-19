@@ -76,7 +76,9 @@ async function loadMenuIconifyCollection(prefix: MenuIconifyPrefix): Promise<Ico
   return task;
 }
 
-export function isMenuIconifyValue(value: string | undefined): value is `${MenuIconifyPrefix}:${string}` {
+export function isMenuIconifyValue(
+  value: string | undefined
+): value is `${MenuIconifyPrefix}:${string}` {
   return Boolean(parseMenuIconifyValue(value));
 }
 
@@ -87,7 +89,7 @@ export function getMenuIconifyPrefix(value: string | undefined): MenuIconifyPref
 export async function ensureMenuIconifyCollectionsRegistered(
   prefix?: MenuIconifyPrefix | MenuIconifyPrefix[]
 ): Promise<void> {
-  await Promise.all(resolvePrefixes(prefix).map(item => loadMenuIconifyCollection(item)));
+  await Promise.all(resolvePrefixes(prefix).map((item) => loadMenuIconifyCollection(item)));
 }
 
 export async function ensureMenuIconifyIconRegistered(value: string | undefined): Promise<void> {

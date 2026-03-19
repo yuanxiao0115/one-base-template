@@ -1,5 +1,5 @@
 ---
-"@one-base-template/lint-ruleset": patch
+'@one-base-template/lint-ruleset': patch
 ---
 
 完善 `@one-base-template/lint-ruleset` 的可发布能力：

@@ -3,17 +3,17 @@
 </template>
 
 <script setup lang="ts">
-  defineOptions({
-    name: 'base-transparent-placeholder-index',
-  });
+defineOptions({
+  name: 'base-transparent-placeholder-index'
+});
 </script>
 
 <style scoped>
-  .transparent-placeholder {
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border: none;
-    pointer-events: none;
-  }
+.transparent-placeholder {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  pointer-events: none;
+}
 </style>

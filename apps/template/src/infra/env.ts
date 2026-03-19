@@ -1,9 +1,9 @@
-import { getPlatformConfig } from "@/config/platform-config";
+import { getPlatformConfig } from '@/config/platform-config';
 import type {
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
-  PlatformMenuMode,
-} from "@one-base-template/core";
+  PlatformMenuMode
+} from '@one-base-template/core';
 
 export type BackendKind = PlatformBackendKind;
 export type AuthMode = PlatformAuthMode;
@@ -28,13 +28,13 @@ export interface AppEnv {
 }
 
 function isNonEmptyString(v: unknown): v is string {
-  return typeof v === "string" && v.length > 0;
+  return typeof v === 'string' && v.length > 0;
 }
 
 export function resolveBuildEnv(): BuildEnv {
   return {
     isProd: import.meta.env.PROD,
-    baseUrl: import.meta.env.BASE_URL,
+    baseUrl: import.meta.env.BASE_URL
   };
 }
 
@@ -50,9 +50,11 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     tokenKey: runtime.tokenKey,
     idTokenKey: runtime.idTokenKey,
     menuMode: runtime.menuMode,
-    storageNamespace: isNonEmptyString(runtime.storageNamespace) ? runtime.storageNamespace : runtime.appcode,
+    storageNamespace: isNonEmptyString(runtime.storageNamespace)
+      ? runtime.storageNamespace
+      : runtime.appcode,
     defaultSystemCode: runtime.defaultSystemCode,
-    systemHomeMap: runtime.systemHomeMap,
+    systemHomeMap: runtime.systemHomeMap
   };
 }
 

@@ -1,17 +1,22 @@
-import { computed, nextTick, onMounted, reactive, ref } from "vue";
-import type { CrudFormLike } from "@one-base-template/ui";
-import { useAuthStore, useTable } from "@one-base-template/core";
-import { message } from "@one-base-template/ui";
+import { computed, nextTick, onMounted, reactive, ref } from 'vue';
+import type { CrudFormLike } from '@one-base-template/ui';
+import { useAuthStore, useTable } from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
 import {
   fetchPersonnelTreeByLegacyApi,
   resolvePersonnelRootParentId,
-  searchPersonnelUsersByStructure,
-} from "@/components/PersonnelSelector/contactDataSource";
-import type { PersonnelNode, PersonnelUserNode } from "@/components/PersonnelSelector/types";
-import roleAssignColumns from "../columns";
-import { roleAssignApi } from "../api";
-import type { RoleMemberRecord, RoleOption } from "../types";
-import type { RoleAssignUserOption } from "../components/RoleAssignMemberSelectForm.vue";
+  searchPersonnelUsersByStructure
+} from '@/components/PersonnelSelector/contactDataSource';
+import type { PersonnelNode, PersonnelUserNode } from '@/components/PersonnelSelector/types';
+import roleAssignColumns from '../columns';
+import { roleAssignApi } from '../api';
+import type { RoleMemberRecord, RoleOption } from '../types';
+import type { RoleAssignUserOption } from '../components/RoleAssignMemberSelectForm.vue';
+import {
+  canTriggerKeywordSearch,
+  DEFAULT_MIN_KEYWORD_LENGTH,
+  normalizeKeyword
+} from '../../shared/keywordSearch';
 
 type MemberSelectFormExpose = CrudFormLike & {
   loadRootNodes?: () => Promise<void>;
@@ -37,21 +42,21 @@ function toRoleAssignUserOptions(records: RoleMemberRecord[]): RoleAssignUserOpt
 
     return {
       id: item.id,
-      nodeType: "user",
+      nodeType: 'user',
       title: nickName,
-      subTitle: userAccount || "--",
+      subTitle: userAccount || '--',
       nickName,
       userAccount,
-      phone: "",
+      phone: ''
     };
   });
 }
 
 function buildRemoveConfirmName(names: string[]): string {
   if (names.length <= 5) {
-    return names.join("、");
+    return names.join('、');
   }
-  return `${names.slice(0, 5).join("、")} 等${names.length}人`;
+  return `${names.slice(0, 5).join('、')} 等${names.length}人`;
 }
 
 export function useRoleAssignPageState() {
@@ -61,7 +66,7 @@ export function useRoleAssignPageState() {
   const memberFormRef = ref<MemberSelectFormExpose>();
 
   const roleLoading = ref(false);
-  const roleKeyword = ref("");
+  const roleKeyword = ref('');
   const roleList = ref<RoleOption[]>([]);
   const currentRole = ref<RoleOption | null>(null);
 
@@ -71,21 +76,21 @@ export function useRoleAssignPageState() {
   const originalMembers = ref<RoleMemberRecord[]>([]);
 
   const searchForm = reactive({
-    roleId: "",
-    keyWord: "",
+    roleId: '',
+    keyWord: ''
   });
 
   const memberForm = reactive<RoleAssignMemberForm>({
-    userIds: [],
+    userIds: []
   });
 
   const tableOpt = reactive({
     query: {
       api: async (params: Record<string, unknown>) => {
-        const roleId = String(params.roleId ?? "");
+        const roleId = String(params.roleId ?? '');
         const currentPage = Number(params.currentPage ?? 1);
         const pageSize = Number(params.pageSize ?? 10);
-        const keyWord = String(params.keyWord ?? "");
+        const keyWord = String(params.keyWord ?? '');
 
         if (!roleId) {
           return {
@@ -94,8 +99,8 @@ export function useRoleAssignPageState() {
               records: [],
               total: 0,
               currentPage,
-              pageSize,
-            },
+              pageSize
+            }
           };
         }
 
@@ -103,17 +108,17 @@ export function useRoleAssignPageState() {
           roleId,
           keyWord,
           currentPage,
-          pageSize,
+          pageSize
         });
       },
       params: searchForm,
       pagination: true,
       immediate: false,
       paginationKey: {
-        current: "currentPage",
-        size: "pageSize",
-      },
-    },
+        current: 'currentPage',
+        size: 'pageSize'
+      }
+    }
   });
 
   const {
@@ -127,14 +132,14 @@ export function useRoleAssignPageState() {
     onSelectionCancel,
     handleSelectionChange,
     handleSizeChange,
-    handleCurrentChange,
+    handleCurrentChange
   } = useTable(tableOpt, tableRef);
 
   const tableColumns = computed(() => roleAssignColumns);
   const tablePagination = computed(() => ({
-    ...pagination,
+    ...pagination
   }));
-  const currentRoleName = computed(() => currentRole.value?.roleName || "角色分配");
+  const currentRoleName = computed(() => currentRole.value?.roleName || '角色分配');
   const rootParentId = computed(() => resolvePersonnelRootParentId(authStore.user));
 
   function resetMemberForm() {
@@ -153,7 +158,7 @@ export function useRoleAssignPageState() {
     onSelectionCancel();
 
     if (roleChanged) {
-      searchForm.keyWord = "";
+      searchForm.keyWord = '';
     }
 
     await onSearch();
@@ -165,10 +170,10 @@ export function useRoleAssignPageState() {
 
     try {
       const response = await roleAssignApi.listRoles({
-        roleName: roleKeyword.value,
+        roleName: roleKeyword.value
       });
       if (response.code !== 200) {
-        throw new Error(response.message || "加载角色列表失败");
+        throw new Error(response.message || '加载角色列表失败');
       }
 
       const rows = Array.isArray(response.data) ? response.data : [];
@@ -176,21 +181,21 @@ export function useRoleAssignPageState() {
 
       if (rows.length === 0) {
         currentRole.value = null;
-        searchForm.roleId = "";
-        searchForm.keyWord = "";
+        searchForm.roleId = '';
+        searchForm.keyWord = '';
         onSelectionCancel();
         clearData();
         return;
       }
 
-      const currentRoleId = keepCurrent ? currentRole.value?.id : "";
+      const currentRoleId = keepCurrent ? currentRole.value?.id : '';
       const nextRole = (currentRoleId && rows.find((item) => item.id === currentRoleId)) || rows[0];
       if (!nextRole) {
         return;
       }
       await selectRole(nextRole);
     } catch (error) {
-      message.error(getErrorMessage(error, "加载角色列表失败"));
+      message.error(getErrorMessage(error, '加载角色列表失败'));
     } finally {
       roleLoading.value = false;
     }
@@ -205,7 +210,7 @@ export function useRoleAssignPageState() {
   }
 
   function onRoleKeywordClear() {
-    roleKeyword.value = "";
+    roleKeyword.value = '';
     void loadRoleList();
   }
 
@@ -219,7 +224,7 @@ export function useRoleAssignPageState() {
   }
 
   function onResetSearch() {
-    searchForm.keyWord = "";
+    searchForm.keyWord = '';
     void onSearch();
   }
 
@@ -230,35 +235,35 @@ export function useRoleAssignPageState() {
   async function removeMembersByIds(ids: string[], names: string[]) {
     const roleId = currentRole.value?.id;
     if (!roleId) {
-      message.warning("请先选择角色");
+      message.warning('请先选择角色');
       return;
     }
 
     if (ids.length === 0) {
-      message.warning("请先选择用户");
+      message.warning('请先选择用户');
       return;
     }
 
     const displayNames = buildRemoveConfirmName(names);
 
     try {
-      await obConfirm.warn(`您确认要移除用户 ${displayNames} 吗？`, "删除确认");
+      await obConfirm.warn(`您确认要移除用户 ${displayNames} 吗？`, '删除确认');
       const response = await roleAssignApi.removeMembers({
         roleId,
-        userIdList: ids,
+        userIdList: ids
       });
       if (response.code !== 200) {
-        throw new Error(response.message || "移除人员失败");
+        throw new Error(response.message || '移除人员失败');
       }
 
-      message.success("移除人员成功");
+      message.success('移除人员成功');
       onSelectionCancel();
       await loadRoleList();
     } catch (error) {
-      if (error === "cancel" || error === "close") {
+      if (error === 'cancel' || error === 'close') {
         return;
       }
-      message.error(getErrorMessage(error, "移除人员失败"));
+      message.error(getErrorMessage(error, '移除人员失败'));
     }
   }
 
@@ -277,21 +282,26 @@ export function useRoleAssignPageState() {
   async function fetchContactNodes(parentId?: string): Promise<PersonnelNode[]> {
     const normalizedParentId = parentId?.trim() ? parentId : rootParentId.value;
     const response = await fetchPersonnelTreeByLegacyApi({
-      parentId: normalizedParentId,
+      parentId: normalizedParentId
     });
     if (response.code !== 200) {
-      throw new Error(response.message || "加载组织通讯录失败");
+      throw new Error(response.message || '加载组织通讯录失败');
     }
 
     return Array.isArray(response.data) ? response.data : [];
   }
 
   async function searchContactUsers(keyword: string): Promise<PersonnelUserNode[]> {
+    const normalizedKeyword = normalizeKeyword(keyword);
+    if (!canTriggerKeywordSearch(normalizedKeyword, DEFAULT_MIN_KEYWORD_LENGTH)) {
+      return [];
+    }
+
     const response = await searchPersonnelUsersByStructure({
-      search: keyword,
+      search: normalizedKeyword
     });
     if (response.code !== 200) {
-      throw new Error(response.message || "搜索人员失败");
+      throw new Error(response.message || '搜索人员失败');
     }
 
     return Array.isArray(response.data) ? response.data : [];
@@ -300,7 +310,7 @@ export function useRoleAssignPageState() {
   async function openAddMembersDialog() {
     const role = currentRole.value;
     if (!role?.id) {
-      message.warning("请先选择角色");
+      message.warning('请先选择角色');
       return;
     }
 
@@ -311,7 +321,7 @@ export function useRoleAssignPageState() {
     try {
       const response = await roleAssignApi.listMembers({ roleId: role.id });
       if (response.code !== 200) {
-        throw new Error(response.message || "加载角色成员失败");
+        throw new Error(response.message || '加载角色成员失败');
       }
 
       const rows = Array.isArray(response.data) ? response.data : [];
@@ -322,7 +332,7 @@ export function useRoleAssignPageState() {
       memberFormRef.value?.setSelectedUsers?.(toRoleAssignUserOptions(rows));
       await memberFormRef.value?.loadRootNodes?.();
     } catch (error) {
-      message.error(getErrorMessage(error, "加载角色成员失败"));
+      message.error(getErrorMessage(error, '加载角色成员失败'));
     } finally {
       memberDialogLoading.value = false;
     }
@@ -340,7 +350,7 @@ export function useRoleAssignPageState() {
 
     const role = currentRole.value;
     if (!role?.id) {
-      message.warning("请先选择角色");
+      message.warning('请先选择角色');
       return;
     }
 
@@ -352,7 +362,9 @@ export function useRoleAssignPageState() {
     memberDialogSubmitting.value = true;
     try {
       const selectedIds = Array.from(new Set(memberForm.userIds.filter(Boolean)));
-      const originalIds = Array.from(new Set(originalMembers.value.map((item) => item.id).filter(Boolean)));
+      const originalIds = Array.from(
+        new Set(originalMembers.value.map((item) => item.id).filter(Boolean))
+      );
 
       const originalSet = new Set(originalIds);
       const selectedSet = new Set(selectedIds);
@@ -361,7 +373,7 @@ export function useRoleAssignPageState() {
       const removeIds = originalIds.filter((id) => !selectedSet.has(id));
 
       if (addIds.length === 0 && removeIds.length === 0) {
-        message.info("角色成员未发生变化");
+        message.info('角色成员未发生变化');
         closeAddMembersDialog();
         return;
       }
@@ -369,29 +381,29 @@ export function useRoleAssignPageState() {
       if (removeIds.length > 0) {
         const removeResponse = await roleAssignApi.removeMembers({
           roleId: role.id,
-          userIdList: removeIds,
+          userIdList: removeIds
         });
         if (removeResponse.code !== 200) {
-          throw new Error(removeResponse.message || "移除角色成员失败");
+          throw new Error(removeResponse.message || '移除角色成员失败');
         }
       }
 
       if (addIds.length > 0) {
         const addResponse = await roleAssignApi.addMembers({
           roleId: role.id,
-          userIdList: addIds,
+          userIdList: addIds
         });
         if (addResponse.code !== 200) {
-          throw new Error(addResponse.message || "添加角色成员失败");
+          throw new Error(addResponse.message || '添加角色成员失败');
         }
       }
 
-      message.success("角色成员保存成功");
+      message.success('角色成员保存成功');
       closeAddMembersDialog();
       onSelectionCancel();
       await loadRoleList();
     } catch (error) {
-      message.error(getErrorMessage(error, "角色成员保存失败"));
+      message.error(getErrorMessage(error, '角色成员保存失败'));
     } finally {
       memberDialogSubmitting.value = false;
     }
@@ -404,7 +416,7 @@ export function useRoleAssignPageState() {
   return {
     refs: {
       tableRef,
-      memberFormRef,
+      memberFormRef
     },
     table: {
       loading,
@@ -413,19 +425,19 @@ export function useRoleAssignPageState() {
       tablePagination,
       selectedNum,
       searchForm,
-      currentRoleName,
+      currentRoleName
     },
     roles: {
       roleLoading,
       roleKeyword,
       roleList,
-      currentRole,
+      currentRole
     },
     dialogs: {
       memberDialogVisible,
       memberDialogLoading,
       memberDialogSubmitting,
-      memberForm,
+      memberForm
     },
     actions: {
       onRoleKeywordUpdate,
@@ -444,7 +456,7 @@ export function useRoleAssignPageState() {
       searchContactUsers,
       openAddMembersDialog,
       closeAddMembersDialog,
-      submitAddMembersDialog,
-    },
+      submitAddMembersDialog
+    }
   };
 }

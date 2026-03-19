@@ -7,12 +7,23 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./designer": {
+      "types": "./src/public-designer.ts",
+      "default": "./src/public-designer.ts"
+    },
+    "./internal": {
+      "types": "./src/internal/index.ts",
+      "default": "./src/internal/index.ts"
     }
   },
   "scripts": {
     "build": "pnpm typecheck",
+    "test": "vp test",
+    "test:run": "vp test run",
+    "verify:materials": "node ../../scripts/check-portal-materials.mjs",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "vp lint ."
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",

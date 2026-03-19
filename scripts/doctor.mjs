@@ -1,16 +1,16 @@
-import path from "node:path";
-import os from "node:os";
-import { execSync } from "node:child_process";
-import { promises as fs } from "node:fs";
+import path from 'node:path';
+import os from 'node:os';
+import { execSync } from 'node:child_process';
+import { promises as fs } from 'node:fs';
 
-const REQUIRED_NODE = "20.11.1";
-const REQUIRED_PNPM = "9.1.4";
+const REQUIRED_NODE = '20.11.1';
+const REQUIRED_PNPM = '9.1.4';
 const LEADING_V_PREFIX_REGEX = /^v/;
 
 function parseVersion(value) {
   return value
-    .replace(LEADING_V_PREFIX_REGEX, "")
-    .split(".")
+    .replace(LEADING_V_PREFIX_REGEX, '')
+    .split('.')
     .map((part) => Number.parseInt(part, 10))
     .map((num) => (Number.isFinite(num) ? num : 0));
 }
@@ -43,15 +43,15 @@ async function fileExists(filePath) {
 }
 
 async function checkCargoProfileWarning() {
-  const bashProfile = path.join(os.homedir(), ".bash_profile");
-  const cargoEnv = path.join(os.homedir(), ".cargo/env");
+  const bashProfile = path.join(os.homedir(), '.bash_profile');
+  const cargoEnv = path.join(os.homedir(), '.cargo/env');
 
   if (!(await fileExists(bashProfile))) {
     return null;
   }
 
-  const content = await fs.readFile(bashProfile, "utf-8");
-  if (!content.includes(".cargo/env")) {
+  const content = await fs.readFile(bashProfile, 'utf-8');
+  if (!content.includes('.cargo/env')) {
     return null;
   }
   if (await fileExists(cargoEnv)) {
@@ -74,23 +74,23 @@ async function main() {
     infos.push(`Node 版本通过：${nodeVersion}`);
   }
 
-  let pnpmVersion = "";
+  let pnpmVersion = '';
   try {
-    pnpmVersion = execSync("pnpm -v", { encoding: "utf-8" }).trim();
+    pnpmVersion = execSync('pnpm -v', { encoding: 'utf-8' }).trim();
     if (compareVersion(pnpmVersion, REQUIRED_PNPM) < 0) {
       errors.push(`pnpm 版本过低：当前 ${pnpmVersion}，要求 >= ${REQUIRED_PNPM}`);
     } else {
       infos.push(`pnpm 版本通过：${pnpmVersion}`);
     }
   } catch {
-    errors.push("未检测到 pnpm，请先安装 pnpm。");
+    errors.push('未检测到 pnpm，请先安装 pnpm。');
   }
 
   const mustFiles = [
-    "apps/admin/public/platform-config.json",
-    "apps/docs/public/cli-naming-whitelist.json",
-    "pnpm-lock.yaml",
-    "turbo.json",
+    'apps/admin/public/platform-config.json',
+    'apps/docs/public/cli-naming-whitelist.json',
+    'pnpm-lock.yaml',
+    'vite.config.ts'
   ];
 
   for (const relPath of mustFiles) {
@@ -107,7 +107,7 @@ async function main() {
     warnings.push(cargoWarning);
   }
 
-  console.log("开发环境自检结果：");
+  console.log('开发环境自检结果：');
   for (const item of infos) {
     console.log(`- OK: ${item}`);
   }

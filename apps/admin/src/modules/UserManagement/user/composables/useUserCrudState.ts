@@ -1,29 +1,36 @@
-import { computed, onMounted, reactive, ref, watch } from "vue";
-import type { CrudFormLike } from "@one-base-template/ui";
-import { useCrudPage } from "@one-base-template/core";
-import { message } from "@one-base-template/ui";
-import buildUserColumns from "../columns";
-import { userApi } from "../api";
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import type { CrudFormLike } from '@one-base-template/ui';
+import { useCrudPage } from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
+import buildUserColumns from '../columns';
+import { userApi } from '../api';
 import type {
   OrgTreeNode,
   PositionItem,
   RoleItem,
   UserDetailData,
   UserListRecord,
-  UserSavePayload,
-} from "../types";
-import { createDefaultUserForm, toUserForm, toUserPayload, type UserForm } from "../form";
-import { userTypeOptions } from "../const";
+  UserSavePayload
+} from '../types';
+import {
+  createDefaultUserForm,
+  createDefaultUserOrg,
+  toUserForm,
+  toUserPayload,
+  type UserForm
+} from '../form';
+import { userTypeOptions } from '../const';
 import {
   assertUniqueCheck,
   shouldCheckUserUnique,
   toUserUniqueSnapshot,
-  type UserUniqueSnapshot,
-} from "../../shared/unique";
-import buildUserListParams from "../utils/buildUserListParams";
-import { useUserStatusActions } from "./useUserStatusActions";
-import { useUserDragSort } from "./useUserDragSort";
-import { useUserRemoteOptions } from "./useUserRemoteOptions";
+  type UserUniqueSnapshot
+} from '../../shared/unique';
+import buildUserListParams from '../utils/buildUserListParams';
+import { useUserStatusActions } from './useUserStatusActions';
+import { useUserDragSort } from './useUserDragSort';
+import { useUserRemoteOptions } from './useUserRemoteOptions';
+import { validateUserSavePayload } from '../utils/validateUserSavePayload';
 
 interface SearchRefExpose {
   resetFields?: () => void;
@@ -33,16 +40,18 @@ interface TreeRefExpose {
   setCurrentKey?: (key?: string | null) => void;
 }
 
-function getUserTypeLabelMap(options: ReadonlyArray<{ value: number; label: string }>): Record<number, string> {
+function getUserTypeLabelMap(
+  options: ReadonlyArray<{ value: number; label: string }>
+): Record<number, string> {
   return Object.fromEntries(options.map((item) => [item.value, item.label]));
 }
 
 function getUserTypeLabel(value: number, labelMap: Record<number, string>): string {
-  return labelMap[value] || "--";
+  return labelMap[value] || '--';
 }
 
-function downloadUserTemplate(filename = "组织用户导入模板.xlsx") {
-  const link = document.createElement("a");
+function downloadUserTemplate(filename = '组织用户导入模板.xlsx') {
+  const link = document.createElement('a');
   link.href = `/${filename}`;
   link.download = filename;
   document.body.appendChild(link);
@@ -62,18 +71,18 @@ export function useUserCrudState() {
   const roleOptions = ref<RoleItem[]>([]);
 
   const searchForm = reactive({
-    nickName: "",
-    phone: "",
-    userAccount: "",
+    nickName: '',
+    phone: '',
+    userAccount: '',
     isEnable: null as boolean | null,
-    mail: "",
+    mail: '',
     date: [] as string[],
-    orgId: "",
+    orgId: ''
   });
 
   const defaultTreeProps = {
-    children: "children",
-    label: "orgName",
+    children: 'children',
+    label: 'orgName'
   };
 
   const canDragSort = computed(() => Boolean(searchForm.orgId));
@@ -84,26 +93,26 @@ export function useUserCrudState() {
       api: async (params: Record<string, unknown>) => userApi.page(buildUserListParams(params)),
       params: searchForm,
       pagination: true,
-      immediate: false,
+      immediate: false
     },
     remove: {
       api: async (payload: { id: string }) => userApi.remove(payload),
       deleteConfirm: {
-        nameKey: "nickName",
+        nameKey: 'nickName',
         requireInput: true,
-        title: "删除确认",
-        message: "此操作不可逆，会删除即时消息相关记录，请输入确认删除的姓名「{name}」",
-        inputPlaceholder: "请输入确认删除的姓名",
-        confirmButtonText: "确认删除",
+        title: '删除确认',
+        message: '此操作不可逆，会删除即时消息相关记录，请输入确认删除的姓名「{name}」',
+        inputPlaceholder: '请输入确认删除的姓名',
+        confirmButtonText: '确认删除'
       },
       onSuccess: () => {
-        message.success("删除用户成功");
+        message.success('删除用户成功');
       },
       onError: (error: unknown) => {
-        const errorMessage = error instanceof Error ? error.message : "删除用户失败";
+        const errorMessage = error instanceof Error ? error.message : '删除用户失败';
         message.error(errorMessage);
-      },
-    },
+      }
+    }
   });
 
   const crudPage = useCrudPage<UserForm, UserListRecord, UserDetailData, UserSavePayload>({
@@ -111,40 +120,27 @@ export function useUserCrudState() {
     tableRef,
     editor: {
       entity: {
-        name: "用户",
+        name: '用户'
       },
       form: {
         create: () => createDefaultUserForm(),
-        ref: editFormRef,
+        ref: editFormRef
       },
       detail: {
         async beforeOpen({ mode, form }) {
           await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()]);
 
-          if (mode === "create") {
+          if (mode === 'create') {
             userUniqueSnapshot.value = null;
-            form.userOrgs = [
-              {
-                orgId: searchForm.orgId || "",
-                orgRankType: null,
-                ownSort: 1,
-                sort: 1,
-                status: 1,
-                postVos: [
-                  {
-                    postId: "",
-                    sort: 1,
-                    status: 1,
-                  },
-                ],
-              },
-            ];
+            const defaultOrg = createDefaultUserOrg();
+            defaultOrg.orgId = searchForm.orgId || '';
+            form.userOrgs = [defaultOrg];
           }
         },
         async load({ row }) {
           const response = await userApi.detail({ id: row.id });
           if (response.code !== 200) {
-            throw new Error(response.message || "加载用户详情失败");
+            throw new Error(response.message || '加载用户详情失败');
           }
           return response.data;
         },
@@ -152,11 +148,12 @@ export function useUserCrudState() {
           const mapped = toUserForm(detail);
           userUniqueSnapshot.value = toUserUniqueSnapshot(mapped);
           return mapped;
-        },
+        }
       },
       save: {
         buildPayload: async ({ form }) => {
           const payload = toUserPayload(form);
+          validateUserSavePayload(payload);
           const currentUnique = toUserUniqueSnapshot(payload);
 
           if (shouldCheckUserUnique(currentUnique, userUniqueSnapshot.value)) {
@@ -164,31 +161,32 @@ export function useUserCrudState() {
               userId: payload.id,
               userAccount: payload.userAccount,
               phone: payload.phone,
-              mail: payload.mail,
+              mail: payload.mail
             });
 
-            const isUnique = assertUniqueCheck(uniqueResponse, "用户唯一性校验失败");
+            const isUnique = assertUniqueCheck(uniqueResponse, '用户唯一性校验失败');
             if (!isUnique) {
-              throw new Error("登录账号、手机号或邮箱已存在");
+              throw new Error('登录账号、手机号或邮箱已存在');
             }
           }
 
           return payload;
         },
         request: async ({ mode, payload }) => {
-          const response = mode === "create" ? await userApi.add(payload) : await userApi.update(payload);
+          const response =
+            mode === 'create' ? await userApi.add(payload) : await userApi.update(payload);
 
           if (response.code !== 200) {
-            throw new Error(response.message || "保存用户失败");
+            throw new Error(response.message || '保存用户失败');
           }
 
           return response;
         },
         onSuccess: async ({ mode }) => {
-          message.success(mode === "create" ? "新增用户成功" : "更新用户成功");
-        },
-      },
-    },
+          message.success(mode === 'create' ? '新增用户成功' : '更新用户成功');
+        }
+      }
+    }
   });
 
   const {
@@ -200,14 +198,14 @@ export function useUserCrudState() {
     resetForm,
     handleSelectionChange,
     handleSizeChange,
-    handleCurrentChange,
+    handleCurrentChange
   } = crudPage.table;
 
   const crud = crudPage.editor;
   const { remove } = crudPage.actions;
 
   const tablePagination = computed(() => ({
-    ...pagination,
+    ...pagination
   }));
 
   const crudVisible = crud.visible;
@@ -238,11 +236,12 @@ export function useUserCrudState() {
     { immediate: true }
   );
 
-  const { loadOrgTree, loadPositionOptions, loadRoleOptions, checkFieldUnique, uploadAvatar } = useUserRemoteOptions({
-    orgTreeData,
-    positionOptions,
-    roleOptions,
-  });
+  const { loadOrgTree, loadPositionOptions, loadRoleOptions, checkFieldUnique, uploadAvatar } =
+    useUserRemoteOptions({
+      orgTreeData,
+      positionOptions,
+      roleOptions
+    });
 
   function tableSearch(keyword: string) {
     searchForm.nickName = keyword;
@@ -254,14 +253,14 @@ export function useUserCrudState() {
   }
 
   function onResetSearch() {
-    searchForm.orgId = "";
+    searchForm.orgId = '';
     searchForm.date = [];
     treeRef.value?.setCurrentKey?.(null);
-    resetForm(searchRef, "nickName");
+    resetForm(searchRef, 'nickName');
   }
 
   function handleNodeClick(node: OrgTreeNode) {
-    searchForm.orgId = Number(node.orgType) === 1 ? "" : node.id;
+    searchForm.orgId = Number(node.orgType) === 1 ? '' : node.id;
     void onSearch();
   }
 
@@ -275,7 +274,7 @@ export function useUserCrudState() {
 
   const { handleSingleStatus, handleBatchStatus, handleResetPassword } = useUserStatusActions({
     selectedList: safeSelectedList,
-    onSearch,
+    onSearch
   });
 
   function downloadTemplate() {
@@ -296,14 +295,14 @@ export function useUserCrudState() {
     dataList: safeDataList,
     orgId: currentOrgId,
     pagination,
-    onSearch,
+    onSearch
   });
 
   onMounted(async () => {
     try {
       await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()]);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "初始化用户管理失败";
+      const errorMessage = error instanceof Error ? error.message : '初始化用户管理失败';
       message.error(errorMessage);
     }
 
@@ -315,7 +314,7 @@ export function useUserCrudState() {
       tableRef,
       searchRef,
       editFormRef,
-      treeRef,
+      treeRef
     },
     table: {
       loading,
@@ -324,11 +323,11 @@ export function useUserCrudState() {
       tableColumns,
       orgTreeData,
       searchForm,
-      defaultTreeProps,
+      defaultTreeProps
     },
     options: {
       positionOptions,
-      roleOptions,
+      roleOptions
     },
     editor: {
       crud,
@@ -339,7 +338,7 @@ export function useUserCrudState() {
       crudSubmitting,
       crudForm,
       checkFieldUnique,
-      uploadAvatar,
+      uploadAvatar
     },
     actions: {
       handleSelectionChange,
@@ -357,7 +356,7 @@ export function useUserCrudState() {
       downloadTemplate,
       importRequest,
       handleImportUploaded,
-      onSearch,
-    },
+      onSearch
+    }
   };
 }

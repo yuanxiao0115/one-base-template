@@ -1,10 +1,10 @@
-import type { AppModuleManifestMeta } from "@one-base-template/core";
+import type { AppModuleManifestMeta } from '@one-base-template/core';
 
 export const moduleManifest = {
-  id: "log-management",
-  version: "1",
-  moduleTier: "core",
-  enabledByDefault: true,
+  id: 'log-management',
+  version: '1',
+  moduleTier: 'core',
+  enabledByDefault: true
 } as const satisfies AppModuleManifestMeta;
 
 export default moduleManifest;

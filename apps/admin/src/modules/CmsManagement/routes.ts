@@ -1,49 +1,49 @@
-import type { RouteRecordRaw } from "vue-router";
+import type { RouteRecordRaw } from 'vue-router';
 
 export default [
   {
-    path: "/publicity/column",
-    name: "PublicityColumn",
-    component: async () => import("./column/list.vue"),
+    path: '/publicity/column',
+    name: 'PublicityColumn',
+    component: async () => import('./column/list.vue'),
     meta: {
-      title: "栏目管理",
+      title: '栏目管理',
       keepAlive: true,
       rank: 100,
-      skipMenuAuth: true,
-    },
+      skipMenuAuth: true
+    }
   },
   {
-    path: "/publicity/content",
-    name: "PublicityContent",
-    component: async () => import("./content/list.vue"),
+    path: '/publicity/content',
+    name: 'PublicityContent',
+    component: async () => import('./content/list.vue'),
     meta: {
-      title: "宣传内容管理",
+      title: '宣传内容管理',
       keepAlive: true,
       rank: 200,
-      skipMenuAuth: true,
-    },
+      skipMenuAuth: true
+    }
   },
   {
-    path: "/publicity/article-list/:categoryId",
-    name: "ArticleList",
-    component: async () => import("./content/list.vue"),
+    path: '/publicity/article-list/:categoryId',
+    name: 'ArticleList',
+    component: async () => import('./content/list.vue'),
     meta: {
-      title: "文章列表",
+      title: '文章列表',
       keepAlive: true,
       hideInMenu: true,
-      activePath: "/publicity/content",
-      skipMenuAuth: true,
-    },
+      activePath: '/publicity/content',
+      skipMenuAuth: true
+    }
   },
   {
-    path: "/publicity/audit",
-    name: "PublicityAudit",
-    component: async () => import("./audit/list.vue"),
+    path: '/publicity/audit',
+    name: 'PublicityAudit',
+    component: async () => import('./audit/list.vue'),
     meta: {
-      title: "审核管理",
+      title: '审核管理',
       keepAlive: true,
       rank: 300,
-      skipMenuAuth: true,
-    },
-  },
+      skipMenuAuth: true
+    }
+  }
 ] satisfies RouteRecordRaw[];

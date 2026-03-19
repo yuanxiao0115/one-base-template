@@ -74,7 +74,7 @@ export const TAG_OPERATION_MODES = {
   CLEAR: 'clear',
   UPDATE_TITLE: 'updateTitle',
   EQUAL: 'equal',
-  SLICE: 'slice',
+  SLICE: 'slice'
 } as const;
 
 /** 标签操作模式类型 */
@@ -98,7 +98,7 @@ export const MENU_INDICES = {
   CLOSE_LEFT: 2,
   CLOSE_RIGHT: 3,
   CLOSE_OTHER: 4,
-  CLOSE_ALL: 5,
+  CLOSE_ALL: 5
 } as const;
 
 /** 菜单操作类型 */
@@ -323,7 +323,7 @@ export const TAG_CONSTANTS = {
   /** 滚动步长 */
   SCROLL_STEP: 200,
   /** 动画延迟 */
-  ANIMATION_DELAY: 100,
+  ANIMATION_DELAY: 100
 } as const;
 
 // ===== 错误处理类型 =====

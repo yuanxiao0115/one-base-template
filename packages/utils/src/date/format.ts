@@ -139,7 +139,7 @@ export function getWeekday(date: string | number | Date, locale: 'zh' | 'en' = '
   const d = dayjs(date);
   const weekdays = {
     zh: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
-    en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   };
 
   return weekdays[locale][d.day()];

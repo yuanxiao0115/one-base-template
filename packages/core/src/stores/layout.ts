@@ -61,7 +61,7 @@ function writeStoredLayout(next: StoredLayout) {
     onPrimaryQuotaExceeded: () => {
       // 菜单缓存可重新拉取，优先清理避免影响布局/主题等关键状态的持久化
       clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
-    },
+    }
   });
 
   if (key !== STORAGE_BASE_KEY) {
@@ -98,7 +98,7 @@ export const useLayoutStore = defineStore('ob-layout', () => {
       return;
     }
     writeStoredLayout({
-      siderCollapsed: siderCollapsed.value,
+      siderCollapsed: siderCollapsed.value
     });
   }
 
@@ -170,6 +170,6 @@ export const useLayoutStore = defineStore('ob-layout', () => {
     setSiderCollapsed,
     setSystemSwitchStyle,
     toggleSiderCollapsed,
-    reset,
+    reset
   };
 });

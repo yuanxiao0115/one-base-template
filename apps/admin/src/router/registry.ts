@@ -7,20 +7,22 @@ import {
   pickEnabledModuleEntries,
   resolveModuleDeclarationCandidate,
   type ModuleLoadEntry,
-  validateModuleDeclaration,
-} from "@one-base-template/core";
-import { createAppLogger } from "@/shared/logger";
+  validateModuleDeclaration
+} from '@one-base-template/core';
+import { createAppLogger } from '@/shared/logger';
 
 const moduleManifestDefinitions = import.meta.glob<{
   default?: AppModuleManifestMeta;
   moduleManifest?: AppModuleManifestMeta;
-}>("../modules/**/manifest.ts", {
-  eager: true,
+}>('../modules/**/manifest.ts', {
+  eager: true
 });
 
-const moduleDeclarationLoaders = import.meta.glob<AppModuleDeclarationModule>("../modules/**/module.ts");
+const moduleDeclarationLoaders = import.meta.glob<AppModuleDeclarationModule>(
+  '../modules/**/module.ts'
+);
 
-const logger = createAppLogger("router/modules");
+const logger = createAppLogger('router/modules');
 let cachedAllModules: ModuleLoadEntry[] | null = null;
 const cachedModuleTasks = new Map<string, Promise<AppModuleManifest | null>>();
 
@@ -38,7 +40,7 @@ function getAllModules(): ModuleLoadEntry[] {
     hasModuleDeclaration(modulePath) {
       return Boolean(moduleDeclarationLoaders[modulePath]);
     },
-    onWarn: warn,
+    onWarn: warn
   });
 
   return cachedAllModules;
@@ -62,7 +64,7 @@ async function loadModule(entry: ModuleLoadEntry): Promise<AppModuleManifest | n
       return validateModuleDeclaration({
         entry,
         candidate,
-        onWarn: warn,
+        onWarn: warn
       });
     })
     .catch((error: unknown) => {
@@ -75,12 +77,14 @@ async function loadModule(entry: ModuleLoadEntry): Promise<AppModuleManifest | n
   return task;
 }
 
-export async function getEnabledModules(enabledModules: EnabledModulesSetting): Promise<AppModuleManifest[]> {
+export async function getEnabledModules(
+  enabledModules: EnabledModulesSetting
+): Promise<AppModuleManifest[]> {
   const allModules = getAllModules();
   const pickedModules = pickEnabledModuleEntries({
     allModules,
     enabledModules,
-    onWarn: warn,
+    onWarn: warn
   });
   const loaded = await Promise.all(pickedModules.map((entry) => loadModule(entry)));
   return loaded.filter((item): item is AppModuleManifest => item !== null);

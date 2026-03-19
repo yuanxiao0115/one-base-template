@@ -12,18 +12,22 @@
 ### 必迁移
 
 1. 栏目管理
+
 - 路由：`/publicity/column`
 - 能力：树表展示、关键字搜索、显示状态筛选、新增/编辑/删除栏目、跳转文章列表。
 
 2. 内容管理
+
 - 路由：`/publicity/content`
 - 能力：文章列表分页查询、按标题/栏目/类型/审核状态筛选、新增/编辑/查看、删除。
 
 3. 审核管理
+
 - 路由：`/publicity/audit`
 - 能力：文章审核（通过/驳回）、评论审核（通过/驳回）与评论删除。
 
 4. 文章列表（栏目入口）
+
 - 路由：`/publicity/article-list/:categoryId`
 - 能力：复用内容管理列表，默认带栏目筛选。
 
@@ -54,6 +58,7 @@
 2. 三个主页面与一条隐藏文章列表路由均可访问。
 3. 关键操作可用：栏目 CRUD、内容 CRUD、文章审核、评论审核/删除。
 4. 全部改动通过：
+
 - `pnpm -C apps/admin typecheck`
 - `pnpm -C apps/admin lint`
 - `pnpm -C apps/admin build`

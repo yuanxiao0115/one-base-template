@@ -4,7 +4,7 @@ import type {
   AppUser,
   BackendAdapter,
   LoginPayload,
-  ObHttp,
+  ObHttp
 } from '@one-base-template/core';
 
 interface BizResponse<T> {
@@ -101,13 +101,14 @@ function mapMenuItems(nodes: SczfwMenuNode[]): AppMenuItem[] {
   return nodes
     .filter((v) => v.hidden !== 1 && (v.resourceType === 1 || v.resourceType === 2))
     .map((v) => {
-      const children = Array.isArray(v.children) && v.children.length ? mapMenuItems(v.children) : undefined;
+      const children =
+        Array.isArray(v.children) && v.children.length ? mapMenuItems(v.children) : undefined;
       return {
         path: isNonEmptyString(v.url) ? v.url : '/',
         title: isNonEmptyString(v.resourceName) ? v.resourceName : '未命名菜单',
         icon: isNonEmptyString(v.icon) ? v.icon : undefined,
         keepAlive: v.routeCache === 1,
-        children,
+        children
       };
     });
 }
@@ -142,13 +143,13 @@ export function createSczfwAdapter(
           password: payload.password,
           captcha: payload.captcha,
           captchaKey: payload.captchaKey,
-          encrypt: payload.encrypt,
+          encrypt: payload.encrypt
         };
 
         const res = await http.post<BizResponse<SczfwLoginResult>>('/cmict/auth/login', {
           data: body,
           $throwOnBizError: true,
-          $cancelOnRouteChange: false,
+          $cancelOnRouteChange: false
         });
 
         const token = res.data?.authToken ?? res.data?.token;
@@ -161,7 +162,7 @@ export function createSczfwAdapter(
         try {
           await http.get('/cmict/auth/logout', {
             $throwOnBizError: false,
-            $cancelOnRouteChange: false,
+            $cancelOnRouteChange: false
           });
         } finally {
           localStorage.removeItem(tokenKey);
@@ -170,7 +171,7 @@ export function createSczfwAdapter(
       async fetchMe(): Promise<AppUser> {
         const res = await http.get<BizResponse<SczfwMe>>('/cmict/auth/token/verify', {
           $throwOnBizError: true,
-          $cancelOnRouteChange: false,
+          $cancelOnRouteChange: false
         });
         const me = res.data ?? {};
 
@@ -199,16 +200,19 @@ export function createSczfwAdapter(
           mail: isNonEmptyString(me.mail) ? me.mail : undefined,
           phone: isNonEmptyString(me.phone) ? me.phone : undefined,
           orgCodes: Array.isArray(me.orgCodes) ? me.orgCodes : undefined,
-          orgPathNames: Array.isArray(me.orgPathNames) ? me.orgPathNames : undefined,
+          orgPathNames: Array.isArray(me.orgPathNames) ? me.orgPathNames : undefined
         };
-      },
+      }
     },
     menu: {
       async fetchMenuTree(): Promise<AppMenuItem[]> {
-        const res = await http.get<BizResponse<SczfwMenuRoot[]>>('/cmict/admin/permission/my-tree', {
-          $throwOnBizError: true,
-          $cancelOnRouteChange: false,
-        });
+        const res = await http.get<BizResponse<SczfwMenuRoot[]>>(
+          '/cmict/admin/permission/my-tree',
+          {
+            $throwOnBizError: true,
+            $cancelOnRouteChange: false
+          }
+        );
 
         const list = Array.isArray(res.data) ? res.data : [];
         const systemRoot = list.find((it) => it.permissionCode === systemPermissionCode);
@@ -216,10 +220,13 @@ export function createSczfwAdapter(
         return mapMenuItems(nodes);
       },
       async fetchMenuSystems(): Promise<AppMenuSystem[]> {
-        const res = await http.get<BizResponse<SczfwMenuRoot[]>>('/cmict/admin/permission/my-tree', {
-          $throwOnBizError: true,
-          $cancelOnRouteChange: false,
-        });
+        const res = await http.get<BizResponse<SczfwMenuRoot[]>>(
+          '/cmict/admin/permission/my-tree',
+          {
+            $throwOnBizError: true,
+            $cancelOnRouteChange: false
+          }
+        );
 
         const roots = Array.isArray(res.data) ? res.data : [];
 
@@ -230,11 +237,11 @@ export function createSczfwAdapter(
             return {
               code,
               name: readSystemName(root),
-              menus: mapMenuItems(nodes),
+              menus: mapMenuItems(nodes)
             };
           })
           .filter((s) => s.code);
-      },
+      }
     },
     sso: {
       async exchangeToken(token: string) {
@@ -244,7 +251,7 @@ export function createSczfwAdapter(
         const res = await http.get<BizResponse<{ authToken?: string }>>('/cmict/auth/ticket/sso', {
           params: payload,
           $throwOnBizError: true,
-          $cancelOnRouteChange: false,
+          $cancelOnRouteChange: false
         });
 
         const token = res.data?.authToken;
@@ -252,15 +259,15 @@ export function createSczfwAdapter(
           throw new Error('[sczfw] ticket 兑换成功但未返回 authToken');
         }
         localStorage.setItem(tokenKey, token);
-      },
+      }
     },
     assets: {
       async fetchImageBlob(payload: { id: string }): Promise<Blob> {
         return await http.get<Blob>('/cmict/file/resource/show', {
           params: payload,
-          responseType: 'blob',
+          responseType: 'blob'
         });
-      },
-    },
+      }
+    }
   };
 }

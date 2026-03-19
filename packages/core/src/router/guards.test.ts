@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { RouteLocationNormalized, Router } from 'vue-router';
 import type { RouterGuardOptions } from './guards';
 
@@ -7,24 +7,24 @@ const mocks = vi.hoisted(() => {
     getCoreOptions: vi.fn(),
     useAuthStore: vi.fn(),
     useMenuStore: vi.fn(),
-    useSystemStore: vi.fn(),
+    useSystemStore: vi.fn()
   };
 });
 
 vi.mock('../context', () => ({
-  getCoreOptions: mocks.getCoreOptions,
+  getCoreOptions: mocks.getCoreOptions
 }));
 
 vi.mock('../stores/auth', () => ({
-  useAuthStore: mocks.useAuthStore,
+  useAuthStore: mocks.useAuthStore
 }));
 
 vi.mock('../stores/menu', () => ({
-  useMenuStore: mocks.useMenuStore,
+  useMenuStore: mocks.useMenuStore
 }));
 
 vi.mock('../stores/system', () => ({
-  useSystemStore: mocks.useSystemStore,
+  useSystemStore: mocks.useSystemStore
 }));
 
 import { setupRouterGuards } from './guards';
@@ -52,7 +52,7 @@ function createRoute(partial: Partial<RouteLocationNormalized>): RouteLocationNo
     fullPath: '/',
     meta: {},
     name: undefined,
-    ...partial,
+    ...partial
   } as RouteLocationNormalized;
 }
 
@@ -62,9 +62,14 @@ function createGuardRunner(options?: RouterGuardOptions) {
     | undefined;
 
   const router = {
-    beforeEach(handler: (to: RouteLocationNormalized, from: RouteLocationNormalized) => Promise<unknown> | unknown) {
+    beforeEach(
+      handler: (
+        to: RouteLocationNormalized,
+        from: RouteLocationNormalized
+      ) => Promise<unknown> | unknown
+    ) {
       guard = handler;
-    },
+    }
   } as unknown as Router;
 
   setupRouterGuards(router, options);
@@ -73,7 +78,10 @@ function createGuardRunner(options?: RouterGuardOptions) {
     throw new Error('beforeEach 未注册');
   }
 
-  return async (to: Partial<RouteLocationNormalized>, from: Partial<RouteLocationNormalized> = {}) => {
+  return async (
+    to: Partial<RouteLocationNormalized>,
+    from: Partial<RouteLocationNormalized> = {}
+  ) => {
     return guard!(createRoute(to), createRoute(from));
   };
 }
@@ -85,7 +93,7 @@ describe('setupRouterGuards', () => {
 
   beforeEach(() => {
     authStore = {
-      ensureAuthed: vi.fn(async () => true),
+      ensureAuthed: vi.fn(async () => true)
     };
 
     menuStore = {
@@ -93,20 +101,20 @@ describe('setupRouterGuards', () => {
       loaded: true,
       loadMenus: vi.fn(async () => {}),
       isAllowed: vi.fn(() => false),
-      resolveSystemByMenuKey: vi.fn(() => null),
+      resolveSystemByMenuKey: vi.fn(() => null)
     };
 
     systemStore = {
       currentSystemCode: 'system-a',
-      setCurrentSystem: vi.fn(),
+      setCurrentSystem: vi.fn()
     };
 
     mocks.getCoreOptions.mockReturnValue({
       sso: {
         enabled: false,
-        routePath: '/sso',
+        routePath: '/sso'
       },
-      menuMode: 'static',
+      menuMode: 'static'
     });
     mocks.useAuthStore.mockReturnValue(authStore);
     mocks.useMenuStore.mockReturnValue(menuStore);
@@ -119,29 +127,31 @@ describe('setupRouterGuards', () => {
     mocks.getCoreOptions.mockReturnValue({
       sso: {
         enabled: true,
-        routePath: '/sso',
+        routePath: '/sso'
       },
-      menuMode: 'static',
+      menuMode: 'static'
     });
     await expect(runGuard({ path: '/sso', fullPath: '/sso' })).resolves.toBe(true);
 
-    await expect(runGuard({ path: '/public-page', fullPath: '/public-page', meta: { public: true } })).resolves.toBe(true);
+    await expect(
+      runGuard({ path: '/public-page', fullPath: '/public-page', meta: { public: true } })
+    ).resolves.toBe(true);
   });
 
   it('未登录应跳转登录页', async () => {
     authStore.ensureAuthed.mockResolvedValue(false);
     const runGuard = createGuardRunner({
-      loginRoutePath: '/login',
+      loginRoutePath: '/login'
     });
 
     const result = await runGuard({
       path: '/system/user',
-      fullPath: '/system/user?tab=list',
+      fullPath: '/system/user?tab=list'
     });
 
     expect(result).toEqual({
       path: '/login',
-      query: { redirect: '/system/user?tab=list' },
+      query: { redirect: '/system/user?tab=list' }
     });
   });
 
@@ -153,7 +163,7 @@ describe('setupRouterGuards', () => {
     await expect(
       runGuard({
         path: '/system/user',
-        fullPath: '/system/user',
+        fullPath: '/system/user'
       })
     ).resolves.toBe(true);
   });
@@ -162,7 +172,7 @@ describe('setupRouterGuards', () => {
     menuStore.loaded = true;
     menuStore.isAllowed.mockReturnValue(false);
     const runGuard = createGuardRunner({
-      allowedSkipMenuAuthRouteNames: ['MaintainToolPage'],
+      allowedSkipMenuAuthRouteNames: ['MaintainToolPage']
     });
 
     await expect(
@@ -170,7 +180,7 @@ describe('setupRouterGuards', () => {
         path: '/maintain/tool',
         fullPath: '/maintain/tool',
         name: 'MaintainToolPage',
-        meta: { skipMenuAuth: true },
+        meta: { skipMenuAuth: true }
       })
     ).resolves.toBe(true);
   });
@@ -181,19 +191,19 @@ describe('setupRouterGuards', () => {
     menuStore.isAllowed.mockReturnValue(false);
     const runGuard = createGuardRunner({
       forbiddenRoutePath: '/403',
-      allowedSkipMenuAuthRouteNames: ['MaintainToolPage'],
+      allowedSkipMenuAuthRouteNames: ['MaintainToolPage']
     });
 
     const result = await runGuard({
       path: '/maintain/other',
       fullPath: '/maintain/other?id=1',
       name: 'OtherMaintainPage',
-      meta: { skipMenuAuth: true },
+      meta: { skipMenuAuth: true }
     });
 
     expect(result).toEqual({
       path: '/403',
-      query: { from: '/maintain/other?id=1' },
+      query: { from: '/maintain/other?id=1' }
     });
 
     warnSpy.mockRestore();
@@ -208,9 +218,9 @@ describe('setupRouterGuards', () => {
     mocks.getCoreOptions.mockReturnValue({
       sso: {
         enabled: false,
-        routePath: '/sso',
+        routePath: '/sso'
       },
-      menuMode: 'remote',
+      menuMode: 'remote'
     });
     menuStore.remoteSynced = false;
     menuStore.loaded = true;
@@ -222,7 +232,7 @@ describe('setupRouterGuards', () => {
     await expect(
       runGuard({
         path: '/system/remote-cache-hit',
-        fullPath: '/system/remote-cache-hit',
+        fullPath: '/system/remote-cache-hit'
       })
     ).resolves.toBe(true);
 
@@ -237,9 +247,9 @@ describe('setupRouterGuards', () => {
     mocks.getCoreOptions.mockReturnValue({
       sso: {
         enabled: false,
-        routePath: '/sso',
+        routePath: '/sso'
       },
-      menuMode: 'remote',
+      menuMode: 'remote'
     });
     menuStore.remoteSynced = false;
     menuStore.loaded = true;
@@ -251,14 +261,14 @@ describe('setupRouterGuards', () => {
     await expect(
       runGuard({
         path: '/system/remote-first',
-        fullPath: '/system/remote-first',
+        fullPath: '/system/remote-first'
       })
     ).resolves.toBe(true);
 
     await expect(
       runGuard({
         path: '/system/remote-second',
-        fullPath: '/system/remote-second',
+        fullPath: '/system/remote-second'
       })
     ).resolves.toBe(true);
 
@@ -271,9 +281,9 @@ describe('setupRouterGuards', () => {
     mocks.getCoreOptions.mockReturnValue({
       sso: {
         enabled: false,
-        routePath: '/sso',
+        routePath: '/sso'
       },
-      menuMode: 'remote',
+      menuMode: 'remote'
     });
     menuStore.remoteSynced = false;
     menuStore.loaded = false;
@@ -291,7 +301,7 @@ describe('setupRouterGuards', () => {
     await expect(
       runGuard({
         path: '/system/remote-first-load',
-        fullPath: '/system/remote-first-load',
+        fullPath: '/system/remote-first-load'
       })
     ).resolves.toBe(true);
 

@@ -10,59 +10,59 @@
 </template>
 
 <script setup lang="ts">
-  import ImageConfig, { type ImageConfigModelType } from './ImageConfig.vue';
-  import ListConfig, { type ColumnListConfigModelType } from './ListConfig.vue';
-  import { useSchemaConfig } from '../../../composables/useSchemaConfig';
+import ImageConfig, { type ImageConfigModelType } from './ImageConfig.vue';
+import ListConfig, { type ColumnListConfigModelType } from './ListConfig.vue';
+import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 
-  const props = defineProps({
-    schema: {
-      type: Object,
-      required: true,
-    },
-  });
-
-  const emit = defineEmits(['schemaChange']);
-
-  interface ComponentData {
-    image: ImageConfigModelType;
-    dataSource: ColumnListConfigModelType;
+const props = defineProps({
+  schema: {
+    type: Object,
+    required: true
   }
+});
 
-  const { sectionData } = useSchemaConfig<ComponentData>({
-    name: 'cms-image-text-column-content',
-    sections: {
-      image: {},
-      dataSource: {},
-    },
-    schema: props.schema,
-    onChange: (newSchema) => {
-      emit('schemaChange', 'content', newSchema);
-    },
-  });
+const emit = defineEmits(['schemaChange']);
 
-  defineOptions({
-    name: 'PbImageTextColumnContent',
-  });
+interface ComponentData {
+  image: ImageConfigModelType;
+  dataSource: ColumnListConfigModelType;
+}
+
+const { sectionData } = useSchemaConfig<ComponentData>({
+  name: 'cms-image-text-column-content',
+  sections: {
+    image: {},
+    dataSource: {}
+  },
+  schema: props.schema,
+  onChange: (newSchema) => {
+    emit('schemaChange', 'content', newSchema);
+  }
+});
+
+defineOptions({
+  name: 'cms-image-text-column-content'
+});
 </script>
 
 <style scoped>
-  .content-config {
-    --config-text: #0f172a;
+.content-config {
+  --config-text: #0f172a;
 
-    --config-muted: #64748b;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+  --config-muted: #64748b;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  .content-config :deep(.el-divider__text) {
-    font-weight: 600;
-    color: var(--config-text);
-    letter-spacing: 0.2px;
-  }
+.content-config :deep(.el-divider__text) {
+  font-weight: 600;
+  color: var(--config-text);
+  letter-spacing: 0.2px;
+}
 
-  .content-config :deep(.el-form-item__label) {
-    font-weight: 500;
-    color: var(--config-muted);
-  }
+.content-config :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: var(--config-muted);
+}
 </style>

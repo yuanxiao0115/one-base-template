@@ -10,7 +10,7 @@ yuanxiao owns this. Start: say hi + 1 motivating line.
 
 - `~/.codex` 的全局配置负责 **运行时角色、模型、system prompt、工具权限**。
 - 本仓库负责 **项目知识、目录边界、验证口径、文档入口、协作规则**。
-- **当用户明确指向本仓库时，默认只修改 `/Users/haoqiuzhi/code/one-base-template/**`；除非用户明确要求，否则不要修改 `~/.codex`、其他仓库或全局角色配置。**
+- **当用户明确指向本仓库时，默认只修改 `/Users/haoqiuzhi/code/one-base-template/**`；除非用户明确要求，否则不要修改 `~/.codex`、其他仓库或全局角色配置。\*\*
 - 在本仓库工作时，优先让仓库本身对 agent 可读：规则写进 `AGENTS.md`，项目知识写进 `apps/docs`，实施记录写进 `docs/plans` 与 `.codex/*.md`。
 
 ---
@@ -19,7 +19,7 @@ yuanxiao owns this. Start: say hi + 1 motivating line.
 
 ### 技能优先原则（CRITICAL）
 
-在任何响应或行动之前，**优先检查并调用相关技能/规范**（例如：`turborepo`、`pnpm`、`vue-best-practices`、`vue-router-best-practices`、`pinia`、`vite`、`web-design-guidelines` 等）。
+在任何响应或行动之前，**优先检查并调用相关技能/规范**（例如：`pnpm`、`vue-best-practices`、`vue-router-best-practices`、`pinia`、`vite`、`web-design-guidelines` 等）。
 
 > 目标：避免靠“记忆”猜 API/最佳实践，减少返工与隐性风险。
 
@@ -74,17 +74,17 @@ docs/
 
 ## 🗂️ 规则分层与适用范围（必须遵守）
 
-| 作用域 | 规则文件 | 说明 |
-| --- | --- | --- |
-| 全仓通用 | `/Users/haoqiuzhi/code/one-base-template/AGENTS.md` | 工作流、项目边界、协作规范、知识入口 |
-| admin 应用 | `/Users/haoqiuzhi/code/one-base-template/apps/admin/AGENTS.md` | 路由菜单、主题、表格、UserManagement 等实现细则 |
-| docs 站点 | `/Users/haoqiuzhi/code/one-base-template/apps/docs/AGENTS.md` | 文档结构、导航同步、构建校验 |
-| adapters 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/adapters/AGENTS.md` | 适配层契约、字段映射、mock / 真实接口边界 |
-| core 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/core/AGENTS.md` | 逻辑内核、主题 token、无 UI 依赖 |
-| portal-engine 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/portal-engine/AGENTS.md` | 门户引擎物料配置红线、统一封装组件复用约束 |
-| ui 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/ui/AGENTS.md` | 壳组件实现、样式 token、导出边界 |
-| tag 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/tag/AGENTS.md` | 主题样式资源与导出规范 |
-| utils 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/utils/AGENTS.md` | 工具函数语义、纯函数与可复用性 |
+| 作用域             | 规则文件                                                                   | 说明                                            |
+| ------------------ | -------------------------------------------------------------------------- | ----------------------------------------------- |
+| 全仓通用           | `/Users/haoqiuzhi/code/one-base-template/AGENTS.md`                        | 工作流、项目边界、协作规范、知识入口            |
+| admin 应用         | `/Users/haoqiuzhi/code/one-base-template/apps/admin/AGENTS.md`             | 路由菜单、主题、表格、UserManagement 等实现细则 |
+| docs 站点          | `/Users/haoqiuzhi/code/one-base-template/apps/docs/AGENTS.md`              | 文档结构、导航同步、构建校验                    |
+| adapters 子包      | `/Users/haoqiuzhi/code/one-base-template/packages/adapters/AGENTS.md`      | 适配层契约、字段映射、mock / 真实接口边界       |
+| core 子包          | `/Users/haoqiuzhi/code/one-base-template/packages/core/AGENTS.md`          | 逻辑内核、主题 token、无 UI 依赖                |
+| portal-engine 子包 | `/Users/haoqiuzhi/code/one-base-template/packages/portal-engine/AGENTS.md` | 门户引擎物料配置红线、统一封装组件复用约束      |
+| ui 子包            | `/Users/haoqiuzhi/code/one-base-template/packages/ui/AGENTS.md`            | 壳组件实现、样式 token、导出边界                |
+| tag 子包           | `/Users/haoqiuzhi/code/one-base-template/packages/tag/AGENTS.md`           | 主题样式资源与导出规范                          |
+| utils 子包         | `/Users/haoqiuzhi/code/one-base-template/packages/utils/AGENTS.md`         | 工具函数语义、纯函数与可复用性                  |
 
 ### 规则落盘原则
 
@@ -149,7 +149,7 @@ docs/
 - admin 迁移与重构需强制遵守“公共组件与 CRUD 红线”，主版本在 `apps/admin/AGENTS.md`，说明文档在 `apps/docs/docs/guide/admin-agent-redlines.md`。
 - 当前阶段尽量减少分支数量：默认在当前工作分支开发；完成后合并回 `main` 并清理临时分支 / 工作区。
 - **Git 提交信息必须使用中文**（commit message 禁止英文）。
-- **未收到“现在提交”的明确指令前，默认不执行 `git commit`；需要提交时先展示拟提交文件清单，并按模块拆分提交。**
+- **提交策略（2026-03-13 用户新规）**：在开发分支上，每个功能完成且测试通过后默认自动执行 `git commit`，并按模块拆分提交；仅在用户明确禁止提交时暂停自动提交。
 - **开发阶段默认不做历史配置兼容**；除非用户明确要求，否则按当前方案直接收敛实现。
 - **共享登录能力命名固定为通用名**：公共登录框组件使用 `LoginBox.vue`，公共登录动作文件使用 `login.ts`；后续新版本使用 `v1` / `v2` 后缀，禁止再使用后端或项目名（如 `sczfw`）命名公共能力。
 - **`apps/portal` 维持前台独立静态应用边界**：默认不接菜单接口，不依赖 `/cmict/admin/permission/*` 菜单能力；登录后仅处理前台页面跳转与门户分流。

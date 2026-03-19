@@ -1,35 +1,35 @@
-import { computed, onMounted, reactive, ref, type Ref } from "vue";
-import { type CrudErrorContext, type CrudFormLike, useCrudPage } from "@one-base-template/core";
-import type { TableColumnList } from "@one-base-template/ui";
-import { obConfirm } from "@one-base-template/ui";
-import { message } from "@one-base-template/ui";
-import menuColumns from "../columns";
-import { menuPermissionApi } from "../api";
-import type { ApiResponse, MenuPermissionRecord, PermissionTypeOption } from "../types";
+import { computed, onMounted, reactive, ref, type Ref } from 'vue';
+import { type CrudErrorContext, type CrudFormLike, useCrudPage } from '@one-base-template/core';
+import type { TableColumnList } from '@one-base-template/ui';
+import { obConfirm } from '@one-base-template/ui';
+import { message } from '@one-base-template/ui';
+import menuColumns from '../columns';
+import { menuPermissionApi } from '../api';
+import type { ApiResponse, MenuPermissionRecord, PermissionTypeOption } from '../types';
 import {
   defaultMenuPermissionForm,
   type MenuPermissionForm,
   menuPermissionFormRules,
   type ParentOption,
   toMenuPermissionForm,
-  toMenuPermissionPayload,
-} from "../form";
+  toMenuPermissionPayload
+} from '../form';
 
 interface SearchFormExpose {
   resetFields?: () => void;
 }
 
-type DialogMode = "create" | "detail" | "edit";
+type DialogMode = 'create' | 'detail' | 'edit';
 
 export function useMenuManagementPageState() {
   const tableRef = ref<unknown>(null);
   const searchRef = ref<SearchFormExpose>();
   const editFormRef = ref<CrudFormLike>();
-  const createParentId = ref("0");
+  const createParentId = ref('0');
 
   const searchForm = reactive({
-    resourceName: "",
-    resourceType: "",
+    resourceName: '',
+    resourceType: ''
   });
 
   const resourceTypeOptions = ref<PermissionTypeOption[]>([]);
@@ -45,7 +45,7 @@ export function useMenuManagementPageState() {
     return {
       transform: false,
       expandAll: true,
-      childrenField: "children",
+      childrenField: 'children'
     };
   });
 
@@ -58,12 +58,12 @@ export function useMenuManagementPageState() {
 
         return menuPermissionApi.getPermissionList({
           resourceName: searchForm.resourceName,
-          resourceType: searchForm.resourceType,
+          resourceType: searchForm.resourceType
         });
       },
       params: searchForm,
-      pagination: false,
-    },
+      pagination: false
+    }
   });
 
   const crudPage = useCrudPage<
@@ -77,19 +77,19 @@ export function useMenuManagementPageState() {
     tableRef: tableRef as unknown as Ref<unknown>,
     editor: {
       entity: {
-        name: "菜单",
+        name: '菜单'
       },
       form: {
         create: () => ({ ...defaultMenuPermissionForm }),
-        ref: editFormRef,
+        ref: editFormRef
       },
       detail: {
         async beforeOpen({ mode, row, form }) {
           await loadResourceTypeOptions();
 
-          if (mode === "create") {
+          if (mode === 'create') {
             await loadParentOptions();
-            form.parentId = createParentId.value || "0";
+            form.parentId = createParentId.value || '0';
             return;
           }
 
@@ -101,30 +101,30 @@ export function useMenuManagementPageState() {
           await loadParentOptions(row.id);
         },
         load: async ({ row }) => row,
-        mapToForm: ({ detail }) => toMenuPermissionForm(detail),
+        mapToForm: ({ detail }) => toMenuPermissionForm(detail)
       },
       save: {
         buildPayload: ({ form }) => toMenuPermissionPayload(form),
         request: async ({ mode, payload }) => {
           const response =
-            mode === "create"
+            mode === 'create'
               ? await menuPermissionApi.addPermission(payload)
               : await menuPermissionApi.editPermission(payload);
 
           if (response.code !== 200) {
-            throw new Error(response.message || "保存失败");
+            throw new Error(response.message || '保存失败');
           }
 
           return response;
         },
         onSuccess: async ({ mode }) => {
-          message.success(mode === "create" ? "新增成功" : "更新成功");
-        },
+          message.success(mode === 'create' ? '新增成功' : '更新成功');
+        }
       },
       onError: (error, context) => {
         handleCrudError(error, context);
-      },
-    },
+      }
+    }
   });
 
   const { loading, dataList, onSearch, resetForm } = crudPage.table;
@@ -146,8 +146,8 @@ export function useMenuManagementPageState() {
     rows.forEach((row) => {
       result.push({
         value: row.id,
-        label: `${"--".repeat(depth)}${depth > 0 ? " " : ""}${row.resourceName}`,
-        disabled: disabledIds.has(row.id),
+        label: `${'--'.repeat(depth)}${depth > 0 ? ' ' : ''}${row.resourceName}`,
+        disabled: disabledIds.has(row.id)
       });
 
       if (Array.isArray(row.children) && row.children.length > 0) {
@@ -156,7 +156,11 @@ export function useMenuManagementPageState() {
     });
   }
 
-  function markDescendants(rows: MenuPermissionRecord[], targetId: string, ids: Set<string>): boolean {
+  function markDescendants(
+    rows: MenuPermissionRecord[],
+    targetId: string,
+    ids: Set<string>
+  ): boolean {
     for (const row of rows) {
       if (row.id === targetId) {
         ids.add(row.id);
@@ -189,7 +193,7 @@ export function useMenuManagementPageState() {
   async function loadParentOptions(disabledId?: string) {
     const response = await menuPermissionApi.getPermissionTree();
     if (response.code !== 200) {
-      throw new Error(response.message || "获取权限树失败");
+      throw new Error(response.message || '获取权限树失败');
     }
 
     const treeRows = Array.isArray(response.data) ? response.data : [];
@@ -200,9 +204,9 @@ export function useMenuManagementPageState() {
 
     const options: ParentOption[] = [
       {
-        value: "0",
-        label: "顶级权限",
-      },
+        value: '0',
+        label: '顶级权限'
+      }
     ];
     appendParentOptions(treeRows, 0, disabledIds, options);
     parentOptions.value = options;
@@ -228,17 +232,20 @@ export function useMenuManagementPageState() {
   }
 
   function onResetSearch() {
-    searchForm.resourceType = "";
-    resetForm(searchRef, "resourceName");
+    searchForm.resourceType = '';
+    resetForm(searchRef, 'resourceName');
   }
 
-  async function openCreateDialog(parentId = "0") {
+  async function openCreateDialog(parentId = '0') {
     createParentId.value = parentId;
     await crud.openCreate();
   }
 
-  async function openEditDialog(mode: Extract<DialogMode, "detail" | "edit">, row: MenuPermissionRecord) {
-    if (mode === "edit") {
+  async function openEditDialog(
+    mode: Extract<DialogMode, 'detail' | 'edit'>,
+    row: MenuPermissionRecord
+  ) {
+    if (mode === 'edit') {
       await crud.openEdit(row);
       return;
     }
@@ -247,26 +254,29 @@ export function useMenuManagementPageState() {
   }
 
   function handleCreateCommand(command: string, row: MenuPermissionRecord) {
-    const parentId = command === "child" ? row.id : row.parentId || "0";
+    const parentId = command === 'child' ? row.id : row.parentId || '0';
     void openCreateDialog(parentId);
   }
 
   async function handleDelete(row: MenuPermissionRecord) {
     try {
-      await obConfirm.warn(`是否确认删除权限「${row.resourceName}」？若存在下级权限会一并删除。`, "删除确认");
+      await obConfirm.warn(
+        `是否确认删除权限「${row.resourceName}」？若存在下级权限会一并删除。`,
+        '删除确认'
+      );
 
       const response = await menuPermissionApi.deletePermission(row.id);
       if (response.code !== 200) {
-        throw new Error(response.message || "删除失败");
+        throw new Error(response.message || '删除失败');
       }
 
-      message.success("删除成功");
+      message.success('删除成功');
       await onSearch(false);
     } catch (error) {
-      if (error === "cancel" || error === "close") {
+      if (error === 'cancel' || error === 'close') {
         return;
       }
-      const errorMessage = error instanceof Error ? error.message : "删除失败";
+      const errorMessage = error instanceof Error ? error.message : '删除失败';
       message.error(errorMessage);
     }
   }
@@ -281,7 +291,11 @@ export function useMenuManagementPageState() {
 
   function handleCrudError(error: unknown, context: CrudErrorContext<MenuPermissionRecord>) {
     const fallbackMessage =
-      context.stage === "beforeOpen" ? "打开弹窗失败" : context.stage === "loadDetail" ? "加载详情失败" : "保存失败";
+      context.stage === 'beforeOpen'
+        ? '打开弹窗失败'
+        : context.stage === 'loadDetail'
+          ? '加载详情失败'
+          : '保存失败';
 
     const errorMessage = error instanceof Error ? error.message : fallbackMessage;
     message.error(errorMessage);
@@ -295,18 +309,18 @@ export function useMenuManagementPageState() {
     refs: {
       tableRef,
       searchRef,
-      editFormRef,
+      editFormRef
     },
     table: {
       loading,
       dataList,
       tableColumns,
       tableTreeConfig,
-      searchForm,
+      searchForm
     },
     options: {
       resourceTypeOptions,
-      parentOptions,
+      parentOptions
     },
     editor: {
       crud,
@@ -316,7 +330,7 @@ export function useMenuManagementPageState() {
       crudReadonly,
       crudSubmitting,
       crudForm,
-      menuPermissionFormRules,
+      menuPermissionFormRules
     },
     actions: {
       tableSearch,
@@ -326,7 +340,7 @@ export function useMenuManagementPageState() {
       openEditDialog,
       handleCreateCommand,
       handleDelete,
-      onConfirmCrud,
-    },
+      onConfirmCrud
+    }
   };
 }

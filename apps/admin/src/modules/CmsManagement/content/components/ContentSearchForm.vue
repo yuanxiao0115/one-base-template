@@ -1,36 +1,42 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import type { FormInstance } from "element-plus";
-  import type { ContentCategoryRecord } from "../types";
+import { ref } from 'vue';
+import type { FormInstance } from 'element-plus';
+import type { ContentCategoryRecord } from '../types';
 
-  const props = defineProps<{
-    categoryTreeOptions: ContentCategoryRecord[];
-    categoryTreeLoading: boolean;
-  }>();
+const props = defineProps<{
+  categoryTreeOptions: ContentCategoryRecord[];
+  categoryTreeLoading: boolean;
+}>();
 
-  const model = defineModel<{
-    articleTitle: string;
-    cmsCategoryId: string;
-    articleType: number | "";
-  }>({ required: true });
+const model = defineModel<{
+  articleTitle: string;
+  cmsCategoryId: string;
+  articleType: number | '';
+}>({ required: true });
 
-  const formRef = ref<FormInstance>();
+const formRef = ref<FormInstance>();
 
-  const treeProps = {
-    children: "children",
-    label: "categoryName",
-    value: "id",
-  } as const;
+const treeProps = {
+  children: 'children',
+  label: 'categoryName',
+  value: 'id'
+} as const;
 
-  defineExpose({
-    resetFields: () => formRef.value?.resetFields?.(),
-  });
+defineExpose({
+  resetFields: () => formRef.value?.resetFields?.()
+});
 </script>
 
 <template>
   <el-form ref="formRef" label-position="top" :model>
     <el-form-item label="标题" prop="articleTitle">
-      <el-input v-model.trim="model.articleTitle" clearable maxlength="100" placeholder="请输入标题" class="w-full" />
+      <el-input
+        v-model.trim="model.articleTitle"
+        clearable
+        maxlength="100"
+        placeholder="请输入标题"
+        class="w-full"
+      />
     </el-form-item>
 
     <el-form-item label="所属栏目" prop="cmsCategoryId">

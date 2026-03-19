@@ -1,131 +1,133 @@
 <script setup lang="ts">
-  import { computed, nextTick, reactive, ref, watch } from "vue";
-  import type { FormInstance, FormRules } from "element-plus";
+import { computed, nextTick, reactive, ref, watch } from 'vue';
+import type { FormInstance, FormRules } from 'element-plus';
 
-  type TemplateDialogMode = "create" | "edit" | "copy";
+type TemplateDialogMode = 'create' | 'edit' | 'copy';
 
-  interface TemplateDialogValue {
-    templateName?: string;
-    description?: string;
-    templateType?: number;
-    isOpen?: number;
+interface TemplateDialogValue {
+  templateName?: string;
+  description?: string;
+  templateType?: number;
+  isOpen?: number;
+}
+
+const props = defineProps<{
+  modelValue: boolean;
+  loading?: boolean;
+  mode?: TemplateDialogMode;
+  initialValue?: TemplateDialogValue;
+  title?: string;
+  submitText?: string;
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', v: boolean): void;
+  (
+    e: 'submit',
+    payload: {
+      templateName: string;
+      description: string;
+      templateType: number;
+      isOpen: number;
+    }
+  ): void;
+}>();
+
+defineOptions({
+  name: 'PortalTemplateCreateDialog'
+});
+
+const visible = computed({
+  get: () => props.modelValue,
+  set: (v: boolean) => emit('update:modelValue', v)
+});
+
+const dialogMode = computed<TemplateDialogMode>(() => props.mode ?? 'create');
+const crudMode = computed<'create' | 'edit'>(() =>
+  dialogMode.value === 'edit' ? 'edit' : 'create'
+);
+
+const dialogTitle = computed(() => {
+  if (props.title) {
+    return props.title;
   }
-
-  const props = defineProps<{
-    modelValue: boolean;
-    loading?: boolean;
-    mode?: TemplateDialogMode;
-    initialValue?: TemplateDialogValue;
-    title?: string;
-    submitText?: string;
-  }>();
-
-  const emit = defineEmits<{
-    (e: "update:modelValue", v: boolean): void;
-    (
-      e: "submit",
-      payload: {
-        templateName: string;
-        description: string;
-        templateType: number;
-        isOpen: number;
-      }
-    ): void;
-  }>();
-
-  defineOptions({
-    name: "PortalTemplateCreateDialog",
-  });
-
-  const visible = computed({
-    get: () => props.modelValue,
-    set: (v: boolean) => emit("update:modelValue", v),
-  });
-
-  const dialogMode = computed<TemplateDialogMode>(() => props.mode ?? "create");
-  const crudMode = computed<"create" | "edit">(() => (dialogMode.value === "edit" ? "edit" : "create"));
-
-  const dialogTitle = computed(() => {
-    if (props.title) {
-      return props.title;
-    }
-    if (dialogMode.value === "edit") {
-      return "编辑门户模板";
-    }
-    if (dialogMode.value === "copy") {
-      return "复制门户模板";
-    }
-    return "新增门户模板";
-  });
-
-  const submitButtonText = computed(() => {
-    if (props.submitText) {
-      return props.submitText;
-    }
-    if (dialogMode.value === "edit") {
-      return "保存";
-    }
-    if (dialogMode.value === "copy") {
-      return "复制";
-    }
-    return "创建并配置";
-  });
-
-  const formRef = ref<FormInstance>();
-  const form = reactive({
-    templateName: "",
-    description: "",
-    templateType: 0, // 0=左侧导航模板（老项目默认）
-    isOpen: 0, // 0=普通门户，1=匿名门户
-  });
-
-  const rules: FormRules = {
-    templateName: [
-      {
-        required: true,
-        message: "请输入门户名称",
-        trigger: "blur",
-      },
-    ],
-  };
-
-  watch(
-    () => visible.value,
-    (v) => {
-      if (!v) {
-        return;
-      }
-      const source = props.initialValue ?? {};
-      form.templateName = (source.templateName ?? "").trim();
-      form.description = source.description ?? "";
-      form.templateType = Number(source.templateType) || 0;
-      form.isOpen = Number(source.isOpen) || 0;
-      nextTick(() => formRef.value?.clearValidate());
-    }
-  );
-
-  function onCancel() {
-    visible.value = false;
+  if (dialogMode.value === 'edit') {
+    return '编辑门户模板';
   }
+  if (dialogMode.value === 'copy') {
+    return '复制门户模板';
+  }
+  return '新增门户模板';
+});
 
-  async function onSubmit() {
-    const ok = await formRef.value?.validate().catch(() => false);
-    if (!ok) {
+const submitButtonText = computed(() => {
+  if (props.submitText) {
+    return props.submitText;
+  }
+  if (dialogMode.value === 'edit') {
+    return '保存';
+  }
+  if (dialogMode.value === 'copy') {
+    return '复制';
+  }
+  return '创建并配置';
+});
+
+const formRef = ref<FormInstance>();
+const form = reactive({
+  templateName: '',
+  description: '',
+  templateType: 0, // 0=左侧导航模板（老项目默认）
+  isOpen: 0 // 0=普通门户，1=匿名门户
+});
+
+const rules: FormRules = {
+  templateName: [
+    {
+      required: true,
+      message: '请输入门户名称',
+      trigger: 'blur'
+    }
+  ]
+};
+
+watch(
+  () => visible.value,
+  (v) => {
+    if (!v) {
       return;
     }
-
-    const templateName = form.templateName.trim();
-    if (!templateName) {
-      return;
-    }
-
-    emit("submit", {
-      templateName,
-      description: form.description.trim(),
-      templateType: Number(form.templateType) || 0,
-      isOpen: Number(form.isOpen) || 0,
-    });
+    const source = props.initialValue ?? {};
+    form.templateName = (source.templateName ?? '').trim();
+    form.description = source.description ?? '';
+    form.templateType = Number(source.templateType) || 0;
+    form.isOpen = Number(source.isOpen) || 0;
+    nextTick(() => formRef.value?.clearValidate());
   }
+);
+
+function onCancel() {
+  visible.value = false;
+}
+
+async function onSubmit() {
+  const ok = await formRef.value?.validate().catch(() => false);
+  if (!ok) {
+    return;
+  }
+
+  const templateName = form.templateName.trim();
+  if (!templateName) {
+    return;
+  }
+
+  emit('submit', {
+    templateName,
+    description: form.description.trim(),
+    templateType: Number(form.templateType) || 0,
+    isOpen: Number(form.isOpen) || 0
+  });
+}
 </script>
 
 <template>
@@ -184,7 +186,7 @@
 </template>
 
 <style scoped>
-  .form {
-    padding-top: 4px;
-  }
+.form {
+  padding-top: 4px;
+}
 </style>

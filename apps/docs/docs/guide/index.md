@@ -96,13 +96,17 @@ outline: false
 <p class="guide-section-intro">门户能力、引擎包和后端适配能力的接入入口。</p>
 
 <div class="guide-grid">
-  <a class="guide-card" href="/guide/portal-designer">
-    <h3>门户设计器（PC）</h3>
-    <p>管理端设计器、编辑器和预览渲染链路。</p>
+  <a class="guide-card" href="/guide/portal/">
+    <h3>门户体系总览</h3>
+    <p>先看入口、边界和阅读路径，再按角色进入分层文档。</p>
   </a>
-  <a class="guide-card" href="/guide/portal-engine">
-    <h3>portal-engine 能力边界</h3>
-    <p>共享引擎包职责、导出入口与 admin/portal 复用方式。</p>
+  <a class="guide-card" href="/guide/portal/admin-designer">
+    <h3>PortalManagement 管理端接入</h3>
+    <p>聚焦 admin 消费者视角：路由、编排与注入链路。</p>
+  </a>
+  <a class="guide-card" href="/guide/portal/engine-boundary">
+    <h3>portal-engine 边界与导出层</h3>
+    <p>共享引擎职责、导出约束与跨应用复用边界。</p>
   </a>
   <a class="guide-card" href="/guide/adapter-sczfw">
     <h3>sczfw Adapter</h3>

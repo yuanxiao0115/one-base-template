@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  defineOptions({
-    name: "TemplateHomePage",
-  });
+defineOptions({
+  name: 'TemplateHomePage'
+});
 </script>
 
 <template>

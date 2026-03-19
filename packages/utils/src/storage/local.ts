@@ -33,7 +33,7 @@ export class LocalStorage {
     const prefixedKey = this.getKey(key);
     const data: StorageData = {
       value,
-      expire: expire ? Date.now() + expire : undefined,
+      expire: expire ? Date.now() + expire : undefined
     };
     localStorage.setItem(prefixedKey, JSON.stringify(data));
   }

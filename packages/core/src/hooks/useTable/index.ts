@@ -2,7 +2,7 @@
  * 表格数据管理 Hook
  * @description 统一使用分区配置：query / remove / hooks
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable @typescript-eslint/no-explicit-any */
 
 import { computed, isRef, onMounted, onUnmounted, reactive, ref, type Ref } from 'vue';
 import type { CoreTableConfirmAdapter } from '../../createCore';
@@ -50,7 +50,11 @@ export interface UseTableDefaults {
   responseAdapter?: (response: any) => UseTableStandardResponse;
 }
 
-export type CacheInvalidationStrategy = 'clear_all' | 'clear_current' | 'clear_pagination' | 'keep_all';
+export type CacheInvalidationStrategy =
+  | 'clear_all'
+  | 'clear_current'
+  | 'clear_pagination'
+  | 'keep_all';
 
 export interface UseTableStandardResponse<T = any> {
   records: T[];
@@ -288,14 +292,14 @@ export function setUseTableDefaults(defaults: UseTableDefaults = {}): void {
   tableDefaultsState.paginationKey = defaults.paginationKey
     ? {
         current: defaults.paginationKey.current,
-        size: defaults.paginationKey.size,
+        size: defaults.paginationKey.size
       }
     : undefined;
 
   tableDefaultsState.paginationAlias = defaults.paginationAlias
     ? {
         current: cloneArray(defaults.paginationAlias.current),
-        size: cloneArray(defaults.paginationAlias.size),
+        size: cloneArray(defaults.paginationAlias.size)
       }
     : undefined;
 
@@ -307,16 +311,16 @@ export function getUseTableDefaults(): Readonly<UseTableDefaults> {
     paginationKey: tableDefaultsState.paginationKey
       ? {
           current: tableDefaultsState.paginationKey.current,
-          size: tableDefaultsState.paginationKey.size,
+          size: tableDefaultsState.paginationKey.size
         }
       : undefined,
     paginationAlias: tableDefaultsState.paginationAlias
       ? {
           current: cloneArray(tableDefaultsState.paginationAlias.current),
-          size: cloneArray(tableDefaultsState.paginationAlias.size),
+          size: cloneArray(tableDefaultsState.paginationAlias.size)
         }
       : undefined,
-    responseAdapter: tableDefaultsState.responseAdapter,
+    responseAdapter: tableDefaultsState.responseAdapter
   };
 }
 
@@ -370,7 +374,7 @@ function createDebounce<TArgs extends unknown[]>(
         clearTimeout(timer);
         timer = null;
       }
-    },
+    }
   };
 }
 
@@ -405,7 +409,11 @@ function resolveDeleteName(input: unknown, nameKey: string): string {
   return '';
 }
 
-function buildDeleteConfirmMessage(options: UseTableDeleteConfirmOptions, name: string, input: unknown): string {
+function buildDeleteConfirmMessage(
+  options: UseTableDeleteConfirmOptions,
+  name: string,
+  input: unknown
+): string {
   if (typeof options.message === 'function') {
     return options.message(name, input);
   }
@@ -453,14 +461,14 @@ function createDeleteConfirmHook(deleteConfirm: UseTableDeleteConfirmOptions) {
             return '输入内容与待删除项不一致';
           }
           return true;
-        },
+        }
       });
       return;
     }
 
     await adapter.warn(message, title, {
       confirmButtonText: deleteConfirm.confirmButtonText || '确定',
-      cancelButtonText: deleteConfirm.cancelButtonText || '取消',
+      cancelButtonText: deleteConfirm.cancelButtonText || '取消'
     });
   };
 }
@@ -493,7 +501,7 @@ function defaultResponseAdapter(response: any): UseTableStandardResponse {
     return {
       records: response,
       total: response.length,
-      raw: response,
+      raw: response
     };
   }
 
@@ -502,12 +510,29 @@ function defaultResponseAdapter(response: any): UseTableStandardResponse {
 
   // 常见分页字段优先级
   const recordsCandidate =
-    data.records ?? data.list ?? data.rows ?? data.items ?? root.records ?? root.list ?? root.rows ?? root.items;
+    data.records ??
+    data.list ??
+    data.rows ??
+    data.items ??
+    root.records ??
+    root.list ??
+    root.rows ??
+    root.items;
 
-  const records = Array.isArray(recordsCandidate) ? recordsCandidate : Array.isArray(data) ? data : [];
+  const records = Array.isArray(recordsCandidate)
+    ? recordsCandidate
+    : Array.isArray(data)
+      ? data
+      : [];
 
   const totalCandidate =
-    data.totalCount ?? data.total ?? data.count ?? root.totalCount ?? root.total ?? root.count ?? records.length;
+    data.totalCount ??
+    data.total ??
+    data.count ??
+    root.totalCount ??
+    root.total ??
+    root.count ??
+    records.length;
 
   const currentCandidate =
     data.currentPage ?? data.current ?? data.page ?? root.currentPage ?? root.current ?? root.page;
@@ -518,7 +543,7 @@ function defaultResponseAdapter(response: any): UseTableStandardResponse {
     total: Number(totalCandidate ?? records.length),
     currentPage: currentCandidate == null ? undefined : Number(currentCandidate),
     pageSize: pageSizeCandidate == null ? undefined : Number(pageSizeCandidate),
-    raw: response,
+    raw: response
   };
 }
 
@@ -533,18 +558,20 @@ function normalizeOptions(options: UseTableOptions): UseTableInternalConfig {
     currentKey,
     ...(query.paginationAlias?.current || []),
     ...(defaults.paginationAlias?.current || []),
-    ...DEFAULT_CURRENT_ALIASES,
+    ...DEFAULT_CURRENT_ALIASES
   ]);
   const sizeAliases = uniqueStrings([
     sizeKey,
     ...(query.paginationAlias?.size || []),
     ...(defaults.paginationAlias?.size || []),
-    ...DEFAULT_SIZE_ALIASES,
+    ...DEFAULT_SIZE_ALIASES
   ]);
 
   const deleteIdKey = remove?.idKey || 'id';
   const deletePayloadKey = remove?.payloadKey || deleteIdKey;
-  const confirmHook = remove?.deleteConfirm ? createDeleteConfirmHook(remove.deleteConfirm) : undefined;
+  const confirmHook = remove?.deleteConfirm
+    ? createDeleteConfirmHook(remove.deleteConfirm)
+    : undefined;
   const beforeDelete = remove?.beforeDelete;
   const beforeBatchDelete = remove?.beforeBatchDelete;
 
@@ -584,7 +611,8 @@ function normalizeOptions(options: UseTableOptions): UseTableInternalConfig {
     resetFormCallback: options.hooks?.resetFormCallback,
     deleteApi: remove?.api,
     batchDeleteApi: remove?.batchApi,
-    deletePayloadBuilder: remove?.buildPayload || createDefaultDeletePayloadBuilder(deleteIdKey, deletePayloadKey),
+    deletePayloadBuilder:
+      remove?.buildPayload || createDefaultDeletePayloadBuilder(deleteIdKey, deletePayloadKey),
     batchDeletePayloadBuilder: remove?.buildBatchPayload || defaultBatchDeletePayloadBuilder,
     deleteIdKey,
     deletePayloadKey,
@@ -594,7 +622,7 @@ function normalizeOptions(options: UseTableOptions): UseTableInternalConfig {
     refreshAfterDelete: remove?.refreshAfterDelete || 'auto',
     onDeleteSuccess: remove?.onSuccess,
     onDeleteError: remove?.onError,
-    queryParams: query.params,
+    queryParams: query.params
   };
 }
 
@@ -633,7 +661,7 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
     background: true,
     pageSizes: [10, 20, 50, 100],
     layout: 'total, sizes, prev, pager, next, jumper',
-    ...config.initialPagination,
+    ...config.initialPagination
   });
 
   // 优先沿用外部 query.params 对象，便于页面双向绑定搜索表单。
@@ -660,7 +688,7 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
     return {
       total: count,
       size: `${(totalSize / 1024).toFixed(2)} KB`,
-      hitRate: count === 0 ? '0 avg hits' : `${(totalHits / count).toFixed(2)} avg hits`,
+      hitRate: count === 0 ? '0 avg hits' : `${(totalHits / count).toFixed(2)} avg hits`
     };
   });
 
@@ -701,8 +729,8 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
   function buildRequestParams(params?: Record<string, any>): Record<string, any> {
     const merged = {
       ...config.apiParams,
-      ...(searchParams || {}),
-      ...(params || {}),
+      ...searchParams,
+      ...params
     };
 
     if (config.paginationFlag) {
@@ -739,12 +767,12 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
       data: [...response.records],
       response: {
         ...response,
-        records: [...response.records],
+        records: [...response.records]
       },
       expiresAt: Date.now() + config.cacheTime,
       byteSize: getApproximateSize(response),
       hitCount: 0,
-      querySignature,
+      querySignature
     };
 
     requestCache.set(key, entry);
@@ -831,7 +859,9 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
   }
 
   function applyResponse(response: UseTableStandardResponse) {
-    const transformed = config.dataTransformer ? config.dataTransformer([...response.records]) : response.records;
+    const transformed = config.dataTransformer
+      ? config.dataTransformer([...response.records])
+      : response.records;
 
     dataList.value = Array.isArray(transformed) ? transformed : [];
 
@@ -868,7 +898,7 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
       if (cached) {
         const response = {
           ...cached.response,
-          records: [...cached.data],
+          records: [...cached.data]
         };
 
         applyResponse(response);
@@ -892,7 +922,7 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
           total: pagination.total,
           currentPage: pagination.currentPage,
           pageSize: pagination.pageSize,
-          raw,
+          raw
         };
       }
 
@@ -900,9 +930,10 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
       const response: UseTableStandardResponse = {
         records: Array.isArray(normalized.records) ? normalized.records : [],
         total: Number(normalized.total ?? 0),
-        currentPage: normalized.currentPage == null ? pagination.currentPage : Number(normalized.currentPage),
+        currentPage:
+          normalized.currentPage == null ? pagination.currentPage : Number(normalized.currentPage),
         pageSize: normalized.pageSize == null ? pagination.pageSize : Number(normalized.pageSize),
-        raw,
+        raw
       };
 
       applyResponse(response);
@@ -925,7 +956,9 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
     }
   }
 
-  async function fetchData(params?: Record<string, any>): Promise<UseTableStandardResponse | undefined> {
+  async function fetchData(
+    params?: Record<string, any>
+  ): Promise<UseTableStandardResponse | undefined> {
     try {
       return await executeRequest(params, { useCache: config.enableCache });
     } catch {
@@ -933,7 +966,9 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
     }
   }
 
-  async function getData(params?: Record<string, any>): Promise<UseTableStandardResponse | undefined> {
+  async function getData(
+    params?: Record<string, any>
+  ): Promise<UseTableStandardResponse | undefined> {
     pagination.currentPage = 1;
     syncPaginationToSearchParams();
     clearCache('clear_pagination');
@@ -1297,7 +1332,7 @@ export function useTable(options: UseTableOptions, tableRef?: Ref<any>): UseTabl
     clearCache,
     clearExpiredCache,
     cancelRequest,
-    clearData,
+    clearData
   };
 }
 

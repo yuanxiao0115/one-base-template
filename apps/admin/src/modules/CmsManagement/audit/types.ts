@@ -1,9 +1,16 @@
-import type { ApiPageData } from "@/shared/api/types";
+import type { ApiPageData } from '@/shared/api/types';
 
-export type { ApiResponse } from "@/shared/api/types";
+export type { ApiResponse } from '@/shared/api/types';
 
 export type ReviewStatus = 0 | 1 | 2;
-type LooseField = string | number | boolean | null | undefined | Array<unknown> | Record<string, unknown>;
+type LooseField =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Array<unknown>
+  | Record<string, unknown>;
 
 export interface ReviewCategoryItem {
   id: number;

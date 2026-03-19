@@ -3,17 +3,17 @@
 </template>
 
 <script setup lang="ts">
-  defineOptions({
-    name: 'PbListItemContent',
-  });
+defineOptions({
+  name: 'PbListItemContent'
+});
 </script>
 
 <style scoped>
-  .cms-list-item-content {
-    display: flex;
-    justify-content: space-between;
-    overflow: hidden;
-    flex: 1;
-    flex-direction: column;
-  }
+.cms-list-item-content {
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  flex: 1;
+  flex-direction: column;
+}
 </style>

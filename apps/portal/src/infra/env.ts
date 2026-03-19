@@ -1,9 +1,9 @@
-import { getPlatformConfig } from "@/config/platform-config";
+import { getPlatformConfig } from '@/config/platform-config';
 import type {
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
-  PlatformMenuMode,
-} from "@one-base-template/core";
+  PlatformMenuMode
+} from '@one-base-template/core';
 
 export type BackendKind = PlatformBackendKind;
 export type AuthMode = PlatformAuthMode;
@@ -34,7 +34,7 @@ export interface AppEnv {
 }
 
 function isNonEmptyString(v: unknown): v is string {
-  return typeof v === "string" && v.length > 0;
+  return typeof v === 'string' && v.length > 0;
 }
 
 function resolveApiBaseUrl(): string | undefined {
@@ -49,14 +49,14 @@ function resolveSczfwHeaders(params: {
   appcode: string;
 }): Record<string, string> | undefined {
   const { backend, authorizationType, appsource, appcode } = params;
-  if (backend !== "sczfw") {
+  if (backend !== 'sczfw') {
     return undefined;
   }
 
   return {
-    "Authorization-Type": authorizationType,
+    'Authorization-Type': authorizationType,
     Appsource: appsource,
-    Appcode: appcode,
+    Appcode: appcode
   };
 }
 
@@ -68,17 +68,17 @@ function resolveDefaultSystemCode(params: {
   if (isNonEmptyString(defaultSystemCode)) {
     return defaultSystemCode;
   }
-  if (backend !== "sczfw") {
+  if (backend !== 'sczfw') {
     return undefined;
   }
-  return "admin_server";
+  return 'admin_server';
 }
 
 export function resolveBuildEnv(): BuildEnv {
   return {
     isProd: import.meta.env.PROD,
     baseUrl: import.meta.env.BASE_URL,
-    apiBaseUrl: resolveApiBaseUrl(),
+    apiBaseUrl: resolveApiBaseUrl()
   };
 }
 
@@ -88,7 +88,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
 
   const defaultSystemCode = resolveDefaultSystemCode({
     backend: runtime.backend,
-    defaultSystemCode: runtime.defaultSystemCode,
+    defaultSystemCode: runtime.defaultSystemCode
   });
 
   return {
@@ -104,14 +104,16 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
       backend: runtime.backend,
       authorizationType: runtime.authorizationType,
       appsource: runtime.appsource,
-      appcode: runtime.appcode,
+      appcode: runtime.appcode
     }),
     clientSignatureSalt: runtime.clientSignatureSalt,
     clientSignatureClientId: runtime.clientSignatureClientId,
-    storageNamespace: isNonEmptyString(runtime.storageNamespace) ? runtime.storageNamespace : runtime.appcode,
+    storageNamespace: isNonEmptyString(runtime.storageNamespace)
+      ? runtime.storageNamespace
+      : runtime.appcode,
     sczfwSystemPermissionCode: defaultSystemCode,
     defaultSystemCode,
-    systemHomeMap: runtime.systemHomeMap,
+    systemHomeMap: runtime.systemHomeMap
   };
 }
 

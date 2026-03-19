@@ -13,6 +13,7 @@
 ### Task 1: 梳理保留边界
 
 **Files:**
+
 - Inspect: `apps/admin/src/infra/sczfw/crypto.ts`
 - Inspect: `apps/portal/src/infra/sczfw/crypto.ts`
 - Inspect: `apps/admin/src/bootstrap/http.ts`
@@ -28,6 +29,7 @@
 ### Task 2: 删除冗余实现
 
 **Files:**
+
 - Modify: `apps/admin/src/infra/sczfw/crypto.ts`
 - Modify: `apps/portal/src/infra/sczfw/crypto.ts`
 - Delete: `apps/admin/src/components/verifition-plus/VerifySlide.vue`
@@ -53,6 +55,7 @@
 ### Task 3: 同步文档
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/adapter-sczfw.md`
 - Modify: `apps/docs/docs/guide/architecture.md`
 
@@ -65,6 +68,7 @@
 ### Task 4: 定向验证
 
 **Files:**
+
 - Verify only
 
 **Step 1: 运行验证命令**

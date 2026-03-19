@@ -51,8 +51,8 @@ const DEFAULT_CONFIG: Required<TagConfig> = {
     { path: '/' },
     { path: '/sso' },
     { path: '' },
-    { name: 'Login' },
-  ],
+    { name: 'Login' }
+  ]
 };
 
 /**
@@ -182,10 +182,10 @@ class ConfigManager {
       // name 字段应该是路由名称，不是标题，这里不设置 name
       // 让 tagOnClick 使用 path 进行路由跳转
       meta: {
-        title: this.config.homeTitle,
+        title: this.config.homeTitle
       },
       query: {},
-      params: {},
+      params: {}
     };
   }
 
@@ -208,7 +208,10 @@ class ConfigManager {
    */
   validateHomeTag(tag: any): boolean {
     return (
-      tag && typeof tag === 'object' && tag.path === this.config.homePath && tag.meta?.title === this.config.homeTitle
+      tag &&
+      typeof tag === 'object' &&
+      tag.path === this.config.homePath &&
+      tag.meta?.title === this.config.homeTitle
     );
   }
 }

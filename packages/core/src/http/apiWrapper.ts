@@ -21,7 +21,7 @@ export async function apiWrapper<T>(apiCall: Promise<unknown>): Promise<ObApiWra
       code: 500,
       data: null as unknown as T,
       message,
-      success: false,
+      success: false
     };
   }
 }

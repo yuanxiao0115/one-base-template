@@ -7,6 +7,5 @@ export const message = {
   info: ElMessage.info,
   success: ElMessage.success,
   warning: ElMessage.warning,
-  error: ElMessage.error,
+  error: ElMessage.error
 };
-

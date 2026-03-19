@@ -13,6 +13,7 @@
 ### Task 1: 冻结提交边界并排除生成物噪音
 
 **Files:**
+
 - Inspect: `.gitignore`
 - Inspect: `apps/portal/**`
 - Inspect: `packages/portal-engine/**`
@@ -36,6 +37,7 @@ Expected: `apps/portal` 只显示源码/配置文件；`.gitignore` 已屏蔽 `d
 ### Task 2: 提交 Agent / Harness 规则与知识入口改动
 
 **Files:**
+
 - Modify: `AGENTS.md`
 - Modify: `apps/admin/AGENTS.md`
 - Create: `apps/docs/docs/guide/agent-harness.md`
@@ -49,6 +51,7 @@ Expected: `apps/portal` 只显示源码/配置文件；`.gitignore` 已屏蔽 `d
 **Step 1: 选择性暂存本批文件**
 
 Run:
+
 ```bash
 git add AGENTS.md \
   apps/admin/AGENTS.md \
@@ -67,6 +70,7 @@ git add AGENTS.md \
 **Step 3: 验证 docs**
 
 Run:
+
 ```bash
 pnpm -C apps/docs lint
 pnpm -C apps/docs build
@@ -77,6 +81,7 @@ Expected: PASS
 **Step 4: 提交**
 
 Run:
+
 ```bash
 git commit -m "docs: 重构 agent harness 项目规则"
 ```
@@ -84,6 +89,7 @@ git commit -m "docs: 重构 agent harness 项目规则"
 ### Task 3: 提交 portal-engine 抽包与 admin 门户迁移
 
 **Files:**
+
 - Create: `packages/portal-engine/**`
 - Modify/Delete: `apps/admin/src/modules/portal/**`
 - Modify: `apps/admin/package.json`
@@ -95,6 +101,7 @@ git commit -m "docs: 重构 agent harness 项目规则"
 **Step 1: 暂存引擎包与 admin 迁移文件**
 
 重点覆盖：
+
 - `packages/portal-engine/src/editor/**`
 - `packages/portal-engine/src/renderer/**`
 - `packages/portal-engine/src/materials/**`
@@ -106,6 +113,7 @@ git commit -m "docs: 重构 agent harness 项目规则"
 **Step 2: 暂存配套工程配置**
 
 Run:
+
 ```bash
 git add apps/admin/package.json tsconfig.base.json eslint.config.js \
   docs/plans/2026-03-05-portal-engine-split-design.md \
@@ -116,6 +124,7 @@ git add apps/admin/package.json tsconfig.base.json eslint.config.js \
 **Step 3: 验证 admin 与 portal-engine**
 
 Run:
+
 ```bash
 pnpm -C packages/portal-engine typecheck
 pnpm -C apps/admin typecheck
@@ -127,6 +136,7 @@ Expected: PASS
 **Step 4: 提交**
 
 Run:
+
 ```bash
 git commit -m "feat: 抽离 portal-engine 并迁移 admin 门户模块"
 ```
@@ -134,6 +144,7 @@ git commit -m "feat: 抽离 portal-engine 并迁移 admin 门户模块"
 ### Task 4: 提交 apps/portal 独立消费者应用
 
 **Files:**
+
 - Create: `apps/portal/index.html`
 - Create: `apps/portal/package.json`
 - Create: `apps/portal/public/platform-config.json`
@@ -146,6 +157,7 @@ git commit -m "feat: 抽离 portal-engine 并迁移 admin 门户模块"
 **Step 1: 选择性暂存 portal app 文件**
 
 Run:
+
 ```bash
 git add apps/portal/index.html \
   apps/portal/package.json \
@@ -160,6 +172,7 @@ git add apps/portal/index.html \
 **Step 2: 验证 portal**
 
 Run:
+
 ```bash
 pnpm -C apps/portal typecheck
 pnpm -C apps/portal lint
@@ -171,6 +184,7 @@ Expected: PASS
 **Step 3: 提交**
 
 Run:
+
 ```bash
 git commit -m "feat: 新增 portal 独立消费者应用"
 ```
@@ -178,6 +192,7 @@ git commit -m "feat: 新增 portal 独立消费者应用"
 ### Task 5: 提交工程配置收口与文档同步
 
 **Files:**
+
 - Create: `packages/adapters/turbo.json`
 - Create: `packages/core/turbo.json`
 - Create: `packages/tag/turbo.json`
@@ -194,6 +209,7 @@ git commit -m "feat: 新增 portal 独立消费者应用"
 **Step 1: 暂存工程配置与文档**
 
 Run:
+
 ```bash
 git add packages/adapters/turbo.json packages/core/turbo.json packages/tag/turbo.json \
   packages/ui/turbo.json packages/utils/turbo.json pnpm-lock.yaml \
@@ -205,6 +221,7 @@ git add packages/adapters/turbo.json packages/core/turbo.json packages/tag/turbo
 **Step 2: 验证全局工程链路**
 
 Run:
+
 ```bash
 pnpm -C apps/docs lint
 pnpm -C apps/docs build
@@ -216,6 +233,7 @@ Expected: PASS
 **Step 3: 提交**
 
 Run:
+
 ```bash
 git commit -m "chore: 收口 monorepo 配置并同步文档"
 ```
@@ -223,11 +241,13 @@ git commit -m "chore: 收口 monorepo 配置并同步文档"
 ### Task 6: 全量验收并确认工作区归零
 
 **Files:**
+
 - Verify only
 
 **Step 1: 运行全量验证**
 
 Run:
+
 ```bash
 pnpm typecheck
 pnpm lint

@@ -1,31 +1,31 @@
-import path from "node:path";
-import { promises as fs } from "node:fs";
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 
 const MODULE_ID_REGEX = /^[a-z][a-z0-9-]*$/;
 
 function toPascalCase(value) {
   return value
-    .split("-")
+    .split('-')
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
+    .join('');
 }
 
 function toCamelCase(value) {
   const pascal = toPascalCase(value);
-  return pascal ? pascal.charAt(0).toLowerCase() + pascal.slice(1) : "";
+  return pascal ? pascal.charAt(0).toLowerCase() + pascal.slice(1) : '';
 }
 
 function parseArgs(argv) {
   const args = {
-    moduleId: "",
-    title: "",
-    routeBase: "",
-    dryRun: false,
+    moduleId: '',
+    title: '',
+    routeBase: '',
+    dryRun: false
   };
 
   const rest = [...argv];
-  args.moduleId = rest.shift() || "";
+  args.moduleId = rest.shift() || '';
 
   while (rest.length > 0) {
     const item = rest.shift();
@@ -33,28 +33,28 @@ function parseArgs(argv) {
       continue;
     }
 
-    if (item === "--dry-run") {
+    if (item === '--dry-run') {
       args.dryRun = true;
       continue;
     }
 
-    if (item.startsWith("--title=")) {
-      args.title = item.slice("--title=".length).trim();
+    if (item.startsWith('--title=')) {
+      args.title = item.slice('--title='.length).trim();
       continue;
     }
 
-    if (item === "--title") {
-      args.title = (rest.shift() || "").trim();
+    if (item === '--title') {
+      args.title = (rest.shift() || '').trim();
       continue;
     }
 
-    if (item.startsWith("--route=")) {
-      args.routeBase = item.slice("--route=".length).trim();
+    if (item.startsWith('--route=')) {
+      args.routeBase = item.slice('--route='.length).trim();
       continue;
     }
 
-    if (item === "--route") {
-      args.routeBase = (rest.shift() || "").trim();
+    if (item === '--route') {
+      args.routeBase = (rest.shift() || '').trim();
     }
   }
 
@@ -62,10 +62,11 @@ function parseArgs(argv) {
 }
 
 function createFiles(params) {
-  const { moduleId, pageName, pageFileName, title, routeBase, apiName, serviceName, moduleVar } = params;
+  const { moduleId, pageName, pageFileName, title, routeBase, apiName, serviceName, moduleVar } =
+    params;
 
   return {
-    "module.ts": `import type { AdminModuleManifest } from '@/router/types';
+    'module.ts': `import type { AdminModuleManifest } from '@/router/types';
 import layoutRoutes from './routes/layout';
 
 const ${moduleVar}: AdminModuleManifest = {
@@ -81,11 +82,11 @@ const ${moduleVar}: AdminModuleManifest = {
 
 export default ${moduleVar};
 `,
-    "index.ts": `export { default as ${moduleVar} } from './module';
+    'index.ts': `export { default as ${moduleVar} } from './module';
 `,
-    "routes.ts": `export { default } from './routes/layout';
+    'routes.ts': `export { default } from './routes/layout';
 `,
-    "routes/layout.ts": `import type { RouteRecordRaw } from 'vue-router';
+    'routes/layout.ts': `import type { RouteRecordRaw } from 'vue-router';
 
 export default [
   {
@@ -116,11 +117,11 @@ defineOptions({
   </el-card>
 </template>
 `,
-    "api/endpoints.ts": `export const ${apiName}Endpoints = {
+    'api/endpoints.ts': `export const ${apiName}Endpoints = {
   list: '/api/${moduleId}/list'
 } as const;
 `,
-    "api/client.ts": `import { getAppHttpClient } from '@/shared/api/http-client';
+    'api/client.ts': `import { getAppHttpClient } from '@/shared/api/http-client';
 import { ${apiName}Endpoints } from './endpoints';
 
 export const ${apiName}Api = {
@@ -136,7 +137,7 @@ export const ${serviceName} = {
     return ${apiName}Api.list();
   }
 };
-`,
+`
   };
 }
 
@@ -144,7 +145,7 @@ async function writeFiles(moduleDir, files, dryRun) {
   const fileEntries = Object.entries(files);
 
   if (dryRun) {
-    console.log("[dry-run] 计划创建以下文件：");
+    console.log('[dry-run] 计划创建以下文件：');
     for (const [relPath] of fileEntries) {
       console.log(`- ${path.join(moduleDir, relPath)}`);
     }
@@ -154,7 +155,7 @@ async function writeFiles(moduleDir, files, dryRun) {
   for (const [relPath, content] of fileEntries) {
     const absPath = path.join(moduleDir, relPath);
     await fs.mkdir(path.dirname(absPath), { recursive: true });
-    await fs.writeFile(absPath, content, "utf-8");
+    await fs.writeFile(absPath, content, 'utf-8');
   }
 
   console.log(`模块创建完成：${moduleDir}`);
@@ -165,12 +166,16 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
 
   if (!args.moduleId) {
-    console.error("用法: pnpm new:module <module-id> [--title 模块标题] [--route 路由前缀] [--dry-run]");
+    console.error(
+      '用法: pnpm new:module <module-id> [--title 模块标题] [--route 路由前缀] [--dry-run]'
+    );
     process.exit(1);
   }
 
   if (!MODULE_ID_REGEX.test(args.moduleId)) {
-    console.error(`模块名不合法: "${args.moduleId}"。仅支持小写字母、数字、短横线，且必须字母开头。`);
+    console.error(
+      `模块名不合法: "${args.moduleId}"。仅支持小写字母、数字、短横线，且必须字母开头。`
+    );
     process.exit(1);
   }
 
@@ -185,7 +190,7 @@ async function main() {
   const apiName = `${camel}Api`;
   const serviceName = `${camel}Service`;
 
-  const moduleDir = path.join(rootDir, "apps/admin/src/modules", moduleId);
+  const moduleDir = path.join(rootDir, 'apps/admin/src/modules', moduleId);
 
   try {
     await fs.access(moduleDir);
@@ -203,7 +208,7 @@ async function main() {
     routeBase,
     apiName,
     serviceName,
-    moduleVar,
+    moduleVar
   });
 
   await writeFiles(moduleDir, files, args.dryRun);

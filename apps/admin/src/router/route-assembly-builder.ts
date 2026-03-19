@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from "vue-router";
+import type { RouteRecordRaw } from 'vue-router';
 import {
   type AppModuleManifest,
   buildModuleAliasRoutes,
@@ -6,22 +6,22 @@ import {
   createModuleRouteAssemblyValidator,
   type RouteAssemblyValidator,
   type RouteCollectContext,
-  type RouteSource,
-} from "@one-base-template/core";
-import { createAppLogger } from "@/shared/logger";
-import { routePaths } from "./constants";
-import { reservedRouteNames, reservedRoutePaths } from "./public-routes";
+  type RouteSource
+} from '@one-base-template/core';
+import { createAppLogger } from '@/shared/logger';
+import { routePaths } from './constants';
+import { reservedRouteNames, reservedRoutePaths } from './public-routes';
 
 export type { RouteAssemblyValidator, RouteCollectContext, RouteSource };
 
 export function createRouteAssemblyValidator(): RouteAssemblyValidator {
-  const logger = createAppLogger("router/assemble");
+  const logger = createAppLogger('router/assemble');
   return createModuleRouteAssemblyValidator({
     reservedRoutePaths,
     reservedRouteNames,
     onWarn(message: string) {
       logger.warn(message);
-    },
+    }
   });
 }
 
@@ -34,7 +34,7 @@ export function buildRoutes(params: {
     modules: params.modules,
     source: params.source,
     validator: params.validator,
-    rootPath: routePaths.root,
+    rootPath: routePaths.root
   });
 }
 
@@ -45,6 +45,6 @@ export function buildAliasRoutes(params: {
   return buildModuleAliasRoutes({
     modules: params.modules,
     validator: params.validator,
-    rootPath: routePaths.root,
+    rootPath: routePaths.root
   });
 }

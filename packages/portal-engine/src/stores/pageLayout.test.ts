@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vite-plus/test';
 import { createPinia, setActivePinia } from 'pinia';
 
 import type { PortalLayoutItem } from './pageLayout';
@@ -30,16 +30,16 @@ function createTabContainerLayoutItem(): PortalLayoutItem {
                     cmptConfig: {
                       index: { name: 'base-text-index' },
                       content: { text: 'old-content' },
-                      style: { color: '#111111' },
-                    },
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      },
-    },
+                      style: { color: '#111111' }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
   };
 }
 
@@ -71,13 +71,12 @@ describe('portal pageLayout store (tab child selection)', () => {
     store.updateCurrentItemConfig({
       index: { name: 'base-text-index' },
       content: { text: 'new-content' },
-      style: { color: '#222222' },
+      style: { color: '#222222' }
     });
 
     const savedContent = (
-      store.layoutItems[0]?.component?.cmptConfig?.content?.tabs?.[0]?.layoutItems?.[0]?.component?.cmptConfig?.content as
-        | Record<string, unknown>
-        | undefined
+      store.layoutItems[0]?.component?.cmptConfig?.content?.tabs?.[0]?.layoutItems?.[0]?.component
+        ?.cmptConfig?.content as Record<string, unknown> | undefined
     )?.text;
 
     expect(savedContent).toBe('new-content');

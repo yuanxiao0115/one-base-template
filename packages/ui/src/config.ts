@@ -15,19 +15,21 @@ export interface OneUiGlobalConfig {
 }
 
 const DEFAULT_CRUD_CONTAINER_CONFIG: CrudContainerGlobalConfig = {
-  defaultContainer: 'drawer',
+  defaultContainer: 'drawer'
 };
 
-export const ONE_UI_GLOBAL_CONFIG_KEY: InjectionKey<Readonly<OneUiGlobalConfig>> = Symbol('ONE_UI_GLOBAL_CONFIG');
+export const ONE_UI_GLOBAL_CONFIG_KEY: InjectionKey<Readonly<OneUiGlobalConfig>> =
+  Symbol('ONE_UI_GLOBAL_CONFIG');
 
 export const DEFAULT_ONE_UI_GLOBAL_CONFIG: Readonly<OneUiGlobalConfig> = Object.freeze({
-  crudContainer: DEFAULT_CRUD_CONTAINER_CONFIG,
+  crudContainer: DEFAULT_CRUD_CONTAINER_CONFIG
 });
 
 export function createOneUiGlobalConfig(config?: OneUiGlobalConfig): Readonly<OneUiGlobalConfig> {
   return {
     crudContainer: {
-      defaultContainer: config?.crudContainer?.defaultContainer || DEFAULT_CRUD_CONTAINER_CONFIG.defaultContainer,
-    },
+      defaultContainer:
+        config?.crudContainer?.defaultContainer || DEFAULT_CRUD_CONTAINER_CONFIG.defaultContainer
+    }
   };
 }

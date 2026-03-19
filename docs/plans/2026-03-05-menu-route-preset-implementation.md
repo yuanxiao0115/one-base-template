@@ -13,6 +13,7 @@
 ### Task 1: 增加 preset 测试（RED）
 
 **Files:**
+
 - Create: `packages/core/src/config/platform-config.test.ts`
 
 **Step 1: 写失败测试用例**
@@ -31,6 +32,7 @@ Expected: 失败（当前尚未实现 preset）
 ### Task 2: 实现 preset 归一化（GREEN）
 
 **Files:**
+
 - Modify: `packages/core/src/config/platform-config.ts`
 - Modify: `packages/core/src/index.ts`
 
@@ -59,6 +61,7 @@ Expected: 通过
 ### Task 3: 同步文档与示例
 
 **Files:**
+
 - Modify: `apps/admin/public/platform-config.json`
 - Modify: `apps/docs/docs/guide/env.md`
 - Modify: `apps/docs/docs/guide/menu-route-spec.md`
@@ -76,6 +79,7 @@ Expected: 通过
 ### Task 4: 验证与收尾
 
 **Files:**
+
 - Modify: `.codex/operations-log.md`
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`
@@ -83,19 +87,21 @@ Expected: 通过
 **Step 1: 定向验证**
 
 Run:
+
 - `pnpm -C packages/core test:run packages/core/src/config/platform-config.test.ts`
 - `pnpm -C packages/core typecheck`
 
 **Step 2: 文档验证**
 
 Run:
+
 - `pnpm -C apps/docs lint`
 - `pnpm -C apps/docs build`
 
 **Step 3: 全仓关键回归**
 
 Run:
+
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm build`
-

@@ -13,6 +13,7 @@
 ### Task 1: 先锁定“单启动链路”预期
 
 **Files:**
+
 - Create: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/__tests__/main-single-bootstrap.test.ts`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/__tests__/style-entries-source.test.ts`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/__tests__/manual-chunks.test.ts`
@@ -59,6 +60,7 @@ Expected:
 ### Task 2: 收敛 main.ts 到单启动入口
 
 **Files:**
+
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/main.ts`
 - Reuse: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/index.ts`
 - Reuse: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/config/platform-config.ts`
@@ -108,6 +110,7 @@ Expected:
 ### Task 3: 删除 public/bootstrap mode 运行时分流
 
 **Files:**
+
 - Delete: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/public.ts`
 - Delete: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/public-entry.ts`
 - Delete: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/entry.ts`
@@ -128,14 +131,14 @@ Expected:
 把所有对下列符号的引用清掉：
 
 ```ts
-bootstrapAppByMode
-resolveBootstrapMode
-setBootstrapMode
-getBootstrapMode
-navigateAfterAuth
-resolveAuthNavigationTarget
-resolveAppHref
-getPublicRoutes
+bootstrapAppByMode;
+resolveBootstrapMode;
+setBootstrapMode;
+getBootstrapMode;
+navigateAfterAuth;
+resolveAuthNavigationTarget;
+resolveAppHref;
+getPublicRoutes;
 ```
 
 **Step 3: 跑定向类型与测试**
@@ -156,6 +159,7 @@ Expected:
 ### Task 4: 登录与 SSO 跳转、未授权清理回归到单链路语义
 
 **Files:**
+
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/bootstrap/http.ts`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/pages/login/LoginPage.vue`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/pages/sso/SsoCallbackPage.vue`
@@ -168,7 +172,7 @@ Expected:
 await navigateAfterAuth({
   router,
   target,
-  baseUrl,
+  baseUrl
 });
 ```
 
@@ -208,6 +212,7 @@ Expected:
 ### Task 5: 清理字体切换残留与文档口径
 
 **Files:**
+
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/admin/src/styles/index.css`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/docs/docs/guide/architecture.md`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/apps/docs/docs/guide/env.md`
@@ -243,6 +248,7 @@ Expected:
 ### Task 6: 全量验证与工作记录同步
 
 **Files:**
+
 - Modify: `/Users/haoqiuzhi/code/one-base-template/.codex/operations-log.md`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/.codex/testing.md`
 - Modify: `/Users/haoqiuzhi/code/one-base-template/.codex/verification.md`

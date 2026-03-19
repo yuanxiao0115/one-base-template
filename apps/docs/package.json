@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vitepress dev docs --port 5174",
-    "build": "vitepress build docs",
+    "build": "node ../../scripts/run-docs-build.mjs",
     "preview": "vitepress preview docs --port 4174",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "eslint ."
+    "lint": "vp lint ."
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
+    "esbuild": "^0.27.0",
     "vitepress": "^1.6.4"
   }
 }

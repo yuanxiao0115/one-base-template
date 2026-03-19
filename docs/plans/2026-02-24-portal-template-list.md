@@ -5,6 +5,7 @@
 **Goal:** 把 `/portal/templates` 从占位页升级为表格列表，提供搜索/筛选/分页与最小管理操作（配置/预览/发布/删除）。
 
 **Architecture:**
+
 - 列表页本地管理查询条件与分页状态（方案 A），通过 `portalApi.template.list/detail/publish/delete` 完成数据拉取与操作。
 - 预览复用顶层匿名路由 `/portal/preview/:tabId?templateId=<id>`，tabId 来自 `template.detail` 的 `tabList/tabIds`。
 - 兼容后端分页字段差异：`total`/`totalCount`。
@@ -16,11 +17,13 @@
 ### Task 1: 替换占位页为“筛选 + 表格 + 分页”骨架
 
 **Files:**
+
 - Modify: `apps/admin/src/modules/portal/pages/PortalTemplateListPage.vue`
 
 **Step 1: 写最小页面结构（先不接 API）**
 
 实现以下内容：
+
 - 顶部筛选区：`el-input(searchKey)` + `el-select(publishStatus)` + 查询/重置按钮
 - 表格：`el-table` + 4 列（名称/描述/状态/操作）
 - 分页：`el-pagination`
@@ -54,16 +57,25 @@ const rows = ref<PortalTemplate[]>([]);
 
 const publishStatusText = computed(() => ({
   0: '草稿',
-  1: '已发布',
+  1: '已发布'
 }));
 
 function normalizeBizOk(res: BizResLike | null | undefined): boolean {
   const code = res?.code;
-  return res?.success === true || code === 0 || code === 200 || String(code) === '0' || String(code) === '200';
+  return (
+    res?.success === true ||
+    code === 0 ||
+    code === 200 ||
+    String(code) === '0' ||
+    String(code) === '200'
+  );
 }
 
 function normalizePageTotal(data: PageResult<unknown> | null | undefined): number {
-  const raw = (data as Record<string, unknown> | null)?.total ?? (data as Record<string, unknown> | null)?.totalCount ?? 0;
+  const raw =
+    (data as Record<string, unknown> | null)?.total ??
+    (data as Record<string, unknown> | null)?.totalCount ??
+    0;
   const val = Number(raw);
   return Number.isFinite(val) ? val : 0;
 }
@@ -81,7 +93,7 @@ async function queryList(page = currentPage.value) {
       currentPage: currentPage.value,
       pageSize: pageSize.value,
       searchKey: searchKey.value || undefined,
-      publishStatus: publishStatus.value,
+      publishStatus: publishStatus.value
     });
 
     if (!normalizeBizOk(res)) {
@@ -132,7 +144,7 @@ async function openPreview(row: PortalTemplate) {
 
     const tpl = res.data;
     const tabIdFromTree = findFirstPageTabId(tpl?.tabList);
-    const tabId = tabIdFromTree || (Array.isArray(tpl?.tabIds) ? (tpl?.tabIds?.[0] || '') : '');
+    const tabId = tabIdFromTree || (Array.isArray(tpl?.tabIds) ? tpl?.tabIds?.[0] || '' : '');
     if (!tabId) {
       ElMessage.warning('该模板暂无可预览页面');
       return;
@@ -181,7 +193,8 @@ async function deleteTemplate(row: PortalTemplate) {
   ElMessage.success('删除成功');
 
   // 若当前页删空，自动回退上一页（避免出现空白页体验差）
-  const nextPage = rows.value.length <= 1 && currentPage.value > 1 ? currentPage.value - 1 : currentPage.value;
+  const nextPage =
+    rows.value.length <= 1 && currentPage.value > 1 ? currentPage.value - 1 : currentPage.value;
   await queryList(nextPage);
 }
 
@@ -207,7 +220,13 @@ onMounted(() => {
           @clear="onSearch"
         />
 
-        <el-select v-model="publishStatus" class="w-[140px]" placeholder="发布状态" clearable @clear="onSearch">
+        <el-select
+          v-model="publishStatus"
+          class="w-[140px]"
+          placeholder="发布状态"
+          clearable
+          @clear="onSearch"
+        >
           <el-option :value="undefined" label="全部" />
           <el-option :value="0" label="草稿" />
           <el-option :value="1" label="已发布" />
@@ -238,7 +257,9 @@ onMounted(() => {
             <div class="flex gap-2 flex-wrap">
               <el-button link type="primary" @click="goDesigner(row)">配置</el-button>
               <el-button link @click="openPreview(row)">预览</el-button>
-              <el-button link @click="togglePublish(row)">{{ row.publishStatus === 1 ? '取消发布' : '发布' }}</el-button>
+              <el-button link @click="togglePublish(row)">{{
+                row.publishStatus === 1 ? '取消发布' : '发布'
+              }}</el-button>
               <el-button link type="danger" @click="deleteTemplate(row)">删除</el-button>
             </div>
           </template>
@@ -279,9 +300,11 @@ git commit -m "feat(portal): implement template list table"
 ### Task 2: 文档补齐列表页说明
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/portal-designer.md`
 
 **Step 1: 更新“/portal/templates”能力说明**
+
 - 标注“表格列表（非卡片）”
 - 列出支持的最小操作：配置/预览/发布/删除 + 搜索/筛选/分页
 
@@ -304,6 +327,7 @@ git commit -m "docs(portal): document template list table"
 **Step 1: 运行全仓验证**
 
 Run:
+
 ```bash
 pnpm -w typecheck
 pnpm -w lint
@@ -314,5 +338,5 @@ pnpm -C apps/docs build
 Expected: 全部 PASS（允许存在非 portal 相关 warning，但不得新增 portal 相关 error）。
 
 **Step 2: 记录验证结果**
-- 更新项目工作文档（主仓库）：`.codex/testing.md`、`.codex/verification.md`、`.codex/operations-log.md`
 
+- 更新项目工作文档（主仓库）：`.codex/testing.md`、`.codex/verification.md`、`.codex/operations-log.md`

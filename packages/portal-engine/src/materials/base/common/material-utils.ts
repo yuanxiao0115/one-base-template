@@ -122,7 +122,9 @@ export function appendQueryToUrl(url: string, query: Record<string, unknown>): s
     return '';
   }
 
-  const validQueryEntries = Object.entries(query).filter(([, value]) => value !== null && value !== undefined && `${value}` !== '');
+  const validQueryEntries = Object.entries(query).filter(
+    ([, value]) => value !== null && value !== undefined && `${value}` !== ''
+  );
   if (validQueryEntries.length === 0) {
     return trimmedUrl;
   }

@@ -12,7 +12,7 @@
 ## 强制统一组件（必须遵守）
 
 - 配置分组标题：**必须**使用 `ObCard`，禁止新增 `el-divider` 作为分组标题方案。
-- 颜色选择：**必须**优先使用 `PortalColorField`，禁止在物料配置面板直接散落 `el-color-picker`。
+- 颜色选择：**必须**优先使用 `@one-base-template/ui` 的 `ObColorField`；`PortalColorField` 已废弃并移除，禁止新增兼容壳/兼容导出。
 - 间距配置：**必须**优先使用 `PortalSpacingField`（上/右/下/左一体化），禁止拆成多个 `el-input-number` 手工拼接。
 - 边框配置：**必须**优先使用 `PortalBorderField`，禁止每个物料重复实现边框样式/颜色/宽度逻辑。
 - 统一容器头部：标题、副标题、图标、外链配置必须复用 `common/unified-container/**` 能力，不在物料内重复造字段。
@@ -23,6 +23,7 @@
 - 物料配置默认值与回写必须走 `createDefault* + merge*`，禁止在页面内散落兜底常量。
 - 物料库图标必须使用可渲染的 `MenuIcon` 值（`ri:`/`ep:`/iconfont/资源 id），避免不可用图标导致空白占位。
 - 影响配置面板结构时，同步维护文档：`apps/docs/docs/guide/portal-engine.md`。
+- 设计器 public API 一旦补上语义化命名，开发阶段**直接删除旧 public 命名导出**，不保留 deprecated/兼容 alias；实现语义统一收敛到 `@one-base-template/portal-engine/internal`。
 
 ## 组件注册一致性（防再发）
 

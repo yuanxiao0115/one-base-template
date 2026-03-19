@@ -50,6 +50,6 @@ export const version = '1.0.0';
 
 // 默认导出
 export default {
-  version,
+  version
   // 可以添加其他默认导出内容
 };

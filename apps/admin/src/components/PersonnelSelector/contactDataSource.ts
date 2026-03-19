@@ -1,19 +1,19 @@
-import { obHttp } from "@one-base-template/core";
-import type { ApiResponse } from "@/shared/api/types";
-import type { PersonnelNode, PersonnelUserNode } from "./types";
+import { obHttp } from '@one-base-template/core';
+import type { ApiResponse } from '@/shared/api/types';
+import type { PersonnelNode, PersonnelUserNode } from './types';
 
 function normalizeIdLike(value: unknown): string {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return value;
   }
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     return String(value);
   }
-  return "";
+  return '';
 }
 
 function normalizeString(value: unknown): string {
-  return typeof value === "string" ? value : "";
+  return typeof value === 'string' ? value : '';
 }
 
 function resolveUserParentId(row: Record<string, unknown>, parentIdFallback: string): string {
@@ -26,7 +26,7 @@ function resolveUserParentId(row: Record<string, unknown>, parentIdFallback: str
     return parentIdFallback;
   }
   const firstOrg = userOrgs[0];
-  if (!firstOrg || typeof firstOrg !== "object") {
+  if (!firstOrg || typeof firstOrg !== 'object') {
     return parentIdFallback;
   }
   return normalizeIdLike((firstOrg as Record<string, unknown>).orgId) || parentIdFallback;
@@ -39,27 +39,29 @@ function resolveUserCompanyId(row: Record<string, unknown>): string {
   }
   const userOrgs = Array.isArray(row.userOrgs) ? row.userOrgs : [];
   if (userOrgs.length === 0) {
-    return "0";
+    return '0';
   }
   const firstOrg = userOrgs[0];
-  if (!firstOrg || typeof firstOrg !== "object") {
-    return "0";
+  if (!firstOrg || typeof firstOrg !== 'object') {
+    return '0';
   }
-  return normalizeIdLike((firstOrg as Record<string, unknown>).companyId) || "0";
+  return normalizeIdLike((firstOrg as Record<string, unknown>).companyId) || '0';
 }
 
 function isUserLikeRow(row: Record<string, unknown>): boolean {
   const nodeType = normalizeString(row.nodeType);
-  if (nodeType === "user") {
+  if (nodeType === 'user') {
     return true;
   }
-  return Boolean(normalizeIdLike(row.userId) || normalizeString(row.nickName) || normalizeString(row.userAccount));
+  return Boolean(
+    normalizeIdLike(row.userId) || normalizeString(row.nickName) || normalizeString(row.userAccount)
+  );
 }
 
 function sortBySortField(rows: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
   return [...rows].sort((left, right) => {
-    const leftSort = typeof left.sort === "number" ? left.sort : Number(left.sort ?? 0);
-    const rightSort = typeof right.sort === "number" ? right.sort : Number(right.sort ?? 0);
+    const leftSort = typeof left.sort === 'number' ? left.sort : Number(left.sort ?? 0);
+    const rightSort = typeof right.sort === 'number' ? right.sort : Number(right.sort ?? 0);
     if (Number.isFinite(leftSort) && Number.isFinite(rightSort)) {
       return leftSort - rightSort;
     }
@@ -75,7 +77,7 @@ function sortBySortField(rows: Array<Record<string, unknown>>): Array<Record<str
 
 function normalizeOrgNodes(rows: unknown[], parentIdFallback: string): PersonnelNode[] {
   const records = rows
-    .map((item) => (item && typeof item === "object" ? (item as Record<string, unknown>) : null))
+    .map((item) => (item && typeof item === 'object' ? (item as Record<string, unknown>) : null))
     .filter((item): item is Record<string, unknown> => Boolean(item));
 
   const normalized: PersonnelNode[] = [];
@@ -85,8 +87,9 @@ function normalizeOrgNodes(rows: unknown[], parentIdFallback: string): Personnel
       continue;
     }
     const parentId = normalizeIdLike(row.parentId) || parentIdFallback;
-    const title = normalizeString(row.title) || normalizeString(row.orgName) || normalizeString(row.name) || id;
-    const companyId = normalizeIdLike(row.companyId) || "0";
+    const title =
+      normalizeString(row.title) || normalizeString(row.orgName) || normalizeString(row.name) || id;
+    const companyId = normalizeIdLike(row.companyId) || '0';
     const orgName = normalizeString(row.orgName) || normalizeString(row.name) || title;
     normalized.push({
       id,
@@ -94,8 +97,8 @@ function normalizeOrgNodes(rows: unknown[], parentIdFallback: string): Personnel
       companyId,
       title,
       orgName,
-      orgType: typeof row.orgType === "number" ? row.orgType : 0,
-      nodeType: "org",
+      orgType: typeof row.orgType === 'number' ? row.orgType : 0,
+      nodeType: 'org'
     });
   }
   return normalized;
@@ -103,7 +106,7 @@ function normalizeOrgNodes(rows: unknown[], parentIdFallback: string): Personnel
 
 function normalizeUserNodes(rows: unknown[], parentIdFallback: string): PersonnelNode[] {
   const records = rows
-    .map((item) => (item && typeof item === "object" ? (item as Record<string, unknown>) : null))
+    .map((item) => (item && typeof item === 'object' ? (item as Record<string, unknown>) : null))
     .filter((item): item is Record<string, unknown> => Boolean(item));
 
   const normalized: PersonnelNode[] = [];
@@ -130,7 +133,7 @@ function normalizeUserNodes(rows: unknown[], parentIdFallback: string): Personne
       nickName: normalizeString(row.nickName) || normalizeString(row.name) || title,
       userAccount: normalizeString(row.userAccount),
       phone: normalizeString(row.phone),
-      nodeType: "user",
+      nodeType: 'user'
     });
   }
   return normalized;
@@ -141,7 +144,7 @@ function normalizeMixedNodes(rows: unknown[], parentIdFallback: string): Personn
   const orgs: Record<string, unknown>[] = [];
 
   rows.forEach((item) => {
-    if (!item || typeof item !== "object") {
+    if (!item || typeof item !== 'object') {
       return;
     }
     const row = item as Record<string, unknown>;
@@ -152,17 +155,20 @@ function normalizeMixedNodes(rows: unknown[], parentIdFallback: string): Personn
     orgs.push(row);
   });
 
-  return [...normalizeUserNodes(users, parentIdFallback), ...normalizeOrgNodes(orgs, parentIdFallback)];
+  return [
+    ...normalizeUserNodes(users, parentIdFallback),
+    ...normalizeOrgNodes(orgs, parentIdFallback)
+  ];
 }
 
 function normalizeContactNodes(data: unknown, parentIdFallback: string): PersonnelNode[] {
-  const fallbackParentId = normalizeIdLike(parentIdFallback) || "0";
+  const fallbackParentId = normalizeIdLike(parentIdFallback) || '0';
 
   if (Array.isArray(data)) {
     return normalizeMixedNodes(data, fallbackParentId);
   }
 
-  if (!data || typeof data !== "object") {
+  if (!data || typeof data !== 'object') {
     return [];
   }
 
@@ -178,45 +184,59 @@ function normalizeContactNodes(data: unknown, parentIdFallback: string): Personn
       ? payload.userList
       : [];
 
-  const treeRows = [...normalizeUserNodes(userRows, fallbackParentId), ...normalizeOrgNodes(orgRows, fallbackParentId)];
+  const treeRows = [
+    ...normalizeUserNodes(userRows, fallbackParentId),
+    ...normalizeOrgNodes(orgRows, fallbackParentId)
+  ];
   if (treeRows.length > 0) {
     return treeRows;
   }
 
-  const listRows = Array.isArray(payload.records) ? payload.records : Array.isArray(payload.list) ? payload.list : [];
+  const listRows = Array.isArray(payload.records)
+    ? payload.records
+    : Array.isArray(payload.list)
+      ? payload.list
+      : [];
   return normalizeMixedNodes(listRows, fallbackParentId);
 }
 
 export function resolvePersonnelRootParentId(user: unknown): string {
-  if (!user || typeof user !== "object") {
-    return "0";
+  if (!user || typeof user !== 'object') {
+    return '0';
   }
   const companyId = normalizeIdLike((user as Record<string, unknown>).companyId);
-  return companyId || "0";
+  return companyId || '0';
 }
 
-export async function fetchPersonnelTreeByLegacyApi(params: { parentId?: string }): Promise<ApiResponse<PersonnelNode[]>> {
-  const parentId = normalizeIdLike(params.parentId) || "0";
-  const response = await obHttp().get<ApiResponse<unknown>>("/cmict/admin/org/detail/children-and-user", {
-    params: {
-      parentId,
-    },
-  });
-  return {
-    ...response,
-    data: normalizeContactNodes(response?.data, parentId),
-  };
-}
-
-export async function searchPersonnelUsersByStructure(
-  params: { search?: string }
-): Promise<ApiResponse<PersonnelUserNode[]>> {
-  const response = await obHttp().get<ApiResponse<unknown>>("/cmict/admin/user/structure/search/", { params });
-  const users = normalizeContactNodes(response?.data, "0").filter(
-    (item): item is PersonnelUserNode => item.nodeType === "user"
+export async function fetchPersonnelTreeByLegacyApi(params: {
+  parentId?: string;
+}): Promise<ApiResponse<PersonnelNode[]>> {
+  const parentId = normalizeIdLike(params.parentId) || '0';
+  const response = await obHttp().get<ApiResponse<unknown>>(
+    '/cmict/admin/org/detail/children-and-user',
+    {
+      params: {
+        parentId
+      }
+    }
   );
   return {
     ...response,
-    data: users,
+    data: normalizeContactNodes(response?.data, parentId)
+  };
+}
+
+export async function searchPersonnelUsersByStructure(params: {
+  search?: string;
+}): Promise<ApiResponse<PersonnelUserNode[]>> {
+  const response = await obHttp().get<ApiResponse<unknown>>('/cmict/admin/user/structure/search/', {
+    params
+  });
+  const users = normalizeContactNodes(response?.data, '0').filter(
+    (item): item is PersonnelUserNode => item.nodeType === 'user'
+  );
+  return {
+    ...response,
+    data: users
   };
 }

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  import type { SysLogRecord } from "../types";
+import type { SysLogRecord } from '../types';
 
-  const props = defineProps<{
-    detail: SysLogRecord | null;
-  }>();
+const props = defineProps<{
+  detail: SysLogRecord | null;
+}>();
 </script>
 
 <template>
@@ -23,7 +23,9 @@
     <el-descriptions-item label="操作人账号">{{ props.detail.userAccount }}</el-descriptions-item>
     <el-descriptions-item label="操作人姓名">{{ props.detail.nickName }}</el-descriptions-item>
     <el-descriptions-item label="客户端浏览器">{{ props.detail.browserName }}</el-descriptions-item>
-    <el-descriptions-item label="浏览器版本">{{ props.detail.browserVersion }}</el-descriptions-item>
+    <el-descriptions-item label="浏览器版本">{{
+      props.detail.browserVersion
+    }}</el-descriptions-item>
     <el-descriptions-item label="客户端操作系统">{{ props.detail.clientOS }}</el-descriptions-item>
     <el-descriptions-item label="客户端ID">{{ props.detail.clientId }}</el-descriptions-item>
     <el-descriptions-item label="所属租户ID">{{ props.detail.tenantId }}</el-descriptions-item>

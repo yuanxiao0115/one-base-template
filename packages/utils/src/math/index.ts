@@ -26,7 +26,7 @@ export interface Point {
 export function pointTransform(point: Point): Point {
   return {
     x: point.x,
-    y: point.y,
+    y: point.y
   };
 }
 

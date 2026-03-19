@@ -3,7 +3,12 @@ import { computed, ref } from 'vue';
 import type { AppUser, LoginPayload } from '../adapter/types';
 import { getCoreOptions } from '../context';
 import { removeByPrefixes, safeSetToStorage } from '../utils/storage';
-import { getWithLegacy, clearByPrefixes, removeWithLegacy, getNamespacedKey } from '../storage/namespace';
+import {
+  getWithLegacy,
+  clearByPrefixes,
+  removeWithLegacy,
+  getNamespacedKey
+} from '../storage/namespace';
 
 const AUTH_USER_STORAGE_BASE_KEY = 'ob_auth_user';
 
@@ -42,7 +47,7 @@ function normalizeUser(input: AppUser): AppUser {
     roles,
     roleCodes: roles,
     permissions,
-    permissionCodes: permissions,
+    permissionCodes: permissions
   };
 }
 
@@ -69,7 +74,7 @@ function writeStoredUser(user: AppUser) {
     onPrimaryQuotaExceeded: () => {
       // 用户态优先级高于菜单缓存，localStorage 满额时先清菜单分片缓存腾挪空间。
       clearByPrefixes(['ob_menu_tree:', 'ob_menu_tree', 'ob_menu_path_index'], 'local');
-    },
+    }
   });
 
   // 向命名空间迁移时清理旧 key，避免读优先级导致状态抖动。
@@ -149,6 +154,6 @@ export const useAuthStore = defineStore('ob-auth', () => {
     ensureAuthed,
     login,
     logout,
-    reset,
+    reset
   };
 });

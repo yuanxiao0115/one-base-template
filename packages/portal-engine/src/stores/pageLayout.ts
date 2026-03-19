@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable @typescript-eslint/no-explicit-any */
 
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
@@ -36,7 +36,9 @@ function asRecord(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-export function resolveLayoutItemComponentName(item: PortalLayoutItem | null | undefined): string | undefined {
+export function resolveLayoutItemComponentName(
+  item: PortalLayoutItem | null | undefined
+): string | undefined {
   const name = item?.component?.cmptConfig?.index?.name;
   return typeof name === 'string' ? name : undefined;
 }
@@ -61,10 +63,12 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
   // 组件加载状态（用于骨架屏/过渡）
   const loadingComponents = ref({
     content: false,
-    style: false,
+    style: false
   });
 
-  const currentSelectionType = computed<PortalLayoutSelection['type'] | null>(() => currentSelection.value?.type || null);
+  const currentSelectionType = computed<PortalLayoutSelection['type'] | null>(
+    () => currentSelection.value?.type || null
+  );
 
   const currentLayoutItemId = computed<string | null>(() => {
     if (!currentSelection.value) {
@@ -94,7 +98,10 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     return normalizeTabContainerTabs<PortalLayoutItem>(item.component?.cmptConfig?.content?.tabs);
   }
 
-  function findTabGroup(rootItem: PortalLayoutItem | null, tabId: string): PortalTabLayoutGroup | null {
+  function findTabGroup(
+    rootItem: PortalLayoutItem | null,
+    tabId: string
+  ): PortalTabLayoutGroup | null {
     const tabs = resolveTabsOfRootItem(rootItem);
     return tabs.find((tab) => tab.id === tabId) || null;
   }
@@ -146,12 +153,12 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
       activeName.value = 'content';
       loadingComponents.value = {
         content: true,
-        style: true,
+        style: true
       };
       setTimeout(() => {
         loadingComponents.value = {
           content: false,
-          style: false,
+          style: false
         };
       }, 50);
       return;
@@ -167,7 +174,7 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
 
     currentSelection.value = {
       type: 'root-item',
-      itemId,
+      itemId
     };
     syncConfigFormWithSelection(currentSelection.value);
   }
@@ -186,7 +193,7 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
       type: 'tab-child-item',
       parentItemId,
       tabId,
-      itemId,
+      itemId
     };
     syncConfigFormWithSelection(currentSelection.value);
   }
@@ -195,7 +202,11 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     selectLayoutItem(parentItemId);
   }
 
-  function writeTabLayoutItems(parentItemId: string, tabId: string, nextItems: PortalLayoutItem[]): boolean {
+  function writeTabLayoutItems(
+    parentItemId: string,
+    tabId: string,
+    nextItems: PortalLayoutItem[]
+  ): boolean {
     const rootItem = findRootLayoutItem(parentItemId);
     if (!rootItem) {
       return false;
@@ -218,7 +229,7 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
       idx === tabIndex
         ? {
             ...tab,
-            layoutItems: deepClone(nextItems),
+            layoutItems: deepClone(nextItems)
           }
         : tab
     );
@@ -264,7 +275,11 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     updateLayoutItems(layoutItems.value.filter((i) => i.i !== itemId));
   }
 
-  function updateTabChildLayoutItems(parentItemId: string, tabId: string, nextItems: PortalLayoutItem[]) {
+  function updateTabChildLayoutItems(
+    parentItemId: string,
+    tabId: string,
+    nextItems: PortalLayoutItem[]
+  ) {
     const updated = writeTabLayoutItems(parentItemId, tabId, nextItems);
     if (!updated) {
       return;
@@ -331,16 +346,20 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
       return {
         ...item,
         component: {
-          ...(item.component || {}),
-          cmptConfig: deepClone(cloned),
-        },
+          ...item.component,
+          cmptConfig: deepClone(cloned)
+        }
       };
     });
 
     updateTabChildLayoutItems(selection.parentItemId, selection.tabId, nextItems);
   }
 
-  function updateTabContainerTabs(parentItemId: string, tabs: PortalTabLayoutGroup[], activeTabId?: string) {
+  function updateTabContainerTabs(
+    parentItemId: string,
+    tabs: PortalTabLayoutGroup[],
+    activeTabId?: string
+  ) {
     const rootItem = findRootLayoutItem(parentItemId);
     if (!rootItem) {
       return;
@@ -394,6 +413,6 @@ export const usePortalPageLayoutStore = defineStore('portalPageLayout', () => {
     removeTabChildLayoutItem,
     getTabChildLayoutItems,
     updateTabContainerTabs,
-    updateCurrentItemConfig,
+    updateCurrentItemConfig
   };
 });

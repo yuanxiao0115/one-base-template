@@ -13,6 +13,7 @@
 ### Task 1: 新增共享登录动作测试
 
 **Files:**
+
 - Create: `packages/core/src/auth/login.test.ts`
 - Create: `packages/core/src/auth/login.ts`
 - Modify: `packages/core/src/index.ts`
@@ -27,18 +28,18 @@
 - 非站内 `customUrl` → fallback
 
 ```ts
-import { describe, expect, it } from "vitest";
-import { resolvePortalLoginTarget } from "./login";
+import { describe, expect, it } from 'vitest';
+import { resolvePortalLoginTarget } from './login';
 
-describe("resolvePortalLoginTarget", () => {
-  it("优先返回 redirect", () => {
+describe('resolvePortalLoginTarget', () => {
+  it('优先返回 redirect', () => {
     expect(
       resolvePortalLoginTarget({
-        redirect: "/portal/index/1",
-        fallback: "/portal/index",
-        frontConfig: { enable: false, customUrl: "/other" },
+        redirect: '/portal/index/1',
+        fallback: '/portal/index',
+        frontConfig: { enable: false, customUrl: '/other' }
       })
-    ).toBe("/portal/index/1");
+    ).toBe('/portal/index/1');
   });
 });
 ```
@@ -72,6 +73,7 @@ Expected: PASS
 ### Task 2: 抽离共享登录框组件
 
 **Files:**
+
 - Create: `packages/ui/src/components/auth/LoginBox.vue`
 - Modify: `packages/ui/src/index.ts`
 - Modify: `packages/ui/src/plugin.ts`
@@ -109,6 +111,7 @@ Expected: PASS
 ### Task 3: 补齐 portal 登录远程服务
 
 **Files:**
+
 - Create: `apps/portal/src/shared/services/auth-remote-service.ts`
 
 **Step 1: Write minimal implementation**
@@ -132,6 +135,7 @@ Expected: PASS
 ### Task 4: admin 登录页接入共享登录框
 
 **Files:**
+
 - Modify: `apps/admin/src/pages/login/LoginPage.vue`
 
 **Step 1: Replace duplicated form UI**
@@ -154,6 +158,7 @@ Expected: PASS
 ### Task 5: portal 登录页接入共享登录框与分流逻辑
 
 **Files:**
+
 - Modify: `apps/portal/src/pages/login/LoginPage.vue`
 
 **Step 1: Replace duplicated form UI**
@@ -172,8 +177,8 @@ Expected: PASS
 ```ts
 const target = resolvePortalLoginTarget({
   redirect: route.query.redirect,
-  fallback: "/portal/index",
-  frontConfig: frontConfig.data,
+  fallback: '/portal/index',
+  frontConfig: frontConfig.data
 });
 await router.replace(target);
 ```
@@ -195,6 +200,7 @@ Expected: PASS
 ### Task 6: 更新文档站
 
 **Files:**
+
 - Modify: `apps/docs/docs/guide/architecture.md`
 
 **Step 1: Update portal architecture doc**
@@ -215,6 +221,7 @@ Expected: PASS
 ### Task 7: 全量验证与记录
 
 **Files:**
+
 - Modify: `.codex/operations-log.md`
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`

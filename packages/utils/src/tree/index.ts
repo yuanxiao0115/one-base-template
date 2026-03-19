@@ -148,7 +148,10 @@ export function traverseTree<T extends TreeNode>(
  * treeToFlat(tree) // => [{ id: 1 }, { id: 2 }]
  * ```
  */
-export function treeToFlat<T extends TreeNode>(tree: T[], childrenKey = 'children'): Omit<T, 'children'>[] {
+export function treeToFlat<T extends TreeNode>(
+  tree: T[],
+  childrenKey = 'children'
+): Omit<T, 'children'>[] {
   const result: Omit<T, 'children'>[] = [];
 
   function flatten(nodes: T[]) {
@@ -189,7 +192,12 @@ export function flatToTree<T extends Record<string, any>>(
     rootValue?: any;
   } = {}
 ): T[] {
-  const { idKey = 'id', parentIdKey = 'parentId', childrenKey = 'children', rootValue = null } = options;
+  const {
+    idKey = 'id',
+    parentIdKey = 'parentId',
+    childrenKey = 'children',
+    rootValue = null
+  } = options;
 
   const tree: T[] = [];
   const map = new Map<any, T>();
@@ -459,7 +467,11 @@ export function getNodeByUniqueId(tree: any[], uniqueId: number | string): any {
  * // tree[0] => { uniqueId: '1', name: 'test', active: true }
  * ```
  */
-export function appendFieldByUniqueId(tree: any[], uniqueId: number | string, fields: object): any[] {
+export function appendFieldByUniqueId(
+  tree: any[],
+  uniqueId: number | string,
+  fields: object
+): any[] {
   if (!Array.isArray(tree)) {
     console.warn('menuTree must be an array');
     return [];
@@ -470,7 +482,10 @@ export function appendFieldByUniqueId(tree: any[], uniqueId: number | string, fi
 
   for (const node of tree) {
     const hasChildren = node.children && node.children.length > 0;
-    if (node.uniqueId === uniqueId && Object.prototype.toString.call(fields) === '[object Object]') {
+    if (
+      node.uniqueId === uniqueId &&
+      Object.prototype.toString.call(fields) === '[object Object]'
+    ) {
       Object.assign(node, fields);
     }
     if (hasChildren) {
@@ -508,7 +523,7 @@ export function handleTree(data: any[], id?: string, parentId?: string, children
   const config = {
     id: id || 'id',
     parentId: parentId || 'parentId',
-    childrenList: children || 'children',
+    childrenList: children || 'children'
   };
 
   const childrenListMap: any = {};

@@ -1,9 +1,40 @@
-import { ElMessage } from "element-plus";
-import type { Pinia } from "pinia";
-import type { Router } from "vue-router";
-import { createObHttp, type ObHttp, useAuthStore, useMenuStore, useSystemStore } from "@one-base-template/core";
-import { createClientSignature } from "@/infra/sczfw/crypto";
-import type { AuthMode, BackendKind } from "@/infra/env";
+import { ElMessage } from 'element-plus';
+import type { Pinia } from 'pinia';
+import type { Router } from 'vue-router';
+import {
+  createObHttp,
+  type ObHttp,
+  useAuthStore,
+  useMenuStore,
+  useSystemStore
+} from '@one-base-template/core';
+import type { AuthMode, BackendKind } from '@/infra/env';
+
+async function appendSczfwClientSignature(
+  config: Record<string, unknown>,
+  params: {
+    sczfwHeaders?: Record<string, string>;
+    clientSignatureSalt?: string;
+    clientSignatureClientId?: string;
+  }
+) {
+  const { createClientSignature } = await import('@/infra/sczfw/client-signature');
+  const signature = createClientSignature({
+    salt: params.clientSignatureSalt,
+    clientId: params.clientSignatureClientId
+  });
+
+  const prev =
+    config.headers && typeof config.headers === 'object'
+      ? (config.headers as Record<string, unknown>)
+      : {};
+
+  config.headers = {
+    ...prev,
+    ...params.sczfwHeaders,
+    'Client-Signature': signature
+  };
+}
 
 export function createAppHttp(params: {
   backend: BackendKind;
@@ -29,47 +60,37 @@ export function createAppHttp(params: {
     clientSignatureSalt,
     clientSignatureClientId,
     pinia,
-    router,
+    router
   } = params;
 
   return createObHttp({
     axios: {
       baseURL: isProd ? apiBaseUrl || undefined : undefined,
-      withCredentials: authMode !== "token",
-      timeout: backend === "sczfw" ? 100_000 : 30_000,
-      ...(sczfwHeaders ? { headers: sczfwHeaders } : {}),
+      withCredentials: authMode !== 'token',
+      timeout: backend === 'sczfw' ? 100_000 : 30_000,
+      ...(sczfwHeaders ? { headers: sczfwHeaders } : {})
     },
     auth: {
       mode: authMode,
-      tokenHeader: "Authorization",
-      tokenPrefix: "",
-      getToken: () => localStorage.getItem(tokenKey) || undefined,
+      tokenHeader: 'Authorization',
+      tokenPrefix: '',
+      getToken: () => localStorage.getItem(tokenKey) || undefined
     },
     biz: {
-      successCodes: [0, 200],
+      successCodes: [0, 200]
     },
     beforeRequestCallback:
-      backend === "sczfw"
-        ? (config) => {
-            const signature = createClientSignature({
-              salt: clientSignatureSalt,
-              clientId: clientSignatureClientId,
+      backend === 'sczfw'
+        ? async (config) => {
+            await appendSczfwClientSignature(config as Record<string, unknown>, {
+              sczfwHeaders,
+              clientSignatureSalt,
+              clientSignatureClientId
             });
-
-            const prev =
-              config.headers && typeof config.headers === "object"
-                ? (config.headers as Record<string, unknown>)
-                : {};
-
-            config.headers = {
-              ...prev,
-              ...(sczfwHeaders ?? {}),
-              "Client-Signature": signature,
-            };
           }
         : undefined,
     download: {
-      autoDownload: true,
+      autoDownload: true
     },
     hooks: {
       onBizError: ({ message }) => {
@@ -83,8 +104,8 @@ export function createAppHttp(params: {
         useAuthStore(pinia).reset();
         useMenuStore(pinia).reset();
         useSystemStore(pinia).reset();
-        router.replace("/login");
-      },
-    },
+        router.replace('/login');
+      }
+    }
   });
 }

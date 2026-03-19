@@ -1,27 +1,27 @@
-import type { BackendKind } from '../config/platform-config'
-import type { LoginPayload } from '../adapter/types'
-import { useAuthStore } from '../stores/auth'
-import { finalizeAuthSession, safeRedirect } from './flow'
+import type { BackendKind } from '../config/platform-config';
+import type { LoginPayload } from '../adapter/types';
+import { useAuthStore } from '../stores/auth';
+import { finalizeAuthSession, safeRedirect } from './flow';
 
 export interface PortalFrontConfig {
-  enable?: boolean
-  customUrl?: string
+  enable?: boolean;
+  customUrl?: string;
 }
 
 export interface ResolvePortalLoginTargetOptions {
-  redirect?: unknown
-  fallback?: string
-  frontConfig?: PortalFrontConfig | null
+  redirect?: unknown;
+  fallback?: string;
+  frontConfig?: PortalFrontConfig | null;
 }
 
 export interface LoginByPasswordOptions {
-  backend: BackendKind
-  username: string
-  password: string
-  captcha?: string
-  captchaKey?: string
-  alreadyEncrypted?: boolean
-  encryptor?: (plainText: string) => string
+  backend: BackendKind;
+  username: string;
+  password: string;
+  captcha?: string;
+  captchaKey?: string;
+  alreadyEncrypted?: boolean;
+  encryptor?: (plainText: string) => string;
 }
 
 function buildLoginPayload(options: LoginByPasswordOptions): LoginPayload {
@@ -29,7 +29,7 @@ function buildLoginPayload(options: LoginByPasswordOptions): LoginPayload {
     return {
       username: options.username,
       password: options.password
-    }
+    };
   }
 
   if (options.alreadyEncrypted) {
@@ -39,11 +39,11 @@ function buildLoginPayload(options: LoginByPasswordOptions): LoginPayload {
       captcha: options.captcha,
       captchaKey: options.captchaKey,
       encrypt: 1
-    }
+    };
   }
 
   if (!options.encryptor) {
-    throw new Error('[login] sczfw 登录缺少 encryptor')
+    throw new Error('[login] sczfw 登录缺少 encryptor');
   }
 
   return {
@@ -52,27 +52,27 @@ function buildLoginPayload(options: LoginByPasswordOptions): LoginPayload {
     captcha: options.captcha,
     captchaKey: options.captchaKey,
     encrypt: 1
-  }
+  };
 }
 
 export async function loginByPassword(options: LoginByPasswordOptions) {
-  const authStore = useAuthStore()
-  await authStore.login(buildLoginPayload(options))
+  const authStore = useAuthStore();
+  await authStore.login(buildLoginPayload(options));
   await finalizeAuthSession({
     shouldFetchMe: false
-  })
+  });
 }
 
 export function resolvePortalLoginTarget(options: ResolvePortalLoginTargetOptions): string {
-  const fallback = options.fallback ?? '/portal/index'
-  const redirectTarget = safeRedirect(options.redirect, '')
+  const fallback = options.fallback ?? '/portal/index';
+  const redirectTarget = safeRedirect(options.redirect, '');
   if (redirectTarget) {
-    return redirectTarget
+    return redirectTarget;
   }
 
   if (options.frontConfig?.enable) {
-    return fallback
+    return fallback;
   }
 
-  return safeRedirect(options.frontConfig?.customUrl, fallback)
+  return safeRedirect(options.frontConfig?.customUrl, fallback);
 }

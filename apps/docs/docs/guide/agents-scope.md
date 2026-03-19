@@ -16,10 +16,10 @@
 
 ## 与全局 Codex 配置的边界
 
-| 层级 | 位置 | 主要内容 | 是否放入仓库 |
-| --- | --- | --- | --- |
-| 全局运行时角色 | `~/.codex` | 角色模型、system prompt、工具权限、默认行为 | 否 |
-| 仓库项目规则 | `AGENTS.md` + 子目录 `AGENTS.md` + `apps/docs` | 目录边界、知识入口、验证命令、协作规范 | 是 |
+| 层级           | 位置                                           | 主要内容                                    | 是否放入仓库 |
+| -------------- | ---------------------------------------------- | ------------------------------------------- | ------------ |
+| 全局运行时角色 | `~/.codex`                                     | 角色模型、system prompt、工具权限、默认行为 | 否           |
+| 仓库项目规则   | `AGENTS.md` + 子目录 `AGENTS.md` + `apps/docs` | 目录边界、知识入口、验证命令、协作规范      | 是           |
 
 默认原则：
 
@@ -29,17 +29,17 @@
 
 ## 规则文件总览
 
-| 作用域 | 规则文件 | 主要内容 |
-| --- | --- | --- |
-| 全仓通用 | `AGENTS.md` | 工作流、协作规范、目录边界、知识入口 |
-| admin 应用 | `apps/admin/AGENTS.md` | 路由菜单、SSO、布局主题、表格迁移、UserManagement 细则 |
-| docs 站点 | `apps/docs/AGENTS.md` | 文档同步、导航维护、VitePress 构建校验 |
-| adapters 子包 | `packages/adapters/AGENTS.md` | 后端协议适配、字段映射边界 |
-| core 子包 | `packages/core/AGENTS.md` | 逻辑契约、主题 token、核心 hooks 约束 |
-| portal-engine 子包 | `packages/portal-engine/AGENTS.md` | 门户引擎物料配置红线、统一封装组件复用 |
-| ui 子包 | `packages/ui/AGENTS.md` | 壳组件导出边界、`ObVxeTable` 与视觉规范 |
-| tag 子包 | `packages/tag/AGENTS.md` | 样式资产与入口导出规范 |
-| utils 子包 | `packages/utils/AGENTS.md` | 通用工具函数语义与纯函数边界 |
+| 作用域             | 规则文件                           | 主要内容                                               |
+| ------------------ | ---------------------------------- | ------------------------------------------------------ |
+| 全仓通用           | `AGENTS.md`                        | 工作流、协作规范、目录边界、知识入口                   |
+| admin 应用         | `apps/admin/AGENTS.md`             | 路由菜单、SSO、布局主题、表格迁移、UserManagement 细则 |
+| docs 站点          | `apps/docs/AGENTS.md`              | 文档同步、导航维护、VitePress 构建校验                 |
+| adapters 子包      | `packages/adapters/AGENTS.md`      | 后端协议适配、字段映射边界                             |
+| core 子包          | `packages/core/AGENTS.md`          | 逻辑契约、主题 token、核心 hooks 约束                  |
+| portal-engine 子包 | `packages/portal-engine/AGENTS.md` | 门户引擎物料配置红线、统一封装组件复用                 |
+| ui 子包            | `packages/ui/AGENTS.md`            | 壳组件导出边界、`ObVxeTable` 与视觉规范                |
+| tag 子包           | `packages/tag/AGENTS.md`           | 样式资产与入口导出规范                                 |
+| utils 子包         | `packages/utils/AGENTS.md`         | 通用工具函数语义与纯函数边界                           |
 
 ## 既有规则分类结果
 

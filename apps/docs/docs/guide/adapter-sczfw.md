@@ -5,6 +5,7 @@
 - `packages/adapters/src/sczfwAdapter.ts`
 
 对接接口（示例）：
+
 - 登录：`/cmict/auth/login`
 - 当前用户：`/cmict/auth/token/verify`
 - 菜单：`/cmict/admin/permission/my-tree`
@@ -26,6 +27,7 @@
 ## 多系统菜单
 
 当后端 `my-tree` 返回多个根时：
+
 - Adapter 会映射为 `AppMenuSystem[]`（`code/name/menus`）
 - core 会写入 `systemStore.systems`，菜单按系统分片缓存
 

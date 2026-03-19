@@ -37,6 +37,9 @@ export interface PortalMaterialRegistry {
 }
 
 export interface PortalMaterialRegistryController extends PortalMaterialRegistry {
-  registerPortalMaterial: (material: PortalMaterialItem, options: RegisterPortalMaterialOptions) => void;
+  registerPortalMaterial: (
+    material: PortalMaterialItem,
+    options: RegisterPortalMaterialOptions
+  ) => void;
   unregisterPortalMaterial: (options: UnregisterPortalMaterialOptions) => boolean;
 }

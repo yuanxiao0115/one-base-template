@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import type { RouteRecordRaw } from 'vue-router';
 import {
   buildModuleAliasRoutes,
   buildModuleRoutes,
   createModuleRouteAssemblyValidator,
-  type RouteAssemblyModule,
+  type RouteAssemblyModule
 } from './module-assembly';
 
 function createViewRoute(params: {
@@ -16,7 +16,7 @@ function createViewRoute(params: {
     path: params.path,
     name: params.name,
     component: {} as never,
-    ...(params.meta ? { meta: params.meta } : {}),
+    ...(params.meta ? { meta: params.meta } : {})
   };
 }
 
@@ -26,7 +26,7 @@ function createValidator(warnings: string[]) {
     reservedRouteNames: new Set(['Login', 'Forbidden', 'NotFound']),
     onWarn(message: string) {
       warnings.push(message);
-    },
+    }
   });
 }
 
@@ -42,26 +42,26 @@ describe('core/router/module-assembly', () => {
             createViewRoute({
               path: '/portal/templates',
               name: 'PortalTemplateList',
-              meta: { skipMenuAuth: true },
+              meta: { skipMenuAuth: true }
             }),
             createViewRoute({
               path: '/portal/templates',
-              name: 'PortalTemplateListDup',
+              name: 'PortalTemplateListDup'
             }),
             createViewRoute({
               path: '/login',
-              name: 'PortalIllegalLogin',
-            }),
-          ],
-        },
-      },
+              name: 'PortalIllegalLogin'
+            })
+          ]
+        }
+      }
     ];
 
     const routes = buildModuleRoutes({
       modules,
       source: 'layout',
       validator,
-      rootPath: '/',
+      rootPath: '/'
     });
 
     expect(routes).toHaveLength(1);
@@ -81,35 +81,35 @@ describe('core/router/module-assembly', () => {
             createViewRoute({
               path: '/portal/templates',
               name: 'PortalTemplateList',
-              meta: {},
-            }),
-          ],
+              meta: {}
+            })
+          ]
         },
         compat: {
           activePathMap: {
             '/portal/templates': '/portal/setting',
-            '/portal/setting': '/portal/setting',
+            '/portal/setting': '/portal/setting'
           },
           routeAliases: [
             {
               from: '/portal/setting',
-              to: '/portal/templates',
-            },
-          ],
-        },
-      },
+              to: '/portal/templates'
+            }
+          ]
+        }
+      }
     ];
 
     const routes = buildModuleRoutes({
       modules,
       source: 'layout',
       validator,
-      rootPath: '/',
+      rootPath: '/'
     });
     const aliases = buildModuleAliasRoutes({
       modules,
       validator,
-      rootPath: '/',
+      rootPath: '/'
     });
 
     expect(routes[0]).toBeDefined();

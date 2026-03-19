@@ -1,146 +1,190 @@
 <script setup lang="ts">
-  import { computed, ref, watch } from "vue";
-  import type { FormInstance, FormRules } from "element-plus";
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import type { FormInstance, FormRules } from 'element-plus';
+import {
+  canTriggerKeywordSearch,
+  DEFAULT_MIN_KEYWORD_LENGTH,
+  normalizeKeyword
+} from '../../shared/keywordSearch';
 
-  export interface UserBindOption {
-    id: string;
-    nickName: string;
-    userAccount: string;
-    phone: string;
-  }
+export interface UserBindOption {
+  id: string;
+  nickName: string;
+  userAccount: string;
+  phone: string;
+}
 
-  const props = defineProps<{
+const props = withDefaults(
+  defineProps<{
     disabled: boolean;
     fetchUsers: (keyword: string) => Promise<UserBindOption[]>;
-  }>();
+    minSearchLength?: number;
+  }>(),
+  {
+    minSearchLength: DEFAULT_MIN_KEYWORD_LENGTH
+  }
+);
 
-  const model = defineModel<{
-    userIds: string[];
-  }>({ required: true });
+const model = defineModel<{
+  userIds: string[];
+}>({ required: true });
 
-  const formRef = ref<FormInstance>();
-  const loading = ref(false);
-  const options = ref<UserBindOption[]>([]);
-  const selectedMap = ref<Record<string, UserBindOption>>({});
+const formRef = ref<FormInstance>();
+const loading = ref(false);
+const options = ref<UserBindOption[]>([]);
+const selectedMap = ref<Record<string, UserBindOption>>({});
+const searchTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+const latestRequestToken = ref(0);
 
-  const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
-    userIds: [
-      {
-        trigger: ["change", "blur"],
-        validator: (_, value, callback) => {
-          if (Array.isArray(value) && value.length > 0) {
-            callback();
-            return;
-          }
+const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
+  userIds: [
+    {
+      trigger: ['change', 'blur'],
+      validator: (_, value, callback) => {
+        if (Array.isArray(value) && value.length > 0) {
+          callback();
+          return;
+        }
 
-          callback(new Error("请至少选择一个关联账号"));
-        },
-      },
-    ],
-  }));
+        callback(new Error('请至少选择一个关联账号'));
+      }
+    }
+  ]
+}));
 
-  const selectedUsers = computed<UserBindOption[]>(() =>
-    (model.value.userIds || [])
-      .map((id) => selectedMap.value[id])
-      .filter((item): item is UserBindOption => Boolean(item))
-  );
+const selectedUsers = computed<UserBindOption[]>(() =>
+  (model.value.userIds || [])
+    .map((id) => selectedMap.value[id])
+    .filter((item): item is UserBindOption => Boolean(item))
+);
 
-  async function loadOptions(keyword = "") {
-    loading.value = true;
-    try {
-      const rows = await props.fetchUsers(keyword);
-      options.value = rows;
+function cancelPendingSearch() {
+  if (!searchTimer.value) {
+    return;
+  }
+  clearTimeout(searchTimer.value);
+  searchTimer.value = null;
+}
 
-      const patch: Record<string, UserBindOption> = {
-        ...selectedMap.value,
-      };
+async function loadOptions(keyword = '') {
+  const normalizedKeyword = normalizeKeyword(keyword);
+  const currentToken = ++latestRequestToken.value;
 
-      rows.forEach((item) => {
-        patch[item.id] = item;
-      });
+  if (!canTriggerKeywordSearch(normalizedKeyword, props.minSearchLength)) {
+    options.value = [];
+    loading.value = false;
+    return;
+  }
 
-      selectedMap.value = patch;
-    } finally {
+  loading.value = true;
+  try {
+    const rows = await props.fetchUsers(normalizedKeyword);
+    if (currentToken !== latestRequestToken.value) {
+      return;
+    }
+    options.value = rows;
+
+    const patch: Record<string, UserBindOption> = {
+      ...selectedMap.value
+    };
+
+    rows.forEach((item) => {
+      patch[item.id] = item;
+    });
+
+    selectedMap.value = patch;
+  } finally {
+    if (currentToken === latestRequestToken.value) {
       loading.value = false;
     }
   }
+}
 
-  function handleRemoteSearch(keyword: string) {
-    void loadOptions(keyword.trim());
-  }
+function handleRemoteSearch(keyword: string) {
+  const normalizedKeyword = normalizeKeyword(keyword);
+  cancelPendingSearch();
+  searchTimer.value = setTimeout(() => {
+    void loadOptions(normalizedKeyword);
+  }, 250);
+}
 
-  function onSelectionChange(ids: string[]) {
-    const validIds = Array.isArray(ids) ? ids : [];
+function onSelectionChange(ids: string[]) {
+  const validIds = Array.isArray(ids) ? ids : [];
+
+  const nextMap: Record<string, UserBindOption> = {};
+  validIds.forEach((id) => {
+    const fromSelected = selectedMap.value[id];
+    const fromOptions = options.value.find((item) => item.id === id);
+    const target = fromSelected || fromOptions;
+    if (target) {
+      nextMap[id] = target;
+    }
+  });
+
+  selectedMap.value = {
+    ...selectedMap.value,
+    ...nextMap
+  };
+
+  model.value.userIds = validIds;
+}
+
+function removeUser(id: string) {
+  model.value.userIds = (model.value.userIds || []).filter((item) => item !== id);
+  const nextMap = { ...selectedMap.value };
+  delete nextMap[id];
+  selectedMap.value = nextMap;
+}
+
+watch(
+  () => model.value.userIds,
+  (ids) => {
+    if (!Array.isArray(ids)) {
+      model.value.userIds = [];
+      return;
+    }
 
     const nextMap: Record<string, UserBindOption> = {};
-    validIds.forEach((id) => {
-      const fromSelected = selectedMap.value[id];
-      const fromOptions = options.value.find((item) => item.id === id);
-      const target = fromSelected || fromOptions;
-      if (target) {
-        nextMap[id] = target;
+    ids.forEach((id) => {
+      const value = selectedMap.value[id];
+      if (value) {
+        nextMap[id] = value;
       }
     });
-
     selectedMap.value = {
       ...selectedMap.value,
-      ...nextMap,
+      ...nextMap
     };
+  },
+  { immediate: true }
+);
 
-    model.value.userIds = validIds;
+onBeforeUnmount(() => {
+  cancelPendingSearch();
+  latestRequestToken.value += 1;
+});
+
+defineExpose({
+  validate: (...args: Parameters<NonNullable<FormInstance['validate']>>) => {
+    const [callback] = args;
+    if (callback) {
+      return formRef.value?.validate?.(callback);
+    }
+    return formRef.value?.validate?.();
+  },
+  clearValidate: (...args: Parameters<NonNullable<FormInstance['clearValidate']>>) =>
+    formRef.value?.clearValidate?.(...args),
+  resetFields: (...args: Parameters<NonNullable<FormInstance['resetFields']>>) =>
+    formRef.value?.resetFields?.(...args),
+  loadOptions,
+  setSelectedUsers: (users: UserBindOption[]) => {
+    const patch = { ...selectedMap.value };
+    users.forEach((item) => {
+      patch[item.id] = item;
+    });
+    selectedMap.value = patch;
   }
-
-  function removeUser(id: string) {
-    model.value.userIds = (model.value.userIds || []).filter((item) => item !== id);
-    const nextMap = { ...selectedMap.value };
-    delete nextMap[id];
-    selectedMap.value = nextMap;
-  }
-
-  watch(
-    () => model.value.userIds,
-    (ids) => {
-      if (!Array.isArray(ids)) {
-        model.value.userIds = [];
-        return;
-      }
-
-      const nextMap: Record<string, UserBindOption> = {};
-      ids.forEach((id) => {
-        const value = selectedMap.value[id];
-        if (value) {
-          nextMap[id] = value;
-        }
-      });
-      selectedMap.value = {
-        ...selectedMap.value,
-        ...nextMap,
-      };
-    },
-    { immediate: true }
-  );
-
-  defineExpose({
-    validate: (...args: Parameters<NonNullable<FormInstance["validate"]>>) => {
-      const [callback] = args;
-      if (callback) {
-        return formRef.value?.validate?.(callback);
-      }
-      return formRef.value?.validate?.();
-    },
-    clearValidate: (...args: Parameters<NonNullable<FormInstance["clearValidate"]>>) =>
-      formRef.value?.clearValidate?.(...args),
-    resetFields: (...args: Parameters<NonNullable<FormInstance["resetFields"]>>) =>
-      formRef.value?.resetFields?.(...args),
-    loadOptions,
-    setSelectedUsers: (users: UserBindOption[]) => {
-      const patch = { ...selectedMap.value };
-      users.forEach((item) => {
-        patch[item.id] = item;
-      });
-      selectedMap.value = patch;
-    },
-  });
+});
 </script>
 
 <template>
@@ -171,7 +215,12 @@
     </el-form-item>
 
     <div v-if="selectedUsers.length > 0" class="user-bind-form__selected">
-      <el-tag v-for="item in selectedUsers" :key="item.id" closable @close="() => removeUser(item.id)">
+      <el-tag
+        v-for="item in selectedUsers"
+        :key="item.id"
+        closable
+        @close="() => removeUser(item.id)"
+      >
         {{ item.nickName }}（{{ item.userAccount || item.phone || '--' }}）
       </el-tag>
     </div>
@@ -179,9 +228,9 @@
 </template>
 
 <style scoped>
-  .user-bind-form__selected {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+.user-bind-form__selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 </style>

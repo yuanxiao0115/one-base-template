@@ -17,7 +17,6 @@ apps/admin/src/modules/<module-id>/
   services/
   stores/
   components/
-  compat/
 ```
 
 `manifest.ts` 必填字段：
@@ -92,8 +91,8 @@ await assembleRoutes({
   enabledModules: appEnv.enabledModules,
   defaultSystemCode: appEnv.defaultSystemCode,
   systemHomeMap: appEnv.systemHomeMap,
-  storageNamespace: appEnv.storageNamespace,
-})
+  storageNamespace: appEnv.storageNamespace
+});
 ```
 
 这样做的价值：
@@ -217,7 +216,7 @@ compat: {
 - `api/contracts.ts`：请求/响应类型
 - `api/client.ts`：唯一请求实现（统一从 `@one-base-template/core` 获取 `obHttp()`）
 - `services/*.ts`：页面用例编排
-- `compat/*.ts`：历史字段映射（如 `whiteList -> whiteDTOS`）
+- 协议兼容映射优先下沉到 `packages/adapters`（例如 `whiteList -> whiteDTOS`），不要在模块内新增 `compat/*.ts`
 
 对于 `apps/admin/src/modules/**` 的页面模块，建议进一步收敛为：
 
@@ -341,21 +340,23 @@ apps/admin/src/modules/UserManagement/
 函数式打开方式（面向“很多业务都要用”的接入场景）：
 
 ```ts
-import { openPersonnelSelection } from '@/components/PersonnelSelector'
-import { getCurrentInstance } from 'vue'
+import { openPersonnelSelection } from '@/components/PersonnelSelector';
+import { getCurrentInstance } from 'vue';
 
-const appContext = getCurrentInstance()?.appContext
+const appContext = getCurrentInstance()?.appContext;
 
 const result = await openPersonnelSelection({
   title: '添加人员',
   mode: 'person',
   users: selectedUsers,
   appContext,
-  fetchNodes: ({ parentId }) => roleAssignApi.getOrgContactsLazy({ parentId }).then((res) => res.data || []),
-  searchNodes: ({ keyword }) => roleAssignApi.searchContactUsers({ search: keyword }).then((res) => res.data || [])
-})
+  fetchNodes: ({ parentId }) =>
+    roleAssignApi.getOrgContactsLazy({ parentId }).then((res) => res.data || []),
+  searchNodes: ({ keyword }) =>
+    roleAssignApi.searchContactUsers({ search: keyword }).then((res) => res.data || [])
+});
 
-console.log(result.userIds, result.users)
+console.log(result.userIds, result.users);
 ```
 
 说明：
@@ -368,7 +369,7 @@ console.log(result.userIds, result.users)
 
 ```ts
 // apps/admin/src/modules/UserManagement/routes.ts
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router';
 
 export default [
   {
@@ -380,7 +381,7 @@ export default [
       keepAlive: true
     }
   }
-] satisfies RouteRecordRaw[]
+] satisfies RouteRecordRaw[];
 ```
 
 后续迁移 `user/org` 时，建议继续沿用同一目录与页面骨架，保持“模块可切割 + CRUD 容器可复用”的一致性。

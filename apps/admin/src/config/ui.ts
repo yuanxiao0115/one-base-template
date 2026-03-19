@@ -1,8 +1,8 @@
-import type { CrudContainerType } from "@one-base-template/ui";
-import type { UseTableDefaults, UseTableStandardResponse } from "@one-base-template/core";
+import type { CrudContainerType } from '@one-base-template/ui';
+import type { UseTableDefaults, UseTableStandardResponse } from '@one-base-template/core';
 
 function toRecord(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return {};
   }
   return value as Record<string, unknown>;
@@ -19,7 +19,7 @@ export function appTableResponseAdapter(response: unknown): UseTableStandardResp
     return {
       records: response,
       total: response.length,
-      raw: response,
+      raw: response
     };
   }
 
@@ -72,14 +72,15 @@ export function appTableResponseAdapter(response: unknown): UseTableStandardResp
     root.currentPage ??
     root.current ??
     root.page;
-  const pageSizeCandidate = data.pageSize ?? data.size ?? result.pageSize ?? result.size ?? root.pageSize ?? root.size;
+  const pageSizeCandidate =
+    data.pageSize ?? data.size ?? result.pageSize ?? result.size ?? root.pageSize ?? root.size;
 
   return {
     records,
     total: Number(totalCandidate ?? records.length),
     currentPage: currentCandidate == null ? undefined : Number(currentCandidate),
     pageSize: pageSizeCandidate == null ? undefined : Number(pageSizeCandidate),
-    raw: response,
+    raw: response
   };
 }
 
@@ -88,7 +89,7 @@ export function appTableResponseAdapter(response: unknown): UseTableStandardResp
  * - 未传 container 时生效
  * - 组件 props.container 始终优先于该默认值
  */
-export const appCrudContainerDefaultType: CrudContainerType = "drawer";
+export const appCrudContainerDefaultType: CrudContainerType = 'drawer';
 
 /**
  * useTable 全局默认配置：
@@ -98,12 +99,12 @@ export const appCrudContainerDefaultType: CrudContainerType = "drawer";
  */
 export const appTableDefaults: UseTableDefaults = {
   paginationKey: {
-    current: "currentPage",
-    size: "pageSize",
+    current: 'currentPage',
+    size: 'pageSize'
   },
   paginationAlias: {
-    current: ["current", "page"],
-    size: ["size"],
+    current: ['current', 'page'],
+    size: ['size']
   },
-  responseAdapter: appTableResponseAdapter,
+  responseAdapter: appTableResponseAdapter
 };

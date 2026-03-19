@@ -5,11 +5,58 @@ export interface PortalEngineOptions {
 export function createPortalEngine(options: PortalEngineOptions = {}) {
   void options;
   return {
-    name: '@one-base-template/portal-engine',
+    name: '@one-base-template/portal-engine'
   };
 }
 
+export type { PortalEngineContext, PortalEngineContextOptions } from './runtime/context';
+export {
+  createPortalEngineContext,
+  getDefaultPortalEngineContext,
+  providePortalEngineContext,
+  resetDefaultPortalEngineContext,
+  usePortalEngineContext
+} from './runtime/context';
+
 export type { BizResponse, PageResult, PortalTab, PortalTemplate } from './schema/types';
+export type { PortalBizResponseLike } from './utils/biz-response';
+export { isPortalBizOk } from './utils/biz-response';
+export type { PortalPreviewMode, PortalPreviewViewport } from './utils/preview';
+export {
+  calcPreviewScale,
+  PREVIEW_MODE_LIVE,
+  PREVIEW_MODE_SAFE,
+  PREVIEW_VIEWPORT_DEFAULT,
+  resolvePreviewMode,
+  resolvePreviewViewport
+} from './utils/preview';
+export type {
+  PortalContainerWidth,
+  PortalFooterConfig,
+  PortalFooterFixedMode,
+  PortalHeaderConfig,
+  PortalHeaderMode,
+  PortalHeaderTitleLayout,
+  PortalHeaderTitlePosition,
+  PortalNavAlign,
+  PortalNavSource,
+  PortalPageShellOverride,
+  PortalResolvedShell,
+  PortalShellConfig,
+  PortalShellNavItem,
+  PortalTemplateDetails
+} from './shell/template-details';
+export {
+  buildPortalHeaderNavItems,
+  buildPortalTemplateDetailsSchemaPreview,
+  createDefaultPortalTemplateDetails,
+  getCustomHeaderOption,
+  normalizeTabId,
+  parsePortalTemplateDetails,
+  PORTAL_CUSTOM_HEADER_OPTIONS,
+  resolvePortalShellForTab,
+  stringifyPortalTemplateDetails
+} from './shell/template-details';
 export type {
   PortalPageAccessMode,
   PortalPageAccessSettings,
@@ -36,7 +83,7 @@ export type {
   PortalPageSettingIssue,
   PortalPageSettingsV2,
   PortalPageSpacingSettings,
-  PortalPageViewportType,
+  PortalPageViewportType
 } from './schema/page-settings';
 export {
   buildPortalPageLayoutForSave,
@@ -46,25 +93,94 @@ export {
   normalizePortalPageSettingsV2,
   PORTAL_PAGE_SETTINGS_V2_VERSION,
   resolvePortalPageRuntimeSettings,
-  validatePortalPageSettingsV2,
+  validatePortalPageSettingsV2
 } from './schema/page-settings';
-export type { SchemaConfigOptions, SchemaConfigResult, SectionConfig } from './composables/useSchemaConfig';
+export type {
+  SchemaConfigOptions,
+  SchemaConfigResult,
+  SectionConfig
+} from './composables/useSchemaConfig';
 export { useSchemaConfig } from './composables/useSchemaConfig';
 export { deepClone, deepEqual } from './utils/deep';
+export type { PortalTabTreeNode } from './domain/tab-tree';
+export {
+  calcPortalTabNextSort,
+  containsPortalTabId,
+  findFirstPortalPageTabId,
+  findPortalTabById,
+  isPortalTabEditable,
+  normalizePortalParentId,
+  normalizePortalTabId,
+  normalizePortalTabName,
+  walkPortalTabs
+} from './domain/tab-tree';
+export type {
+  PagePermissionGroupPayload,
+  PagePermissionSubmitPayload,
+  PortalTabPermissionUpdatePayload,
+  TemplatePagePermissionTabOption,
+  TemplatePagePermissionTreeNode
+} from './domain/page-permission';
+export {
+  buildPortalTabPermissionUpdatePayload,
+  buildTemplatePagePermissionTree,
+  collectTemplatePagePermissionTabs
+} from './domain/page-permission';
+export type {
+  PortalPageSettingsApi,
+  PortalPageSettingsApiResponse,
+  PortalPageSettingsTabLike,
+  PortalTabPageSettingsDetail
+} from './services/page-settings';
+export {
+  createPortalPageSettingsService,
+  getPortalPageSettingsApi,
+  resetPortalPageSettingsApi,
+  setPortalPageSettingsApi
+} from './services/page-settings';
 export type { RegisterPortalMaterialComponentOptions } from './materials/useMaterials';
-export { registerPortalMaterialComponent, unregisterPortalMaterialComponent, useMaterials } from './materials/useMaterials';
-export { cmsApi, getPortalCmsApi, setPortalCmsApi } from './materials/api';
+export {
+  registerPortalMaterialComponent,
+  unregisterPortalMaterialComponent,
+  useMaterials
+} from './materials/useMaterials';
+export type {
+  PortalMaterialComponents,
+  PortalMaterialConfig,
+  PortalMaterialDescriptor,
+  PortalMaterialExtension,
+  PortalMaterialSectionAliases
+} from './materials/extensions';
+export {
+  definePortalMaterial,
+  definePortalMaterialCategory,
+  definePortalMaterialExtension
+} from './materials/extensions';
+export {
+  registerMaterialExtensions,
+  unregisterMaterialExtensions
+} from './materials/registerMaterialExtensions';
+export { useEditorMaterials } from './materials/useEditorMaterials';
+export { useRendererMaterials } from './materials/useRendererMaterials';
+export type {
+  PortalMaterialCatalog,
+  PortalMaterialCatalogScene,
+  UsePortalMaterialCatalogOptions
+} from './materials/usePortalMaterialCatalog';
+export { usePortalMaterialCatalog } from './materials/usePortalMaterialCatalog';
+export { cmsApi, getPortalCmsApi, resetPortalCmsApi, setPortalCmsApi } from './materials/api';
 export type {
   PortalCmsDetailNavigationContext,
   PortalCmsListNavigationContext,
   PortalCmsNavigation,
-  PortalCmsNavigationResult,
+  PortalCmsNavigationResult
 } from './materials/navigation';
 export {
+  getPortalCmsNavigation,
   navigatePortalCmsDetail,
   navigatePortalCmsList,
   resetPortalCmsNavigation,
-  setPortalCmsNavigation,
+  setPortalCmsNavigation
 } from './materials/navigation';
 export type {
   PortalMaterialCategory,
@@ -74,25 +190,101 @@ export type {
   PortalMaterialRegistry,
   PortalMaterialRegistryController,
   RegisterPortalMaterialOptions,
-  UnregisterPortalMaterialOptions,
+  UnregisterPortalMaterialOptions
 } from './registry/materials-registry.types';
 export {
   createPortalMaterialRegistry,
+  getPortalMaterialRegistryController,
+  getPortalMaterialTypeAliases,
   portalMaterialsRegistry,
   portalMaterialTypeAliases,
   registerPortalMaterial,
   resolvePortalMaterialTypeAlias,
-  unregisterPortalMaterial,
+  unregisterPortalMaterial
 } from './registry/materials-registry';
 export type { PortalLayoutItem } from './stores/pageLayout';
 export { usePortalPageLayoutStore } from './stores/pageLayout';
 export { default as GridLayoutEditor } from './editor/GridLayoutEditor.vue';
 export type { LayoutUpdateItem } from './editor/layout-sync';
 export { hasLayoutGeometryChanged, mergeLayoutItems } from './editor/layout-sync';
-export { default as PropertyPanel } from './editor/PropertyPanel.vue';
-export { default as MaterialLibrary } from './editor/MaterialLibrary.vue';
-export { default as PortalGridRenderer } from './renderer/PortalGridRenderer.vue';
-export { PortalBorderField, PortalColorField, PortalSpacingField } from './materials/common/fields';
+export type { UsePortalCurrentTabActionsOptions } from './editor/current-tab-actions';
+export { usePortalCurrentTabActions } from './editor/current-tab-actions';
+export type {
+  PortalPageSettingsDrawerTab,
+  PortalPageSettingsSession,
+  PortalPageSettingsSessionCloseResult,
+  PortalPageSettingsSessionState
+} from './editor/page-settings-session';
+export { createPortalPageSettingsSession } from './editor/page-settings-session';
+export {
+  PORTAL_PREVIEW_MESSAGE_PAGE_READY,
+  PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME,
+  PORTAL_PREVIEW_MESSAGE_SHELL_DETAILS,
+  PORTAL_PREVIEW_MESSAGE_VIEWPORT,
+  buildPreviewRuntimeMessage,
+  buildPreviewShellDetailsMessage,
+  buildPreviewViewportMessage,
+  isPreviewPageReadyMessage,
+  sendPreviewPageRuntimeToWindow,
+  sendPreviewRuntime,
+  sendPreviewShellDetails,
+  sendPreviewViewport,
+  type PortalPreviewFrameTarget,
+  type PortalPreviewReadyData,
+  type PortalPreviewReadyMessage,
+  type PortalPreviewRuntimeData,
+  type PortalPreviewRuntimeMessage,
+  type PortalPreviewShellDetailsData,
+  type PortalPreviewShellDetailsMessage,
+  type PortalPreviewViewportData,
+  type PortalPreviewViewportMessage
+} from './editor/preview-bridge';
+export type {
+  PortalRouteQueryLike as PortalPreviewRouteQueryLike,
+  PortalRouteQueryPrimitive as PortalPreviewRouteQueryPrimitive,
+  PortalRouteQueryValue as PortalPreviewRouteQueryValue
+} from './workbench/template-workbench-route';
+export type {
+  PortalPreviewRouteParamsLike,
+  UsePortalPreviewPageByRouteOptions as UsePortalPreviewRouteOptions
+} from './workbench/usePortalPreviewPageByRoute';
+export { usePortalPreviewPageByRoute } from './workbench/usePortalPreviewPageByRoute';
+export type {
+  CreatePortalPreviewDataSourceOptions,
+  PortalPreviewBizResponseLike
+} from './workbench/preview-data-source';
+export {
+  createPortalPreviewDataSource,
+  isPortalPreviewBizOk
+} from './workbench/preview-data-source';
+export * from './public-designer';
+export {
+  calcPortalManualPanRange,
+  calcPortalPreviewPanBounds,
+  calcPortalPreviewStagePosition,
+  clampPortalPreviewOffset,
+  clampPortalPreviewPercent,
+  type PortalPreviewPanBounds,
+  type PortalPreviewPanBoundsInput,
+  type PortalPreviewStageOffset
+} from './editor/preview-stage-utils';
+export type {
+  PortalPreviewDataSource,
+  PortalPreviewNavigatePayload,
+  PortalPreviewTabDetailResponse,
+  PortalPreviewTemplateDetailResponse
+} from './renderer/portal-preview-panel.types';
+export {
+  ConfigurablePortalFooter,
+  ConfigurablePortalHeader,
+  customHeaderRegistry,
+  PortalGridRenderer,
+  PortalPreviewPanel,
+  PortalPreviewGlobalScrollLayout,
+  PortalPreviewHeaderFixedContentScrollLayout,
+  PortalPreviewHeaderFooterFixedContentScrollLayout
+} from './renderer';
+export { PortalBorderField, PortalSpacingField } from './materials/common/fields';
 export {
   DEFAULT_UNIFIED_CONTAINER_CONTENT_CONFIG,
   DEFAULT_UNIFIED_CONTAINER_STYLE_CONFIG,
@@ -103,11 +295,11 @@ export {
   createDefaultUnifiedContainerContentConfig,
   createDefaultUnifiedContainerStyleConfig,
   mergeUnifiedContainerContentConfig,
-  mergeUnifiedContainerStyleConfig,
+  mergeUnifiedContainerStyleConfig
 } from './materials/common/unified-container';
 export type {
   UnifiedContainerBorderStyle,
   UnifiedContainerContentConfigModel,
   UnifiedContainerSubtitleLayout,
-  UnifiedContainerStyleConfigModel,
+  UnifiedContainerStyleConfigModel
 } from './materials/common/unified-container';

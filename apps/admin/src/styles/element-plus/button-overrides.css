@@ -42,15 +42,15 @@
   padding: 5px 11px;
 }
 
-.el-button [class*="el-icon"] + span {
+.el-button [class*='el-icon'] + span {
   margin-left: var(--ob-button-icon-gap-default);
 }
 
-.el-button--large [class*="el-icon"] + span {
+.el-button--large [class*='el-icon'] + span {
   margin-left: var(--ob-button-icon-gap-large);
 }
 
-.el-button--small [class*="el-icon"] + span {
+.el-button--small [class*='el-icon'] + span {
   margin-left: var(--ob-button-icon-gap-small);
 }
 

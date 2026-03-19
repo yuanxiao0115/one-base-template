@@ -13,6 +13,7 @@
 ### Task 1: 重写根 AGENTS 导航页
 
 **Files:**
+
 - Modify: `AGENTS.md`
 - Reference: `apps/docs/docs/guide/architecture.md`
 - Reference: `apps/docs/docs/guide/development.md`
@@ -43,6 +44,7 @@ git commit -m "文档：重构根 AGENTS 导航与作用域边界"
 ### Task 2: 新增 Agent / Harness 指南页
 
 **Files:**
+
 - Create: `apps/docs/docs/guide/agent-harness.md`
 - Modify: `apps/docs/docs/guide/agents-scope.md`
 - Modify: `apps/docs/docs/guide/development.md`
@@ -76,6 +78,7 @@ git commit -m "文档：新增 Agent Harness 指南"
 ### Task 3: 接入文档导航与总览入口
 
 **Files:**
+
 - Modify: `apps/docs/docs/.vitepress/config.ts`
 - Modify: `apps/docs/docs/guide/index.md`
 
@@ -102,6 +105,7 @@ git commit -m "文档：接入 Agent Harness 文档导航"
 ### Task 4: 落盘设计与实施记录
 
 **Files:**
+
 - Create: `docs/plans/2026-03-06-agent-harness-project-rules-design.md`
 - Create: `docs/plans/2026-03-06-agent-harness-project-rules-implementation.md`
 
@@ -123,6 +127,7 @@ git commit -m "文档：补充 Agent Harness 重构设计与计划"
 ### Task 5: 验证并同步 `.codex` 记录
 
 **Files:**
+
 - Modify: `.codex/operations-log.md`
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`

@@ -1,14 +1,14 @@
-import { describe, expect, it, vi } from "vitest";
-import type { RouteRecordRaw } from "vue-router";
+import { describe, expect, it, vi } from 'vite-plus/test';
+import type { RouteRecordRaw } from 'vue-router';
 
-vi.mock("@one-base-template/ui/shell", () => ({
+vi.mock('@one-base-template/ui/shell', () => ({
   AdminLayout: {},
   ForbiddenPage: {},
-  NotFoundPage: {},
+  NotFoundPage: {}
 }));
 
-import { routePaths } from "../constants";
-import { assembleRoutes, type AppRouteAssemblyOptions } from "../assemble-routes";
+import { routePaths } from '../constants';
+import { assembleRoutes, type AppRouteAssemblyOptions } from '../assemble-routes';
 
 function createRouteAssemblyOptions(
   enabledModules: string[],
@@ -16,16 +16,16 @@ function createRouteAssemblyOptions(
 ): AppRouteAssemblyOptions {
   return {
     enabledModules,
-    defaultSystemCode: "admin_server",
+    defaultSystemCode: 'admin_server',
     systemHomeMap: {
-      admin_server: "/home/index",
+      admin_server: '/home/index'
     },
-    storageNamespace: "admin-test",
-    ...overrides,
+    storageNamespace: 'admin-test',
+    ...overrides
   };
 }
 
-describe("router/assemble-routes", () => {
+describe('router/assemble-routes', () => {
   function flattenRoutes(routes: RouteRecordRaw[]): RouteRecordRaw[] {
     return routes.flatMap((route) => {
       const children = Array.isArray(route.children) ? route.children : [];
@@ -34,14 +34,14 @@ describe("router/assemble-routes", () => {
   }
 
   function isSamePath(actualPath: unknown, expectedPath: string): boolean {
-    if (typeof actualPath !== "string") {
+    if (typeof actualPath !== 'string') {
       return false;
     }
     return actualPath === expectedPath || actualPath === expectedPath.slice(1);
   }
 
-  it("应保留公共固定路由", async () => {
-    const { routes } = await assembleRoutes(createRouteAssemblyOptions(["home"]));
+  it('应保留公共固定路由', async () => {
+    const { routes } = await assembleRoutes(createRouteAssemblyOptions(['home']));
     const routePathList = routes.map((item) => item.path);
 
     expect(routePathList).toContain(routePaths.login);
@@ -51,35 +51,54 @@ describe("router/assemble-routes", () => {
     expect(routePathList).toContain(routePaths.catchall);
   });
 
-  it("PortalManagement 模块应使用语义化设计路径并移除历史 alias 路由", async () => {
-    const { routes } = await assembleRoutes(createRouteAssemblyOptions(["PortalManagement"]));
+  it('PortalManagement 模块应使用语义化设计路径并移除历史 alias 路由', async () => {
+    const { routes } = await assembleRoutes(createRouteAssemblyOptions(['PortalManagement']));
     const allRoutes = flattenRoutes(routes);
 
-    const listRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/setting") && item.name === "PortalTemplateList");
-    const designerRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/design") && item.name === "PortalDesigner");
-    const pageEditRoute = allRoutes.find(
-      (item) => isSamePath(item.path, "/portal/page/edit") && item.name === "PortalPageEditor"
+    const listRoute = allRoutes.find(
+      (item) => isSamePath(item.path, '/portal/setting') && item.name === 'PortalTemplateList'
     );
-    const previewRoute = allRoutes.find((item) => isSamePath(item.path, "/portal/preview") && item.name === "PortalPreview");
+    const designerRoute = allRoutes.find(
+      (item) => isSamePath(item.path, '/portal/design') && item.name === 'PortalDesigner'
+    );
+    const pageEditRoute = allRoutes.find(
+      (item) => isSamePath(item.path, '/portal/page/edit') && item.name === 'PortalPageEditor'
+    );
+    const previewRoute = allRoutes.find(
+      (item) => isSamePath(item.path, '/portal/preview') && item.name === 'PortalPreview'
+    );
 
-    const removedAliasPaths = ["/portal/templates", "/portal/layout", "/resource/portal/setting"];
+    const removedAliasPaths = ['/portal/templates', '/portal/layout', '/resource/portal/setting'];
 
     expect(listRoute).toBeDefined();
     expect(listRoute?.redirect).toBeUndefined();
     expect(designerRoute).toBeDefined();
     expect(pageEditRoute).toBeDefined();
     expect(previewRoute).toBeDefined();
-    expect((designerRoute?.meta as Record<string, unknown> | undefined)?.activePath).toBe("/portal/setting");
-    expect((pageEditRoute?.meta as Record<string, unknown> | undefined)?.activePath).toBe("/portal/setting");
-    expect(removedAliasPaths.some((path) => allRoutes.some((item) => isSamePath(item.path, path)))).toBe(false);
+    expect((designerRoute?.meta as Record<string, unknown> | undefined)?.activePath).toBe(
+      '/portal/setting'
+    );
+    expect((pageEditRoute?.meta as Record<string, unknown> | undefined)?.activePath).toBe(
+      '/portal/setting'
+    );
+    expect(
+      removedAliasPaths.some((path) => allRoutes.some((item) => isSamePath(item.path, path)))
+    ).toBe(false);
   });
 
-  it("应从已装配路由自动收集 skipMenuAuth 白名单", async () => {
-    const { skipMenuAuthRouteNames } = await assembleRoutes(createRouteAssemblyOptions(["home", "PortalManagement"]));
+  it('应从已装配路由自动收集 skipMenuAuth 白名单', async () => {
+    const { skipMenuAuthRouteNames } = await assembleRoutes(
+      createRouteAssemblyOptions(['home', 'PortalManagement'])
+    );
 
     expect(skipMenuAuthRouteNames).toEqual(
-      expect.arrayContaining(["HomeIndex", "PortalTemplateList", "PortalDesigner", "PortalPageEditor"])
+      expect.arrayContaining([
+        'HomeIndex',
+        'PortalTemplateList',
+        'PortalDesigner',
+        'PortalPageEditor'
+      ])
     );
-    expect(skipMenuAuthRouteNames).not.toContain("PortalPreview");
+    expect(skipMenuAuthRouteNames).not.toContain('PortalPreview');
   });
 });

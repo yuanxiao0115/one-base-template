@@ -19,12 +19,15 @@ export interface BuildFixedRoutesOptions {
   notFoundPath?: string;
 }
 
-function createPublicRoute(route: PublicRouteDefinition, meta: RouteRecordRaw['meta']): RouteRecordRaw {
+function createPublicRoute(
+  route: PublicRouteDefinition,
+  meta: RouteRecordRaw['meta']
+): RouteRecordRaw {
   return {
     path: route.path,
     name: route.name,
     component: route.component,
-    meta,
+    meta
   };
 }
 
@@ -39,9 +42,9 @@ function createNotFoundCatchallRoute(params: {
     path,
     redirect: () => ({
       path: notFoundPath,
-      replace: true,
+      replace: true
     }),
-    meta,
+    meta
   };
 }
 
@@ -64,7 +67,9 @@ function resolveNotFoundPath(params: {
     return pathNotFound.path;
   }
 
-  throw new Error('[core/router] buildFixedRoutes 缺少 notFoundPath，且 publicRoutes 中未找到 not-found/404 路由。');
+  throw new Error(
+    '[core/router] buildFixedRoutes 缺少 notFoundPath，且 publicRoutes 中未找到 not-found/404 路由。'
+  );
 }
 
 export function buildFixedRoutes(options: BuildFixedRoutesOptions): RouteRecordRaw[] {
@@ -76,11 +81,11 @@ export function buildFixedRoutes(options: BuildFixedRoutesOptions): RouteRecordR
     publicRouteMeta,
     publicRoutes,
     notFoundCatchallPath,
-    notFoundPath,
+    notFoundPath
   } = options;
   const resolvedNotFoundPath = resolveNotFoundPath({
     publicRoutes,
-    notFoundPath,
+    notFoundPath
   });
 
   return [
@@ -88,13 +93,13 @@ export function buildFixedRoutes(options: BuildFixedRoutesOptions): RouteRecordR
       path: rootPath,
       component: layoutComponent,
       redirect: () => defaultHomePath,
-      children: layoutRoutes,
+      children: layoutRoutes
     },
     ...publicRoutes.map((route) => createPublicRoute(route, publicRouteMeta)),
     createNotFoundCatchallRoute({
       path: notFoundCatchallPath,
       notFoundPath: resolvedNotFoundPath,
-      meta: publicRouteMeta,
-    }),
+      meta: publicRouteMeta
+    })
   ];
 }

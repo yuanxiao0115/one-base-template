@@ -12,7 +12,7 @@ export enum DialogMode {
   Add = 'add',
   Update = 'update',
   View = 'view',
-  Copy = 'copy',
+  Copy = 'copy'
 }
 
 /**
@@ -115,7 +115,7 @@ export function useDialog(options: UseDialogOptions = {}): UseDialogReturn {
     detailParam,
     beforeSubmit,
     onSuccess,
-    onError,
+    onError
   } = options;
 
   const visible: Ref<boolean> = ref(false);
@@ -130,7 +130,7 @@ export function useDialog(options: UseDialogOptions = {}): UseDialogReturn {
       [DialogMode.Add]: '新增',
       [DialogMode.Update]: '编辑',
       [DialogMode.View]: '查看',
-      [DialogMode.Copy]: '复制',
+      [DialogMode.Copy]: '复制'
     };
     return `${modeText[mode.value]}${baseTitle}`;
   });
@@ -153,7 +153,11 @@ export function useDialog(options: UseDialogOptions = {}): UseDialogReturn {
     // 重置详情数据
     detailData.value = {};
 
-    if (newMode === DialogMode.Update || newMode === DialogMode.View || newMode === DialogMode.Copy) {
+    if (
+      newMode === DialogMode.Update ||
+      newMode === DialogMode.View ||
+      newMode === DialogMode.Copy
+    ) {
       try {
         if (detailApi) {
           // 使用API获取详情
@@ -265,7 +269,7 @@ export function useDialog(options: UseDialogOptions = {}): UseDialogReturn {
     openDialog,
     closeDialog,
     submit,
-    resetForm,
+    resetForm
   };
 }
 
