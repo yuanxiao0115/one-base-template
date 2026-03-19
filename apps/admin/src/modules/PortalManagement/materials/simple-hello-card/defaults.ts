@@ -1,21 +1,4 @@
-import type {
-  PortalMaterialCategoryInput,
-  PortalMaterialConfig
-} from '@one-base-template/portal-engine';
-
-export const PORTAL_SIMPLE_HELLO_CARD_MATERIAL_ID = 'portal-simple-hello-card';
-export const PORTAL_SIMPLE_HELLO_CARD_MATERIAL_TYPE = 'portal-simple-hello-card';
-
-export const PORTAL_SIMPLE_HELLO_CARD_INDEX_NAME = 'portal-simple-hello-card-index';
-export const PORTAL_SIMPLE_HELLO_CARD_CONTENT_NAME = 'portal-simple-hello-card-content';
-export const PORTAL_SIMPLE_HELLO_CARD_STYLE_NAME = 'portal-simple-hello-card-style';
-
-export const PORTAL_SIMPLE_HELLO_CARD_CATEGORY: PortalMaterialCategoryInput = {
-  id: 'portal-admin',
-  title: '管理端示例',
-  name: '管理端示例',
-  cmptTypeName: '管理端示例'
-};
+import type { PortalMaterialConfig } from '@one-base-template/portal-engine';
 
 export interface PortalSimpleHelloCardBasicConfig {
   title: string;
@@ -161,14 +144,14 @@ export function mergePortalSimpleHelloCardStyleConfig(
 export function createPortalSimpleHelloCardMaterialConfig(): PortalMaterialConfig {
   return {
     index: {
-      name: PORTAL_SIMPLE_HELLO_CARD_INDEX_NAME
+      name: 'portal-simple-hello-card-index'
     },
     content: {
-      name: PORTAL_SIMPLE_HELLO_CARD_CONTENT_NAME,
+      name: 'portal-simple-hello-card-content',
       basic: createDefaultPortalSimpleHelloCardBasicConfig()
     },
     style: {
-      name: PORTAL_SIMPLE_HELLO_CARD_STYLE_NAME,
+      name: 'portal-simple-hello-card-style',
       card: createDefaultPortalSimpleHelloCardStyleConfig()
     }
   };

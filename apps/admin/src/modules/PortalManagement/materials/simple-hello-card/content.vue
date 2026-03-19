@@ -45,7 +45,6 @@ import { ObCard } from '@one-base-template/ui';
 import { useSchemaConfig } from '@one-base-template/portal-engine';
 import {
   mergePortalSimpleHelloCardBasicConfig,
-  PORTAL_SIMPLE_HELLO_CARD_CONTENT_NAME,
   type PortalSimpleHelloCardBasicConfig
 } from './defaults';
 
@@ -63,7 +62,7 @@ const props = defineProps({
 const emit = defineEmits(['schemaChange']);
 
 const { sectionData } = useSchemaConfig<HelloCardContentData>({
-  name: PORTAL_SIMPLE_HELLO_CARD_CONTENT_NAME,
+  name: 'portal-simple-hello-card-content',
   sections: {
     basic: {}
   },
@@ -76,7 +75,7 @@ const { sectionData } = useSchemaConfig<HelloCardContentData>({
 sectionData.basic = mergePortalSimpleHelloCardBasicConfig(sectionData.basic);
 
 defineOptions({
-  name: PORTAL_SIMPLE_HELLO_CARD_CONTENT_NAME
+  name: 'portal-simple-hello-card-content'
 });
 </script>
 

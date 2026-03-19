@@ -3,7 +3,6 @@ import { computed, type CSSProperties } from 'vue';
 import {
   mergePortalSimpleHelloCardBasicConfig,
   mergePortalSimpleHelloCardStyleConfig,
-  PORTAL_SIMPLE_HELLO_CARD_INDEX_NAME,
   type PortalSimpleHelloCardSchema
 } from './defaults';
 
@@ -37,7 +36,7 @@ const badgeStyleObject = computed<CSSProperties>(() => ({
 }));
 
 defineOptions({
-  name: PORTAL_SIMPLE_HELLO_CARD_INDEX_NAME
+  name: 'portal-simple-hello-card-index'
 });
 </script>
 
