@@ -13,6 +13,7 @@ import {
   type SelectedUserLite
 } from './permission/permission-payload';
 import { normalizeIdLike } from './permission/permission-common';
+import { createPermissionFieldAccessor } from './permission/permission-field-accessor';
 import { usePermissionRoleOptions } from './permission/usePermissionRoleOptions';
 import { usePermissionUserSelection } from './permission/usePermissionUserSelection';
 
@@ -132,27 +133,15 @@ function hydrateFromInitial(initial: Partial<PortalTab> | undefined) {
 const { roleOptions, roleLoading, ensureRoleOptions } =
   usePermissionRoleOptions(portalAuthorityApi);
 
-function getUsersByField(field: UserField): SelectedUserLite[] {
-  if (field === 'allow') {
-    return form.allowUsers;
-  }
-  if (field === 'forbidden') {
-    return form.forbiddenUsers;
-  }
-  return form.configUsers;
-}
-
-function setUsersByField(field: UserField, users: SelectedUserLite[]) {
-  if (field === 'allow') {
-    form.allowUsers = users;
-    return;
-  }
-  if (field === 'forbidden') {
-    form.forbiddenUsers = users;
-    return;
-  }
-  form.configUsers = users;
-}
+const { getByField: getUsersByField, setByField: setUsersByField } = createPermissionFieldAccessor<
+  typeof form,
+  UserField,
+  SelectedUserLite
+>(form, {
+  allow: 'allowUsers',
+  forbidden: 'forbiddenUsers',
+  config: 'configUsers'
+});
 
 const { pickingField, pickUsers } = usePermissionUserSelection<UserField, SelectedUserLite>({
   api: portalAuthorityApi,

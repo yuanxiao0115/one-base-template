@@ -15,6 +15,7 @@ import {
   type TemplateAuthorityPayload
 } from './permission/permission-payload';
 import { normalizeIdLike } from './permission/permission-common';
+import { createPermissionFieldAccessor } from './permission/permission-field-accessor';
 import { usePermissionRoleOptions } from './permission/usePermissionRoleOptions';
 import { usePermissionUserSelection } from './permission/usePermissionUserSelection';
 
@@ -130,27 +131,15 @@ function formatUserNames(list: AuthorityUserItem[]): string {
 const { roleOptions, roleLoading, ensureRoleOptions } =
   usePermissionRoleOptions(portalAuthorityApi);
 
-function getUsersByField(field: UserField): AuthorityUserItem[] {
-  if (field === 'white') {
-    return form.whiteUsers;
-  }
-  if (field === 'black') {
-    return form.blackUsers;
-  }
-  return form.editUsers;
-}
-
-function setUsersByField(field: UserField, users: AuthorityUserItem[]) {
-  if (field === 'white') {
-    form.whiteUsers = users;
-    return;
-  }
-  if (field === 'black') {
-    form.blackUsers = users;
-    return;
-  }
-  form.editUsers = users;
-}
+const { getByField: getUsersByField, setByField: setUsersByField } = createPermissionFieldAccessor<
+  typeof form,
+  UserField,
+  AuthorityUserItem
+>(form, {
+  white: 'whiteUsers',
+  black: 'blackUsers',
+  edit: 'editUsers'
+});
 
 const { pickingField, pickUsers } = usePermissionUserSelection<UserField, AuthorityUserItem>({
   api: portalAuthorityApi,
