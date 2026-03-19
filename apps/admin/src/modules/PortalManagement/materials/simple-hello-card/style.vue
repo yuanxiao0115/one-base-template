@@ -60,10 +60,10 @@
 <script setup lang="ts">
 import { ObCard, ObColorField } from '@one-base-template/ui';
 import { useSchemaConfig } from '@one-base-template/portal-engine';
-import { mergePortalSimpleHelloCardStyleConfig } from './defaults';
+import { PORTAL_SIMPLE_HELLO_CARD_DEFAULTS } from './defaults';
 
 interface HelloCardStyleData {
-  card: ReturnType<typeof mergePortalSimpleHelloCardStyleConfig>;
+  card: typeof PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.style.card;
 }
 
 const props = defineProps({
@@ -78,15 +78,15 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<HelloCardStyleData>({
   name: 'portal-simple-hello-card-style',
   sections: {
-    card: {}
+    card: {
+      defaultValue: PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.style.card
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
     emit('schemaChange', 'style', newSchema);
   }
 });
-
-sectionData.card = mergePortalSimpleHelloCardStyleConfig(sectionData.card);
 
 defineOptions({
   name: 'portal-simple-hello-card-style'

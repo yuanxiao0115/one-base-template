@@ -23,6 +23,7 @@
 - `materials/extensions/index.ts` 通过 `import.meta.glob('../*/material.ts')` 自动收集物料，不再手工 import 每个组件。
 - 每个物料目录固定结构：`material.ts + defaults.ts + index.vue + content.vue + style.vue`。
 - 默认值统一收敛在 `defaults.ts`，并复用于 `material.ts` 初始配置与 `content/style/index` 的 merge 兜底。
+- `content.vue` / `style.vue` 建议通过 `useSchemaConfig({ sections: { xxx: { defaultValue } } })` 声明默认值；引擎会自动做“默认值 + schema”合并，减少每个物料手写初始化 merge。
 - 当前最小示例物料：
   - 组件文件：`apps/admin/src/modules/PortalManagement/materials/simple-hello-card/index.vue`
   - 内容设置：`apps/admin/src/modules/PortalManagement/materials/simple-hello-card/content.vue`
@@ -35,7 +36,7 @@
 
 1. 在 admin 侧新增物料目录：`apps/admin/src/modules/PortalManagement/materials/<material>/`。
 2. 补齐 `material.ts + defaults.ts + index.vue + content.vue + style.vue`。
-3. 在 `material.ts` 导出 `PORTAL_ADMIN_MATERIAL`，在 `defaults.ts` 定义默认值与 merge 规则。
+3. 在 `material.ts` 导出 `PORTAL_ADMIN_MATERIAL`，在 `defaults.ts` 定义默认值；`content/style` 通过 `sections.defaultValue` 自动注入默认值。
 4. `materials/extensions/index.ts` 自动收集 `*/material.ts` 并注册，无需手工追加。
 5. 通过 `setupPortalEngineForAdmin()` 统一注册。
 6. 跑 `verify:materials` 与 docs 构建。

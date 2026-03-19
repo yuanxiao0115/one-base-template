@@ -43,10 +43,10 @@
 <script setup lang="ts">
 import { ObCard } from '@one-base-template/ui';
 import { useSchemaConfig } from '@one-base-template/portal-engine';
-import { mergePortalSimpleHelloCardBasicConfig } from './defaults';
+import { PORTAL_SIMPLE_HELLO_CARD_DEFAULTS } from './defaults';
 
 interface HelloCardContentData {
-  basic: ReturnType<typeof mergePortalSimpleHelloCardBasicConfig>;
+  basic: typeof PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.content.basic;
 }
 
 const props = defineProps({
@@ -61,15 +61,15 @@ const emit = defineEmits(['schemaChange']);
 const { sectionData } = useSchemaConfig<HelloCardContentData>({
   name: 'portal-simple-hello-card-content',
   sections: {
-    basic: {}
+    basic: {
+      defaultValue: PORTAL_SIMPLE_HELLO_CARD_DEFAULTS.content.basic
+    }
   },
   schema: props.schema,
   onChange: (newSchema) => {
     emit('schemaChange', 'content', newSchema);
   }
 });
-
-sectionData.basic = mergePortalSimpleHelloCardBasicConfig(sectionData.basic);
 
 defineOptions({
   name: 'portal-simple-hello-card-content'
