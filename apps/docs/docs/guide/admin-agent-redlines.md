@@ -57,3 +57,17 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - 删除已废弃且无调用链的接口与类型，避免“定义存在但业务不用”的误导（如 role-assign 中已切换到 `PersonnelSelector` 后遗留的本地联系人类型）。
 - 组织管理员保存必须按差量提交（新增与移除分开计算），禁止把当前已选用户全量提交给新增接口。
 - 远程搜索类表单组件必须提供失败提示与请求竞态保护，禁止静默失败。
+
+## UserManagement 可读性基线（2026-03-20）
+
+- 页面级 composable 只做编排：当一个 composable 同时承担 `table + editor + dialog + remote options/sidebar/data-source` 中 `3` 类及以上职责时，必须继续拆分，禁止形成 God composable。
+- 列表、选中态、弹窗表单态只能保留一个真实数据源；禁止继续新增 `safeDataList`、`safeSelectedList` 这类影子状态。
+- `defineExpose` 仅用于暴露最小通用句柄（如 `validate`、`resetFields`、`clearValidate`）；禁止暴露业务动作、加载方法、回填方法。
+- 父层禁止依赖 `nextTick + ref + defineExpose` 链式驱动子组件内部初始化；弹窗回填、远程选项预加载、已选值同步优先改为 `props` 驱动或交由子组件内部处理。
+- wrapper 组件禁止做重复 DTO 归一化；共享类型只允许在单一边界做一次映射，禁止跨层反复把 `nickName/phone` 改写成 `title/subTitle`。
+- 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 等场景对象；禁止平铺暴露过多零散 action/ref。
+
+### 反例提示
+
+- `RoleAssignMemberSelectForm` 当前同时承担表单句柄暴露、`PersonnelSelector` 转接、已选用户二次映射，属于“看起来很薄、实际协议很多”的典型反例。
+- `UserBindAccountForm` 当前同时维护 `userIds` 与 `selectedMap` 两套状态，并通过 `defineExpose` 暴露加载与回填方法，阅读时需要跨父子两层追状态流，不宜继续扩散。

@@ -124,6 +124,12 @@
 - 新增/迁移 `UserManagement` 页面时，必须同次提交更新 `apps/admin/src/modules/UserManagement/routes.ts`。
 - `UserManagement` 的接口分层默认采用 `api.ts + types.ts`：`api.ts` 仅维护接口路径与请求参数透传；`types.ts` 保持“够用即可”，禁止过度细粒度类型设计；后端字段已对齐场景下，禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`。
 - UserManagement 编排层已按 composable 分层后，禁止再新增汇总式 `actions.ts`；复杂逻辑按语义归入 `useXxxState/useXxxActions/useXxxQuery` 等 composable，页面仅保留编排解构。
+- UserManagement 的页面级 composable 只负责编排：单个 composable 同时出现 `table + editor + dialog + remote options/sidebar/data-source` 中 `3` 类及以上职责时，必须继续拆分，禁止形成 God composable。
+- 禁止为适配下游 API 创建 `safeDataList`、`safeSelectedList` 这类影子状态；列表、选中态、弹窗表单态只能保留一个真实数据源，其余统一通过 `computed` / `readonly` 派生。
+- `defineExpose` 只允许暴露最小通用句柄（如 `validate`、`resetFields`、`clearValidate`）；禁止继续暴露业务动作、加载方法、回填方法（如 `loadOptions`、`loadRootNodes`、`setSelectedUsers`）。
+- 父层禁止通过 `nextTick + ref + defineExpose` 链式驱动子组件内部初始化；弹窗回填、远程选项预加载、已选值同步优先改为 `props` 驱动或由子组件自持状态处理。
+- wrapper 组件禁止做重复 DTO 归一化：共享类型一旦已经定义 `title/subTitle` 或 `nickName/phone` 语义，只允许在单一边界做一次映射，禁止层层改名与重复转换。
+- 远程数据 composable 默认自持状态并返回只读视图；只有明确的 orchestrator 才允许写外部 ref，且命名必须体现副作用（如 `hydrateXxx`），禁止伪装成普通 `useXxx`。
 - 角色域迁移必须同时包含：
   - `角色管理`：`/system/role/management`
   - `角色分配`：`/system/role/assign`
@@ -150,6 +156,7 @@
 - 业务页已使用 `ObActionButtons` 时，禁止叠加手写 `el-dropdown` 操作列。
 - `ObActionButtons` 在 UserManagement 页面作为全局组件使用，默认不再手动 import。
 - 页面状态分组语义固定：`editor` 仅承载 CRUD 编辑态（`visible/mode/title/submitting/form/uniqueCheck`）；选项/字典/树数据统一放在 `options`。
+- 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 这类场景对象；禁止平铺暴露超过一个屏宽的零散 action/ref。
 
 ## 菜单管理与图标选择
 
