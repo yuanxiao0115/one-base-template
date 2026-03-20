@@ -1,31 +1,21 @@
 import { obHttp } from '@one-base-template/core';
+import type { ApiResponse } from '@/shared/api/types';
 import type {
-  ApiResponse,
-  ClientOwnInfoData,
-  ContactLazyParams,
-  ContactUserSearchParams,
   DictItem,
   OrgContactNode,
   OrgContactUserNode,
   OrgLevelItem,
   OrgLevelSavePayload,
-  OrgManagerParams,
   OrgManagerRecord,
-  OrgManagerSavePayload,
   OrgRecord,
-  OrgSavePayload,
-  OrgSearchParams,
-  OrgTreeParams,
-  OrgUniqueParams,
-  UserBriefRecord,
-  UserSearchParams
+  OrgSavePayload
 } from './types';
 
 export const orgApi = {
-  getOrgTree: async (params: OrgTreeParams) =>
+  getOrgTree: async (params: { parentId?: string }) =>
     obHttp().get<ApiResponse<OrgRecord[]>>('/cmict/admin/org/children', { params }),
 
-  searchOrgList: async (params: OrgSearchParams) =>
+  searchOrgList: async (params: { parentId?: string; orgName?: string }) =>
     obHttp().get<ApiResponse<OrgRecord[]>>('/cmict/admin/org/search', { params }),
 
   queryAllOrgTree: async () =>
@@ -46,7 +36,7 @@ export const orgApi = {
       data
     }),
 
-  checkUnique: async (params: OrgUniqueParams) =>
+  checkUnique: async (params: { orgName: string; parentId?: string; orgId?: string }) =>
     obHttp().get<ApiResponse<boolean>>('/cmict/admin/org/unique/check', { params }),
 
   dictDataList: async (params: { dictCode: string }) =>
@@ -68,26 +58,20 @@ export const orgApi = {
   deleteOrgLevel: async (data: { id: string }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/org-level/delete', { data }),
 
-  queryOrgManagerList: async (params: OrgManagerParams) =>
+  queryOrgManagerList: async (params: { orgId: string }) =>
     obHttp().get<ApiResponse<OrgManagerRecord[]>>('/cmict/admin/org-admin/list', {
       params
     }),
 
-  searchAvailableUsers: async (params: UserSearchParams) =>
-    obHttp().get<ApiResponse<UserBriefRecord[]>>('/cmict/admin/user/list', { params }),
-
-  getOrgContactsLazy: async (params: ContactLazyParams) =>
+  getOrgContactsLazy: async (params: { parentId?: string }) =>
     obHttp().get<ApiResponse<OrgContactNode[]>>('/cmict/admin/org/contacts/lazy/tree', { params }),
 
-  searchContactUsers: async (params: ContactUserSearchParams) =>
+  searchContactUsers: async (params: { search?: string }) =>
     obHttp().get<ApiResponse<OrgContactUserNode[]>>('/cmict/admin/user/structure/search/', {
       params
     }),
 
-  getClientOwnInfo: async () =>
-    obHttp().get<ApiResponse<ClientOwnInfoData>>('/cmict/admin/user/client-own-info'),
-
-  addOrgManager: async (data: OrgManagerSavePayload) =>
+  addOrgManager: async (data: { orgId: string; userId: string[] }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/org-admin/add', {
       data
     }),

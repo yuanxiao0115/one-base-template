@@ -1,5 +1,3 @@
-export type { ApiResponse } from '@/shared/api/types';
-
 type LooseField =
   | string
   | number
@@ -28,15 +26,6 @@ export interface OrgManagerRecord {
   userId: string;
   nickName: string;
   phone: string;
-}
-
-export interface UserBriefRecord {
-  id: string;
-  nickName?: string;
-  phone?: string;
-  companyId?: string;
-  parentId?: string;
-  [key: string]: LooseField;
 }
 
 export interface OrgRecord {
@@ -87,37 +76,6 @@ export type OrgContactUserNode = OrgContactNodeBase & {
 
 export type OrgContactNode = OrgContactOrgNode | OrgContactUserNode;
 
-export interface OrgTreeParams {
-  parentId?: string;
-}
-
-export interface OrgSearchParams {
-  parentId?: string;
-  orgName?: string;
-}
-
-export interface OrgUniqueParams {
-  orgName: string;
-  parentId?: string;
-  orgId?: string;
-}
-
-export interface OrgManagerParams {
-  orgId: string;
-}
-
-export interface UserSearchParams {
-  nickName?: string;
-}
-
-export interface ContactLazyParams {
-  parentId?: string;
-}
-
-export interface ContactUserSearchParams {
-  search?: string;
-}
-
 export interface OrgSavePayload {
   id?: string;
   parentId: string;
@@ -136,19 +94,9 @@ export interface OrgSavePayload {
   [key: string]: LooseField;
 }
 
-export interface OrgManagerSavePayload {
-  orgId: string;
-  userId: string[];
-}
-
 export interface OrgLevelSavePayload {
   id?: string;
   orgLevel: number;
   orgLevelName: string;
   remark?: string;
-}
-
-export interface ClientOwnInfoData {
-  userOrgs?: Array<{ companyId?: number | string; orgCode?: string }>;
-  [key: string]: LooseField;
 }

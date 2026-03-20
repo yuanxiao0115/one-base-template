@@ -1,21 +1,15 @@
 import { obHttp } from '@one-base-template/core';
+import type { ApiResponse } from '@/shared/api/types';
 import type {
-  ApiResponse,
   OrgTreeNode,
   PositionItem,
   RoleItem,
   UploadImageResult,
-  UserBindAccountPayload,
   UserBriefRecord,
-  UserChangeAccountPayload,
   UserDetailData,
   UserPageData,
   UserPageParams,
-  UserResetPasswordPayload,
-  UserSavePayload,
-  UserSortPayload,
-  UserStatusPayload,
-  UserUniquePayload
+  UserSavePayload
 } from './types';
 
 export const userApi = {
@@ -53,21 +47,29 @@ export const userApi = {
   searchUsers: async (params: { nickName?: string }) =>
     obHttp().get<ApiResponse<UserBriefRecord[]>>('/cmict/admin/user/list', { params }),
 
-  updateStatus: async (data: UserStatusPayload) =>
+  updateStatus: async (data: { isEnable: boolean; ids: string[] }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/user/state', {
       data
     }),
 
-  resetPwd: async (data: UserResetPasswordPayload) =>
+  resetPwd: async (data: { id: string }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/user/password-reset', { data }),
 
-  changeUserAccount: async (data: UserChangeAccountPayload) =>
-    obHttp().post<ApiResponse<boolean>>('/cmict/admin/user/change-userAccount', { data }),
+  changeUserAccount: async (data: {
+    userId: string;
+    newUsername: string;
+    isReset: number;
+    newPassword?: string;
+  }) => obHttp().post<ApiResponse<boolean>>('/cmict/admin/user/change-userAccount', { data }),
 
-  checkUnique: async (data: UserUniquePayload) =>
-    obHttp().post<ApiResponse<boolean>>('/cmict/admin/user/unique/check', { data }),
+  checkUnique: async (data: {
+    userId?: string;
+    userAccount?: string;
+    phone?: string;
+    mail?: string;
+  }) => obHttp().post<ApiResponse<boolean>>('/cmict/admin/user/unique/check', { data }),
 
-  adjustOrgSort: async (data: UserSortPayload) =>
+  adjustOrgSort: async (data: { orgId: string; id: string; index: number }) =>
     obHttp().post<ApiResponse<boolean>>(
       `/cmict/admin/user/adjust-org-sort?orgId=${String(data.orgId)}&userId=${String(data.id)}&targetSort=${String(data.index)}`
     ),
@@ -94,7 +96,7 @@ export const userApi = {
       $isUpload: true
     }),
 
-  updateCorporateUser: async (data: UserBindAccountPayload) =>
+  updateCorporateUser: async (data: { corporateUserId: string; userIds: string[] }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/corporate-user/update', { data })
 };
 

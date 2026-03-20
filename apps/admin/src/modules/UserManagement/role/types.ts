@@ -1,7 +1,5 @@
 import type { ApiPageData } from '@/shared/api/types';
 
-export type { ApiResponse } from '@/shared/api/types';
-
 type LooseField =
   | string
   | number
@@ -39,9 +37,4 @@ export interface PermissionTreeNode {
   resourceName?: string;
   children?: PermissionTreeNode[];
   [key: string]: LooseField;
-}
-
-export interface RolePermissionSavePayload {
-  roleId: string;
-  permissionIdList: string[];
 }

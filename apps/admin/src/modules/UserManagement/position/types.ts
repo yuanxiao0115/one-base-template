@@ -1,7 +1,5 @@
 import type { ApiPageData } from '@/shared/api/types';
 
-export type { ApiResponse } from '@/shared/api/types';
-
 type LooseField =
   | string
   | number
@@ -33,9 +31,4 @@ export interface PositionSavePayload {
   sort?: number;
   remark?: string;
   [key: string]: LooseField;
-}
-
-export interface PositionUniqueParams {
-  id?: string;
-  postName: string;
 }

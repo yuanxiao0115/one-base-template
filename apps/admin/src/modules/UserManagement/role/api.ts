@@ -1,12 +1,6 @@
 import { obHttp } from '@one-base-template/core';
-import type {
-  ApiResponse,
-  PermissionTreeNode,
-  RolePageData,
-  RolePageParams,
-  RolePermissionSavePayload,
-  RoleSavePayload
-} from './types';
+import type { ApiResponse } from '@/shared/api/types';
+import type { PermissionTreeNode, RolePageData, RolePageParams, RoleSavePayload } from './types';
 
 export const roleApi = {
   page: async (params: RolePageParams) =>
@@ -35,7 +29,7 @@ export const roleApi = {
       params
     }),
 
-  updateRolePermissions: async (data: RolePermissionSavePayload) =>
+  updateRolePermissions: async (data: { roleId: string; permissionIdList: string[] }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/role/permission/edit', { data })
 };
 

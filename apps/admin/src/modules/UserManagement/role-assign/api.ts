@@ -1,35 +1,29 @@
 import { obHttp } from '@one-base-template/core';
-import type {
-  ApiResponse,
-  RoleMemberPageData,
-  RoleMemberPageParams,
-  RoleMemberPayload,
-  RoleMemberRecord,
-  RoleOption,
-  UserOption
-} from './types';
+import type { ApiResponse } from '@/shared/api/types';
+import type { RoleMemberPageData, RoleMemberRecord, RoleOption } from './types';
 export const roleAssignApi = {
   listRoles: async (params: { roleName?: string }) =>
     obHttp().get<ApiResponse<RoleOption[]>>('/cmict/admin/role/list', { params }),
 
-  pageMembers: async (params: RoleMemberPageParams) =>
-    obHttp().get<ApiResponse<RoleMemberPageData>>('/cmict/admin/role/member/page', { params }),
+  pageMembers: async (params: {
+    roleId: string;
+    keyWord?: string;
+    currentPage?: number;
+    pageSize?: number;
+  }) => obHttp().get<ApiResponse<RoleMemberPageData>>('/cmict/admin/role/member/page', { params }),
 
   listMembers: async (params: { roleId: string }) =>
     obHttp().get<ApiResponse<RoleMemberRecord[]>>('/cmict/admin/role/member/list', {
       params
     }),
 
-  addMembers: async (data: RoleMemberPayload) =>
+  addMembers: async (data: { roleId: string; userIdList: string[] }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/role/member/add', {
       data
     }),
 
-  removeMembers: async (data: RoleMemberPayload) =>
-    obHttp().post<ApiResponse<boolean>>('/cmict/admin/role/member/remove', { data }),
-
-  searchUsers: async (params: { nickName?: string }) =>
-    obHttp().get<ApiResponse<UserOption[]>>('/cmict/admin/user/list', { params })
+  removeMembers: async (data: { roleId: string; userIdList: string[] }) =>
+    obHttp().post<ApiResponse<boolean>>('/cmict/admin/role/member/remove', { data })
 };
 
 export default roleAssignApi;

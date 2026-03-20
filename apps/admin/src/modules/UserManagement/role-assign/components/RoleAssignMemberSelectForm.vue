@@ -10,8 +10,6 @@ import type {
   PersonnelUserNode
 } from '@/components/PersonnelSelector/types';
 
-export type RoleAssignUserOption = PersonnelSelectedUser;
-
 interface PersonnelSelectorExpose {
   loadRootNodes?: () => Promise<void>;
   setSelectedUsers?: (users: PersonnelSelectedUser[]) => void;
@@ -66,7 +64,7 @@ defineExpose({
   resetFields: (...args: Parameters<NonNullable<FormInstance['resetFields']>>) =>
     formRef.value?.resetFields?.(...args),
   loadRootNodes: () => selectorRef.value?.loadRootNodes?.(),
-  setSelectedUsers: (users: RoleAssignUserOption[]) => {
+  setSelectedUsers: (users: PersonnelSelectedUser[]) => {
     selectorRef.value?.setSelectedUsers?.(
       users.map((item) => ({
         id: item.id,

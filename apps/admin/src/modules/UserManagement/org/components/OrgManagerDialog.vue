@@ -8,6 +8,7 @@ import type {
   OrgContactUserNode,
   OrgManagerRecord
 } from '../types';
+import { resolveOrgManagerDelta } from '../utils/managerDelta';
 
 interface BreadcrumbNode {
   id: string;
@@ -319,16 +320,12 @@ async function handleSubmit() {
     return;
   }
 
-  const userIds = Array.from(
-    new Set(selectedUsers.value.map((item) => item.userId).filter(Boolean))
+  const { addUserIds, removeIds } = resolveOrgManagerDelta(
+    selectedUsers.value,
+    originalManagers.value
   );
-  const selectedSet = new Set(userIds);
-  const removeIds = originalManagers.value
-    .filter((item) => !selectedSet.has(item.userId))
-    .map((item) => item.id)
-    .filter(Boolean);
 
-  if (userIds.length === 0 && removeIds.length === 0) {
+  if (addUserIds.length === 0 && removeIds.length === 0) {
     message.info('组织管理员未发生变化');
     visible.value = false;
     return;
@@ -336,10 +333,10 @@ async function handleSubmit() {
 
   saving.value = true;
   try {
-    if (userIds.length > 0) {
+    if (addUserIds.length > 0) {
       const saveResponse = await orgApi.addOrgManager({
         orgId: props.orgId,
-        userId: userIds
+        userId: addUserIds
       });
 
       if (saveResponse.code !== 200) {

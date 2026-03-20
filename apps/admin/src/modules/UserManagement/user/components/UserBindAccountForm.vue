@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import { message } from '@one-base-template/ui';
 import {
   canTriggerKeywordSearch,
   DEFAULT_MIN_KEYWORD_LENGTH,
@@ -93,6 +94,13 @@ async function loadOptions(keyword = '') {
     });
 
     selectedMap.value = patch;
+  } catch (error) {
+    if (currentToken !== latestRequestToken.value) {
+      return;
+    }
+    options.value = [];
+    const errorMessage = error instanceof Error ? error.message : '搜索关联账号失败';
+    message.error(errorMessage);
   } finally {
     if (currentToken === latestRequestToken.value) {
       loading.value = false;

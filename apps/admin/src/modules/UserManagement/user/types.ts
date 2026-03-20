@@ -1,7 +1,5 @@
 import type { ApiPageData } from '@/shared/api/types';
 
-export type { ApiResponse } from '@/shared/api/types';
-
 type LooseField =
   | string
   | number
@@ -106,40 +104,6 @@ export interface UserSavePayload {
   remark: string;
   roleIds: string[];
   userOrgs: UserOrgRecord[];
-}
-
-export interface UserUniquePayload {
-  userId?: string;
-  userAccount?: string;
-  phone?: string;
-  mail?: string;
-}
-
-export interface UserStatusPayload {
-  isEnable: boolean;
-  ids: string[];
-}
-
-export interface UserResetPasswordPayload {
-  id: string;
-}
-
-export interface UserChangeAccountPayload {
-  userId: string;
-  newUsername: string;
-  isReset: number;
-  newPassword?: string;
-}
-
-export interface UserBindAccountPayload {
-  corporateUserId: string;
-  userIds: string[];
-}
-
-export interface UserSortPayload {
-  orgId: string;
-  id: string;
-  index: number;
 }
 
 export interface OrgTreeNode {

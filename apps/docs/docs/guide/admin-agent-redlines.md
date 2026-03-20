@@ -49,3 +49,11 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 3. 消息与确认是否走统一入口（`message`、`obConfirm`）？
 4. 上传是否满足“导入走 `ObImportUpload`，业务上传不出现在 `list.vue`”？
 5. 是否通过 `pnpm -C apps/admin lint`、`pnpm -C apps/admin lint:arch`、`pnpm -C apps/admin typecheck`？
+
+## UserManagement 可维护性补充（2026-03-20）
+
+- `api.ts` 的类型定义遵循“够用即可”：仅跨文件复用的实体类型留在 `types.ts`；一次性请求参数（如 `{ id }`、`{ roleId }`）优先在 `api.ts` 内联，避免类型噪音。
+- `ApiResponse` 统一从 `apps/admin/src/shared/api/types.ts` 直接导入，禁止在模块 `types.ts` 中转。
+- 删除已废弃且无调用链的接口与类型，避免“定义存在但业务不用”的误导（如 role-assign 中已切换到 `PersonnelSelector` 后遗留的本地联系人类型）。
+- 组织管理员保存必须按差量提交（新增与移除分开计算），禁止把当前已选用户全量提交给新增接口。
+- 远程搜索类表单组件必须提供失败提示与请求竞态保护，禁止静默失败。

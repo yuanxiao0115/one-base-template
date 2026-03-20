@@ -1,11 +1,10 @@
 import { obHttp } from '@one-base-template/core';
+import type { ApiResponse } from '@/shared/api/types';
 import type {
-  ApiResponse,
   PositionPageData,
   PositionPageParams,
   PositionRecord,
-  PositionSavePayload,
-  PositionUniqueParams
+  PositionSavePayload
 } from './types';
 
 export const positionApi = {
@@ -23,7 +22,7 @@ export const positionApi = {
       data
     }),
 
-  checkUnique: async (params: PositionUniqueParams) =>
+  checkUnique: async (params: { id?: string; postName: string }) =>
     obHttp().get<ApiResponse<boolean>>('/cmict/admin/sys-post/unique/check', { params })
 };
 

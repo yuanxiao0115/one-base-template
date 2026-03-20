@@ -7,11 +7,14 @@ import {
   resolvePersonnelRootParentId,
   searchPersonnelUsersByStructure
 } from '@/components/PersonnelSelector/contactDataSource';
-import type { PersonnelNode, PersonnelUserNode } from '@/components/PersonnelSelector/types';
+import type {
+  PersonnelNode,
+  PersonnelSelectedUser,
+  PersonnelUserNode
+} from '@/components/PersonnelSelector/types';
 import roleAssignColumns from '../columns';
 import { roleAssignApi } from '../api';
 import type { RoleMemberRecord, RoleOption } from '../types';
-import type { RoleAssignUserOption } from '../components/RoleAssignMemberSelectForm.vue';
 import {
   canTriggerKeywordSearch,
   DEFAULT_MIN_KEYWORD_LENGTH,
@@ -20,7 +23,7 @@ import {
 
 type MemberSelectFormExpose = CrudFormLike & {
   loadRootNodes?: () => Promise<void>;
-  setSelectedUsers?: (users: RoleAssignUserOption[]) => void;
+  setSelectedUsers?: (users: PersonnelSelectedUser[]) => void;
 };
 
 interface RoleAssignMemberForm {
@@ -35,7 +38,7 @@ function getRoleMemberName(record: RoleMemberRecord): string {
   return record.nickName || record.userAccount || record.id;
 }
 
-function toRoleAssignUserOptions(records: RoleMemberRecord[]): RoleAssignUserOption[] {
+function toRoleAssignUserOptions(records: RoleMemberRecord[]): PersonnelSelectedUser[] {
   return records.map((item) => {
     const nickName = item.nickName || item.userAccount || item.id;
     const userAccount = item.userAccount || item.id;
