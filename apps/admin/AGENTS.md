@@ -128,7 +128,10 @@
 - 禁止为适配下游 API 创建 `safeDataList`、`safeSelectedList` 这类影子状态；列表、选中态、弹窗表单态只能保留一个真实数据源，其余统一通过 `computed` / `readonly` 派生。
 - `defineExpose` 只允许暴露最小通用句柄（如 `validate`、`resetFields`、`clearValidate`）；禁止继续暴露业务动作、加载方法、回填方法（如 `loadOptions`、`loadRootNodes`、`setSelectedUsers`）。
 - 父层禁止通过 `nextTick + ref + defineExpose` 链式驱动子组件内部初始化；弹窗回填、远程选项预加载、已选值同步优先改为 `props` 驱动或由子组件自持状态处理。
+- 弹窗内的“选人 / 选账号”表单壳统一采用 `v-model + initialSelectedUsers + validate/resetFields/clearValidate` 契约；父层只传初始值与提交结果，不再直接调子组件加载/回填方法。
 - wrapper 组件禁止做重复 DTO 归一化：共享类型一旦已经定义 `title/subTitle` 或 `nickName/phone` 语义，只允许在单一边界做一次映射，禁止层层改名与重复转换。
+- 页面级弹窗状态 composable 统一返回 `refs`、`dialogs`、`actions` 场景对象；禁止继续平铺十几个 `ref` / `action` 到页面顶层。
+- 列表模板渲染可选枚举 / 布尔字段时，必须显式处理 `undefined/null` 并给出 `--`；禁止用 `Number(value) === 0 ? ... : ...`、`value ? ... : ...` 这类写法把缺失值静默渲染成正常业务值。
 - 远程数据 composable 默认自持状态并返回只读视图；只有明确的 orchestrator 才允许写外部 ref，且命名必须体现副作用（如 `hydrateXxx`），禁止伪装成普通 `useXxx`。
 - 角色域迁移必须同时包含：
   - `角色管理`：`/system/role/management`

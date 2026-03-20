@@ -1,4 +1,4 @@
-import { nextTick, reactive, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import type { CrudFormLike } from '@one-base-template/ui';
 import { sm4EncryptBase64 } from '@/infra/sczfw/crypto';
 import { message } from '@one-base-template/ui';
@@ -22,11 +22,6 @@ interface UserBindOption {
   phone: string;
 }
 
-type BindFormExpose = CrudFormLike & {
-  loadOptions?: (keyword?: string) => Promise<void>;
-  setSelectedUsers?: (users: UserBindOption[]) => void;
-};
-
 interface UseUserDialogStateOptions {
   onSearch: (goFirstPage?: boolean) => Promise<void>;
 }
@@ -44,7 +39,7 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
   const { onSearch } = options;
 
   const accountFormRef = ref<CrudFormLike>();
-  const bindFormRef = ref<BindFormExpose>();
+  const bindFormRef = ref<CrudFormLike>();
 
   const accountVisible = ref(false);
   const accountSubmitting = ref(false);
@@ -56,9 +51,11 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
   const bindLoading = ref(false);
   const bindSubmitting = ref(false);
   const bindTargetUserId = ref('');
+  const bindSelectedUsers = ref<UserBindOption[]>([]);
   const bindForm = reactive<UserBindForm>({
     userIds: []
   });
+  let bindDialogRequestToken = 0;
 
   function resetAccountForm() {
     Object.assign(accountForm, defaultUserAccountForm);
@@ -123,6 +120,7 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
 
   function resetBindForm() {
     bindForm.userIds = [];
+    bindSelectedUsers.value = [];
   }
 
   async function fetchBindUsers(keyword: string): Promise<UserBindOption[]> {
@@ -146,6 +144,7 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
   }
 
   async function openBindDialog(row: UserListRecord) {
+    const requestToken = ++bindDialogRequestToken;
     bindTargetUserId.value = row.id;
     bindVisible.value = true;
     bindLoading.value = true;
@@ -153,6 +152,13 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
 
     try {
       const response = await userApi.detail({ id: row.id });
+      if (
+        requestToken !== bindDialogRequestToken ||
+        !bindVisible.value ||
+        bindTargetUserId.value !== row.id
+      ) {
+        return;
+      }
       if (response.code !== 200) {
         throw new Error(response.message || '加载关联账号失败');
       }
@@ -165,23 +171,27 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
         : [];
       const users: UserBindOption[] = getBindOptionsFromCorporateUsers(corporateUsers);
 
+      bindSelectedUsers.value = users;
       bindForm.userIds = users
         .map((item) => item.id)
         .filter((id): id is string => typeof id === 'string' && id.length > 0);
-
-      await nextTick();
-      bindFormRef.value?.setSelectedUsers?.(users);
-      await bindFormRef.value?.loadOptions?.('');
     } catch (error) {
+      if (requestToken !== bindDialogRequestToken) {
+        return;
+      }
       const errorMessage = error instanceof Error ? error.message : '加载关联账号失败';
       message.error(errorMessage);
     } finally {
-      bindLoading.value = false;
+      if (requestToken === bindDialogRequestToken) {
+        bindLoading.value = false;
+      }
     }
   }
 
   function closeBindDialog() {
+    bindDialogRequestToken += 1;
     resetBindForm();
+    bindLoading.value = false;
     bindVisible.value = false;
     bindTargetUserId.value = '';
   }
@@ -218,33 +228,30 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
     }
   }
 
-  async function checkUserAccountUnique(
-    params: {
-      userId?: string;
-      userAccount?: string;
-    },
-    checkFieldUnique: (params: { userId?: string; userAccount?: string }) => Promise<boolean>
-  ) {
-    return checkFieldUnique(params);
-  }
-
   return {
-    accountFormRef,
-    bindFormRef,
-    accountVisible,
-    accountSubmitting,
-    accountForm,
-    bindVisible,
-    bindLoading,
-    bindSubmitting,
-    bindForm,
-    openAccountDialog,
-    closeAccountDialog,
-    submitAccountDialog,
-    fetchBindUsers,
-    openBindDialog,
-    closeBindDialog,
-    submitBindDialog,
-    checkUserAccountUnique
+    refs: {
+      accountFormRef,
+      bindFormRef
+    },
+    dialogs: {
+      accountVisible,
+      accountSubmitting,
+      accountForm,
+      bindVisible,
+      bindLoading,
+      bindSubmitting,
+      bindTargetUserId,
+      bindSelectedUsers,
+      bindForm
+    },
+    actions: {
+      openAccountDialog,
+      closeAccountDialog,
+      submitAccountDialog,
+      fetchBindUsers,
+      openBindDialog,
+      closeBindDialog,
+      submitBindDialog
+    }
   };
 }

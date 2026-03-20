@@ -1,34 +1,14 @@
-import { computed, nextTick, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import type { CrudFormLike } from '@one-base-template/ui';
 import { useAuthStore, useTable } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
-import {
-  fetchPersonnelTreeByLegacyApi,
-  resolvePersonnelRootParentId,
-  searchPersonnelUsersByStructure
-} from '@/components/PersonnelSelector/contactDataSource';
-import type {
-  PersonnelNode,
-  PersonnelSelectedUser,
-  PersonnelUserNode
-} from '@/components/PersonnelSelector/types';
+import { resolvePersonnelRootParentId } from '@/components/PersonnelSelector/contactDataSource';
 import roleAssignColumns from '../columns';
 import { roleAssignApi } from '../api';
 import type { RoleMemberRecord, RoleOption } from '../types';
-import {
-  canTriggerKeywordSearch,
-  DEFAULT_MIN_KEYWORD_LENGTH,
-  normalizeKeyword
-} from '../../shared/keywordSearch';
+import { useRoleAssignMemberDialog } from './useRoleAssignMemberDialog';
 
-type MemberSelectFormExpose = CrudFormLike & {
-  loadRootNodes?: () => Promise<void>;
-  setSelectedUsers?: (users: PersonnelSelectedUser[]) => void;
-};
-
-interface RoleAssignMemberForm {
-  userIds: string[];
-}
+type MemberSelectFormExpose = CrudFormLike;
 
 function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
@@ -36,23 +16,6 @@ function getErrorMessage(error: unknown, fallback: string): string {
 
 function getRoleMemberName(record: RoleMemberRecord): string {
   return record.nickName || record.userAccount || record.id;
-}
-
-function toRoleAssignUserOptions(records: RoleMemberRecord[]): PersonnelSelectedUser[] {
-  return records.map((item) => {
-    const nickName = item.nickName || item.userAccount || item.id;
-    const userAccount = item.userAccount || item.id;
-
-    return {
-      id: item.id,
-      nodeType: 'user',
-      title: nickName,
-      subTitle: userAccount || '--',
-      nickName,
-      userAccount,
-      phone: ''
-    };
-  });
 }
 
 function buildRemoveConfirmName(names: string[]): string {
@@ -73,18 +36,9 @@ export function useRoleAssignPageState() {
   const roleList = ref<RoleOption[]>([]);
   const currentRole = ref<RoleOption | null>(null);
 
-  const memberDialogVisible = ref(false);
-  const memberDialogLoading = ref(false);
-  const memberDialogSubmitting = ref(false);
-  const originalMembers = ref<RoleMemberRecord[]>([]);
-
   const searchForm = reactive({
     roleId: '',
     keyWord: ''
-  });
-
-  const memberForm = reactive<RoleAssignMemberForm>({
-    userIds: []
   });
 
   const tableOpt = reactive({
@@ -144,11 +98,6 @@ export function useRoleAssignPageState() {
   }));
   const currentRoleName = computed(() => currentRole.value?.roleName || '角色分配');
   const rootParentId = computed(() => resolvePersonnelRootParentId(authStore.user));
-
-  function resetMemberForm() {
-    memberForm.userIds = [];
-    originalMembers.value = [];
-  }
 
   async function selectRole(role: RoleOption) {
     if (!role.id) {
@@ -235,6 +184,16 @@ export function useRoleAssignPageState() {
     onSelectionCancel();
   }
 
+  const memberDialog = useRoleAssignMemberDialog({
+    currentRole,
+    memberFormRef,
+    rootParentId,
+    onSaved: async () => {
+      onSelectionCancel();
+      await loadRoleList();
+    }
+  });
+
   async function removeMembersByIds(ids: string[], names: string[]) {
     const roleId = currentRole.value?.id;
     if (!roleId) {
@@ -282,136 +241,6 @@ export function useRoleAssignPageState() {
     await removeMembersByIds(ids, names);
   }
 
-  async function fetchContactNodes(parentId?: string): Promise<PersonnelNode[]> {
-    const normalizedParentId = parentId?.trim() ? parentId : rootParentId.value;
-    const response = await fetchPersonnelTreeByLegacyApi({
-      parentId: normalizedParentId
-    });
-    if (response.code !== 200) {
-      throw new Error(response.message || '加载组织通讯录失败');
-    }
-
-    return Array.isArray(response.data) ? response.data : [];
-  }
-
-  async function searchContactUsers(keyword: string): Promise<PersonnelUserNode[]> {
-    const normalizedKeyword = normalizeKeyword(keyword);
-    if (!canTriggerKeywordSearch(normalizedKeyword, DEFAULT_MIN_KEYWORD_LENGTH)) {
-      return [];
-    }
-
-    const response = await searchPersonnelUsersByStructure({
-      search: normalizedKeyword
-    });
-    if (response.code !== 200) {
-      throw new Error(response.message || '搜索人员失败');
-    }
-
-    return Array.isArray(response.data) ? response.data : [];
-  }
-
-  async function openAddMembersDialog() {
-    const role = currentRole.value;
-    if (!role?.id) {
-      message.warning('请先选择角色');
-      return;
-    }
-
-    memberDialogVisible.value = true;
-    memberDialogLoading.value = true;
-    resetMemberForm();
-
-    try {
-      const response = await roleAssignApi.listMembers({ roleId: role.id });
-      if (response.code !== 200) {
-        throw new Error(response.message || '加载角色成员失败');
-      }
-
-      const rows = Array.isArray(response.data) ? response.data : [];
-      originalMembers.value = rows;
-      memberForm.userIds = rows.map((item) => item.id).filter(Boolean);
-
-      await nextTick();
-      memberFormRef.value?.setSelectedUsers?.(toRoleAssignUserOptions(rows));
-      await memberFormRef.value?.loadRootNodes?.();
-    } catch (error) {
-      message.error(getErrorMessage(error, '加载角色成员失败'));
-    } finally {
-      memberDialogLoading.value = false;
-    }
-  }
-
-  function closeAddMembersDialog() {
-    resetMemberForm();
-    memberDialogVisible.value = false;
-  }
-
-  async function submitAddMembersDialog() {
-    if (memberDialogSubmitting.value) {
-      return;
-    }
-
-    const role = currentRole.value;
-    if (!role?.id) {
-      message.warning('请先选择角色');
-      return;
-    }
-
-    const isValid = await memberFormRef.value?.validate?.();
-    if (isValid === false) {
-      return;
-    }
-
-    memberDialogSubmitting.value = true;
-    try {
-      const selectedIds = Array.from(new Set(memberForm.userIds.filter(Boolean)));
-      const originalIds = Array.from(
-        new Set(originalMembers.value.map((item) => item.id).filter(Boolean))
-      );
-
-      const originalSet = new Set(originalIds);
-      const selectedSet = new Set(selectedIds);
-
-      const addIds = selectedIds.filter((id) => !originalSet.has(id));
-      const removeIds = originalIds.filter((id) => !selectedSet.has(id));
-
-      if (addIds.length === 0 && removeIds.length === 0) {
-        message.info('角色成员未发生变化');
-        closeAddMembersDialog();
-        return;
-      }
-
-      if (removeIds.length > 0) {
-        const removeResponse = await roleAssignApi.removeMembers({
-          roleId: role.id,
-          userIdList: removeIds
-        });
-        if (removeResponse.code !== 200) {
-          throw new Error(removeResponse.message || '移除角色成员失败');
-        }
-      }
-
-      if (addIds.length > 0) {
-        const addResponse = await roleAssignApi.addMembers({
-          roleId: role.id,
-          userIdList: addIds
-        });
-        if (addResponse.code !== 200) {
-          throw new Error(addResponse.message || '添加角色成员失败');
-        }
-      }
-
-      message.success('角色成员保存成功');
-      closeAddMembersDialog();
-      onSelectionCancel();
-      await loadRoleList();
-    } catch (error) {
-      message.error(getErrorMessage(error, '角色成员保存失败'));
-    } finally {
-      memberDialogSubmitting.value = false;
-    }
-  }
-
   onMounted(() => {
     void loadRoleList({ keepCurrent: false });
   });
@@ -436,12 +265,7 @@ export function useRoleAssignPageState() {
       roleList,
       currentRole
     },
-    dialogs: {
-      memberDialogVisible,
-      memberDialogLoading,
-      memberDialogSubmitting,
-      memberForm
-    },
+    dialogs: memberDialog.dialogs,
     actions: {
       onRoleKeywordUpdate,
       onRoleKeywordSearch,
@@ -455,11 +279,7 @@ export function useRoleAssignPageState() {
       handleCurrentChange,
       onSelectionCancel: onSelectionCancelAction,
       handleRemove,
-      fetchContactNodes,
-      searchContactUsers,
-      openAddMembersDialog,
-      closeAddMembersDialog,
-      submitAddMembersDialog
+      ...memberDialog.actions
     }
   };
 }

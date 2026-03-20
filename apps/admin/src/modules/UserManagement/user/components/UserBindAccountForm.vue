@@ -19,9 +19,11 @@ const props = withDefaults(
   defineProps<{
     disabled: boolean;
     fetchUsers: (keyword: string) => Promise<UserBindOption[]>;
+    initialSelectedUsers?: UserBindOption[];
     minSearchLength?: number;
   }>(),
   {
+    initialSelectedUsers: () => [],
     minSearchLength: DEFAULT_MIN_KEYWORD_LENGTH
   }
 );
@@ -58,6 +60,21 @@ const selectedUsers = computed<UserBindOption[]>(() =>
     .map((id) => selectedMap.value[id])
     .filter((item): item is UserBindOption => Boolean(item))
 );
+
+function patchSelectedUsers(users: UserBindOption[]) {
+  const rows = Array.isArray(users) ? users : [];
+  const nextMap: Record<string, UserBindOption> = {};
+
+  rows.forEach((item) => {
+    if (!item.id) {
+      return;
+    }
+    nextMap[item.id] = item;
+  });
+
+  selectedMap.value = nextMap;
+  options.value = rows;
+}
 
 function cancelPendingSearch() {
   if (!searchTimer.value) {
@@ -129,10 +146,7 @@ function onSelectionChange(ids: string[]) {
     }
   });
 
-  selectedMap.value = {
-    ...selectedMap.value,
-    ...nextMap
-  };
+  selectedMap.value = nextMap;
 
   model.value.userIds = validIds;
 }
@@ -145,24 +159,36 @@ function removeUser(id: string) {
 }
 
 watch(
+  () => props.initialSelectedUsers,
+  (users) => {
+    if ((!users || users.length === 0) && (model.value.userIds || []).length === 0) {
+      selectedMap.value = {};
+      options.value = [];
+      return;
+    }
+
+    patchSelectedUsers(Array.isArray(users) ? users : []);
+  },
+  { immediate: true, deep: true }
+);
+
+watch(
   () => model.value.userIds,
   (ids) => {
     if (!Array.isArray(ids)) {
       model.value.userIds = [];
+      selectedMap.value = {};
       return;
     }
 
     const nextMap: Record<string, UserBindOption> = {};
     ids.forEach((id) => {
-      const value = selectedMap.value[id];
+      const value = selectedMap.value[id] || options.value.find((item) => item.id === id);
       if (value) {
         nextMap[id] = value;
       }
     });
-    selectedMap.value = {
-      ...selectedMap.value,
-      ...nextMap
-    };
+    selectedMap.value = nextMap;
   },
   { immediate: true }
 );
@@ -183,15 +209,7 @@ defineExpose({
   clearValidate: (...args: Parameters<NonNullable<FormInstance['clearValidate']>>) =>
     formRef.value?.clearValidate?.(...args),
   resetFields: (...args: Parameters<NonNullable<FormInstance['resetFields']>>) =>
-    formRef.value?.resetFields?.(...args),
-  loadOptions,
-  setSelectedUsers: (users: UserBindOption[]) => {
-    const patch = { ...selectedMap.value };
-    users.forEach((item) => {
-      patch[item.id] = item;
-    });
-    selectedMap.value = patch;
-  }
+    formRef.value?.resetFields?.(...args)
 });
 </script>
 

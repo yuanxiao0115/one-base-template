@@ -64,10 +64,14 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - 列表、选中态、弹窗表单态只能保留一个真实数据源；禁止继续新增 `safeDataList`、`safeSelectedList` 这类影子状态。
 - `defineExpose` 仅用于暴露最小通用句柄（如 `validate`、`resetFields`、`clearValidate`）；禁止暴露业务动作、加载方法、回填方法。
 - 父层禁止依赖 `nextTick + ref + defineExpose` 链式驱动子组件内部初始化；弹窗回填、远程选项预加载、已选值同步优先改为 `props` 驱动或交由子组件内部处理。
+- 弹窗内的“选人/选账号”表单壳统一采用 `v-model + initialSelectedUsers + validate/resetFields/clearValidate` 契约；父层只传初始值与提交结果，不再直接调子组件加载/回填方法。
 - wrapper 组件禁止做重复 DTO 归一化；共享类型只允许在单一边界做一次映射，禁止跨层反复把 `nickName/phone` 改写成 `title/subTitle`。
+- 页面级弹窗状态 composable 统一返回 `refs`、`dialogs`、`actions` 场景对象；禁止把十几个 `ref` / `action` 平铺到 `<script setup>` 顶层。
+- 列表模板渲染可选枚举 / 布尔字段时，必须显式处理 `undefined/null` 并给出 `--`；禁止用 truthy / `Number()` 三元表达式把缺失值静默渲染成正常业务值。
 - 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 等场景对象；禁止平铺暴露过多零散 action/ref。
 
-### 反例提示
+### 参考实现
 
-- `RoleAssignMemberSelectForm` 当前同时承担表单句柄暴露、`PersonnelSelector` 转接、已选用户二次映射，属于“看起来很薄、实际协议很多”的典型反例。
-- `UserBindAccountForm` 当前同时维护 `userIds` 与 `selectedMap` 两套状态，并通过 `defineExpose` 暴露加载与回填方法，阅读时需要跨父子两层追状态流，不宜继续扩散。
+- `RoleAssignMemberSelectForm` 现已收敛为 `initialSelectedUsers + form handles` 契约：父层只负责提供初始已选人员与提交结果，不再通过 `ref` 链式回填。
+- `UserBindAccountForm` 现已收敛为 props 驱动初始化：`selectedMap` 仅保存当前已选项，父层通过 `initialSelectedUsers` 传入初始账号列表，不再暴露加载 / 回填方法。
+- `useUserDialogState` 现已按 `refs / dialogs / actions` 场景返回，`user/list.vue` 作为页面编排层只做场景对象解构，可直接作为同类弹窗页参考。

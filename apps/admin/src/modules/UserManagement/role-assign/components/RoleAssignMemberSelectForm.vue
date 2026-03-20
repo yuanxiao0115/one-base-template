@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import PersonnelSelector from '@/components/PersonnelSelector/PersonnelSelector.vue';
 import type {
   PersonnelFetchNodes,
-  PersonnelNode,
   PersonnelSearchNodes,
-  PersonnelSelectedUser,
-  PersonnelUserNode
+  PersonnelSelectedUser
 } from '@/components/PersonnelSelector/types';
 
 interface PersonnelSelectorExpose {
@@ -15,11 +13,17 @@ interface PersonnelSelectorExpose {
   setSelectedUsers?: (users: PersonnelSelectedUser[]) => void;
 }
 
-const props = defineProps<{
-  disabled: boolean;
-  fetchContactNodes: (parentId?: string) => Promise<PersonnelNode[]>;
-  searchContactUsers: (keyword: string) => Promise<PersonnelUserNode[]>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    disabled: boolean;
+    initialSelectedUsers?: PersonnelSelectedUser[];
+    fetchNodes: PersonnelFetchNodes;
+    searchNodes: PersonnelSearchNodes;
+  }>(),
+  {
+    initialSelectedUsers: () => []
+  }
+);
 
 const model = defineModel<{
   userIds: string[];
@@ -43,13 +47,28 @@ const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
   ]
 }));
 
-const fetchNodes: PersonnelFetchNodes = async ({ parentId }) => {
-  return props.fetchContactNodes(parentId);
-};
+watch(
+  selectorRef,
+  (selector) => {
+    void selector?.loadRootNodes?.();
+  },
+  {
+    immediate: true,
+    flush: 'post'
+  }
+);
 
-const searchNodes: PersonnelSearchNodes = async ({ keyword }) => {
-  return props.searchContactUsers(keyword);
-};
+watch(
+  [selectorRef, () => props.initialSelectedUsers],
+  ([selector, users]) => {
+    selector?.setSelectedUsers?.(Array.isArray(users) ? users : []);
+  },
+  {
+    immediate: true,
+    deep: true,
+    flush: 'post'
+  }
+);
 
 defineExpose({
   validate: (...args: Parameters<NonNullable<FormInstance['validate']>>) => {
@@ -62,21 +81,7 @@ defineExpose({
   clearValidate: (...args: Parameters<NonNullable<FormInstance['clearValidate']>>) =>
     formRef.value?.clearValidate?.(...args),
   resetFields: (...args: Parameters<NonNullable<FormInstance['resetFields']>>) =>
-    formRef.value?.resetFields?.(...args),
-  loadRootNodes: () => selectorRef.value?.loadRootNodes?.(),
-  setSelectedUsers: (users: PersonnelSelectedUser[]) => {
-    selectorRef.value?.setSelectedUsers?.(
-      users.map((item) => ({
-        id: item.id,
-        nodeType: 'user',
-        title: item.nickName,
-        subTitle: item.phone || item.userAccount || '--',
-        nickName: item.nickName,
-        userAccount: item.userAccount,
-        phone: item.phone
-      }))
-    );
-  }
+    formRef.value?.resetFields?.(...args)
 });
 </script>
 
@@ -88,8 +93,8 @@ defineExpose({
         v-model="model"
         mode="person"
         :disabled="props.disabled"
-        :fetch-nodes
-        :search-nodes
+        :fetch-nodes="props.fetchNodes"
+        :search-nodes="props.searchNodes"
       />
     </el-form-item>
   </el-form>

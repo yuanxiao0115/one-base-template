@@ -23,8 +23,13 @@ const {
 
 const { roleLoading, roleKeyword, roleList, currentRole } = pageState.roles;
 
-const { memberDialogVisible, memberDialogLoading, memberDialogSubmitting, memberForm } =
-  pageState.dialogs;
+const {
+  memberDialogVisible,
+  memberDialogLoading,
+  memberDialogSubmitting,
+  memberDialogSelectedUsers,
+  memberForm
+} = pageState.dialogs;
 
 const {
   onRoleKeywordUpdate,
@@ -39,8 +44,8 @@ const {
   handleCurrentChange,
   onSelectionCancel,
   handleRemove,
-  fetchContactNodes,
-  searchContactUsers,
+  fetchNodes,
+  searchNodes,
   openAddMembersDialog,
   closeAddMembersDialog,
   submitAddMembersDialog
@@ -111,7 +116,7 @@ function onRoleMenuSelect(roleId: string) {
       @selection-cancel="onSelectionCancel"
     >
       <template #buttons>
-        <el-button :icon="Delete" @click="() => handleRemove()">移除人员</el-button>
+        <el-button :icon="Delete" @click="handleRemove()">移除人员</el-button>
         <el-button type="primary" :icon="Plus" @click="openAddMembersDialog">添加人员</el-button>
       </template>
 
@@ -130,7 +135,7 @@ function onRoleMenuSelect(roleId: string) {
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="danger" :size="actionSize" @click="() => handleRemove(row)"
+              <el-button link type="danger" :size="actionSize" @click="handleRemove(row)"
                 >移除</el-button
               >
             </ObActionButtons>
@@ -155,8 +160,9 @@ function onRoleMenuSelect(roleId: string) {
       :ref="refs.memberFormRef"
       v-model="memberForm"
       :disabled="memberDialogLoading || memberDialogSubmitting"
-      :fetch-contact-nodes
-      :search-contact-users
+      :initial-selected-users="memberDialogSelectedUsers"
+      :fetch-nodes="fetchNodes"
+      :search-nodes="searchNodes"
     />
   </ObCrudContainer>
 </template>

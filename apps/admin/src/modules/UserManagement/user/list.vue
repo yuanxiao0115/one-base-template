@@ -62,26 +62,63 @@ const {
 } = pageState.actions;
 
 const {
-  accountFormRef,
-  bindFormRef,
+  refs: dialogRefs,
+  dialogs: userDialogs,
+  actions: dialogActions
+} = useUserDialogState({
+  onSearch
+});
+
+const {
   accountVisible,
   accountSubmitting,
   accountForm,
   bindVisible,
   bindLoading,
   bindSubmitting,
-  bindForm,
+  bindSelectedUsers,
+  bindForm
+} = userDialogs;
+
+const {
   openAccountDialog,
   closeAccountDialog,
   submitAccountDialog,
   fetchBindUsers,
   openBindDialog,
   closeBindDialog,
-  submitBindDialog,
-  checkUserAccountUnique
-} = useUserDialogState({
-  onSearch
-});
+  submitBindDialog
+} = dialogActions;
+
+function getGenderLabel(gender?: number) {
+  if (gender === 0) {
+    return '女';
+  }
+  if (gender === 1) {
+    return '男';
+  }
+  return '--';
+}
+
+function getStatusLabel(isEnable?: boolean) {
+  if (isEnable === true) {
+    return '启用';
+  }
+  if (isEnable === false) {
+    return '停用';
+  }
+  return '--';
+}
+
+function getStatusTagType(isEnable?: boolean) {
+  if (isEnable === true) {
+    return 'success';
+  }
+  if (isEnable === false) {
+    return 'danger';
+  }
+  return 'info';
+}
 </script>
 
 <template>
@@ -148,11 +185,11 @@ const {
             </div>
           </template>
 
-          <template #gender="{ row }"> {{ Number(row.gender) === 0 ? '女' : '男' }} </template>
+          <template #gender="{ row }"> {{ getGenderLabel(row.gender) }} </template>
 
           <template #status="{ row }">
-            <el-tag :type="row.isEnable ? 'success' : 'danger'">{{
-              row.isEnable ? '启用' : '停用'
+            <el-tag :type="getStatusTagType(row.isEnable)">{{
+              getStatusLabel(row.isEnable)
             }}</el-tag>
           </template>
 
@@ -161,36 +198,19 @@ const {
           <template #operation="{ row, size: actionSize }">
             <div class="user-management-page__actions">
               <ObActionButtons>
-                <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)"
+                <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)"
                   >编辑</el-button
                 >
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="() => crud.openDetail(row)"
+                <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)"
                   >查看</el-button
                 >
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="() => handleSingleStatus(row)"
-                >
+                <el-button link type="primary" :size="actionSize" @click="handleSingleStatus(row)">
                   {{ row.isEnable ? '停用' : '启用' }}
                 </el-button>
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="() => openAccountDialog(row)"
+                <el-button link type="primary" :size="actionSize" @click="openAccountDialog(row)"
                   >修改账号</el-button
                 >
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="() => handleResetPassword(row)"
+                <el-button link type="primary" :size="actionSize" @click="handleResetPassword(row)"
                   >重置密码</el-button
                 >
                 <el-button
@@ -198,11 +218,11 @@ const {
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="() => openBindDialog(row)"
+                  @click="openBindDialog(row)"
                 >
                   关联账号
                 </el-button>
-                <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+                <el-button link type="danger" :size="actionSize" @click="handleDelete(row)"
                   >删除</el-button
                 >
               </ObActionButtons>
@@ -254,10 +274,10 @@ const {
     @close="closeAccountDialog"
   >
     <UserAccountForm
-      ref="accountFormRef"
+      :ref="dialogRefs.accountFormRef"
       v-model="accountForm"
       :disabled="false"
-      :check-user-account-unique="(params) => checkUserAccountUnique(params, checkFieldUnique)"
+      :check-user-account-unique="checkFieldUnique"
     />
   </ObCrudContainer>
 
@@ -273,9 +293,10 @@ const {
     @close="closeBindDialog"
   >
     <UserBindAccountForm
-      ref="bindFormRef"
+      :ref="dialogRefs.bindFormRef"
       v-model="bindForm"
       :disabled="bindLoading"
+      :initial-selected-users="bindSelectedUsers"
       :fetch-users="fetchBindUsers"
     />
   </ObCrudContainer>
