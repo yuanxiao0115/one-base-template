@@ -135,6 +135,10 @@ outline: false
     <h3>AGENTS 规则分层</h3>
     <p>全仓规则与子项目规则的适用范围和维护方式。</p>
   </a>
+  <a class="guide-card" href="/guide/admin-management-standardizer">
+    <h3>Admin Management Standardizer</h3>
+    <p>把管理模块横向标准化流程收敛为可执行 skill，而不是继续口头传播规则。</p>
+  </a>
   <a class="guide-card" href="/guide/admin-agent-redlines">
     <h3>Admin Agent 红线</h3>
     <p>公共组件复用、CRUD 范式与 lint:arch 门禁的强制基线。</p>

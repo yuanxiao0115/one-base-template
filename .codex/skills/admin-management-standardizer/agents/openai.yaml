@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Admin Management Standardizer'
+  short_description: '横向收敛 admin 管理模块标准化整改与规则推广入口'
+  default_prompt: 'Use $admin-management-standardizer to standardize apps/admin/src/modules/RoleManagement by applying the validated admin CRUD/list/dialog rules without treating UserManagement as the only template.'

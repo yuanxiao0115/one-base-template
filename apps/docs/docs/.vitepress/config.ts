@@ -87,6 +87,7 @@ export default defineConfig({
             { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' },
             { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
             { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
+            { text: 'Admin Management Standardizer', link: '/guide/admin-management-standardizer' },
             { text: 'Admin Agent 红线', link: '/guide/admin-agent-redlines' },
             { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
             { text: '子包发布与版本控制', link: '/guide/package-release' }
