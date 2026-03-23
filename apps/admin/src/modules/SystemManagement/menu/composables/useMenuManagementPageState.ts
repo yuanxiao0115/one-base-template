@@ -20,6 +20,25 @@ interface SearchFormExpose {
 }
 
 type DialogMode = 'create' | 'detail' | 'edit';
+type CreateCommandType = 'child' | 'sibling';
+
+interface CreateCommandPayload {
+  type: CreateCommandType;
+  row: MenuPermissionRecord;
+}
+
+function isCreateCommandPayload(payload: unknown): payload is CreateCommandPayload {
+  if (!payload || typeof payload !== 'object') {
+    return false;
+  }
+
+  const record = payload as Partial<CreateCommandPayload>;
+  return (
+    (record.type === 'child' || record.type === 'sibling') &&
+    Boolean(record.row) &&
+    typeof record.row === 'object'
+  );
+}
 
 export function useMenuManagementPageState() {
   const tableRef = ref<unknown>(null);
@@ -137,6 +156,10 @@ export function useMenuManagementPageState() {
   const crudSubmitting = crud.submitting;
   const crudForm = crud.form;
 
+  function isCrudBusy() {
+    return crud.opening.value || crud.submitting.value;
+  }
+
   function appendParentOptions(
     rows: MenuPermissionRecord[],
     depth: number,
@@ -237,6 +260,10 @@ export function useMenuManagementPageState() {
   }
 
   async function openCreateDialog(parentId = '0') {
+    if (isCrudBusy()) {
+      return;
+    }
+
     createParentId.value = parentId;
     await crud.openCreate();
   }
@@ -245,6 +272,10 @@ export function useMenuManagementPageState() {
     mode: Extract<DialogMode, 'detail' | 'edit'>,
     row: MenuPermissionRecord
   ) {
+    if (isCrudBusy()) {
+      return;
+    }
+
     if (mode === 'edit') {
       await crud.openEdit(row);
       return;
@@ -253,8 +284,24 @@ export function useMenuManagementPageState() {
     await crud.openDetail(row);
   }
 
-  function handleCreateCommand(command: string, row: MenuPermissionRecord) {
-    const parentId = command === 'child' ? row.id : row.parentId || '0';
+  function openRootCreateDialog() {
+    void openCreateDialog();
+  }
+
+  async function openEdit(row: MenuPermissionRecord) {
+    await openEditDialog('edit', row);
+  }
+
+  async function openDetail(row: MenuPermissionRecord) {
+    await openEditDialog('detail', row);
+  }
+
+  function handleCreateCommand(payload: unknown) {
+    if (!isCreateCommandPayload(payload)) {
+      return;
+    }
+
+    const parentId = payload.type === 'child' ? payload.row.id : payload.row.parentId || '0';
     void openCreateDialog(parentId);
   }
 
@@ -336,7 +383,10 @@ export function useMenuManagementPageState() {
       tableSearch,
       onKeywordUpdate,
       onResetSearch,
+      openRootCreateDialog,
       openCreateDialog,
+      openEdit,
+      openDetail,
       openEditDialog,
       handleCreateCommand,
       handleDelete,

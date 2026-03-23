@@ -31,8 +31,9 @@ const {
   tableSearch,
   onKeywordUpdate,
   onResetSearch,
-  openCreateDialog,
-  openEditDialog,
+  openRootCreateDialog,
+  openEdit,
+  openDetail,
   handleCreateCommand,
   handleDelete,
   onConfirmCrud
@@ -51,7 +52,7 @@ const {
       @reset-form="onResetSearch"
     >
       <template #buttons>
-        <el-button type="primary" :icon="Plus" @click="openCreateDialog('0')">添加权限</el-button>
+        <el-button type="primary" :icon="Plus" @click="openRootCreateDialog">添加权限</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
@@ -76,34 +77,27 @@ const {
 
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-dropdown
-                v-if="Number(row.resourceType) !== 3"
-                @command="(command: unknown) => handleCreateCommand(String(command), row)"
-              >
+              <el-dropdown v-if="Number(row.resourceType) !== 3" @command="handleCreateCommand">
                 <el-button link type="primary" :size="actionSize">新建</el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item command="child">新建子级权限</el-dropdown-item>
-                    <el-dropdown-item command="sibling">新建平级权限</el-dropdown-item>
+                    <el-dropdown-item :command="{ type: 'child', row }"
+                      >新建子级权限</el-dropdown-item
+                    >
+                    <el-dropdown-item :command="{ type: 'sibling', row }"
+                      >新建平级权限</el-dropdown-item
+                    >
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
 
-              <el-button
-                link
-                type="primary"
-                :size="actionSize"
-                @click="() => openEditDialog('edit', row)"
+              <el-button link type="primary" :size="actionSize" @click="openEdit(row)"
                 >编辑</el-button
               >
-              <el-button
-                link
-                type="primary"
-                :size="actionSize"
-                @click="() => openEditDialog('detail', row)"
+              <el-button link type="primary" :size="actionSize" @click="openDetail(row)"
                 >查看</el-button
               >
-              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)"
                 >删除</el-button
               >
             </ObActionButtons>
