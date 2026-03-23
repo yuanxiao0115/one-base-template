@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { appEnv } from '@/infra/env';
+import { appEnv } from '@/config/env';
 import { portalRoutes } from './routes';
 
 export function createAppRouter() {

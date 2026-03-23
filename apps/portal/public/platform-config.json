@@ -1,6 +1,6 @@
 {
   "preset": "static-single",
-  "backend": "sczfw",
+  "backend": "basic",
   "appsource": "frame",
   "appcode": "portal",
   "defaultSystemCode": "admin_server",

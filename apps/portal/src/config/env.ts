@@ -24,11 +24,11 @@ export interface AppEnv {
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
-  sczfwHeaders?: Record<string, string>;
+  basicHeaders?: Record<string, string>;
   clientSignatureSalt?: string;
   clientSignatureClientId?: string;
   storageNamespace: string;
-  sczfwSystemPermissionCode?: string;
+  basicSystemPermissionCode?: string;
   defaultSystemCode?: string;
   systemHomeMap: Record<string, string>;
 }
@@ -42,14 +42,14 @@ function resolveApiBaseUrl(): string | undefined {
   return isNonEmptyString(raw) ? raw : undefined;
 }
 
-function resolveSczfwHeaders(params: {
+function resolveBasicHeaders(params: {
   backend: BackendKind;
   authorizationType: string;
   appsource: string;
   appcode: string;
 }): Record<string, string> | undefined {
   const { backend, authorizationType, appsource, appcode } = params;
-  if (backend !== 'sczfw') {
+  if (backend !== 'basic') {
     return undefined;
   }
 
@@ -68,7 +68,7 @@ function resolveDefaultSystemCode(params: {
   if (isNonEmptyString(defaultSystemCode)) {
     return defaultSystemCode;
   }
-  if (backend !== 'sczfw') {
+  if (backend !== 'basic') {
     return undefined;
   }
   return 'admin_server';
@@ -100,7 +100,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     tokenKey: runtime.tokenKey,
     idTokenKey: runtime.idTokenKey,
     menuMode: runtime.menuMode,
-    sczfwHeaders: resolveSczfwHeaders({
+    basicHeaders: resolveBasicHeaders({
       backend: runtime.backend,
       authorizationType: runtime.authorizationType,
       appsource: runtime.appsource,
@@ -111,7 +111,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     storageNamespace: isNonEmptyString(runtime.storageNamespace)
       ? runtime.storageNamespace
       : runtime.appcode,
-    sczfwSystemPermissionCode: defaultSystemCode,
+    basicSystemPermissionCode: defaultSystemCode,
     defaultSystemCode,
     systemHomeMap: runtime.systemHomeMap
   };

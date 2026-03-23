@@ -3,9 +3,9 @@ import { loginByPassword, resolvePortalLoginTarget } from '@one-base-template/co
 import { ElMessage } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { appEnv } from '@/infra/env';
-import { checkCaptcha, loadCaptcha } from '@/shared/services/auth-captcha-service';
-import { getLoginPageConfig, getPortalFrontConfig } from '@/shared/services/auth-remote-service';
+import { appEnv } from '@/config/env';
+import { checkCaptcha, loadCaptcha } from '@/services/auth/auth-captcha-service';
+import { getLoginPageConfig, getPortalFrontConfig } from '@/services/auth/auth-remote-service';
 
 defineOptions({
   name: 'PortalLoginPage'
@@ -35,7 +35,7 @@ interface VerifyLoginPayload {
 const router = useRouter();
 const route = useRoute();
 const { backend } = appEnv;
-const useVerifyLogin = backend === 'sczfw';
+const useBasicLogin = backend === 'basic';
 
 const loading = ref(false);
 const form = reactive({
@@ -79,7 +79,7 @@ async function getTargetPath() {
   });
 }
 
-async function doBasicLogin(payload: { username: string; password: string }) {
+async function doDefaultLogin(payload: { username: string; password: string }) {
   loading.value = true;
   try {
     await loginByPassword({
@@ -98,7 +98,7 @@ async function doBasicLogin(payload: { username: string; password: string }) {
   }
 }
 
-async function doSczfwLogin(payload: VerifyLoginPayload) {
+async function doBasicVerifyLogin(payload: VerifyLoginPayload) {
   loading.value = true;
   try {
     await loginByPassword({
@@ -119,7 +119,7 @@ async function doSczfwLogin(payload: VerifyLoginPayload) {
 }
 
 onMounted(async () => {
-  if (useVerifyLogin) {
+  if (useBasicLogin) {
     await loadLoginPageMeta();
   }
 });
@@ -137,9 +137,9 @@ onMounted(async () => {
     </div>
 
     <div class="portal-login__inner">
-      <el-card class="portal-login__card" :class="{ 'portal-login__card--sczfw': useVerifyLogin }">
+      <el-card class="portal-login__card" :class="{ 'portal-login__card--basic': useBasicLogin }">
         <ObLoginBoxV2
-          v-if="useVerifyLogin"
+          v-if="useBasicLogin"
           v-model:username="form.username"
           v-model:password="form.password"
           title="用户登录"
@@ -151,7 +151,7 @@ onMounted(async () => {
           password-label=""
           username-placeholder="账号"
           password-placeholder="密码"
-          @submit="doSczfwLogin"
+          @submit="doBasicVerifyLogin"
         />
         <ObLoginBox
           v-else
@@ -164,7 +164,7 @@ onMounted(async () => {
           password-label=""
           username-placeholder="账号"
           password-placeholder="密码"
-          @submit="doBasicLogin"
+          @submit="doDefaultLogin"
         />
       </el-card>
     </div>
@@ -212,7 +212,7 @@ onMounted(async () => {
   max-width: 420px;
 }
 
-.portal-login__card--sczfw {
+.portal-login__card--basic {
   padding: 8px 4px;
 }
 </style>

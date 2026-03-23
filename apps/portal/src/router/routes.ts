@@ -1,7 +1,7 @@
 import { getInitialPath } from '@one-base-template/core';
 import { ForbiddenPage, NotFoundPage } from '@one-base-template/ui/shell';
 import type { RouteRecordRaw } from 'vue-router';
-import { appEnv } from '@/infra/env';
+import { appEnv } from '@/config/env';
 import PortalRenderPage from '@/modules/portal/pages/PortalRenderPage.vue';
 import LoginPage from '@/pages/login/LoginPage.vue';
 import {

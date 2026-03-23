@@ -1,19 +1,19 @@
 import type { BackendAdapter, ObHttp } from '@one-base-template/core';
-import { createDefaultAdapter, createSczfwAdapter } from '@one-base-template/adapters';
-import type { BackendKind } from '@/infra/env';
+import { createBasicAdapter, createDefaultAdapter } from '@one-base-template/adapters';
+import type { BackendKind } from '@/config/env';
 
 export function createAppAdapter(params: {
   backend: BackendKind;
   http: ObHttp;
   tokenKey: string;
-  sczfwSystemPermissionCode?: string;
+  basicSystemPermissionCode?: string;
 }): BackendAdapter {
-  const { backend, http, tokenKey, sczfwSystemPermissionCode } = params;
+  const { backend, http, tokenKey, basicSystemPermissionCode } = params;
 
-  if (backend === 'sczfw') {
-    return createSczfwAdapter(http, {
+  if (backend === 'basic') {
+    return createBasicAdapter(http, {
       tokenKey,
-      systemPermissionCode: sczfwSystemPermissionCode || 'admin_server'
+      systemPermissionCode: basicSystemPermissionCode || 'admin_server'
     });
   }
 

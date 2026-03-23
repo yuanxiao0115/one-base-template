@@ -12,7 +12,7 @@ import { registerOneLiteUiComponents } from '@one-base-template/ui/lite';
 import '@one-base-template/tag/style';
 
 import App from '@/App.vue';
-import { appEnv } from '@/infra/env';
+import { appEnv } from '@/config/env';
 import {
   APP_FORBIDDEN_ROUTE_PATH,
   APP_LOGIN_ROUTE_PATH,
@@ -49,7 +49,7 @@ export function bootstrapPortalApp() {
     authMode: appEnv.authMode,
     tokenKey: appEnv.tokenKey,
     idTokenKey: appEnv.idTokenKey,
-    sczfwHeaders: appEnv.sczfwHeaders,
+    basicHeaders: appEnv.basicHeaders,
     clientSignatureSalt: appEnv.clientSignatureSalt,
     clientSignatureClientId: appEnv.clientSignatureClientId,
     pinia,
@@ -61,7 +61,7 @@ export function bootstrapPortalApp() {
     backend: appEnv.backend,
     http,
     tokenKey: appEnv.tokenKey,
-    sczfwSystemPermissionCode: appEnv.sczfwSystemPermissionCode
+    basicSystemPermissionCode: appEnv.basicSystemPermissionCode
   });
 
   const staticMenus =
