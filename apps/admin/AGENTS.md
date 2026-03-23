@@ -159,6 +159,7 @@
 - 管理页脚本超过单屏后，优先拆分“新增/编辑表单组件”和“高级搜索组件”，页面仅保留编排逻辑。
 - 日志/详情类抽屉若存在异步详情加载，必须增加“最新请求守卫”，并在抽屉关闭时失效旧请求，禁止旧响应回写当前详情态。
 - 列表页操作列点击事件禁止在模板内写内联箭头函数（如 `@click="() => handleXxx(row)"`），统一使用直接调用（如 `@click="handleXxx(row)"`）。
+- 基于 `useCrudPage/useEntityEditor` 的列表页必须把 `openCreate/openEdit/openDetail` 收口到显式 handler，并在 `editor.opening` 或 `editor.submitting` 时直接短路返回，禁止并发触发打开动作。
 - `UserManagement`（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，统一使用 `obConfirm`（含输入型确认）。
 - 业务页已使用 `ObActionButtons` 时，禁止叠加手写 `el-dropdown` 操作列。
 - `ObActionButtons` 在 UserManagement 页面作为全局组件使用，默认不再手动 import。
