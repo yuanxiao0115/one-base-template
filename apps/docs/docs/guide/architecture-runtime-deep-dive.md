@@ -14,8 +14,11 @@
 - `apps/admin/src/config/env.ts`：聚合构建期 env 与运行时配置
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块清单扫描与按需路由装配
 - `apps/admin/src/bootstrap/index.ts`：创建 app/pinia/router/http/core，并安装插件与守卫
+- `apps/admin/src/router/route-assembly-diagnostics.ts`：路由装配诊断聚合（routeCount/skipMenuAuthCount/signature）
 - `apps/admin/src/router/route-signature.ts`：路由装配签名计算（确定性诊断）
 - `apps/admin/src/bootstrap/startup-profiler.ts`：启动阶段耗时打点与汇总
+- `apps/admin/src/bootstrap/route-dynamic-import-recovery.ts`：动态路由模块加载失败自动恢复
+- `apps/admin/src/config/basic/signature.ts`：basic 签名单一实现源（client-signature/crypto 复用）
 - `apps/admin/src/bootstrap/admin-styles.ts`：基础样式统一入口
 - `apps/admin/src/styles/team-overrides.css`：团队覆写样式入口（仅 `main.ts` 引入）
 
@@ -94,12 +97,13 @@ flowchart TD
   - 先扫描 `modules/**/manifest.ts`（eager）
   - 再按 `enabledModules` 动态导入 `modules/**/module.ts`
 - `router/assemble-routes.ts` 增加保留 path/name 与重复路由冲突防护
-- `router/assemble-routes.ts` 新增 `diagnostics` 输出：
+- `router/assemble-routes.ts` 新增 `diagnostics` 输出（由 `route-assembly-diagnostics.ts` 统一生成）：
   - `routeCount`
   - `skipMenuAuthCount`
   - `signature`（由 `route-signature.ts` 生成）
 - `bootstrap/plugins.ts` 中 `OneTag.storageKey` 增加 `storageNamespace` 前缀，避免同域冲突
 - `bootstrap/index.ts` 接入 `startup-profiler`，记录 `assemble-routes/create-router/create-http/install-core/setup-router-guards` 等关键阶段耗时
+- `config/basic/client-signature.ts` 与 `config/basic/crypto.ts` 统一复用 `config/basic/signature.ts`，避免签名实现漂移
 
 ## 存储命名空间与首次路由
 

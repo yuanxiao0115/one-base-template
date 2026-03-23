@@ -56,7 +56,8 @@ pnpm -C apps/admin lint:fix
   - 不要静态 import `@one-base-template/tag` 根入口
 - `basic` 的 `Client-Signature` 生成也应采用同一思路：
   - `createObHttp()` 已支持异步 `beforeRequestCallback`
-  - admin / portal 的签名逻辑统一在请求发出前 `await import('.../config/basic/crypto')`
+  - admin / portal 的签名逻辑统一在请求发出前 `await import('.../config/basic/client-signature')`
+  - `config/basic/client-signature.ts` 与 `config/basic/crypto.ts` 必须共同复用 `config/basic/signature.ts`，禁止重复实现签名算法
   - 目标是把 `gm-crypto` 挪出冷启动依赖图，而不是继续静态挂在 `bootstrap/http.ts`
 - 这类性能边界建议通过“源码约束测试或构建校验”固化；当前若仓库测试资产处于清理阶段，可先以 `typecheck/lint/build` 作为临时门禁。
 - 离线 Iconify 数据按集合拆成独立异步 chunk：
