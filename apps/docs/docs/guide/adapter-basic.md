@@ -14,10 +14,12 @@
 ## `config/basic` 职责边界
 
 - `apps/admin/src/config/basic/crypto.ts`
-  - 保留：`createClientSignature()`，供 admin HTTP 启动链路统一补 `Client-Signature`
+  - 保留：`createClientSignature()`，供 `@one-base-template/core` 的签名注入 helper 调用
   - 保留：`sm4EncryptBase64()`，供 admin 侧仍存在的业务字段加密场景复用（如用户管理改账号）
 - `apps/portal/src/config/basic/crypto.ts`
-  - 当前只保留 `createClientSignature()`，用于 portal HTTP 请求签名
+  - 当前只保留 `createClientSignature()`，供 portal HTTP 请求签名
+- 统一签名注入逻辑位于：
+  - `packages/core/src/http/basic-client-signature.ts`
 - 共享登录相关的 SM4 逻辑已下沉到 UI 组件：
   - `packages/ui/src/components/auth/LoginBox.vue`
   - `packages/ui/src/components/auth/VerifySlide.vue`

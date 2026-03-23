@@ -7,12 +7,36 @@ const mocks = vi.hoisted(() => ({
   systemReset: vi.fn(),
   tagHandle: vi.fn(),
   createObHttpMock: vi.fn(),
+  createBasicClientSignatureBeforeRequestMock: vi.fn(
+    (options: {
+      basicHeaders?: Record<string, string>;
+      clientSignatureSalt?: string;
+      clientSignatureClientId?: string;
+      loadCreateClientSignature: () => Promise<
+        (params?: { salt?: string; clientId?: string }) => string
+      >;
+    }) => {
+      return async (config: { headers?: Record<string, unknown> }) => {
+        const createClientSignature = await options.loadCreateClientSignature();
+        const signature = createClientSignature({
+          salt: options.clientSignatureSalt,
+          clientId: options.clientSignatureClientId
+        });
+        config.headers = {
+          ...config.headers,
+          ...options.basicHeaders,
+          'Client-Signature': signature
+        };
+      };
+    }
+  ),
   createClientSignatureMock: vi.fn(() => 'client-signature'),
   elMessageError: vi.fn(),
   basicCryptoLoadCount: 0
 }));
 
 vi.mock('@one-base-template/core', () => ({
+  createBasicClientSignatureBeforeRequest: mocks.createBasicClientSignatureBeforeRequestMock,
   createObHttp: mocks.createObHttpMock,
   useAuthStore: () => ({ reset: mocks.authReset }),
   useMenuStore: () => ({ reset: mocks.menuReset }),
@@ -118,6 +142,7 @@ describe('bootstrap/http', () => {
     const options = mocks.createObHttpMock.mock.calls[0]?.[0] as ObHttpMockOptions;
     expect(options.axios.withCredentials).toBe(false);
     expect(options.axios.timeout).toBe(100_000);
+    expect(mocks.createBasicClientSignatureBeforeRequestMock).toHaveBeenCalledTimes(1);
     const beforeRequest = options.beforeRequestCallback;
     expect(typeof beforeRequest).toBe('function');
     expect(mocks.basicCryptoLoadCount).toBe(0);

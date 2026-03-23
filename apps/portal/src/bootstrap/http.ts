@@ -2,6 +2,7 @@ import { ElMessage } from 'element-plus';
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
 import {
+  createBasicClientSignatureBeforeRequest,
   createObHttp,
   type ObHttp,
   useAuthStore,
@@ -9,32 +10,6 @@ import {
   useSystemStore
 } from '@one-base-template/core';
 import type { AuthMode, BackendKind } from '@/config/env';
-
-async function appendBasicClientSignature(
-  config: Record<string, unknown>,
-  params: {
-    basicHeaders?: Record<string, string>;
-    clientSignatureSalt?: string;
-    clientSignatureClientId?: string;
-  }
-) {
-  const { createClientSignature } = await import('@/config/basic/client-signature');
-  const signature = createClientSignature({
-    salt: params.clientSignatureSalt,
-    clientId: params.clientSignatureClientId
-  });
-
-  const prev =
-    config.headers && typeof config.headers === 'object'
-      ? (config.headers as Record<string, unknown>)
-      : {};
-
-  config.headers = {
-    ...prev,
-    ...params.basicHeaders,
-    'Client-Signature': signature
-  };
-}
 
 export function createAppHttp(params: {
   backend: BackendKind;
@@ -63,6 +38,19 @@ export function createAppHttp(params: {
     router
   } = params;
 
+  const beforeRequestCallback =
+    backend === 'basic'
+      ? createBasicClientSignatureBeforeRequest({
+          basicHeaders,
+          clientSignatureSalt,
+          clientSignatureClientId,
+          loadCreateClientSignature: async () => {
+            const { createClientSignature } = await import('@/config/basic/client-signature');
+            return createClientSignature;
+          }
+        })
+      : undefined;
+
   return createObHttp({
     axios: {
       baseURL: isProd ? apiBaseUrl || undefined : undefined,
@@ -79,16 +67,7 @@ export function createAppHttp(params: {
     biz: {
       successCodes: [0, 200]
     },
-    beforeRequestCallback:
-      backend === 'basic'
-        ? async (config) => {
-            await appendBasicClientSignature(config as Record<string, unknown>, {
-              basicHeaders,
-              clientSignatureSalt,
-              clientSignatureClientId
-            });
-          }
-        : undefined,
+    beforeRequestCallback,
     download: {
       autoDownload: true
     },

@@ -1,7 +1,11 @@
 import { createApp } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { createRouter, createWebHistory } from 'vue-router';
-import { setObHttpClient, setupRouterGuards } from '@one-base-template/core';
+import {
+  installRouteDynamicImportRecovery,
+  setObHttpClient,
+  setupRouterGuards
+} from '@one-base-template/core';
 import { registerMessageUtils } from '@one-base-template/ui';
 
 import App from '../App.vue';
@@ -22,7 +26,6 @@ import { createAppAdapter } from './adapter';
 import { installCore } from './core';
 import { installAppShellPlugins } from './plugins';
 import { createStartupProfiler } from './startup-profiler';
-import { installRouteDynamicImportRecovery } from './route-dynamic-import-recovery';
 
 export async function bootstrapAdminApp() {
   const profiler = createStartupProfiler();

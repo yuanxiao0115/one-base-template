@@ -2,6 +2,7 @@ import { ElMessage } from 'element-plus';
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
 import {
+  createBasicClientSignatureBeforeRequest,
   createObHttp,
   type ObHttp,
   useAuthStore,
@@ -17,33 +18,6 @@ function resetTagStore() {
   void import('@one-base-template/tag/store').then(({ useTagStoreHook }) => {
     useTagStoreHook().handleTags('equal', []);
   });
-}
-
-async function appendBasicClientSignature(
-  config: Record<string, unknown>,
-  params: {
-    basicHeaders?: Record<string, string>;
-    clientSignatureSalt?: string;
-    clientSignatureClientId?: string;
-  }
-) {
-  // 仅在请求真正发出前再按需加载 gm-crypto，避免把签名依赖拉进 admin 冷启动链。
-  const { createClientSignature } = await import('../config/basic/client-signature');
-  const signature = createClientSignature({
-    salt: params.clientSignatureSalt,
-    clientId: params.clientSignatureClientId
-  });
-
-  const prev =
-    config.headers && typeof config.headers === 'object'
-      ? (config.headers as Record<string, unknown>)
-      : {};
-
-  config.headers = {
-    ...prev,
-    ...params.basicHeaders,
-    'Client-Signature': signature
-  };
 }
 
 export function createAppHttp(params: {
@@ -73,6 +47,20 @@ export function createAppHttp(params: {
     router
   } = params;
 
+  const beforeRequestCallback =
+    backend === 'basic'
+      ? createBasicClientSignatureBeforeRequest({
+          basicHeaders,
+          clientSignatureSalt,
+          clientSignatureClientId,
+          // 仅在请求真正发出前再按需加载 gm-crypto，避免把签名依赖拉进 admin 冷启动链。
+          loadCreateClientSignature: async () => {
+            const { createClientSignature } = await import('../config/basic/client-signature');
+            return createClientSignature;
+          }
+        })
+      : undefined;
+
   return createObHttp({
     axios: {
       // 开发环境推荐使用 Vite proxy（同源），生产环境如需跨域可配置 VITE_API_BASE_URL 直连
@@ -91,16 +79,7 @@ export function createAppHttp(params: {
       // 默认约定 { code, data, message } 且 code=0/200 成功；不稳定时可通过 app 层覆盖这些策略
       successCodes: [0, 200]
     },
-    beforeRequestCallback:
-      backend === 'basic'
-        ? async (config) => {
-            await appendBasicClientSignature(config as Record<string, unknown>, {
-              basicHeaders,
-              clientSignatureSalt,
-              clientSignatureClientId
-            });
-          }
-        : undefined,
+    beforeRequestCallback,
     download: {
       autoDownload: true
     },

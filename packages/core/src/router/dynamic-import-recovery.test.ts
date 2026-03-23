@@ -4,7 +4,7 @@ import {
   DYNAMIC_IMPORT_RELOAD_KEY,
   installRouteDynamicImportRecovery,
   isDynamicImportLoadError
-} from '@/bootstrap/route-dynamic-import-recovery';
+} from './dynamic-import-recovery';
 
 function createRouterStub() {
   let onErrorHandler: ((error: unknown, to?: { fullPath?: string }) => void) | undefined;
@@ -36,7 +36,7 @@ function createRouterStub() {
   };
 }
 
-describe('bootstrap/route-dynamic-import-recovery', () => {
+describe('router/dynamic-import-recovery', () => {
   beforeEach(() => {
     sessionStorage.clear();
     vi.restoreAllMocks();

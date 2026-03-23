@@ -65,6 +65,16 @@ await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } })
 - `cancelRouteRequests(reason?)`：取消当前“可随路由切换中断”的在途请求
 - `getPendingCount()`：获取在途请求数量（调试观测用）
 
+### 2.6 basic 签名注入 helper
+
+为减少 `apps/*` 重复维护 `Client-Signature` 请求头拼装逻辑，core 提供：
+
+- `createBasicClientSignatureBeforeRequest({ ... })`
+  - 统一处理 headers 合并、`Client-Signature` 注入
+  - 支持懒加载 `loadCreateClientSignature()`，避免把签名依赖拉进冷启动主链路
+
+适用场景：admin / portal 这类 `backend=basic` 的请求签名注入。
+
 ### 2.3 业务码（Biz）约定与可扩展点
 
 默认“业务码响应”判定：响应 data 里存在 `code` 字段（适配 `{ code, data, message }` 形态）。
@@ -103,6 +113,7 @@ declare module '@one-base-template/core' {
 - `setupRouterGuards(router, options?)`：默认实现“未登录跳转登录页 + 菜单 allowedPaths 控制访问”
   - 可注入 `publicRoutePaths/loginRoutePath/forbiddenRoutePath`，避免路由常量多处硬编码
   - 可配置 `allowedSkipMenuAuthRouteNames`，对白名单外的 `skipMenuAuth` 路由执行拒绝并告警（显式传入空数组也会启用严格模式）
+- `installRouteDynamicImportRecovery(router)`：动态 import chunk 加载失败自动恢复（单路由一次重试，避免死循环刷新）
 - `menuMode=remote|static`
   - `remote`：菜单树来自 adapter（后端）
   - `static`：菜单树从静态路由 `meta.title` 生成（适合简单项目）

@@ -28,6 +28,13 @@ export type {
 
 export { createHttpClient, type HttpClientOptions } from './http/client';
 export { createObHttp, type ObHttp } from './http/pureHttp';
+export {
+  createBasicClientSignatureBeforeRequest,
+  type ClientSignatureParams,
+  type CreateClientSignature,
+  type CreateClientSignatureLoader,
+  type CreateBasicClientSignatureBeforeRequestOptions
+} from './http/basic-client-signature';
 export { obHttp, setObHttpClient } from './http/runtime';
 export type {
   CreateObHttpOptions,
@@ -77,6 +84,11 @@ export {
 export type { ThemePresetKey, OneTokenMap, PrimaryScale } from './theme/one';
 
 export { setupRouterGuards, type RouterGuardOptions } from './router/guards';
+export {
+  installRouteDynamicImportRecovery,
+  isDynamicImportLoadError,
+  DYNAMIC_IMPORT_RELOAD_KEY
+} from './router/dynamic-import-recovery';
 export { handleSsoCallback } from './router/sso';
 export { getInitialPath, type GetInitialPathOptions } from './router/initial-path';
 export { resolveAppRedirectTarget } from './router/redirect';
