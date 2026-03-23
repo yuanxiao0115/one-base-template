@@ -34,6 +34,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - `modules/**/list.vue` 禁止出现 `<el-table>`
 - `modules/**/list.vue` 禁止出现 `<el-dialog>`
 - `modules/**/list.vue` 禁止出现 `<el-upload>`
+- `modules/**/list.vue` 禁止模板事件内联箭头函数（如 `@click="() => handleXxx(row)"`）
 - `modules/**/api.ts` 禁止 `export type {...} from './types'` 类型中转
 - `modules/**/api.ts` 禁止 `const http = obHttp()` 与 `getHttp(){ return obHttp() }` 包装写法
 

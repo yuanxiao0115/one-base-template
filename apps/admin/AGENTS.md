@@ -193,6 +193,7 @@
   - `lint`：`vp lint .`（按 admin 子项目统一门禁）；
   - `lint:arch`：`node ../../scripts/check-admin-arch.mjs`（架构边界门禁，使用仓库脚本，不新增 ESLint 子配置；检测同时覆盖 `@/` alias 与相对路径 import，避免绕过）；
   - `lint:fix`：`vp check --fix src`（按 admin 子项目 `src` 范围执行可自动修复项）。
+- `lint:arch` 必须覆盖 `modules/**/list.vue` 模板事件内联箭头函数检查（如 `@click="() => handleXxx(row)"`），禁止回退到模板闭包写法。
 - admin 架构边界检查统一通过 `lint:arch` 脚本实现，禁止再为 admin 新增 `eslint.*` 架构门禁配置文件。
 - 对于已在全局注入的能力（如 `obConfirm`），禁止为“消除 lint 未声明”而补显式 import；应在全局配置中声明 globals。
 - 命名必须“短、清楚、通用”，优先 `get/list/build/create/update/remove`。

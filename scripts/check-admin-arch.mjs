@@ -356,6 +356,13 @@ async function main() {
         'CRUD list.vue 禁止直接编排 el-upload，请将上传能力下沉到表单/领域组件或复用 ObImportUpload。',
         violations
       );
+      pushViolations(
+        absolutePath,
+        content,
+        /@\w+(?::[\w-]+)?\s*=\s*(?:"[^"]*=>[^"]*"|'[^']*=>[^']*')/g,
+        'CRUD list.vue 禁止在模板事件中使用内联箭头函数，请改为显式 handler（如 @click="handleXxx(row)"）。',
+        violations
+      );
     }
 
     if (isModuleApiFile(relativePath)) {
