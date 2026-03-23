@@ -151,3 +151,14 @@ declare module '@one-base-template/core' {
 
 - sczfw 签名字段统一命名为 `clientSignatureSalt`（公开盐值）
 - 若仍传 `clientSignatureSecret`，解析阶段会直接报错并提示改名
+
+## 7. 通用时序守卫（Latest Request Guard）
+
+为减少“异步详情加载/远程搜索”场景中的旧响应回写风险，core 提供：
+
+- `createLatestRequestGuard()`
+  - `next()`：生成并推进最新 token
+  - `isLatest(token)`：判断当前响应是否仍是最新请求
+  - `invalidate()`：在关闭弹层/切换上下文时主动失效旧请求
+
+建议在存在“请求竞态 + 状态回写”的编排层统一使用该守卫，避免模块内重复实现 token 逻辑。

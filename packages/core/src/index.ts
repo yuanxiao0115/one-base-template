@@ -123,6 +123,11 @@ export {
   removeWithLegacy,
   clearByPrefixes
 } from './storage/namespace';
+export {
+  createLatestRequestGuard,
+  type LatestRequestGuard,
+  type LatestRequestToken
+} from './utils/latest-request-guard';
 
 export { createStaticMenusFromRoutes, type CreateStaticMenusOptions } from './menu/fromRoutes';
 export { finalizeAuthSession, safeRedirect, type FinalizeAuthSessionOptions } from './auth/flow';

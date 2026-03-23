@@ -75,4 +75,56 @@ describe('parseRuntimeConfig preset 收敛', () => {
       })
     ).toThrowError(/defaultSystemCode/);
   });
+
+  it('preset 下显式传 storageNamespace 时不应被 appcode 默认值覆盖', () => {
+    const config = parseRuntimeConfig({
+      preset: 'remote-single',
+      appcode: 'demo-admin',
+      storageNamespace: 'demo-storage'
+    });
+
+    expect(config.appcode).toBe('demo-admin');
+    expect(config.storageNamespace).toBe('demo-storage');
+  });
+});
+
+describe('parseRuntimeConfig 基础契约', () => {
+  it('显式传已废弃的 clientSignatureSecret 时应提示改名', () => {
+    expect(() =>
+      parseRuntimeConfig({
+        backend: 'sczfw',
+        authMode: 'token',
+        tokenKey: 'token',
+        idTokenKey: 'idToken',
+        menuMode: 'remote',
+        enabledModules: '*',
+        authorizationType: 'ADMIN',
+        appsource: 'frame',
+        appcode: 'demo-admin',
+        clientSignatureSecret: 'legacy-secret',
+        systemHomeMap: {
+          default: '/home/index'
+        }
+      })
+    ).toThrowError(/clientSignatureSecret/);
+  });
+
+  it('enabledModules 应保留去重后的模块列表', () => {
+    const config = parseRuntimeConfig({
+      backend: 'default',
+      authMode: 'token',
+      tokenKey: 'token',
+      idTokenKey: 'idToken',
+      menuMode: 'remote',
+      enabledModules: ['PortalManagement', ' PortalManagement ', 'LogManagement'],
+      authorizationType: 'ADMIN',
+      appsource: 'frame',
+      appcode: 'demo-admin',
+      systemHomeMap: {
+        default: '/home/index'
+      }
+    });
+
+    expect(config.enabledModules).toEqual(['PortalManagement', 'LogManagement']);
+  });
 });
