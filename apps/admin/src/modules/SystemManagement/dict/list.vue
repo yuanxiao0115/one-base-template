@@ -50,11 +50,17 @@ const {
   tableSearch,
   onKeywordUpdate,
   onResetSearch,
+  openDictCreate,
+  openDictEdit,
+  openDictDetail,
   openSetting,
   closeSetting,
   itemTableSearch,
   onItemKeywordUpdate,
   onResetItemSearch,
+  openItemCreate,
+  openItemEdit,
+  openItemDetail,
   handleSelectionChange,
   handleSizeChange,
   handleCurrentChange,
@@ -79,7 +85,7 @@ const {
       @reset-form="onResetSearch"
     >
       <template #buttons>
-        <el-button type="primary" :icon="Plus" @click="crud.openCreate()">添加字典</el-button>
+        <el-button type="primary" :icon="Plus" @click="openDictCreate">添加字典</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
@@ -97,16 +103,16 @@ const {
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)"
+              <el-button link type="primary" :size="actionSize" @click="openDictEdit(row)"
                 >编辑</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)"
+              <el-button link type="primary" :size="actionSize" @click="openDictDetail(row)"
                 >查看</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="() => openSetting(row)"
+              <el-button link type="primary" :size="actionSize" @click="openSetting(row)"
                 >字典配置</el-button
               >
-              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)"
                 >删除</el-button
               >
             </ObActionButtons>
@@ -165,7 +171,7 @@ const {
         @reset-form="onResetItemSearch"
       >
         <template #buttons>
-          <el-button type="primary" :icon="Plus" @click="itemCrud.openCreate()">添加字段</el-button>
+          <el-button type="primary" :icon="Plus" @click="openItemCreate">添加字段</el-button>
         </template>
 
         <template #default="{ size, dynamicColumns }">
@@ -189,33 +195,21 @@ const {
 
             <template #itemOperation="{ row, size: actionSize }">
               <ObActionButtons>
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="() => itemCrud.openEdit(row)"
+                <el-button link type="primary" :size="actionSize" @click="openItemEdit(row)"
                   >编辑</el-button
                 >
                 <el-button
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="() => handleToggleItemStatus(row)"
+                  @click="handleToggleItemStatus(row)"
                 >
                   {{ row.disabled === 0 ? '停用' : '启用' }}
                 </el-button>
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="() => itemCrud.openDetail(row)"
+                <el-button link type="primary" :size="actionSize" @click="openItemDetail(row)"
                   >查看</el-button
                 >
-                <el-button
-                  link
-                  type="danger"
-                  :size="actionSize"
-                  @click="() => handleDeleteItem(row)"
+                <el-button link type="danger" :size="actionSize" @click="handleDeleteItem(row)"
                   >删除</el-button
                 >
               </ObActionButtons>

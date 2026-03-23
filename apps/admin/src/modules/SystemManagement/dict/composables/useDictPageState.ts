@@ -227,6 +227,14 @@ export function useDictPageState() {
     dictName: currentDict.value?.dictName || '--'
   }));
 
+  function isDictEditorBusy() {
+    return dictEditor.opening.value || dictEditor.submitting.value;
+  }
+
+  function isItemEditorBusy() {
+    return itemEditor.opening.value || itemEditor.submitting.value;
+  }
+
   function tableSearch(keyword: string) {
     searchForm.dictCode = keyword;
     void dictTable.onSearch();
@@ -239,6 +247,30 @@ export function useDictPageState() {
   function onResetSearch() {
     searchForm.dictName = '';
     dictTable.resetForm(searchRef, 'dictCode');
+  }
+
+  async function openDictCreate() {
+    if (isDictEditorBusy()) {
+      return;
+    }
+
+    await dictEditor.openCreate();
+  }
+
+  async function openDictEdit(row: DictRecord) {
+    if (isDictEditorBusy()) {
+      return;
+    }
+
+    await dictEditor.openEdit(row);
+  }
+
+  async function openDictDetail(row: DictRecord) {
+    if (isDictEditorBusy()) {
+      return;
+    }
+
+    await dictEditor.openDetail(row);
   }
 
   async function openSetting(row: DictRecord) {
@@ -271,6 +303,30 @@ export function useDictPageState() {
   function onResetItemSearch() {
     itemSearchForm.itemValue = '';
     itemTable.resetForm(itemSearchRef, 'itemName');
+  }
+
+  async function openItemCreate() {
+    if (isItemEditorBusy()) {
+      return;
+    }
+
+    await itemEditor.openCreate();
+  }
+
+  async function openItemEdit(row: DictItemRecord) {
+    if (isItemEditorBusy()) {
+      return;
+    }
+
+    await itemEditor.openEdit(row);
+  }
+
+  async function openItemDetail(row: DictItemRecord) {
+    if (isItemEditorBusy()) {
+      return;
+    }
+
+    await itemEditor.openDetail(row);
   }
 
   async function handleToggleItemStatus(row: DictItemRecord) {
@@ -348,11 +404,17 @@ export function useDictPageState() {
       tableSearch,
       onKeywordUpdate,
       onResetSearch,
+      openDictCreate,
+      openDictEdit,
+      openDictDetail,
       openSetting,
       closeSetting,
       itemTableSearch,
       onItemKeywordUpdate,
       onResetItemSearch,
+      openItemCreate,
+      openItemEdit,
+      openItemDetail,
       handleSelectionChange: dictTable.handleSelectionChange,
       handleSizeChange: dictTable.handleSizeChange,
       handleCurrentChange: dictTable.handleCurrentChange,

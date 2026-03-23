@@ -115,6 +115,7 @@ const tableColumns = computed(() => columnColumns);
 const tableLoading = computed(() => table.loading.value);
 const tableRows = computed(() => table.dataList.value);
 const columnTreeOptions = computed<ColumnTreeOption[]>(() => toTreeOptions(table.dataList.value));
+const isCrudBusy = computed(() => editor.opening.value || editor.submitting.value);
 const crudVisible = editor.visible;
 const crudMode = editor.mode;
 const crudTitle = editor.title;
@@ -158,12 +159,40 @@ function onResetSearch() {
   table.resetForm(searchRef, 'categoryName');
 }
 
+async function openCreate() {
+  if (isCrudBusy.value) {
+    return;
+  }
+
+  await editor.openCreate();
+}
+
 async function openCreateChild(row: ColumnRecord) {
+  if (isCrudBusy.value) {
+    return;
+  }
+
   await editor.openCreate({
     patchForm: {
       parentCategoryId: row.id
     }
   });
+}
+
+async function openEdit(row: ColumnRecord) {
+  if (isCrudBusy.value) {
+    return;
+  }
+
+  await editor.openEdit(row);
+}
+
+async function openDetail(row: ColumnRecord) {
+  if (isCrudBusy.value) {
+    return;
+  }
+
+  await editor.openDetail(row);
 }
 
 function openArticleList(row: ColumnRecord) {
@@ -173,6 +202,10 @@ function openArticleList(row: ColumnRecord) {
       categoryName: row.categoryName
     }
   });
+}
+
+async function removeColumn(row: ColumnRecord) {
+  await actions.remove(row);
 }
 
 async function onConfirmCrud() {
@@ -196,7 +229,7 @@ async function onConfirmCrud() {
       @reset-form="onResetSearch"
     >
       <template #buttons>
-        <el-button type="primary" :icon="Plus" @click="editor.openCreate()">新增栏目</el-button>
+        <el-button type="primary" :icon="Plus" @click="openCreate">新增栏目</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
@@ -218,23 +251,19 @@ async function onConfirmCrud() {
 
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="() => openCreateChild(row)"
+              <el-button link type="primary" :size="actionSize" @click="openCreateChild(row)"
                 >添加子级</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="() => editor.openEdit(row)"
+              <el-button link type="primary" :size="actionSize" @click="openEdit(row)"
                 >编辑</el-button
               >
-              <el-button
-                link
-                type="primary"
-                :size="actionSize"
-                @click="() => editor.openDetail(row)"
+              <el-button link type="primary" :size="actionSize" @click="openDetail(row)"
                 >查看</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="() => openArticleList(row)"
+              <el-button link type="primary" :size="actionSize" @click="openArticleList(row)"
                 >文章列表</el-button
               >
-              <el-button link type="danger" :size="actionSize" @click="() => actions.remove(row)"
+              <el-button link type="danger" :size="actionSize" @click="removeColumn(row)"
                 >删除</el-button
               >
             </ObActionButtons>
