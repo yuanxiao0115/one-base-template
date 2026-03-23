@@ -77,3 +77,8 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - `RoleAssignMemberSelectForm` 现已收敛为 `initialSelectedUsers + form handles` 契约：父层只负责提供初始已选人员与提交结果，不再通过 `ref` 链式回填。
 - `UserBindAccountForm` 现已收敛为 props 驱动初始化：`selectedMap` 仅保存当前已选项，父层通过 `initialSelectedUsers` 传入初始账号列表，不再暴露加载 / 回填方法。
 - `useUserDialogState` 现已按 `refs / dialogs / actions` 场景返回；同类页面应复用“场景对象解构 + 页面只保留编排层 + 低层表单不直接承担全局错误提示”的基线，而不是逐字段照抄 `user/list.vue`。
+
+## 横向推广补充（LogManagement，2026-03-23）
+
+- 日志/详情类抽屉如果存在异步详情加载，必须增加“最新请求守卫”，并在抽屉关闭时失效旧请求，禁止旧响应回写当前详情态。
+- 列表页操作列点击事件禁止在模板内写内联箭头函数（如 `@click="() => handleXxx(row)"`），统一使用直接调用（如 `@click="handleXxx(row)"`）。

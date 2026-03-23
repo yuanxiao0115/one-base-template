@@ -1,9 +1,10 @@
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useTable } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
 import sysLogColumns from '../columns';
 import { sysLogApi } from '../api';
 import type { SysLogRecord } from '../types';
+import { createLatestRequestGuard } from '../../shared/latestRequest';
 
 interface SearchRefExpose {
   resetFields?: () => void;
@@ -129,18 +130,44 @@ function useSysLogDetailState(onSearch: (resetPage?: boolean) => Promise<unknown
   const detailVisible = ref(false);
   const detailLoading = ref(false);
   const detailData = ref<SysLogRecord | null>(null);
+  const detailRequestGuard = createLatestRequestGuard();
+
+  watch(
+    detailVisible,
+    (visible) => {
+      if (!visible) {
+        detailRequestGuard.invalidate();
+        detailLoading.value = false;
+        detailData.value = null;
+      }
+    },
+    { flush: 'sync' }
+  );
 
   const openDetail = async (row: SysLogRecord) => {
+    const token = detailRequestGuard.next();
     detailVisible.value = true;
     detailLoading.value = true;
+    detailData.value = null;
 
     try {
-      detailData.value = await fetchSysLogDetail(row.id);
+      const detail = await fetchSysLogDetail(row.id);
+      if (!detailRequestGuard.isLatest(token)) {
+        return;
+      }
+
+      detailData.value = detail;
     } catch (error) {
+      if (!detailRequestGuard.isLatest(token)) {
+        return;
+      }
+
       message.error(getErrorMessage(error, DETAIL_ERROR_MESSAGE));
       detailVisible.value = false;
     } finally {
-      detailLoading.value = false;
+      if (detailRequestGuard.isLatest(token)) {
+        detailLoading.value = false;
+      }
     }
   };
 

@@ -1,9 +1,10 @@
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useTable } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
 import loginLogColumns from '../columns';
 import { loginLogApi } from '../api';
 import type { ClientTypeOption, LoginLogRecord } from '../types';
+import { createLatestRequestGuard } from '../../shared/latestRequest';
 
 interface SearchRefExpose {
   resetFields?: () => void;
@@ -113,18 +114,44 @@ function useLoginLogDetailState(onSearch: (resetPage?: boolean) => Promise<unkno
   const detailVisible = ref(false);
   const detailLoading = ref(false);
   const detailData = ref<LoginLogRecord | null>(null);
+  const detailRequestGuard = createLatestRequestGuard();
+
+  watch(
+    detailVisible,
+    (visible) => {
+      if (!visible) {
+        detailRequestGuard.invalidate();
+        detailLoading.value = false;
+        detailData.value = null;
+      }
+    },
+    { flush: 'sync' }
+  );
 
   const openDetail = async (row: LoginLogRecord) => {
+    const token = detailRequestGuard.next();
     detailVisible.value = true;
     detailLoading.value = true;
+    detailData.value = null;
 
     try {
-      detailData.value = await fetchLoginLogDetail(row.id);
+      const detail = await fetchLoginLogDetail(row.id);
+      if (!detailRequestGuard.isLatest(token)) {
+        return;
+      }
+
+      detailData.value = detail;
     } catch (error) {
+      if (!detailRequestGuard.isLatest(token)) {
+        return;
+      }
+
       message.error(getErrorMessage(error, DETAIL_ERROR_MESSAGE));
       detailVisible.value = false;
     } finally {
-      detailLoading.value = false;
+      if (detailRequestGuard.isLatest(token)) {
+        detailLoading.value = false;
+      }
     }
   };
 

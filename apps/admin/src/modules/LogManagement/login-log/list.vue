@@ -28,51 +28,49 @@ const {
 </script>
 
 <template>
-  <div>
-    <ObPageContainer padding="0" overflow="hidden">
-      <ObTableBox
-        title="登录日志"
-        :columns="tableColumns"
-        placeholder="请输入登录人姓名"
-        :keyword="searchForm.nickName"
-        @search="tableSearch"
-        @update:keyword="onKeywordUpdate"
-        @reset-form="onResetSearch"
-      >
-        <template #default="{ size, dynamicColumns }">
-          <ObVxeTable
-            :ref="refs.tableRef"
-            :loading
-            :size
-            :data="dataList"
-            :columns="dynamicColumns"
-            :pagination
-            row-key="id"
-            @page-size-change="handleSizeChange"
-            @page-current-change="handleCurrentChange"
-          >
-            <template #operation="{ row, size: actionSize }">
-              <ObActionButtons>
-                <el-button link type="primary" :size="actionSize" @click="() => openDetail(row)"
-                  >查看</el-button
-                >
-                <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
-                  >删除</el-button
-                >
-              </ObActionButtons>
-            </template>
-          </ObVxeTable>
-        </template>
+  <ObPageContainer padding="0" overflow="hidden">
+    <ObTableBox
+      title="登录日志"
+      :columns="tableColumns"
+      placeholder="请输入登录人姓名"
+      :keyword="searchForm.nickName"
+      @search="tableSearch"
+      @update:keyword="onKeywordUpdate"
+      @reset-form="onResetSearch"
+    >
+      <template #default="{ size, dynamicColumns }">
+        <ObVxeTable
+          :ref="refs.tableRef"
+          :loading
+          :size
+          :data="dataList"
+          :columns="dynamicColumns"
+          :pagination
+          row-key="id"
+          @page-size-change="handleSizeChange"
+          @page-current-change="handleCurrentChange"
+        >
+          <template #operation="{ row, size: actionSize }">
+            <ObActionButtons>
+              <el-button link type="primary" :size="actionSize" @click="openDetail(row)"
+                >查看</el-button
+              >
+              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)"
+                >删除</el-button
+              >
+            </ObActionButtons>
+          </template>
+        </ObVxeTable>
+      </template>
 
-        <template #drawer>
-          <LoginLogSearchForm :ref="refs.searchRef" v-model="searchForm" :client-type-list />
-        </template>
-      </ObTableBox>
-    </ObPageContainer>
+      <template #drawer>
+        <LoginLogSearchForm :ref="refs.searchRef" v-model="searchForm" :client-type-list />
+      </template>
+    </ObTableBox>
+  </ObPageContainer>
 
-    <el-drawer v-model="detailVisible" title="日志详情" :size="520" append-to-body>
-      <el-skeleton v-if="detailLoading" :rows="6" animated />
-      <LoginLogDetail v-else :detail="detailData" />
-    </el-drawer>
-  </div>
+  <el-drawer v-model="detailVisible" title="日志详情" :size="520" append-to-body>
+    <el-skeleton v-if="detailLoading" :rows="6" animated />
+    <LoginLogDetail v-else :detail="detailData" />
+  </el-drawer>
 </template>
