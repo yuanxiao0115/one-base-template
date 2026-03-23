@@ -1,10 +1,11 @@
-import { mount } from '@vue/test-utils';
-import { defineComponent, h } from 'vue';
+import { flushPromises, mount } from '@vue/test-utils';
+import { defineComponent, h, reactive } from 'vue';
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const coreMocks = vi.hoisted(() => ({
   dataList: null as unknown,
   selectedList: null as unknown,
+  onSearch: vi.fn(async () => undefined),
   useCrudPage: vi.fn()
 }));
 
@@ -33,6 +34,12 @@ const messageMocks = vi.hoisted(() => ({
   warning: vi.fn()
 }));
 
+const envMocks = vi.hoisted(() => ({
+  getAppEnv: vi.fn(() => ({
+    baseUrl: '/admin/'
+  }))
+}));
+
 vi.mock('@one-base-template/core', async () => {
   const vue = await vi.importActual<typeof import('vue')>('vue');
 
@@ -56,7 +63,7 @@ vi.mock('@one-base-template/core', async () => {
         pageSize: 10
       },
       selectedList: coreMocks.selectedList,
-      onSearch: vi.fn(async () => undefined),
+      onSearch: coreMocks.onSearch,
       resetForm: vi.fn(),
       handleSelectionChange: vi.fn(),
       handleSizeChange: vi.fn(),
@@ -82,6 +89,10 @@ vi.mock('@one-base-template/core', async () => {
 
 vi.mock('@one-base-template/ui', () => ({
   message: messageMocks
+}));
+
+vi.mock('@/infra/env', () => ({
+  getAppEnv: envMocks.getAppEnv
 }));
 
 vi.mock('./useUserDragSort', () => dragSortMocks);
@@ -143,6 +154,80 @@ describe('UserManagement/user/useUserCrudState', () => {
       })
     );
 
+    unmount();
+  });
+
+  it('首屏仅预加载组织树并立即拉列表，编辑态再补职位与角色选项', async () => {
+    const { unmount } = mountUseUserCrudState();
+
+    await flushPromises();
+
+    expect(remoteOptionMocks.loadOrgTree).toHaveBeenCalledTimes(1);
+    expect(remoteOptionMocks.loadPositionOptions).not.toHaveBeenCalled();
+    expect(remoteOptionMocks.loadRoleOptions).not.toHaveBeenCalled();
+    expect(coreMocks.onSearch).toHaveBeenCalledWith(false);
+
+    const crudOptions = coreMocks.useCrudPage.mock.calls.at(-1)?.[0] as {
+      editor: {
+        detail: {
+          beforeOpen: (params: {
+            mode: string;
+            form: { userOrgs: Array<{ orgId: string }> };
+          }) => Promise<void>;
+        };
+      };
+    };
+
+    vi.clearAllMocks();
+    const form = reactive({
+      userOrgs: []
+    });
+
+    await crudOptions.editor.detail.beforeOpen({
+      mode: 'create',
+      form
+    });
+
+    expect(remoteOptionMocks.loadOrgTree).toHaveBeenCalledTimes(1);
+    expect(remoteOptionMocks.loadPositionOptions).toHaveBeenCalledTimes(1);
+    expect(remoteOptionMocks.loadRoleOptions).toHaveBeenCalledTimes(1);
+
+    unmount();
+  });
+
+  it('模板下载应尊重应用 baseUrl', () => {
+    const appendChild = vi.spyOn(document.body, 'appendChild').mockImplementation((node) => node);
+    const removeChild = vi.spyOn(document.body, 'removeChild').mockImplementation((node) => node);
+    const click = vi.fn();
+    const originalCreateElement = document.createElement.bind(document);
+    const anchor = {
+      href: '',
+      download: '',
+      click
+    } as unknown as HTMLAnchorElement;
+    const createElement = vi.spyOn(document, 'createElement').mockImplementation(((
+      tagName: string
+    ) => {
+      if (tagName === 'a') {
+        return anchor;
+      }
+
+      return originalCreateElement(tagName);
+    }) as typeof document.createElement);
+
+    const { crudState, unmount } = mountUseUserCrudState();
+
+    crudState.actions.downloadTemplate();
+
+    expect(anchor.href).toContain('/admin/组织用户导入模板.xlsx');
+    expect(anchor.download).toBe('组织用户导入模板.xlsx');
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(appendChild).toHaveBeenCalledWith(anchor);
+    expect(removeChild).toHaveBeenCalledWith(anchor);
+
+    createElement.mockRestore();
+    appendChild.mockRestore();
+    removeChild.mockRestore();
     unmount();
   });
 });

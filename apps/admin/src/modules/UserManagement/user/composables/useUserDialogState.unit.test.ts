@@ -207,4 +207,18 @@ describe('UserManagement/user/useUserDialogState', () => {
 
     unmount();
   });
+
+  it('关联账号搜索失败时应由弹窗状态统一兜底提示并返回空列表', async () => {
+    apiMocks.searchUsers.mockResolvedValueOnce({
+      code: 500,
+      message: '搜索关联账号失败'
+    });
+
+    const { dialogState, unmount } = mountUseUserDialogState();
+
+    await expect(dialogState.actions.fetchBindUsers('张三')).resolves.toEqual([]);
+    expect(messageMocks.error).toHaveBeenCalledWith('搜索关联账号失败');
+
+    unmount();
+  });
 });

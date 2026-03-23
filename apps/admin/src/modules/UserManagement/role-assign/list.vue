@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactive } from 'vue';
 import { Delete, Plus, Search } from '@element-plus/icons-vue';
 import RoleAssignMemberSelectForm from './components/RoleAssignMemberSelectForm.vue';
 import { useRoleAssignPageState } from './composables/useRoleAssignPageState';
@@ -9,54 +10,17 @@ defineOptions({
 
 const pageState = useRoleAssignPageState();
 
-const { refs } = pageState;
-
-const {
-  loading,
-  dataList,
-  tableColumns,
-  tablePagination,
-  selectedNum,
-  searchForm,
-  currentRoleName
-} = pageState.table;
-
-const { roleLoading, roleKeyword, roleList, currentRole } = pageState.roles;
-
-const {
-  memberDialogVisible,
-  memberDialogLoading,
-  memberDialogSubmitting,
-  memberDialogSelectedUsers,
-  memberForm
-} = pageState.dialogs;
-
-const {
-  onRoleKeywordUpdate,
-  onRoleKeywordSearch,
-  onRoleKeywordClear,
-  selectRole,
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  handleSelectionChange,
-  handleSizeChange,
-  handleCurrentChange,
-  onSelectionCancel,
-  handleRemove,
-  fetchNodes,
-  searchNodes,
-  openAddMembersDialog,
-  closeAddMembersDialog,
-  submitAddMembersDialog
-} = pageState.actions;
+const { refs, actions } = pageState;
+const table = reactive(pageState.table);
+const roles = reactive(pageState.roles);
+const dialogs = reactive(pageState.dialogs);
 
 function onRoleMenuSelect(roleId: string) {
-  const target = roleList.value.find((item) => String(item.id) === roleId);
+  const target = roles.roleList.find((item) => String(item.id) === roleId);
   if (!target) {
     return;
   }
-  void selectRole(target);
+  void actions.selectRole(target);
 }
 </script>
 
@@ -68,30 +32,34 @@ function onRoleMenuSelect(roleId: string) {
           class="flex font-medium items-center justify-between mb-2 text-[var(--el-text-color-primary)] text-sm"
         >
           <span>角色列表</span>
-          <el-tag size="small" type="info">{{ roleList.length }}</el-tag>
+          <el-tag size="small" type="info">{{ roles.roleList.length }}</el-tag>
         </div>
 
         <el-input
-          :model-value="roleKeyword"
+          :model-value="roles.roleKeyword"
           class="mb-2 role-assign-page__role-search"
           clearable
           placeholder="输入角色进行搜索"
           :suffix-icon="Search"
-          @update:model-value="onRoleKeywordUpdate"
-          @clear="onRoleKeywordClear"
-          @keyup.enter="onRoleKeywordSearch"
+          @update:model-value="actions.onRoleKeywordUpdate"
+          @clear="actions.onRoleKeywordClear"
+          @keyup.enter="actions.onRoleKeywordSearch"
         />
 
-        <el-scrollbar v-loading="roleLoading" class="flex-1 min-h-0">
-          <el-empty v-if="roleList.length === 0" description="暂无角色数据" :image-size="78" />
+        <el-scrollbar v-loading="roles.roleLoading" class="flex-1 min-h-0">
+          <el-empty
+            v-if="roles.roleList.length === 0"
+            description="暂无角色数据"
+            :image-size="78"
+          />
           <el-menu
             v-else
             class="role-assign-page__role-menu"
-            :default-active="currentRole ? String(currentRole.id) : ''"
+            :default-active="roles.currentRole ? String(roles.currentRole.id) : ''"
             @select="onRoleMenuSelect"
           >
             <el-menu-item
-              v-for="item in roleList"
+              v-for="item in roles.roleList"
               :key="item.id"
               :index="String(item.id)"
               class="flex justify-between mb-1 pr-2 text-xs"
@@ -105,37 +73,39 @@ function onRoleMenuSelect(roleId: string) {
     </template>
 
     <ObTableBox
-      :title="currentRoleName"
-      :columns="tableColumns"
+      :title="table.currentRoleName"
+      :columns="table.tableColumns"
       placeholder="请输入用户名搜索"
-      :keyword="searchForm.keyWord"
-      :selected-num
-      @search="tableSearch"
-      @update:keyword="onKeywordUpdate"
-      @reset-form="onResetSearch"
-      @selection-cancel="onSelectionCancel"
+      :keyword="table.searchForm.keyWord"
+      :selected-num="table.selectedNum"
+      @search="actions.tableSearch"
+      @update:keyword="actions.onKeywordUpdate"
+      @reset-form="actions.onResetSearch"
+      @selection-cancel="actions.onSelectionCancel"
     >
       <template #buttons>
-        <el-button :icon="Delete" @click="handleRemove()">移除人员</el-button>
-        <el-button type="primary" :icon="Plus" @click="openAddMembersDialog">添加人员</el-button>
+        <el-button :icon="Delete" @click="actions.handleRemove()">移除人员</el-button>
+        <el-button type="primary" :icon="Plus" @click="actions.openAddMembersDialog"
+          >添加人员</el-button
+        >
       </template>
 
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :loading
+          :loading="table.loading"
           :size
-          :data="dataList"
+          :data="table.dataList"
           :columns="dynamicColumns"
-          :pagination="tablePagination"
+          :pagination="table.tablePagination"
           row-key="id"
-          @selection-change="handleSelectionChange"
-          @page-size-change="handleSizeChange"
-          @page-current-change="handleCurrentChange"
+          @selection-change="actions.handleSelectionChange"
+          @page-size-change="actions.handleSizeChange"
+          @page-current-change="actions.handleCurrentChange"
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="danger" :size="actionSize" @click="handleRemove(row)"
+              <el-button link type="danger" :size="actionSize" @click="actions.handleRemove(row)"
                 >移除</el-button
               >
             </ObActionButtons>
@@ -146,23 +116,23 @@ function onRoleMenuSelect(roleId: string) {
   </ObPageContainer>
 
   <ObCrudContainer
-    v-model="memberDialogVisible"
+    v-model="dialogs.memberDialogVisible"
     container="dialog"
     mode="edit"
     title="添加人员"
-    :loading="memberDialogLoading || memberDialogSubmitting"
+    :loading="dialogs.memberDialogLoading || dialogs.memberDialogSubmitting"
     :dialog-width="1120"
-    @confirm="submitAddMembersDialog"
-    @cancel="closeAddMembersDialog"
-    @close="closeAddMembersDialog"
+    @confirm="actions.submitAddMembersDialog"
+    @cancel="actions.closeAddMembersDialog"
+    @close="actions.closeAddMembersDialog"
   >
     <RoleAssignMemberSelectForm
       :ref="refs.memberFormRef"
-      v-model="memberForm"
-      :disabled="memberDialogLoading || memberDialogSubmitting"
-      :initial-selected-users="memberDialogSelectedUsers"
-      :fetch-nodes="fetchNodes"
-      :search-nodes="searchNodes"
+      v-model="dialogs.memberForm"
+      :disabled="dialogs.memberDialogLoading || dialogs.memberDialogSubmitting"
+      :initial-selected-users="dialogs.memberDialogSelectedUsers"
+      :fetch-nodes="actions.fetchNodes"
+      :search-nodes="actions.searchNodes"
     />
   </ObCrudContainer>
 </template>

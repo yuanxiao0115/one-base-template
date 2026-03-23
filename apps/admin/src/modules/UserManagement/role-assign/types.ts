@@ -20,6 +20,7 @@ export interface RoleMemberRecord {
   id: string;
   userAccount?: string;
   nickName?: string;
+  phone?: string;
   [key: string]: LooseField;
 }
 

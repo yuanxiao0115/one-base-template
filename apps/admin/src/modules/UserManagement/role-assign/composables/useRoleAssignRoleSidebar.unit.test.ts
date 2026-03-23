@@ -26,6 +26,21 @@ vi.mock('../api', () => ({
 
 import { useRoleAssignRoleSidebar } from './useRoleAssignRoleSidebar';
 
+function createDeferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
+  return {
+    promise,
+    resolve,
+    reject
+  };
+}
+
 function mountUseRoleAssignRoleSidebar() {
   const onRoleActivated = vi.fn(async () => undefined);
   const onRolesEmpty = vi.fn();
@@ -99,6 +114,54 @@ describe('UserManagement/role-assign/useRoleAssignRoleSidebar', () => {
     expect(sidebar.roles.roleList.value).toEqual([]);
     expect(sidebar.roles.currentRole.value).toBeNull();
     expect(onRolesEmpty).toHaveBeenCalledTimes(1);
+
+    unmount();
+  });
+
+  it('角色搜索慢响应不应覆盖后到达的最新结果', async () => {
+    const firstResponse = createDeferred<{
+      code: number;
+      data: Array<{ id: string; roleName: string }>;
+    }>();
+    const secondResponse = createDeferred<{
+      code: number;
+      data: Array<{ id: string; roleName: string }>;
+    }>();
+
+    apiMocks.listRoles.mockImplementation(({ roleName }: { roleName?: string }) => {
+      if (roleName === '管理员') {
+        return firstResponse.promise;
+      }
+
+      return secondResponse.promise;
+    });
+
+    const { sidebar, unmount } = mountUseRoleAssignRoleSidebar();
+
+    sidebar.actions.onRoleKeywordUpdate('管理员');
+    const firstTask = sidebar.actions.loadRoleList();
+    sidebar.actions.onRoleKeywordUpdate('访客');
+    const secondTask = sidebar.actions.loadRoleList();
+
+    secondResponse.resolve({
+      code: 200,
+      data: [{ id: 'role-2', roleName: '访客角色' }]
+    });
+
+    await secondTask;
+
+    expect(sidebar.roles.roleList.value).toEqual([{ id: 'role-2', roleName: '访客角色' }]);
+    expect(sidebar.roles.currentRole.value).toEqual({ id: 'role-2', roleName: '访客角色' });
+
+    firstResponse.resolve({
+      code: 200,
+      data: [{ id: 'role-1', roleName: '管理员角色' }]
+    });
+
+    await firstTask;
+
+    expect(sidebar.roles.roleList.value).toEqual([{ id: 'role-2', roleName: '访客角色' }]);
+    expect(sidebar.roles.currentRole.value).toEqual({ id: 'role-2', roleName: '访客角色' });
 
     unmount();
   });

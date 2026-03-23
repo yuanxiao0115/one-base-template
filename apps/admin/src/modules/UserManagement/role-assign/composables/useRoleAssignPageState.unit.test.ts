@@ -120,7 +120,8 @@ describe('UserManagement/role-assign/useRoleAssignPageState', () => {
         {
           id: 'user-1',
           nickName: '张三',
-          userAccount: 'zhangsan'
+          userAccount: 'zhangsan',
+          phone: '13800000000'
         }
       ]
     });
@@ -137,10 +138,10 @@ describe('UserManagement/role-assign/useRoleAssignPageState', () => {
         id: 'user-1',
         nodeType: 'user',
         title: '张三',
-        subTitle: 'zhangsan',
+        subTitle: '13800000000',
         nickName: '张三',
         userAccount: 'zhangsan',
-        phone: ''
+        phone: '13800000000'
       }
     ]);
 

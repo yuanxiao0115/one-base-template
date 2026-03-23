@@ -37,17 +37,38 @@ function toRoleAssignSelectedUsers(records: RoleMemberRecord[]): PersonnelSelect
   return records.map((item) => {
     const nickName = item.nickName || item.userAccount || item.id;
     const userAccount = item.userAccount || item.id;
+    const phone = item.phone || '';
 
     return {
       id: item.id,
       nodeType: 'user',
       title: nickName,
-      subTitle: userAccount || '--',
+      subTitle: phone || userAccount || '--',
       nickName,
       userAccount,
-      phone: ''
+      phone
     };
   });
+}
+
+async function requestAddMembers(roleId: string, userIdList: string[]) {
+  const response = await roleAssignApi.addMembers({
+    roleId,
+    userIdList
+  });
+  if (response.code !== 200) {
+    throw new Error(response.message || '添加角色成员失败');
+  }
+}
+
+async function requestRemoveMembers(roleId: string, userIdList: string[]) {
+  const response = await roleAssignApi.removeMembers({
+    roleId,
+    userIdList
+  });
+  if (response.code !== 200) {
+    throw new Error(response.message || '移除角色成员失败');
+  }
 }
 
 export function useRoleAssignMemberDialog(options: UseRoleAssignMemberDialogOptions) {
@@ -180,23 +201,33 @@ export function useRoleAssignMemberDialog(options: UseRoleAssignMemberDialogOpti
         return;
       }
 
-      if (removeIds.length > 0) {
-        const removeResponse = await roleAssignApi.removeMembers({
-          roleId: role.id,
-          userIdList: removeIds
-        });
-        if (removeResponse.code !== 200) {
-          throw new Error(removeResponse.message || '移除角色成员失败');
-        }
+      if (addIds.length > 0) {
+        await requestAddMembers(role.id, addIds);
       }
 
-      if (addIds.length > 0) {
-        const addResponse = await roleAssignApi.addMembers({
-          roleId: role.id,
-          userIdList: addIds
-        });
-        if (addResponse.code !== 200) {
-          throw new Error(addResponse.message || '添加角色成员失败');
+      if (removeIds.length > 0) {
+        try {
+          await requestRemoveMembers(role.id, removeIds);
+        } catch (error) {
+          if (addIds.length > 0) {
+            try {
+              await requestRemoveMembers(role.id, addIds);
+            } catch (rollbackError) {
+              throw new Error(
+                `${getErrorMessage(error, '角色成员保存失败')}，且回滚新增成员失败：${getErrorMessage(rollbackError, '回滚失败')}`,
+                {
+                  cause: rollbackError
+                }
+              );
+            }
+          }
+
+          throw new Error(
+            `${getErrorMessage(error, '角色成员保存失败')}，已自动回滚本次新增成员，请重试`,
+            {
+              cause: error
+            }
+          );
         }
       }
 

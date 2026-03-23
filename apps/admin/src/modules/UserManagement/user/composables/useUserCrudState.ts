@@ -2,6 +2,7 @@ import { computed, onMounted, reactive, ref, type Ref } from 'vue';
 import type { CrudFormLike } from '@one-base-template/ui';
 import { useCrudPage } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
+import { getAppEnv } from '@/infra/env';
 import buildUserColumns from '../columns';
 import { userApi } from '../api';
 import type {
@@ -50,9 +51,14 @@ function getUserTypeLabel(value: number, labelMap: Record<number, string>): stri
   return labelMap[value] || '--';
 }
 
-function downloadUserTemplate(filename = '组织用户导入模板.xlsx') {
+function resolveDownloadUrl(filename: string, baseUrl: string) {
+  const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  return `${normalizedBaseUrl}${filename}`;
+}
+
+function downloadUserTemplate(filename = '组织用户导入模板.xlsx', baseUrl = '/') {
   const link = document.createElement('a');
-  link.href = `/${filename}`;
+  link.href = resolveDownloadUrl(filename, baseUrl);
   link.download = filename;
   document.body.appendChild(link);
   link.click();
@@ -262,7 +268,7 @@ export function useUserCrudState() {
   });
 
   function downloadTemplate() {
-    downloadUserTemplate();
+    downloadUserTemplate('组织用户导入模板.xlsx', getAppEnv().baseUrl);
   }
 
   async function importRequest(file: File) {
@@ -284,7 +290,7 @@ export function useUserCrudState() {
 
   onMounted(async () => {
     try {
-      await Promise.all([loadOrgTree(), loadPositionOptions(), loadRoleOptions()]);
+      await loadOrgTree();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '初始化用户管理失败';
       message.error(errorMessage);

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactive } from 'vue';
 import { Download, Lock, Plus, Rank, Unlock, Upload } from '@element-plus/icons-vue';
 import { dragHandleClass } from './utils/dragSort';
 import UserSearchForm from './components/UserSearchForm.vue';
@@ -16,79 +17,17 @@ defineOptions({
 // 页面仅保留编排层：状态与副作用分别下沉到 CRUD 状态与弹窗状态 composable。
 const pageState = useUserCrudState();
 
-const { refs } = pageState;
+const { refs, actions } = pageState;
+const table = reactive(pageState.table);
+const options = reactive(pageState.options);
+const editor = reactive(pageState.editor);
 
-const {
-  loading,
-  dataList,
-  tablePagination,
-  tableColumns,
-  orgTreeData,
-  searchForm,
-  defaultTreeProps
-} = pageState.table;
-
-const { positionOptions, roleOptions } = pageState.options;
-
-const {
-  crud,
-  crudVisible,
-  crudMode,
-  crudTitle,
-  crudReadonly,
-  crudSubmitting,
-  crudForm,
-  checkFieldUnique,
-  uploadAvatar
-} = pageState.editor;
-
-const {
-  handleSelectionChange,
-  handleSizeChange,
-  handleCurrentChange,
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  handleNodeClick,
-  getUserTypeLabel,
-  handleDelete,
-  handleSingleStatus,
-  handleBatchStatus,
-  handleResetPassword,
-  downloadTemplate,
-  importRequest,
-  handleImportUploaded,
-  onSearch
-} = pageState.actions;
-
-const {
-  refs: dialogRefs,
-  dialogs: userDialogs,
-  actions: dialogActions
-} = useUserDialogState({
-  onSearch
+const dialogState = useUserDialogState({
+  onSearch: actions.onSearch
 });
 
-const {
-  accountVisible,
-  accountSubmitting,
-  accountForm,
-  bindVisible,
-  bindLoading,
-  bindSubmitting,
-  bindSelectedUsers,
-  bindForm
-} = userDialogs;
-
-const {
-  openAccountDialog,
-  closeAccountDialog,
-  submitAccountDialog,
-  fetchBindUsers,
-  openBindDialog,
-  closeBindDialog,
-  submitBindDialog
-} = dialogActions;
+const { refs: dialogRefs, actions: dialogActions } = dialogState;
+const dialogs = reactive(dialogState.dialogs);
 
 function getGenderLabel(gender?: number) {
   if (gender === 0) {
@@ -128,51 +67,51 @@ function getStatusTagType(isEnable?: boolean) {
         <ObTree
           :ref="refs.treeRef"
           node-key="id"
-          :data="orgTreeData"
-          :tree-props="defaultTreeProps"
+          :data="table.orgTreeData"
+          :tree-props="table.defaultTreeProps"
           highlight-current
-          @node-click="handleNodeClick"
+          @node-click="actions.handleNodeClick"
         />
       </div>
     </template>
 
     <ObTableBox
       title="用户管理"
-      :columns="tableColumns"
+      :columns="table.tableColumns"
       placeholder="请输入用户名查询"
-      :keyword="searchForm.nickName"
-      @search="tableSearch"
-      @update:keyword="onKeywordUpdate"
-      @reset-form="onResetSearch"
+      :keyword="table.searchForm.nickName"
+      @search="actions.tableSearch"
+      @update:keyword="actions.onKeywordUpdate"
+      @reset-form="actions.onResetSearch"
     >
       <template #buttons>
-        <el-button :icon="Download" @click="downloadTemplate">模板下载</el-button>
+        <el-button :icon="Download" @click="actions.downloadTemplate">模板下载</el-button>
 
         <ObImportUpload
-          :request="importRequest"
-          :disabled="loading"
+          :request="actions.importRequest"
+          :disabled="table.loading"
           :button-icon="Upload"
           button-text="导入"
-          @uploaded="handleImportUploaded"
+          @uploaded="actions.handleImportUploaded"
         />
 
-        <el-button :icon="Unlock" @click="handleBatchStatus(true)">批量启用</el-button>
-        <el-button :icon="Lock" @click="handleBatchStatus(false)">批量停用</el-button>
-        <el-button type="primary" :icon="Plus" @click="crud.openCreate()">新增</el-button>
+        <el-button :icon="Unlock" @click="actions.handleBatchStatus(true)">批量启用</el-button>
+        <el-button :icon="Lock" @click="actions.handleBatchStatus(false)">批量停用</el-button>
+        <el-button type="primary" :icon="Plus" @click="editor.crud.openCreate()">新增</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :loading
+          :loading="table.loading"
           :size
-          :data="dataList"
+          :data="table.dataList"
           :columns="dynamicColumns"
-          :pagination="tablePagination"
+          :pagination="table.tablePagination"
           row-key="id"
-          @selection-change="handleSelectionChange"
-          @page-size-change="handleSizeChange"
-          @page-current-change="handleCurrentChange"
+          @selection-change="actions.handleSelectionChange"
+          @page-size-change="actions.handleSizeChange"
+          @page-current-change="actions.handleCurrentChange"
         >
           <template #dragHandle>
             <el-icon :class="dragHandleClass"><Rank /></el-icon>
@@ -193,111 +132,140 @@ function getStatusTagType(isEnable?: boolean) {
             }}</el-tag>
           </template>
 
-          <template #userType="{ row }"> {{ getUserTypeLabel(Number(row.userType)) }} </template>
+          <template #userType="{ row }">
+            {{ actions.getUserTypeLabel(Number(row.userType)) }}
+          </template>
 
           <template #operation="{ row, size: actionSize }">
             <div class="user-management-page__actions">
               <ObActionButtons>
-                <el-button link type="primary" :size="actionSize" @click="crud.openEdit(row)"
-                  >编辑</el-button
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="editor.crud.openEdit(row)"
                 >
-                <el-button link type="primary" :size="actionSize" @click="crud.openDetail(row)"
-                  >查看</el-button
+                  编辑
+                </el-button>
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="editor.crud.openDetail(row)"
                 >
-                <el-button link type="primary" :size="actionSize" @click="handleSingleStatus(row)">
+                  查看
+                </el-button>
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="actions.handleSingleStatus(row)"
+                >
                   {{ row.isEnable ? '停用' : '启用' }}
                 </el-button>
-                <el-button link type="primary" :size="actionSize" @click="openAccountDialog(row)"
-                  >修改账号</el-button
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="dialogActions.openAccountDialog(row)"
                 >
-                <el-button link type="primary" :size="actionSize" @click="handleResetPassword(row)"
-                  >重置密码</el-button
+                  修改账号
+                </el-button>
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="actions.handleResetPassword(row)"
                 >
+                  重置密码
+                </el-button>
                 <el-button
                   v-if="Number(row.userType) === 1"
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="openBindDialog(row)"
+                  @click="dialogActions.openBindDialog(row)"
                 >
                   关联账号
                 </el-button>
-                <el-button link type="danger" :size="actionSize" @click="handleDelete(row)"
-                  >删除</el-button
-                >
+                <el-button link type="danger" :size="actionSize" @click="actions.handleDelete(row)">
+                  删除
+                </el-button>
               </ObActionButtons>
             </div>
           </template>
         </ObVxeTable>
       </template>
 
-      <template #drawer> <UserSearchForm :ref="refs.searchRef" v-model="searchForm" /> </template>
+      <template #drawer>
+        <UserSearchForm :ref="refs.searchRef" v-model="table.searchForm" />
+      </template>
     </ObTableBox>
   </ObPageContainer>
 
   <ObCrudContainer
-    v-model="crudVisible"
+    v-model="editor.crudVisible"
     container="drawer"
-    :mode="crudMode"
-    :title="crudTitle"
-    :loading="crudSubmitting"
-    :show-cancel-button="!crudReadonly"
+    :mode="editor.crudMode"
+    :title="editor.crudTitle"
+    :loading="editor.crudSubmitting"
+    :show-cancel-button="!editor.crudReadonly"
     confirm-text="保存"
     :drawer-size="920"
-    @confirm="crud.confirm"
-    @cancel="crud.close"
-    @close="crud.close"
+    @confirm="editor.crud.confirm"
+    @cancel="editor.crud.close"
+    @close="editor.crud.close"
   >
     <UserEditForm
       :ref="refs.editFormRef"
-      v-model="crudForm"
-      :mode="crudMode"
+      v-model="editor.crudForm"
+      :mode="editor.crudMode"
       :rules="userFormRules"
-      :disabled="crudReadonly"
-      :org-tree-options="orgTreeData"
-      :position-options
-      :role-options
-      :check-unique="checkFieldUnique"
-      :upload-avatar
+      :disabled="editor.crudReadonly"
+      :org-tree-options="table.orgTreeData"
+      :position-options="options.positionOptions"
+      :role-options="options.roleOptions"
+      :check-unique="editor.checkFieldUnique"
+      :upload-avatar="editor.uploadAvatar"
     />
   </ObCrudContainer>
 
   <ObCrudContainer
-    v-model="accountVisible"
+    v-model="dialogs.accountVisible"
     container="drawer"
     mode="edit"
     title="登录账号"
-    :loading="accountSubmitting"
+    :loading="dialogs.accountSubmitting"
     :drawer-size="420"
-    @confirm="submitAccountDialog"
-    @cancel="closeAccountDialog"
-    @close="closeAccountDialog"
+    @confirm="dialogActions.submitAccountDialog"
+    @cancel="dialogActions.closeAccountDialog"
+    @close="dialogActions.closeAccountDialog"
   >
     <UserAccountForm
       :ref="dialogRefs.accountFormRef"
-      v-model="accountForm"
+      v-model="dialogs.accountForm"
       :disabled="false"
-      :check-user-account-unique="checkFieldUnique"
+      :check-user-account-unique="editor.checkFieldUnique"
     />
   </ObCrudContainer>
 
   <ObCrudContainer
-    v-model="bindVisible"
+    v-model="dialogs.bindVisible"
     container="drawer"
     mode="edit"
     title="关联账号"
-    :loading="bindSubmitting || bindLoading"
+    :loading="dialogs.bindSubmitting || dialogs.bindLoading"
     :drawer-size="680"
-    @confirm="submitBindDialog"
-    @cancel="closeBindDialog"
-    @close="closeBindDialog"
+    @confirm="dialogActions.submitBindDialog"
+    @cancel="dialogActions.closeBindDialog"
+    @close="dialogActions.closeBindDialog"
   >
     <UserBindAccountForm
       :ref="dialogRefs.bindFormRef"
-      v-model="bindForm"
-      :disabled="bindLoading"
-      :initial-selected-users="bindSelectedUsers"
-      :fetch-users="fetchBindUsers"
+      v-model="dialogs.bindForm"
+      :disabled="dialogs.bindLoading"
+      :initial-selected-users="dialogs.bindSelectedUsers"
+      :fetch-users="dialogActions.fetchBindUsers"
     />
   </ObCrudContainer>
 </template>

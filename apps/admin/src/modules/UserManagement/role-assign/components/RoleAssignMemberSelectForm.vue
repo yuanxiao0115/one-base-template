@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import { message } from '@one-base-template/ui';
 import PersonnelSelector from '@/components/PersonnelSelector/PersonnelSelector.vue';
 import type {
   PersonnelFetchNodes,
@@ -47,10 +48,26 @@ const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
   ]
 }));
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
+async function syncRootNodes(selector?: PersonnelSelectorExpose) {
+  if (!selector?.loadRootNodes) {
+    return;
+  }
+
+  try {
+    await selector.loadRootNodes();
+  } catch (error) {
+    message.error(getErrorMessage(error, '加载组织通讯录失败'));
+  }
+}
+
 watch(
   selectorRef,
   (selector) => {
-    void selector?.loadRootNodes?.();
+    void syncRootNodes(selector);
   },
   {
     immediate: true,

@@ -129,18 +129,24 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
       return [];
     }
 
-    const response = await userApi.searchUsers({ nickName: normalizedKeyword });
-    if (response.code !== 200) {
-      throw new Error(response.message || '加载用户列表失败');
-    }
+    try {
+      const response = await userApi.searchUsers({ nickName: normalizedKeyword });
+      if (response.code !== 200) {
+        throw new Error(response.message || '加载用户列表失败');
+      }
 
-    const rows = Array.isArray(response.data) ? response.data : [];
-    return rows.map((item) => ({
-      id: item.id,
-      nickName: item.nickName,
-      userAccount: item.userAccount,
-      phone: item.phone
-    }));
+      const rows = Array.isArray(response.data) ? response.data : [];
+      return rows.map((item) => ({
+        id: item.id,
+        nickName: item.nickName,
+        userAccount: item.userAccount,
+        phone: item.phone
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '加载用户列表失败';
+      message.error(errorMessage);
+      return [];
+    }
   }
 
   async function openBindDialog(row: UserListRecord) {

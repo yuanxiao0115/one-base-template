@@ -1,6 +1,22 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { defineComponent, h } from 'vue';
-import { describe, expect, it, vi } from 'vite-plus/test';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+
+const messageMocks = vi.hoisted(() => ({
+  error: vi.fn(),
+  success: vi.fn(),
+  warning: vi.fn()
+}));
+
+vi.mock('@one-base-template/ui', async () => {
+  const actual =
+    await vi.importActual<typeof import('@one-base-template/ui')>('@one-base-template/ui');
+
+  return {
+    ...actual,
+    message: messageMocks
+  };
+});
 
 import UserBindAccountForm from './UserBindAccountForm.vue';
 
@@ -27,6 +43,19 @@ function createElementStubs() {
       }
     });
 
+  const ElSelect = defineComponent({
+    name: 'ElSelect',
+    props: {
+      remoteMethod: {
+        type: Function,
+        required: false
+      }
+    },
+    setup(_, { slots }) {
+      return () => h('div', slots.default?.());
+    }
+  });
+
   const ElTag = defineComponent({
     name: 'ElTag',
     setup(_, { slots }) {
@@ -39,7 +68,7 @@ function createElementStubs() {
     stubs: {
       ElForm,
       ElFormItem: passthrough('ElFormItem'),
-      ElSelect: passthrough('ElSelect'),
+      ElSelect,
       ElOption: passthrough('ElOption'),
       ElTag
     }
@@ -47,6 +76,10 @@ function createElementStubs() {
 }
 
 describe('UserBindAccountForm', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('应通过 initialSelectedUsers 直接回填已选账号，并且 defineExpose 仅暴露表单句柄', async () => {
     const { formMethods, stubs } = createElementStubs();
 
@@ -91,5 +124,43 @@ describe('UserBindAccountForm', () => {
     expect(formMethods.validate).toHaveBeenCalledTimes(1);
     expect(formMethods.clearValidate).toHaveBeenCalledTimes(1);
     expect(formMethods.resetFields).toHaveBeenCalledTimes(1);
+  });
+
+  it('远程搜索失败时不应由子表单直接弹全局错误', async () => {
+    vi.useFakeTimers();
+    const { stubs } = createElementStubs();
+
+    const wrapper = mount(UserBindAccountForm, {
+      props: {
+        modelValue: {
+          userIds: []
+        },
+        disabled: false,
+        fetchUsers: vi.fn(async () => {
+          throw new Error('搜索关联账号失败');
+        }),
+        'onUpdate:modelValue': vi.fn()
+      },
+      global: {
+        stubs
+      }
+    });
+
+    const remoteMethod = wrapper.getComponent({ name: 'ElSelect' }).props('remoteMethod') as
+      | ((keyword: string) => void)
+      | undefined;
+
+    if (!remoteMethod) {
+      throw new Error('ElSelect.remoteMethod 未透出');
+    }
+
+    remoteMethod('张三');
+    await vi.advanceTimersByTimeAsync(250);
+    await flushPromises();
+
+    expect(messageMocks.error).not.toHaveBeenCalled();
+
+    vi.useRealTimers();
+    wrapper.unmount();
   });
 });

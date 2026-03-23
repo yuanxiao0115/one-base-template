@@ -67,11 +67,13 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - 弹窗内的“选人/选账号”表单壳统一采用 `v-model + initialSelectedUsers + validate/resetFields/clearValidate` 契约；父层只传初始值与提交结果，不再直接调子组件加载/回填方法。
 - wrapper 组件禁止做重复 DTO 归一化；共享类型只允许在单一边界做一次映射，禁止跨层反复把 `nickName/phone` 改写成 `title/subTitle`。
 - 页面级弹窗状态 composable 统一返回 `refs`、`dialogs`、`actions` 场景对象；禁止把十几个 `ref` / `action` 平铺到 `<script setup>` 顶层。
+- 当页面级场景对象内部仍包含 `ref/computed` 字段时，页面 `<script setup>` 必须先用 `reactive(...)` 投影成模板友好视图，再交给模板消费；禁止让模板直接承担嵌套 `Ref` 解包心智负担。
 - 列表模板渲染可选枚举 / 布尔字段时，必须显式处理 `undefined/null` 并给出 `--`；禁止用 truthy / `Number()` 三元表达式把缺失值静默渲染成正常业务值。
 - 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 等场景对象；禁止平铺暴露过多零散 action/ref。
+- 低层远程搜索表单壳若不直接承担全局消息提示，则必须由调用方 composable 明确接管错误反馈；禁止既移除子组件提示、又不在上层补齐反馈，导致静默失败。
 
 ### 参考实现
 
 - `RoleAssignMemberSelectForm` 现已收敛为 `initialSelectedUsers + form handles` 契约：父层只负责提供初始已选人员与提交结果，不再通过 `ref` 链式回填。
 - `UserBindAccountForm` 现已收敛为 props 驱动初始化：`selectedMap` 仅保存当前已选项，父层通过 `initialSelectedUsers` 传入初始账号列表，不再暴露加载 / 回填方法。
-- `useUserDialogState` 现已按 `refs / dialogs / actions` 场景返回，`user/list.vue` 作为页面编排层只做场景对象解构，可直接作为同类弹窗页参考。
+- `useUserDialogState` 现已按 `refs / dialogs / actions` 场景返回；同类页面应复用“场景对象解构 + 页面只保留编排层 + 低层表单不直接承担全局错误提示”的基线，而不是逐字段照抄 `user/list.vue`。

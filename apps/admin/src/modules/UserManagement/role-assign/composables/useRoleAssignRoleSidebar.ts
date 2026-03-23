@@ -17,6 +17,7 @@ export function useRoleAssignRoleSidebar(options: UseRoleAssignRoleSidebarOption
   const roleKeyword = ref('');
   const roleList = ref<RoleOption[]>([]);
   const currentRole = ref<RoleOption | null>(null);
+  let loadRoleListToken = 0;
 
   async function selectRole(role: RoleOption) {
     if (!role.id) {
@@ -32,6 +33,7 @@ export function useRoleAssignRoleSidebar(options: UseRoleAssignRoleSidebarOption
   }
 
   async function loadRoleList(loadOptions?: { keepCurrent?: boolean }) {
+    const requestToken = ++loadRoleListToken;
     const keepCurrent = loadOptions?.keepCurrent !== false;
     roleLoading.value = true;
 
@@ -39,6 +41,9 @@ export function useRoleAssignRoleSidebar(options: UseRoleAssignRoleSidebarOption
       const response = await roleAssignApi.listRoles({
         roleName: roleKeyword.value
       });
+      if (requestToken !== loadRoleListToken) {
+        return;
+      }
       if (response.code !== 200) {
         throw new Error(response.message || '加载角色列表失败');
       }
@@ -60,9 +65,14 @@ export function useRoleAssignRoleSidebar(options: UseRoleAssignRoleSidebarOption
 
       await selectRole(nextRole);
     } catch (error) {
+      if (requestToken !== loadRoleListToken) {
+        return;
+      }
       message.error(getErrorMessage(error, '加载角色列表失败'));
     } finally {
-      roleLoading.value = false;
+      if (requestToken === loadRoleListToken) {
+        roleLoading.value = false;
+      }
     }
   }
 
