@@ -131,7 +131,9 @@
 - 弹窗内的“选人 / 选账号”表单壳统一采用 `v-model + initialSelectedUsers + validate/resetFields/clearValidate` 契约；父层只传初始值与提交结果，不再直接调子组件加载/回填方法。
 - wrapper 组件禁止做重复 DTO 归一化：共享类型一旦已经定义 `title/subTitle` 或 `nickName/phone` 语义，只允许在单一边界做一次映射，禁止层层改名与重复转换。
 - 页面级弹窗状态 composable 统一返回 `refs`、`dialogs`、`actions` 场景对象；禁止继续平铺十几个 `ref` / `action` 到页面顶层。
+- 当页面级场景对象内部仍包含 `ref/computed` 字段时，页面 `<script setup>` 必须先用 `reactive(...)` 投影成模板友好视图，再交给模板消费；禁止让模板直接承担嵌套 `Ref` 解包心智负担。
 - 列表模板渲染可选枚举 / 布尔字段时，必须显式处理 `undefined/null` 并给出 `--`；禁止用 `Number(value) === 0 ? ... : ...`、`value ? ... : ...` 这类写法把缺失值静默渲染成正常业务值。
+- 低层远程搜索表单壳若不直接承担全局消息提示，则必须由调用方 composable 明确接管错误反馈；禁止既移除子组件提示、又不在上层补齐反馈，导致静默失败。
 - 远程数据 composable 默认自持状态并返回只读视图；只有明确的 orchestrator 才允许写外部 ref，且命名必须体现副作用（如 `hydrateXxx`），禁止伪装成普通 `useXxx`。
 - 角色域迁移必须同时包含：
   - `角色管理`：`/system/role/management`

@@ -266,6 +266,7 @@ function getStatusTagType(isEnable?: boolean) {
       :disabled="dialogs.bindLoading"
       :initial-selected-users="dialogs.bindSelectedUsers"
       :fetch-users="dialogActions.fetchBindUsers"
+      :on-search-error="dialogActions.handleBindSearchError"
     />
   </ObCrudContainer>
 </template>

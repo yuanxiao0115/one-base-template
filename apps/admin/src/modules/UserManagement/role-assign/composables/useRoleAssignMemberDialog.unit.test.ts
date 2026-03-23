@@ -96,4 +96,63 @@ describe('UserManagement/role-assign/useRoleAssignMemberDialog', () => {
       '移除旧成员失败，已自动回滚本次新增成员，请重试'
     );
   });
+
+  it('回滚新增成员也失败时应提示完整错误信息', async () => {
+    apiMocks.listMembers.mockResolvedValue({
+      code: 200,
+      data: [
+        {
+          id: 'user-1',
+          nickName: '张三',
+          userAccount: 'zhangsan',
+          phone: '13800000000'
+        }
+      ]
+    });
+    apiMocks.addMembers.mockResolvedValue({
+      code: 200
+    });
+    apiMocks.removeMembers.mockImplementation(({ userIdList }: { userIdList: string[] }) => {
+      if (userIdList.includes('user-1')) {
+        return Promise.resolve({
+          code: 500,
+          message: '移除旧成员失败'
+        });
+      }
+
+      return Promise.resolve({
+        code: 500,
+        message: '回滚也失败'
+      });
+    });
+
+    const dialog = useRoleAssignMemberDialog({
+      currentRole: ref({
+        id: 'role-1',
+        roleName: '角色一'
+      }),
+      memberFormRef: ref({
+        validate: vi.fn(async () => true)
+      }),
+      rootParentId: ref('company-1'),
+      onSaved: vi.fn(async () => undefined)
+    });
+
+    await dialog.actions.openAddMembersDialog();
+    dialog.dialogs.memberForm.userIds = ['user-2'];
+
+    await dialog.actions.submitAddMembersDialog();
+
+    expect(apiMocks.removeMembers).toHaveBeenNthCalledWith(1, {
+      roleId: 'role-1',
+      userIdList: ['user-1']
+    });
+    expect(apiMocks.removeMembers).toHaveBeenNthCalledWith(2, {
+      roleId: 'role-1',
+      userIdList: ['user-2']
+    });
+    expect(messageMocks.error).toHaveBeenCalledWith(
+      '移除旧成员失败，且回滚新增成员失败：回滚也失败'
+    );
+  });
 });

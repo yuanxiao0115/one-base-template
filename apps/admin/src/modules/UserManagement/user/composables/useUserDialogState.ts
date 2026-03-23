@@ -123,30 +123,29 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
     bindSelectedUsers.value = [];
   }
 
+  function handleBindSearchError(error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : '加载用户列表失败';
+    message.error(errorMessage);
+  }
+
   async function fetchBindUsers(keyword: string): Promise<UserBindOption[]> {
     const normalizedKeyword = normalizeKeyword(keyword);
     if (!canTriggerKeywordSearch(normalizedKeyword, DEFAULT_MIN_KEYWORD_LENGTH)) {
       return [];
     }
 
-    try {
-      const response = await userApi.searchUsers({ nickName: normalizedKeyword });
-      if (response.code !== 200) {
-        throw new Error(response.message || '加载用户列表失败');
-      }
-
-      const rows = Array.isArray(response.data) ? response.data : [];
-      return rows.map((item) => ({
-        id: item.id,
-        nickName: item.nickName,
-        userAccount: item.userAccount,
-        phone: item.phone
-      }));
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '加载用户列表失败';
-      message.error(errorMessage);
-      return [];
+    const response = await userApi.searchUsers({ nickName: normalizedKeyword });
+    if (response.code !== 200) {
+      throw new Error(response.message || '加载用户列表失败');
     }
+
+    const rows = Array.isArray(response.data) ? response.data : [];
+    return rows.map((item) => ({
+      id: item.id,
+      nickName: item.nickName,
+      userAccount: item.userAccount,
+      phone: item.phone
+    }));
   }
 
   async function openBindDialog(row: UserListRecord) {
@@ -255,6 +254,7 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
       closeAccountDialog,
       submitAccountDialog,
       fetchBindUsers,
+      handleBindSearchError,
       openBindDialog,
       closeBindDialog,
       submitBindDialog

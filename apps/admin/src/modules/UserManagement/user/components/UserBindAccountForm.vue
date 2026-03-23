@@ -20,6 +20,7 @@ const props = withDefaults(
     fetchUsers: (keyword: string) => Promise<UserBindOption[]>;
     initialSelectedUsers?: UserBindOption[];
     minSearchLength?: number;
+    onSearchError?: (error: unknown) => void;
   }>(),
   {
     initialSelectedUsers: () => [],
@@ -115,6 +116,7 @@ async function loadOptions(keyword = '') {
       return;
     }
     options.value = [];
+    props.onSearchError?.(error);
   } finally {
     if (currentToken === latestRequestToken.value) {
       loading.value = false;
