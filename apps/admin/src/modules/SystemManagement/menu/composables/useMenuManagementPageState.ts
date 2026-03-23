@@ -156,10 +156,6 @@ export function useMenuManagementPageState() {
   const crudSubmitting = crud.submitting;
   const crudForm = crud.form;
 
-  function isCrudBusy() {
-    return crud.opening.value || crud.submitting.value;
-  }
-
   function appendParentOptions(
     rows: MenuPermissionRecord[],
     depth: number,
@@ -260,10 +256,6 @@ export function useMenuManagementPageState() {
   }
 
   async function openCreateDialog(parentId = '0') {
-    if (isCrudBusy()) {
-      return;
-    }
-
     createParentId.value = parentId;
     await crud.openCreate();
   }
@@ -272,10 +264,6 @@ export function useMenuManagementPageState() {
     mode: Extract<DialogMode, 'detail' | 'edit'>,
     row: MenuPermissionRecord
   ) {
-    if (isCrudBusy()) {
-      return;
-    }
-
     if (mode === 'edit') {
       await crud.openEdit(row);
       return;

@@ -167,7 +167,6 @@ const tableColumns = computed(() => contentColumns);
 const tablePagination = computed(() => ({ ...table.pagination }));
 const tableLoading = computed(() => table.loading.value);
 const tableRows = computed(() => table.dataList.value);
-const isCrudBusy = computed(() => editor.opening.value || editor.submitting.value);
 const crudVisible = editor.visible;
 const crudMode = editor.mode;
 const crudTitle = editor.title;
@@ -201,18 +200,10 @@ function onResetSearch() {
 }
 
 async function openCreate() {
-  if (isCrudBusy.value) {
-    return;
-  }
-
   await editor.openCreate();
 }
 
 async function openEdit(row: ContentRecord) {
-  if (isCrudBusy.value) {
-    return;
-  }
-
   if (isPendingReview(row)) {
     message.warning('待审核状态的文章不允许编辑');
     return;
@@ -222,10 +213,6 @@ async function openEdit(row: ContentRecord) {
 }
 
 async function openDetail(row: ContentRecord) {
-  if (isCrudBusy.value) {
-    return;
-  }
-
   await editor.openDetail(row);
 }
 

@@ -115,7 +115,6 @@ const tableColumns = computed(() => columnColumns);
 const tableLoading = computed(() => table.loading.value);
 const tableRows = computed(() => table.dataList.value);
 const columnTreeOptions = computed<ColumnTreeOption[]>(() => toTreeOptions(table.dataList.value));
-const isCrudBusy = computed(() => editor.opening.value || editor.submitting.value);
 const crudVisible = editor.visible;
 const crudMode = editor.mode;
 const crudTitle = editor.title;
@@ -160,18 +159,10 @@ function onResetSearch() {
 }
 
 async function openCreate() {
-  if (isCrudBusy.value) {
-    return;
-  }
-
   await editor.openCreate();
 }
 
 async function openCreateChild(row: ColumnRecord) {
-  if (isCrudBusy.value) {
-    return;
-  }
-
   await editor.openCreate({
     patchForm: {
       parentCategoryId: row.id
@@ -180,18 +171,10 @@ async function openCreateChild(row: ColumnRecord) {
 }
 
 async function openEdit(row: ColumnRecord) {
-  if (isCrudBusy.value) {
-    return;
-  }
-
   await editor.openEdit(row);
 }
 
 async function openDetail(row: ColumnRecord) {
-  if (isCrudBusy.value) {
-    return;
-  }
-
   await editor.openDetail(row);
 }
 

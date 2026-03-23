@@ -165,6 +165,79 @@ describe('useEntityEditor', () => {
     expect(crud.visible.value).toBe(true);
   });
 
+  it('opening 中再次 open 不会覆盖当前打开流程', async () => {
+    const beforeOpenResolvers: Array<() => void> = [];
+    const beforeOpen = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          beforeOpenResolvers.push(resolve);
+        })
+    );
+    const crud = useEntityEditor({
+      entity: { name: '权限' },
+      form: {
+        create: () => ({ name: '' })
+      },
+      detail: {
+        beforeOpen
+      }
+    });
+
+    const firstOpen = crud.openCreate();
+    expect(crud.opening.value).toBe(true);
+
+    const secondOpen = crud.openEdit({ id: 'row-1', name: '菜单权限' });
+    await Promise.resolve();
+
+    expect(beforeOpen).toHaveBeenCalledTimes(1);
+    expect(crud.mode.value).toBe('create');
+    expect(crud.currentRow.value).toBe(null);
+
+    beforeOpenResolvers.forEach((resolve) => {
+      resolve();
+    });
+    await firstOpen;
+    await secondOpen;
+  });
+
+  it('submitting 中再次 open 不会抢占当前编辑态', async () => {
+    let resolveRequest: ((value: { id: string }) => void) | undefined;
+    const request = vi.fn(
+      () =>
+        new Promise<{ id: string }>((resolve) => {
+          resolveRequest = resolve;
+        })
+    );
+    const crud = useEntityEditor({
+      entity: { name: '权限' },
+      form: {
+        create: () => ({ name: '' })
+      },
+      save: {
+        request
+      }
+    });
+
+    crud.setFormRef({
+      validate: () => true
+    });
+
+    await crud.openCreate();
+    const submittingTask = crud.confirm();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(crud.submitting.value).toBe(true);
+
+    await crud.openDetail({ id: 'row-1', name: '详情权限' });
+
+    expect(crud.mode.value).toBe('create');
+    expect(crud.currentRow.value).toBe(null);
+    expect(request).toHaveBeenCalledTimes(1);
+
+    resolveRequest?.({ id: 'saved-1' });
+    await submittingTask;
+  });
+
   it('支持通过外部 formRef 引用触发校验', async () => {
     const formRef = ref({
       validate: vi.fn(async () => true),

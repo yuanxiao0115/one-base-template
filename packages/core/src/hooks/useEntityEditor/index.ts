@@ -203,6 +203,10 @@ export function useEntityEditor<
     row: TRow | null,
     patchForm?: Partial<TForm>
   ): Promise<void> {
+    if (opening.value || submitting.value) {
+      return;
+    }
+
     mode.value = nextMode;
     currentRow.value = row;
 
