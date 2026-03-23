@@ -25,7 +25,7 @@ export interface LoginByPasswordOptions {
 }
 
 function buildLoginPayload(options: LoginByPasswordOptions): LoginPayload {
-  if (options.backend !== 'sczfw') {
+  if (options.backend !== 'basic') {
     return {
       username: options.username,
       password: options.password
@@ -43,7 +43,7 @@ function buildLoginPayload(options: LoginByPasswordOptions): LoginPayload {
   }
 
   if (!options.encryptor) {
-    throw new Error('[login] sczfw 登录缺少 encryptor');
+    throw new Error('[login] basic 登录缺少 encryptor');
   }
 
   return {

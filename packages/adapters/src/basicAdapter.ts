@@ -13,7 +13,7 @@ interface BizResponse<T> {
   message?: string;
 }
 
-interface SczfwLoginResult {
+interface BasicLoginResult {
   authToken?: string;
   token?: string;
   id?: string;
@@ -24,7 +24,7 @@ interface SczfwLoginResult {
   [k: string]: unknown;
 }
 
-interface SczfwMe {
+interface BasicMe {
   id?: string;
   nickName?: string;
   userAccount?: string;
@@ -43,22 +43,22 @@ interface SczfwMe {
   [k: string]: unknown;
 }
 
-interface SczfwMenuNode {
+interface BasicMenuNode {
   url?: string;
   resourceName?: string;
   icon?: string;
   hidden?: number;
   resourceType?: number;
   routeCache?: number;
-  children?: SczfwMenuNode[];
+  children?: BasicMenuNode[];
   [k: string]: unknown;
 }
 
-interface SczfwMenuRoot {
+interface BasicMenuRoot {
   permissionCode?: string;
   title?: string;
   resourceName?: string;
-  children?: SczfwMenuNode[];
+  children?: BasicMenuNode[];
   [k: string]: unknown;
 }
 
@@ -84,7 +84,7 @@ function readIdLike(input: unknown): string | number | undefined {
   return undefined;
 }
 
-function readSystemName(root: SczfwMenuRoot): string {
+function readSystemName(root: BasicMenuRoot): string {
   if (isNonEmptyString(root.title)) {
     return root.title;
   }
@@ -97,7 +97,7 @@ function readSystemName(root: SczfwMenuRoot): string {
   return '未命名系统';
 }
 
-function mapMenuItems(nodes: SczfwMenuNode[]): AppMenuItem[] {
+function mapMenuItems(nodes: BasicMenuNode[]): AppMenuItem[] {
   return nodes
     .filter((v) => v.hidden !== 1 && (v.resourceType === 1 || v.resourceType === 2))
     .map((v) => {
@@ -114,7 +114,7 @@ function mapMenuItems(nodes: SczfwMenuNode[]): AppMenuItem[] {
 }
 
 /**
- * sczfw（standard-oa-web-sczfw）后端适配器：
+ * basic（standard-oa-web-basic）后端适配器：
  * - 登录：/cmict/auth/login（返回 authToken）
  * - 当前用户：/cmict/auth/token/verify
  * - 菜单树：/cmict/admin/permission/my-tree（取 permissionCode=systemPermissionCode 的 children，默认 admin_server）
@@ -123,7 +123,7 @@ function mapMenuItems(nodes: SczfwMenuNode[]): AppMenuItem[] {
  * - 本适配器默认使用 token 鉴权：会把 authToken 写入 localStorage，供 ObHttp 的 getToken() 使用。
  * - 登录 payload 允许携带额外字段（captcha/captchaKey/encrypt...），适配器会按后端字段名映射。
  */
-export function createSczfwAdapter(
+export function createBasicAdapter(
   http: ObHttp,
   options: {
     tokenKey: string;
@@ -146,7 +146,7 @@ export function createSczfwAdapter(
           encrypt: payload.encrypt
         };
 
-        const res = await http.post<BizResponse<SczfwLoginResult>>('/cmict/auth/login', {
+        const res = await http.post<BizResponse<BasicLoginResult>>('/cmict/auth/login', {
           data: body,
           $throwOnBizError: true,
           $cancelOnRouteChange: false
@@ -154,7 +154,7 @@ export function createSczfwAdapter(
 
         const token = res.data?.authToken ?? res.data?.token;
         if (!isNonEmptyString(token)) {
-          throw new Error('[sczfw] 登录成功但未返回 authToken');
+          throw new Error('[basic] 登录成功但未返回 authToken');
         }
         localStorage.setItem(tokenKey, token);
       },
@@ -169,7 +169,7 @@ export function createSczfwAdapter(
         }
       },
       async fetchMe(): Promise<AppUser> {
-        const res = await http.get<BizResponse<SczfwMe>>('/cmict/auth/token/verify', {
+        const res = await http.get<BizResponse<BasicMe>>('/cmict/auth/token/verify', {
           $throwOnBizError: true,
           $cancelOnRouteChange: false
         });
@@ -206,7 +206,7 @@ export function createSczfwAdapter(
     },
     menu: {
       async fetchMenuTree(): Promise<AppMenuItem[]> {
-        const res = await http.get<BizResponse<SczfwMenuRoot[]>>(
+        const res = await http.get<BizResponse<BasicMenuRoot[]>>(
           '/cmict/admin/permission/my-tree',
           {
             $throwOnBizError: true,
@@ -220,7 +220,7 @@ export function createSczfwAdapter(
         return mapMenuItems(nodes);
       },
       async fetchMenuSystems(): Promise<AppMenuSystem[]> {
-        const res = await http.get<BizResponse<SczfwMenuRoot[]>>(
+        const res = await http.get<BizResponse<BasicMenuRoot[]>>(
           '/cmict/admin/permission/my-tree',
           {
             $throwOnBizError: true,
@@ -256,7 +256,7 @@ export function createSczfwAdapter(
 
         const token = res.data?.authToken;
         if (!isNonEmptyString(token)) {
-          throw new Error('[sczfw] ticket 兑换成功但未返回 authToken');
+          throw new Error('[basic] ticket 兑换成功但未返回 authToken');
         }
         localStorage.setItem(tokenKey, token);
       }

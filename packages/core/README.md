@@ -149,7 +149,7 @@ declare module '@one-base-template/core' {
 
 安全口径约定：
 
-- sczfw 签名字段统一命名为 `clientSignatureSalt`（公开盐值）
+- basic 签名字段统一命名为 `clientSignatureSalt`（公开盐值）
 - 若仍传 `clientSignatureSecret`，解析阶段会直接报错并提示改名
 
 ## 7. 通用时序守卫（Latest Request Guard）

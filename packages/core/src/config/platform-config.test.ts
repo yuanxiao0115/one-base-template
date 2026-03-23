@@ -92,7 +92,7 @@ describe('parseRuntimeConfig 基础契约', () => {
   it('显式传已废弃的 clientSignatureSecret 时应提示改名', () => {
     expect(() =>
       parseRuntimeConfig({
-        backend: 'sczfw',
+        backend: 'basic',
         authMode: 'token',
         tokenKey: 'token',
         idTokenKey: 'idToken',

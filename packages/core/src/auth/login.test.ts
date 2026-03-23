@@ -99,12 +99,12 @@ describe('loginByPassword', () => {
     });
   });
 
-  it('sczfw 模式使用 encryptor 和验证码参数', async () => {
+  it('basic 模式使用 encryptor 和验证码参数', async () => {
     loginMock.mockResolvedValue(undefined);
     const encryptor = vi.fn((value: string) => `enc:${value}`);
 
     await loginByPassword({
-      backend: 'sczfw',
+      backend: 'basic',
       username: 'user',
       password: 'pass',
       captcha: 'captcha-value',
@@ -127,11 +127,11 @@ describe('loginByPassword', () => {
     });
   });
 
-  it('sczfw 模式允许直接提交已加密账号密码', async () => {
+  it('basic 模式允许直接提交已加密账号密码', async () => {
     loginMock.mockResolvedValue(undefined);
 
     await loginByPassword({
-      backend: 'sczfw',
+      backend: 'basic',
       username: 'enc:user',
       password: 'enc:pass',
       captcha: 'captcha-value',

@@ -1,4 +1,4 @@
-export type BackendKind = 'default' | 'sczfw';
+export type BackendKind = 'default' | 'basic';
 export type AuthMode = 'cookie' | 'token' | 'mixed';
 export type MenuMode = 'remote' | 'static';
 export type EnabledModulesSetting = '*' | string[];
@@ -199,7 +199,7 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   const errors: string[] = [];
   const { preset, normalized } = normalizePresetRuntimeConfig(input, errors);
 
-  const backend = expectEnum(normalized, 'backend', ['default', 'sczfw'], errors);
+  const backend = expectEnum(normalized, 'backend', ['default', 'basic'], errors);
   const authMode = expectEnum(normalized, 'authMode', ['cookie', 'token', 'mixed'], errors);
   const tokenKey = expectString(normalized, 'tokenKey', errors);
   const idTokenKey = expectString(normalized, 'idTokenKey', errors);

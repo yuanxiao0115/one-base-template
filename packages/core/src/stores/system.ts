@@ -15,7 +15,7 @@ export interface AppSystemInfo {
 
 export interface SystemOptions {
   /**
-   * 默认系统 code（例如 sczfw 的 permissionCode=admin_server）。
+   * 默认系统 code（例如 basic 后端的 permissionCode=admin_server）。
    * 仅作为“没有本地缓存/缓存失效”时的兜底选择。
    */
   defaultCode?: string;

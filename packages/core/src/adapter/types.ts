@@ -53,7 +53,7 @@ export interface AppMenuItem {
  * 多系统菜单：一个项目下可能存在多个“系统”，每个系统对应一棵菜单树。
  *
  * 约定：
- * - `code`：系统唯一标识（例如 sczfw 的 permissionCode）
+ * - `code`：系统唯一标识（例如 basic 后端的 permissionCode）
  * - `name`：系统展示名称（当前阶段优先使用后端返回的 title/resourceName）
  */
 export interface AppMenuSystem {
