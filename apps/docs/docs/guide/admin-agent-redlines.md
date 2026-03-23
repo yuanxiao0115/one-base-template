@@ -78,6 +78,18 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - `UserBindAccountForm` 现已收敛为 props 驱动初始化：`selectedMap` 仅保存当前已选项，父层通过 `initialSelectedUsers` 传入初始账号列表，不再暴露加载 / 回填方法。
 - `useUserDialogState` 现已按 `refs / dialogs / actions` 场景返回；同类页面应复用“场景对象解构 + 页面只保留编排层 + 低层表单不直接承担全局错误提示”的基线，而不是逐字段照抄 `user/list.vue`。
 
+## 横向推广补充（UserManagement 全模块，2026-03-23）
+
+- `UserManagement` 各子模块（`org`、`position`、`role`、`role-assign`、`user`）已统一采用 `list.vue + api.ts + types.ts + routes.ts` 目录范式。
+- 页面层默认按场景对象消费状态：`table`、`editor`、`dialogs`、`options`、`actions`，禁止回退为平铺式解构大量 `ref/action`。
+- 当场景对象内部仍承载 `ref/computed` 字段时，`<script setup>` 必须先 `reactive(...)` 投影，再交由模板消费，降低模板层嵌套 `Ref` 心智负担。
+- 本轮横向推广参考实现：
+  - `apps/admin/src/modules/UserManagement/org/list.vue`
+  - `apps/admin/src/modules/UserManagement/position/list.vue`
+  - `apps/admin/src/modules/UserManagement/role/list.vue`
+  - `apps/admin/src/modules/UserManagement/role-assign/list.vue`
+  - `apps/admin/src/modules/UserManagement/user/list.vue`
+
 ## 横向推广补充（LogManagement，2026-03-23）
 
 - 日志/详情类抽屉如果存在异步详情加载，必须增加“最新请求守卫”，并在抽屉关闭时失效旧请求，禁止旧响应回写当前详情态。

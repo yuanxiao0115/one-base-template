@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactive } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
 import PositionEditForm from './components/PositionEditForm.vue';
 import PositionSearchForm from './components/PositionSearchForm.vue';
@@ -12,57 +13,60 @@ defineOptions({
 // 页面仅保留编排层：职位管理查询、CRUD 与分页行为统一下沉到 composable。
 const pageState = usePositionPageState();
 
-const { refs } = pageState;
-const { loading, dataList, tablePagination, tableColumns, searchForm } = pageState.table;
-
-const { crud, crudVisible, crudMode, crudTitle, crudReadonly, crudSubmitting, crudForm } =
-  pageState.editor;
-
-const {
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  handleSizeChange,
-  handleCurrentChange,
-  handleDelete
-} = pageState.actions;
+const { refs, actions } = pageState;
+const table = reactive(pageState.table);
+const editor = reactive(pageState.editor);
 </script>
 
 <template>
   <ObPageContainer padding="0" overflow="hidden">
     <ObTableBox
       title="职位管理"
-      :columns="tableColumns"
+      :columns="table.tableColumns"
       placeholder="请输入职位名称搜索"
-      :keyword="searchForm.postName"
-      @search="tableSearch"
-      @update:keyword="onKeywordUpdate"
-      @reset-form="onResetSearch"
+      :keyword="table.searchForm.postName"
+      @search="actions.tableSearch"
+      @update:keyword="actions.onKeywordUpdate"
+      @reset-form="actions.onResetSearch"
     >
       <template #buttons>
-        <el-button type="primary" :icon="Plus" @click="crud.openCreate()">新增职位</el-button>
+        <el-button type="primary" :icon="Plus" @click="editor.crud.openCreate()"
+          >新增职位</el-button
+        >
       </template>
 
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
           :size
-          :loading
-          :data="dataList"
+          :loading="table.loading"
+          :data="table.dataList"
           :columns="dynamicColumns"
-          :pagination="tablePagination"
-          @page-size-change="handleSizeChange"
-          @page-current-change="handleCurrentChange"
+          :pagination="table.tablePagination"
+          @page-size-change="actions.handleSizeChange"
+          @page-current-change="actions.handleCurrentChange"
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)"
+              <el-button
+                link
+                type="primary"
+                :size="actionSize"
+                @click="() => editor.crud.openEdit(row)"
                 >编辑</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="() => crud.openDetail(row)"
+              <el-button
+                link
+                type="primary"
+                :size="actionSize"
+                @click="() => editor.crud.openDetail(row)"
                 >查看</el-button
               >
-              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+              <el-button
+                link
+                type="danger"
+                :size="actionSize"
+                @click="() => actions.handleDelete(row)"
                 >删除</el-button
               >
             </ObActionButtons>
@@ -71,29 +75,29 @@ const {
       </template>
 
       <template #drawer>
-        <PositionSearchForm :ref="refs.searchRef" v-model="searchForm" />
+        <PositionSearchForm :ref="refs.searchRef" v-model="table.searchForm" />
       </template>
     </ObTableBox>
   </ObPageContainer>
 
   <ObCrudContainer
-    v-model="crudVisible"
+    v-model="editor.crudVisible"
     container="drawer"
-    :mode="crudMode"
-    :title="crudTitle"
-    :loading="crudSubmitting"
-    :show-cancel-button="!crudReadonly"
+    :mode="editor.crudMode"
+    :title="editor.crudTitle"
+    :loading="editor.crudSubmitting"
+    :show-cancel-button="!editor.crudReadonly"
     confirm-text="保存"
     :drawer-size="400"
-    @confirm="crud.confirm"
-    @cancel="crud.close"
-    @close="crud.close"
+    @confirm="editor.crud.confirm"
+    @cancel="editor.crud.close"
+    @close="editor.crud.close"
   >
     <PositionEditForm
       :ref="refs.editFormRef"
-      v-model="crudForm"
+      v-model="editor.crudForm"
       :rules="positionFormRules"
-      :disabled="crudReadonly"
+      :disabled="editor.crudReadonly"
     />
   </ObCrudContainer>
 </template>

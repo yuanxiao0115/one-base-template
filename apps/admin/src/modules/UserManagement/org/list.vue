@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactive } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
 import OrgSearchForm from './components/OrgSearchForm.vue';
 import OrgEditForm from './components/OrgEditForm.vue';
@@ -14,78 +15,38 @@ defineOptions({
 // 页面仅保留编排层：组织管理查询、CRUD 与树数据加载逻辑统一下沉到 composable。
 const pageState = useOrgPageState();
 
-const { refs } = pageState;
-
-const {
-  loading,
-  dataList,
-  treeConfig,
-  tableColumns,
-  searchForm,
-  orgCategoryLabelMap,
-  institutionalTypeLabelMap
-} = pageState.table;
-
-const {
-  crud,
-  crudVisible,
-  crudMode,
-  crudTitle,
-  crudReadonly,
-  crudSubmitting,
-  crudForm,
-  checkOrgNameUnique
-} = pageState.editor;
-
-const {
-  orgTreeOptions,
-  orgCategoryOptions,
-  institutionalTypeOptions,
-  orgLevelOptions,
-  rootParentId
-} = pageState.options;
-
-const { orgManagerVisible, orgManagerTarget, orgLevelDialogVisible } = pageState.dialogs;
-
-const {
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  openLevelManageDialog,
-  openCreateRoot,
-  openCreateChild,
-  openManagerDialog,
-  handleDelete,
-  handleOrgManagerUpdated,
-  handleOrgLevelUpdated
-} = pageState.actions;
+const { refs, actions } = pageState;
+const table = reactive(pageState.table);
+const editor = reactive(pageState.editor);
+const options = reactive(pageState.options);
+const dialogs = reactive(pageState.dialogs);
 </script>
 
 <template>
   <ObPageContainer padding="0" overflow="hidden">
     <ObTableBox
       title="组织管理"
-      :columns="tableColumns"
+      :columns="table.tableColumns"
       placeholder="请输入组织名称搜索"
-      :keyword="searchForm.orgName"
-      @search="tableSearch"
-      @update:keyword="onKeywordUpdate"
-      @reset-form="onResetSearch"
+      :keyword="table.searchForm.orgName"
+      @search="actions.tableSearch"
+      @update:keyword="actions.onKeywordUpdate"
+      @reset-form="actions.onResetSearch"
     >
       <template #buttons>
-        <el-button @click="openLevelManageDialog">等级管理</el-button>
-        <el-button type="primary" :icon="Plus" @click="openCreateRoot">新增</el-button>
+        <el-button @click="actions.openLevelManageDialog">等级管理</el-button>
+        <el-button type="primary" :icon="Plus" @click="actions.openCreateRoot">新增</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
-          :loading
+          :loading="table.loading"
           :size
-          :data="dataList"
+          :data="table.dataList"
           :columns="dynamicColumns"
           :pagination="false"
-          :tree-config
+          :tree-config="table.treeConfig"
           row-key="id"
         >
           <template #orgName="{ row }">
@@ -99,11 +60,11 @@ const {
           </template>
 
           <template #orgCategory="{ row }">
-            {{ orgCategoryLabelMap[String(row.orgCategory)] || '--' }}
+            {{ table.orgCategoryLabelMap[String(row.orgCategory)] || '--' }}
           </template>
 
           <template #institutionalType="{ row }">
-            {{ institutionalTypeLabelMap[String(row.institutionalType)] || '--' }}
+            {{ table.institutionalTypeLabelMap[String(row.institutionalType)] || '--' }}
           </template>
 
           <template #operation="{ row, size: actionSize }">
@@ -113,27 +74,35 @@ const {
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="() => crud.openDetail(row)"
+                  @click="() => editor.crud.openDetail(row)"
                   >查看</el-button
                 >
-                <el-button link type="primary" :size="actionSize" @click="() => crud.openEdit(row)"
+                <el-button
+                  link
+                  type="primary"
+                  :size="actionSize"
+                  @click="() => editor.crud.openEdit(row)"
                   >编辑</el-button
                 >
                 <el-button
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="() => openCreateChild(row)"
+                  @click="() => actions.openCreateChild(row)"
                   >新增下级组织</el-button
                 >
                 <el-button
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="() => openManagerDialog(row)"
+                  @click="() => actions.openManagerDialog(row)"
                   >创建组织管理员</el-button
                 >
-                <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+                <el-button
+                  link
+                  type="danger"
+                  :size="actionSize"
+                  @click="() => actions.handleDelete(row)"
                   >删除</el-button
                 >
               </ObActionButtons>
@@ -142,46 +111,51 @@ const {
         </ObVxeTable>
       </template>
 
-      <template #drawer> <OrgSearchForm :ref="refs.searchRef" v-model="searchForm" /> </template>
+      <template #drawer>
+        <OrgSearchForm :ref="refs.searchRef" v-model="table.searchForm" />
+      </template>
     </ObTableBox>
   </ObPageContainer>
 
   <ObCrudContainer
-    v-model="crudVisible"
+    v-model="editor.crudVisible"
     container="drawer"
-    :mode="crudMode"
-    :title="crudTitle"
-    :loading="crudSubmitting"
-    :show-cancel-button="!crudReadonly"
+    :mode="editor.crudMode"
+    :title="editor.crudTitle"
+    :loading="editor.crudSubmitting"
+    :show-cancel-button="!editor.crudReadonly"
     confirm-text="保存"
     :drawer-size="760"
     :drawer-columns="2"
-    @confirm="crud.confirm"
-    @cancel="crud.close"
-    @close="crud.close"
+    @confirm="editor.crud.confirm"
+    @cancel="editor.crud.close"
+    @close="editor.crud.close"
   >
     <OrgEditForm
       :ref="refs.editFormRef"
-      v-model="crudForm"
+      v-model="editor.crudForm"
       :rules="orgFormRules"
-      :disabled="crudReadonly"
-      :org-tree-options
-      :org-category-options
-      :institutional-type-options
-      :org-level-options
-      :root-parent-id
-      :check-org-name-unique
+      :disabled="editor.crudReadonly"
+      :org-tree-options="options.orgTreeOptions"
+      :org-category-options="options.orgCategoryOptions"
+      :institutional-type-options="options.institutionalTypeOptions"
+      :org-level-options="options.orgLevelOptions"
+      :root-parent-id="options.rootParentId"
+      :check-org-name-unique="editor.checkOrgNameUnique"
     />
   </ObCrudContainer>
 
   <OrgManagerDialog
-    v-model="orgManagerVisible"
-    :org-id="orgManagerTarget?.id || ''"
-    :org-name="orgManagerTarget?.orgName || ''"
-    @success="handleOrgManagerUpdated"
+    v-model="dialogs.orgManagerVisible"
+    :org-id="dialogs.orgManagerTarget?.id || ''"
+    :org-name="dialogs.orgManagerTarget?.orgName || ''"
+    @success="actions.handleOrgManagerUpdated"
   />
 
-  <OrgLevelManageDialog v-model="orgLevelDialogVisible" @updated="handleOrgLevelUpdated" />
+  <OrgLevelManageDialog
+    v-model="dialogs.orgLevelDialogVisible"
+    @updated="actions.handleOrgLevelUpdated"
+  />
 </template>
 
 <style scoped>
