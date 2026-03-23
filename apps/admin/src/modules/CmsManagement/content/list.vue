@@ -167,6 +167,7 @@ const tableColumns = computed(() => contentColumns);
 const tablePagination = computed(() => ({ ...table.pagination }));
 const tableLoading = computed(() => table.loading.value);
 const tableRows = computed(() => table.dataList.value);
+const isCrudBusy = computed(() => editor.opening.value || editor.submitting.value);
 const crudVisible = editor.visible;
 const crudMode = editor.mode;
 const crudTitle = editor.title;
@@ -199,13 +200,33 @@ function onResetSearch() {
   table.resetForm(searchRef, 'articleTitle');
 }
 
+async function openCreate() {
+  if (isCrudBusy.value) {
+    return;
+  }
+
+  await editor.openCreate();
+}
+
 async function openEdit(row: ContentRecord) {
+  if (isCrudBusy.value) {
+    return;
+  }
+
   if (isPendingReview(row)) {
     message.warning('待审核状态的文章不允许编辑');
     return;
   }
 
   await editor.openEdit(row);
+}
+
+async function openDetail(row: ContentRecord) {
+  if (isCrudBusy.value) {
+    return;
+  }
+
+  await editor.openDetail(row);
 }
 
 async function handleDelete(row: ContentRecord) {
@@ -278,7 +299,7 @@ onMounted(() => {
       @reset-form="onResetSearch"
     >
       <template #buttons>
-        <el-button type="primary" :icon="Plus" @click="editor.openCreate()">新增内容</el-button>
+        <el-button type="primary" :icon="Plus" @click="openCreate">新增内容</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
@@ -300,17 +321,13 @@ onMounted(() => {
 
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="() => openEdit(row)"
+              <el-button link type="primary" :size="actionSize" @click="openEdit(row)"
                 >编辑</el-button
               >
-              <el-button
-                link
-                type="primary"
-                :size="actionSize"
-                @click="() => editor.openDetail(row)"
+              <el-button link type="primary" :size="actionSize" @click="openDetail(row)"
                 >查看</el-button
               >
-              <el-button link type="danger" :size="actionSize" @click="() => handleDelete(row)"
+              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)"
                 >删除</el-button
               >
             </ObActionButtons>
