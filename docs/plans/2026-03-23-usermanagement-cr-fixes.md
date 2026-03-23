@@ -101,3 +101,4 @@
 - `role-assign` 已补齐本轮 CR 关注的稳定性问题：角色搜索过期响应保护、成员差量保存补偿回滚、已选成员手机号优先展示、根节点初始化异常兜底。
 - `user` 已补齐本轮 CR 关注的性能与可维护性问题：首屏只阻塞组织树、模板下载尊重 `baseUrl`、关联账号搜索错误提示下沉到 `useUserDialogState`、页面保持场景对象编排但通过 `reactive(...)` 提供模板友好视图。
 - 文档与记录已同步到 `apps/docs/docs/guide/admin-agent-redlines.md`、`docs/plans/2026-03-20-role-assign-page-state-split.md` 以及 `.codex/*.md`。
+- 已完成中文提交：`751f24a` `收口 UserManagement CR 修复`。
