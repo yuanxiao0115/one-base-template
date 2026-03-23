@@ -9,6 +9,7 @@ vi.mock('@one-base-template/ui/shell', () => ({
 
 import { routePaths } from '../constants';
 import { assembleRoutes, type AppRouteAssemblyOptions } from '../assemble-routes';
+import { getRouteSignature } from '../route-signature';
 
 function createRouteAssemblyOptions(
   enabledModules: string[],
@@ -87,7 +88,7 @@ describe('router/assemble-routes', () => {
   });
 
   it('应从已装配路由自动收集 skipMenuAuth 白名单', async () => {
-    const { skipMenuAuthRouteNames } = await assembleRoutes(
+    const { routes, skipMenuAuthRouteNames, diagnostics } = await assembleRoutes(
       createRouteAssemblyOptions(['home', 'PortalManagement'])
     );
 
@@ -100,5 +101,8 @@ describe('router/assemble-routes', () => {
       ])
     );
     expect(skipMenuAuthRouteNames).not.toContain('PortalPreview');
+    expect(diagnostics.routeCount).toBe(flattenRoutes(routes).length);
+    expect(diagnostics.skipMenuAuthCount).toBe(skipMenuAuthRouteNames.length);
+    expect(diagnostics.signature).toBe(getRouteSignature(routes));
   });
 });

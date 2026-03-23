@@ -11,6 +11,7 @@ import {
   buildRoutes,
   createRouteAssemblyValidator
 } from './route-assembly-builder';
+import { getRouteSignature } from './route-signature';
 import { publicRoutes } from './public-routes';
 
 import { getEnabledModules } from './registry';
@@ -29,6 +30,7 @@ type RouteAssemblyArtifacts = {
 export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];
   skipMenuAuthRouteNames: string[];
+  diagnostics: AppRouteAssemblyDiagnostics;
 }
 
 export interface AppRouteAssemblyOptions {
@@ -36,6 +38,12 @@ export interface AppRouteAssemblyOptions {
   defaultSystemCode?: string;
   systemHomeMap: Record<string, string>;
   storageNamespace: string;
+}
+
+export interface AppRouteAssemblyDiagnostics {
+  routeCount: number;
+  skipMenuAuthCount: number;
+  signature: string;
 }
 
 function getDefaultHomePath(
@@ -79,6 +87,13 @@ function collectModuleRoutes(params: {
   };
 }
 
+function countRoutes(routes: RouteRecordRaw[]): number {
+  return routes.reduce((total, route) => {
+    const childRoutes = Array.isArray(route.children) ? route.children : [];
+    return total + 1 + countRoutes(childRoutes);
+  }, 0);
+}
+
 export async function assembleRoutes(
   options: AppRouteAssemblyOptions
 ): Promise<AppRouteAssemblyResult> {
@@ -107,9 +122,15 @@ export async function assembleRoutes(
   ];
 
   const skipMenuAuthRouteNames = validator.listSkipAuthRouteNames();
+  const diagnostics: AppRouteAssemblyDiagnostics = {
+    routeCount: countRoutes(routes),
+    skipMenuAuthCount: skipMenuAuthRouteNames.length,
+    signature: getRouteSignature(routes)
+  };
 
   return {
     routes,
-    skipMenuAuthRouteNames
+    skipMenuAuthRouteNames,
+    diagnostics
   };
 }
