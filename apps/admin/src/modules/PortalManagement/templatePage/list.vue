@@ -99,21 +99,21 @@ const {
 
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="() => openEdit(row)"
+              <el-button link type="primary" :size="actionSize" @click="openEdit(row)"
                 >编辑</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="() => goDesigner(row)"
+              <el-button link type="primary" :size="actionSize" @click="goDesigner(row)"
                 >配置</el-button
               >
-              <el-button link :size="actionSize" @click="() => openCopy(row)">复制</el-button>
-              <el-button link :size="actionSize" @click="() => openPermissionCenter(row)"
+              <el-button link :size="actionSize" @click="openCopy(row)">复制</el-button>
+              <el-button link :size="actionSize" @click="openPermissionCenter(row)"
                 >权限配置</el-button
               >
-              <el-button link :size="actionSize" @click="() => openPreview(row)">预览</el-button>
-              <el-button link :size="actionSize" @click="() => togglePublish(row)">
+              <el-button link :size="actionSize" @click="openPreview(row)">预览</el-button>
+              <el-button link :size="actionSize" @click="togglePublish(row)">
                 {{ isPublished(row) ? '取消发布' : '发布' }}
               </el-button>
-              <el-button link type="danger" :size="actionSize" @click="() => deleteTemplate(row)"
+              <el-button link type="danger" :size="actionSize" @click="deleteTemplate(row)"
                 >删除</el-button
               >
             </ObActionButtons>

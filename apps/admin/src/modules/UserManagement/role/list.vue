@@ -51,32 +51,20 @@ const dialogs = reactive(pageState.dialogs);
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button
-                link
-                type="primary"
-                :size="actionSize"
-                @click="() => editor.crud.openEdit(row)"
+              <el-button link type="primary" :size="actionSize" @click="editor.crud.openEdit(row)"
                 >编辑</el-button
               >
-              <el-button
-                link
-                type="primary"
-                :size="actionSize"
-                @click="() => editor.crud.openDetail(row)"
+              <el-button link type="primary" :size="actionSize" @click="editor.crud.openDetail(row)"
                 >查看</el-button
               >
               <el-button
                 link
                 type="primary"
                 :size="actionSize"
-                @click="() => actions.openPermissionDialog(row)"
+                @click="actions.openPermissionDialog(row)"
                 >添加权限</el-button
               >
-              <el-button
-                link
-                type="danger"
-                :size="actionSize"
-                @click="() => actions.handleDelete(row)"
+              <el-button link type="danger" :size="actionSize" @click="actions.handleDelete(row)"
                 >删除</el-button
               >
             </ObActionButtons>

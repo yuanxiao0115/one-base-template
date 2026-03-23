@@ -74,35 +74,27 @@ const dialogs = reactive(pageState.dialogs);
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="() => editor.crud.openDetail(row)"
+                  @click="editor.crud.openDetail(row)"
                   >查看</el-button
                 >
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="() => editor.crud.openEdit(row)"
+                <el-button link type="primary" :size="actionSize" @click="editor.crud.openEdit(row)"
                   >编辑</el-button
                 >
                 <el-button
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="() => actions.openCreateChild(row)"
+                  @click="actions.openCreateChild(row)"
                   >新增下级组织</el-button
                 >
                 <el-button
                   link
                   type="primary"
                   :size="actionSize"
-                  @click="() => actions.openManagerDialog(row)"
+                  @click="actions.openManagerDialog(row)"
                   >创建组织管理员</el-button
                 >
-                <el-button
-                  link
-                  type="danger"
-                  :size="actionSize"
-                  @click="() => actions.handleDelete(row)"
+                <el-button link type="danger" :size="actionSize" @click="actions.handleDelete(row)"
                   >删除</el-button
                 >
               </ObActionButtons>
