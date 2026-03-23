@@ -26,11 +26,11 @@ export interface AppEnv {
   idTokenKey: string;
   menuMode: MenuMode;
   enabledModules: EnabledModulesSetting;
-  sczfwHeaders?: Record<string, string>;
+  basicHeaders?: Record<string, string>;
   clientSignatureSalt?: string;
   clientSignatureClientId?: string;
   storageNamespace: string;
-  sczfwSystemPermissionCode?: string;
+  basicSystemPermissionCode?: string;
   defaultSystemCode?: string;
   systemHomeMap: Record<string, string>;
 }
@@ -39,18 +39,18 @@ function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
 }
 
-export function resolveSczfwHeaders(params: {
+export function resolveBasicHeaders(params: {
   backend: BackendKind;
   authorizationType: string;
   appsource: string;
   appcode: string;
 }): Record<string, string> | undefined {
   const { backend, authorizationType, appsource, appcode } = params;
-  if (backend !== 'sczfw') {
+  if (backend !== 'basic') {
     return undefined;
   }
 
-  // sczfw 老项目请求头约定（由 platform-config.json 提供）。
+  // basic 老项目请求头约定（由 platform-config.json 提供）。
   return {
     'Authorization-Type': authorizationType,
     Appsource: appsource,
@@ -71,10 +71,10 @@ export function resolveDefaultSystemCode(params: {
   if (isNonEmptyString(defaultSystemCode)) {
     return defaultSystemCode;
   }
-  if (backend !== 'sczfw') {
+  if (backend !== 'basic') {
     return undefined;
   }
-  // 与旧实现保持一致：sczfw 默认系统为 admin_server
+  // 与旧实现保持一致：basic 默认系统为 admin_server
   return 'admin_server';
 }
 
@@ -100,7 +100,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   const { idTokenKey } = runtime;
   const { menuMode } = runtime;
   const { enabledModules } = runtime;
-  const sczfwHeaders = resolveSczfwHeaders({
+  const basicHeaders = resolveBasicHeaders({
     backend,
     authorizationType: runtime.authorizationType,
     appsource: runtime.appsource,
@@ -116,7 +116,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   const { systemHomeMap } = runtime;
 
   // 菜单根 permissionCode 改由 runtime defaultSystemCode 兜底，避免继续依赖业务 env。
-  const sczfwSystemPermissionCode = defaultSystemCode;
+  const basicSystemPermissionCode = defaultSystemCode;
 
   return {
     isProd: buildEnv.isProd,
@@ -128,11 +128,11 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     idTokenKey,
     menuMode,
     enabledModules,
-    sczfwHeaders,
+    basicHeaders,
     clientSignatureSalt,
     clientSignatureClientId,
     storageNamespace,
-    sczfwSystemPermissionCode,
+    basicSystemPermissionCode,
     defaultSystemCode,
     systemHomeMap
   };

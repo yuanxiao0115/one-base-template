@@ -8,10 +8,10 @@ import { LoginBoxV2 as ObLoginBoxV2 } from '@one-base-template/ui/lite-auth';
 import { ElMessage } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getAppEnv } from '@/infra/env';
-import { fetchCaptchaCheck, loadCaptcha } from '@/shared/services/auth-captcha-service';
-import { getLoginPageConfig, type LoginPageConfig } from '@/shared/services/auth-remote-service';
-import { resolveLoginScenario } from '@/shared/services/auth-scenario-provider';
+import { getAppEnv } from '@/config/env';
+import { fetchCaptchaCheck, loadCaptcha } from '@/services/auth/auth-captcha-service';
+import { getLoginPageConfig, type LoginPageConfig } from '@/services/auth/auth-remote-service';
+import { resolveLoginScenario } from '@/services/auth/auth-scenario-provider';
 
 defineOptions({
   name: 'LoginPage'

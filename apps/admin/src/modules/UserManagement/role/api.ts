@@ -1,5 +1,5 @@
 import { obHttp } from '@one-base-template/core';
-import type { ApiResponse } from '@/shared/api/types';
+import type { ApiResponse } from '@/types/api';
 import type { PermissionTreeNode, RolePageData, RolePageParams, RoleSavePayload } from './types';
 
 export const roleApi = {

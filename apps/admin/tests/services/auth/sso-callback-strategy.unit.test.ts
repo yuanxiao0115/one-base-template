@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 
-import { executeSsoCallbackStrategy } from '../sso-callback-strategy';
+import { executeSsoCallbackStrategy } from '@/services/auth/sso-callback-strategy';
 
-describe('shared/services/sso-callback-strategy', () => {
+describe('services/auth/sso-callback-strategy', () => {
   it('应按优先级优先命中 sourceCode=zhxt', async () => {
     const handlers = {
       onZhxt: vi.fn(async () => {}),

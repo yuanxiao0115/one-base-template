@@ -1,31 +1,31 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
-vi.mock('../../config/platform-config', () => ({
+vi.mock('@/config/platform-config', () => ({
   getPlatformConfig: vi.fn()
 }));
 
-import { getPlatformConfig } from '../../config/platform-config';
-import { resolveAppEnv, resolveDefaultSystemCode, resolveSczfwHeaders } from '../env';
+import { getPlatformConfig } from '@/config/platform-config';
+import { resolveAppEnv, resolveDefaultSystemCode, resolveBasicHeaders } from '@/config/env';
 
 const mockedGetPlatformConfig = vi.mocked(getPlatformConfig);
 
-describe('infra/env', () => {
+describe('config/env', () => {
   beforeEach(() => {
     mockedGetPlatformConfig.mockReset();
   });
 
-  it('sczfw 场景默认系统编码应回退到 admin_server', () => {
-    expect(resolveDefaultSystemCode({ backend: 'sczfw' })).toBe('admin_server');
+  it('basic 场景默认系统编码应回退到 admin_server', () => {
+    expect(resolveDefaultSystemCode({ backend: 'basic' })).toBe('admin_server');
     expect(resolveDefaultSystemCode({ backend: 'default' })).toBeUndefined();
-    expect(resolveDefaultSystemCode({ backend: 'sczfw', defaultSystemCode: 'custom-system' })).toBe(
+    expect(resolveDefaultSystemCode({ backend: 'basic', defaultSystemCode: 'custom-system' })).toBe(
       'custom-system'
     );
   });
 
-  it('仅 sczfw 场景生成网关头', () => {
+  it('仅 basic 场景生成网关头', () => {
     expect(
-      resolveSczfwHeaders({
-        backend: 'sczfw',
+      resolveBasicHeaders({
+        backend: 'basic',
         authorizationType: 'ADMIN',
         appsource: 'frame',
         appcode: 'one-base-template'
@@ -37,7 +37,7 @@ describe('infra/env', () => {
     });
 
     expect(
-      resolveSczfwHeaders({
+      resolveBasicHeaders({
         backend: 'default',
         authorizationType: 'ADMIN',
         appsource: 'frame',
@@ -48,7 +48,7 @@ describe('infra/env', () => {
 
   it('应将构建期与运行时配置合并为 appEnv', () => {
     mockedGetPlatformConfig.mockReturnValue({
-      backend: 'sczfw',
+      backend: 'basic',
       authMode: 'cookie',
       tokenKey: 'token',
       idTokenKey: 'idToken',
@@ -77,7 +77,7 @@ describe('infra/env', () => {
       isProd: true,
       baseUrl: '/admin/',
       apiBaseUrl: 'https://api.example.com',
-      backend: 'sczfw',
+      backend: 'basic',
       authMode: 'cookie',
       tokenKey: 'token',
       idTokenKey: 'idToken',
@@ -85,11 +85,11 @@ describe('infra/env', () => {
       enabledModules: ['system-management'],
       storageNamespace: 'admin-app',
       defaultSystemCode: 'admin_server',
-      sczfwSystemPermissionCode: 'admin_server',
+      basicSystemPermissionCode: 'admin_server',
       systemHomeMap: {
         admin_server: '/home/index'
       },
-      sczfwHeaders: {
+      basicHeaders: {
         'Authorization-Type': 'ADMIN',
         Appsource: 'frame',
         Appcode: 'admin-app'

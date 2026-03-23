@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const warn = vi.hoisted(() => vi.fn());
 
-vi.mock('@/shared/logger', () => ({
+vi.mock('@/config/logger', () => ({
   createAppLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock('@/shared/logger', () => ({
   })
 }));
 
-import { getEnabledModules } from '../registry';
+import { getEnabledModules } from '@/router/registry';
 
 describe('router/registry', () => {
   beforeEach(() => {

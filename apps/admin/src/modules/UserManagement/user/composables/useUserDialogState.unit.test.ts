@@ -19,7 +19,7 @@ const apiMocks = vi.hoisted(() => ({
   updateCorporateUser: vi.fn()
 }));
 
-vi.mock('@/infra/sczfw/crypto', () => cryptoMocks);
+vi.mock('@/config/basic/crypto', () => cryptoMocks);
 
 vi.mock('@one-base-template/ui', async () => {
   const actual =

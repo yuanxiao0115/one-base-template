@@ -6,11 +6,11 @@
 
 ## 1. 一句话架构
 
-`apps/admin` 采用“**启动编排层（bootstrap）+ 路由装配层（router）+ 运行时基础设施层（infra）+ 共享能力层（shared）+ 业务模块层（modules）**”分层。
+`apps/admin` 采用“**启动编排层（bootstrap）+ 路由装配层（router）+ 配置层（config）+ 服务层（services）+ 类型层（types）+ 业务模块层（modules）**”分层。
 
 核心原则：
 
-- 基建能力尽量收敛在 `bootstrap/router/infra/shared` 与 `packages/*`
+- 基建能力尽量收敛在 `bootstrap/router/config/services/types` 与 `packages/*`
 - 业务页面与业务编排集中在 `modules/**`
 - 同事二开尽量只改 `modules/**` 与少量 `config/**`
 - `admin` 作为示例子项目，后续新增 `apps/<new-project>` 时复用这套分层边界
@@ -22,9 +22,9 @@ src/
   main.ts                    # 最小入口：触发 startAdminApp（共享启动骨架）
   bootstrap/                 # 启动编排（create app/router/pinia/http/core + 插件 + 守卫）
   router/                    # 模块注册与路由装配（manifest 扫描、白名单、保留路由）
-  infra/                     # 运行时基础设施（env/confirm/sczfw crypto）
-  shared/                    # admin 应用内跨模块共享能力（认证/SSO service、logger、共享 API 类型）
-  config/                    # admin 项目级配置（layout/theme/sso/systems/platform-config）
+  config/                    # 运行时配置与应用级能力（layout/theme/sso/systems/platform-config/env/logger/basic）
+  services/                  # 应用服务（认证/SSO/验证码等）
+  types/                     # 跨模块通用类型（如 ApiResponse / ApiPageData）
   modules/                   # 业务模块（User/System/Log/Cms/portal/home）
   components/                # 跨模块复用组件（如 PersonnelSelector、富文本）
   pages/                     # 公共入口页（login/sso）
@@ -38,28 +38,27 @@ src/
 推荐依赖方向（稳定）：
 
 - `main -> bootstrap`
-- `bootstrap -> router/config/infra/shared`
-- `router -> modules/config/infra`
-- `modules -> shared/core/ui`（按页面需求）
-- `shared -> infra`
+- `bootstrap -> router/config/services`
+- `router -> modules/config`
+- `modules -> services/types/core/ui`（按页面需求）
 
 禁止/不建议：
 
-- `modules/**` 直接依赖 `@/infra/http`
+- `modules/**` 直接依赖 `@/bootstrap/http` 或私有 HTTP 封装
 - `modules/**` 直接读取 `import.meta.env`
 - 在页面/模块里创建 `createApp/createPinia/createRouter`
-- 把单模块私有逻辑（仅一处使用的 mapper/normalize/helper）上提到 `shared`
+- 把单模块私有逻辑（仅一处使用的 mapper/normalize/helper）上提到 `services`/`types`
+  目录边界说明：
 
-`shared` 目录边界说明：
-
-- 定位：`apps/admin` 内跨模块共享层，不是跨应用公共层
-- 允许：`shared/api/types.ts`、登录/SSO 相关 `shared/services/*`、`shared/logger.ts`
-- 不允许：业务模块私有实现上提到 `shared`（仍放 `modules/<module>/**`）
+- `config/`：环境解析、运行时配置、应用 logger、basic 签名/加密
+- `services/auth/`：认证/SSO/验证码服务
+- `types/`：通用协议类型（`types/api.ts`）
+- 业务模块私有实现仍放 `modules/<module>/**`
 - 若形成跨应用复用价值，优先下沉 `packages/core` / `packages/adapters`
 
 这样做的目的：
 
-- 基建升级主要落在 `bootstrap/router/infra/shared` 与 `packages/*`
+- 基建升级主要落在 `bootstrap/router/config/services/types` 与 `packages/*`
 - 业务模块尽量不感知启动链路和底层实现细节
 - 减少“升级基建=大面积改业务文件”的连锁冲突
 - 启动链路统一复用 `@one-base-template/app-starter`，多子项目可同步升级
@@ -73,7 +72,7 @@ src/
 
 在当前分层下：
 
-- 基建改动优先改 `packages/core` / `packages/ui` / `apps/admin/src/bootstrap|router|infra|shared`
+- 基建改动优先改 `packages/core` / `packages/ui` / `apps/admin/src/bootstrap|router|config|services|types`
 - 业务改动优先改 `apps/admin/src/modules/**`
 - 两类改动天然分离，减少同文件冲突概率
 
@@ -81,17 +80,17 @@ src/
 
 以“新建一个与 admin 并行的业务子项目”为目标：
 
-1. 复制 `apps/admin` 的启动骨架（`main.ts + bootstrap + router + infra + shared + config`）
+1. 复制 `apps/admin` 的启动骨架（`main.ts + bootstrap + router + config + services + types`）
 2. 保留 `router/registry.ts + module manifest` 机制（`modules/**/module.ts`）
 3. 把业务代码只放进新项目的 `modules/**`
-4. 若后端协议不同，优先改 adapter/shared service，不在页面散落兼容逻辑
-5. 保持“模块只依赖 shared/core/ui”的边界
+4. 若后端协议不同，优先改 adapter/service，不在页面散落兼容逻辑
+5. 保持“模块只依赖 services/types/core/ui”的边界
 6. 新项目独有的主题/布局/系统入口，放到该项目自己的 `config/**`
 7. 基建公共能力优先上移 `packages/core` / `packages/ui` / `packages/adapters`
 
 ### 5.1 子项目升级友好约定（关键）
 
-1. **子项目只做组装，不复制基建实现**：`bootstrap/router/infra` 只保留薄编排，通用逻辑优先沉淀到 `packages/*`
+1. **子项目只做组装，不复制基建实现**：`bootstrap/router/config/services` 只保留薄编排，通用逻辑优先沉淀到 `packages/*`
 2. **模块契约稳定优先**：模块只暴露 `module.ts + routes.ts + apiNamespace` 等稳定接口，避免直接耦合启动细节
 3. **兼容能力集中声明**：历史路径与菜单归属统一写在 `module.compat`，不在页面里散落跳转兼容代码
 4. **升级入口单点化**：路由装配、守卫、HTTP、主题等升级点集中在少量文件，业务模块尽量无感
@@ -100,20 +99,20 @@ src/
 
 - 优先新增/修改 `modules/**`
 - 谨慎改 `bootstrap/index.ts` 与 `router/assemble-routes.ts`（这是升级敏感区）
-- 若要做全局策略（如统一错误处理、鉴权、主题、tabs），优先改 `packages/*` 或 `shared/infra`
+- 若要做全局策略（如统一错误处理、鉴权、主题、tabs），优先改 `packages/*` 或 `config/services`
 
 ## 7. 本轮已落地的结构收敛
 
 已完成：
 
-1. HTTP 运行时访问器下沉到 core：删除 `src/shared/api/http-client.ts` 与 `src/infra/http.ts`，统一从 `@one-base-template/core` 使用 `obHttp/setObHttpClient`
+1. HTTP 运行时访问器下沉到 core：统一从 `@one-base-template/core` 使用 `obHttp/setObHttpClient`
 2. 统一模块路由入口写法：
    - `home/module.ts` 改为从 `./routes` 导入
    - `portal/module.ts` 改为从 `./routes` 统一导入 `layout + standalone`
    - `portal/routes.ts` 增加 `standaloneRoutes` 聚合导出
 3. `bootstrap` 的 `baseUrl/storageNamespace` 已由 `bootstrap/index.ts` 显式下传（减少隐式全局依赖）
 4. 模块路由组件改为懒加载（`component: () => import(...)`），降低 `admin-app-shell` 首包压力
-5. 登录/SSO 与认证 service 的响应类型统一复用 `shared/api/types.ts`，减少重复 `BizResponse` 定义与类型漂移
+5. 登录/SSO 与认证 service 的响应类型统一复用 `types/api.ts`，减少重复 `BizResponse` 定义与类型漂移
 
 ## 8. 本轮已完成的升级友好收敛（新增）
 
@@ -134,7 +133,7 @@ src/
 
 ```bash
 pnpm -C packages/core exec vitest run src/http/runtime.test.ts
-pnpm -C apps/admin exec vitest run src/infra/__tests__/env.unit.test.ts src/bootstrap/__tests__/http.unit.test.ts
+pnpm -C apps/admin exec vitest run tests/config/env.unit.test.ts tests/bootstrap/http.unit.test.ts
 pnpm -C apps/admin typecheck
 pnpm -C apps/admin lint:arch
 pnpm -C apps/admin lint

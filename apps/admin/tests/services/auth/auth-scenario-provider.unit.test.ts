@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 
-import { executeSsoScenario, resolveLoginScenario } from '../auth-scenario-provider';
-import { loginByDesktop, loginByExternal, loginByZhxt } from '../auth-remote-service';
+import { executeSsoScenario, resolveLoginScenario } from '@/services/auth/auth-scenario-provider';
+import { loginByDesktop, loginByExternal, loginByZhxt } from '@/services/auth/auth-remote-service';
 
-vi.mock('../auth-remote-service', () => {
+vi.mock('@/services/auth/auth-remote-service', () => {
   return {
     loginByZhxt: vi.fn(),
     loginByYdbg: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock('../auth-remote-service', () => {
   };
 });
 
-describe('shared/services/auth-scenario-provider', () => {
+describe('services/auth/auth-scenario-provider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -34,9 +34,9 @@ describe('shared/services/auth-scenario-provider', () => {
     expect(scenario.directLoginToken).toBeNull();
   });
 
-  it('resolveLoginScenario: sczfw 场景应开启验证登录并提取直登 token', () => {
+  it('resolveLoginScenario: basic 场景应开启验证登录并提取直登 token', () => {
     const scenario = resolveLoginScenario({
-      backend: 'sczfw',
+      backend: 'basic',
       routeQuery: {
         token: 'direct-token'
       }
@@ -77,13 +77,13 @@ describe('shared/services/auth-scenario-provider', () => {
     expect(onFinalizeAuthSession).not.toHaveBeenCalled();
   });
 
-  it('executeSsoScenario: sczfw 命中 type+token 应写入 token 并完成会话', async () => {
+  it('executeSsoScenario: basic 命中 type+token 应写入 token 并完成会话', async () => {
     const setItem = vi.fn();
     const onAuthenticatedRedirect = vi.fn(async () => {});
     const onFinalizeAuthSession = vi.fn(async () => {});
 
     await executeSsoScenario({
-      backend: 'sczfw',
+      backend: 'basic',
       baseUrl: '/',
       tokenKey: 'token-key',
       idTokenKey: 'id-token-key',
@@ -110,7 +110,7 @@ describe('shared/services/auth-scenario-provider', () => {
     expect(onAuthenticatedRedirect).toHaveBeenCalledWith('/home/index');
   });
 
-  it('executeSsoScenario: sczfw 命中 zhxt 但无 authToken 应抛错', async () => {
+  it('executeSsoScenario: basic 命中 zhxt 但无 authToken 应抛错', async () => {
     vi.mocked(loginByZhxt).mockResolvedValue({
       code: 200,
       message: '智慧协同单点登录失败',
@@ -119,7 +119,7 @@ describe('shared/services/auth-scenario-provider', () => {
 
     await expect(
       executeSsoScenario({
-        backend: 'sczfw',
+        backend: 'basic',
         baseUrl: '/',
         tokenKey: 'token-key',
         idTokenKey: 'id-token-key',
@@ -142,10 +142,10 @@ describe('shared/services/auth-scenario-provider', () => {
     ).rejects.toThrowError('智慧协同单点登录失败');
   });
 
-  it('executeSsoScenario: sczfw 无有效参数应抛错', async () => {
+  it('executeSsoScenario: basic 无有效参数应抛错', async () => {
     await expect(
       executeSsoScenario({
-        backend: 'sczfw',
+        backend: 'basic',
         baseUrl: '/',
         tokenKey: 'token-key',
         idTokenKey: 'id-token-key',
@@ -165,7 +165,7 @@ describe('shared/services/auth-scenario-provider', () => {
     ).rejects.toThrowError('登录参数无效');
   });
 
-  it('executeSsoScenario: sczfw 命中 moaToken 应写入 idToken', async () => {
+  it('executeSsoScenario: basic 命中 moaToken 应写入 idToken', async () => {
     vi.mocked(loginByExternal).mockResolvedValue({
       code: 200,
       message: 'success',
@@ -183,7 +183,7 @@ describe('shared/services/auth-scenario-provider', () => {
     const setItem = vi.fn();
 
     await executeSsoScenario({
-      backend: 'sczfw',
+      backend: 'basic',
       baseUrl: '/',
       tokenKey: 'token-key',
       idTokenKey: 'id-token-key',

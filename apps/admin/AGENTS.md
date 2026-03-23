@@ -12,16 +12,15 @@
 
 ## 架构约定（必须）
 
-### shared 目录边界
+### 目录收敛边界（config / types / services / tests）
 
-- `apps/admin/src/shared` 定位为 **admin 应用内跨模块共享层**（不是 `packages/core` 的跨应用共享层）。
-- `shared` 当前允许内容仅限：
-  - `shared/api/types.ts`（跨模块复用的通用协议类型，如 `ApiResponse`/`ApiPageData`）。
-  - `shared/services/auth-*.ts`、`shared/services/sso-callback-strategy.ts`（登录/SSO 场景编排能力）。
-  - `shared/logger.ts`（路由装配等应用级日志能力）。
-- admin 反馈能力（`message` / `obConfirm` / `registerMessageUtils`）统一来自 `@one-base-template/ui`，禁止在 `apps/admin/src/shared` 继续新增同类实现。
-- 模块私有逻辑（仅单模块使用的 `mapper/normalize/helper`）禁止上提到 `shared`，保持在 `modules/<module>/**` 就近维护。
-- 能抽成跨应用能力时优先下沉到 `packages/core`/`packages/adapters`，不要把跨应用逻辑长期滞留在 `apps/admin/src/shared`。
+- `apps/admin/src/config`：应用配置与运行时装配（`env.ts`、`layout.ts`、`platform-config.ts`、`logger.ts`、`basic/*`）。
+- `apps/admin/src/types`：跨模块通用类型定义（如 `types/api.ts` 的 `ApiResponse` / `ApiPageData`）。
+- `apps/admin/src/services/auth`：登录/SSO/验证码场景服务（`auth-*.ts`、`sso-callback-strategy.ts`）。
+- `apps/admin/tests`：应用层测试统一维护目录（启动链路、路由装配、配置与认证场景测试优先放这里）。
+- admin 反馈能力（`message` / `obConfirm` / `registerMessageUtils`）统一来自 `@one-base-template/ui`，禁止在应用层重复实现同类能力。
+- 模块私有逻辑（仅单模块使用的 `mapper/normalize/helper`）禁止上提到应用级公共目录，保持在 `modules/<module>/**` 就近维护。
+- 可跨应用复用时优先下沉到 `packages/core` / `packages/adapters`，避免长期滞留在 `apps/admin`。
 
 ### 静态路由 + 动态菜单
 
@@ -115,7 +114,7 @@
 - `apps/admin/src/modules/*Management/**` 的接口层统一采用“`api.ts + types.ts`”：`api.ts` 仅维护接口地址与请求调用，不做数据保底、归一化、字段兜底；`types.ts` 仅保留页面真实消费的对外类型，避免过度细粒度类型定义。
 - `api.ts` 禁止同源类型中转：禁止出现 `import type {...} from "./types"` 后再 `export type {...} from "./types"`；业务文件需直接从 `types.ts` 引用类型。
 - `api.ts` / `api/client.ts` 禁止 `const http = obHttp()` 与 `getHttp` 包装函数；HTTP 请求必须直接写为 `obHttp().get/post/...`，避免无意义中间层。
-- 跨模块重复的通用协议类型（如 `ApiResponse<T>`、`ApiPageData<T>`）统一维护在 `apps/admin/src/shared/api/types.ts`；模块内 `types.ts` 仅做直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增 `BizResponse`/`ApiResponseAlias` 这类中间别名，业务实体类型继续就地维护，避免“全局大而全类型池”。
+- 跨模块重复的通用协议类型（如 `ApiResponse<T>`、`ApiPageData<T>`）统一维护在 `apps/admin/src/types/api.ts`；模块内 `types.ts` 仅做直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增 `BizResponse`/`ApiResponseAlias` 这类中间别名，业务实体类型继续就地维护，避免“全局大而全类型池”。
 - `types.ts` 的实体类型默认只保留页面真实使用字段：仅主键与关键交互字段设为必填，其余字段优先可选，避免完整镜像后端 DTO 导致维护成本上升。
 - 对于日志、审计等“弱结构 + 字段经常变动”的列表实体，优先使用“`id` + 少量关键字段 + 索引签名”的宽松定义（如 `[key: string]: string | number | null | undefined`），避免维护超长字段清单。
 - `LogManagement` 目录结构与其他模块保持一致：`login-log/api.ts + login-log/types.ts`、`sys-log/api.ts + sys-log/types.ts`，禁止回退到集中式 `LogManagement/api/*.ts`。
@@ -198,7 +197,7 @@
 - 对于已在全局注入的能力（如 `obConfirm`），禁止为“消除 lint 未声明”而补显式 import；应在全局配置中声明 globals。
 - 命名必须“短、清楚、通用”，优先 `get/list/build/create/update/remove`。
 - 方法命名优先“动词 + 名词”结构（如 `getInitialPath`、`parseRuntimeConfig`、`clearByPrefixes`）。
-- 涉及老项目对齐时，固定参考路径：`/Users/haoqiuzhi/code/sczfw/standard-oa-web-sczfw`。
+- 涉及老项目对齐时，固定参考路径：`/Users/haoqiuzhi/code/basic/standard-oa-web-basic`。
 
 ## 本地验证命令（admin）
 

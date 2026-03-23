@@ -1,14 +1,14 @@
 import { resolveAppRedirectTarget } from '@one-base-template/core';
 import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
-import type { BackendKind } from '@/infra/env';
+import type { BackendKind } from '@/config/env';
 import {
   loginByDesktop,
   loginByExternal,
   loginByTicket,
   loginByYdbg,
   loginByZhxt
-} from '@/shared/services/auth-remote-service';
-import { executeSsoCallbackStrategy } from '@/shared/services/sso-callback-strategy';
+} from '@/services/auth/auth-remote-service';
+import { executeSsoCallbackStrategy } from '@/services/auth/sso-callback-strategy';
 
 interface RouteQueryLike {
   token?: unknown;
@@ -58,18 +58,18 @@ function pickDirectLoginToken(routeQuery: RouteQueryLike, enabled: boolean) {
 }
 
 function resolveLoginFallback(backend: BackendKind) {
-  return backend === 'sczfw' ? DEFAULT_FALLBACK_HOME : '/';
+  return backend === 'basic' ? DEFAULT_FALLBACK_HOME : '/';
 }
 
 export function resolveLoginScenario(options: ResolveLoginScenarioOptions): LoginScenario {
   const { backend, routeQuery } = options;
-  const useSczfwScenario = backend === 'sczfw';
+  const useBasicScenario = backend === 'basic';
 
   return {
-    useVerifyLogin: useSczfwScenario,
-    shouldLoadLoginPageConfig: useSczfwScenario,
+    useVerifyLogin: useBasicScenario,
+    shouldLoadLoginPageConfig: useBasicScenario,
     fallback: resolveLoginFallback(backend),
-    directLoginToken: pickDirectLoginToken(routeQuery, useSczfwScenario)
+    directLoginToken: pickDirectLoginToken(routeQuery, useBasicScenario)
   };
 }
 
@@ -88,7 +88,7 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
   const storage = options.storage ?? localStorage;
   const locationLike = options.locationLike ?? window.location;
 
-  if (backend !== 'sczfw') {
+  if (backend !== 'basic') {
     const { redirect } = await onDefaultSsoCallback();
     const target = resolveAppRedirectTarget(redirect, {
       fallback: DEFAULT_FALLBACK_HOME,

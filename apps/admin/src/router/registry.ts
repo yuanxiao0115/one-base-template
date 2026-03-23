@@ -9,7 +9,7 @@ import {
   type ModuleLoadEntry,
   validateModuleDeclaration
 } from '@one-base-template/core';
-import { createAppLogger } from '@/shared/logger';
+import { createAppLogger } from '@/config/logger';
 
 const moduleManifestDefinitions = import.meta.glob<{
   default?: AppModuleManifestMeta;

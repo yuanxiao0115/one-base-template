@@ -1,4 +1,4 @@
-export type { ApiResponse } from '@/shared/api/types';
+export type { ApiResponse } from '@/types/api';
 
 type LooseField =
   | string

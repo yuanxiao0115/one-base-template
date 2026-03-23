@@ -14,7 +14,7 @@ const messageMocks = vi.hoisted(() => ({
   warning: vi.fn()
 }));
 
-vi.mock('@/infra/sczfw/crypto', () => ({
+vi.mock('@/config/basic/crypto', () => ({
   sm4EncryptBase64: vi.fn((value: string) => `enc(${value})`)
 }));
 

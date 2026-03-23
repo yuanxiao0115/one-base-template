@@ -6,7 +6,7 @@ import { registerMessageUtils } from '@one-base-template/ui';
 
 import App from '../App.vue';
 import { assembleRoutes } from '../router/assemble-routes';
-import { getAppEnv } from '../infra/env';
+import { getAppEnv } from '../config/env';
 import {
   appLayoutMode,
   appSidebarCollapsedWidth,
@@ -151,7 +151,7 @@ export async function bootstrapAdminApp() {
         authMode: resolvedAppEnv.authMode,
         tokenKey: resolvedAppEnv.tokenKey,
         idTokenKey: resolvedAppEnv.idTokenKey,
-        sczfwHeaders: resolvedAppEnv.sczfwHeaders,
+        basicHeaders: resolvedAppEnv.basicHeaders,
         clientSignatureSalt: resolvedAppEnv.clientSignatureSalt,
         clientSignatureClientId: resolvedAppEnv.clientSignatureClientId,
         pinia,
@@ -168,7 +168,7 @@ export async function bootstrapAdminApp() {
           backend: resolvedAppEnv.backend,
           http,
           tokenKey: resolvedAppEnv.tokenKey,
-          sczfwSystemPermissionCode: resolvedAppEnv.sczfwSystemPermissionCode
+          basicSystemPermissionCode: resolvedAppEnv.basicSystemPermissionCode
         }),
       () => ({
         backend: resolvedAppEnv.backend

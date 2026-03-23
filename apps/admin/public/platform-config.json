@@ -1,6 +1,6 @@
 {
   "preset": "remote-single",
-  "backend": "sczfw",
+  "backend": "basic",
   "authMode": "token",
   "tokenKey": "token",
   "idTokenKey": "idToken",

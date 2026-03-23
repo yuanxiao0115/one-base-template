@@ -1,4 +1,4 @@
-import type { ApiPageData } from '@/shared/api/types';
+import type { ApiPageData } from '@/types/api';
 
 type LooseField =
   | string

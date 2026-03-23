@@ -8,7 +8,7 @@ vi.mock('@one-base-template/app-starter', () => ({
   startAppWithRuntimeConfig: mocks.startAppWithRuntimeConfig
 }));
 
-import { startAdminApp } from '../startup';
+import { startAdminApp } from '@/bootstrap/startup';
 
 describe('bootstrap/startup', () => {
   beforeEach(() => {

@@ -91,7 +91,7 @@ vi.mock('@one-base-template/ui', () => ({
   message: messageMocks
 }));
 
-vi.mock('@/infra/env', () => ({
+vi.mock('@/config/env', () => ({
   getAppEnv: envMocks.getAppEnv
 }));
 

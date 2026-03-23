@@ -9,7 +9,7 @@ import {
   useSystemStore
 } from '@one-base-template/core';
 
-import type { AuthMode, BackendKind } from '../infra/env';
+import type { AuthMode, BackendKind } from '../config/env';
 import { routePaths } from '../router/constants';
 
 function resetTagStore() {
@@ -19,16 +19,16 @@ function resetTagStore() {
   });
 }
 
-async function appendSczfwClientSignature(
+async function appendBasicClientSignature(
   config: Record<string, unknown>,
   params: {
-    sczfwHeaders?: Record<string, string>;
+    basicHeaders?: Record<string, string>;
     clientSignatureSalt?: string;
     clientSignatureClientId?: string;
   }
 ) {
   // 仅在请求真正发出前再按需加载 gm-crypto，避免把签名依赖拉进 admin 冷启动链。
-  const { createClientSignature } = await import('../infra/sczfw/client-signature');
+  const { createClientSignature } = await import('../config/basic/client-signature');
   const signature = createClientSignature({
     salt: params.clientSignatureSalt,
     clientId: params.clientSignatureClientId
@@ -41,7 +41,7 @@ async function appendSczfwClientSignature(
 
   config.headers = {
     ...prev,
-    ...params.sczfwHeaders,
+    ...params.basicHeaders,
     'Client-Signature': signature
   };
 }
@@ -53,7 +53,7 @@ export function createAppHttp(params: {
   authMode: AuthMode;
   tokenKey: string;
   idTokenKey: string;
-  sczfwHeaders?: Record<string, string>;
+  basicHeaders?: Record<string, string>;
   clientSignatureSalt?: string;
   clientSignatureClientId?: string;
   pinia: Pinia;
@@ -66,7 +66,7 @@ export function createAppHttp(params: {
     authMode,
     tokenKey,
     idTokenKey,
-    sczfwHeaders,
+    basicHeaders,
     clientSignatureSalt,
     clientSignatureClientId,
     pinia,
@@ -78,8 +78,8 @@ export function createAppHttp(params: {
       // 开发环境推荐使用 Vite proxy（同源），生产环境如需跨域可配置 VITE_API_BASE_URL 直连
       baseURL: isProd ? apiBaseUrl || undefined : undefined,
       withCredentials: authMode !== 'token',
-      timeout: backend === 'sczfw' ? 100_000 : 30_000,
-      ...(sczfwHeaders ? { headers: sczfwHeaders } : {})
+      timeout: backend === 'basic' ? 100_000 : 30_000,
+      ...(basicHeaders ? { headers: basicHeaders } : {})
     },
     auth: {
       mode: authMode,
@@ -92,10 +92,10 @@ export function createAppHttp(params: {
       successCodes: [0, 200]
     },
     beforeRequestCallback:
-      backend === 'sczfw'
+      backend === 'basic'
         ? async (config) => {
-            await appendSczfwClientSignature(config as Record<string, unknown>, {
-              sczfwHeaders,
+            await appendBasicClientSignature(config as Record<string, unknown>, {
+              basicHeaders,
               clientSignatureSalt,
               clientSignatureClientId
             });

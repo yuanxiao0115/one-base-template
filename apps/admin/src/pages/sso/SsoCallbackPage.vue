@@ -3,9 +3,9 @@ import { finalizeAuthSession, handleSsoCallback } from '@one-base-template/core'
 import { ElMessage } from 'element-plus';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { getAppEnv } from '@/infra/env';
+import { getAppEnv } from '@/config/env';
 import { routePaths } from '@/router/constants';
-import { executeSsoScenario } from '@/shared/services/auth-scenario-provider';
+import { executeSsoScenario } from '@/services/auth/auth-scenario-provider';
 
 defineOptions({
   name: 'SsoCallbackPage'

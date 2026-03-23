@@ -1,6 +1,6 @@
-import type { ApiPageData } from '@/shared/api/types';
+import type { ApiPageData } from '@/types/api';
 
-export type { ApiResponse } from '@/shared/api/types';
+export type { ApiResponse } from '@/types/api';
 
 export type ReviewStatus = 0 | 1 | 2;
 type LooseField =

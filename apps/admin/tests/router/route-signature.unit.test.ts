@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { RouteRecordRaw } from 'vue-router';
 
-import { getRouteSignature } from '../route-signature';
+import { getRouteSignature } from '@/router/route-signature';
 
 function createRoutes(): RouteRecordRaw[] {
   const routeComponent = {} as RouteRecordRaw['component'];

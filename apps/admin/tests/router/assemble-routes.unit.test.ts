@@ -7,9 +7,9 @@ vi.mock('@one-base-template/ui/shell', () => ({
   NotFoundPage: {}
 }));
 
-import { routePaths } from '../constants';
-import { assembleRoutes, type AppRouteAssemblyOptions } from '../assemble-routes';
-import { getRouteSignature } from '../route-signature';
+import { routePaths } from '@/router/constants';
+import { assembleRoutes, type AppRouteAssemblyOptions } from '@/router/assemble-routes';
+import { getRouteSignature } from '@/router/route-signature';
 
 function createRouteAssemblyOptions(
   enabledModules: string[],

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
-import { routePaths } from '../../router/constants';
+import { routePaths } from '@/router/constants';
 
 const mocks = vi.hoisted(() => ({
   authReset: vi.fn(),
@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   createObHttpMock: vi.fn(),
   createClientSignatureMock: vi.fn(() => 'client-signature'),
   elMessageError: vi.fn(),
-  sczfwCryptoLoadCount: 0
+  basicCryptoLoadCount: 0
 }));
 
 vi.mock('@one-base-template/core', () => ({
@@ -31,14 +31,14 @@ vi.mock('element-plus', () => ({
   }
 }));
 
-vi.mock('../../infra/sczfw/client-signature', () => {
-  mocks.sczfwCryptoLoadCount += 1;
+vi.mock('@/config/basic/client-signature', () => {
+  mocks.basicCryptoLoadCount += 1;
   return {
     createClientSignature: mocks.createClientSignatureMock
   };
 });
 
-import { createAppHttp } from '../http';
+import { createAppHttp } from '@/bootstrap/http';
 
 interface ObHttpMockOptions {
   axios: {
@@ -75,7 +75,7 @@ function createStorageMock() {
 describe('bootstrap/http', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.sczfwCryptoLoadCount = 0;
+    mocks.basicCryptoLoadCount = 0;
     vi.stubGlobal('localStorage', createStorageMock());
     mocks.createObHttpMock.mockImplementation((options: unknown) => options);
   });
@@ -98,15 +98,15 @@ describe('bootstrap/http', () => {
     expect(options.axios.timeout).toBe(30_000);
   });
 
-  it('sczfw 场景应按请求懒加载签名模块并注入签名请求头', async () => {
+  it('basic 场景应按请求懒加载签名模块并注入签名请求头', async () => {
     createAppHttp({
-      backend: 'sczfw',
+      backend: 'basic',
       isProd: true,
       apiBaseUrl: 'https://api.example.com',
       authMode: 'token',
       tokenKey: 'token-key',
       idTokenKey: 'id-token-key',
-      sczfwHeaders: {
+      basicHeaders: {
         Appcode: 'admin-app'
       },
       clientSignatureSalt: 'salt-1',
@@ -120,7 +120,7 @@ describe('bootstrap/http', () => {
     expect(options.axios.timeout).toBe(100_000);
     const beforeRequest = options.beforeRequestCallback;
     expect(typeof beforeRequest).toBe('function');
-    expect(mocks.sczfwCryptoLoadCount).toBe(0);
+    expect(mocks.basicCryptoLoadCount).toBe(0);
 
     const config = {
       headers: {}
@@ -134,7 +134,7 @@ describe('bootstrap/http', () => {
       salt: 'salt-1',
       clientId: 'client-1'
     });
-    expect(mocks.sczfwCryptoLoadCount).toBe(1);
+    expect(mocks.basicCryptoLoadCount).toBe(1);
     expect(config.headers).toMatchObject({
       Appcode: 'admin-app',
       'Client-Signature': 'client-signature'

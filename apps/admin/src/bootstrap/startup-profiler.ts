@@ -1,4 +1,4 @@
-import { createAppLogger } from '@/shared/logger';
+import { createAppLogger } from '@/config/logger';
 
 type StartupProfilerDetails = Record<string, unknown>;
 

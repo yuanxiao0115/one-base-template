@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 
-import { createStartupProfiler } from '../startup-profiler';
+import { createStartupProfiler } from '@/bootstrap/startup-profiler';
 
 describe('bootstrap/startup-profiler', () => {
   it('应记录阶段耗时并输出完成汇总', async () => {
