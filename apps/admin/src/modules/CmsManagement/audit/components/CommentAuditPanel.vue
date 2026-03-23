@@ -37,6 +37,7 @@ const dialogLoading = ref(false);
 const dialogSubmitting = ref(false);
 const dialogMode = ref<CommentDialogMode>('detail');
 const currentCommentDetail = ref<CommentDetail | null>(null);
+const dialogRequestToken = ref(0);
 
 const searchForm = reactive<CommentSearchForm>({
   articleTitle: '',
@@ -110,11 +111,16 @@ function clearSelection() {
 }
 
 async function openCommentDialog(row: CommentAuditRecord, mode: CommentDialogMode) {
+  if (dialogLoading.value || dialogSubmitting.value) {
+    return;
+  }
+
   if (mode === 'review' && Number(row.reviewStatus) !== 0) {
     message.warning('仅待审核评论可执行审核操作');
     return;
   }
 
+  const currentRequestToken = ++dialogRequestToken.value;
   dialogMode.value = mode;
   dialogVisible.value = true;
   dialogLoading.value = true;
@@ -124,22 +130,34 @@ async function openCommentDialog(row: CommentAuditRecord, mode: CommentDialogMod
 
   try {
     const response = await auditApi.getCommentDetail(row.id);
+    if (currentRequestToken !== dialogRequestToken.value) {
+      return;
+    }
+
     if (response.code !== 200) {
       throw new Error(response.message || '获取评论详情失败');
     }
 
     currentCommentDetail.value = response.data;
   } catch (error) {
+    if (currentRequestToken !== dialogRequestToken.value) {
+      return;
+    }
+
     const errorMessage = error instanceof Error ? error.message : '获取评论详情失败';
     message.error(errorMessage);
     dialogVisible.value = false;
   } finally {
-    dialogLoading.value = false;
+    if (currentRequestToken === dialogRequestToken.value) {
+      dialogLoading.value = false;
+    }
   }
 }
 
 function closeDialog() {
+  dialogRequestToken.value += 1;
   dialogVisible.value = false;
+  dialogLoading.value = false;
   dialogMode.value = 'detail';
   currentCommentDetail.value = null;
   reviewForm.reviewOpinion = '';
@@ -147,7 +165,7 @@ function closeDialog() {
 }
 
 async function submitCommentReview(reviewStatus: 1 | 2) {
-  if (!currentCommentDetail.value) {
+  if (!currentCommentDetail.value || dialogLoading.value || dialogSubmitting.value) {
     return;
   }
 
@@ -177,6 +195,18 @@ async function submitCommentReview(reviewStatus: 1 | 2) {
   } finally {
     dialogSubmitting.value = false;
   }
+}
+
+function openCommentReview(row: CommentAuditRecord) {
+  void openCommentDialog(row, 'review');
+}
+
+function openCommentDetail(row: CommentAuditRecord) {
+  void openCommentDialog(row, 'detail');
+}
+
+function handleDeleteComment(row: CommentAuditRecord) {
+  void deleteComment(row);
 }
 
 async function deleteComment(row: CommentAuditRecord) {
@@ -277,7 +307,7 @@ async function batchDeleteComments() {
               type="primary"
               :size="actionSize"
               :disabled="Number(row.reviewStatus) !== 0"
-              @click="() => openCommentDialog(row as CommentAuditRecord, 'review')"
+              @click="openCommentReview(row as CommentAuditRecord)"
             >
               审核
             </el-button>
@@ -285,7 +315,7 @@ async function batchDeleteComments() {
               link
               type="primary"
               :size="actionSize"
-              @click="() => openCommentDialog(row as CommentAuditRecord, 'detail')"
+              @click="openCommentDetail(row as CommentAuditRecord)"
             >
               详情
             </el-button>
@@ -293,7 +323,7 @@ async function batchDeleteComments() {
               link
               type="danger"
               :size="actionSize"
-              @click="() => deleteComment(row as CommentAuditRecord)"
+              @click="handleDeleteComment(row as CommentAuditRecord)"
             >
               删除
             </el-button>

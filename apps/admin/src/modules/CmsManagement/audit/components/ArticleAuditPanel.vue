@@ -29,6 +29,7 @@ const reviewDetail = ref<ArticleDetail | null>(null);
 const reviewDialogVisible = ref(false);
 const reviewDialogLoading = ref(false);
 const reviewSubmitting = ref(false);
+const reviewRequestToken = ref(0);
 
 const searchForm = reactive<ArticleSearchForm>({
   articleTitle: '',
@@ -68,11 +69,16 @@ function onResetSearch() {
 }
 
 async function openReviewDialog(row: ArticleAuditRecord) {
+  if (reviewDialogLoading.value || reviewSubmitting.value) {
+    return;
+  }
+
   if (Number(row.reviewStatus) !== 0) {
     message.warning('仅待审核文章可执行审核操作');
     return;
   }
 
+  const currentRequestToken = ++reviewRequestToken.value;
   reviewArticle.value = row;
   reviewDialogVisible.value = true;
   reviewDialogLoading.value = true;
@@ -80,28 +86,40 @@ async function openReviewDialog(row: ArticleAuditRecord) {
 
   try {
     const response = await auditApi.getArticleDetail(row.id);
+    if (currentRequestToken !== reviewRequestToken.value) {
+      return;
+    }
+
     if (response.code !== 200) {
       throw new Error(response.message || '获取文章详情失败');
     }
 
     reviewDetail.value = response.data;
   } catch (error) {
+    if (currentRequestToken !== reviewRequestToken.value) {
+      return;
+    }
+
     const errorMessage = error instanceof Error ? error.message : '获取文章详情失败';
     message.error(errorMessage);
     reviewDialogVisible.value = false;
   } finally {
-    reviewDialogLoading.value = false;
+    if (currentRequestToken === reviewRequestToken.value) {
+      reviewDialogLoading.value = false;
+    }
   }
 }
 
 function closeReviewDialog() {
+  reviewRequestToken.value += 1;
   reviewDialogVisible.value = false;
+  reviewDialogLoading.value = false;
   reviewArticle.value = null;
   reviewDetail.value = null;
 }
 
 async function handleReviewSubmit(payload: { reviewStatus: 1 | 2; reviewOpinion: string }) {
-  if (!reviewArticle.value) {
+  if (!reviewArticle.value || reviewDialogLoading.value || reviewSubmitting.value) {
     return;
   }
 
@@ -164,7 +182,7 @@ async function handleReviewSubmit(payload: { reviewStatus: 1 | 2; reviewOpinion:
               type="primary"
               :size="actionSize"
               :disabled="Number(row.reviewStatus) !== 0"
-              @click="() => openReviewDialog(row as ArticleAuditRecord)"
+              @click="openReviewDialog(row as ArticleAuditRecord)"
             >
               审核
             </el-button>

@@ -157,9 +157,9 @@
 - CRUD 页面默认使用 `useEntityEditor` 内置错误提示，不再为每页重复编写同构 `onError`。
 - 用户已确认的 CRUD 范式为后续迁移/重构唯一基线：目录组织、`list.vue` 编排层、`api.ts + types.ts` 接口层、`routes.ts` 懒加载注册均需按该范式落地，禁止在新迁移中回退到自定义散乱结构。
 - 管理页脚本超过单屏后，优先拆分“新增/编辑表单组件”和“高级搜索组件”，页面仅保留编排逻辑。
-- 日志/详情类抽屉若存在异步详情加载，必须增加“最新请求守卫”，并在抽屉关闭时失效旧请求，禁止旧响应回写当前详情态。
+- 日志/详情类弹层（含抽屉与对话框）若存在异步详情加载，必须增加“最新请求守卫”，并在关闭时失效旧请求，禁止旧响应回写当前详情态。
 - 列表页操作列点击事件禁止在模板内写内联箭头函数（如 `@click="() => handleXxx(row)"`），统一使用直接调用（如 `@click="handleXxx(row)"`）。
-- 基于 `useCrudPage/useEntityEditor` 的列表页必须把 `openCreate/openEdit/openDetail` 收口到显式 handler，并在 `editor.opening` 或 `editor.submitting` 时直接短路返回，禁止并发触发打开动作。
+- 基于 `useCrudPage/useEntityEditor` 的列表页必须把 `openCreate/openEdit/openDetail` 收口到显式 handler；并发打开短路统一由 `useEntityEditor` 内置 `opening/submitting` 保护兜底，页面层禁止重复堆叠同构 busy guard。
 - `UserManagement`（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，统一使用 `obConfirm`（含输入型确认）。
 - 业务页已使用 `ObActionButtons` 时，禁止叠加手写 `el-dropdown` 操作列。
 - `ObActionButtons` 在 UserManagement 页面作为全局组件使用，默认不再手动 import。

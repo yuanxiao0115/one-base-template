@@ -93,6 +93,6 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 
 ## 横向推广补充（LogManagement，2026-03-23）
 
-- 日志/详情类抽屉如果存在异步详情加载，必须增加“最新请求守卫”，并在抽屉关闭时失效旧请求，禁止旧响应回写当前详情态。
+- 日志/详情类弹层（含抽屉与对话框）如果存在异步详情加载，必须增加“最新请求守卫”，并在关闭时失效旧请求，禁止旧响应回写当前详情态。
 - 列表页操作列点击事件禁止在模板内写内联箭头函数（如 `@click="() => handleXxx(row)"`），统一使用直接调用（如 `@click="handleXxx(row)"`）。
-- 基于 `useCrudPage/useEntityEditor` 的列表页必须把 `openCreate/openEdit/openDetail` 收口到显式 handler，并在 `editor.opening` 或 `editor.submitting` 时直接短路返回，禁止并发触发打开动作。
+- 基于 `useCrudPage/useEntityEditor` 的列表页必须把 `openCreate/openEdit/openDetail` 收口到显式 handler；并发打开短路统一由 `useEntityEditor` 内置 `opening/submitting` 保护兜底，页面层禁止重复堆叠同构 busy guard。
