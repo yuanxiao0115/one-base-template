@@ -63,7 +63,7 @@
 ```json
 {
   "preset": "remote-single",
-  "backend": "sczfw",
+  "backend": "basic",
   "authMode": "token",
   "tokenKey": "token",
   "idTokenKey": "idToken",
@@ -85,14 +85,14 @@
 字段说明：
 
 - `preset`（可选）: `static-single | remote-single`，用于收敛到“单系统 + 不混合”模式
-- `backend`: `default | sczfw`
+- `backend`: `default | basic`
 - `authMode`: `cookie | token | mixed`
 - `tokenKey` / `idTokenKey`: token 存储键
 - `menuMode`: `remote | static`
 - `enabledModules`: `"*"` 或 `string[]`（模块白名单；例如 `["home","user-management","log-management","system-management"]`）
-- `authorizationType` / `appsource` / `appcode`: sczfw 请求头约定
+- `authorizationType` / `appsource` / `appcode`: basic 请求头约定
 - `storageNamespace`（可选）: 前端持久化命名空间（主题等状态隔离）；未配置时回退为 `appcode`
-- `clientSignatureClientId` / `clientSignatureSalt`: sczfw 签名参数（公开盐值，非前端 secret）
+- `clientSignatureClientId` / `clientSignatureSalt`: basic 签名参数（公开盐值，非前端 secret）
 - `defaultSystemCode`: 默认系统 code（用于多系统初始化）
 - `systemHomeMap`: 系统首页映射（`{ [systemCode]: "/path" }`）
 
@@ -114,5 +114,5 @@
 ## 4) 代码约束
 
 - 业务模块仍然**禁止**直接使用 `import.meta.env`
-- 统一通过 `apps/admin/src/infra/env.ts` 导出的 `getAppEnv()` 读取业务运行时配置；`buildEnv` 仅承载构建期最小集合
+- 统一通过 `apps/admin/src/config/env.ts` 导出的 `getAppEnv()` 读取业务运行时配置；`buildEnv` 仅承载构建期最小集合
 - 运行时配置统一通过 `apps/admin/src/config/platform-config.ts` 加载，schema 校验规则位于 `packages/core/src/config/platform-config.ts`

@@ -226,18 +226,14 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
           `${appSegment}bootstrap/core.ts`,
           `${appSegment}bootstrap/router.ts`,
           `${appSegment}config/`,
-          `${appSegment}infra/`,
+          `${appSegment}services/`,
+          `${appSegment}types/`,
           `${appSegment}router/constants.ts`
         ]
       : [];
   const adminAuthPatterns =
     options.appName === 'admin'
-      ? [
-          `${appSegment}pages/login/`,
-          `${appSegment}pages/sso/`,
-          `${appSegment}shared/services/auth-`,
-          `${appSegment}shared/api/http-client.ts`
-        ]
+      ? [`${appSegment}pages/login/`, `${appSegment}pages/sso/`, `${appSegment}services/auth/auth-`]
       : [];
 
   return function manualChunks(rawId: string) {
@@ -282,9 +278,9 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
       includesAny(id, [
         `${appSegment}bootstrap/`,
         `${appSegment}router/`,
-        `${appSegment}infra/`,
         `${appSegment}config/`,
-        `${appSegment}shared/`
+        `${appSegment}services/`,
+        `${appSegment}types/`
       ])
     ) {
       return `${options.appName}-app-shell`;
@@ -335,7 +331,8 @@ export function createOneAppCodeSplitting(
               `${appSegment}bootstrap/core.ts`,
               `${appSegment}bootstrap/router.ts`,
               `${appSegment}config/`,
-              `${appSegment}infra/`,
+              `${appSegment}services/`,
+              `${appSegment}types/`,
               `${appSegment}router/constants.ts`
             ],
             priority: 620
@@ -345,8 +342,7 @@ export function createOneAppCodeSplitting(
             patterns: [
               `${appSegment}pages/login/`,
               `${appSegment}pages/sso/`,
-              `${appSegment}shared/services/auth-`,
-              `${appSegment}shared/api/http-client.ts`
+              `${appSegment}services/auth/auth-`
             ],
             priority: 610
           },
@@ -355,9 +351,9 @@ export function createOneAppCodeSplitting(
             patterns: [
               `${appSegment}bootstrap/`,
               `${appSegment}router/`,
-              `${appSegment}infra/`,
               `${appSegment}config/`,
-              `${appSegment}shared/`
+              `${appSegment}services/`,
+              `${appSegment}types/`
             ],
             priority: 100
           }
@@ -370,7 +366,8 @@ export function createOneAppCodeSplitting(
               `${appSegment}router/`,
               `${appSegment}infra/`,
               `${appSegment}config/`,
-              `${appSegment}shared/`
+              `${appSegment}services/`,
+              `${appSegment}types/`
             ],
             priority: 100
           }

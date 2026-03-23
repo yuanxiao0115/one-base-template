@@ -105,7 +105,7 @@ pnpm build
 
 `platform-config.json` 关键字段：
 
-- `backend`: `default | sczfw`
+- `backend`: `default | basic`
 - `authMode`: `cookie | token | mixed`
 - `menuMode`: `remote | static`
 - `enabledModules`: `"*"` 或 `string[]`（模块白名单）

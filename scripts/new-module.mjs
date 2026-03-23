@@ -121,12 +121,12 @@ defineOptions({
   list: '/api/${moduleId}/list'
 } as const;
 `,
-    'api/client.ts': `import { getAppHttpClient } from '@/shared/api/http-client';
+    'api/client.ts': `import { obHttp } from '@one-base-template/core';
 import { ${apiName}Endpoints } from './endpoints';
 
 export const ${apiName}Api = {
   list() {
-    return getAppHttpClient().get(${apiName}Endpoints.list);
+    return obHttp().get(${apiName}Endpoints.list);
   }
 };
 `,

@@ -135,7 +135,7 @@ defineOptions({ name: 'UserListPage' });
 
 ## 多系统菜单（permissionCode）
 
-适配 sczfw 时，`/cmict/admin/permission/my-tree` 可能一次返回多个根节点（每个根代表一个系统）。
+适配 basic 时，`/cmict/admin/permission/my-tree` 可能一次返回多个根节点（每个根代表一个系统）。
 
 本模板约定：
 

@@ -121,7 +121,7 @@ pnpm check:naming
 默认校验范围：
 
 - `apps/admin/src/router`
-- `apps/admin/src/shared/services`
+- `apps/admin/src/services/auth`
 - `apps/admin/src/modules/**/module.ts`
 - `apps/admin/src/modules/**/api/*.ts`
 - `apps/admin/src/modules/**/services/*.ts`

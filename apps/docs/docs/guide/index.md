@@ -108,8 +108,8 @@ outline: false
     <h3>portal-engine 边界与导出层</h3>
     <p>共享引擎职责、导出约束与跨应用复用边界。</p>
   </a>
-  <a class="guide-card" href="/guide/adapter-sczfw">
-    <h3>sczfw Adapter</h3>
+  <a class="guide-card" href="/guide/adapter-basic">
+    <h3>basic Adapter</h3>
     <p>后端接口适配与字段映射的实现约定。</p>
   </a>
 </div>

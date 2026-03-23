@@ -48,7 +48,7 @@
   },
   "checkTargets": {
     "router": "apps/admin/src/router",
-    "sharedServices": "apps/admin/src/shared/services",
+    "authServices": "apps/admin/src/services/auth",
     "moduleApi": "apps/admin/src/modules/**/api",
     "moduleServices": "apps/admin/src/modules/**/services",
     "moduleEntry": "apps/admin/src/modules/**/module.ts"

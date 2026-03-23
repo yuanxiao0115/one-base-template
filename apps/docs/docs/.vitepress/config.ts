@@ -77,7 +77,7 @@ export default defineConfig({
             { text: 'PortalManagement 管理端接入', link: '/guide/portal/admin-designer' },
             { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
             { text: '门户物料扩展与注册', link: '/guide/portal/material-extension' },
-            { text: 'sczfw Adapter', link: '/guide/adapter-sczfw' }
+            { text: 'basic Adapter', link: '/guide/adapter-basic' }
           ]
         },
         {

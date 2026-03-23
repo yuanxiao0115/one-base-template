@@ -145,7 +145,7 @@ docs/
 - 执行前说明要做什么，执行后汇报结果（包含：改动文件、验证命令、风险点）。
 - 当用户纠正后：**把新规则补充到对应作用域的 AGENTS 文件**，避免重复犯错。
 - **当用户纠正了“目标仓库 / 目标目录 / 目标作用域”时，先校验当前工作目录与改动范围；不要继续修改 `~/.codex` 或其他无关仓库。**
-- 老项目（layout/menu 移植来源）固定为：`/Users/haoqiuzhi/code/sczfw/standard-oa-web-sczfw`（不要再误用其他仓库路径）。
+- 老项目（layout/menu 移植来源）固定为：`/Users/haoqiuzhi/code/basic/standard-oa-web-basic`（不要再误用其他仓库路径）。
 - `.codex/` 目录下的工作文档（如 `operations-log.md` / `testing.md` / `verification.md` / `context-*.md`）如果创建或已存在：**开工前必须先阅读**，开发过程中同步更新，并在回复里引用关键结论；禁止“创建了但不看 / 不维护”。
 - 新增 / 修改功能后：**必须同步更新文档站点** `apps/docs`（VitePress），确保 `pnpm -C apps/docs build` 可通过且内容与代码一致。
 - admin 迁移与重构需强制遵守“公共组件与 CRUD 红线”，主版本在 `apps/admin/AGENTS.md`，说明文档在 `apps/docs/docs/guide/admin-agent-redlines.md`。
@@ -153,11 +153,11 @@ docs/
 - **Git 提交信息必须使用中文**（commit message 禁止英文）。
 - **提交策略（2026-03-13 用户新规）**：在开发分支上，每个功能完成且测试通过后默认自动执行 `git commit`，并按模块拆分提交；仅在用户明确禁止提交时暂停自动提交。
 - **开发阶段默认不做历史配置兼容**；除非用户明确要求，否则按当前方案直接收敛实现。
-- **共享登录能力命名固定为通用名**：公共登录框组件使用 `LoginBox.vue`，公共登录动作文件使用 `login.ts`；后续新版本使用 `v1` / `v2` 后缀，禁止再使用后端或项目名（如 `sczfw`）命名公共能力。
+- **共享登录能力命名固定为通用名**：公共登录框组件使用 `LoginBox.vue`，公共登录动作文件使用 `login.ts`；后续新版本使用 `v1` / `v2` 后缀，禁止再使用后端名或项目名命名公共能力。
 - **`apps/portal` 维持前台独立静态应用边界**：默认不接菜单接口，不依赖 `/cmict/admin/permission/*` 菜单能力；登录后仅处理前台页面跳转与门户分流。
 - **共享登录组件收敛原则**：
   - `LoginBox.vue` 内置默认密码校验规则，并通过 props 允许关闭或覆盖。
   - `LoginBox.vue` 可直接内置 SM4 处理，页面层不再重复拼装同构加密逻辑。
   - 开发态 `backend === "default"` 不再保留 `demo/demo` 自动填充逻辑。
   - 需要滑动验证时，新增版本化组件（如 `LoginBoxV2.vue`），不要继续把验证码逻辑散落回页面。
-- **应用层验证码接口收口规则**：`admin` / `portal` 的滑块验证码接口统一放在各自 `src/shared/services/auth-captcha-service.ts`，禁止继续放在 `components/verifition-plus/**` 这类组件目录下。
+- **应用层验证码接口收口规则**：`admin` / `portal` 的滑块验证码接口统一放在各自 `src/services/auth/auth-captcha-service.ts`，禁止继续放在 `components/verifition-plus/**` 这类组件目录下。

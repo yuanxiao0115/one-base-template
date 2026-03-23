@@ -143,15 +143,15 @@ compat: {
   - `skipMenuAuth` 严格白名单判定
 - 对应用层保持兼容：`setupRouterGuards(router, options)` 与 `RouterGuardOptions` 契约不变，admin 无需改调用方式。
 - `apps/admin/src/pages/sso/SsoCallbackPage.vue` 的参数分支匹配逻辑已下沉到
-  `apps/admin/src/shared/services/sso-callback-strategy.ts`。
+  `apps/admin/src/services/auth/sso-callback-strategy.ts`。
 - `sso-callback-strategy` 约定优先级固定为：
   `sourceCode=zhxt -> sourceCode=YDBG -> ticket -> type+token -> moaToken -> Usertoken`。
 - 页面层职责收敛为“状态展示 + handler 注入”，后续新增 SSO 入口优先扩展策略层并补策略单测。
 - 第三批回归补强已覆盖：
   - `packages/core/src/router/guards.test.ts`：`remote` 模式下 `remoteSynced=false` 的两类边界（`loaded=true` 后台同步、`loaded=false` 阻塞加载）；
-  - `apps/admin/src/shared/services/__tests__/sso-callback-strategy.unit.test.ts`：`ticket` 分支 `redirectUrl` 缺省透传 `null` 与 handler 抛错透传。
+  - `apps/admin/tests/services/auth/sso-callback-strategy.unit.test.ts`：`ticket` 分支 `redirectUrl` 缺省透传 `null` 与 handler 抛错透传。
 - 第四批进一步收敛：
-  - 新增 `apps/admin/src/shared/services/auth-scenario-provider.ts`，统一封装 `default/sczfw` 登录与 SSO 场景；
+  - 新增 `apps/admin/src/services/auth/auth-scenario-provider.ts`，统一封装 `default/basic` 登录与 SSO 场景；
   - 页面层（`LoginPage.vue` / `SsoCallbackPage.vue`）只保留 UI 状态与跳转编排，不再直接拼接后端分支细节；
   - 新增 `auth-scenario-provider` 单测，覆盖场景分支、token 回填与异常分支。
 
@@ -222,26 +222,25 @@ compat: {
 
 - `api.ts`：只保留接口方法定义与请求调用，不承载业务归一化、字段兜底、格式保底
 - `types.ts`：只保留对外暴露的请求/响应类型（避免在 `api.ts` 堆叠大量类型）；实体类型优先“少字段 + 关键字段必填 + 其余可选”，不要求完整镜像后端 DTO。对于日志/审计等弱结构实体，可进一步使用“关键字段 + 索引签名”模式，减少超长字段清单维护成本。
-- 跨模块可复用的通用协议类型统一放在 `apps/admin/src/shared/api/types.ts`（如 `ApiResponse<T>`、`ApiPageData<T>`）；各模块 `types.ts` 直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增中间响应别名，业务实体继续贴近模块维护。
+- 跨模块可复用的通用协议类型统一放在 `apps/admin/src/types/api.ts`（如 `ApiResponse<T>`、`ApiPageData<T>`）；各模块 `types.ts` 直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增中间响应别名，业务实体继续贴近模块维护。
 - 模块内禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`，复杂业务处理统一放在页面层或 composable 层
 
 当前推荐落地范围：`CmsManagement`、`LogManagement`、`SystemManagement`、`UserManagement`。`LogManagement` 与其他模块保持一致，API 跟随子功能目录（如 `login-log/api.ts`、`sys-log/api.ts`），不再集中放在模块根 `api/` 目录。
 
 说明：后端字段若不符合约定，优先在业务代码中显式处理，不在 API 层做隐式修正。
 
-### 4.1) `shared` 目录边界（admin 应用内）
+### 4.1) 应用级公共目录边界（admin）
 
-`apps/admin/src/shared` 的定位是“**admin 应用内跨模块共享层**”，不是跨应用公共层。
+`apps/admin` 的应用级公共能力统一落在以下目录：
 
-建议固定为以下范围：
-
-- `shared/api/types.ts`：跨模块复用的通用协议类型（`ApiResponse`/`ApiPageData`）。
-- `shared/services/auth-*.ts`、`shared/services/sso-callback-strategy.ts`：登录/SSO 场景编排。
-- `shared/logger.ts`：应用级日志能力（如路由装配日志）。
+- `apps/admin/src/config/*`：环境解析、运行时配置、应用级 logger、basic 签名/加密
+- `apps/admin/src/types/api.ts`：跨模块复用的通用协议类型（`ApiResponse`/`ApiPageData`）
+- `apps/admin/src/services/auth/*`：登录/SSO/验证码场景编排
+- `apps/admin/tests/*`：应用层测试统一维护目录
 
 约束：
 
-- 单模块私有逻辑（仅一处使用的 `mapper/normalize/helper`）不要上提到 `shared`，保持在 `modules/<module>/**` 就近维护。
+- 单模块私有逻辑（仅一处使用的 `mapper/normalize/helper`）不要上提到应用级公共目录，保持在 `modules/<module>/**` 就近维护。
 - 出现跨应用复用价值时，优先下沉到 `packages/core` / `packages/adapters`。
 
 ## 5) ESLint 边界约束

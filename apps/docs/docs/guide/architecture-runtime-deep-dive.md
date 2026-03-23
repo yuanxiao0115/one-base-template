@@ -11,7 +11,7 @@
 - `apps/admin/src/config/platform-config.ts`：读取并校验 `public/platform-config.json`
 - `packages/app-starter/src/runtime-config-loader.ts`：运行时配置加载器（并发复用/超时/重试/快照兜底）
 - `packages/app-starter/src/startup.ts`：统一启动编排（load config -> bootstrap -> router.isReady -> mount）
-- `apps/admin/src/infra/env.ts`：聚合构建期 env 与运行时配置
+- `apps/admin/src/config/env.ts`：聚合构建期 env 与运行时配置
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块清单扫描与按需路由装配
 - `apps/admin/src/bootstrap/index.ts`：创建 app/pinia/router/http/core，并安装插件与守卫
 - `apps/admin/src/router/route-signature.ts`：路由装配签名计算（确定性诊断）
@@ -78,7 +78,7 @@ flowchart TD
   - `packages/ui/src/components/auth/LoginBox.vue`
   - `packages/ui/src/components/auth/LoginBoxV2.vue`
   - `packages/core/src/auth/login.ts`
-- 两端保留各自验证码适配服务：`src/shared/services/auth-captcha-service.ts`
+- 两端保留各自验证码适配服务：`src/services/auth/auth-captcha-service.ts`
 - `portal` 登录成功后优先处理 `redirect`，否则调用 `/cmict/admin/front-config/portal` 做前台分流
 - `apps/portal` 保持前台独立边界：默认不接 `/cmict/admin/permission/*` 菜单体系
 

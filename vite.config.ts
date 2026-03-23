@@ -214,7 +214,7 @@ export default defineConfig({
                 {
                   name: '@/infra/http',
                   message:
-                    '禁止在页面/组件/store 直接引用 infra/http，请改用 service 或 shared/api。'
+                    '禁止在页面/组件/store 直接引用 infra/http，请改用 service 或 types/api。'
                 }
               ]
             }
@@ -261,7 +261,8 @@ export default defineConfig({
           'apps/admin/src/bootstrap/**/*.{ts,tsx,vue}',
           'apps/admin/src/router/**/*.{ts,tsx,vue}',
           'apps/admin/src/config/**/*.{ts,tsx,vue}',
-          'apps/admin/src/shared/**/*.{ts,tsx,vue}'
+          'apps/admin/src/services/**/*.{ts,tsx,vue}',
+          'apps/admin/src/types/**/*.{ts,tsx,vue}'
         ],
         rules: {
           'max-lines': [

@@ -45,7 +45,7 @@
 ```json
 {
   "preset": "remote-single",
-  "backend": "sczfw",
+  "backend": "basic",
   "appsource": "frame",
   "defaultSystemCode": "admin_server",
   "systemHomeMap": {
@@ -94,7 +94,7 @@
     },
     "backend": {
       "type": "string",
-      "enum": ["default", "sczfw"]
+      "enum": ["default", "basic"]
     },
     "authMode": {
       "type": "string",

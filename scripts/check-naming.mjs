@@ -71,7 +71,7 @@ function isTargetFile(filePath) {
   if (p.startsWith('apps/admin/src/router/')) {
     return true;
   }
-  if (p.startsWith('apps/admin/src/shared/services/')) {
+  if (p.startsWith('apps/admin/src/services/auth/')) {
     return true;
   }
   if (!p.startsWith('apps/admin/src/modules/')) {
@@ -122,7 +122,7 @@ function getNamingSettings(config) {
 async function collectTargetFiles() {
   const scanDirs = [
     path.join(rootDir, 'apps/admin/src/router'),
-    path.join(rootDir, 'apps/admin/src/shared/services'),
+    path.join(rootDir, 'apps/admin/src/services/auth'),
     path.join(rootDir, 'apps/admin/src/modules')
   ];
 

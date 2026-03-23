@@ -54,9 +54,9 @@ pnpm -C apps/admin lint:fix
 - 登录或未授权流程如果只是做状态清理或只读访问，优先补“细粒度子出口 + 动态 import”：
   - 当前 `tags` 清理固定走 `@one-base-template/tag/store`
   - 不要静态 import `@one-base-template/tag` 根入口
-- `sczfw` 的 `Client-Signature` 生成也应采用同一思路：
+- `basic` 的 `Client-Signature` 生成也应采用同一思路：
   - `createObHttp()` 已支持异步 `beforeRequestCallback`
-  - admin / portal 的签名逻辑统一在请求发出前 `await import('.../infra/sczfw/crypto')`
+  - admin / portal 的签名逻辑统一在请求发出前 `await import('.../config/basic/crypto')`
   - 目标是把 `gm-crypto` 挪出冷启动依赖图，而不是继续静态挂在 `bootstrap/http.ts`
 - 这类性能边界建议通过“源码约束测试或构建校验”固化；当前若仓库测试资产处于清理阶段，可先以 `typecheck/lint/build` 作为临时门禁。
 - 离线 Iconify 数据按集合拆成独立异步 chunk：
@@ -201,15 +201,15 @@ pnpm doctor
 
 为减少隐性耦合与启动链路分散，本仓库增加了两条约束（由 `pnpm lint:arch` 架构脚本强制，默认集成到 CI）：
 
-- 环境变量：业务模块禁止直接读 `import.meta.env`，统一通过 `apps/admin/src/infra/env.ts` 的 `getAppEnv()`（构建期仅例外使用 `buildEnv`）读取
+- 环境变量：业务模块禁止直接读 `import.meta.env`，统一通过 `apps/admin/src/config/env.ts` 的 `getAppEnv()`（构建期仅例外使用 `buildEnv`）读取
 - 启动安装：`createApp/createPinia/createRouter` 只能在 `apps/admin/src/bootstrap/` 中进行；`app.use/app.component/...` 默认在 `bootstrap`，如需项目级扩展可在 `apps/admin/src/main.ts` 的 `beforeMount` 扩展位执行
 - 样式入口：基础样式与 Element Plus 覆盖统一在 `apps/admin/src/bootstrap/admin-styles.ts`；团队覆写样式统一放在 `apps/admin/src/styles/team-overrides.css`，并由 `apps/admin/src/main.ts` 顶部显式引入
 
 模块化阶段新增两条约束：
 
-- 模块边界：`apps/admin/src/modules/**/*` 禁止直接 import `@/modules/*`（公共能力上移到 `shared/core/ui`）
+- 模块边界：`apps/admin/src/modules/**/*` 禁止直接 import `@/modules/*`（公共能力上移到 `services/types/core/ui`）
 - API 边界：页面/组件/store 禁止直接 import `@/infra/http`；HTTP 调用统一收口到 `services/*` 与 `api.ts/api/client.ts`，并在 API 层通过 `@one-base-template/core` 的 `obHttp()` 获取客户端
-- `shared` 边界：`apps/admin/src/shared` 仅承载“admin 应用内跨模块共享能力”（共享协议类型、登录/SSO 场景服务、应用级 logger）；单模块私有逻辑禁止上提到 `shared`
+- 目录边界：`apps/admin/src/config` / `apps/admin/src/services/auth` / `apps/admin/src/types` 仅承载应用级公共能力；单模块私有逻辑禁止上提到这些目录
 - 约束脚本位置：`scripts/check-admin-arch.mjs`（可通过 `pnpm lint:arch` 或 `pnpm -C apps/admin lint:arch` 执行）
 
 ## 全局消息工具（兼容老项目 message.ts）
