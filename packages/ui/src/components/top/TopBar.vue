@@ -289,12 +289,7 @@ function openThemeDialog() {
   color: #fff;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 12%);
   transition: background-color 150ms ease;
-}
-
-.ob-topbar__user-trigger:hover {
-  background: rgb(255 255 255 / 18%);
 }
 
 /* 顶栏里，Element Plus 表单控件默认是白底，放在蓝色背景上会突兀，这里做轻量“玻璃态”处理。 */

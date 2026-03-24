@@ -560,15 +560,10 @@ async function onSwitchTenant(tenantId: string) {
   color: #fff;
   padding: 2px 10px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 12%);
   transition: background-color 150ms ease;
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.ob-topbar__user-trigger:hover {
-  background: rgb(255 255 255 / 18%);
 }
 
 .ob-topbar__avatar {
