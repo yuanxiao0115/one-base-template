@@ -66,6 +66,10 @@ export interface OneUiPluginOptions {
    * 全局 useTable 默认配置（分页参数、响应适配器等）。
    */
   table?: UseTableDefaults;
+  /**
+   * 顶栏组件覆盖（例如 admin 应用注入自定义 TopBar）。
+   */
+  topBarComponent?: Component;
 }
 
 function shouldRegister(options: OneUiPluginOptions, name: OneUiComponentName): boolean {
@@ -104,7 +108,8 @@ export const OneUiPlugin = {
     app.provide(
       ONE_UI_GLOBAL_CONFIG_KEY,
       createOneUiGlobalConfig({
-        crudContainer: options?.crudContainer
+        crudContainer: options?.crudContainer,
+        topBarComponent: options?.topBarComponent
       })
     );
 

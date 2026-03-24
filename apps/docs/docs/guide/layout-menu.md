@@ -16,6 +16,7 @@
 - `apps/admin/src/config/layout.ts`：`appTopbarHeight`（`ob-topbar` 高度，默认 `64px`）
 - `apps/admin/src/config/layout.ts`：`appSidebarWidth`（左侧菜单展开宽度，默认 `256px`）
 - `apps/admin/src/config/layout.ts`：`appSidebarCollapsedWidth`（左侧菜单折叠宽度，默认 `64px`）
+- `apps/admin/src/bootstrap/plugins.ts`：可通过 `OneUiPlugin` 的 `topBarComponent` 注入应用级顶栏（admin 当前注入 `AdminTopBar.vue`）
 
 示例：
 
@@ -155,6 +156,22 @@ UI 行为：
 - 切系统后跳系统首页：`systemStore.resolveHomePath(systemCode)`（受 `apps/admin/src/config/platform-config.ts` 中 `systemHomeMap` 影响）
 - 空系统过滤：若某系统映射后 `menus.length===0`（例如后端 `children=[]`），则不展示该系统名，也不写该系统菜单缓存
 - 本地缓存策略：只要系统 `menus.length>0`（即使是纯叶子列表）就会写入该系统缓存；空系统会清理对应缓存 key
+
+### admin 顶栏扩展（租户 + 个人中心）
+
+admin 当前顶栏在 `apps/admin/src/components/top/AdminTopBar.vue`，基于 `OneUiPlugin.topBarComponent` 注入，默认能力：
+
+- 保留系统切换（`dropdown/menu` 两种样式）。
+- 仅超级管理员显示租户切换（`/cmict/admin/tenant/list` + `/cmict/admin/tenant/switch`）。
+- 用户下拉菜单包含：`用户信息`、`修改密码`、`个性设置`、`退出登录`。
+- 用户信息弹窗支持头像上传，上传前支持图片裁剪。
+
+租户切换后统一执行：
+
+1. `fetchMe()` 刷新当前用户租户信息。
+2. `menuStore.reset()` + `menuStore.loadMenus()` 重拉系统/菜单。
+3. 路由优先回到“当前可访问路由”，其次回到“系统首页或首个可访问菜单叶子”。
+4. 若切换后无任何可访问系统，直接跳转 `/login`（不跳 `/403`）。
 
 ### 远端菜单拉取时机（remote）
 

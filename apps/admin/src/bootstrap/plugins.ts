@@ -7,6 +7,7 @@ import OneTag from '@one-base-template/tag';
 import { appCrudContainerDefaultType, appTableDefaults } from '../config';
 import { DEFAULT_FALLBACK_HOME } from '../config/systems';
 import { routePaths } from '../router/constants';
+import AdminTopBar from '../components/top/AdminTopBar.vue';
 
 function isHiddenTagRoute(route: unknown): boolean {
   if (!route || typeof route !== 'object') {
@@ -31,7 +32,8 @@ export function installAppShellPlugins(params: {
     crudContainer: {
       defaultContainer: appCrudContainerDefaultType
     },
-    table: appTableDefaults
+    table: appTableDefaults,
+    topBarComponent: AdminTopBar
   });
 
   app.use(OneTag, {

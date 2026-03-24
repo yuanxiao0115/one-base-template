@@ -1,4 +1,4 @@
-import type { InjectionKey } from 'vue';
+import type { Component, InjectionKey } from 'vue';
 
 export type CrudContainerType = 'dialog' | 'drawer';
 
@@ -12,6 +12,7 @@ export interface CrudContainerGlobalConfig {
 
 export interface OneUiGlobalConfig {
   crudContainer?: CrudContainerGlobalConfig;
+  topBarComponent?: Component;
 }
 
 const DEFAULT_CRUD_CONTAINER_CONFIG: CrudContainerGlobalConfig = {
@@ -30,6 +31,7 @@ export function createOneUiGlobalConfig(config?: OneUiGlobalConfig): Readonly<On
     crudContainer: {
       defaultContainer:
         config?.crudContainer?.defaultContainer || DEFAULT_CRUD_CONTAINER_CONFIG.defaultContainer
-    }
+    },
+    topBarComponent: config?.topBarComponent
   };
 }

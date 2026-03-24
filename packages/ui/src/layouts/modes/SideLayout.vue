@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { useRoute } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import { useLayoutStore } from '@one-base-template/core';
@@ -8,13 +8,16 @@ import SidebarMenu from '../../components/menu/SidebarMenu.vue';
 import TopBar from '../../components/top/TopBar.vue';
 import TabsBar from '../../components/tabs/TabsBar.vue';
 import KeepAliveView from '../../components/view/KeepAliveView.vue';
+import { DEFAULT_ONE_UI_GLOBAL_CONFIG, ONE_UI_GLOBAL_CONFIG_KEY } from '../../config';
 
 const layoutStore = useLayoutStore();
 const route = useRoute();
+const globalConfig = inject(ONE_UI_GLOBAL_CONFIG_KEY, DEFAULT_ONE_UI_GLOBAL_CONFIG);
 
 const hideTabsBar = computed(() => Boolean(route.meta.hideTabsBar));
 const fullScreen = computed(() => Boolean(route.meta.fullScreen));
 const contentPaddingClass = computed(() => (fullScreen.value ? 'p-0' : 'p-4'));
+const topBarComponent = computed(() => globalConfig.topBarComponent || TopBar);
 const sidebarStyle = computed(() => ({
   width: layoutStore.siderCollapsed ? layoutStore.sidebarCollapsedWidth : layoutStore.sidebarWidth
 }));
@@ -26,7 +29,7 @@ const collapseLabel = computed(() => (layoutStore.siderCollapsed ? '展开菜单
 
 <template>
   <div class="h-screen w-screen flex flex-col bg-[var(--el-bg-color-page)]">
-    <header class="shrink-0"><TopBar /></header>
+    <header class="shrink-0"><component :is="topBarComponent" /></header>
 
     <div class="flex-1 min-h-0 flex">
       <aside
