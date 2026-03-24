@@ -47,7 +47,7 @@ function onConfirm() {
     @close="onCancel"
     @confirm="onConfirm"
   >
-    <el-form label-position="top">
+    <el-form label-position="top" class="category-form">
       <el-form-item label="分类名称">
         <el-input
           v-model.trim="nameValue"
@@ -60,3 +60,26 @@ function onConfirm() {
     </el-form>
   </ObCrudContainer>
 </template>
+
+<style scoped>
+.category-form {
+  border: 1px solid #dce5f0;
+  border-radius: 12px;
+  padding: 14px;
+  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+}
+
+.category-form :deep(.el-form-item) {
+  margin-bottom: 0;
+}
+
+.category-form :deep(.el-form-item__label) {
+  color: #52637a;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.category-form :deep(.el-input__wrapper) {
+  border-radius: 10px;
+}
+</style>

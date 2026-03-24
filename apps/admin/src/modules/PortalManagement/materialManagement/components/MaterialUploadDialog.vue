@@ -305,7 +305,7 @@ function onUploadRemove(_uploadFile: UploadFile, uploadFiles: UploadFiles) {
           </el-select>
         </div>
 
-        <el-button link type="danger" @click="removeDraft(item)">删除</el-button>
+        <el-button link type="danger" class="remove-btn" @click="removeDraft(item)">删除</el-button>
       </div>
     </div>
   </ObCrudContainer>
@@ -313,7 +313,36 @@ function onUploadRemove(_uploadFile: UploadFile, uploadFiles: UploadFiles) {
 
 <style scoped>
 .material-upload {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.material-upload :deep(.el-upload-dragger) {
+  border-radius: 14px;
+  border: 1px dashed #9ab3d4;
+  background:
+    radial-gradient(circle at right top, rgb(37 99 235 / 12%) 0%, transparent 40%),
+    linear-gradient(180deg, #f9fbff 0%, #f2f7ff 100%);
+  min-height: 168px;
+  transition:
+    border-color 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.material-upload :deep(.el-upload-dragger:hover) {
+  border-color: var(--el-color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgb(37 99 235 / 12%);
+}
+
+.material-upload :deep(.el-upload__text) {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.material-upload :deep(.el-upload__tip) {
+  color: #52637a;
+  font-size: 12px;
 }
 
 .draft-list {
@@ -321,27 +350,42 @@ function onUploadRemove(_uploadFile: UploadFile, uploadFiles: UploadFiles) {
   overflow: auto;
   display: grid;
   gap: 12px;
+  padding-right: 2px;
 }
 
 .draft-item {
   display: grid;
   grid-template-columns: 120px 1fr auto;
   gap: 12px;
-  border: 1px solid var(--el-border-color);
-  border-radius: 8px;
-  padding: 10px;
+  border: 1px solid #dce5f0;
+  border-radius: 12px;
+  padding: 12px;
   align-items: center;
+  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.draft-item:hover {
+  transform: translateY(-1px);
+  border-color: #c8d6e5;
+  box-shadow: 0 12px 20px rgb(15 23 42 / 9%);
 }
 
 .draft-preview {
-  border-radius: 6px;
+  border-radius: 10px;
   overflow: hidden;
-  border: 1px solid var(--el-border-color);
+  border: 1px solid #dce5f0;
+  background:
+    radial-gradient(circle at 80% 14%, rgb(37 99 235 / 16%) 0%, transparent 42%),
+    linear-gradient(180deg, #fff 0%, #f1f6ff 100%);
 }
 
 .draft-image {
   width: 100%;
-  height: 84px;
+  height: 92px;
   display: block;
 }
 
@@ -349,12 +393,36 @@ function onUploadRemove(_uploadFile: UploadFile, uploadFiles: UploadFiles) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--el-text-color-secondary);
+  color: #52637a;
   background: var(--el-fill-color-light);
 }
 
 .draft-form {
   display: grid;
   gap: 8px;
+}
+
+.draft-form :deep(.el-input__wrapper),
+.draft-form :deep(.el-select__wrapper) {
+  border-radius: 10px;
+}
+
+.remove-btn {
+  min-width: 44px;
+}
+
+@media (width <= 768px) {
+  .draft-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .draft-image {
+    height: 132px;
+  }
+
+  .remove-btn {
+    justify-self: end;
+  }
 }
 </style>

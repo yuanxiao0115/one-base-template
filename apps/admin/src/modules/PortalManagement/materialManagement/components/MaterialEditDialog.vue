@@ -195,15 +195,22 @@ watch(
 
 <style scoped>
 .material-edit-dialog {
+  --edit-border: #dce5f0;
+  --edit-text: #0f172a;
+  --edit-sub: #52637a;
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 16px;
+  padding: 2px;
 }
 
 .preview-box {
-  border: 1px solid var(--el-border-color);
-  border-radius: 6px;
+  border: 1px solid var(--edit-border);
+  border-radius: 12px;
   overflow: hidden;
+  background:
+    radial-gradient(circle at 82% 14%, rgb(37 99 235 / 18%) 0%, transparent 40%),
+    linear-gradient(180deg, #fff 0%, #f2f7ff 100%);
 }
 
 .preview-image {
@@ -216,11 +223,37 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--el-text-color-secondary);
+  color: var(--edit-sub);
   background: var(--el-fill-color-light);
 }
 
 .form-box {
+  border: 1px solid var(--edit-border);
+  border-radius: 12px;
+  padding: 14px;
+  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
   min-width: 0;
+}
+
+.form-box :deep(.el-form-item__label) {
+  color: var(--edit-sub);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.form-box :deep(.el-input__wrapper),
+.form-box :deep(.el-select__wrapper) {
+  border-radius: 10px;
+}
+
+@media (width <= 900px) {
+  .material-edit-dialog {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .preview-image {
+    height: 200px;
+  }
 }
 </style>

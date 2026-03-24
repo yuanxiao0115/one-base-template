@@ -37,6 +37,13 @@
 - 搜索防抖：分类与素材检索统一 300ms 防抖，减少高频请求。
 - 图片懒加载：素材卡片预览统一 `el-image loading=\"lazy\"`。
 
+### 视觉优化基线（2026-03-24）
+
+- 页面骨架：工具栏、分类面板、素材面板统一卡片化分层，提升信息层次。
+- 交互反馈：分类项与素材卡增加轻量 hover/active 位移动效，保持触感一致。
+- 响应式：`1024px` 以下切换单列面板，`768px` 以下操作区自动折行并扩大可点按区域。
+- 动效无障碍：仅使用 `transform/opacity` 过渡，并在 `prefers-reduced-motion` 下自动降级。
+
 ## 引擎注入链路（唯一入口）
 
 固定入口：`apps/admin/src/modules/PortalManagement/engine/register.ts`
