@@ -5,8 +5,8 @@ import {
   loginByPassword,
   resolveAppRedirectTarget
 } from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
 import { LoginBoxV2 as ObLoginBoxV2 } from '@one-base-template/ui/lite-auth';
-import { ElMessage } from 'element-plus';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getAppEnv } from '@/config/env';
@@ -81,6 +81,16 @@ function getRedirectTarget() {
   return resolveAppRedirectTarget(raw, { fallback: loginScenario.fallback, baseUrl });
 }
 
+function shouldSkipLocalErrorToast(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  if (error.name === 'ObBizError') {
+    return true;
+  }
+  return 'response' in error || 'code' in error;
+}
+
 function clearLoginStageTimer() {
   if (loginStageTimer === null) {
     return;
@@ -109,8 +119,10 @@ async function handleDirectTokenLogin(token: string) {
     await finalizeAuthSession({ shouldFetchMe: true });
     await router.replace(getRedirectTarget());
   } catch (e: unknown) {
-    const message = e instanceof Error && e.message ? e.message : '登录失败';
-    ElMessage.error(message);
+    if (!shouldSkipLocalErrorToast(e)) {
+      const errorMessage = e instanceof Error && e.message ? e.message : '登录失败';
+      void message.error(errorMessage);
+    }
     localStorage.removeItem(tokenKey);
   }
 }
@@ -142,8 +154,10 @@ async function doLogin(payload: VerifyLoginPayload) {
     });
     await router.replace(getRedirectTarget());
   } catch (e: unknown) {
-    const message = e instanceof Error && e.message ? e.message : '登录失败';
-    ElMessage.error(message);
+    if (!shouldSkipLocalErrorToast(e)) {
+      const errorMessage = e instanceof Error && e.message ? e.message : '登录失败';
+      void message.error(errorMessage);
+    }
   } finally {
     clearLoginStageTimer();
     loginStage.value = 'idle';

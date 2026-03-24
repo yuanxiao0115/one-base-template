@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { finalizeAuthSession, handleSsoCallback } from '@one-base-template/core';
-import { ElMessage } from 'element-plus';
+import { message } from '@one-base-template/ui';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAppEnv } from '@/config/env';
@@ -24,6 +24,16 @@ const { idTokenKey } = appEnv;
 
 function safeMessage(e: unknown, fallback: string) {
   return e instanceof Error && e.message ? e.message : fallback;
+}
+
+function shouldSkipLocalErrorToast(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  if (error.name === 'ObBizError') {
+    return true;
+  }
+  return 'response' in error || 'code' in error;
 }
 
 onMounted(async () => {
@@ -53,7 +63,9 @@ onMounted(async () => {
   } catch (e: unknown) {
     loginStatus.value = 'fail';
     errorMessage.value = safeMessage(e, 'SSO 登录失败');
-    ElMessage.error(errorMessage.value);
+    if (!shouldSkipLocalErrorToast(e)) {
+      void message.error(errorMessage.value);
+    }
     localStorage.removeItem(tokenKey);
   } finally {
     loading.value = false;

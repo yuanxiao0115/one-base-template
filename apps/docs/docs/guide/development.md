@@ -337,6 +337,11 @@ closeAllMessage();
 - 新代码优先使用 `message` / `closeAllMessage`，减少直接散落 `ElMessage` 调用。
 - `type` 语义与旧项目保持一致，适合直接平移历史页面消息逻辑。
 - `obConfirm` 已全局可用，`<script setup>` 中不再手动 `import { obConfirm } from '@one-base-template/ui'`。
+- 全局 HTTP 错误提示统一走 `apps/admin/src/bootstrap/http.ts` 的 hooks：
+  - `onBizError`：业务错误码提示；
+  - `onNetworkError`：网络/超时/5xx 提示；
+  - `ObBizError` 不再重复触发 `onNetworkError`，避免同一请求出现双提示。
+- 登录/SSO 页面本地 `catch` 仅处理“非 HTTP 链路异常”；HTTP 与业务错误提示交给全局 hooks，避免出现 `502 + 服务异常 + 业务错误` 的叠加提示。
 
 ## Tailwind v4（Monorepo）注意事项
 

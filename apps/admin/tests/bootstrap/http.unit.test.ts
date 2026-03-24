@@ -31,7 +31,7 @@ const mocks = vi.hoisted(() => ({
     }
   ),
   createClientSignatureMock: vi.fn(() => 'client-signature'),
-  elMessageError: vi.fn(),
+  messageError: vi.fn(),
   basicCryptoLoadCount: 0
 }));
 
@@ -49,9 +49,9 @@ vi.mock('@one-base-template/tag/store', () => ({
   })
 }));
 
-vi.mock('element-plus', () => ({
-  ElMessage: {
-    error: mocks.elMessageError
+vi.mock('@one-base-template/ui', () => ({
+  message: {
+    error: mocks.messageError
   }
 }));
 
@@ -74,6 +74,7 @@ interface ObHttpMockOptions {
   hooks: {
     onUnauthorized: () => void;
     onBizError: (payload: { message?: string }) => void;
+    onNetworkError: (error: unknown) => void;
   };
 }
 
@@ -211,6 +212,25 @@ describe('bootstrap/http', () => {
       message: '请求失败'
     });
 
-    expect(mocks.elMessageError).toHaveBeenCalledWith('请求失败');
+    expect(mocks.messageError).toHaveBeenCalledWith('请求失败');
+  });
+
+  it('业务异常不应重复触发网络错误提示', () => {
+    createAppHttp({
+      backend: 'default',
+      isProd: false,
+      authMode: 'cookie',
+      tokenKey: 'token-key',
+      idTokenKey: 'id-token-key',
+      pinia: {} as never,
+      router: { replace: vi.fn() } as never
+    });
+
+    const options = mocks.createObHttpMock.mock.calls[0]?.[0] as ObHttpMockOptions;
+    const error = new Error('请求失败');
+    error.name = 'ObBizError';
+    options.hooks.onNetworkError(error);
+
+    expect(mocks.messageError).not.toHaveBeenCalled();
   });
 });

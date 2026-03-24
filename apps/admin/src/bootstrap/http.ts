@@ -1,4 +1,3 @@
-import { ElMessage } from 'element-plus';
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
 import {
@@ -9,9 +8,14 @@ import {
   useMenuStore,
   useSystemStore
 } from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
 
 import type { AuthMode, BackendKind } from '../config/env';
 import { routePaths } from '../router/constants';
+
+function isBizError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'ObBizError';
+}
 
 function resolveNetworkErrorMessage(error: unknown): string {
   if (!(error instanceof Error)) {
@@ -113,15 +117,18 @@ export function createAppHttp(params: {
       autoDownload: true
     },
     hooks: {
-      onBizError: ({ message }) => {
-        if (message) {
-          ElMessage.error(message);
+      onBizError: ({ message: errorMessage }) => {
+        if (errorMessage) {
+          void message.error(errorMessage);
         }
       },
       onNetworkError: (error) => {
-        const message = resolveNetworkErrorMessage(error);
-        if (message) {
-          ElMessage.error(message);
+        if (isBizError(error)) {
+          return;
+        }
+        const errorMessage = resolveNetworkErrorMessage(error);
+        if (errorMessage) {
+          void message.error(errorMessage);
         }
       },
       onUnauthorized: () => {
