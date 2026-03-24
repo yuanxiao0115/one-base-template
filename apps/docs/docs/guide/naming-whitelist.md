@@ -131,13 +131,28 @@ pnpm check:naming
 - `apps/portal/src/modules/**/services/*.ts`
 - `apps/template/src/modules/**/routes.ts`
 
-## 精确豁免
+## 精确豁免（结构化治理）
 
-为避免“扩范围后误报”，当前保留一个显式命名豁免：
+`allowedNames` 已停用，避免全局白名单无边界膨胀。  
+如确实需要临时豁免，必须在 `allowedNameExemptions` 里声明完整元数据：
 
-- `checkCaptcha`
+```json
+{
+  "allowedNameExemptions": [
+    {
+      "name": "legacyName",
+      "owner": "module-owner",
+      "reason": "历史接口命名暂不可改",
+      "expiresAt": "2026-06-30",
+      "scopes": ["apps/admin/src/modules/**/api/*.ts"]
+    }
+  ]
+}
+```
 
-约束：
+强制约束：
 
-- 仅用于验证码校验这类已经稳定存在的 API 语义。
-- 新增业务方法不要继续堆豁免，优先改成白名单动词。
+- `owner/reason/expiresAt/scopes` 缺一不可。
+- `expiresAt` 过期后 `pnpm check:naming` 会直接失败。
+- 声明了但未命中任何代码的豁免会直接失败，防止僵尸配置。
+- 默认应优先重命名到白名单动词，而不是新增豁免。

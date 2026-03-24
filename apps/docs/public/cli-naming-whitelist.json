@@ -46,7 +46,7 @@
     "preferShortNames": true,
     "allowHandleOnlyForEvents": true
   },
-  "allowedNames": ["checkCaptcha"],
+  "allowedNameExemptions": [],
   "checkTargets": {
     "adminRouter": "apps/admin/src/router",
     "adminAuthServices": "apps/admin/src/services/auth",

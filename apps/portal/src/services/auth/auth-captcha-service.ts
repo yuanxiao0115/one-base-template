@@ -20,7 +20,7 @@ export async function loadCaptcha(params: { captchaKey: string }) {
   });
 }
 
-export async function checkCaptcha(params: { captcha: string; captchaKey: string }) {
+export async function fetchCaptchaCheck(params: { captcha: string; captchaKey: string }) {
   return obHttp().get<BizResponse<unknown>>('/cmict/auth/captcha/check', {
     params,
     $noErrorAlert: true

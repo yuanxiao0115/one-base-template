@@ -4,7 +4,10 @@ import { ElMessage } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { appEnv } from '@/config/env';
-import { checkCaptcha, loadCaptcha } from '@/services/auth/auth-captcha-service';
+import {
+  fetchCaptchaCheck as checkCaptcha,
+  loadCaptcha
+} from '@/services/auth/auth-captcha-service';
 import { getLoginPageConfig, getPortalFrontConfig } from '@/services/auth/auth-remote-service';
 
 defineOptions({
