@@ -78,7 +78,7 @@ pnpm new:module user-center --title 用户中心
 
 ### 命名现状说明（避免误解）
 
-- 当前仓库存在历史目录命名混用（如 `PortalManagement`、`UserManagement`）。
+- 当前仓库存在历史目录命名混用（如 `PortalManagement`、`adminManagement`）。
 - 现行脚手架 `pnpm new:module <module-id>` 强制 `module-id` 为 kebab-case，并在 `apps/admin/src/modules/<module-id>/` 下生成标准结构。
 - 新增模块按 kebab-case 执行，历史模块可按业务节奏逐步收敛，不影响本次开发链路。
 
@@ -204,14 +204,14 @@ compat: {
 
 ```json
 {
-  "enabledModules": ["home", "user-management", "log-management", "system-management"]
+  "enabledModules": ["home", "admin-management", "log-management", "system-management"]
 }
 ```
 
 支持两种形式：
 
 - `"*"`：启用全部已注册模块
-- `string[]`：白名单启用（如 `['home', 'user-management', 'log-management']`）
+- `string[]`：白名单启用（如 `['home', 'admin-management', 'log-management']`）
 - 管理端生产环境建议使用 `string[]`，避免把 demo/portal 等非主链路模块默认带入。
 - 代码层兜底：即使配置缺失或为空数组，`optional` 模块也不会被默认启用。
 
@@ -242,7 +242,7 @@ compat: {
 - 跨模块可复用的通用协议类型统一放在 `apps/admin/src/types/api.ts`（如 `ApiResponse<T>`、`ApiPageData<T>`）；各模块 `types.ts` 直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增中间响应别名，业务实体继续贴近模块维护。
 - 模块内禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`，复杂业务处理统一放在页面层或 composable 层
 
-当前推荐落地范围：`CmsManagement`、`LogManagement`、`SystemManagement`、`UserManagement`。`LogManagement` 与其他模块保持一致，API 跟随子功能目录（如 `login-log/api.ts`、`sys-log/api.ts`），不再集中放在模块根 `api/` 目录。
+当前推荐落地范围：`CmsManagement`、`LogManagement`、`SystemManagement`、`adminManagement`。`LogManagement` 与其他模块保持一致，API 跟随子功能目录（如 `login-log/api.ts`、`sys-log/api.ts`），不再集中放在模块根 `api/` 目录。
 
 说明：后端字段若不符合约定，优先在业务代码中显式处理，不在 API 层做隐式修正。
 
@@ -302,12 +302,12 @@ CLI 生成器可按以下步骤裁剪：
 - 文档说明：`/guide/naming-whitelist`
 - 机器可读文件：`apps/docs/public/cli-naming-whitelist.json`
 
-## 8) UserManagement 模块示例（职位管理）
+## 8) adminManagement 模块示例（职位管理）
 
 为了给后续 `user / org` 迁移打样，仓库新增了统一目录：
 
 ```text
-apps/admin/src/modules/UserManagement/
+apps/admin/src/modules/adminManagement/
   manifest.ts
   module.ts
   routes.ts
@@ -326,13 +326,13 @@ apps/admin/src/modules/UserManagement/
 - 页面结构：`ObPageContainer + ObTableBox + ObVxeTable`
 - 弹窗形态：`ObCrudContainer + useEntityEditor`（业务只关心表单与接口）
 - 接口对齐老项目：直接调用 `/cmict/admin/sys-post/page|add|update|delete|unique/check` 真实后端接口
-- 角色域补充：迁移 UserManagement 角色模块时，需同时核对 `角色管理(/system/role/management)` 与 `角色分配(/system/role/assign)` 两条路由
+- 角色域补充：迁移 adminManagement 角色模块时，需同时核对 `角色管理(/system/role/management)` 与 `角色分配(/system/role/assign)` 两条路由
 
 角色分配页当前已落地，关键文件如下：
 
-- 页面编排：`apps/admin/src/modules/UserManagement/role-assign/list.vue`
-- 页面状态：`apps/admin/src/modules/UserManagement/role-assign/composables/useRoleAssignPageState.ts`
-- 角色成员选择：`apps/admin/src/modules/UserManagement/role-assign/components/RoleAssignMemberSelectForm.vue`
+- 页面编排：`apps/admin/src/modules/adminManagement/role-assign/list.vue`
+- 页面状态：`apps/admin/src/modules/adminManagement/role-assign/composables/useRoleAssignPageState.ts`
+- 角色成员选择：`apps/admin/src/modules/adminManagement/role-assign/components/RoleAssignMemberSelectForm.vue`
 - 复用选人组件：`apps/admin/src/components/PersonnelSelector/PersonnelSelector.vue`
 
 当前交互基线：
@@ -384,7 +384,7 @@ console.log(result.userIds, result.users);
 最小路由声明示例：
 
 ```ts
-// apps/admin/src/modules/UserManagement/routes.ts
+// apps/admin/src/modules/adminManagement/routes.ts
 import type { RouteRecordRaw } from 'vue-router';
 
 export default [
@@ -442,13 +442,6 @@ apps/admin/src/modules/SystemManagement/
   manifest.ts
   module.ts
   routes.ts
-  menu/
-    api.ts
-    columns.ts
-    form.ts
-    composables/useMenuManagementPageState.ts
-    components/*
-    list.vue
   dict/
     api.ts
     columns.ts
@@ -456,11 +449,34 @@ apps/admin/src/modules/SystemManagement/
     composables/useDictPageState.ts
     components/*
     list.vue
+
+apps/admin/src/modules/adminManagement/
+  manifest.ts
+  module.ts
+  routes.ts
+  menu/
+    api.ts
+    columns.ts
+    form.ts
+    composables/useMenuManagementPageState.ts
+    components/*
+    list.vue
+  tenant-info/
+    api.ts
+    columns.ts
+    form.ts
+    components/*
+    list.vue
+  tenant-manager/
+    api.ts
+    columns.ts
+    components/*
+    list.vue
 ```
 
 关键点：
 
-- 路由集中：`routes.ts` 同时声明 `/system/permission`（菜单管理）与 `/system/dict`（字典管理）
+- 路由集中：`adminManagement/routes.ts` 声明 `/system/permission`（菜单管理），`SystemManagement/routes.ts` 仅保留 `/system/dict`（字典管理）
 - 菜单管理：沿用 `ObPageContainer + ObTableBox + ObVxeTable + ObCrudContainer`，支持树模式与筛选模式切换
 - 菜单管理图标：支持手动输入（兼容 class/url/minio id）+ 可视化选择（CP=产品 Iconfont、DJ=党建 Iconfont、OM=OM Iconfont、OD=公文 Iconfont、EP=Element Plus、RI=Remix Icon）
   - 编辑表单入口采用“输入框右侧插槽 + 图标按钮”简约触发器（不展示“选择图标”文字按钮），控件高度统一 `30px`

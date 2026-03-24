@@ -17,9 +17,9 @@ const adminFeatureChunks = [
     patterns: ['/apps/admin/src/modules/SystemManagement/']
   },
   {
-    name: 'admin-user-management',
+    name: 'admin-management',
     patterns: [
-      '/apps/admin/src/modules/UserManagement/',
+      '/apps/admin/src/modules/adminManagement/',
       '/apps/admin/src/components/PersonnelSelector/'
     ]
   },

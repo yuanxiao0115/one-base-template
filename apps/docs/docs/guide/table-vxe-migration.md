@@ -213,15 +213,15 @@ const table = useTable({
 - 页面 2：`/system/org`（树形组织管理）
   - 路由名：`SystemOrgManagement`
   - 代码位置：
-    - `apps/admin/src/modules/UserManagement/org/list.vue`
-    - `apps/admin/src/modules/UserManagement/org/columns.tsx`
-    - `apps/admin/src/modules/UserManagement/org/api.ts`
+    - `apps/admin/src/modules/adminManagement/org/list.vue`
+    - `apps/admin/src/modules/adminManagement/org/columns.tsx`
+    - `apps/admin/src/modules/adminManagement/org/api.ts`
 - 页面 3：`/system/permission`（权限管理）
   - 路由名：`SystemMenuManagement`
   - 代码位置：
-    - `apps/admin/src/modules/SystemManagement/menu/list.vue`
-    - `apps/admin/src/modules/SystemManagement/menu/columns.ts`
-    - `apps/admin/src/modules/SystemManagement/menu/api.ts`
+    - `apps/admin/src/modules/adminManagement/menu/list.vue`
+    - `apps/admin/src/modules/adminManagement/menu/columns.ts`
+    - `apps/admin/src/modules/adminManagement/menu/api.ts`
 
 ## 常见迁移问题
 

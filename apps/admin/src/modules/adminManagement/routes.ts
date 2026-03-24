@@ -2,6 +2,15 @@ import type { RouteRecordRaw } from 'vue-router';
 
 export default [
   {
+    path: '/system/permission',
+    name: 'SystemMenuManagement',
+    component: async () => import('./menu/list.vue'),
+    meta: {
+      title: '菜单管理',
+      keepAlive: true
+    }
+  },
+  {
     path: '/system/user',
     name: 'SystemUserManagement',
     component: async () => import('./user/list.vue'),
@@ -43,6 +52,24 @@ export default [
     component: async () => import('./role-assign/list.vue'),
     meta: {
       title: '角色分配',
+      keepAlive: true
+    }
+  },
+  {
+    path: '/system/tenant/info',
+    name: 'SystemTenantInfoManagement',
+    component: async () => import('./tenant-info/list.vue'),
+    meta: {
+      title: '租户信息管理',
+      keepAlive: true
+    }
+  },
+  {
+    path: '/system/tenant/management',
+    name: 'SystemTenantManagerManagement',
+    component: async () => import('./tenant-manager/list.vue'),
+    meta: {
+      title: '租户管理员管理',
       keepAlive: true
     }
   }

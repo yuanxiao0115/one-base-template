@@ -26,7 +26,7 @@ const platformConfig: RuntimeConfig = parseRuntimeConfig({
   },
   enabledModules: [
     'home',
-    'user-management',
+    'admin-management',
     'log-management',
     'system-management',
     'cms-management',

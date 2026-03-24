@@ -113,7 +113,7 @@
 - 表格对齐统一：表头左对齐；数值列右对齐；操作列右对齐；常规文本列左对齐。
 - `TableBox` 样式规范：搜索输入框宽 `360px`、高 `32px`、右间距 `8px`、无圆角无阴影；筛选按钮同高度扁平；工具条顶部间距固定 `8px`，去掉标题分割线。
 
-## UserManagement 与迁移规则
+## adminManagement 与迁移规则
 
 - `apps/admin/src/modules/*Management/**` 的接口层统一采用“`api.ts + types.ts`”：`api.ts` 仅维护接口地址与请求调用，不做数据保底、归一化、字段兜底；`types.ts` 仅保留页面真实消费的对外类型，避免过度细粒度类型定义。
 - `api.ts` 禁止同源类型中转：禁止出现 `import type {...} from "./types"` 后再 `export type {...} from "./types"`；业务文件需直接从 `types.ts` 引用类型。
@@ -122,12 +122,12 @@
 - `types.ts` 的实体类型默认只保留页面真实使用字段：仅主键与关键交互字段设为必填，其余字段优先可选，避免完整镜像后端 DTO 导致维护成本上升。
 - 对于日志、审计等“弱结构 + 字段经常变动”的列表实体，优先使用“`id` + 少量关键字段 + 索引签名”的宽松定义（如 `[key: string]: string | number | null | undefined`），避免维护超长字段清单。
 - `LogManagement` 目录结构与其他模块保持一致：`login-log/api.ts + login-log/types.ts`、`sys-log/api.ts + sys-log/types.ts`，禁止回退到集中式 `LogManagement/api/*.ts`。
-- `UserManagement`（职位/用户/组织）默认直连真实后端，禁止在 `apps/admin/vite.config.ts` 新增对应 mock 分支；仅用户明确要求 mock 时例外。
-- `UserManagement` 目录采用 feature-first（一个功能一个文件夹）；所有路由集中在模块根目录 `routes.ts`。
-- 新增/迁移 `UserManagement` 页面时，必须同次提交更新 `apps/admin/src/modules/UserManagement/routes.ts`。
-- `UserManagement` 的接口分层默认采用 `api.ts + types.ts`：`api.ts` 仅维护接口路径与请求参数透传；`types.ts` 保持“够用即可”，禁止过度细粒度类型设计；后端字段已对齐场景下，禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`。
-- UserManagement 编排层已按 composable 分层后，禁止再新增汇总式 `actions.ts`；复杂逻辑按语义归入 `useXxxState/useXxxActions/useXxxQuery` 等 composable，页面仅保留编排解构。
-- UserManagement 的页面级 composable 只负责编排：单个 composable 同时出现 `table + editor + dialog + remote options/sidebar/data-source` 中 `3` 类及以上职责时，必须继续拆分，禁止形成 God composable。
+- `adminManagement`（职位/用户/组织/角色/菜单/租户）默认直连真实后端，禁止在 `apps/admin/vite.config.ts` 新增对应 mock 分支；仅用户明确要求 mock 时例外。
+- `adminManagement` 目录采用 feature-first（一个功能一个文件夹）；所有路由集中在模块根目录 `routes.ts`。
+- 新增/迁移 `adminManagement` 页面时，必须同次提交更新 `apps/admin/src/modules/adminManagement/routes.ts`。
+- `adminManagement` 的接口分层默认采用 `api.ts + types.ts`：`api.ts` 仅维护接口路径与请求参数透传；`types.ts` 保持“够用即可”，禁止过度细粒度类型设计；后端字段已对齐场景下，禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`。
+- adminManagement 编排层已按 composable 分层后，禁止再新增汇总式 `actions.ts`；复杂逻辑按语义归入 `useXxxState/useXxxActions/useXxxQuery` 等 composable，页面仅保留编排解构。
+- adminManagement 的页面级 composable 只负责编排：单个 composable 同时出现 `table + editor + dialog + remote options/sidebar/data-source` 中 `3` 类及以上职责时，必须继续拆分，禁止形成 God composable。
 - 禁止为适配下游 API 创建 `safeDataList`、`safeSelectedList` 这类影子状态；列表、选中态、弹窗表单态只能保留一个真实数据源，其余统一通过 `computed` / `readonly` 派生。
 - `defineExpose` 只允许暴露最小通用句柄（如 `validate`、`resetFields`、`clearValidate`）；禁止继续暴露业务动作、加载方法、回填方法（如 `loadOptions`、`loadRootNodes`、`setSelectedUsers`）。
 - 父层禁止通过 `nextTick + ref + defineExpose` 链式驱动子组件内部初始化；弹窗回填、远程选项预加载、已选值同步优先改为 `props` 驱动或由子组件自持状态处理。
@@ -149,7 +149,7 @@
   - 左侧面包屑区域禁止额外显示“组织”抬头。
   - 列表 `loading` 遮罩背景保持透明。
 - 选人能力沉淀为可复用组件：`apps/admin/src/components/PersonnelSelector`。
-- 选人能力相关的数据源（组织树/人员搜索）必须优先收敛到 `apps/admin/src/components/PersonnelSelector/**` 公共层；业务模块（如 `PortalManagement`、`UserManagement/role-assign`）禁止各自硬编码不同接口路径。
+- 选人能力相关的数据源（组织树/人员搜索）必须优先收敛到 `apps/admin/src/components/PersonnelSelector/**` 公共层；业务模块（如 `PortalManagement`、`adminManagement/role-assign`）禁止各自硬编码不同接口路径。
 - 角色分配页左侧角色区优先使用 `ObPageContainer` 的 `#left` + `el-menu`；搜索框与角色选中项保持扁平化无圆角。
 - 用户管理左侧组织树统一使用 `ObTree`：仅叶子节点文本溢出时显示 tooltip。
 - 组织管理树形迁移必须对齐老项目 `parentId` 逻辑：根查询/搜索透传 `companyId`（无值回退 `0`），禁止写死 `parentId='0'`。
@@ -163,9 +163,9 @@
 - 日志/详情类弹层（含抽屉与对话框）若存在异步详情加载，必须增加“最新请求守卫”，并在关闭时失效旧请求，禁止旧响应回写当前详情态。
 - 列表页操作列点击事件禁止在模板内写内联箭头函数（如 `@click="() => handleXxx(row)"`），统一使用直接调用（如 `@click="handleXxx(row)"`）。
 - 基于 `useCrudPage/useEntityEditor` 的列表页必须把 `openCreate/openEdit/openDetail` 收口到显式 handler；并发打开短路统一由 `useEntityEditor` 内置 `opening/submitting` 保护兜底，页面层禁止重复堆叠同构 busy guard。
-- `UserManagement`（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，统一使用 `obConfirm`（含输入型确认）。
+- `adminManagement`（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，统一使用 `obConfirm`（含输入型确认）。
 - 业务页已使用 `ObActionButtons` 时，禁止叠加手写 `el-dropdown` 操作列。
-- `ObActionButtons` 在 UserManagement 页面作为全局组件使用，默认不再手动 import。
+- `ObActionButtons` 在 adminManagement 页面作为全局组件使用，默认不再手动 import。
 - 页面状态分组语义固定：`editor` 仅承载 CRUD 编辑态（`visible/mode/title/submitting/form/uniqueCheck`）；选项/字典/树数据统一放在 `options`。
 - 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 这类场景对象；禁止平铺暴露超过一个屏宽的零散 action/ref。
 
