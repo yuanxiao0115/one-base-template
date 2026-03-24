@@ -24,6 +24,7 @@
     "@one-base-template/ui": "workspace:*",
     "@wangeditor/editor": "^5.1.23",
     "@wangeditor/editor-for-vue": "^5.1.12",
+    "cropperjs": "^1.6.2",
     "element-plus": "^2.13.2",
     "gm-crypto": "^0.1.12",
     "grid-layout-plus": "^1.1.1",
@@ -45,7 +46,7 @@
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^31.0.0",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   }
 }
