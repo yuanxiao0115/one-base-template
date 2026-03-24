@@ -1,3 +1,4 @@
+import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss';
 import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
@@ -11,6 +12,11 @@ export default defineConfig({
     },
     env: {
       builtin: true
+    },
+    settings: {
+      'better-tailwindcss': {
+        entryPoint: 'apps/admin/src/styles/index.css'
+      }
     },
     rules: {
       'constructor-super': 'error',
@@ -111,6 +117,13 @@ export default defineConfig({
       '**/public/fonts/**/iconfont.js'
     ],
     overrides: [
+      {
+        files: ['**/*.{js,cjs,mjs,ts,tsx,cts,mts}'],
+        jsPlugins: ['eslint-plugin-better-tailwindcss'],
+        rules: {
+          ...eslintPluginBetterTailwindcss.configs.recommended.rules
+        }
+      },
       {
         files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
         rules: {

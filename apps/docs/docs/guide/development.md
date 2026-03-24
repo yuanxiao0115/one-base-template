@@ -30,6 +30,12 @@ pnpm -C apps/admin lint:fix
 
 说明：仓库 lint 已统一走 `vp lint`，不再维护 Biome 配置文件。
 
+### Tailwind 类名约束（better-tailwindcss）
+
+- 根 `vite.config.ts` 已接入 `eslint-plugin-better-tailwindcss`，用于约束 Tailwind 类名顺序、重复类、未知类等问题。
+- 当前 `vp lint` 基于 Oxlint 执行，按插件官方说明：`.vue` 模板暂不支持该插件解析。
+- 因此现阶段约束范围为 `js/cjs/mjs/ts/tsx/cts/mts` 文件中的 Tailwind 类名字符串；`.vue` 模板需等待 Oxlint 对 Vue 解析能力完善后再扩展。
+
 ## Vite Task 运行约定
 
 - 根目录 `pnpm build` 映射到 `vp run -r build`，按 workspace 依赖顺序执行。
