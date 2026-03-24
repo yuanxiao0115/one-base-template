@@ -72,6 +72,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - 列表模板渲染可选枚举 / 布尔字段时，必须显式处理 `undefined/null` 并给出 `--`；禁止用 truthy / `Number()` 三元表达式把缺失值静默渲染成正常业务值。
 - 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 等场景对象；禁止平铺暴露过多零散 action/ref。
 - 低层远程搜索表单壳若不直接承担全局消息提示，则必须由调用方 composable 明确接管错误反馈；禁止既移除子组件提示、又不在上层补齐反馈，导致静默失败。
+- 遵循根 `AGENTS.md` 的全仓规则：当表单 / DTO 字段契约已经明确时，禁止继续堆 `String(...)`、`Number(...)`、`value == null ? '' : ...` 这类过度防御性映射；admin 模块默认按当前契约直白赋值，只在真实协议边界做一次必要转换。
 
 ### 参考实现
 

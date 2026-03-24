@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vite-plus/test';
 import { shouldCheckTenantUnique, toTenantUniqueSnapshot } from './tenantUnique';
 
 describe('tenant-info/utils/tenantUnique', () => {
-  it('toTenantUniqueSnapshot 应裁剪文本并兼容数字', () => {
+  it('toTenantUniqueSnapshot 应裁剪文本', () => {
     expect(
       toTenantUniqueSnapshot({
         tenantName: '  租户A  ',
-        contactPhone: 13800138000
+        contactPhone: ' 13800138000 '
       })
     ).toEqual({
       tenantName: '租户A',

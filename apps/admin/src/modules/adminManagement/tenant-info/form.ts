@@ -15,27 +15,20 @@ export function createTenantInfoForm(): TenantInfoForm {
   };
 }
 
-function toNumber(value: unknown, fallback = 0): number {
-  const next = Number(value);
-  return Number.isFinite(next) ? next : fallback;
-}
-
 export function toTenantInfoForm(record?: Partial<TenantInfoRecord> | null): TenantInfoForm {
   const fallback = createTenantInfoForm();
-  if (!record) {
-    return fallback;
-  }
 
   return {
-    id: record.id == null ? '' : String(record.id),
-    tenantName: record.tenantName == null ? '' : String(record.tenantName),
-    contactName: record.contactName == null ? '' : String(record.contactName),
-    contactPhone: record.contactPhone == null ? '' : String(record.contactPhone),
-    maxNumber: toNumber(record.maxNumber, 0),
-    tenantState: toNumber(record.tenantState, 0),
-    managerAccount: record.managerAccount == null ? '' : String(record.managerAccount),
-    expireTime: record.expireTime == null ? '' : String(record.expireTime),
-    remark: record.remark == null ? '' : String(record.remark)
+    ...fallback,
+    id: record?.id ?? '',
+    tenantName: record?.tenantName ?? '',
+    contactName: record?.contactName ?? '',
+    contactPhone: record?.contactPhone ?? '',
+    maxNumber: record?.maxNumber == null ? fallback.maxNumber : Number(record.maxNumber),
+    tenantState: record?.tenantState == null ? fallback.tenantState : Number(record.tenantState),
+    managerAccount: record?.managerAccount ?? '',
+    expireTime: record?.expireTime ?? '',
+    remark: record?.remark ?? ''
   };
 }
 
@@ -45,8 +38,8 @@ export function toTenantInfoPayload(form: TenantInfoForm): TenantInfoSavePayload
     tenantName: form.tenantName.trim(),
     contactName: form.contactName.trim(),
     contactPhone: form.contactPhone.trim(),
-    maxNumber: toNumber(form.maxNumber, 0),
-    tenantState: toNumber(form.tenantState, 0),
+    maxNumber: form.maxNumber,
+    tenantState: form.tenantState,
     managerAccount: form.managerAccount.trim(),
     expireTime: form.expireTime,
     remark: form.remark.trim()

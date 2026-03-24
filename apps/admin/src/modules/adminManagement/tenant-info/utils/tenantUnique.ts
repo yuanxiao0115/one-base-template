@@ -3,25 +3,13 @@ export interface TenantUniqueSnapshot {
   contactPhone: string;
 }
 
-function normalizeText(value: unknown): string {
-  if (typeof value === 'string') {
-    return value.trim();
-  }
-
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return String(value);
-  }
-
-  return '';
-}
-
 export function toTenantUniqueSnapshot(input: {
-  tenantName?: unknown;
-  contactPhone?: unknown;
+  tenantName?: string;
+  contactPhone?: string;
 }): TenantUniqueSnapshot {
   return {
-    tenantName: normalizeText(input.tenantName),
-    contactPhone: normalizeText(input.contactPhone)
+    tenantName: input.tenantName?.trim() ?? '',
+    contactPhone: input.contactPhone?.trim() ?? ''
   };
 }
 
