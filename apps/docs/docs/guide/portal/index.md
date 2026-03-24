@@ -56,6 +56,7 @@ apps/portal/src/modules/portal
 | 路由                                       | 作用                   |
 | ------------------------------------------ | ---------------------- |
 | `/portal/setting`                          | 门户模板列表           |
+| `/material/index`                          | 素材管理（图片/图标）  |
 | `/portal/design?id=...`                    | 门户设计工作台         |
 | `/portal/page/edit?id=...&tabId=...`       | 页面深度编辑           |
 | `/portal/preview?templateId=...&tabId=...` | 预览渲染（匿名可访问） |

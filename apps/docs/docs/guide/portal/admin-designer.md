@@ -20,6 +20,23 @@
 - `standalone` 路由承载全屏工作区：`/portal/design`、`/portal/page/edit`、`/portal/preview`。
 - `meta.hiddenTab=true`：避免门户编辑页进入顶部标签栏。
 
+## 素材管理迁移（2026-03-24）
+
+- 新增管理页：`/material/index`，页面入口为 `materialManagement/list.vue`。
+- 路由挂载位置：`PortalManagement/routes/layout.ts`，属于 layout 子路由，保留 admin 顶栏与侧栏。
+- 接口对齐老项目：`/cmict/portal/fodder-label/*`、`/cmict/portal/fodder/*`、`/cmict/file/resource/upload`。
+- 页面能力覆盖：
+  - 分类：查询、搜索、新建、编辑、删除。
+  - 素材：分页查询、关键字搜索、批量勾选、批量删除、上传、编辑、预览。
+
+### 性能策略
+
+- 分类缓存：按 `fodderType + searchKey` 做内存 TTL 缓存（默认 60s）。
+- 列表缓存：按 `fodderType + categoryId + page + pageSize + searchKey` 做内存 TTL 缓存（默认 45s）。
+- 最新请求守卫：切换分类/分页/检索时，旧请求响应不回写页面。
+- 搜索防抖：分类与素材检索统一 300ms 防抖，减少高频请求。
+- 图片懒加载：素材卡片预览统一 `el-image loading=\"lazy\"`。
+
 ## 引擎注入链路（唯一入口）
 
 固定入口：`apps/admin/src/modules/PortalManagement/engine/register.ts`

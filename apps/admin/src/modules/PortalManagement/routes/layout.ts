@@ -20,5 +20,15 @@ export default [
       activePath: '/portal/setting',
       skipMenuAuth: true
     }
+  },
+  {
+    path: 'material/index',
+    name: 'PortalMaterialManagement',
+    component: async () => import('../materialManagement/list.vue'),
+    meta: {
+      title: '素材管理',
+      keepAlive: true,
+      activePath: '/material/index'
+    }
   }
 ] satisfies RouteRecordRaw[];
