@@ -49,22 +49,10 @@ const roleItems = [
   { text: '仓库维护者阅读入口', link: '/guide/for-maintainers' }
 ] as const;
 
-const moduleSwitchItems = [
-  { text: '入门', link: '/guide/quick-start' },
-  { text: '架构与运行时', link: '/guide/architecture' },
-  { text: '开发实践', link: '/guide/crud-container' },
-  { text: '扩展能力', link: '/guide/portal/' },
-  { text: '维护治理', link: '/guide/development' }
-] as const;
-
 const asSidebar = (moduleText: string, items: ReadonlyArray<{ text: string; link: string }>) => [
   {
     text: moduleText,
     items
-  },
-  {
-    text: '模块切换',
-    items: moduleSwitchItems
   }
 ];
 
@@ -79,10 +67,6 @@ const guideHomeSidebar = [
   {
     text: '文档总览',
     items: [{ text: '总览页', link: '/guide/' }]
-  },
-  {
-    text: '按模块进入',
-    items: moduleSwitchItems
   },
   {
     text: '按角色进入',
