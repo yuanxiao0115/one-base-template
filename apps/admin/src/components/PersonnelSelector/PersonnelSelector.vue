@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { message } from '@one-base-template/ui';
 import PersonnelSelectorSourcePanel from './PersonnelSelectorSourcePanel.vue';
 import PersonnelSelectorSelectedPanel from './PersonnelSelectorSelectedPanel.vue';
 import type {
@@ -25,6 +26,7 @@ const props = withDefaults(
     searchNodes: PersonnelSearchNodes;
     allowSelectOrg?: boolean;
     selectionField?: PersonnelSelectionField;
+    initialSelectedUsers?: PersonnelSelectedUser[];
   }>(),
   {
     mode: 'person',
@@ -112,6 +114,10 @@ function writeSelectedIds(ids: string[]) {
     return;
   }
   model.value[props.selectionField] = Array.from(new Set(ids.filter(Boolean)));
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
 function toSelectedUser(node: PersonnelUserNode): PersonnelSelectedUser {
@@ -222,6 +228,14 @@ async function loadRootNodes() {
     if (currentToken === dataLoadToken) {
       loading.value = false;
     }
+  }
+}
+
+async function syncRootNodes() {
+  try {
+    await loadRootNodes();
+  } catch (error) {
+    message.error(getErrorMessage(error, '加载组织通讯录失败'));
   }
 }
 
@@ -404,6 +418,26 @@ function reorderSelected(payload: { oldIndex: number; newIndex: number }) {
   writeSelectedIds(ids);
 }
 
+function resetViewState() {
+  dataLoadToken += 1;
+  searchToken += 1;
+  nodeChildrenCache.clear();
+  nodeChildrenLoadingMap.clear();
+  searchCache.clear();
+  searchLoadingMap.clear();
+  currentNodes.value = [];
+  rootNodes.value = [];
+  isSearchMode.value = false;
+  searchKeyword.value = '';
+  breadcrumbs.value = [
+    {
+      id: '0',
+      title: '组织'
+    }
+  ];
+  loading.value = false;
+}
+
 watch(
   () => props.selectionField,
   () => {
@@ -417,21 +451,10 @@ watch(
 watch(
   () => props.mode,
   () => {
-    nodeChildrenCache.clear();
-    nodeChildrenLoadingMap.clear();
-    searchCache.clear();
-    searchLoadingMap.clear();
-    currentNodes.value = [];
-    rootNodes.value = [];
-    isSearchMode.value = false;
-    searchKeyword.value = '';
-    breadcrumbs.value = [
-      {
-        id: '0',
-        title: '组织'
-      }
-    ];
-  }
+    resetViewState();
+    void syncRootNodes();
+  },
+  { immediate: true }
 );
 
 watch(
@@ -460,6 +483,28 @@ watch(
   }
 );
 
+watch(
+  () => props.initialSelectedUsers,
+  (users) => {
+    if (!Array.isArray(users)) {
+      return;
+    }
+
+    const selectedUsers = users.map((item) => ({
+      ...item,
+      nodeType: 'user' as PersonnelNodeType,
+      title: item.nickName || item.title,
+      subTitle: item.phone || item.userAccount || '--'
+    }));
+
+    setSelectedItems(selectedUsers);
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
+
 function setSelectedItems(items: PersonnelSelectedItem[]) {
   const patch = { ...selectedMap.value };
   items.forEach((item) => {
@@ -471,20 +516,9 @@ function setSelectedItems(items: PersonnelSelectedItem[]) {
   writeSelectedIds(items.map((item) => item.id));
 }
 
-function setSelectedUsers(users: PersonnelSelectedUser[]) {
-  const selectedUsers = users.map((item) => ({
-    ...item,
-    nodeType: 'user' as PersonnelNodeType,
-    title: item.nickName,
-    subTitle: item.phone || item.userAccount || '--'
-  }));
-  setSelectedItems(selectedUsers);
-}
-
 defineExpose({
   loadRootNodes,
   setSelectedItems,
-  setSelectedUsers,
   getSelectedItems: () => [...selectedItems.value]
 });
 </script>

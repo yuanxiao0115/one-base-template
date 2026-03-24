@@ -1,34 +1,15 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { defineComponent, h } from 'vue';
-import { describe, expect, it, vi } from 'vite-plus/test';
-
-const messageMocks = vi.hoisted(() => ({
-  error: vi.fn()
-}));
-
-vi.mock('@one-base-template/ui', async () => {
-  const actual =
-    await vi.importActual<typeof import('@one-base-template/ui')>('@one-base-template/ui');
-
-  return {
-    ...actual,
-    message: messageMocks
-  };
-});
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import RoleAssignMemberSelectForm from './RoleAssignMemberSelectForm.vue';
 
-function createStubs(options?: {
-  loadRootNodes?: ReturnType<typeof vi.fn>;
-  setSelectedUsers?: ReturnType<typeof vi.fn>;
-}) {
+function createStubs() {
   const formMethods = {
     validate: vi.fn(async () => true),
     clearValidate: vi.fn(),
     resetFields: vi.fn()
   };
-  const loadRootNodes = options?.loadRootNodes || vi.fn(async () => undefined);
-  const setSelectedUsers = options?.setSelectedUsers || vi.fn();
 
   const ElForm = defineComponent({
     name: 'ElForm',
@@ -47,20 +28,45 @@ function createStubs(options?: {
 
   const PersonnelSelector = defineComponent({
     name: 'PersonnelSelector',
-    setup(_, { expose }) {
-      expose({
-        loadRootNodes,
-        setSelectedUsers
-      });
-
-      return () => h('div', { 'data-testid': 'personnel-selector' });
+    props: {
+      modelValue: {
+        type: Object,
+        required: true
+      },
+      disabled: {
+        type: Boolean,
+        required: true
+      },
+      mode: {
+        type: String,
+        required: true
+      },
+      initialSelectedUsers: {
+        type: Array,
+        required: false,
+        default: () => []
+      },
+      fetchNodes: {
+        type: Function,
+        required: true
+      },
+      searchNodes: {
+        type: Function,
+        required: true
+      }
+    },
+    setup(props) {
+      return () =>
+        h('div', {
+          'data-testid': 'personnel-selector',
+          'data-mode': props.mode,
+          'data-selected-count': String(props.initialSelectedUsers.length)
+        });
     }
   });
 
   return {
     formMethods,
-    loadRootNodes,
-    setSelectedUsers,
     stubs: {
       ElForm,
       ElFormItem,
@@ -70,10 +76,14 @@ function createStubs(options?: {
 }
 
 describe('RoleAssignMemberSelectForm', () => {
-  it('应在挂载后加载根节点并同步初始已选人员', async () => {
-    const { loadRootNodes, setSelectedUsers, stubs } = createStubs();
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    mount(RoleAssignMemberSelectForm, {
+  it('应通过 props/v-model 将初始已选人员透传给 PersonnelSelector', async () => {
+    const { stubs } = createStubs();
+
+    const wrapper = mount(RoleAssignMemberSelectForm, {
       props: {
         modelValue: {
           userIds: ['user-1']
@@ -101,41 +111,18 @@ describe('RoleAssignMemberSelectForm', () => {
 
     await flushPromises();
 
-    expect(loadRootNodes).toHaveBeenCalledTimes(1);
-    expect(setSelectedUsers).toHaveBeenCalledWith([
+    const selector = wrapper.getComponent({ name: 'PersonnelSelector' });
+
+    expect(selector.props('mode')).toBe('person');
+    expect(selector.props('modelValue')).toEqual({
+      userIds: ['user-1']
+    });
+    expect(selector.props('initialSelectedUsers')).toEqual([
       expect.objectContaining({
         id: 'user-1',
-        subTitle: '13800000000'
+        userAccount: 'zhangsan'
       })
     ]);
-  });
-
-  it('初始化根节点失败时应提示错误而不是抛出未处理异常', async () => {
-    const { stubs } = createStubs({
-      loadRootNodes: vi.fn(async () => {
-        throw new Error('加载组织通讯录失败');
-      })
-    });
-
-    mount(RoleAssignMemberSelectForm, {
-      props: {
-        modelValue: {
-          userIds: []
-        },
-        disabled: false,
-        initialSelectedUsers: [],
-        fetchNodes: vi.fn(async () => []),
-        searchNodes: vi.fn(async () => []),
-        'onUpdate:modelValue': vi.fn()
-      },
-      global: {
-        stubs
-      }
-    });
-
-    await flushPromises();
-
-    expect(messageMocks.error).toHaveBeenCalledWith('加载组织通讯录失败');
   });
 
   it('仅暴露通用表单句柄', async () => {
@@ -157,7 +144,7 @@ describe('RoleAssignMemberSelectForm', () => {
       }
     });
 
-    const exposed = wrapper.vm as unknown as {
+    const exposed = wrapper.vm.$.exposed as {
       validate: () => Promise<unknown>;
       clearValidate: () => void;
       resetFields: () => void;

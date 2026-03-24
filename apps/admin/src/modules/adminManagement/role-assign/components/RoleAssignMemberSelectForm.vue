@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import { message } from '@one-base-template/ui';
 import PersonnelSelector from '@/components/PersonnelSelector/PersonnelSelector.vue';
 import type {
   PersonnelFetchNodes,
   PersonnelSearchNodes,
   PersonnelSelectedUser
 } from '@/components/PersonnelSelector/types';
-
-interface PersonnelSelectorExpose {
-  loadRootNodes?: () => Promise<void>;
-  setSelectedUsers?: (users: PersonnelSelectedUser[]) => void;
-}
 
 const props = withDefaults(
   defineProps<{
@@ -31,7 +25,6 @@ const model = defineModel<{
 }>({ required: true });
 
 const formRef = ref<FormInstance>();
-const selectorRef = ref<PersonnelSelectorExpose>();
 
 const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
   userIds: [
@@ -47,45 +40,6 @@ const formRules = computed<FormRules<{ userIds: string[] }>>(() => ({
     }
   ]
 }));
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
-
-async function syncRootNodes(selector?: PersonnelSelectorExpose) {
-  if (!selector?.loadRootNodes) {
-    return;
-  }
-
-  try {
-    await selector.loadRootNodes();
-  } catch (error) {
-    message.error(getErrorMessage(error, '加载组织通讯录失败'));
-  }
-}
-
-watch(
-  selectorRef,
-  (selector) => {
-    void syncRootNodes(selector);
-  },
-  {
-    immediate: true,
-    flush: 'post'
-  }
-);
-
-watch(
-  [selectorRef, () => props.initialSelectedUsers],
-  ([selector, users]) => {
-    selector?.setSelectedUsers?.(Array.isArray(users) ? users : []);
-  },
-  {
-    immediate: true,
-    deep: true,
-    flush: 'post'
-  }
-);
 
 defineExpose({
   validate: (...args: Parameters<NonNullable<FormInstance['validate']>>) => {
@@ -106,10 +60,10 @@ defineExpose({
   <el-form ref="formRef" :model :rules="formRules" :disabled="props.disabled" label-position="top">
     <el-form-item class="role-assign-member-select-form__form-item" prop="userIds">
       <PersonnelSelector
-        ref="selectorRef"
         v-model="model"
         mode="person"
         :disabled="props.disabled"
+        :initial-selected-users="props.initialSelectedUsers"
         :fetch-nodes="props.fetchNodes"
         :search-nodes="props.searchNodes"
       />
