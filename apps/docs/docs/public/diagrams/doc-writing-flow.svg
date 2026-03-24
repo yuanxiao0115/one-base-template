@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1540 340" role="img" aria-labelledby="title desc">
+  <title id="title">文档生产流程图</title>
+  <desc id="desc">文档从明确目标到通过 lint 和 build 验收的流程。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569" />
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .node { fill: #ffffff; stroke: #94a3b8; stroke-width: 2; }
+      .start { fill: #dbeafe; stroke: #3b82f6; stroke-width: 2.5; }
+      .ok { fill: #ecfdf3; stroke: #22c55e; stroke-width: 2; }
+      .title { font: 700 30px 'PingFang SC', 'Noto Sans SC', sans-serif; fill: #0f172a; }
+      .text { font: 600 18px 'PingFang SC', 'Noto Sans SC', sans-serif; fill: #0f172a; }
+      .line { stroke: #475569; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1540" height="340" />
+  <text class="title" x="40" y="52">文档生产流程（SVG）</text>
+
+  <rect class="start" x="40" y="128" width="250" height="88" rx="12" />
+  <text class="text" x="78" y="180">明确读者与目标</text>
+
+  <rect class="node" x="330" y="128" width="250" height="88" rx="12" />
+  <text class="text" x="368" y="180">搭建固定骨架</text>
+
+  <rect class="node" x="620" y="128" width="250" height="88" rx="12" />
+  <text class="text" x="656" y="180">补齐步骤与示例</text>
+
+  <rect class="node" x="910" y="128" width="250" height="88" rx="12" />
+  <text class="text" x="944" y="180">统一排版与术语</text>
+
+  <rect class="ok" x="1200" y="128" width="300" height="88" rx="12" />
+  <text class="text" x="1238" y="180">执行 lint 与 build 验收</text>
+
+  <path class="line" d="M290 172 L330 172" />
+  <path class="line" d="M580 172 L620 172" />
+  <path class="line" d="M870 172 L910 172" />
+  <path class="line" d="M1160 172 L1200 172" />
+</svg>

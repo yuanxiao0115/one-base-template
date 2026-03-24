@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1380 980" role="img" aria-labelledby="title desc">
+  <title id="title">模块入口约定树图</title>
+  <desc id="desc">展示 apps/admin/src/modules 下单个模块的标准入口结构与核心文件关系。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b" />
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .root { fill: #dbeafe; stroke: #3b82f6; stroke-width: 2.5; }
+      .main { fill: #ffffff; stroke: #94a3b8; stroke-width: 2; }
+      .sub { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.8; }
+      .title { font: 700 34px 'PingFang SC', 'Noto Sans SC', sans-serif; fill: #0f172a; }
+      .label { font: 600 21px 'PingFang SC', 'Noto Sans SC', sans-serif; fill: #0f172a; }
+      .desc { font: 500 18px 'PingFang SC', 'Noto Sans SC', sans-serif; fill: #334155; }
+      .line { stroke: #64748b; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1380" height="980" />
+  <text class="title" x="52" y="62">模块入口树图（SVG）</text>
+
+  <rect class="root" x="300" y="94" width="780" height="86" rx="14" />
+  <text class="label" x="332" y="147">apps/admin/src/modules/&lt;module-id&gt;/</text>
+
+  <rect class="main" x="90" y="250" width="560" height="128" rx="12" />
+  <text class="label" x="116" y="298">manifest.ts</text>
+  <text class="desc" x="116" y="332">声明 id / version / moduleTier / enabledByDefault</text>
+
+  <rect class="main" x="730" y="250" width="560" height="128" rx="12" />
+  <text class="label" x="756" y="298">module.ts</text>
+  <text class="desc" x="756" y="332">导出 AppModuleManifest，挂载 routes 与 apiNamespace</text>
+
+  <rect class="main" x="410" y="432" width="560" height="128" rx="12" />
+  <text class="label" x="436" y="480">routes.ts / routes/index.ts</text>
+  <text class="desc" x="436" y="514">声明 layout 与 standalone 路由</text>
+
+  <rect class="sub" x="70" y="650" width="250" height="98" rx="10" />
+  <text class="label" x="94" y="703">pages/*</text>
+
+  <rect class="sub" x="344" y="650" width="250" height="98" rx="10" />
+  <text class="label" x="370" y="703">api/*</text>
+
+  <rect class="sub" x="618" y="650" width="250" height="98" rx="10" />
+  <text class="label" x="644" y="703">services/*</text>
+
+  <rect class="sub" x="892" y="650" width="250" height="98" rx="10" />
+  <text class="label" x="918" y="703">stores/*</text>
+
+  <rect class="sub" x="1116" y="650" width="194" height="98" rx="10" />
+  <text class="label" x="1138" y="703">components/*</text>
+
+  <path class="line" d="M690 180 L370 250" />
+  <path class="line" d="M690 180 L1010 250" />
+  <path class="line" d="M1010 378 L690 432" />
+
+  <path class="line" d="M690 560 L195 650" />
+  <path class="line" d="M690 560 L469 650" />
+  <path class="line" d="M690 560 L743 650" />
+  <path class="line" d="M690 560 L1017 650" />
+  <path class="line" d="M690 560 L1214 650" />
+
+  <text class="desc" x="52" y="910">规范重点：先声明 manifest，再通过 module 统一导出，路由与页面/API/服务组件保持同模块就近维护。</text>
+</svg>

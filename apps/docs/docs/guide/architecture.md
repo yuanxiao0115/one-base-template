@@ -14,22 +14,7 @@
 
 ## Monorepo 架构总览（树图）
 
-```text
-one-base-template
-├─ apps（应用层）
-│  ├─ admin     主后台组装层（本地 bootstrap 启动）
-│  ├─ portal    前台门户消费者（依赖 app-starter 启动骨架）
-│  ├─ template  最小静态菜单示例（依赖 app-starter 启动骨架）
-│  └─ docs      VitePress 文档站
-└─ packages（共享层）
-   ├─ core         鉴权 / 菜单 / 主题 / HTTP 逻辑契约
-   ├─ ui           Layout / Sidebar / Topbar / Tabs 壳层
-   ├─ adapters     后端协议适配与字段映射
-   ├─ portal-engine 门户编辑与渲染引擎
-   ├─ app-starter  portal/template 启动编排与兜底
-   ├─ tag          标签与样式能力
-   └─ utils        通用工具能力
-```
+![Monorepo 架构总览（SVG）](/diagrams/monorepo-overview.svg)
 
 ### 应用与共享包依赖关系（最小可读版）
 

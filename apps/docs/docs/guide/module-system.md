@@ -25,18 +25,7 @@ apps/admin/src/modules/<module-id>/
 
 ### 模块入口树图（推荐）
 
-```mermaid
-flowchart TD
-  A["apps/admin/src/modules/<module-id>/"]
-  A --> B["manifest.ts\\n声明 id/version/moduleTier/enabledByDefault"]
-  A --> C["module.ts\\n导出 AppModuleManifest"]
-  A --> D["routes.ts 或 routes/index.ts\\n声明 layout/standalone 路由"]
-  A --> E["pages/*\\n页面实现"]
-  A --> F["api/*\\n接口调用与契约"]
-  A --> G["services/*\\n页面用例编排"]
-  A --> H["components/*\\n模块内组件"]
-  C --> D
-```
+![模块入口树图（SVG）](/diagrams/module-entry-tree.svg)
 
 `manifest.ts` 必填字段：
 

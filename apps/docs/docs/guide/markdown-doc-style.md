@@ -146,13 +146,7 @@ pnpm -C apps/docs build
 
 ## 文档生产流程图
 
-```mermaid
-flowchart TD
-  A[明确读者与目标] --> B[搭建固定骨架]
-  B --> C[补齐步骤与示例]
-  C --> D[统一排版与术语]
-  D --> E[执行 lint 与 build 验收]
-```
+![文档生产流程图（SVG）](/diagrams/doc-writing-flow.svg)
 
 ## 变更记录
 

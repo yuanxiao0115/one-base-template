@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1860 520" role="img" aria-labelledby="title desc">
+  <title id="title">admin 启动顺序流程图</title>
+  <desc id="desc">展示 admin 从 main 到 mount 的主链路，以及启动失败时 error-view 兜底分支。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569" />
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .node { fill: #ffffff; stroke: #94a3b8; stroke-width: 2; }
+      .start { fill: #dbeafe; stroke: #3b82f6; stroke-width: 2.5; }
+      .ok { fill: #ecfdf3; stroke: #22c55e; stroke-width: 2; }
+      .err { fill: #fee2e2; stroke: #ef4444; stroke-width: 2; }
+      .title { font: 700 32px 'PingFang SC', 'Noto Sans SC', sans-serif; fill: #0f172a; }
+      .text { font: 600 18px 'PingFang SC', 'Noto Sans SC', sans-serif; fill: #0f172a; }
+      .line { stroke: #475569; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .label { font: 600 16px 'PingFang SC', 'Noto Sans SC', sans-serif; fill: #334155; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1860" height="520" />
+  <text class="title" x="42" y="56">admin 启动顺序（SVG）</text>
+
+  <rect class="start" x="40" y="170" width="240" height="92" rx="12" />
+  <text class="text" x="68" y="224">main.ts / startAdminApp()</text>
+
+  <rect class="node" x="320" y="170" width="240" height="92" rx="12" />
+  <text class="text" x="372" y="224">startup.ts</text>
+
+  <rect class="node" x="600" y="170" width="270" height="92" rx="12" />
+  <text class="text" x="662" y="224">bootstrap/index.ts</text>
+
+  <rect class="node" x="910" y="170" width="250" height="92" rx="12" />
+  <text class="text" x="984" y="224">env.ts 聚合配置</text>
+
+  <rect class="node" x="1200" y="170" width="270" height="92" rx="12" />
+  <text class="text" x="1240" y="224">assemble-routes.ts</text>
+
+  <rect class="node" x="1510" y="170" width="180" height="92" rx="12" />
+  <text class="text" x="1540" y="224">router.isReady()</text>
+
+  <rect class="ok" x="1730" y="170" width="100" height="92" rx="12" />
+  <text class="text" x="1754" y="224">mount</text>
+
+  <rect class="err" x="320" y="356" width="300" height="100" rx="12" />
+  <text class="text" x="364" y="398">error-view.ts</text>
+  <text class="label" x="364" y="428">启动失败统一兜底</text>
+
+  <path class="line" d="M280 216 L320 216" />
+  <path class="line" d="M560 216 L600 216" />
+  <path class="line" d="M870 216 L910 216" />
+  <path class="line" d="M1160 216 L1200 216" />
+  <path class="line" d="M1470 216 L1510 216" />
+  <path class="line" d="M1690 216 L1730 216" />
+
+  <path class="line" d="M440 262 L440 356" />
+  <text class="label" x="448" y="314">失败分支</text>
+</svg>

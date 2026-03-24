@@ -26,16 +26,7 @@
 
 ### admin 启动顺序（流程图）
 
-```mermaid
-flowchart TD
-  A["main.ts：调用 startAdminApp()"] --> B["startup.ts：统一启动编排"]
-  B --> C["bootstrap/index.ts：创建 app/pinia/router/http/core 并安装守卫"]
-  C --> D["env.ts：聚合构建期 env + 代码静态平台配置"]
-  D --> E["router/assemble-routes.ts：按 enabledModules 装配路由"]
-  E --> F["router.isReady()"]
-  F -->|成功| G["mount：挂载应用"]
-  B -->|失败| H["error-view.ts：统一错误视图兜底"]
-```
+![admin 启动顺序流程图（SVG）](/diagrams/runtime-admin-startup.svg)
 
 ## template 启动分层（最小静态菜单）
 
@@ -48,14 +39,7 @@ flowchart TD
 
 ### template 启动顺序（流程图）
 
-```mermaid
-flowchart TD
-  A["main.ts：启动模板应用"] --> B["config/platform-config.ts：读取并校验配置"]
-  B --> C["bootstrap/index.ts：安装 router/core/ui/tag 与守卫"]
-  C --> D["router/routes.ts：装配静态路由与菜单"]
-  D --> E["infra/local-adapter.ts：挂载本地鉴权适配器"]
-  E --> F["mount：挂载应用"]
-```
+![template 启动顺序流程图（SVG）](/diagrams/runtime-template-startup.svg)
 
 ## portal 启动分层（门户消费者）
 
@@ -67,14 +51,7 @@ flowchart TD
 
 ### portal 启动顺序（流程图）
 
-```mermaid
-flowchart TD
-  A["main.ts：读取 platform-config.json 并启动"] --> B["bootstrap/index.ts：安装 router/core/ui"]
-  B --> C["bootstrap/http.ts + adapter.ts：注入鉴权与 HTTP 适配"]
-  C --> D["useMaterials.ts：向 portal-engine 注入 cmsApi"]
-  D --> E["router.isReady()"]
-  E --> F["mount：挂载应用"]
-```
+![portal 启动顺序流程图（SVG）](/diagrams/runtime-portal-startup.svg)
 
 ### portal 登录与菜单边界
 
