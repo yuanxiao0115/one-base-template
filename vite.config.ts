@@ -3,7 +3,8 @@ import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
   staged: {
-    '*': 'vp check --fix'
+    '*.{js,cjs,mjs,ts,tsx,cts,mts,vue}': 'vp check --fix',
+    '*.{json,jsonc,md,yml,yaml,css,scss,html}': 'vp fmt'
   },
   lint: {
     plugins: ['oxc', 'typescript', 'unicorn', 'react', 'vue'],
