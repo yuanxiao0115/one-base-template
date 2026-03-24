@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactive } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
 import MenuPermissionEditForm from './components/MenuPermissionEditForm.vue';
 import MenuPermissionSearchForm from './components/MenuPermissionSearchForm.vue';
@@ -10,61 +11,40 @@ defineOptions({
 
 const pageState = useMenuManagementPageState();
 
-const { refs } = pageState;
-
-const { loading, dataList, tableColumns, tableTreeConfig, searchForm } = pageState.table;
-
-const { resourceTypeOptions, parentOptions } = pageState.options;
-
-const {
-  crud,
-  crudVisible,
-  crudMode,
-  crudTitle,
-  crudReadonly,
-  crudSubmitting,
-  crudForm,
-  menuPermissionFormRules
-} = pageState.editor;
-
-const {
-  tableSearch,
-  onKeywordUpdate,
-  onResetSearch,
-  openRootCreateDialog,
-  openEdit,
-  openDetail,
-  handleCreateCommand,
-  handleDelete,
-  onConfirmCrud
-} = pageState.actions;
+// 页面仅保留编排层：菜单管理查询、CRUD 与选项加载逻辑统一下沉到 composable。
+const { refs, actions } = pageState;
+const table = reactive(pageState.table);
+const editor = reactive(pageState.editor);
+const options = reactive(pageState.options);
 </script>
 
 <template>
   <ObPageContainer padding="0" overflow="hidden">
     <ObTableBox
       title="菜单管理"
-      :columns="tableColumns"
+      :columns="table.tableColumns"
       placeholder="请输入权限名称搜索"
-      :keyword="searchForm.resourceName"
-      @search="tableSearch"
-      @update:keyword="onKeywordUpdate"
-      @reset-form="onResetSearch"
+      :keyword="table.searchForm.resourceName"
+      @search="actions.tableSearch"
+      @update:keyword="actions.onKeywordUpdate"
+      @reset-form="actions.onResetSearch"
     >
       <template #buttons>
-        <el-button type="primary" :icon="Plus" @click="openRootCreateDialog">添加权限</el-button>
+        <el-button type="primary" :icon="Plus" @click="actions.openRootCreateDialog"
+          >添加权限</el-button
+        >
       </template>
 
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="refs.tableRef"
           :size
-          :loading
-          :data="dataList"
+          :loading="table.loading"
+          :data="table.dataList"
           :columns="dynamicColumns"
           :pagination="false"
           row-key="id"
-          :tree-config="tableTreeConfig"
+          :tree-config="table.tableTreeConfig"
         >
           <template #icon="{ row }">
             <div class="system-menu-management-page__icon-cell">
@@ -77,7 +57,10 @@ const {
 
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-dropdown v-if="Number(row.resourceType) !== 3" @command="handleCreateCommand">
+              <el-dropdown
+                v-if="Number(row.resourceType) !== 3"
+                @command="actions.handleCreateCommand"
+              >
                 <el-button link type="primary" :size="actionSize">新建</el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
@@ -91,13 +74,13 @@ const {
                 </template>
               </el-dropdown>
 
-              <el-button link type="primary" :size="actionSize" @click="openEdit(row)"
+              <el-button link type="primary" :size="actionSize" @click="actions.openEdit(row)"
                 >编辑</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="openDetail(row)"
+              <el-button link type="primary" :size="actionSize" @click="actions.openDetail(row)"
                 >查看</el-button
               >
-              <el-button link type="danger" :size="actionSize" @click="handleDelete(row)"
+              <el-button link type="danger" :size="actionSize" @click="actions.handleDelete(row)"
                 >删除</el-button
               >
             </ObActionButtons>
@@ -108,34 +91,34 @@ const {
       <template #drawer>
         <MenuPermissionSearchForm
           :ref="refs.searchRef"
-          v-model="searchForm"
-          :resource-type-options
+          v-model="table.searchForm"
+          :resource-type-options="options.resourceTypeOptions"
         />
       </template>
     </ObTableBox>
   </ObPageContainer>
 
   <ObCrudContainer
-    v-model="crudVisible"
+    v-model="editor.crudVisible"
     container="drawer"
-    :mode="crudMode"
-    :title="crudTitle"
-    :loading="crudSubmitting"
-    :show-cancel-button="!crudReadonly"
+    :mode="editor.crudMode"
+    :title="editor.crudTitle"
+    :loading="editor.crudSubmitting"
+    :show-cancel-button="!editor.crudReadonly"
     confirm-text="保存"
     :drawer-size="760"
     :drawer-columns="2"
-    @confirm="onConfirmCrud"
-    @cancel="crud.close"
-    @close="crud.close"
+    @confirm="actions.onConfirmCrud"
+    @cancel="editor.crud.close"
+    @close="editor.crud.close"
   >
     <MenuPermissionEditForm
       :ref="refs.editFormRef"
-      v-model="crudForm"
-      :rules="menuPermissionFormRules"
-      :disabled="crudReadonly"
-      :parent-options
-      :resource-type-options
+      v-model="editor.crudForm"
+      :rules="editor.menuPermissionFormRules"
+      :disabled="editor.crudReadonly"
+      :parent-options="options.parentOptions"
+      :resource-type-options="options.resourceTypeOptions"
     />
   </ObCrudContainer>
 </template>

@@ -27,7 +27,9 @@ const submitting = ref(false);
 const treeData = ref<TenantPermissionTreeNode[]>([]);
 const checkedPermissionIds = ref<string[]>([]);
 const treeRenderSeed = ref(0);
+const appliedTenantId = ref('');
 let latestLoadToken = 0;
+let latestSaveToken = 0;
 
 const treeProps = {
   children: 'children',
@@ -69,17 +71,39 @@ function equalIdSet(left: string[], right: string[]): boolean {
   );
 }
 
+function clearTreeState() {
+  appliedTenantId.value = '';
+  treeData.value = [];
+  checkedPermissionIds.value = [];
+  treeRenderSeed.value += 1;
+}
+
+function invalidateDialogSession() {
+  latestLoadToken += 1;
+  latestSaveToken += 1;
+  loading.value = false;
+  submitting.value = false;
+  clearTreeState();
+}
+
+function isLatestLoadRequest(requestToken: number, requestTenantId: string) {
+  return requestToken === latestLoadToken && visible.value && requestTenantId === props.tenantId;
+}
+
 async function loadPermissionData() {
-  if (!props.tenantId) {
+  const requestTenantId = props.tenantId;
+  if (!requestTenantId) {
+    clearTreeState();
     return;
   }
 
   const requestToken = ++latestLoadToken;
   loading.value = true;
+  clearTreeState();
   try {
     const [treeResponse, permissionResponse] = await Promise.all([
       tenantInfoApi.getTenantTree(),
-      tenantInfoApi.getTenantPermissionIds({ tenantId: props.tenantId })
+      tenantInfoApi.getTenantPermissionIds({ tenantId: requestTenantId })
     ]);
 
     if (treeResponse.code !== 200) {
@@ -90,38 +114,52 @@ async function loadPermissionData() {
       throw new Error(permissionResponse.message || '加载租户权限失败');
     }
 
-    treeData.value = Array.isArray(treeResponse.data) ? treeResponse.data : [];
-    checkedPermissionIds.value = normalizeIdList(
+    if (!isLatestLoadRequest(requestToken, requestTenantId)) {
+      return;
+    }
+
+    const nextTreeData = Array.isArray(treeResponse.data) ? treeResponse.data : [];
+    const nextCheckedPermissionIds = normalizeIdList(
       (Array.isArray(permissionResponse.data) ? permissionResponse.data : []) as Array<
         string | number
       >
     );
+    const leafIdSet = new Set(collectLeafNodeIds(nextTreeData));
+    const selectedLeafIds = nextCheckedPermissionIds.filter((id) => leafIdSet.has(id));
 
-    if (requestToken !== latestLoadToken) {
-      return;
-    }
-
-    const leafIdSet = new Set(collectLeafNodeIds(treeData.value));
-    const selectedLeafIds = checkedPermissionIds.value.filter((id) => leafIdSet.has(id));
-
+    treeData.value = nextTreeData;
+    checkedPermissionIds.value = nextCheckedPermissionIds;
     treeRenderSeed.value += 1;
     await nextTick();
-    if (requestToken !== latestLoadToken) {
+    if (!isLatestLoadRequest(requestToken, requestTenantId)) {
       return;
     }
     treeRef.value?.setCheckedKeys(selectedLeafIds, false);
+    appliedTenantId.value = requestTenantId;
   } catch (error) {
+    if (!isLatestLoadRequest(requestToken, requestTenantId)) {
+      return;
+    }
+
     const errorMessage = error instanceof Error ? error.message : '加载租户权限失败';
     message.error(errorMessage);
     visible.value = false;
   } finally {
-    loading.value = false;
+    if (requestToken === latestLoadToken) {
+      loading.value = false;
+    }
   }
 }
 
 async function savePermission() {
-  if (!props.tenantId) {
+  const submitTenantId = props.tenantId;
+  if (!submitTenantId) {
     message.warning('请先选择租户');
+    return;
+  }
+
+  if (!visible.value || loading.value || appliedTenantId.value !== submitTenantId) {
+    message.warning('租户权限正在加载，请稍后再试');
     return;
   }
 
@@ -132,10 +170,11 @@ async function savePermission() {
     return;
   }
 
+  const requestToken = ++latestSaveToken;
   submitting.value = true;
   try {
     const response = await tenantInfoApi.updateTenantPermission({
-      tenantId: props.tenantId,
+      tenantId: submitTenantId,
       permissionIdList
     });
 
@@ -143,21 +182,53 @@ async function savePermission() {
       throw new Error(response.message || '保存租户权限失败');
     }
 
+    if (
+      requestToken !== latestSaveToken ||
+      !visible.value ||
+      submitTenantId !== props.tenantId ||
+      appliedTenantId.value !== submitTenantId
+    ) {
+      return;
+    }
+
+    checkedPermissionIds.value = permissionIdList;
     message.success('编辑成功');
     emit('saved');
     visible.value = false;
   } catch (error) {
+    if (requestToken !== latestSaveToken || appliedTenantId.value !== submitTenantId) {
+      return;
+    }
+
     const errorMessage = error instanceof Error ? error.message : '保存租户权限失败';
     message.error(errorMessage);
   } finally {
-    submitting.value = false;
+    if (requestToken === latestSaveToken) {
+      submitting.value = false;
+    }
   }
 }
 
 watch(
   () => visible.value,
-  (next) => {
-    if (next) {
+  (value) => {
+    if (!value) {
+      invalidateDialogSession();
+      return;
+    }
+    void loadPermissionData();
+  }
+);
+
+watch(
+  () => props.tenantId,
+  (value, oldValue) => {
+    if (!visible.value || value === oldValue) {
+      return;
+    }
+
+    invalidateDialogSession();
+    if (value) {
       void loadPermissionData();
     }
   }

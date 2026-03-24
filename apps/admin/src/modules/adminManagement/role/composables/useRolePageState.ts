@@ -64,16 +64,7 @@ export function useRolePageState() {
         mapToForm: ({ detail }) => toRoleForm(detail)
       },
       save: {
-        buildPayload: async ({ form }) => {
-          const payload = toRolePayload(form);
-          if (!payload.roleName) {
-            throw new Error('角色名称不能为空');
-          }
-          if (!payload.roleCode) {
-            throw new Error('角色编码不能为空');
-          }
-          return payload;
-        },
+        buildPayload: async ({ form }) => toRolePayload(form),
         request: async ({ mode, payload }) => {
           const response =
             mode === 'create' ? await roleApi.add(payload) : await roleApi.update(payload);

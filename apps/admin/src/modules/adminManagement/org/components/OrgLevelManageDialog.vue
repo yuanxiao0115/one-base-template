@@ -10,7 +10,7 @@ interface OrgLevelForm {
   id?: string;
   orgLevel: number;
   orgLevelName: string;
-  remark: string;
+  remark?: string;
 }
 
 const props = defineProps<{
@@ -119,17 +119,17 @@ const levelCrud = useEntityEditor<OrgLevelForm, OrgLevelItem, OrgLevelItem, OrgL
     load: async ({ row }) => row,
     mapToForm: ({ detail }) => ({
       id: detail.id,
-      orgLevelName: detail.orgLevelName || '',
-      orgLevel: Number(detail.orgLevel || 1),
-      remark: detail.remark || ''
+      orgLevelName: detail.orgLevelName,
+      orgLevel: detail.orgLevel,
+      remark: detail.remark
     })
   },
   save: {
     buildPayload: ({ form }) => ({
       id: form.id,
-      orgLevelName: (form.orgLevelName || '').trim(),
-      orgLevel: Number(form.orgLevel || 0),
-      remark: (form.remark || '').trim()
+      orgLevelName: form.orgLevelName,
+      orgLevel: form.orgLevel,
+      remark: form.remark
     }),
     request: async ({ mode, payload }) => {
       const response =
@@ -195,10 +195,8 @@ watch(
       >
         <template #operation="{ row, size }">
           <ObActionButtons>
-            <el-button link type="primary" :size @click="() => levelCrud.openEdit(row)"
-              >编辑</el-button
-            >
-            <el-button link type="danger" :size @click="() => handleDelete(row)">删除</el-button>
+            <el-button link type="primary" :size @click="levelCrud.openEdit(row)">编辑</el-button>
+            <el-button link type="danger" :size @click="handleDelete(row)">删除</el-button>
           </ObActionButtons>
         </template>
       </ObVxeTable>
