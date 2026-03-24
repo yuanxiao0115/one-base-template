@@ -18,6 +18,7 @@ export { default as CrudContainer } from './components/container/CrudContainer.v
 export { default as Tree } from './components/tree/Tree.vue';
 export { default as ActionButtons } from './components/table/ActionButtons.vue';
 export { default as TableBox } from './components/table/TableBox.vue';
+export { default as CardTable } from './components/table/CardTable.vue';
 export { default as VxeTable } from './components/table/VxeTable.vue';
 export { default as ImportUpload } from './components/upload/ImportUpload.vue';
 export { LoginBox, LoginBoxV2 } from './lite-auth';

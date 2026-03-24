@@ -14,6 +14,7 @@ import CrudContainer from './components/container/CrudContainer.vue';
 import Tree from './components/tree/Tree.vue';
 import ActionButtons from './components/table/ActionButtons.vue';
 import TableBox from './components/table/TableBox.vue';
+import CardTable from './components/table/CardTable.vue';
 import VxeTable from './components/table/VxeTable.vue';
 import ImportUpload from './components/upload/ImportUpload.vue';
 import { setUseTableDefaults, type UseTableDefaults } from '@one-base-template/core';
@@ -39,6 +40,7 @@ const UI_COMPONENTS = {
   Tree,
   ActionButtons,
   TableBox,
+  CardTable,
   VxeTable,
   ImportUpload
 } as const;

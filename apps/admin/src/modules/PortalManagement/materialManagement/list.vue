@@ -111,96 +111,107 @@ function handlePageSizeChange(size: number) {
 </script>
 
 <template>
-  <ObPageContainer padding="0" overflow="hidden">
-    <div class="material-management-page">
-      <div class="toolbar-row">
-        <div class="toolbar-title">
-          <h2 class="page-title">素材管理</h2>
-          <p class="page-subtitle">统一维护图片与图标素材，支持分类检索与批量操作。</p>
-        </div>
-        <div class="toolbar-actions">
-          <div class="toolbar-metrics">
-            <span class="metric-pill">分类 {{ categoryState.categoryList.value.length }}</span>
-            <span class="metric-pill">素材 {{ listState.pagination.value.total }}</span>
+  <ObPageContainer padding="0" overflow="hidden" left-width="268px">
+    <template #left>
+      <section class="material-category">
+        <div class="material-category__head">
+          <div>
+            <p class="material-category__title">素材分类</p>
+            <p class="material-category__sub">
+              共 {{ categoryState.categoryList.value.length }} 项
+            </p>
           </div>
-          <el-radio-group :model-value="activeTab" @change="onTabChange">
+          <el-radio-group :model-value="activeTab" size="small" @change="onTabChange">
             <el-radio-button label="image" value="image">图片</el-radio-button>
             <el-radio-button label="icon" value="icon">图标</el-radio-button>
           </el-radio-group>
-          <el-button :loading="listState.materialLoading.value" @click="refreshAll">刷新</el-button>
         </div>
-      </div>
 
-      <div class="material-body">
-        <aside class="category-panel">
-          <div class="panel-head">
-            <span class="panel-title">分类列表</span>
-            <span class="panel-meta">{{ categoryState.categoryList.value.length }} 项</span>
-          </div>
+        <el-input
+          v-model.trim="categoryState.categorySearchKey.value"
+          clearable
+          placeholder="搜索分类"
+          class="material-category__search"
+        />
 
-          <el-input
-            v-model.trim="categoryState.categorySearchKey.value"
-            clearable
-            placeholder="搜索分类"
-            class="category-search-input"
-          />
-
-          <div v-loading="categoryState.categoryLoading.value" class="category-list">
-            <button
-              v-for="item in categoryState.categoryList.value"
-              :key="String(item.id || '')"
-              type="button"
-              class="category-item"
-              :class="{
-                active: String(item.id || '') === categoryState.currentCategoryId.value
-              }"
-              @click="categoryState.selectCategory(item)"
-            >
-              <span class="category-name">{{ item.labelName }}</span>
-              <span class="category-count">{{ item.count || 0 }}</span>
-              <span class="category-actions">
-                <el-button
-                  link
-                  type="primary"
-                  size="small"
-                  @click.stop="categoryState.openEditCategory(item)"
-                  >编辑</el-button
-                >
-                <el-button
-                  link
-                  type="danger"
-                  size="small"
-                  @click.stop="categoryState.removeCategory(item)"
-                  >删除</el-button
-                >
-              </span>
-            </button>
-          </div>
-
-          <el-button
-            type="primary"
-            plain
-            class="new-category-btn"
-            @click="categoryState.openCreateCategory"
-            >新建分类</el-button
+        <el-scrollbar
+          v-loading="categoryState.categoryLoading.value"
+          class="material-category__list"
+        >
+          <button
+            v-for="item in categoryState.categoryList.value"
+            :key="String(item.id || '')"
+            type="button"
+            class="material-category__item"
+            :class="{ active: String(item.id || '') === categoryState.currentCategoryId.value }"
+            @click="categoryState.selectCategory(item)"
           >
-        </aside>
+            <span class="material-category__name">{{ item.labelName }}</span>
+            <span class="material-category__count">{{ item.count || 0 }}</span>
+            <span class="material-category__actions">
+              <el-button
+                link
+                type="primary"
+                size="small"
+                @click.stop="categoryState.openEditCategory(item)"
+                >编辑</el-button
+              >
+              <el-button
+                link
+                type="danger"
+                size="small"
+                @click.stop="categoryState.removeCategory(item)"
+                >删除</el-button
+              >
+            </span>
+          </button>
+        </el-scrollbar>
 
-        <section class="material-panel">
-          <div class="material-operations">
-            <div class="material-operations-head">
-              <span class="panel-title">素材列表</span>
-              <span class="panel-meta">已选 {{ selectedIds.length }} 项</span>
+        <el-button
+          type="primary"
+          plain
+          class="material-category__create"
+          @click="categoryState.openCreateCategory"
+          >新建分类</el-button
+        >
+      </section>
+    </template>
+
+    <section class="material-main">
+      <ObCardTable
+        :data="listState.materialRows.value"
+        :loading="listState.materialLoading.value"
+        :pagination="listState.pagination.value"
+        :page-sizes="[12, 24, 48]"
+        min-card-width="210px"
+        gap="14px"
+        empty-description="暂无素材"
+        @page-current-change="handleCurrentPageChange"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #toolbar>
+          <div class="material-toolbar">
+            <div class="material-toolbar__head">
+              <div>
+                <p class="material-toolbar__title">素材列表</p>
+                <p class="material-toolbar__sub">
+                  当前 {{ activeTab === 'image' ? '图片' : '图标' }}，已选
+                  {{ selectedIds.length }} 项
+                </p>
+              </div>
+              <el-button :loading="listState.materialLoading.value" @click="refreshAll"
+                >刷新</el-button
+              >
             </div>
 
-            <div class="material-operations-actions">
+            <div class="material-toolbar__actions">
               <el-input
                 v-model.trim="listState.materialSearchKey.value"
                 clearable
                 placeholder="搜索素材名称"
-                class="search-input"
+                class="material-toolbar__search"
               />
-              <div class="operation-actions">
+              <div class="material-toolbar__buttons">
                 <el-checkbox
                   :model-value="listState.allChecked.value"
                   @change="listState.toggleAllChecked(Boolean($event))"
@@ -211,83 +222,62 @@ function handlePageSizeChange(size: number) {
               </div>
             </div>
           </div>
+        </template>
 
-          <div v-loading="listState.materialLoading.value" class="material-grid-wrap">
-            <el-empty
-              v-if="!listState.materialRows.value.length"
-              class="material-empty"
-              description="暂无素材"
-            />
-            <div v-else class="material-grid">
-              <article
-                v-for="row in listState.materialRows.value"
-                :key="String(row.id || '')"
-                class="card-item"
-                v-memo="[
-                  row.id,
-                  row.checked,
-                  row.fodderName,
-                  row.fodderLabelName,
-                  row.previewUrl,
-                  row.fileType
-                ]"
-              >
-                <div class="card-preview" @click="listState.openPreview(row)">
-                  <span class="card-tag">{{
-                    row.fileType || (activeTab === 'image' ? '图片' : '图标')
-                  }}</span>
-                  <el-image
-                    v-if="row.previewUrl"
-                    :src="row.previewUrl"
-                    loading="lazy"
-                    fit="contain"
-                    class="preview-image"
-                  />
-                  <div v-else class="preview-image preview-empty">无预览</div>
-                </div>
-
-                <div class="card-meta">
-                  <div class="name" :title="row.fodderName || '-'">{{ row.fodderName || '-' }}</div>
-                  <div class="sub" :title="row.fodderLabelName || '暂未分类'">
-                    {{ row.fodderLabelName || '暂未分类' }}
-                  </div>
-                </div>
-
-                <div class="card-bottom">
-                  <el-checkbox
-                    :model-value="Boolean(row.checked)"
-                    @change="listState.toggleRowChecked(row, Boolean($event))"
-                  />
-                  <ObActionButtons>
-                    <el-button link type="primary" size="small" @click="openEditDialog(row)"
-                      >编辑</el-button
-                    >
-                    <el-button link size="small" @click="listState.openPreview(row)"
-                      >预览</el-button
-                    >
-                    <el-button link type="danger" size="small" @click="deleteSingle(row)"
-                      >删除</el-button
-                    >
-                  </ObActionButtons>
-                </div>
-              </article>
+        <template #default="{ row }">
+          <article
+            class="material-card"
+            v-memo="[
+              row.id,
+              row.checked,
+              row.fodderName,
+              row.fodderLabelName,
+              row.previewUrl,
+              row.fileType
+            ]"
+          >
+            <div class="material-card__preview" @click="listState.openPreview(row)">
+              <span class="material-card__tag">{{
+                row.fileType || (activeTab === 'image' ? '图片' : '图标')
+              }}</span>
+              <el-image
+                v-if="row.previewUrl"
+                :src="row.previewUrl"
+                loading="lazy"
+                fit="contain"
+                class="material-card__image"
+              />
+              <div v-else class="material-card__image material-card__image--empty">无预览</div>
             </div>
-          </div>
 
-          <div class="pagination-row">
-            <el-pagination
-              :current-page="listState.pagination.value.currentPage"
-              :page-size="listState.pagination.value.pageSize"
-              :total="listState.pagination.value.total"
-              layout="total, prev, pager, next, sizes"
-              :page-sizes="[12, 24, 48]"
-              @current-change="handleCurrentPageChange"
-              @size-change="handlePageSizeChange"
-            />
-          </div>
-        </section>
-      </div>
-    </div>
+            <div class="material-card__meta">
+              <div class="material-card__name" :title="row.fodderName || '-'">
+                {{ row.fodderName || '-' }}
+              </div>
+              <div class="material-card__sub" :title="row.fodderLabelName || '暂未分类'">
+                {{ row.fodderLabelName || '暂未分类' }}
+              </div>
+            </div>
+
+            <div class="material-card__footer">
+              <el-checkbox
+                :model-value="Boolean(row.checked)"
+                @change="listState.toggleRowChecked(row, Boolean($event))"
+              />
+              <ObActionButtons>
+                <el-button link type="primary" size="small" @click="openEditDialog(row)"
+                  >编辑</el-button
+                >
+                <el-button link size="small" @click="listState.openPreview(row)">预览</el-button>
+                <el-button link type="danger" size="small" @click="deleteSingle(row)"
+                  >删除</el-button
+                >
+              </ObActionButtons>
+            </div>
+          </article>
+        </template>
+      </ObCardTable>
+    </section>
 
     <el-image-viewer
       v-if="listState.previewVisible.value"
@@ -325,267 +315,174 @@ function handlePageSizeChange(size: number) {
 </template>
 
 <style scoped>
-.material-management-page {
-  --mm-surface: #fff;
-  --mm-surface-soft: #f8fafc;
-  --mm-border: #e5e7eb;
-  --mm-border-strong: #d1d5db;
-  --mm-text-main: #0f172a;
-  --mm-text-sub: #64748b;
-  --mm-shadow: 0 1px 2px rgb(15 23 42 / 4%);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+:deep(.ob-page-container__left) {
   padding: 12px;
-  background: var(--el-bg-color-page, #f5f7fa);
+  margin-right: 16px;
+  background: #fff;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 12px;
 }
 
-.toolbar-row {
+.material-category {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 12px;
+}
+
+.material-category__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  border: 1px solid var(--mm-border);
-  border-radius: 12px;
-  padding: 14px 16px;
-  background: var(--mm-surface);
-  box-shadow: var(--mm-shadow);
-}
-
-.toolbar-title {
-  min-width: 0;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--mm-text-main);
-  letter-spacing: 0.2px;
-}
-
-.page-subtitle {
-  margin: 6px 0 0;
-  color: var(--mm-text-sub);
-  font-size: 13px;
-}
-
-.toolbar-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.toolbar-metrics {
-  display: flex;
-  align-items: center;
   gap: 8px;
 }
 
-.metric-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 30px;
-  padding: 0 10px;
-  border: 1px solid var(--mm-border);
-  border-radius: 999px;
-  background: var(--mm-surface-soft);
-  color: var(--mm-text-sub);
-  font-size: 12px;
-}
-
-.material-body {
-  min-height: 0;
-  flex: 1;
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 12px;
-}
-
-.category-panel {
-  border: 1px solid var(--mm-border);
-  border-radius: 12px;
-  padding: 12px 12px 14px;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 12px;
-  min-height: 0;
-  background: var(--mm-surface);
-  box-shadow: none;
-}
-
-.panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  min-height: 32px;
-}
-
-.panel-title {
-  color: var(--mm-text-main);
+.material-category__title {
+  margin: 0;
+  color: var(--el-text-color-primary);
   font-size: 14px;
   font-weight: 600;
 }
 
-.panel-meta {
-  color: var(--mm-text-sub);
+.material-category__sub {
+  margin: 4px 0 0;
+  color: var(--el-text-color-secondary);
   font-size: 12px;
 }
 
-.category-search-input {
-  min-height: 32px;
+.material-category__search {
+  flex-shrink: 0;
 }
 
-.category-list {
+.material-category__list {
+  flex: 1;
   min-height: 0;
-  overflow: auto;
-  display: grid;
-  gap: 10px;
   padding-right: 2px;
 }
 
-.category-item {
+.material-category__item {
   width: 100%;
-  border: 1px solid var(--mm-border);
-  border-radius: 12px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 10px;
   padding: 10px 12px;
+  margin-bottom: 10px;
   text-align: left;
   display: grid;
   grid-template-columns: 1fr auto;
   row-gap: 6px;
-  background: var(--mm-surface-soft);
-  cursor: pointer;
-  transition:
-    transform 0.22s ease,
-    border-color 0.22s ease;
-  will-change: transform;
+  background: var(--el-fill-color-extra-light);
+  transition: border-color 0.2s ease;
 }
 
-.category-item:hover {
-  transform: translateY(-1px);
-  border-color: var(--mm-border-strong);
+.material-category__item:hover {
+  border-color: var(--el-border-color);
 }
 
-.category-item.active {
+.material-category__item.active {
   border-color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
 }
 
-.category-name {
-  font-weight: 600;
+.material-category__name {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--mm-text-main);
+  color: var(--el-text-color-primary);
+  font-weight: 600;
 }
 
-.category-count {
-  color: var(--mm-text-sub);
+.material-category__count {
+  color: var(--el-text-color-secondary);
   font-size: 12px;
 }
 
-.category-actions {
+.material-category__actions {
   grid-column: 1 / span 2;
   justify-self: end;
 }
 
-.new-category-btn {
+.material-category__create {
   width: 100%;
 }
 
-.material-panel {
-  border: 1px solid var(--mm-border);
-  border-radius: 12px;
-  padding: 12px 12px 14px;
+.material-main {
+  min-width: 0;
   min-height: 0;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 12px;
-  background: var(--mm-surface);
-  box-shadow: none;
-}
-
-.material-operations {
-  display: grid;
-  gap: 12px;
-}
-
-.material-operations-head {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+}
+
+.material-toolbar {
+  display: grid;
+  gap: 12px;
+}
+
+.material-toolbar__head {
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
 
-.material-operations-actions {
+.material-toolbar__title {
+  margin: 0;
+  color: var(--el-text-color-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.material-toolbar__sub {
+  margin: 6px 0 0;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+
+.material-toolbar__actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
 }
 
-.search-input {
+.material-toolbar__search {
   max-width: 360px;
 }
 
-.operation-actions {
+.material-toolbar__buttons {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.material-grid-wrap {
-  min-height: 0;
-  overflow: auto;
-  padding-right: 2px;
-}
-
-.material-empty {
-  padding: 28px 0;
-}
-
-.material-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 14px;
-}
-
-.card-item {
-  border: 1px solid var(--mm-border);
+.material-card {
+  border: 1px solid var(--el-border-color-lighter);
   border-radius: 12px;
   padding: 11px;
   display: grid;
   grid-template-rows: auto auto auto;
   gap: 10px;
-  background: var(--mm-surface);
-  box-shadow: none;
-  transition:
-    transform 0.22s ease,
-    border-color 0.22s ease;
+  background: #fff;
+  transition: border-color 0.22s ease;
   content-visibility: auto;
   contain-intrinsic-size: 220px;
 }
 
-.card-item:hover {
-  transform: translateY(-1px);
-  border-color: var(--mm-border-strong);
+.material-card:hover {
+  border-color: var(--el-border-color);
 }
 
-.card-preview {
+.material-card__preview {
   position: relative;
-  border: 1px solid var(--mm-border);
+  border: 1px solid var(--el-border-color-lighter);
   border-radius: 10px;
   overflow: hidden;
   cursor: zoom-in;
-  background: #f8fafc;
+  background: var(--el-fill-color-extra-light);
 }
 
-.card-tag {
+.material-card__tag {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -601,13 +498,13 @@ function handlePageSizeChange(size: number) {
   line-height: 1;
 }
 
-.preview-image {
+.material-card__image {
   width: 100%;
   height: 142px;
   display: block;
 }
 
-.preview-empty {
+.material-card__image--empty {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -615,119 +512,77 @@ function handlePageSizeChange(size: number) {
   background: var(--el-fill-color-light);
 }
 
-.card-meta .name {
-  color: var(--mm-text-main);
+.material-card__meta {
+  min-width: 0;
+}
+
+.material-card__name {
+  color: var(--el-text-color-primary);
   font-weight: 600;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.card-meta .sub {
+.material-card__sub {
   font-size: 12px;
-  color: var(--mm-text-sub);
+  color: var(--el-text-color-secondary);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.card-bottom {
+.material-card__footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 
-.pagination-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 2px;
-}
-
-@media (width <= 1280px) {
-  .material-body {
-    grid-template-columns: 232px 1fr;
-  }
-}
-
 @media (width <= 1024px) {
-  .toolbar-row {
+  :deep(.ob-page-container__left) {
+    margin-right: 12px;
+  }
+
+  .material-toolbar__actions {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .toolbar-actions {
-    justify-content: flex-start;
-  }
-
-  .material-body {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .category-panel {
-    max-height: 320px;
-  }
-}
-
-@media (width <= 768px) {
-  .material-management-page {
-    gap: 12px;
-    padding: 10px;
-  }
-
-  .toolbar-row,
-  .category-panel,
-  .material-panel {
-    border-radius: 12px;
-  }
-
-  .toolbar-actions {
-    width: 100%;
-    gap: 8px;
-  }
-
-  .toolbar-metrics {
-    width: 100%;
-  }
-
-  .metric-pill {
-    flex: 1;
-    justify-content: center;
-  }
-
-  .material-operations-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-input {
+  .material-toolbar__search {
     max-width: none;
   }
 
-  .operation-actions {
+  .material-toolbar__buttons {
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 8px;
   }
+}
 
-  .material-grid {
-    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
-    gap: 10px;
+@media (width <= 768px) {
+  :deep(.ob-page-container__left) {
+    margin-right: 8px;
+    padding: 10px;
   }
 
-  .preview-image {
+  .material-category__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .material-card__image {
     height: 112px;
   }
 
-  .card-bottom {
+  .material-card__footer {
     flex-wrap: wrap;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .category-item,
-  .card-item {
+  .material-category__item,
+  .material-card {
     transition: none;
     animation: none;
   }
