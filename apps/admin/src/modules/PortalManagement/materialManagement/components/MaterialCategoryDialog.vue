@@ -63,10 +63,10 @@ function onConfirm() {
 
 <style scoped>
 .category-form {
-  border: 1px solid #dce5f0;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 14px;
-  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+  background: #fff;
 }
 
 .category-form :deep(.el-form-item) {

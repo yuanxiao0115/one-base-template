@@ -220,10 +220,17 @@ function handlePageSizeChange(size: number) {
             />
             <div v-else class="material-grid">
               <article
-                v-for="(row, index) in listState.materialRows.value"
+                v-for="row in listState.materialRows.value"
                 :key="String(row.id || '')"
                 class="card-item"
-                :style="{ '--item-index': index }"
+                v-memo="[
+                  row.id,
+                  row.checked,
+                  row.fodderName,
+                  row.fodderLabelName,
+                  row.previewUrl,
+                  row.fileType
+                ]"
               >
                 <div class="card-preview" @click="listState.openPreview(row)">
                   <span class="card-tag">{{
@@ -321,20 +328,17 @@ function handlePageSizeChange(size: number) {
 .material-management-page {
   --mm-surface: #fff;
   --mm-surface-soft: #f8fafc;
-  --mm-border: #dce5f0;
-  --mm-border-strong: #c8d6e5;
+  --mm-border: #e5e7eb;
+  --mm-border-strong: #d1d5db;
   --mm-text-main: #0f172a;
-  --mm-text-sub: #52637a;
-  --mm-shadow: 0 16px 36px rgb(15 23 42 / 8%);
+  --mm-text-sub: #64748b;
+  --mm-shadow: 0 1px 2px rgb(15 23 42 / 4%);
   height: 100%;
   display: flex;
   flex-direction: column;
   gap: 14px;
   padding: 12px;
-  background:
-    radial-gradient(circle at right top, rgb(37 99 235 / 10%) 0%, transparent 38%),
-    radial-gradient(circle at left bottom, rgb(14 165 233 / 7%) 0%, transparent 42%),
-    linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);
+  background: var(--el-bg-color-page, #f5f7fa);
 }
 
 .toolbar-row {
@@ -343,11 +347,10 @@ function handlePageSizeChange(size: number) {
   justify-content: space-between;
   gap: 16px;
   border: 1px solid var(--mm-border);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 14px 16px;
-  background: rgb(255 255 255 / 90%);
+  background: var(--mm-surface);
   box-shadow: var(--mm-shadow);
-  backdrop-filter: blur(8px);
 }
 
 .toolbar-title {
@@ -389,7 +392,7 @@ function handlePageSizeChange(size: number) {
   padding: 0 10px;
   border: 1px solid var(--mm-border);
   border-radius: 999px;
-  background: #f8fbff;
+  background: var(--mm-surface-soft);
   color: var(--mm-text-sub);
   font-size: 12px;
 }
@@ -404,14 +407,14 @@ function handlePageSizeChange(size: number) {
 
 .category-panel {
   border: 1px solid var(--mm-border);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 12px 12px 14px;
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 12px;
   min-height: 0;
   background: var(--mm-surface);
-  box-shadow: var(--mm-shadow);
+  box-shadow: none;
 }
 
 .panel-head {
@@ -458,21 +461,18 @@ function handlePageSizeChange(size: number) {
   cursor: pointer;
   transition:
     transform 0.22s ease,
-    border-color 0.22s ease,
-    box-shadow 0.22s ease;
+    border-color 0.22s ease;
   will-change: transform;
 }
 
 .category-item:hover {
   transform: translateY(-1px);
   border-color: var(--mm-border-strong);
-  box-shadow: 0 10px 18px rgb(15 23 42 / 8%);
 }
 
 .category-item.active {
-  border-color: var(--el-color-primary-light-5);
+  border-color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
-  box-shadow: 0 10px 18px rgb(37 99 235 / 14%);
 }
 
 .category-name {
@@ -500,14 +500,14 @@ function handlePageSizeChange(size: number) {
 
 .material-panel {
   border: 1px solid var(--mm-border);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 12px 12px 14px;
   min-height: 0;
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 12px;
   background: var(--mm-surface);
-  box-shadow: var(--mm-shadow);
+  box-shadow: none;
 }
 
 .material-operations {
@@ -557,25 +557,23 @@ function handlePageSizeChange(size: number) {
 
 .card-item {
   border: 1px solid var(--mm-border);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 11px;
   display: grid;
   grid-template-rows: auto auto auto;
   gap: 10px;
-  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
-  box-shadow: 0 12px 24px rgb(15 23 42 / 7%);
+  background: var(--mm-surface);
+  box-shadow: none;
   transition:
     transform 0.22s ease,
-    border-color 0.22s ease,
-    box-shadow 0.22s ease;
-  animation: card-enter 0.36s ease both;
-  animation-delay: calc(var(--item-index) * 26ms);
+    border-color 0.22s ease;
+  content-visibility: auto;
+  contain-intrinsic-size: 220px;
 }
 
 .card-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: var(--mm-border-strong);
-  box-shadow: 0 16px 30px rgb(15 23 42 / 10%);
 }
 
 .card-preview {
@@ -584,9 +582,7 @@ function handlePageSizeChange(size: number) {
   border-radius: 10px;
   overflow: hidden;
   cursor: zoom-in;
-  background:
-    radial-gradient(circle at 80% 10%, rgb(37 99 235 / 18%) 0%, transparent 44%),
-    linear-gradient(180deg, #fff 0%, #f0f6ff 100%);
+  background: #f8fafc;
 }
 
 .card-tag {
@@ -599,11 +595,10 @@ function handlePageSizeChange(size: number) {
   height: 22px;
   padding: 0 8px;
   border-radius: 999px;
-  background: rgb(15 23 42 / 70%);
+  background: rgb(15 23 42 / 62%);
   color: #f8fafc;
   font-size: 11px;
   line-height: 1;
-  backdrop-filter: blur(2px);
 }
 
 .preview-image {
@@ -647,18 +642,6 @@ function handlePageSizeChange(size: number) {
   display: flex;
   justify-content: flex-end;
   margin-top: 2px;
-}
-
-@keyframes card-enter {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @media (width <= 1280px) {

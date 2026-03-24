@@ -195,7 +195,7 @@ watch(
 
 <style scoped>
 .material-edit-dialog {
-  --edit-border: #dce5f0;
+  --edit-border: #e5e7eb;
   --edit-text: #0f172a;
   --edit-sub: #52637a;
   display: grid;
@@ -208,9 +208,7 @@ watch(
   border: 1px solid var(--edit-border);
   border-radius: 12px;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 82% 14%, rgb(37 99 235 / 18%) 0%, transparent 40%),
-    linear-gradient(180deg, #fff 0%, #f2f7ff 100%);
+  background: #f8fafc;
 }
 
 .preview-image {
@@ -231,7 +229,7 @@ watch(
   border: 1px solid var(--edit-border);
   border-radius: 12px;
   padding: 14px;
-  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+  background: #fff;
   min-width: 0;
 }
 

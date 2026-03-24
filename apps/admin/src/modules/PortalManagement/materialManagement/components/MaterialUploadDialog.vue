@@ -317,22 +317,15 @@ function onUploadRemove(_uploadFile: UploadFile, uploadFiles: UploadFiles) {
 }
 
 .material-upload :deep(.el-upload-dragger) {
-  border-radius: 14px;
-  border: 1px dashed #9ab3d4;
-  background:
-    radial-gradient(circle at right top, rgb(37 99 235 / 12%) 0%, transparent 40%),
-    linear-gradient(180deg, #f9fbff 0%, #f2f7ff 100%);
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
   min-height: 168px;
-  transition:
-    border-color 0.22s ease,
-    transform 0.22s ease,
-    box-shadow 0.22s ease;
+  transition: border-color 0.22s ease;
 }
 
 .material-upload :deep(.el-upload-dragger:hover) {
   border-color: var(--el-color-primary);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgb(37 99 235 / 12%);
 }
 
 .material-upload :deep(.el-upload__text) {
@@ -357,30 +350,23 @@ function onUploadRemove(_uploadFile: UploadFile, uploadFiles: UploadFiles) {
   display: grid;
   grid-template-columns: 120px 1fr auto;
   gap: 12px;
-  border: 1px solid #dce5f0;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 12px;
   align-items: center;
-  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
-  transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease,
-    border-color 0.22s ease;
+  background: #fff;
+  transition: border-color 0.22s ease;
 }
 
 .draft-item:hover {
-  transform: translateY(-1px);
-  border-color: #c8d6e5;
-  box-shadow: 0 12px 20px rgb(15 23 42 / 9%);
+  border-color: #d1d5db;
 }
 
 .draft-preview {
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #dce5f0;
-  background:
-    radial-gradient(circle at 80% 14%, rgb(37 99 235 / 16%) 0%, transparent 42%),
-    linear-gradient(180deg, #fff 0%, #f1f6ff 100%);
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
 }
 
 .draft-image {
