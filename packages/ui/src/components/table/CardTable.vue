@@ -181,7 +181,7 @@ function resolveRowKey(row: RowRecord, index: number) {
   width: 100%;
   height: 100%;
   min-height: 0;
-  background: var(--el-bg-color);
+  background: #fff;
 }
 
 .ob-card-table__toolbar {
@@ -194,6 +194,7 @@ function resolveRowKey(row: RowRecord, index: number) {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  background: #fff;
 }
 
 .ob-card-table__empty {

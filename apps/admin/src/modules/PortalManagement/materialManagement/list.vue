@@ -315,12 +315,17 @@ function handlePageSizeChange(size: number) {
 </template>
 
 <style scoped>
+:deep(.ob-page-container__main) {
+  padding: 12px 12px 0;
+  background: #fff;
+}
+
 :deep(.ob-page-container__left) {
   padding: 12px;
   margin-right: 16px;
   background: #fff;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 12px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
 }
 
 .material-category {
@@ -363,8 +368,8 @@ function handlePageSizeChange(size: number) {
 
 .material-category__item {
   width: 100%;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 10px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
   padding: 10px 12px;
   margin-bottom: 10px;
   text-align: left;
@@ -381,7 +386,7 @@ function handlePageSizeChange(size: number) {
 
 .material-category__item.active {
   border-color: var(--el-color-primary);
-  background: var(--el-color-primary-light-9);
+  background: #f5f8fd;
 }
 
 .material-category__name {
@@ -412,11 +417,23 @@ function handlePageSizeChange(size: number) {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+}
+
+.material-main :deep(.ob-card-table) {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
 
 .material-toolbar {
   display: grid;
   gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .material-toolbar__head {
@@ -429,7 +446,7 @@ function handlePageSizeChange(size: number) {
 .material-toolbar__title {
   margin: 0;
   color: var(--el-text-color-primary);
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 600;
 }
 
@@ -457,8 +474,8 @@ function handlePageSizeChange(size: number) {
 }
 
 .material-card {
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 12px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
   padding: 11px;
   display: grid;
   grid-template-rows: auto auto auto;
@@ -475,8 +492,8 @@ function handlePageSizeChange(size: number) {
 
 .material-card__preview {
   position: relative;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 10px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
   overflow: hidden;
   cursor: zoom-in;
   background: var(--el-fill-color-extra-light);
@@ -540,6 +557,10 @@ function handlePageSizeChange(size: number) {
 }
 
 @media (width <= 1024px) {
+  :deep(.ob-page-container__main) {
+    padding: 10px 10px 0;
+  }
+
   :deep(.ob-page-container__left) {
     margin-right: 12px;
   }
@@ -563,6 +584,10 @@ function handlePageSizeChange(size: number) {
 @media (width <= 768px) {
   :deep(.ob-page-container__left) {
     margin-right: 8px;
+    padding: 10px;
+  }
+
+  .material-main {
     padding: 10px;
   }
 
