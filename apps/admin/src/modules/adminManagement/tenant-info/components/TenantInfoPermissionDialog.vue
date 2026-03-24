@@ -27,6 +27,7 @@ const submitting = ref(false);
 const treeData = ref<TenantPermissionTreeNode[]>([]);
 const checkedPermissionIds = ref<string[]>([]);
 const treeRenderSeed = ref(0);
+let latestLoadToken = 0;
 
 const treeProps = {
   children: 'children',
@@ -73,6 +74,7 @@ async function loadPermissionData() {
     return;
   }
 
+  const requestToken = ++latestLoadToken;
   loading.value = true;
   try {
     const [treeResponse, permissionResponse] = await Promise.all([
@@ -95,11 +97,18 @@ async function loadPermissionData() {
       >
     );
 
-    const leafIds = collectLeafNodeIds(treeData.value);
-    const selectedLeafIds = checkedPermissionIds.value.filter((id) => leafIds.includes(id));
+    if (requestToken !== latestLoadToken) {
+      return;
+    }
+
+    const leafIdSet = new Set(collectLeafNodeIds(treeData.value));
+    const selectedLeafIds = checkedPermissionIds.value.filter((id) => leafIdSet.has(id));
 
     treeRenderSeed.value += 1;
     await nextTick();
+    if (requestToken !== latestLoadToken) {
+      return;
+    }
     treeRef.value?.setCheckedKeys(selectedLeafIds, false);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '加载租户权限失败';
@@ -158,33 +167,31 @@ watch(
 <template>
   <ObCrudContainer
     v-model="visible"
-    container="dialog"
+    container="drawer"
     mode="edit"
     :title="`添加权限 - ${props.tenantName || '--'}`"
-    :dialog-width="760"
-    :loading="submitting"
+    :drawer-size="560"
+    :loading="loading || submitting"
     confirm-text="保存"
     @confirm="savePermission"
   >
-    <div v-loading="loading" class="tenant-permission-dialog">
-      <el-scrollbar class="tenant-permission-dialog__tree">
-        <el-tree
-          :key="`tenant-permission-tree-${props.tenantId}-${treeRenderSeed}`"
-          ref="treeRef"
-          node-key="id"
-          :data="treeData"
-          :props="treeProps"
-          show-checkbox
-          default-expand-all
-        />
-      </el-scrollbar>
-    </div>
+    <el-scrollbar class="tenant-permission-dialog__tree">
+      <el-tree
+        :key="`tenant-permission-tree-${props.tenantId}-${treeRenderSeed}`"
+        ref="treeRef"
+        node-key="id"
+        :data="treeData"
+        :props="treeProps"
+        show-checkbox
+        default-expand-all
+      />
+    </el-scrollbar>
   </ObCrudContainer>
 </template>
 
 <style scoped>
 .tenant-permission-dialog__tree {
-  max-height: 60vh;
+  height: min(68vh, calc(100vh - 220px));
   border: 1px solid var(--el-border-color-light);
   border-radius: 4px;
   padding: 8px;

@@ -2,13 +2,6 @@ import type { TableColumnList } from '@one-base-template/ui';
 
 export const tenantManagerColumns: TableColumnList = [
   {
-    label: '勾选列',
-    type: 'selection',
-    fixed: 'left',
-    reserveSelection: true,
-    width: 52
-  },
-  {
     label: '管理员账号',
     prop: 'userAccount',
     minWidth: 180
@@ -33,7 +26,7 @@ export const tenantManagerColumns: TableColumnList = [
     label: '操作',
     slot: 'operation',
     fixed: 'right',
-    width: 220,
+    width: 180,
     align: 'right'
   }
 ];

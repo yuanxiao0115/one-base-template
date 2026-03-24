@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { Lock, Unlock } from '@element-plus/icons-vue';
 import { useTable } from '@one-base-template/core';
 import { message, obConfirm } from '@one-base-template/ui';
 import tenantManagerColumns from './columns';
@@ -38,12 +37,8 @@ const {
   pagination,
   onSearch,
   resetForm,
-  handleSelectionChange,
   handleSizeChange,
-  handleCurrentChange,
-  onSelectionCancel,
-  selectedNum,
-  selectedList
+  handleCurrentChange
 } = useTable(tableOpt, tableRef);
 
 function isEnabled(row: TenantManagerRecord): boolean {
@@ -86,13 +81,6 @@ async function resetPassword(row: TenantManagerRecord) {
   message.success('重置密码成功');
 }
 
-function getSelectedIdsAndNames() {
-  const rows = Array.isArray(selectedList.value) ? selectedList.value : [];
-  const ids = rows.map((item) => String(item.id)).filter(Boolean);
-  const names = rows.map((item) => item.userAccount || '--').join('、');
-  return { ids, names };
-}
-
 async function changeStatus(ids: string[], names: string, isEnable: boolean) {
   const actionText = isEnable ? '启用' : '停用';
   await obConfirm.warn(`您确认要${actionText}租户管理员${names}？`, `${actionText}确认`);
@@ -122,24 +110,6 @@ async function handleStatus(row: TenantManagerRecord) {
   }
 }
 
-async function handleStatusMultiple(isEnable: boolean) {
-  const { ids, names } = getSelectedIdsAndNames();
-  if (!ids.length) {
-    message.error('请先选择租户管理员');
-    return;
-  }
-
-  try {
-    await changeStatus(ids, names, isEnable);
-  } catch (error) {
-    if (error === 'cancel' || error === 'close') {
-      return;
-    }
-    const errorMessage = error instanceof Error ? error.message : '操作失败';
-    message.error(errorMessage);
-  }
-}
-
 async function handleResetPassword(row: TenantManagerRecord) {
   try {
     await resetPassword(row);
@@ -158,21 +128,12 @@ async function handleResetPassword(row: TenantManagerRecord) {
     <ObTableBox
       title="租户管理员管理"
       :columns="tenantManagerColumns"
-      :selected-num="selectedNum"
       placeholder="请输入租户名称搜索"
       :keyword="searchForm.tenantName"
-      @selection-cancel="onSelectionCancel(tableRef)"
       @search="tableSearch"
       @update:keyword="onKeywordUpdate"
       @reset-form="onResetSearch"
     >
-      <template #buttons>
-        <el-button :icon="Lock" @click="handleStatusMultiple(false)">批量停用</el-button>
-        <el-button type="primary" :icon="Unlock" @click="handleStatusMultiple(true)">
-          批量启用
-        </el-button>
-      </template>
-
       <template #default="{ size, dynamicColumns }">
         <ObVxeTable
           :ref="tableRef"
@@ -182,7 +143,6 @@ async function handleResetPassword(row: TenantManagerRecord) {
           :columns="dynamicColumns"
           :pagination="pagination"
           row-key="id"
-          @selection-change="handleSelectionChange"
           @page-size-change="handleSizeChange"
           @page-current-change="handleCurrentChange"
         >

@@ -2,11 +2,6 @@ import type { TableColumnList } from '@one-base-template/ui';
 
 export const tenantInfoColumns: TableColumnList = [
   {
-    label: '租户ID',
-    prop: 'id',
-    minWidth: 180
-  },
-  {
     label: '租户名称',
     prop: 'tenantName',
     minWidth: 180
@@ -44,15 +39,10 @@ export const tenantInfoColumns: TableColumnList = [
     minWidth: 180
   },
   {
-    label: '备注',
-    prop: 'remark',
-    minWidth: 220
-  },
-  {
     label: '操作',
     slot: 'operation',
     fixed: 'right',
-    width: 340,
+    width: 260,
     align: 'right'
   }
 ];
