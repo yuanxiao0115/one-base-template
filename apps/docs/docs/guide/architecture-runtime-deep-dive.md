@@ -14,12 +14,14 @@
 - `apps/admin/src/config/env.ts`：聚合构建期 env 与运行时配置
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块清单扫描与按需路由装配
 - `apps/admin/src/bootstrap/index.ts`：创建 app/pinia/router/http/core，并安装插件与守卫
-- `apps/admin/src/router/route-assembly-diagnostics.ts`：路由装配诊断聚合（routeCount/skipMenuAuthCount/signature）
-- `apps/admin/src/router/route-signature.ts`：路由装配签名计算（确定性诊断）
 - `apps/admin/src/bootstrap/startup-profiler.ts`：启动阶段耗时打点与汇总
 - `packages/core/src/router/dynamic-import-recovery.ts`：动态路由模块加载失败自动恢复（admin / portal 装配调用）
+- `packages/core/src/router/route-signature.ts`：路由装配签名计算（admin/其他 app 共享）
+- `packages/core/src/router/route-diagnostics.ts`：路由装配诊断聚合（routeCount/skipMenuAuthCount/signature）
 - `packages/core/src/http/basic-client-signature.ts`：basic 签名请求头注入 helper（admin/portal 共享）
 - `packages/core/src/http/client-signature.ts`：basic 签名算法单一实现源（默认参数 + 三段式拼接）
+- `packages/core/src/auth/login-scenario.ts`：登录页场景判定（是否校验登录、是否加载登录配置、直登 token）
+- `packages/core/src/auth/sso-callback-strategy.ts`：SSO 参数优先级分派
 - `apps/admin/src/bootstrap/admin-styles.ts`：基础样式统一入口
 - `apps/admin/src/styles/team-overrides.css`：团队覆写样式入口（仅 `main.ts` 引入）
 

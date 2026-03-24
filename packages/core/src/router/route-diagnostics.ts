@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router';
 import { getRouteSignature } from './route-signature';
 
-export interface AppRouteAssemblyDiagnostics {
+export interface RouteAssemblyDiagnostics {
   routeCount: number;
   skipMenuAuthCount: number;
   signature: string;
@@ -17,7 +17,7 @@ export function getRouteCount(routes: RouteRecordRaw[]): number {
 export function createRouteAssemblyDiagnostics(params: {
   routes: RouteRecordRaw[];
   skipMenuAuthRouteNames: string[];
-}): AppRouteAssemblyDiagnostics {
+}): RouteAssemblyDiagnostics {
   const { routes, skipMenuAuthRouteNames } = params;
   return {
     routeCount: getRouteCount(routes),

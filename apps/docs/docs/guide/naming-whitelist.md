@@ -2,7 +2,7 @@
 
 ## 目标
 
-这份白名单用于统一 `apps/admin`、`packages/*` 与后续 CLI 生成器的命名风格，减少“同义不同名”导致的生成差异和维护成本。
+这份白名单用于统一 `apps/admin`、`apps/portal`、`apps/template`、`packages/*` 与后续 CLI 生成器的命名风格，减少“同义不同名”导致的生成差异和维护成本。
 
 核心原则：
 
@@ -125,3 +125,19 @@ pnpm check:naming
 - `apps/admin/src/modules/**/module.ts`
 - `apps/admin/src/modules/**/api/*.ts`
 - `apps/admin/src/modules/**/services/*.ts`
+- `apps/portal/src/services/auth`
+- `apps/portal/src/modules/**/module.ts`
+- `apps/portal/src/modules/**/api/*.ts`
+- `apps/portal/src/modules/**/services/*.ts`
+- `apps/template/src/modules/**/routes.ts`
+
+## 精确豁免
+
+为避免“扩范围后误报”，当前保留一个显式命名豁免：
+
+- `checkCaptcha`
+
+约束：
+
+- 仅用于验证码校验这类已经稳定存在的 API 语义。
+- 新增业务方法不要继续堆豁免，优先改成白名单动词。

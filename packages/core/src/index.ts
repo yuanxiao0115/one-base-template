@@ -98,9 +98,15 @@ export {
   isDynamicImportLoadError,
   DYNAMIC_IMPORT_RELOAD_KEY
 } from './router/dynamic-import-recovery';
+export {
+  createRouteAssemblyDiagnostics,
+  getRouteCount,
+  type RouteAssemblyDiagnostics
+} from './router/route-diagnostics';
 export { handleSsoCallback } from './router/sso';
 export { getInitialPath, type GetInitialPathOptions } from './router/initial-path';
 export { resolveAppRedirectTarget } from './router/redirect';
+export { getRouteSignature } from './router/route-signature';
 export { buildRouteFullPath, normalizeRoutePath, toRouteNameKey } from './router/route-utils';
 export {
   buildFixedRoutes,
@@ -159,6 +165,16 @@ export {
   type PortalFrontConfig,
   type ResolvePortalLoginTargetOptions
 } from './auth/login';
+export {
+  startSsoCallbackStrategy,
+  type SsoCallbackStrategyHandlers,
+  type StartSsoCallbackStrategyOptions
+} from './auth/sso-callback-strategy';
+export {
+  buildLoginScenario,
+  type BuildLoginScenarioOptions,
+  type LoginScenario
+} from './auth/login-scenario';
 
 export {
   useTable,

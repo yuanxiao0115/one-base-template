@@ -1,6 +1,8 @@
 import type { RouteRecordRaw } from 'vue-router';
 import {
+  createRouteAssemblyDiagnostics,
   type EnabledModulesSetting,
+  type RouteAssemblyDiagnostics,
   buildFixedRoutes,
   getInitialPath
 } from '@one-base-template/core';
@@ -11,10 +13,6 @@ import {
   buildRoutes,
   createRouteAssemblyValidator
 } from './route-assembly-builder';
-import {
-  createRouteAssemblyDiagnostics,
-  type AppRouteAssemblyDiagnostics
-} from './route-assembly-diagnostics';
 import { publicRoutes } from './public-routes';
 
 import { getEnabledModules } from './registry';
@@ -33,7 +31,7 @@ type RouteAssemblyArtifacts = {
 export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];
   skipMenuAuthRouteNames: string[];
-  diagnostics: AppRouteAssemblyDiagnostics;
+  diagnostics: RouteAssemblyDiagnostics;
 }
 
 export interface AppRouteAssemblyOptions {
@@ -42,7 +40,7 @@ export interface AppRouteAssemblyOptions {
   systemHomeMap: Record<string, string>;
   storageNamespace: string;
 }
-export type { AppRouteAssemblyDiagnostics } from './route-assembly-diagnostics';
+export type { RouteAssemblyDiagnostics as AppRouteAssemblyDiagnostics } from '@one-base-template/core';
 
 function getDefaultHomePath(
   options: Pick<AppRouteAssemblyOptions, 'defaultSystemCode' | 'systemHomeMap' | 'storageNamespace'>

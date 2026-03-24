@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
-import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
-
-import { buildLoginScenario, startSsoScenario } from '@/services/auth/auth-scenario-provider';
+import { startSsoScenario } from '@/services/auth/auth-scenario-provider';
 import { loginByDesktop, loginByExternal, loginByZhxt } from '@/services/auth/auth-remote-service';
 
 vi.mock('@/services/auth/auth-remote-service', () => {
@@ -18,34 +16,6 @@ vi.mock('@/services/auth/auth-remote-service', () => {
 describe('services/auth/auth-scenario-provider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('buildLoginScenario: default 场景应关闭验证登录与登录配置加载', () => {
-    const scenario = buildLoginScenario({
-      backend: 'default',
-      routeQuery: {
-        token: 'direct-token'
-      }
-    });
-
-    expect(scenario.useVerifyLogin).toBe(false);
-    expect(scenario.shouldLoadLoginPageConfig).toBe(false);
-    expect(scenario.fallback).toBe('/');
-    expect(scenario.directLoginToken).toBeNull();
-  });
-
-  it('buildLoginScenario: basic 场景应开启验证登录并提取直登 token', () => {
-    const scenario = buildLoginScenario({
-      backend: 'basic',
-      routeQuery: {
-        token: 'direct-token'
-      }
-    });
-
-    expect(scenario.useVerifyLogin).toBe(true);
-    expect(scenario.shouldLoadLoginPageConfig).toBe(true);
-    expect(scenario.fallback).toBe(DEFAULT_FALLBACK_HOME);
-    expect(scenario.directLoginToken).toBe('direct-token');
   });
 
   it('startSsoScenario: default 场景应走默认回调并跳转', async () => {

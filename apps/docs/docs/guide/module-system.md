@@ -143,13 +143,15 @@ compat: {
   - `skipMenuAuth` 严格白名单判定
 - 对应用层保持兼容：`setupRouterGuards(router, options)` 与 `RouterGuardOptions` 契约不变，admin 无需改调用方式。
 - `apps/admin/src/pages/sso/SsoCallbackPage.vue` 的参数分支匹配逻辑已下沉到
-  `apps/admin/src/services/auth/sso-callback-strategy.ts`。
+  `packages/core/src/auth/sso-callback-strategy.ts`，admin 侧只保留远端登录编排。
 - `sso-callback-strategy` 约定优先级固定为：
   `sourceCode=zhxt -> sourceCode=YDBG -> ticket -> type+token -> moaToken -> Usertoken`。
 - 页面层职责收敛为“状态展示 + handler 注入”，后续新增 SSO 入口优先扩展策略层并补策略单测。
+- 路由装配诊断也已下沉到 `packages/core/src/router/{route-signature,route-diagnostics}.ts`，
+  admin 只负责组装业务路由并消费 diagnostics。
 - 第三批回归补强已覆盖：
   - `packages/core/src/router/guards.test.ts`：`remote` 模式下 `remoteSynced=false` 的两类边界（`loaded=true` 后台同步、`loaded=false` 阻塞加载）；
-  - `apps/admin/tests/services/auth/sso-callback-strategy.unit.test.ts`：`ticket` 分支 `redirectUrl` 缺省透传 `null` 与 handler 抛错透传。
+  - `packages/core/src/auth/sso-callback-strategy.test.ts`：`ticket` 分支 `redirectUrl` 缺省透传 `null` 与 handler 抛错透传。
 - 第四批进一步收敛：
   - 新增 `apps/admin/src/services/auth/auth-scenario-provider.ts`，统一封装 `default/basic` 登录与 SSO 场景；
   - 页面层（`LoginPage.vue` / `SsoCallbackPage.vue`）只保留 UI 状态与跳转编排，不再直接拼接后端分支细节；

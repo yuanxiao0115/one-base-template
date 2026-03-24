@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 import type { RouteRecordRaw } from 'vue-router';
+import { getRouteSignature } from '@one-base-template/core';
 
 vi.mock('@one-base-template/ui/shell', () => ({
   AdminLayout: {},
@@ -9,7 +10,6 @@ vi.mock('@one-base-template/ui/shell', () => ({
 
 import { routePaths } from '@/router/constants';
 import { buildAppRoutes, type AppRouteAssemblyOptions } from '@/router/assemble-routes';
-import { getRouteSignature } from '@/router/route-signature';
 
 function createRouteAssemblyOptions(
   enabledModules: string[],

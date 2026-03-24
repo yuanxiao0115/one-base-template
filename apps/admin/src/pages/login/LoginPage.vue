@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  buildLoginScenario,
   finalizeAuthSession,
   loginByPassword,
   resolveAppRedirectTarget
@@ -11,7 +12,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { getAppEnv } from '@/config/env';
 import { fetchCaptchaCheck, loadCaptcha } from '@/services/auth/auth-captcha-service';
 import { getLoginPageConfig, type LoginPageConfig } from '@/services/auth/auth-remote-service';
-import { buildLoginScenario } from '@/services/auth/auth-scenario-provider';
+import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 
 defineOptions({
   name: 'LoginPage'
@@ -34,7 +35,9 @@ const { baseUrl } = appEnv;
 const { tokenKey } = appEnv;
 const loginScenario = buildLoginScenario({
   backend,
-  routeQuery: route.query
+  routeQuery: route.query,
+  verifyLoginFallback: DEFAULT_FALLBACK_HOME,
+  defaultFallback: '/'
 });
 const { useVerifyLogin } = loginScenario;
 

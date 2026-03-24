@@ -7,12 +7,12 @@ export interface SsoCallbackStrategyHandlers {
   onUserToken(payload: { token: string }): Promise<void>;
 }
 
-export interface ExecuteSsoCallbackStrategyOptions {
+export interface StartSsoCallbackStrategyOptions {
   searchParams: URLSearchParams;
   handlers: SsoCallbackStrategyHandlers;
 }
 
-export async function startSsoCallbackStrategy(options: ExecuteSsoCallbackStrategyOptions) {
+export async function startSsoCallbackStrategy(options: StartSsoCallbackStrategyOptions) {
   const { searchParams, handlers } = options;
 
   const token = searchParams.get('token');

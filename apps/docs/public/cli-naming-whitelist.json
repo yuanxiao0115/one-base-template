@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "updatedAt": "2026-02-27",
+  "updatedAt": "2026-03-24",
   "methodVerbs": [
     "get",
     "list",
@@ -46,11 +46,17 @@
     "preferShortNames": true,
     "allowHandleOnlyForEvents": true
   },
+  "allowedNames": ["checkCaptcha"],
   "checkTargets": {
-    "router": "apps/admin/src/router",
-    "authServices": "apps/admin/src/services/auth",
-    "moduleApi": "apps/admin/src/modules/**/api",
-    "moduleServices": "apps/admin/src/modules/**/services",
-    "moduleEntry": "apps/admin/src/modules/**/module.ts"
+    "adminRouter": "apps/admin/src/router",
+    "adminAuthServices": "apps/admin/src/services/auth",
+    "adminModuleApi": "apps/admin/src/modules/**/api",
+    "adminModuleServices": "apps/admin/src/modules/**/services",
+    "adminModuleEntry": "apps/admin/src/modules/**/module.ts",
+    "portalAuthServices": "apps/portal/src/services/auth",
+    "portalModuleApi": "apps/portal/src/modules/**/api",
+    "portalModuleServices": "apps/portal/src/modules/**/services",
+    "portalModuleEntry": "apps/portal/src/modules/**/module.ts",
+    "templateModuleRoutes": "apps/template/src/modules/**/routes.ts"
   }
 }

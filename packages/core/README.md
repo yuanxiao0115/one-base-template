@@ -147,6 +147,8 @@ declare module '@one-base-template/core' {
   - `shouldFetchMe=true`：适合 token 直登/SSO 落 token 后
   - `shouldFetchMe=false`：适合已执行 `authStore.login()` 的场景
 - `safeRedirect(raw, fallback)`：统一站内 redirect 安全校验
+- `buildLoginScenario({ ... })`：统一登录页场景判定（是否启用验证登录、是否加载登录页配置、是否提取直登 token）
+- `startSsoCallbackStrategy({ searchParams, handlers })`：统一 SSO 参数优先级分派
 
 ## 6. 运行时配置 Schema（platform-config）
 
@@ -176,3 +178,11 @@ declare module '@one-base-template/core' {
   - `invalidate()`：在关闭弹层/切换上下文时主动失效旧请求
 
 建议在存在“请求竞态 + 状态回写”的编排层统一使用该守卫，避免模块内重复实现 token 逻辑。
+
+## 8. 路由装配诊断
+
+为减少应用层重复维护装配诊断逻辑，core 提供：
+
+- `getRouteSignature(routes)`：对路由树生成确定性签名
+- `getRouteCount(routes)`：统计嵌套路由总数
+- `createRouteAssemblyDiagnostics({ routes, skipMenuAuthRouteNames })`：统一产出 routeCount / skipMenuAuthCount / signature

@@ -16,8 +16,9 @@
 
 - `apps/admin/src/config`：应用配置与运行时装配（`env.ts`、`layout.ts`、`platform-config.ts`、`logger.ts`、`basic/*`）。
 - `apps/admin/src/types`：跨模块通用类型定义（如 `types/api.ts` 的 `ApiResponse` / `ApiPageData`）。
-- `apps/admin/src/services/auth`：登录/SSO/验证码场景服务（`auth-*.ts`、`sso-callback-strategy.ts`）。
+- `apps/admin/src/services/auth`：登录/SSO/验证码场景服务（`auth-*.ts`、`auth-scenario-provider.ts`）。
 - `apps/admin/tests`：应用层测试统一维护目录（启动链路、路由装配、配置与认证场景测试优先放这里）。
+- 架构源码约束测试统一放在 `apps/admin/tests/architecture`，用于锁定“下沉到 core 后不回流”的边界。
 - admin 反馈能力（`message` / `obConfirm` / `registerMessageUtils`）统一来自 `@one-base-template/ui`，禁止在应用层重复实现同类能力。
 - 模块私有逻辑（仅单模块使用的 `mapper/normalize/helper`）禁止上提到应用级公共目录，保持在 `modules/<module>/**` 就近维护。
 - 可跨应用复用时优先下沉到 `packages/core` / `packages/adapters`，避免长期滞留在 `apps/admin`。

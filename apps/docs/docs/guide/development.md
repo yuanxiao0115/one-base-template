@@ -8,6 +8,7 @@
 pnpm typecheck
 pnpm lint
 pnpm lint:arch
+pnpm check:basic-signature
 pnpm test
 pnpm test:run
 pnpm build
@@ -29,6 +30,11 @@ pnpm -C apps/admin lint:fix
 ```
 
 说明：仓库 lint 已统一走 `vp lint`，不再维护 Biome 配置文件。
+
+pre-commit（`vp staged`）当前按文件类型分流：
+
+- `*.{js,cjs,mjs,ts,tsx,cts,mts,vue}`：`vp check --fix`（格式化 + lint）
+- `*.{json,jsonc,md,yml,yaml,css,scss,html}`：`vp fmt`（仅格式化）
 
 ### Tailwind 类名约束（better-tailwindcss）
 
@@ -172,6 +178,38 @@ pnpm check:naming
 
 白名单来源：`apps/docs/public/cli-naming-whitelist.json`  
 规则说明：`/guide/naming-whitelist`
+
+当前默认覆盖：
+
+- `apps/admin/src/router`
+- `apps/admin/src/services/auth`
+- `apps/admin/src/modules/**/module.ts`
+- `apps/admin/src/modules/**/api/*.ts`
+- `apps/admin/src/modules/**/services/*.ts`
+- `apps/portal/src/services/auth`
+- `apps/portal/src/modules/**/module.ts`
+- `apps/portal/src/modules/**/api/*.ts`
+- `apps/portal/src/modules/**/services/*.ts`
+- `apps/template/src/modules/**/routes.ts`
+
+为锁定 `basic` 签名算法边界，仓库还提供：
+
+```bash
+pnpm check:basic-signature
+```
+
+该门禁用于检查 admin / portal 的 `config/basic/signature.ts` 是否继续复用 `@one-base-template/core` 的签名辅助方法，避免三段式签名拼接重新散落回应用层。
+
+## admin 架构源码约束测试
+
+- 目录约定：`apps/admin/tests/architecture`
+- 用途：校验“已下沉到 core 的能力”不会回流到 admin 本地重复实现（例如 SSO 参数分派、路由诊断签名计算）。
+
+可单独执行：
+
+```bash
+pnpm -C apps/admin test:run:file -- tests/architecture/*.unit.test.ts
+```
 
 ## 一键验证与环境自检
 

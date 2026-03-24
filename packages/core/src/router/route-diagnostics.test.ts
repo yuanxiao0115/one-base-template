@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { RouteRecordRaw } from 'vue-router';
-import { getRouteCount, createRouteAssemblyDiagnostics } from '@/router/route-assembly-diagnostics';
-import { getRouteSignature } from '@/router/route-signature';
+import { createRouteAssemblyDiagnostics, getRouteCount } from './route-diagnostics';
+import { getRouteSignature } from './route-signature';
 
-const MOCK_ROUTES: RouteRecordRaw[] = [
+const mockRoutes: RouteRecordRaw[] = [
   {
     path: '/a',
     name: 'RouteA'
-  },
+  } as RouteRecordRaw,
   {
     path: '/b',
     name: 'RouteB',
@@ -15,26 +15,26 @@ const MOCK_ROUTES: RouteRecordRaw[] = [
       {
         path: 'child',
         name: 'RouteBChild'
-      }
+      } as RouteRecordRaw
     ]
-  }
+  } as RouteRecordRaw
 ];
 
-describe('router/route-assembly-diagnostics', () => {
+describe('router/route-diagnostics', () => {
   it('应统计嵌套路由总数', () => {
-    expect(getRouteCount(MOCK_ROUTES)).toBe(3);
+    expect(getRouteCount(mockRoutes)).toBe(3);
   });
 
   it('应输出确定性 diagnostics', () => {
     const diagnostics = createRouteAssemblyDiagnostics({
-      routes: MOCK_ROUTES,
+      routes: mockRoutes,
       skipMenuAuthRouteNames: ['RouteA']
     });
 
     expect(diagnostics).toEqual({
       routeCount: 3,
       skipMenuAuthCount: 1,
-      signature: getRouteSignature(MOCK_ROUTES)
+      signature: getRouteSignature(mockRoutes)
     });
   });
 });

@@ -1,4 +1,4 @@
-import { resolveAppRedirectTarget } from '@one-base-template/core';
+import { resolveAppRedirectTarget, startSsoCallbackStrategy } from '@one-base-template/core';
 import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 import type { BackendKind } from '@/config/env';
 import {
@@ -8,11 +8,6 @@ import {
   loginByYdbg,
   loginByZhxt
 } from '@/services/auth/auth-remote-service';
-import { startSsoCallbackStrategy } from '@/services/auth/sso-callback-strategy';
-
-interface RouteQueryLike {
-  token?: unknown;
-}
 
 interface StorageLike {
   setItem(key: string, value: string): void;
@@ -22,18 +17,6 @@ interface StorageLike {
 interface LocationLike {
   origin: string;
   href: string;
-}
-
-export interface LoginScenario {
-  useVerifyLogin: boolean;
-  shouldLoadLoginPageConfig: boolean;
-  fallback: string;
-  directLoginToken: string | null;
-}
-
-export interface ResolveLoginScenarioOptions {
-  backend: BackendKind;
-  routeQuery: RouteQueryLike;
 }
 
 export interface ExecuteSsoScenarioOptions {
@@ -47,30 +30,6 @@ export interface ExecuteSsoScenarioOptions {
   onFinalizeAuthSession: () => Promise<void>;
   storage?: StorageLike;
   locationLike?: LocationLike;
-}
-
-function getDirectLoginToken(routeQuery: RouteQueryLike, enabled: boolean) {
-  if (!enabled) {
-    return null;
-  }
-
-  return typeof routeQuery.token === 'string' && routeQuery.token ? routeQuery.token : null;
-}
-
-function getLoginFallback(backend: BackendKind) {
-  return backend === 'basic' ? DEFAULT_FALLBACK_HOME : '/';
-}
-
-export function buildLoginScenario(options: ResolveLoginScenarioOptions): LoginScenario {
-  const { backend, routeQuery } = options;
-  const useBasicScenario = backend === 'basic';
-
-  return {
-    useVerifyLogin: useBasicScenario,
-    shouldLoadLoginPageConfig: useBasicScenario,
-    fallback: getLoginFallback(backend),
-    directLoginToken: getDirectLoginToken(routeQuery, useBasicScenario)
-  };
 }
 
 export async function startSsoScenario(options: ExecuteSsoScenarioOptions) {

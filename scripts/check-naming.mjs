@@ -4,6 +4,7 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const whitelistPath = path.join(rootDir, 'apps/docs/public/cli-naming-whitelist.json');
 const TARGET_MODULE_FILE_REGEX = /\/module\.ts$|\/api\/.*\.ts$|\/services\/.*\.ts$/;
+const TARGET_TEMPLATE_ROUTE_REGEX = /\/routes\.ts$/;
 const LEADING_LOWERCASE_REGEX = /^[a-z]+/;
 const CAMEL_CASE_NAME_REGEX = /^[a-z][A-Za-z0-9]*$/;
 const UPPERCASE_START_REGEX = /^[A-Z]/;
@@ -13,7 +14,15 @@ function toPosixPath(filePath) {
 }
 
 async function walkTsFiles(dir, out = []) {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
+  let entries;
+  try {
+    entries = await fs.readdir(dir, { withFileTypes: true });
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+      return out;
+    }
+    throw error;
+  }
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -74,10 +83,16 @@ function isTargetFile(filePath) {
   if (p.startsWith('apps/admin/src/services/auth/')) {
     return true;
   }
-  if (!p.startsWith('apps/admin/src/modules/')) {
-    return false;
+  if (p.startsWith('apps/portal/src/services/auth/')) {
+    return true;
   }
-  return TARGET_MODULE_FILE_REGEX.test(p);
+  if (p.startsWith('apps/admin/src/modules/') || p.startsWith('apps/portal/src/modules/')) {
+    return TARGET_MODULE_FILE_REGEX.test(p);
+  }
+  if (p.startsWith('apps/template/src/modules/')) {
+    return TARGET_TEMPLATE_ROUTE_REGEX.test(p);
+  }
+  return false;
 }
 
 function splitVerb(name) {
@@ -108,12 +123,14 @@ function getNamingSettings(config) {
     ...(config.predicateVerbs ?? [])
   ]);
   const discouragedVerbs = new Set(config.discouragedVerbs ?? []);
+  const allowedNames = new Set(config.allowedNames ?? []);
   const eventPrefix = config.eventHandlerPrefix ?? 'on';
   const composablePrefix = config.composablePrefix ?? 'use';
 
   return {
     allowedVerbs,
     discouragedVerbs,
+    allowedNames,
     eventPrefix,
     composablePrefix
   };
@@ -123,7 +140,10 @@ async function collectTargetFiles() {
   const scanDirs = [
     path.join(rootDir, 'apps/admin/src/router'),
     path.join(rootDir, 'apps/admin/src/services/auth'),
-    path.join(rootDir, 'apps/admin/src/modules')
+    path.join(rootDir, 'apps/admin/src/modules'),
+    path.join(rootDir, 'apps/portal/src/services/auth'),
+    path.join(rootDir, 'apps/portal/src/modules'),
+    path.join(rootDir, 'apps/template/src/modules')
   ];
 
   const allFiles = [];
@@ -147,6 +167,9 @@ function pushViolation(violations, relPath, item, reason) {
 function checkNameViolation(item, relPath, settings, violations) {
   const name = item.name;
   if (!isCamelCaseName(name)) {
+    return;
+  }
+  if (settings.allowedNames.has(name)) {
     return;
   }
   if (startsWithPrefix(name, settings.eventPrefix)) {
