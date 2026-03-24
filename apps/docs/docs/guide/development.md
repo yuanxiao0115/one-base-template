@@ -95,6 +95,35 @@ pre-commit（`vp staged`）当前按文件类型分流：
   - 默认上限：`1120 / 980 / 1080 / 720 / 920 KiB`（大 chunk）+ `22`（startup js 数）+ `820 KiB`（startup js gzip）+ `12`（tiny chunks）
   - CI 在 `pnpm build` 后自动执行，超限直接失败，避免大体积回归静默进入主分支
 
+## 字典快速应用（list + map + 缓存）
+
+admin 提供统一字典服务：`apps/admin/src/services/dict`
+
+- `loadDictResource(dictCode)`：返回 `{ list, map }`
+- `useDictResource(dictCode)`：页面侧快速消费（`list/map/loading/error/reload`）
+- `clearDictCache(dictCode?)`：清理单字典或全量缓存
+
+缓存策略：
+
+- 进程内内存缓存 + `sessionStorage`
+- 默认 TTL：`5 分钟`
+- 同字典并发请求自动复用在途请求
+- `/system/dict` 维护成功后会自动触发失效，保证后续读取最新数据
+
+示例（下拉选项 + 列表文案映射）：
+
+```ts
+import { useDictResource } from '@/services/dict';
+
+const statusDict = useDictResource('user_status');
+
+// select options
+const statusOptions = statusDict.list;
+
+// table value -> label
+const statusLabelMap = statusDict.map;
+```
+
 ## admin 列表首屏体感基线（ObVxeTable）
 
 - `ObVxeTable` 默认开启“首屏骨架”策略：仅在 `loading=true 且 data.length=0` 时生效。

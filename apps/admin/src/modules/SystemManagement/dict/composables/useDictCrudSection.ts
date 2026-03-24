@@ -1,6 +1,7 @@
 import { computed, reactive, type Ref } from 'vue';
 import { type CrudFormLike, useCrudPage } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
+import { clearDictCache } from '@/services/dict';
 import { dictColumns } from '../columns';
 import { dictApi } from '../api';
 import type { DictRecord, DictSavePayload } from '../types';
@@ -36,6 +37,7 @@ export function useDictCrudSection(options: UseDictCrudSectionOptions) {
         message: '是否确认删除字典「{name}」？'
       },
       onSuccess: () => {
+        clearDictCache();
         message.success('删除字典成功');
       },
       onError: (error: unknown) => {
@@ -72,6 +74,7 @@ export function useDictCrudSection(options: UseDictCrudSectionOptions) {
           return response;
         },
         onSuccess: async ({ mode }) => {
+          clearDictCache();
           message.success(mode === 'create' ? '新增字典成功' : '更新字典成功');
         }
       }

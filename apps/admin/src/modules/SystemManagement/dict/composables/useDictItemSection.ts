@@ -2,6 +2,7 @@ import { computed, reactive, type Ref } from 'vue';
 import { type CrudFormLike, useCrudPage } from '@one-base-template/core';
 import { obConfirm } from '@one-base-template/ui';
 import { message } from '@one-base-template/ui';
+import { clearDictCache } from '@/services/dict';
 import { dictItemColumns } from '../columns';
 import { dictItemApi } from '../api';
 import type { DictItemRecord, DictItemSavePayload } from '../types';
@@ -72,6 +73,7 @@ export function useDictItemSection(options: UseDictItemSectionOptions) {
         message: '是否确认删除字段「{name}」？'
       },
       onSuccess: () => {
+        clearDictCache();
         message.success('删除字段成功');
       },
       onError: (error: unknown) => {
@@ -121,6 +123,7 @@ export function useDictItemSection(options: UseDictItemSectionOptions) {
           return response;
         },
         onSuccess: async ({ mode }) => {
+          clearDictCache();
           message.success(mode === 'create' ? '新增字段成功' : '更新字段成功');
         }
       }
@@ -192,6 +195,7 @@ export function useDictItemSection(options: UseDictItemSectionOptions) {
         throw new Error(response.message || '更新字段状态失败');
       }
 
+      clearDictCache();
       message.success(`${nextEnable ? '启用' : '停用'}字段成功`);
       await itemTable.onSearch(false);
     } catch (error) {
