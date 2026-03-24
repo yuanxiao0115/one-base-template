@@ -1,5 +1,95 @@
 import { defineConfig } from 'vitepress';
 
+const introItems = [
+  { text: '快速开始', link: '/guide/quick-start' },
+  { text: '环境变量', link: '/guide/env' },
+  { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' }
+] as const;
+
+const architectureItems = [
+  { text: '目录结构与边界', link: '/guide/architecture' },
+  { text: '启动链路细节（深度）', link: '/guide/architecture-runtime-deep-dive' },
+  { text: '模块系统与切割', link: '/guide/module-system' },
+  { text: '菜单与路由规范（Schema）', link: '/guide/menu-route-spec' },
+  { text: '布局与菜单', link: '/guide/layout-menu' },
+  { text: '主题系统', link: '/guide/theme-system' }
+] as const;
+
+const practiceItems = [
+  { text: 'CRUD 容器与 Hook', link: '/guide/crud-container' },
+  { text: 'CRUD 模块最佳实践', link: '/guide/crud-module-best-practice' },
+  { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
+  { text: '组件样式（按钮）', link: '/guide/button-styles' },
+  { text: 'Iconfont 集成', link: '/guide/iconfont' },
+  { text: 'Utils 工具包（总览）', link: '/guide/utils' },
+  { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
+] as const;
+
+const extensionItems = [
+  { text: '门户体系总览', link: '/guide/portal/' },
+  { text: 'PortalManagement 管理端接入', link: '/guide/portal/admin-designer' },
+  { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
+  { text: '门户物料扩展与注册', link: '/guide/portal/material-extension' },
+  { text: 'basic Adapter', link: '/guide/adapter-basic' }
+] as const;
+
+const governanceItems = [
+  { text: '开发规范与维护', link: '/guide/development' },
+  { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
+  { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
+  { text: 'Admin Agent 红线', link: '/guide/admin-agent-redlines' },
+  { text: 'Admin Management Standardizer', link: '/guide/admin-management-standardizer' },
+  { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
+  { text: '子包发布与版本控制', link: '/guide/package-release' },
+  { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' }
+] as const;
+
+const roleItems = [
+  { text: '框架使用者阅读入口', link: '/guide/for-users' },
+  { text: '仓库维护者阅读入口', link: '/guide/for-maintainers' }
+] as const;
+
+const moduleSwitchItems = [
+  { text: '入门', link: '/guide/quick-start' },
+  { text: '架构与运行时', link: '/guide/architecture' },
+  { text: '开发实践', link: '/guide/crud-container' },
+  { text: '扩展能力', link: '/guide/portal/' },
+  { text: '维护治理', link: '/guide/development' }
+] as const;
+
+const asSidebar = (moduleText: string, items: ReadonlyArray<{ text: string; link: string }>) => [
+  {
+    text: moduleText,
+    items
+  },
+  {
+    text: '模块切换',
+    items: moduleSwitchItems
+  }
+];
+
+const introSidebar = asSidebar('入门', introItems);
+const architectureSidebar = asSidebar('架构与运行时', architectureItems);
+const practiceSidebar = asSidebar('开发实践', practiceItems);
+const extensionSidebar = asSidebar('扩展能力', extensionItems);
+const governanceSidebar = asSidebar('维护治理', governanceItems);
+const roleSidebar = asSidebar('角色入口', roleItems);
+
+const guideHomeSidebar = [
+  {
+    text: '文档总览',
+    items: [{ text: '总览页', link: '/guide/' }]
+  },
+  {
+    text: '按模块进入',
+    items: moduleSwitchItems
+  },
+  {
+    text: '按角色进入',
+    items: roleItems
+  }
+];
+
 export default defineConfig({
   lang: 'zh-CN',
   title: 'one-base-template',
@@ -13,128 +103,61 @@ export default defineConfig({
       { text: '首页', link: '/' },
       {
         text: '入门',
-        items: [
-          { text: '文档总览', link: '/guide/' },
-          { text: '快速开始', link: '/guide/quick-start' },
-          { text: '环境变量', link: '/guide/env' },
-          { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' }
-        ]
+        items: [{ text: '文档总览', link: '/guide/' }, ...introItems]
       },
       {
         text: '架构',
-        items: [
-          { text: '目录结构与边界', link: '/guide/architecture' },
-          { text: '启动链路细节（深度）', link: '/guide/architecture-runtime-deep-dive' },
-          { text: '模块系统与切割', link: '/guide/module-system' },
-          { text: '菜单与路由规范（Schema）', link: '/guide/menu-route-spec' },
-          { text: '布局与菜单', link: '/guide/layout-menu' },
-          { text: '主题系统', link: '/guide/theme-system' }
-        ]
+        items: architectureItems
       },
       {
         text: '开发实践',
-        items: [
-          { text: 'CRUD 容器与 Hook', link: '/guide/crud-container' },
-          { text: 'CRUD 模块最佳实践', link: '/guide/crud-module-best-practice' },
-          { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
-          { text: '组件样式（按钮）', link: '/guide/button-styles' },
-          { text: 'Iconfont 集成', link: '/guide/iconfont' },
-          { text: 'Utils 工具包（总览）', link: '/guide/utils' },
-          { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
-        ]
+        items: practiceItems
       },
       {
         text: '扩展能力',
-        items: [
-          { text: '门户体系总览', link: '/guide/portal/' },
-          { text: 'PortalManagement 管理端接入', link: '/guide/portal/admin-designer' },
-          { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
-          { text: '门户物料扩展与注册', link: '/guide/portal/material-extension' },
-          { text: 'basic Adapter', link: '/guide/adapter-basic' }
-        ]
+        items: extensionItems
       },
       {
         text: '维护治理',
-        items: [
-          { text: '开发规范与维护', link: '/guide/development' },
-          { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
-          { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
-          { text: 'Admin Agent 红线', link: '/guide/admin-agent-redlines' },
-          { text: 'Admin Management Standardizer', link: '/guide/admin-management-standardizer' },
-          { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
-          { text: '子包发布与版本控制', link: '/guide/package-release' },
-          { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' }
-        ]
+        items: governanceItems
       }
     ],
     sidebar: {
-      '/guide/': [
-        {
-          text: '总览入口',
-          items: [{ text: '文档总览', link: '/guide/' }]
-        },
-        {
-          text: '入门',
-          items: [
-            { text: '快速开始', link: '/guide/quick-start' },
-            { text: '环境变量', link: '/guide/env' },
-            { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' }
-          ]
-        },
-        {
-          text: '架构与运行时',
-          items: [
-            { text: '目录结构与边界', link: '/guide/architecture' },
-            { text: '启动链路细节（深度）', link: '/guide/architecture-runtime-deep-dive' },
-            { text: '模块系统与切割', link: '/guide/module-system' },
-            { text: '菜单与路由规范（Schema）', link: '/guide/menu-route-spec' },
-            { text: '布局与菜单', link: '/guide/layout-menu' },
-            { text: '主题系统', link: '/guide/theme-system' }
-          ]
-        },
-        {
-          text: '开发实践',
-          items: [
-            { text: 'CRUD 容器与 Hook', link: '/guide/crud-container' },
-            { text: 'CRUD 模块最佳实践', link: '/guide/crud-module-best-practice' },
-            { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
-            { text: '组件样式（按钮）', link: '/guide/button-styles' },
-            { text: 'Iconfont 集成', link: '/guide/iconfont' },
-            { text: 'Utils 工具包（总览）', link: '/guide/utils' },
-            { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
-          ]
-        },
-        {
-          text: '扩展能力',
-          items: [
-            { text: '门户体系总览', link: '/guide/portal/' },
-            { text: 'PortalManagement 管理端接入', link: '/guide/portal/admin-designer' },
-            { text: '门户物料扩展与注册', link: '/guide/portal/material-extension' },
-            { text: 'basic Adapter', link: '/guide/adapter-basic' }
-          ]
-        },
-        {
-          text: '维护治理',
-          items: [
-            { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
-            { text: '开发规范与维护', link: '/guide/development' },
-            { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' },
-            { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
-            { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
-            { text: 'Admin Management Standardizer', link: '/guide/admin-management-standardizer' },
-            { text: 'Admin Agent 红线', link: '/guide/admin-agent-redlines' },
-            { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
-            { text: '子包发布与版本控制', link: '/guide/package-release' }
-          ]
-        },
-        {
-          text: '角色视角',
-          items: [
-            { text: '框架使用者阅读入口', link: '/guide/for-users' },
-            { text: '仓库维护者阅读入口', link: '/guide/for-maintainers' }
-          ]
-        }
-      ]
+      '/guide/portal/': extensionSidebar,
+      '/guide/adapter-basic': extensionSidebar,
+
+      '/guide/quick-start': introSidebar,
+      '/guide/env': introSidebar,
+      '/guide/template-static-app': introSidebar,
+
+      '/guide/architecture': architectureSidebar,
+      '/guide/architecture-runtime-deep-dive': architectureSidebar,
+      '/guide/module-system': architectureSidebar,
+      '/guide/menu-route-spec': architectureSidebar,
+      '/guide/layout-menu': architectureSidebar,
+      '/guide/theme-system': architectureSidebar,
+
+      '/guide/crud-container': practiceSidebar,
+      '/guide/crud-module-best-practice': practiceSidebar,
+      '/guide/table-vxe-migration': practiceSidebar,
+      '/guide/button-styles': practiceSidebar,
+      '/guide/iconfont': practiceSidebar,
+      '/guide/utils': practiceSidebar,
+      '/guide/utils-api': practiceSidebar,
+
+      '/guide/development': governanceSidebar,
+      '/guide/agents-scope': governanceSidebar,
+      '/guide/agent-harness': governanceSidebar,
+      '/guide/admin-agent-redlines': governanceSidebar,
+      '/guide/admin-management-standardizer': governanceSidebar,
+      '/guide/naming-whitelist': governanceSidebar,
+      '/guide/package-release': governanceSidebar,
+      '/guide/markdown-doc-style': governanceSidebar,
+
+      '/guide/for-users': roleSidebar,
+      '/guide/for-maintainers': roleSidebar,
+
+      '/guide/': guideHomeSidebar
     },
     search: { provider: 'local' },
     outline: { level: [2, 3], label: '本页导航' },
