@@ -164,7 +164,9 @@ admin 当前顶栏在 `apps/admin/src/components/top/AdminTopBar.vue`，基于 `
 - 保留系统切换（`dropdown/menu` 两种样式）。
 - 仅超级管理员显示租户切换（`/cmict/admin/tenant/list` + `/cmict/admin/tenant/switch`）。
 - 用户下拉菜单包含：`用户信息`、`修改密码`、`个性设置`、`退出登录`。
+- 顶栏头像触发器使用自定义圆形 avatar（`32px`），右侧展示 `nickName`（非账号）；无头像时回退 `nickName` 后两个字。
 - 用户信息弹窗支持头像上传，上传前使用 `cropperjs` 插件进行图片裁剪。
+- 用户信息弹窗支持“清空头像”：会记录当前用户头像隐藏偏好并持久化到本地存储，刷新后仍按文字头像展示。
 
 租户切换后统一执行：
 

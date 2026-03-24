@@ -12,6 +12,10 @@ import { useTagStoreHook } from '@one-base-template/tag';
 import { message } from '@one-base-template/ui';
 import { routePaths } from '@/router/constants';
 import authAccountService from '@/services/auth/auth-account-service';
+import {
+  isAvatarHidden,
+  resolveAvatarFallbackText
+} from '@/services/auth/auth-avatar-preference-service';
 import UserProfileDialog from './dialogs/UserProfileDialog.vue';
 import ChangePasswordDialog from './dialogs/ChangePasswordDialog.vue';
 
@@ -36,9 +40,16 @@ const tenantSwitching = ref(false);
 const tenantOptions = ref<TenantOption[]>([]);
 const currentTenantId = ref('');
 const avatarTimestamp = ref(Date.now());
+const avatarLoadErrorMap = ref<Record<string, boolean>>({});
 
 const userName = computed(() => authStore.user?.name ?? '未登录');
-const userAccount = computed(() => authStore.user?.userAccount || userName.value);
+const userDisplayName = computed(
+  () =>
+    authStore.user?.nickName ||
+    authStore.user?.name ||
+    authStore.user?.userAccount ||
+    userName.value
+);
 const currentSystemCode = computed(() => systemStore.currentSystemCode);
 const systems = computed(() => systemStore.systems);
 const showSystemSwitcher = computed(() => systems.value.length > 1);
@@ -68,18 +79,38 @@ const isSuperAdmin = computed(() => {
 });
 
 const showTenantSwitcher = computed(() => isSuperAdmin.value && tenantOptions.value.length > 0);
+const userId = computed(() => {
+  const id = authStore.user?.id;
+  return id == null ? '' : String(id);
+});
 
 const userAvatar = computed(() => {
-  const userId = authStore.user?.id;
-  if (userId) {
-    return `/cmict/file/user/avatar/${String(userId)}?timestamp=${avatarTimestamp.value}`;
+  const user = authStore.user;
+  if (!user) {
+    return '';
   }
-  return authStore.user?.avatarUrl || authStore.user?.avatar || '';
+
+  if (isAvatarHidden(user.id)) {
+    return '';
+  }
+
+  const currentUserId = userId.value;
+  if (currentUserId && avatarLoadErrorMap.value[currentUserId]) {
+    return '';
+  }
+
+  if (currentUserId) {
+    return `/cmict/file/user/avatar/${currentUserId}?timestamp=${avatarTimestamp.value}`;
+  }
+  return user.avatarUrl || user.avatar || '';
 });
 
 const userAvatarFallback = computed(() => {
-  const text = userAccount.value || '';
-  return text ? text.slice(0, 1).toUpperCase() : 'U';
+  return resolveAvatarFallbackText(
+    authStore.user?.nickName,
+    authStore.user?.name,
+    authStore.user?.userAccount
+  );
 });
 
 const headerStyle = computed(() => ({
@@ -98,6 +129,9 @@ watch(
   () => authStore.user?.id,
   () => {
     avatarTimestamp.value = Date.now();
+    if (userId.value) {
+      delete avatarLoadErrorMap.value[userId.value];
+    }
   }
 );
 
@@ -223,6 +257,13 @@ async function onSwitchSystem(systemCode: string) {
 
 function onSelectSystemMenu(systemCode: string) {
   void onSwitchSystem(systemCode);
+}
+
+function onAvatarImageError() {
+  if (!userId.value) {
+    return;
+  }
+  avatarLoadErrorMap.value[userId.value] = true;
 }
 
 function resolveCurrentMenuKey() {
@@ -378,10 +419,17 @@ async function onSwitchTenant(tenantId: string) {
     <div class="ob-topbar__right">
       <el-dropdown class="ob-topbar__user">
         <span class="ob-topbar__user-trigger">
-          <el-avatar class="ob-topbar__avatar" :size="26" :src="userAvatar">{{
-            userAvatarFallback
-          }}</el-avatar>
-          <span class="ob-topbar__user-name" :title="userAccount">{{ userAccount }}</span>
+          <span class="ob-topbar__avatar" role="img" :aria-label="userDisplayName">
+            <img
+              v-if="userAvatar"
+              class="ob-topbar__avatar-image"
+              :src="userAvatar"
+              :alt="userDisplayName"
+              @error="onAvatarImageError"
+            />
+            <span v-else class="ob-topbar__avatar-text">{{ userAvatarFallback }}</span>
+          </span>
+          <span class="ob-topbar__user-name" :title="userDisplayName">{{ userDisplayName }}</span>
         </span>
         <template #dropdown>
           <el-dropdown-menu>
@@ -500,7 +548,7 @@ async function onSwitchTenant(tenantId: string) {
   cursor: pointer;
   user-select: none;
   color: #fff;
-  padding: 5px 10px;
+  padding: 2px 10px;
   border-radius: 999px;
   background: rgb(255 255 255 / 12%);
   transition: background-color 150ms ease;
@@ -514,10 +562,33 @@ async function onSwitchTenant(tenantId: string) {
 }
 
 .ob-topbar__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--one-color-primary-light-1, var(--el-color-primary-light-9));
+  color: var(--one-color-primary, var(--el-color-primary));
+  overflow: hidden;
+}
+
+.ob-topbar__avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ob-topbar__avatar-text {
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 600;
 }
 
 .ob-topbar__user-name {
+  font-size: 14px;
+  color: #fff;
   max-width: 180px;
   overflow: hidden;
   white-space: nowrap;

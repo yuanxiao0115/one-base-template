@@ -4,6 +4,11 @@ import type { UploadProps } from 'element-plus';
 import type { AppUser } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
 import authAccountService from '@/services/auth/auth-account-service';
+import {
+  isAvatarHidden,
+  resolveAvatarFallbackText,
+  setAvatarHidden
+} from '@/services/auth/auth-avatar-preference-service';
 import AvatarCropDialog from './AvatarCropDialog.vue';
 
 const props = defineProps<{
@@ -25,6 +30,7 @@ const uploadLoading = ref(false);
 const avatarTimestamp = ref(Date.now());
 const cropVisible = ref(false);
 const cropSourceFile = ref<File | null>(null);
+const avatarDisplayVersion = ref(0);
 
 const userName = computed(() => props.user?.nickName || props.user?.name || '--');
 const userAccount = computed(() => props.user?.userAccount || '--');
@@ -33,14 +39,19 @@ const mail = computed(() => props.user?.mail || '--');
 const phone = computed(() => props.user?.phone || '--');
 
 const avatarFallback = computed(() => {
-  const text = props.user?.userAccount || props.user?.name || '';
-  return text ? text.slice(0, 1).toUpperCase() : 'U';
+  return resolveAvatarFallbackText(props.user?.nickName, props.user?.name, props.user?.userAccount);
 });
 
 const avatarSrc = computed(() => {
+  const avatarVersion = avatarDisplayVersion.value;
+
   const userId = props.user?.id;
+  if (isAvatarHidden(userId)) {
+    return '';
+  }
+
   if (userId) {
-    return `/cmict/file/user/avatar/${String(userId)}?timestamp=${avatarTimestamp.value}`;
+    return `/cmict/file/user/avatar/${String(userId)}?timestamp=${avatarTimestamp.value}&version=${avatarVersion}`;
   }
 
   return props.user?.avatarUrl || props.user?.avatar || '';
@@ -82,6 +93,8 @@ async function submitAvatar(file: File) {
       throw new Error(response.message || '头像上传失败');
     }
 
+    setAvatarHidden(userId, false);
+    avatarDisplayVersion.value += 1;
     avatarTimestamp.value = Date.now();
     emit('refresh');
     message.success('头像更新成功');
@@ -91,6 +104,19 @@ async function submitAvatar(file: File) {
   } finally {
     uploadLoading.value = false;
   }
+}
+
+function clearAvatar() {
+  const userId = props.user?.id;
+  if (!setAvatarHidden(userId, true)) {
+    message.error('未获取到用户信息，无法清空头像');
+    return;
+  }
+
+  avatarDisplayVersion.value += 1;
+  avatarTimestamp.value = Date.now();
+  emit('refresh');
+  message.success('头像已清空');
 }
 </script>
 
@@ -106,15 +132,32 @@ async function submitAvatar(file: File) {
     <div class="user-profile-dialog">
       <div class="user-profile-dialog__avatar-block">
         <el-avatar :size="72" :src="avatarSrc">{{ avatarFallback }}</el-avatar>
-        <el-upload
-          :show-file-list="false"
-          :before-upload="beforeUploadAvatar"
-          :disabled="uploadLoading"
-        >
-          <el-button class="user-profile-dialog__upload-btn" size="small" :loading="uploadLoading">
-            修改头像
+        <div class="user-profile-dialog__avatar-actions">
+          <el-upload
+            :show-file-list="false"
+            :before-upload="beforeUploadAvatar"
+            :disabled="uploadLoading"
+          >
+            <el-button
+              class="user-profile-dialog__upload-btn"
+              size="small"
+              :loading="uploadLoading"
+              :disabled="uploadLoading"
+            >
+              修改头像
+            </el-button>
+          </el-upload>
+          <el-button
+            class="user-profile-dialog__clear-btn"
+            size="small"
+            text
+            type="danger"
+            :disabled="uploadLoading || !avatarSrc"
+            @click="clearAvatar"
+          >
+            清空头像
           </el-button>
-        </el-upload>
+        </div>
       </div>
 
       <el-form label-width="90px" label-position="left">
@@ -161,6 +204,17 @@ async function submitAvatar(file: File) {
 
 .user-profile-dialog__upload-btn {
   min-width: 84px;
+}
+
+.user-profile-dialog__avatar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-profile-dialog__clear-btn {
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 .user-profile-dialog__footer {
