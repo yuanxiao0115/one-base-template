@@ -30,59 +30,51 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
-      { text: '指南', link: '/guide/' },
-      { text: '架构', link: '/guide/architecture' },
-      { text: '模块', link: '/guide/module-system' },
+      { text: '框架使用者', link: '/guide/for-users' },
+      { text: '仓库维护者', link: '/guide/for-maintainers' },
+      { text: '指南总览', link: '/guide/' },
       { text: '扩展', link: '/guide/portal/' },
       { text: '协作', link: '/guide/development' }
     ],
     sidebar: {
       '/guide/': [
         {
-          text: '入门导航',
+          text: '角色入口',
           items: [
             { text: '文档总览', link: '/guide/' },
-            { text: '快速开始', link: '/guide/quick-start' },
-            { text: '环境变量', link: '/guide/env' },
-            { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' }
+            { text: '框架使用者入口', link: '/guide/for-users' },
+            { text: '仓库维护者入口', link: '/guide/for-maintainers' }
           ]
         },
         {
-          text: '架构与运行时',
+          text: '框架使用者',
           items: [
+            { text: '快速开始', link: '/guide/quick-start' },
+            { text: '环境变量', link: '/guide/env' },
+            { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' },
             { text: '目录结构与边界', link: '/guide/architecture' },
-            { text: '启动链路细节（深度）', link: '/guide/architecture-runtime-deep-dive' },
             { text: '模块系统与切割', link: '/guide/module-system' },
             { text: '菜单与路由规范（Schema）', link: '/guide/menu-route-spec' },
             { text: '布局与菜单', link: '/guide/layout-menu' },
-            { text: '主题系统', link: '/guide/theme-system' }
-          ]
-        },
-        {
-          text: '组件与工程实践',
-          items: [
+            { text: '主题系统', link: '/guide/theme-system' },
             { text: 'CRUD 容器与 Hook', link: '/guide/crud-container' },
             { text: 'CRUD 模块最佳实践', link: '/guide/crud-module-best-practice' },
             { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
             { text: '组件样式（按钮）', link: '/guide/button-styles' },
             { text: 'Iconfont 集成', link: '/guide/iconfont' },
             { text: 'Utils 工具包（总览）', link: '/guide/utils' },
-            { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
-          ]
-        },
-        {
-          text: '扩展能力',
-          items: [
+            { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' },
             { text: '门户体系总览', link: '/guide/portal/' },
             { text: 'PortalManagement 管理端接入', link: '/guide/portal/admin-designer' },
-            { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
             { text: '门户物料扩展与注册', link: '/guide/portal/material-extension' },
             { text: 'basic Adapter', link: '/guide/adapter-basic' }
           ]
         },
         {
-          text: '协作与发布',
+          text: '仓库维护者',
           items: [
+            { text: '启动链路细节（深度）', link: '/guide/architecture-runtime-deep-dive' },
+            { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
             { text: '开发规范与维护', link: '/guide/development' },
             { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' },
             { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },

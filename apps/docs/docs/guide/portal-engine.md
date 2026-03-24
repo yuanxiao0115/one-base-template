@@ -1,29 +1,16 @@
-# portal-engine 能力边界
+# portal-engine 能力边界（兼容入口）
 
-> 兼容入口页（2026-03-18 起文档已分层到 `guide/portal/*`）
+> 本页仅用于兼容历史链接，不再作为主入口。
 
-## 推荐入口
+## 请改用以下入口
 
-- 门户总览：`/guide/portal/`
-- 引擎边界（新版）：`/guide/portal/engine-boundary`
-- 物料扩展与注册：`/guide/portal/material-extension`
-- 管理端接入（消费者视角）：`/guide/portal/admin-designer`
+1. 门户总览：[`/guide/portal/`](/guide/portal/)
+2. 引擎边界（主文档）：[`/guide/portal/engine-boundary`](/guide/portal/engine-boundary)
+3. 管理端接入：[`/guide/portal/admin-designer`](/guide/portal/admin-designer)
+4. 物料扩展：[`/guide/portal/material-extension`](/guide/portal/material-extension)
 
-## 快速规则
+## 下线计划
 
-1. 页面业务默认从 `@one-base-template/portal-engine/designer` 接入。
-2. `@one-base-template/portal-engine/internal` 仅用于高级编排。
-3. admin 的引擎注入固定走 `PortalManagement/engine/register.ts`。
-
-## 回归验证命令
-
-```bash
-pnpm -C packages/portal-engine run verify:materials
-pnpm -C packages/portal-engine run test:run
-pnpm -C packages/portal-engine typecheck
-pnpm -C apps/docs build
-```
-
-## 历史说明
-
-本页保留用于兼容旧链接；原有大体量内容已按“总览/管理端/引擎/扩展”拆分到 `guide/portal/*`。
+- 当前策略：保留兼容页，避免历史外链失效。
+- 下线条件：站内零引用 + 一个发布周期观察完成。
+- 目标日期：不早于 **2026-06-30** 执行物理删除评估。

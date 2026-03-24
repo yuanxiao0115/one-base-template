@@ -1,24 +1,16 @@
-# 门户设计器（PC）
+# 门户设计器（兼容入口）
 
-> 兼容入口页（2026-03-18 起文档已分层到 `guide/portal/*`）
+> 本页仅用于兼容历史链接，不再作为主入口。
 
-## 现在请从这里开始
+## 请改用以下入口
 
-- 门户总览：`/guide/portal/`
-- 管理端接入：`/guide/portal/admin-designer`
-- 引擎边界：`/guide/portal/engine-boundary`
-- 物料扩展：`/guide/portal/material-extension`
+1. 门户总览：[`/guide/portal/`](/guide/portal/)
+2. 管理端接入：[`/guide/portal/admin-designer`](/guide/portal/admin-designer)
+3. 引擎边界：[`/guide/portal/engine-boundary`](/guide/portal/engine-boundary)
+4. 物料扩展：[`/guide/portal/material-extension`](/guide/portal/material-extension)
 
-## 为什么调整
+## 下线计划
 
-旧版 `portal-designer` 页面同时承载“管理端接入 + 引擎边界 + 历史演进 + 物料细节”，信息密度过高，阅读成本大。
-
-本次重构改为按角色分层：
-
-- 管理端开发看 `admin-designer`
-- 引擎维护看 `engine-boundary`
-- 物料扩展看 `material-extension`
-
-## 历史说明
-
-本页保留用于兼容旧链接，避免外部文档和历史提交中的跳转失效。
+- 当前策略：保留兼容页，避免历史外链失效。
+- 下线条件：站内零引用 + 一个发布周期观察完成。
+- 目标日期：不早于 **2026-06-30** 执行物理删除评估。

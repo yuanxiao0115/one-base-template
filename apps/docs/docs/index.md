@@ -33,17 +33,21 @@ features:
 ## 推荐阅读路径
 
 <div class="doc-quick-grid">
+  <a class="doc-quick-card" href="/guide/for-users">
+    <h3>我是框架使用者</h3>
+    <p>优先看快速开始、配置模型、模块规范与扩展接入，3 步完成可运行闭环。</p>
+  </a>
+  <a class="doc-quick-card" href="/guide/for-maintainers">
+    <h3>我是仓库维护者</h3>
+    <p>优先看协作规范、规则分层、发布流程与验证要求，避免改动越界与文档漂移。</p>
+  </a>
   <a class="doc-quick-card" href="/guide/quick-start">
     <h3>新成员先看</h3>
     <p>按快速开始与环境变量完成本地启动，再进入架构页理解全局边界。</p>
   </a>
-  <a class="doc-quick-card" href="/guide/module-system">
-    <h3>要开发功能</h3>
-    <p>先确认模块切割与路由装配规则，再查看 CRUD 与页面容器实践。</p>
-  </a>
-  <a class="doc-quick-card" href="/guide/portal-designer">
+  <a class="doc-quick-card" href="/guide/portal/">
     <h3>要做门户能力</h3>
-    <p>先读门户设计器，再看 portal-engine 的职责边界与可复用入口。</p>
+    <p>从门户总览进入，再按角色查看管理端接入、引擎边界和物料扩展。</p>
   </a>
   <a class="doc-quick-card" href="/guide/development">
     <h3>要提测交付</h3>
