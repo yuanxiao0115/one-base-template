@@ -69,20 +69,20 @@ export const menuPermissionFormRules: FormRules<MenuPermissionForm> = {
 export function toMenuPermissionForm(row: MenuPermissionRecord): MenuPermissionForm {
   return {
     id: row.id,
-    parentId: row.parentId || '0',
-    resourceType: Number(row.resourceType || 1),
-    resourceName: row.resourceName || '',
-    permissionCode: row.permissionCode || '',
-    icon: row.icon || '',
-    image: row.image || '',
-    url: row.url || '',
-    openMode: Number(row.openMode || 0),
-    redirect: row.redirect || '',
-    routeCache: Number(row.routeCache || 0),
-    sort: Number(row.sort || 10),
-    hidden: Number(row.hidden || 0),
-    component: row.component || '',
-    remark: row.remark || ''
+    parentId: row.parentId ?? '0',
+    resourceType: row.resourceType,
+    resourceName: row.resourceName,
+    permissionCode: row.permissionCode ?? '',
+    icon: row.icon ?? '',
+    image: row.image ?? '',
+    url: row.url ?? '',
+    openMode: row.openMode ?? 0,
+    redirect: row.redirect ?? '',
+    routeCache: row.routeCache ?? 0,
+    sort: row.sort ?? 10,
+    hidden: row.hidden ?? 0,
+    component: row.component ?? '',
+    remark: row.remark ?? ''
   };
 }
 
@@ -90,17 +90,17 @@ export function toMenuPermissionPayload(form: MenuPermissionForm): PermissionSav
   return {
     id: form.id,
     parentId: form.parentId || '0',
-    resourceType: Number(form.resourceType || 1),
+    resourceType: form.resourceType,
     resourceName: form.resourceName.trim(),
     permissionCode: form.permissionCode.trim(),
     icon: form.icon.trim(),
     image: form.image.trim(),
     url: form.url.trim(),
-    openMode: Number(form.openMode || 0),
+    openMode: form.openMode,
     redirect: form.redirect.trim(),
-    routeCache: Number(form.routeCache || 0),
-    sort: Number(form.sort || 10),
-    hidden: Number(form.hidden || 0),
+    routeCache: form.routeCache,
+    sort: form.sort,
+    hidden: form.hidden,
     component: form.component.trim(),
     remark: form.remark.trim()
   };

@@ -126,59 +126,42 @@ export const orgFormRules: FormRules<OrgForm> = {
   ]
 };
 
-function toSafeNumber(value: unknown, fallback = 0): number {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return value;
-  }
-  if (typeof value === 'string' && value.trim()) {
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) {
-      return parsed;
-    }
-  }
-  return fallback;
-}
-
-function trimText(value: string | undefined): string {
-  return (value || '').trim();
-}
-
 export function toOrgForm(detail: OrgRecord): OrgForm {
   return {
     id: detail.id,
-    parentId: detail.parentId || '',
-    orgName: detail.orgName || '',
-    briefName: detail.briefName || '',
-    sort: toSafeNumber(detail.sort, 0),
-    orgCategory: detail.orgCategory || '',
-    orgLevel: detail.orgLevel == null ? null : toSafeNumber(detail.orgLevel, 0),
-    orgLevelName: detail.orgLevelName || '',
-    orgLevelId: detail.orgLevelId || '',
-    institutionalType: detail.institutionalType || '',
-    uscc: detail.uscc || '',
-    orgType: toSafeNumber(detail.orgType, 0),
-    isExternal: Boolean(detail.isExternal),
-    remark: detail.remark || ''
+    parentId: detail.parentId ?? '',
+    orgName: detail.orgName,
+    briefName: detail.briefName ?? '',
+    sort: detail.sort ?? 0,
+    orgCategory: detail.orgCategory ?? '',
+    orgLevel: detail.orgLevel ?? null,
+    orgLevelName: detail.orgLevelName ?? '',
+    orgLevelId: detail.orgLevelId ?? '',
+    institutionalType: detail.institutionalType ?? '',
+    uscc: detail.uscc ?? '',
+    orgType: detail.orgType ?? 0,
+    isExternal: detail.isExternal ?? false,
+    remark: detail.remark ?? ''
   };
 }
 
 export function toOrgPayload(form: OrgForm, rootParentId: string): OrgSavePayload {
-  const parentId = trimText(form.parentId) || rootParentId || '0';
+  const parentId = form.parentId.trim() || rootParentId || '0';
 
   return {
     id: form.id,
     parentId,
-    orgName: trimText(form.orgName),
-    briefName: trimText(form.briefName),
-    sort: toSafeNumber(form.sort, 0),
-    orgCategory: trimText(form.orgCategory),
-    orgLevelName: trimText(form.orgLevelName),
-    orgLevel: form.orgLevel == null ? null : toSafeNumber(form.orgLevel, 0),
-    orgLevelId: trimText(form.orgLevelId),
-    institutionalType: trimText(form.institutionalType),
-    uscc: trimText(form.uscc),
-    orgType: toSafeNumber(form.orgType, 0),
-    isExternal: Boolean(form.isExternal),
-    remark: trimText(form.remark)
+    orgName: form.orgName.trim(),
+    briefName: form.briefName.trim(),
+    sort: form.sort,
+    orgCategory: form.orgCategory.trim(),
+    orgLevelName: form.orgLevelName.trim(),
+    orgLevel: form.orgLevel,
+    orgLevelId: form.orgLevelId.trim(),
+    institutionalType: form.institutionalType.trim(),
+    uscc: form.uscc.trim(),
+    orgType: form.orgType,
+    isExternal: form.isExternal,
+    remark: form.remark.trim()
   };
 }

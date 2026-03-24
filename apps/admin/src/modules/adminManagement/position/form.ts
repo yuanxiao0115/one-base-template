@@ -35,9 +35,9 @@ export const positionFormRules: FormRules<PositionForm> = {
 export function toPositionForm(detail: PositionRecord): PositionForm {
   return {
     id: detail.id,
-    postName: detail.postName || '',
-    sort: Number(detail.sort || 0),
-    remark: detail.remark || ''
+    postName: detail.postName,
+    sort: detail.sort ?? 0,
+    remark: detail.remark ?? ''
   };
 }
 
@@ -45,7 +45,7 @@ export function toPositionPayload(form: PositionForm): PositionSavePayload {
   return {
     id: form.id,
     postName: form.postName.trim(),
-    sort: Number(form.sort || 0),
+    sort: form.sort,
     remark: form.remark.trim()
   };
 }
