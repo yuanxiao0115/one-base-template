@@ -41,7 +41,12 @@ pre-commit（`vp staged`）当前按文件类型分流：
 - 根 `vite.config.ts` 已接入 `eslint-plugin-better-tailwindcss`，用于约束 Tailwind 类名顺序、重复类、未知类等问题。
 - 当前 `vp lint` 基于 Oxlint 执行，按插件官方说明：`.vue` 模板暂不支持该插件解析。
 - 因此现阶段约束范围为 `js/cjs/mjs/ts/tsx/cts/mts` 文件中的 Tailwind 类名字符串；`.vue` 模板需等待 Oxlint 对 Vue 解析能力完善后再扩展。
-- `apps/admin` 已在 `oxfmt.config.ts` 与 `apps/admin/vite.config.ts` 的 `fmt.sortTailwindcss` 开启 Tailwind class 自动排序，`class` 与 `:class` 字符串会按 `apps/admin/src/styles/index.css` 的 Tailwind 配置排序。
+- `apps/admin` 已在 `oxfmt.config.ts` 与 `apps/admin/vite.config.ts` 的 `fmt` 开启统一格式化能力：
+  - `sortTailwindcss`：`class` 与 `:class` 字符串按 `apps/admin/src/styles/index.css` 的 Tailwind 配置排序。
+  - `sortImports`：自动排序 import。
+  - `sortPackageJson.sortScripts`：排序 `package.json` 字段并排序 scripts。
+- 为降低主配置复杂度，`apps/admin/vite.config.ts` 的 build/fmt/plugins 与构建后处理插件已拆分到 `apps/admin/build/*`。
+- `apps/admin/build/index.ts` 作为统一导出入口，`vite.config.ts` 与 `oxfmt.config.ts` 优先从该入口引用。
 
 ## Vite Task 运行约定
 
