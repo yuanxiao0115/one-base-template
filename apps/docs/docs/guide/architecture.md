@@ -9,8 +9,46 @@
 
 1. 目录分层按“应用组装（apps）+ 共享能力（packages）”组织，**禁止跨层反向依赖**。
 2. `packages/core` 只做逻辑契约，`packages/ui` 只做壳层交互，`packages/adapters` 只做后端协议映射。
-3. admin/portal/template 共用同一套启动骨架（`app-starter + core + ui`），但保持各自应用边界。
+3. admin/portal/template 共用同一套分层启动思想（`core + ui + adapter`），但保持各自应用边界。
 4. 模块与路由采用 Manifest 装配策略，菜单权限与路由权限按统一契约收敛。
+
+## Monorepo 架构总览（树图）
+
+```mermaid
+flowchart LR
+  A["one-base-template（Monorepo）"]
+
+  subgraph Apps["apps（应用层）"]
+    A1["admin\\n主后台组装层"]
+    A2["portal\\n前台门户消费者"]
+    A3["template\\n最小静态菜单示例"]
+    A4["docs\\nVitePress 文档站"]
+  end
+
+  subgraph Packages["packages（共享层）"]
+    P1["core\\n鉴权/菜单/主题/HTTP"]
+    P2["ui\\nLayout/Sidebar/Topbar/Tabs"]
+    P3["adapters\\n后端协议适配"]
+    P4["portal-engine\\n门户引擎"]
+    P5["app-starter\\nportal/template 启动骨架"]
+    P6["tag / utils\\n标签与通用工具"]
+  end
+
+  A --> Apps
+  A --> Packages
+  A1 --> P1
+  A1 --> P2
+  A1 --> P3
+  A2 --> P1
+  A2 --> P2
+  A2 --> P4
+  A2 --> P5
+  A3 --> P1
+  A3 --> P2
+  A3 --> P5
+```
+
+> 阅读提示：`admin` 当前走本地 `bootstrap` 启动链路；`portal/template` 通过 `app-starter` 收敛运行时配置加载与启动兜底。
 
 ## 仓库地图（按职责）
 

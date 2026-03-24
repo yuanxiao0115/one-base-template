@@ -20,6 +20,14 @@ outline: false
 4. [CRUD 模块最佳实践](/guide/crud-module-best-practice)
 5. [VXE 表格迁移](/guide/table-vxe-migration)
 
+## 最短开发闭环（可直接照做）
+
+1. 启动项目：`pnpm dev`
+2. 生成模块骨架：`pnpm new:module user-center --dry-run`
+3. 按 [模块系统与切割](/guide/module-system) 完成 `manifest.ts + module.ts + routes.ts` 调整
+4. 在 `apps/admin/src/config/platform-config.ts` 中确认 `enabledModules`
+5. 提交前执行：`pnpm lint && pnpm typecheck && pnpm build`
+
 ## 扩展能力
 
 - [门户体系总览](/guide/portal/)

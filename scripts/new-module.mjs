@@ -66,14 +66,23 @@ function createFiles(params) {
     params;
 
   return {
-    'module.ts': `import type { AdminModuleManifest } from '@/router/types';
-import layoutRoutes from './routes/layout';
+    'manifest.ts': `import type { AppModuleManifestMeta } from '@one-base-template/core';
 
-const ${moduleVar}: AdminModuleManifest = {
+export const moduleManifest = {
   id: '${moduleId}',
   version: '1',
   moduleTier: 'core',
-  enabledByDefault: true,
+  enabledByDefault: true
+} as const satisfies AppModuleManifestMeta;
+
+export default moduleManifest;
+`,
+    'module.ts': `import type { AppModuleManifest } from '@one-base-template/core';
+import { moduleManifest } from './manifest';
+import layoutRoutes from './routes';
+
+const ${moduleVar}: AppModuleManifest = {
+  ...moduleManifest,
   apiNamespace: '${moduleId}',
   routes: {
     layout: layoutRoutes
@@ -82,17 +91,13 @@ const ${moduleVar}: AdminModuleManifest = {
 
 export default ${moduleVar};
 `,
-    'index.ts': `export { default as ${moduleVar} } from './module';
-`,
-    'routes.ts': `export { default } from './routes/layout';
-`,
-    'routes/layout.ts': `import type { RouteRecordRaw } from 'vue-router';
+    'routes.ts': `import type { RouteRecordRaw } from 'vue-router';
 
 export default [
   {
     path: '${routeBase}/index',
     name: '${pageName}',
-    component: () => import('../pages/${pageFileName}'),
+    component: () => import('./pages/${pageFileName}'),
     meta: {
       title: '${title}',
       keepAlive: true

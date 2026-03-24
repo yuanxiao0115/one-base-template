@@ -2,6 +2,10 @@
 
 从 2026-02-27 起，`apps/admin` 采用 **模块 Manifest 驱动** 的路由组装方式，目标是让模块可以被 CLI 稳定裁剪。
 
+<div class="doc-tldr">
+  <strong>先读这一段：</strong>新增模块只需要先看「1) 模块入口约定」+「2) 路由组装规则」+「3) enabledModules 配置开关」，其余章节是深入说明与治理细节。
+</div>
+
 ## 1) 模块入口约定
 
 每个业务模块必须提供 `manifest.ts + module.ts` 两个入口：
@@ -19,9 +23,24 @@ apps/admin/src/modules/<module-id>/
   components/
 ```
 
+### 模块入口树图（推荐）
+
+```mermaid
+flowchart TD
+  A["apps/admin/src/modules/<module-id>/"]
+  A --> B["manifest.ts\\n声明 id/version/moduleTier/enabledByDefault"]
+  A --> C["module.ts\\n导出 AppModuleManifest"]
+  A --> D["routes.ts 或 routes/index.ts\\n声明 layout/standalone 路由"]
+  A --> E["pages/*\\n页面实现"]
+  A --> F["api/*\\n接口调用与契约"]
+  A --> G["services/*\\n页面用例编排"]
+  A --> H["components/*\\n模块内组件"]
+  C --> D
+```
+
 `manifest.ts` 必填字段：
 
-- `id`: 模块标识（如 `PortalManagement`）
+- `id`: 模块标识（建议 kebab-case，如 `portal-management`）
 - `version`: 当前固定为 `'1'`
 - `moduleTier`: 模块分层（`core`/`optional`）
 - `enabledByDefault`: 是否默认启用
@@ -67,6 +86,12 @@ pnpm new:module user-center --title 用户中心
 - `--title`：默认页面标题
 - `--route`：路由前缀（默认与 `module-id` 相同）
 - `--dry-run`：仅预览要创建的文件，不落盘
+
+### 命名现状说明（避免误解）
+
+- 当前仓库存在历史目录命名混用（如 `PortalManagement`、`UserManagement`）。
+- 现行脚手架 `pnpm new:module <module-id>` 强制 `module-id` 为 kebab-case，并在 `apps/admin/src/modules/<module-id>/` 下生成标准结构。
+- 新增模块按 kebab-case 执行，历史模块可按业务节奏逐步收敛，不影响本次开发链路。
 
 ## 2) 路由组装规则
 
