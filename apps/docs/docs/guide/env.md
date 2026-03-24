@@ -8,9 +8,9 @@
 
 当前保留最小集合：
 
-- `VITE_API_BASE_URL`
-  - Vite dev server 的 `/api`、`/cmict` 代理目标
-  - 生产构建时也可作为 http baseURL 来源
+| 名称                | 值                                                          | 解释                                                                               |
+| ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL` | `https://gateway-basic-30746.p.onecode.cmict.cloud`（示例） | Vite dev server 的 `/api`、`/cmict` 代理目标；生产构建时也可作为 http baseURL 来源 |
 
 ## 2) 代码静态平台配置（`platform-config.ts`）
 

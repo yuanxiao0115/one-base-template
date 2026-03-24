@@ -14,41 +14,33 @@
 
 ## Monorepo 架构总览（树图）
 
-```mermaid
-flowchart LR
-  A["one-base-template（Monorepo）"]
-
-  subgraph Apps["apps（应用层）"]
-    A1["admin\\n主后台组装层"]
-    A2["portal\\n前台门户消费者"]
-    A3["template\\n最小静态菜单示例"]
-    A4["docs\\nVitePress 文档站"]
-  end
-
-  subgraph Packages["packages（共享层）"]
-    P1["core\\n鉴权/菜单/主题/HTTP"]
-    P2["ui\\nLayout/Sidebar/Topbar/Tabs"]
-    P3["adapters\\n后端协议适配"]
-    P4["portal-engine\\n门户引擎"]
-    P5["app-starter\\nportal/template 启动骨架"]
-    P6["tag / utils\\n标签与通用工具"]
-  end
-
-  A --> Apps
-  A --> Packages
-  A1 --> P1
-  A1 --> P2
-  A1 --> P3
-  A2 --> P1
-  A2 --> P2
-  A2 --> P4
-  A2 --> P5
-  A3 --> P1
-  A3 --> P2
-  A3 --> P5
+```text
+one-base-template
+├─ apps（应用层）
+│  ├─ admin     主后台组装层（本地 bootstrap 启动）
+│  ├─ portal    前台门户消费者（依赖 app-starter 启动骨架）
+│  ├─ template  最小静态菜单示例（依赖 app-starter 启动骨架）
+│  └─ docs      VitePress 文档站
+└─ packages（共享层）
+   ├─ core         鉴权 / 菜单 / 主题 / HTTP 逻辑契约
+   ├─ ui           Layout / Sidebar / Topbar / Tabs 壳层
+   ├─ adapters     后端协议适配与字段映射
+   ├─ portal-engine 门户编辑与渲染引擎
+   ├─ app-starter  portal/template 启动编排与兜底
+   ├─ tag          标签与样式能力
+   └─ utils        通用工具能力
 ```
 
-> 阅读提示：`admin` 当前走本地 `bootstrap` 启动链路；`portal/template` 通过 `app-starter` 收敛运行时配置加载与启动兜底。
+### 应用与共享包依赖关系（最小可读版）
+
+| 应用       | 主要依赖共享包                               | 说明                                   |
+| ---------- | -------------------------------------------- | -------------------------------------- |
+| `admin`    | `core`、`ui`、`adapters`                     | 主后台应用，启动链路在本地 `bootstrap` |
+| `portal`   | `core`、`ui`、`portal-engine`、`app-starter` | 前台消费者，复用门户引擎               |
+| `template` | `core`、`ui`、`app-starter`                  | 最小静态菜单示例                       |
+| `docs`     | 无业务运行时依赖（仅文档构建）               | VitePress 文档站                       |
+
+> 阅读提示：先看“树图”定位目录，再看“依赖关系表”判断每个应用该关注哪些共享包。
 
 ## 仓库地图（按职责）
 
