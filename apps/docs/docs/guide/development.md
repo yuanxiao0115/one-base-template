@@ -173,8 +173,12 @@ pnpm -C apps/docs build
 为保证“动词 + 名词”的通用命名约束，仓库提供命名白名单检查脚本：
 
 ```bash
+pnpm check:naming:config
 pnpm check:naming
 ```
+
+- `check:naming:config`：只校验 `cli-naming-whitelist.json` 的 schema（结构、过期时间、重复配置）。
+- `check:naming`：先执行 schema 校验，再执行源码命名扫描。
 
 白名单来源：`apps/docs/public/cli-naming-whitelist.json`  
 规则说明：`/guide/naming-whitelist`
@@ -221,6 +225,7 @@ pnpm verify
 
 `verify` 当前与 CI 保持同口径，顺序为：
 
+- `pnpm check:naming`
 - `pnpm lint:arch`
 - `pnpm test:run`
 - `pnpm typecheck`

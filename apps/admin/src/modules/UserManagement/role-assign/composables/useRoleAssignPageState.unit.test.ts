@@ -13,7 +13,7 @@ const apiMocks = vi.hoisted(() => ({
   addMembers: vi.fn(),
   listMembers: vi.fn(),
   listRoles: vi.fn(),
-  pageMembers: vi.fn(),
+  listMembersByPage: vi.fn(),
   removeMembers: vi.fn()
 }));
 
@@ -98,7 +98,7 @@ describe('UserManagement/role-assign/useRoleAssignPageState', () => {
         }
       ]
     });
-    apiMocks.pageMembers.mockResolvedValue({
+    apiMocks.listMembersByPage.mockResolvedValue({
       code: 200,
       data: {
         records: [],

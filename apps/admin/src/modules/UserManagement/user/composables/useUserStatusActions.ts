@@ -83,7 +83,7 @@ export function useUserStatusActions(options: UseUserStatusActionsOptions) {
     try {
       await confirmResetUserPassword(row.nickName);
 
-      const response = await userApi.resetPwd({ id: row.id });
+      const response = await userApi.resetPassword({ id: row.id });
       if (response.code !== 200) {
         throw new Error(response.message || '重置密码失败');
       }

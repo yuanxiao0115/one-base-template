@@ -115,8 +115,12 @@ const whitelist = JSON.parse(raw);
 根目录可执行：
 
 ```bash
+pnpm check:naming:config
 pnpm check:naming
 ```
+
+- `check:naming:config`：校验白名单 JSON schema。
+- `check:naming`：先校验 schema，再扫描代码命名。
 
 默认校验范围：
 
@@ -156,3 +160,4 @@ pnpm check:naming
 - `expiresAt` 过期后 `pnpm check:naming` 会直接失败。
 - 声明了但未命中任何代码的豁免会直接失败，防止僵尸配置。
 - 默认应优先重命名到白名单动词，而不是新增豁免。
+- CI 会前置执行 `pnpm check:naming:config`，配置不合法会直接阻断流水线。

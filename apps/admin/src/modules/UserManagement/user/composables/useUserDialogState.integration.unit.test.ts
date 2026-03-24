@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const apiMocks = vi.hoisted(() => ({
   detail: vi.fn(),
-  searchUsers: vi.fn(),
+  listUsers: vi.fn(),
   updateCorporateUser: vi.fn()
 }));
 
@@ -83,7 +83,7 @@ function createElementStubs() {
 describe('UserManagement/user/useUserDialogState integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    apiMocks.searchUsers.mockResolvedValue({
+    apiMocks.listUsers.mockResolvedValue({
       code: 200,
       data: []
     });

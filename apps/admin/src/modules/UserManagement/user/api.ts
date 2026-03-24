@@ -38,13 +38,14 @@ export const userApi = {
       data
     }),
 
-  orgList: async () => obHttp().get<ApiResponse<OrgTreeNode[]>>('/cmict/admin/org/manage/list'),
+  listOrgs: async () => obHttp().get<ApiResponse<OrgTreeNode[]>>('/cmict/admin/org/manage/list'),
 
-  positionList: async () => obHttp().get<ApiResponse<PositionItem[]>>('/cmict/admin/sys-post/list'),
+  listPositions: async () =>
+    obHttp().get<ApiResponse<PositionItem[]>>('/cmict/admin/sys-post/list'),
 
-  roleList: async () => obHttp().get<ApiResponse<RoleItem[]>>('/cmict/admin/role/list'),
+  listRoles: async () => obHttp().get<ApiResponse<RoleItem[]>>('/cmict/admin/role/list'),
 
-  searchUsers: async (params: { nickName?: string }) =>
+  listUsers: async (params: { nickName?: string }) =>
     obHttp().get<ApiResponse<UserBriefRecord[]>>('/cmict/admin/user/list', { params }),
 
   updateStatus: async (data: { isEnable: boolean; ids: string[] }) =>
@@ -52,7 +53,7 @@ export const userApi = {
       data
     }),
 
-  resetPwd: async (data: { id: string }) =>
+  resetPassword: async (data: { id: string }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/user/password-reset', { data }),
 
   changeUserAccount: async (data: {

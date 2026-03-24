@@ -5,7 +5,7 @@ export const roleAssignApi = {
   listRoles: async (params: { roleName?: string }) =>
     obHttp().get<ApiResponse<RoleOption[]>>('/cmict/admin/role/list', { params }),
 
-  pageMembers: async (params: {
+  listMembersByPage: async (params: {
     roleId: string;
     keyWord?: string;
     currentPage?: number;

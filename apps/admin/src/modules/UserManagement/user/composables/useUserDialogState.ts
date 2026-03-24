@@ -134,7 +134,7 @@ export function useUserDialogState(options: UseUserDialogStateOptions) {
       return [];
     }
 
-    const response = await userApi.searchUsers({ nickName: normalizedKeyword });
+    const response = await userApi.listUsers({ nickName: normalizedKeyword });
     if (response.code !== 200) {
       throw new Error(response.message || '加载用户列表失败');
     }

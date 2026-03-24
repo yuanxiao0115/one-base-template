@@ -25,7 +25,8 @@
     "changeset": "changeset",
     "version:packages": "changeset version",
     "release:packages": "changeset publish",
-    "check:naming": "node ./scripts/check-naming.mjs",
+    "check:naming:config": "node ./scripts/check-naming-whitelist-schema.mjs",
+    "check:naming": "pnpm check:naming:config && node ./scripts/check-naming.mjs",
     "verify": "vp run --filter @one-base-template/portal-engine verify:materials && pnpm check:naming && pnpm lint:arch && pnpm test:run && pnpm typecheck && pnpm lint && pnpm build && pnpm check:admin:bundle",
     "doctor": "node ./scripts/doctor.mjs",
     "prepare": "vp config"

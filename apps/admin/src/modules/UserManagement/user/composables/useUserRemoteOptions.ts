@@ -26,7 +26,7 @@ export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
 
   const orgTreeLoader = createCachedAsyncLoader<OrgTreeNode[]>(
     async () => {
-      const response = await userApi.orgList();
+      const response = await userApi.listOrgs();
       if (response.code !== 200) {
         throw new Error(response.message || '加载组织树失败');
       }
@@ -38,7 +38,7 @@ export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
 
   const positionOptionsLoader = createCachedAsyncLoader<PositionItem[]>(
     async () => {
-      const response = await userApi.positionList();
+      const response = await userApi.listPositions();
       if (response.code !== 200) {
         throw new Error(response.message || '加载职位列表失败');
       }
@@ -50,7 +50,7 @@ export function useUserRemoteOptions(params: UseUserRemoteOptionsParams) {
 
   const roleOptionsLoader = createCachedAsyncLoader<RoleItem[]>(
     async () => {
-      const response = await userApi.roleList();
+      const response = await userApi.listRoles();
       if (response.code !== 200) {
         throw new Error(response.message || '加载角色列表失败');
       }

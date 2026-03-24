@@ -15,7 +15,7 @@ const messageMocks = vi.hoisted(() => ({
 const apiMocks = vi.hoisted(() => ({
   changeUserAccount: vi.fn(),
   detail: vi.fn(),
-  searchUsers: vi.fn(),
+  listUsers: vi.fn(),
   updateCorporateUser: vi.fn()
 }));
 

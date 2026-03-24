@@ -52,7 +52,7 @@ export function useRoleAssignMemberTable(options: UseRoleAssignMemberTableOption
           };
         }
 
-        return roleAssignApi.pageMembers({
+        return roleAssignApi.listMembersByPage({
           roleId,
           keyWord,
           currentPage,
