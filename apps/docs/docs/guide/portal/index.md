@@ -38,6 +38,11 @@ packages/portal-engine/src
   renderer/                       # 预览与运行态渲染
   materials/ + registry/          # 物料定义、加载与注册
   workbench/                      # 路由与页面编排控制器
+
+apps/portal/src/modules/portal
+  pages/PortalRenderPage.vue      # 渲染端入口（壳层 + 页面内容）
+  materials/useMaterials.ts       # 渲染态物料与 cmsApi 注入
+  services/portal-service.ts      # tab/template 公共接口封装
 ```
 
 ## 2026-03-18 并行优化结果
@@ -54,6 +59,13 @@ packages/portal-engine/src
 | `/portal/design?id=...`                    | 门户设计工作台         |
 | `/portal/page/edit?id=...&tabId=...`       | 页面深度编辑           |
 | `/portal/preview?templateId=...&tabId=...` | 预览渲染（匿名可访问） |
+
+## 渲染端对齐口径（apps/portal）
+
+- `PortalRenderPage` 统一复用 `PortalPreviewPanel`，直接消费 `portal-engine` 的页眉/页脚/布局壳层能力。
+- 路由入口：`/portal/index/:tabId?`、`/portal/preview/:tabId?`。
+- 当仅有 `templateId` 时，渲染端会先解析模板树首个页面 `tabId`，再进入壳层渲染。
+- 导航行为：页眉导航 `tab` 走站内路由切换，外链 `url` 走新窗口打开。
 
 ## 兼容入口说明
 
