@@ -1,3 +1,10 @@
+/**
+ * admin 应用日志工具。
+ *
+ * 说明：
+ * - 仅负责输出格式与级别控制；
+ * - 不属于“配置项”，因此放在 `utils` 目录。
+ */
 type LoggerLevel = 'debug' | 'error' | 'info' | 'warn';
 
 type LoggerMethod = (message: string, ...args: unknown[]) => void;

@@ -55,7 +55,7 @@ vi.mock('element-plus', () => ({
   }
 }));
 
-vi.mock('@/config/basic/client-signature', () => {
+vi.mock('@/services/security/client-signature', () => {
   mocks.basicCryptoLoadCount += 1;
   return {
     createClientSignature: mocks.createClientSignatureMock

@@ -1,6 +1,6 @@
 import { reactive, ref } from 'vue';
 import type { CrudFormLike } from '@one-base-template/ui';
-import { sm4EncryptBase64 } from '@/config/basic/crypto';
+import { sm4EncryptBase64 } from '@/services/security/crypto';
 import { message } from '@one-base-template/ui';
 import { userApi } from '../api';
 import type { CorporateUserRecord, UserListRecord } from '../types';

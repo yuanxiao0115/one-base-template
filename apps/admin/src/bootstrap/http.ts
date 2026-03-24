@@ -55,7 +55,7 @@ export function createAppHttp(params: {
           clientSignatureClientId,
           // 仅在请求真正发出前再按需加载 gm-crypto，避免把签名依赖拉进 admin 冷启动链。
           loadCreateClientSignature: async () => {
-            const { createClientSignature } = await import('../config/basic/client-signature');
+            const { createClientSignature } = await import('../services/security/client-signature');
             return createClientSignature;
           }
         })

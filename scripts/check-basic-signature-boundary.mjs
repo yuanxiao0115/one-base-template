@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const rootDir = process.cwd();
 const targetFiles = [
-  'apps/admin/src/config/basic/signature.ts',
+  'apps/admin/src/services/security/signature.ts',
   'apps/portal/src/config/basic/signature.ts'
 ];
 

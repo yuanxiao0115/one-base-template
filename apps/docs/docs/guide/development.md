@@ -68,10 +68,10 @@ pre-commit（`vp staged`）当前按文件类型分流：
   - 不要静态 import `@one-base-template/tag` 根入口
 - `basic` 的 `Client-Signature` 生成也应采用同一思路：
   - `createObHttp()` 已支持异步 `beforeRequestCallback`
-  - admin / portal 的签名逻辑统一在请求发出前 `await import('.../config/basic/client-signature')`
+  - admin / portal 的签名逻辑统一在请求发出前按需动态导入（admin：`services/security/client-signature`，portal：`config/basic/client-signature`）
   - 请求头注入逻辑统一复用 `@one-base-template/core` 的 `createBasicClientSignatureBeforeRequest()`
-  - `config/basic/client-signature.ts` 与 `config/basic/crypto.ts` 必须共同复用 `config/basic/signature.ts`
-  - `config/basic/signature.ts` 必须继续复用 `@one-base-template/core` 的 `getClientSignatureInput()` + `buildClientSignature()`，禁止在 app 内重复实现三段式签名拼接
+  - app 侧签名入口（admin `services/security/*`、portal `config/basic/*`）必须共同复用各自 `signature.ts`
+  - 各 app 的 `signature.ts` 必须继续复用 `@one-base-template/core` 的 `getClientSignatureInput()` + `buildClientSignature()`，禁止在 app 内重复实现三段式签名拼接
   - 目标是把 `gm-crypto` 挪出冷启动依赖图，而不是继续静态挂在 `bootstrap/http.ts`
 - 这类性能边界建议通过“源码约束测试或构建校验”固化；当前若仓库测试资产处于清理阶段，可先以 `typecheck/lint/build` 作为临时门禁。
 - 离线 Iconify 数据按集合拆成独立异步 chunk：
@@ -202,7 +202,7 @@ pnpm check:naming
 pnpm check:basic-signature
 ```
 
-该门禁用于检查 admin / portal 的 `config/basic/signature.ts` 是否继续复用 `@one-base-template/core` 的签名辅助方法，避免三段式签名拼接重新散落回应用层。
+该门禁用于检查 admin / portal 的签名入口（admin: `services/security/signature.ts`；portal: `config/basic/signature.ts`）是否继续复用 `@one-base-template/core` 的签名辅助方法，避免三段式签名拼接重新散落回应用层。
 
 ## admin 架构源码约束测试
 
@@ -261,7 +261,7 @@ pnpm doctor
 
 - 模块边界：`apps/admin/src/modules/**/*` 禁止直接 import `@/modules/*`（公共能力上移到 `services/types/core/ui`）
 - API 边界：页面/组件/store 禁止直接 import `@/infra/http`；HTTP 调用统一收口到 `services/*` 与 `api.ts/api/client.ts`，并在 API 层通过 `@one-base-template/core` 的 `obHttp()` 获取客户端
-- 目录边界：`apps/admin/src/config` / `apps/admin/src/services/auth` / `apps/admin/src/types` 仅承载应用级公共能力；单模块私有逻辑禁止上提到这些目录
+- 目录边界：`apps/admin/src/config` 仅承载可维护配置与运行时入口；工具逻辑请放 `apps/admin/src/utils`，安全能力请放 `apps/admin/src/services/security`；单模块私有逻辑禁止上提到这些目录
 - 约束脚本位置：`scripts/check-admin-arch.mjs`（可通过 `pnpm lint:arch` 或 `pnpm -C apps/admin lint:arch` 执行）
 
 ## 全局消息工具（兼容老项目 message.ts）

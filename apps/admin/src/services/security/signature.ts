@@ -5,6 +5,9 @@ import {
   type ClientSignatureOptions
 } from '@one-base-template/core';
 
+/**
+ * basic 网关签名能力（安全服务层）。
+ */
 export function sm3DigestHex(value: string): string {
   return SM3.digest(value, 'utf8', 'hex');
 }

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { createClientSignature as createClientSignatureFromClient } from '@/config/basic/client-signature';
-import { createClientSignature as createClientSignatureFromCrypto } from '@/config/basic/crypto';
-import { createClientSignature as createClientSignatureFromSignature } from '@/config/basic/signature';
+import { createClientSignature as createClientSignatureFromClient } from '@/services/security/client-signature';
+import { createClientSignature as createClientSignatureFromCrypto } from '@/services/security/crypto';
+import { createClientSignature as createClientSignatureFromSignature } from '@/services/security/signature';
 
 function decodeBase64(value: string): string {
   return window.atob(value);
 }
 
-describe('config/basic/signature', () => {
+describe('services/security/signature', () => {
   it('应由 signature 提供单一签名实现', () => {
     const params = {
       clientId: 'admin-client',

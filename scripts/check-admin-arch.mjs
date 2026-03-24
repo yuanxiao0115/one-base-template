@@ -8,7 +8,7 @@ const targetExtensions = new Set(['.ts', '.tsx', '.vue']);
 const importMetaEnvAllowList = new Set([
   'config/env.ts',
   'config/platform-config.ts',
-  'config/logger.ts'
+  'utils/logger.ts'
 ]);
 
 /**

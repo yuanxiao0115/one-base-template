@@ -22,8 +22,9 @@ src/
   main.ts                    # 最小入口：触发 startAdminApp（共享启动骨架）
   bootstrap/                 # 启动编排（create app/router/pinia/http/core + 插件 + 守卫）
   router/                    # 模块注册与路由装配（manifest 扫描、白名单、保留路由）
-  config/                    # 运行时配置与应用级能力（layout/theme/sso/systems/platform-config/env/logger/basic）
+  config/                    # 可维护配置项与运行时配置入口（layout/theme/sso/systems/platform-config/env/ui）
   services/                  # 应用服务（认证/SSO/验证码等）
+  services/security/         # 安全能力（签名与加密）
   types/                     # 跨模块通用类型（如 ApiResponse / ApiPageData）
   modules/                   # 业务模块（User/System/Log/Cms/portal/home）
   components/                # 跨模块复用组件（如 PersonnelSelector、富文本）
@@ -50,7 +51,9 @@ src/
 - 把单模块私有逻辑（仅一处使用的 mapper/normalize/helper）上提到 `services`/`types`
   目录边界说明：
 
-- `config/`：环境解析、运行时配置、应用 logger、basic 签名/加密
+- `config/`：环境解析、运行时配置与可维护配置项
+- `utils/`：应用级工具（如 logger、响应适配器）
+- `services/security/`：basic 签名与加密能力
 - `services/auth/`：认证/SSO/验证码服务
 - `types/`：通用协议类型（`types/api.ts`）
 - 业务模块私有实现仍放 `modules/<module>/**`

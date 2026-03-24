@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const warn = vi.hoisted(() => vi.fn());
 
-vi.mock('@/config/logger', () => ({
+vi.mock('@/utils/logger', () => ({
   createAppLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),

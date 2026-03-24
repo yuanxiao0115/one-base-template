@@ -1,8 +1,4 @@
 import {
-  /*
-   * dEFAULT_LAYOUT_TOPBAR_HEIGHT,
-   * DEFAULT_LAYOUT_SIDEBAR_WIDTH,
-   */
   DEFAULT_LAYOUT_SIDEBAR_COLLAPSED_WIDTH,
   type LayoutMode,
   type SystemSwitchStyle
@@ -10,6 +6,10 @@ import {
 
 /**
  * 管理端布局配置（仅代码配置，不走运行时 platform-config）。
+ *
+ * 维护建议：
+ * - 该文件属于“按需维护”配置；
+ * - 若只做业务开发，一般不需要修改本文件。
  *
  * 如需调整布局，请直接修改本文件：
  * - layoutMode: side | top

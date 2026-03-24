@@ -5,6 +5,14 @@ import {
   type PlatformConfigLoadErrorCode
 } from '@one-base-template/app-starter';
 
+/**
+ * 运行时配置加载入口（保留在 config 目录的特例文件）。
+ *
+ * 维护建议：
+ * - 日常开发仅需关注 `public/platform-config.json`；
+ * - 这里主要维护加载策略（超时、重试、快照兜底），非必要不要改。
+ */
+
 const CONFIG_URL = `${import.meta.env.BASE_URL}platform-config.json`;
 const ENABLE_LOCAL_SNAPSHOT_FALLBACK =
   import.meta.env.VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK === 'true';

@@ -14,7 +14,9 @@
 
 ### 目录收敛边界（config / types / services / tests）
 
-- `apps/admin/src/config`：应用配置与运行时装配（`env.ts`、`layout.ts`、`platform-config.ts`、`logger.ts`、`basic/*`）。
+- `apps/admin/src/config`：仅放“开发者可维护配置项”与运行时配置入口（`env.ts`、`layout.ts`、`platform-config.ts`、`sso.ts`、`systems.ts`、`theme.ts`、`ui.ts`）。
+- `apps/admin/src/utils`：应用级工具（如 `logger.ts`、`table-response-adapter.ts`），禁止放入 config。
+- `apps/admin/src/services/security`：安全能力（`client-signature.ts`、`signature.ts`、`crypto.ts`），禁止回流到 config。
 - `apps/admin/src/types`：跨模块通用类型定义（如 `types/api.ts` 的 `ApiResponse` / `ApiPageData`）。
 - `apps/admin/src/services/auth`：登录/SSO/验证码场景服务（`auth-*.ts`、`auth-scenario-provider.ts`）。
 - `apps/admin/tests`：应用层测试统一维护目录（启动链路、路由装配、配置与认证场景测试优先放这里）。

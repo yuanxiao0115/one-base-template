@@ -23,6 +23,10 @@ const ADMIN_PURPLE_SCALE: ThemePrimaryScale = {
  * - 主题能力下沉到 core：这里仅做项目注册
  * - 支持“内置主题 + 自定义主色（互斥）”
  * - 自定义主色仅影响 primary 色阶，状态色保持固定
+ *
+ * 维护建议：
+ * - 该文件属于“按需维护”配置；
+ * - 无主题定制需求时可保持默认不改。
  */
 export const appThemeOptions: CoreOptions['theme'] = {
   defaultTheme: 'blue',

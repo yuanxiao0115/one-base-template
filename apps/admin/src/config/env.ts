@@ -6,6 +6,15 @@ import type {
   PlatformMenuMode
 } from '@one-base-template/core';
 
+/**
+ * 运行时环境聚合入口（保留在 config 目录的特例文件）。
+ *
+ * 维护建议：
+ * - 日常开发一般无需修改；
+ * - 若新增运行时字段，优先先改 `platform-config` 契约，再在这里做透传；
+ * - 业务模块禁止直接读取 `import.meta.env`，统一通过 `getAppEnv()` 取值。
+ */
+
 export type BackendKind = PlatformBackendKind;
 export type AuthMode = PlatformAuthMode;
 export type MenuMode = PlatformMenuMode;

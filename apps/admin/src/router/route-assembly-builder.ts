@@ -8,7 +8,7 @@ import {
   type RouteCollectContext,
   type RouteSource
 } from '@one-base-template/core';
-import { createAppLogger } from '@/config/logger';
+import { createAppLogger } from '@/utils/logger';
 import { routePaths } from './constants';
 import { reservedRouteNames, reservedRoutePaths } from './public-routes';
 
