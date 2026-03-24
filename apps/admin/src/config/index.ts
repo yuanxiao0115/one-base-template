@@ -8,7 +8,7 @@
 export { appSsoOptions } from './sso';
 export { createSystemsOptions, DEFAULT_FALLBACK_HOME } from './systems';
 export { appThemeOptions } from './theme';
-export { appCrudContainerDefaultType, appTableDefaults } from './ui';
+export { appCrudContainerDefaultType, appMaterialImageCacheConfig, appTableDefaults } from './ui';
 export {
   appLayoutMode,
   appSystemSwitchStyle,

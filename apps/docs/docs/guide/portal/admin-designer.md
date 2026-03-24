@@ -36,6 +36,7 @@
 - 最新请求守卫：切换分类/分页/检索时，旧请求响应不回写页面。
 - 搜索防抖：分类与素材检索统一 300ms 防抖，减少高频请求。
 - 图片懒加载：素材卡片预览统一 `el-image loading=\"lazy\"`。
+- Service Worker 图片缓存：`apps/admin/public/material-image-cache-sw.js` 采用 `stale-while-revalidate`，仅缓存 `/cmict/file/resource/show?id=...` 图片请求，默认上限 `240` 条、TTL `7 天`，并在激活与更新时自动清理。
 
 ### 视觉优化基线（2026-03-24）
 

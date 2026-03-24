@@ -1,4 +1,5 @@
 import { startAdminApp, type StartAdminAppBeforeMountContext } from './bootstrap/startup';
+import { registerMaterialImageServiceWorker } from './bootstrap/material-image-service-worker';
 import './styles/team-overrides.css';
 
 function installMainEntrypointPlugins({ app }: StartAdminAppBeforeMountContext) {
@@ -7,6 +8,11 @@ function installMainEntrypointPlugins({ app }: StartAdminAppBeforeMountContext) 
   void app;
 }
 
-void startAdminApp({
-  beforeMount: installMainEntrypointPlugins
-});
+async function bootstrapMainApp() {
+  await startAdminApp({
+    beforeMount: installMainEntrypointPlugins
+  });
+  await registerMaterialImageServiceWorker();
+}
+
+void bootstrapMainApp();

@@ -34,3 +34,25 @@ export const appTableDefaults: UseTableDefaults = {
   },
   responseAdapter: appTableResponseAdapter
 };
+
+export interface MaterialImageCacheConfig {
+  enabled: boolean;
+  enableInDev: boolean;
+  maxEntries: number;
+  ttlMs: number;
+}
+
+/**
+ * 素材图片 Service Worker 缓存配置。
+ *
+ * 说明：
+ * - 仅针对 `/cmict/file/resource/show?id=...` 图片请求生效；
+ * - 默认仅生产环境开启，开发环境保持关闭；
+ * - maxEntries 与 ttlMs 控制缓存上限与过期清理。
+ */
+export const appMaterialImageCacheConfig: MaterialImageCacheConfig = {
+  enabled: true,
+  enableInDev: false,
+  maxEntries: 240,
+  ttlMs: 7 * 24 * 60 * 60 * 1000
+};
