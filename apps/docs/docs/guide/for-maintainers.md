@@ -25,8 +25,3 @@ outline: false
 1. [文档总览](/guide/)
 2. [Markdown 技术文档规范](/guide/markdown-doc-style)
 3. 变更导航时同步修改 `apps/docs/docs/.vitepress/config.ts`。
-
-## 兼容与下线策略
-
-- 旧链接兼容页（如 `/guide/portal-designer`、`/guide/portal-engine`）仅保留跳转说明，不作为主入口。
-- 后续满足“站内零引用 + 一个发布周期观察”后，可执行物理删除。

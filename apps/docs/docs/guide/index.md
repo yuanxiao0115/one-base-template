@@ -82,10 +82,3 @@ outline: false
     <p>统一文档结构、排版和验收口径，降低维护噪音。</p>
   </a>
 </div>
-
-## 历史兼容入口
-
-以下页面仅用于兼容旧链接，不再作为主阅读入口：
-
-- `/guide/portal-designer`
-- `/guide/portal-engine`
