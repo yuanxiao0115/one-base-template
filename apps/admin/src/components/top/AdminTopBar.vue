@@ -224,11 +224,21 @@ async function loadTenantOptions() {
 }
 
 async function onLogout() {
-  await authStore.logout();
-  menuStore.reset();
-  systemStore.reset();
-  tagStore.handleTags('equal', []);
-  await router.replace(routePaths.login);
+  let logoutError: unknown = null;
+  try {
+    await authStore.logout();
+  } catch (error) {
+    logoutError = error;
+  } finally {
+    menuStore.reset();
+    systemStore.reset();
+    tagStore.handleTags('equal', []);
+    await router.replace(routePaths.login);
+  }
+
+  if (logoutError) {
+    message.warning('退出接口异常，已清理本地登录状态');
+  }
 }
 
 async function onSwitchSystem(systemCode: string) {

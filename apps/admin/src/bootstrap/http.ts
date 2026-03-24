@@ -13,6 +13,35 @@ import {
 import type { AuthMode, BackendKind } from '../config/env';
 import { routePaths } from '../router/constants';
 
+function resolveNetworkErrorMessage(error: unknown): string {
+  if (!(error instanceof Error)) {
+    return '网络异常，请稍后重试';
+  }
+
+  const code = 'code' in error ? String(error.code ?? '') : '';
+  const response =
+    'response' in error ? (error.response as { status?: number } | undefined) : undefined;
+  const status = typeof response?.status === 'number' ? response.status : 0;
+
+  if (status === 401) {
+    return '';
+  }
+
+  if (code === 'ECONNABORTED' || /timeout/i.test(error.message)) {
+    return '请求超时，请稍后重试';
+  }
+
+  if (!status) {
+    return '网络连接异常，请检查网络后重试';
+  }
+
+  if (status >= 500) {
+    return '服务异常，请稍后重试';
+  }
+
+  return error.message || '请求失败，请稍后重试';
+}
+
 function resetTagStore() {
   // 统一走单启动链路后，未授权时始终清空 tags，避免残留上一个会话的页签状态。
   void import('@one-base-template/tag/store').then(({ useTagStoreHook }) => {
@@ -85,6 +114,12 @@ export function createAppHttp(params: {
     },
     hooks: {
       onBizError: ({ message }) => {
+        if (message) {
+          ElMessage.error(message);
+        }
+      },
+      onNetworkError: (error) => {
+        const message = resolveNetworkErrorMessage(error);
         if (message) {
           ElMessage.error(message);
         }
