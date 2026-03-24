@@ -285,6 +285,10 @@ pnpm -C apps/docs build
 
 - 容器层：`ObCrudContainer` 固定 `container="dialog"` + `:dialog-fullscreen="true"`，统一覆盖新增/编辑/查看三种模式。
 - 表单层：正文字段改为独立富文本组件（如 `ObRichTextEditor`），查看态使用 `v-html` 预览，编辑态使用组件 `v-model`。
+- 富文本基线：
+  - `ObRichTextEditor` 默认开启内容安全清洗（去除脚本标签、事件属性、危险 URL）；
+  - 支持 `profile=\"full|simple\"` 快速切换工具栏能力层级；
+  - 上传前统一校验大小：`imageMaxSizeMb` / `videoMaxSizeMb`。
 - 布局层：全屏表单建议采用“左侧基础/发布信息（窄列）+ 右侧正文/附件（宽列）”结构，输入控件集中在左侧避免横向过宽，并在 `1100px` 以下自动收敛为单栏。
 - 上传链路：
   - 封面上传：封面字段使用单图上传组件（`list-type="picture-card"` + `limit=1`），上传走 `/cmict/file/resource/upload`，表单值回填资源 `id`，预览地址统一用 `/cmict/file/resource/show?id=...`；

@@ -5,6 +5,12 @@ import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/edit
 import { Editor as WangEditor, Toolbar as WangToolbar } from '@wangeditor/editor-for-vue';
 import '@wangeditor/editor/dist/css/style.css';
 import { message } from '@one-base-template/ui';
+import {
+  getRichTextToolbarExcludeKeys,
+  normalizeRichTextHtml,
+  toSafeRichTextHtml,
+  type RichTextProfile
+} from './rich-text-html';
 
 interface RichTextUploadPayload {
   file: File;
@@ -21,11 +27,19 @@ const props = withDefaults(
     minHeight?: number;
     placeholder?: string;
     upload?: RichTextUploadHandler;
+    profile?: RichTextProfile;
+    sanitize?: boolean;
+    imageMaxSizeMb?: number;
+    videoMaxSizeMb?: number;
   }>(),
   {
     readOnly: false,
     minHeight: 420,
-    placeholder: '请输入内容'
+    placeholder: '请输入内容',
+    profile: 'full',
+    sanitize: true,
+    imageMaxSizeMb: 10,
+    videoMaxSizeMb: 200
   }
 );
 
@@ -38,9 +52,9 @@ const { formItem } = useFormItem();
 const editorRef = shallowRef<IDomEditor>();
 const mode = 'default' as const;
 
-const toolbarConfig: Partial<IToolbarConfig> = {
-  excludeKeys: ['fullScreen']
-};
+const toolbarConfig = computed<Partial<IToolbarConfig>>(() => ({
+  excludeKeys: getRichTextToolbarExcludeKeys(props.profile)
+}));
 
 const editorStyle = computed(() => ({
   minHeight: `${props.minHeight}px`,
@@ -67,20 +81,34 @@ const editorConfig = computed<Partial<IEditorConfig>>(() => ({
   }
 }));
 
-function normalizeEditorHtml(html: string): string {
-  const text = html
-    .replace(/<[^<p>]+>/g, '')
-    .replace(/<[</p>$]+>/g, '')
-    .replace(/&nbsp;/gi, '')
-    .replace(/<[^<br/>]+>/g, '')
-    .trim();
+function validateUploadFile(file: File, type: 'image' | 'video') {
+  const maxSizeMb = type === 'image' ? props.imageMaxSizeMb : props.videoMaxSizeMb;
+  const fileSizeMb = Number(file.size / 1024 / 1024);
+  if (fileSizeMb > maxSizeMb) {
+    const typeName = type === 'image' ? '图片' : '视频';
+    message.error(`${typeName}大小不能超过 ${maxSizeMb}MB`);
+    return false;
+  }
 
-  return text ? html : '';
+  const mime = String(file.type || '').toLowerCase();
+  if (type === 'image' && mime && !mime.startsWith('image/')) {
+    message.error('仅支持上传图片文件');
+    return false;
+  }
+  if (type === 'video' && mime && !mime.startsWith('video/')) {
+    message.error('仅支持上传视频文件');
+    return false;
+  }
+
+  return true;
 }
 
 async function handleCustomUpload(file: File, insertFn: RichTextInsertFn, type: 'image' | 'video') {
   if (!props.upload) {
     message.error('富文本未配置上传能力');
+    return;
+  }
+  if (!validateUploadFile(file, type)) {
     return;
   }
 
@@ -101,7 +129,8 @@ function handleCreated(editor: IDomEditor) {
 }
 
 function handleChange(editor: IDomEditor) {
-  model.value = normalizeEditorHtml(editor.getHtml());
+  const html = editor.getHtml();
+  model.value = props.sanitize ? toSafeRichTextHtml(html) : normalizeRichTextHtml(html);
   formItem?.validate('change');
 }
 

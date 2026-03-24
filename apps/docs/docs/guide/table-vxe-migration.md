@@ -32,7 +32,6 @@
 | ------------ | --------------------------------------- | ---------------------------------------------- |
 | 表格头工具条 | `ObTableBox` / `TableBox`（导出名）     | 保留旧 ObTableBox 的快捷搜索、抽屉筛选、已选条 |
 | 表格主体     | `ObVxeTable` / `VxeTable`               | 对齐 pure-table 常用 props/events/expose       |
-| 旧标签过渡   | `PureTableCompat`（admin 内）           | 允许局部继续使用 `<PureTableCompat>` 过渡      |
 | 表格数据管理 | `useTable`（`@one-base-template/core`） | 旧 API 不破坏 + 新 API 增量能力                |
 
 ## 首期迁移策略
@@ -43,8 +42,6 @@
 2. 页面外层统一使用 `ObPageContainer` 承载滚动与高度（`padding="0"`）
 3. 继续保留 `ObTableBox` 包裹布局
 4. 页面内直接调用 `@one-base-template/core` 的 `useTable`（不再经过 admin 本地 wrapper）
-
-> 如果某页短期不能改标签，可临时使用 `apps/admin/src/components/table/PureTableCompat.vue` 过渡。
 
 ## ObVxeTable 默认配置（建议先用默认）
 
