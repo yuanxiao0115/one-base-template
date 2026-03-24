@@ -79,6 +79,7 @@ Hook 来源建议：
 2. 在脚本中按语义二次解构，模板避免长链访问
 3. 绑定分页事件与查询事件（由 `actions` 输出）
 4. 在 `operation` 插槽编排行操作（编辑/查看/删除）
+5. `openCreate/openEdit/openDetail` 先收口到显式 handler 或 `actions`，模板不要直接写 `crud.openCreate/openEdit/openDetail`
 
 ### 3.2 删除交互
 
@@ -184,6 +185,7 @@ const { table, editor, actions } = crudPage;
 
 - `useTable.deleteRow` 内部已包含删除成功后的 `refreshRemove` 刷新策略（可通过 `remove.refreshAfterDelete='none'` 关闭）。
 - 页面层删除成功回调只处理提示/状态收尾（如关闭确认框、清理临时变量），**不要再额外 `onSearch(false)`**，避免重复请求。
+- 常规单删默认走 `tableOpt.remove` / `actions.remove(row)`，不要在页面或 composable 里重写一条 `obConfirm + 删除接口 + onSearch(false)` 例外链路。
 - 推荐直接在 `useTable` 配置删除参数，不再为常规单删额外封装流程：
   - `remove.api`：删除接口
   - `remove.idKey`：从行数据提取删除 id 的字段（默认 `id`）
@@ -247,6 +249,7 @@ pnpm -C apps/docs build
 - **名称唯一性**：在提交前与字段 blur 双重校验（`/org/unique/check`），保证交互及时与提交安全。
 - **能力分层弹窗**：主编辑用 `ObCrudContainer`；组织管理员与等级管理拆成独立组件，页面只保留编排逻辑。
 - **删除确认统一链路**：组织等级管理等子弹窗删除操作，优先使用 `useTable.remove.deleteConfirm`，避免手写 `obConfirm + 删除 API` 分散实现。
+- **通讯录弹窗请求守卫**：像组织管理员这类同时存在“初始化、进入节点、面包屑跳转、搜索”的弹窗，所有会回写当前节点/面包屑/已选态的异步链路都要补 `latest request guard`，关闭时统一失效会话。
 
 参考实现（本仓库）：
 
@@ -262,9 +265,11 @@ pnpm -C apps/docs build
 - **树筛选 + 分页列表联动**：左侧组织树仅负责写入 `searchForm.orgId`，列表查询统一走 `buildUserListParams`，避免页面散落时间/布尔字段转换。
 - **日期入参兜底过滤**：`startDate/endDate` 仅在存在有效值时透传给 `userApi.page`，避免把空字符串传给后端导致报错。
 - **复杂表单分层**：主表单拆成 `UserEditForm`（用户信息）、`UserAccountForm`（修改账号）、`UserBindAccountForm`（关联账号），页面只保留编排和事件路由。
+- **嵌套表单映射克制**：`form.ts` 只保留组织/岗位数组关系和协议边界转换；字段契约已明确时，不再继续堆 `trimText`、`toNaturalNumber`、`String/Number/Boolean` 这类过度防御性映射。
 - **确认交互统一封装**：UserManagement 模块不直接调用 `ElMessageBox`，统一使用 `obConfirm`（包含输入型删除确认）。
 - **非删除确认收敛**：启停、重置密码、表单内行移除等确认交互，优先复用 `modules/UserManagement/shared/confirm.ts`，避免在各页面重复写取消判定。
 - **操作列统一收敛**：使用 `ObActionButtons` 后不再叠加手写 `el-dropdown`，更多操作交给组件内置折叠能力。
+- **模板事件直连收口**：表单组件、弹窗组件同样不要写内联箭头函数或直接在模板里调 `crud.open*`，统一改成局部 handler。
 - **复杂逻辑按语义下沉 composable**：除标准 CRUD 外（批量启停、重置密码、导入映射、命名确认删除等）拆到 `useXxxState/useXxxActions/useXxxQuery`，不再新增汇总式 `actions.ts`。
 - **批量操作统一入口**：启用/停用、重置密码、删除二次确认全部收敛到页面脚本函数，保持提示文案和异常处理一致。
 - **组织内拖拽排序**：仅在已选组织时启用拖拽，失败后强制重新查询回滚，避免“前端排序成功、后端失败”导致的数据错位。

@@ -97,3 +97,12 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - 日志/详情类弹层（含抽屉与对话框）如果存在异步详情加载，必须增加“最新请求守卫”，并在关闭时失效旧请求，禁止旧响应回写当前详情态。
 - 列表页操作列点击事件禁止在模板内写内联箭头函数（如 `@click="() => handleXxx(row)"`），统一使用直接调用（如 `@click="handleXxx(row)"`）。
 - 基于 `useCrudPage/useEntityEditor` 的列表页必须把 `openCreate/openEdit/openDetail` 收口到显式 handler；并发打开短路统一由 `useEntityEditor` 内置 `opening/submitting` 保护兜底，页面层禁止重复堆叠同构 busy guard。
+
+## AdminManagement 终轮走查补充（2026-03-25）
+
+- 组织树 / 通讯录 / 选人类弹窗如果同时存在“初始化、进入节点、面包屑跳转、关键字搜索”等多条异步链路，必须给所有会回写当前节点、面包屑、已选态的链路补齐“最新请求守卫”；不能只守初始化请求。
+- 模板内联箭头函数禁令不只适用于 `list.vue` 操作列；表单组件、弹窗组件、图标选择器等业务模板同样禁止 `@click="() => ..."`、`@close="() => ..."`、`@update:model-value="(value) => ..."` 这类闭包写法。
+- 常规单删默认收口到 `tableOpt.remove` / `useCrudPage.table.remove`，行内只保留 `actions.remove(row)`；禁止在 composable 或页面里继续手写 `obConfirm + 删除接口 + onSearch(false)` 删除链路。
+- 即使存在“新增子级 / 新增平级”这类多分支操作，也不要在 `ObActionButtons` 内叠 `el-dropdown`；应改为独立触发区或交给组件内置折叠能力。
+- 即使在弹窗/子组件内部，模板也不要直接写 `crud.openCreate/openEdit/openDetail`；应先收口到局部 handler 或 `actions`，避免后续补前置校验、埋点、并发保护时继续改模板。
+- 像用户这类包含“组织 + 岗位”嵌套结构的 `form.ts`，只允许保留数组关系与真实协议边界转换；字段契约已明确的字符串/数字/布尔值，禁止继续堆 `trimText`、`toNaturalNumber`、`String/Number/Boolean` 兜底。

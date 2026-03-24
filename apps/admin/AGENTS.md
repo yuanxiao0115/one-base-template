@@ -161,13 +161,19 @@
 - 用户已确认的 CRUD 范式为后续迁移/重构唯一基线：目录组织、`list.vue` 编排层、`api.ts + types.ts` 接口层、`routes.ts` 懒加载注册均需按该范式落地，禁止在新迁移中回退到自定义散乱结构。
 - 管理页脚本超过单屏后，优先拆分“新增/编辑表单组件”和“高级搜索组件”，页面仅保留编排逻辑。
 - 日志/详情类弹层（含抽屉与对话框）若存在异步详情加载，必须增加“最新请求守卫”，并在关闭时失效旧请求，禁止旧响应回写当前详情态。
+- 组织树/通讯录/选人类弹窗若同时存在“初始化、进入节点、面包屑跳转、关键字搜索”等多条异步链路，不能只给初始化加 token；所有会回写 `currentNodes/rootNodes/breadcrumbs/selectedUsers` 的链路都必须做最新请求守卫，并在关闭时统一失效会话。
 - 列表页操作列点击事件禁止在模板内写内联箭头函数（如 `@click="() => handleXxx(row)"`），统一使用直接调用（如 `@click="handleXxx(row)"`）。
+- 模板内联箭头函数禁令不只适用于 `list.vue` 操作列；表单组件、弹窗组件、图标选择器等业务模板同样禁止 `@click="() => ..."`、`@close="() => ..."`、`@update:model-value="(value) => ..."` 这类闭包写法。
 - 基于 `useCrudPage/useEntityEditor` 的列表页必须把 `openCreate/openEdit/openDetail` 收口到显式 handler；并发打开短路统一由 `useEntityEditor` 内置 `opening/submitting` 保护兜底，页面层禁止重复堆叠同构 busy guard。
+- 即使在弹窗/子组件内部，模板也禁止直接调用 `crud.openCreate/openEdit/openDetail`；必须收口到局部 handler 或 `actions`，保证后续可统一补前置检查、埋点与并发保护。
 - `adminManagement`（组织/职位/用户）页面禁止直接使用 `ElMessageBox`，统一使用 `obConfirm`（含输入型确认）。
+- 常规单删默认配置到 `tableOpt.remove` / `useCrudPage.table.remove`，行内只允许 `actions.remove(row)`；禁止在页面或 composable 手写 `obConfirm + 删除接口 + onSearch(false)` 删除链路。
 - 业务页已使用 `ObActionButtons` 时，禁止叠加手写 `el-dropdown` 操作列。
+- 即使存在“新增子级 / 新增平级”这类多分支操作，也不要在 `ObActionButtons` 内嵌 `el-dropdown`；应改为独立触发区或交给组件内置折叠能力。
 - `ObActionButtons` 在 adminManagement 页面作为全局组件使用，默认不再手动 import。
 - 页面状态分组语义固定：`editor` 仅承载 CRUD 编辑态（`visible/mode/title/submitting/form/uniqueCheck`）；选项/字典/树数据统一放在 `options`。
 - 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 这类场景对象；禁止平铺暴露超过一个屏宽的零散 action/ref。
+- 像用户这种包含“组织 + 岗位”嵌套结构的 `form.ts`，只允许保留数组关系和真实协议边界转换；字段契约已明确的字符串/数字/布尔值，禁止继续包 `trimText`、`toNaturalNumber`、`String/Number/Boolean` 兜底。
 
 ## 菜单管理与图标选择
 
