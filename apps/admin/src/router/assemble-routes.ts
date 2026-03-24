@@ -105,7 +105,9 @@ export async function buildAppRoutes(
       defaultHomePath: getDefaultHomePath(options),
       publicRouteMeta: PUBLIC_ROUTE_META,
       publicRoutes,
-      // 通配 404 使用 replace，避免无效地址回退后再次命中通配造成历史栈污染。
+      // 403/404 挂到 Layout 子路由，保留顶部栏与侧边栏。
+      layoutPublicRouteNames: ['forbidden', 'not-found'],
+      // 通配 404 走 push 语义，保留原始访问地址在历史栈中。
       notFoundCatchallPath: routePaths.catchall
     })
   ];

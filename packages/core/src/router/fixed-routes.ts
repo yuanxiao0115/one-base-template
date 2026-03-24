@@ -15,6 +15,7 @@ export interface BuildFixedRoutesOptions {
   defaultHomePath: string;
   publicRouteMeta: RouteRecordRaw['meta'];
   publicRoutes: PublicRouteDefinition[];
+  layoutPublicRouteNames?: string[];
   notFoundCatchallPath: string;
   notFoundPath?: string;
 }
@@ -40,10 +41,7 @@ function createNotFoundCatchallRoute(params: {
 
   return {
     path,
-    redirect: () => ({
-      path: notFoundPath,
-      replace: true
-    }),
+    redirect: () => notFoundPath,
     meta
   };
 }
@@ -80,6 +78,7 @@ export function buildFixedRoutes(options: BuildFixedRoutesOptions): RouteRecordR
     defaultHomePath,
     publicRouteMeta,
     publicRoutes,
+    layoutPublicRouteNames,
     notFoundCatchallPath,
     notFoundPath
   } = options;
@@ -87,15 +86,27 @@ export function buildFixedRoutes(options: BuildFixedRoutesOptions): RouteRecordR
     publicRoutes,
     notFoundPath
   });
+  const layoutPublicRouteNameSet = new Set(layoutPublicRouteNames ?? []);
+  const layoutPublicRoutes: RouteRecordRaw[] = [];
+  const standalonePublicRoutes: RouteRecordRaw[] = [];
+
+  for (const route of publicRoutes) {
+    const normalized = createPublicRoute(route, publicRouteMeta);
+    if (layoutPublicRouteNameSet.has(route.name)) {
+      layoutPublicRoutes.push(normalized);
+      continue;
+    }
+    standalonePublicRoutes.push(normalized);
+  }
 
   return [
     {
       path: rootPath,
       component: layoutComponent,
       redirect: () => defaultHomePath,
-      children: layoutRoutes
+      children: [...layoutRoutes, ...layoutPublicRoutes]
     },
-    ...publicRoutes.map((route) => createPublicRoute(route, publicRouteMeta)),
+    ...standalonePublicRoutes,
     createNotFoundCatchallRoute({
       path: notFoundCatchallPath,
       notFoundPath: resolvedNotFoundPath,

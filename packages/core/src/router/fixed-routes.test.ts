@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { buildFixedRoutes } from './fixed-routes';
 
 describe('core/router/fixed-routes', () => {
-  it('应按固定顺序生成 layout/public/catchall 路由', () => {
+  it('应支持将指定公共路由挂到 layout children 并保留其绝对路径', () => {
     const routes = buildFixedRoutes({
       rootPath: '/',
       layoutComponent: {} as never,
@@ -24,22 +24,24 @@ describe('core/router/fixed-routes', () => {
           component: {} as never
         }
       ],
+      layoutPublicRouteNames: ['Forbidden'],
       notFoundCatchallPath: '/:pathMatch(.*)*',
       notFoundPath: '/404'
     });
 
-    expect(routes).toHaveLength(4);
+    expect(routes).toHaveLength(3);
     expect(routes[0]!.path).toBe('/');
     expect(routes[1]!.path).toBe('/login');
-    expect(routes[2]!.path).toBe('/403');
-    expect(routes[3]!.path).toBe('/:pathMatch(.*)*');
-    expect(typeof routes[3]!.redirect).toBe('function');
+    expect(routes[2]!.path).toBe('/:pathMatch(.*)*');
+    expect(typeof routes[2]!.redirect).toBe('function');
 
-    const redirectTarget = (routes[3]!.redirect as () => { path: string; replace: boolean })();
-    expect(redirectTarget).toEqual({
-      path: '/404',
-      replace: true
-    });
+    const rootChildren = routes[0]!.children ?? [];
+    expect(rootChildren).toHaveLength(2);
+    expect(rootChildren[0]!.path).toBe('/home/index');
+    expect(rootChildren[1]!.path).toBe('/403');
+
+    const redirectTarget = (routes[2]!.redirect as () => string)();
+    expect(redirectTarget).toBe('/404');
   });
 
   it('未显式传 notFoundPath 时应从 publicRoutes 推断', () => {
@@ -61,10 +63,7 @@ describe('core/router/fixed-routes', () => {
       notFoundCatchallPath: '/:pathMatch(.*)*'
     });
 
-    const redirectTarget = (routes[2]!.redirect as () => { path: string; replace: boolean })();
-    expect(redirectTarget).toEqual({
-      path: '/404',
-      replace: true
-    });
+    const redirectTarget = (routes[2]!.redirect as () => string)();
+    expect(redirectTarget).toBe('/404');
   });
 });
