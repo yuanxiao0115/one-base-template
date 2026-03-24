@@ -33,29 +33,29 @@ features:
 ## 推荐阅读路径
 
 <div class="doc-quick-grid">
-  <a class="doc-quick-card" href="/guide/for-users">
-    <h3>我是框架使用者</h3>
-    <p>优先看快速开始、配置模型、模块规范与扩展接入，3 步完成可运行闭环。</p>
-  </a>
-  <a class="doc-quick-card" href="/guide/for-maintainers">
-    <h3>我是仓库维护者</h3>
-    <p>优先看协作规范、规则分层、发布流程与验证要求，避免改动越界与文档漂移。</p>
-  </a>
   <a class="doc-quick-card" href="/guide/quick-start">
-    <h3>新成员先看</h3>
-    <p>按快速开始与环境变量完成本地启动，再进入架构页理解全局边界。</p>
+    <h3>入门启动</h3>
+    <p>先跑通 admin/portal/template/docs，再进入后续专题。</p>
+  </a>
+  <a class="doc-quick-card" href="/guide/architecture">
+    <h3>架构与边界</h3>
+    <p>先看目录分层、模块切割与路由装配规则，避免返工。</p>
+  </a>
+  <a class="doc-quick-card" href="/guide/crud-module-best-practice">
+    <h3>开发实践</h3>
+    <p>以 CRUD、表格迁移和组件规范形成统一开发范式。</p>
   </a>
   <a class="doc-quick-card" href="/guide/portal/">
-    <h3>要做门户能力</h3>
-    <p>从门户总览进入，再按角色查看管理端接入、引擎边界和物料扩展。</p>
+    <h3>扩展能力</h3>
+    <p>门户体系、引擎边界、物料扩展与 adapter 接入入口。</p>
   </a>
   <a class="doc-quick-card" href="/guide/development">
-    <h3>要提测交付</h3>
-    <p>按照开发规范执行 lint/typecheck/build，并同步文档与 .codex 记录。</p>
+    <h3>维护治理</h3>
+    <p>交付前验证、规则分层、发布流程与文档治理。</p>
   </a>
-  <a class="doc-quick-card" href="/guide/markdown-doc-style">
-    <h3>要写技术文档</h3>
-    <p>按统一 Markdown 规范组织结构、示例和验收标准，减少返工与歧义。</p>
+  <a class="doc-quick-card" href="/guide/for-users">
+    <h3>角色阅读入口</h3>
+    <p>如果你更习惯按角色阅读，可从使用者/维护者入口进入。</p>
   </a>
 </div>
 

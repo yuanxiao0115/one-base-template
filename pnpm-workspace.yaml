@@ -8,6 +8,7 @@ catalog:
 overrides:
   vite: 'catalog:'
   vitest: 'catalog:'
+  'vitepress>vite': ^8.0.0
 peerDependencyRules:
   allowAny:
     - vite
