@@ -72,6 +72,9 @@ await http.post('/auth/login', { data: { username: 'demo', password: 'demo' } })
 - `createBasicClientSignatureBeforeRequest({ ... })`
   - 统一处理 headers 合并、`Client-Signature` 注入
   - 支持懒加载 `loadCreateClientSignature()`，避免把签名依赖拉进冷启动主链路
+- `getClientSignatureInput(options?)` + `buildClientSignature({ clientId, timestamp, digestHex })`
+  - 统一 `clientId/timestamp/salt` 默认值与三段式签名拼接
+  - app 侧仅保留摘要算法（如 `SM3.digest`）适配，避免 admin / portal 各自维护拼接实现
 
 适用场景：admin / portal 这类 `backend=basic` 的请求签名注入。
 

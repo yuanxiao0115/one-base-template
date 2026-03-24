@@ -9,7 +9,7 @@ import {
 import { registerMessageUtils } from '@one-base-template/ui';
 
 import App from '../App.vue';
-import { assembleRoutes } from '../router/assemble-routes';
+import { buildAppRoutes } from '../router/assemble-routes';
 import { getAppEnv } from '../config/env';
 import {
   appLayoutMode,
@@ -59,7 +59,7 @@ export async function bootstrapAdminApp() {
     const routeAssemblyResult = await profiler.runStage(
       'assemble-routes',
       () =>
-        assembleRoutes({
+        buildAppRoutes({
           enabledModules: resolvedAppEnv.enabledModules,
           defaultSystemCode: resolvedAppEnv.defaultSystemCode,
           systemHomeMap: resolvedAppEnv.systemHomeMap,

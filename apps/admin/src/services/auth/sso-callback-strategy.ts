@@ -12,7 +12,7 @@ export interface ExecuteSsoCallbackStrategyOptions {
   handlers: SsoCallbackStrategyHandlers;
 }
 
-export async function executeSsoCallbackStrategy(options: ExecuteSsoCallbackStrategyOptions) {
+export async function startSsoCallbackStrategy(options: ExecuteSsoCallbackStrategyOptions) {
   const { searchParams, handlers } = options;
 
   const token = searchParams.get('token');

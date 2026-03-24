@@ -5,6 +5,7 @@ import {
   ONE_BUILTIN_THEMES,
   createCore,
   createStaticMenusFromRoutes,
+  installRouteDynamicImportRecovery,
   setObHttpClient,
   setupRouterGuards
 } from '@one-base-template/core';
@@ -108,6 +109,7 @@ export function bootstrapPortalApp() {
       http.cancelRouteRequests();
     }
   });
+  installRouteDynamicImportRecovery(router);
 
   return {
     app,

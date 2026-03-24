@@ -11,7 +11,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { getAppEnv } from '@/config/env';
 import { fetchCaptchaCheck, loadCaptcha } from '@/services/auth/auth-captcha-service';
 import { getLoginPageConfig, type LoginPageConfig } from '@/services/auth/auth-remote-service';
-import { resolveLoginScenario } from '@/services/auth/auth-scenario-provider';
+import { buildLoginScenario } from '@/services/auth/auth-scenario-provider';
 
 defineOptions({
   name: 'LoginPage'
@@ -32,7 +32,7 @@ const appEnv = getAppEnv();
 const { backend } = appEnv;
 const { baseUrl } = appEnv;
 const { tokenKey } = appEnv;
-const loginScenario = resolveLoginScenario({
+const loginScenario = buildLoginScenario({
   backend,
   routeQuery: route.query
 });

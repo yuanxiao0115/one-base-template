@@ -62,7 +62,7 @@ function getDefaultHomePath(
  * 2) compatAlias：历史路径别名（redirect）
  * 3) layout：挂在 AdminLayout 下的业务路由
  */
-function collectModuleRoutes(params: {
+function buildModuleRouteGroups(params: {
   modules: Awaited<ReturnType<typeof getEnabledModules>>;
   validator: ReturnType<typeof createRouteAssemblyValidator>;
 }): RouteAssemblyArtifacts {
@@ -85,13 +85,13 @@ function collectModuleRoutes(params: {
   };
 }
 
-export async function assembleRoutes(
+export async function buildAppRoutes(
   options: AppRouteAssemblyOptions
 ): Promise<AppRouteAssemblyResult> {
   const modules = await getEnabledModules(options.enabledModules);
   const validator = createRouteAssemblyValidator();
 
-  const { standaloneRoutes, aliasRoutes, layoutRoutes } = collectModuleRoutes({
+  const { standaloneRoutes, aliasRoutes, layoutRoutes } = buildModuleRouteGroups({
     modules,
     validator
   });

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 
-import { executeSsoScenario, resolveLoginScenario } from '@/services/auth/auth-scenario-provider';
+import { buildLoginScenario, startSsoScenario } from '@/services/auth/auth-scenario-provider';
 import { loginByDesktop, loginByExternal, loginByZhxt } from '@/services/auth/auth-remote-service';
 
 vi.mock('@/services/auth/auth-remote-service', () => {
@@ -20,8 +20,8 @@ describe('services/auth/auth-scenario-provider', () => {
     vi.clearAllMocks();
   });
 
-  it('resolveLoginScenario: default 场景应关闭验证登录与登录配置加载', () => {
-    const scenario = resolveLoginScenario({
+  it('buildLoginScenario: default 场景应关闭验证登录与登录配置加载', () => {
+    const scenario = buildLoginScenario({
       backend: 'default',
       routeQuery: {
         token: 'direct-token'
@@ -34,8 +34,8 @@ describe('services/auth/auth-scenario-provider', () => {
     expect(scenario.directLoginToken).toBeNull();
   });
 
-  it('resolveLoginScenario: basic 场景应开启验证登录并提取直登 token', () => {
-    const scenario = resolveLoginScenario({
+  it('buildLoginScenario: basic 场景应开启验证登录并提取直登 token', () => {
+    const scenario = buildLoginScenario({
       backend: 'basic',
       routeQuery: {
         token: 'direct-token'
@@ -48,12 +48,12 @@ describe('services/auth/auth-scenario-provider', () => {
     expect(scenario.directLoginToken).toBe('direct-token');
   });
 
-  it('executeSsoScenario: default 场景应走默认回调并跳转', async () => {
+  it('startSsoScenario: default 场景应走默认回调并跳转', async () => {
     const onDefaultSsoCallback = vi.fn(async () => ({ redirect: '/dashboard' }));
     const onAuthenticatedRedirect = vi.fn(async () => {});
     const onFinalizeAuthSession = vi.fn(async () => {});
 
-    await executeSsoScenario({
+    await startSsoScenario({
       backend: 'default',
       baseUrl: '/admin/',
       tokenKey: 'token-key',
@@ -77,12 +77,12 @@ describe('services/auth/auth-scenario-provider', () => {
     expect(onFinalizeAuthSession).not.toHaveBeenCalled();
   });
 
-  it('executeSsoScenario: basic 命中 type+token 应写入 token 并完成会话', async () => {
+  it('startSsoScenario: basic 命中 type+token 应写入 token 并完成会话', async () => {
     const setItem = vi.fn();
     const onAuthenticatedRedirect = vi.fn(async () => {});
     const onFinalizeAuthSession = vi.fn(async () => {});
 
-    await executeSsoScenario({
+    await startSsoScenario({
       backend: 'basic',
       baseUrl: '/',
       tokenKey: 'token-key',
@@ -110,7 +110,7 @@ describe('services/auth/auth-scenario-provider', () => {
     expect(onAuthenticatedRedirect).toHaveBeenCalledWith('/home/index');
   });
 
-  it('executeSsoScenario: basic 命中 zhxt 但无 authToken 应抛错', async () => {
+  it('startSsoScenario: basic 命中 zhxt 但无 authToken 应抛错', async () => {
     vi.mocked(loginByZhxt).mockResolvedValue({
       code: 200,
       message: '智慧协同单点登录失败',
@@ -118,7 +118,7 @@ describe('services/auth/auth-scenario-provider', () => {
     } as never);
 
     await expect(
-      executeSsoScenario({
+      startSsoScenario({
         backend: 'basic',
         baseUrl: '/',
         tokenKey: 'token-key',
@@ -142,9 +142,9 @@ describe('services/auth/auth-scenario-provider', () => {
     ).rejects.toThrowError('智慧协同单点登录失败');
   });
 
-  it('executeSsoScenario: basic 无有效参数应抛错', async () => {
+  it('startSsoScenario: basic 无有效参数应抛错', async () => {
     await expect(
-      executeSsoScenario({
+      startSsoScenario({
         backend: 'basic',
         baseUrl: '/',
         tokenKey: 'token-key',
@@ -165,7 +165,7 @@ describe('services/auth/auth-scenario-provider', () => {
     ).rejects.toThrowError('登录参数无效');
   });
 
-  it('executeSsoScenario: basic 命中 moaToken 应写入 idToken', async () => {
+  it('startSsoScenario: basic 命中 moaToken 应写入 idToken', async () => {
     vi.mocked(loginByExternal).mockResolvedValue({
       code: 200,
       message: 'success',
@@ -182,7 +182,7 @@ describe('services/auth/auth-scenario-provider', () => {
 
     const setItem = vi.fn();
 
-    await executeSsoScenario({
+    await startSsoScenario({
       backend: 'basic',
       baseUrl: '/',
       tokenKey: 'token-key',

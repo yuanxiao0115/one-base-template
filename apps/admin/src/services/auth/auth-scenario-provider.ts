@@ -8,7 +8,7 @@ import {
   loginByYdbg,
   loginByZhxt
 } from '@/services/auth/auth-remote-service';
-import { executeSsoCallbackStrategy } from '@/services/auth/sso-callback-strategy';
+import { startSsoCallbackStrategy } from '@/services/auth/sso-callback-strategy';
 
 interface RouteQueryLike {
   token?: unknown;
@@ -49,7 +49,7 @@ export interface ExecuteSsoScenarioOptions {
   locationLike?: LocationLike;
 }
 
-function pickDirectLoginToken(routeQuery: RouteQueryLike, enabled: boolean) {
+function getDirectLoginToken(routeQuery: RouteQueryLike, enabled: boolean) {
   if (!enabled) {
     return null;
   }
@@ -57,23 +57,23 @@ function pickDirectLoginToken(routeQuery: RouteQueryLike, enabled: boolean) {
   return typeof routeQuery.token === 'string' && routeQuery.token ? routeQuery.token : null;
 }
 
-function resolveLoginFallback(backend: BackendKind) {
+function getLoginFallback(backend: BackendKind) {
   return backend === 'basic' ? DEFAULT_FALLBACK_HOME : '/';
 }
 
-export function resolveLoginScenario(options: ResolveLoginScenarioOptions): LoginScenario {
+export function buildLoginScenario(options: ResolveLoginScenarioOptions): LoginScenario {
   const { backend, routeQuery } = options;
   const useBasicScenario = backend === 'basic';
 
   return {
     useVerifyLogin: useBasicScenario,
     shouldLoadLoginPageConfig: useBasicScenario,
-    fallback: resolveLoginFallback(backend),
-    directLoginToken: pickDirectLoginToken(routeQuery, useBasicScenario)
+    fallback: getLoginFallback(backend),
+    directLoginToken: getDirectLoginToken(routeQuery, useBasicScenario)
   };
 }
 
-export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
+export async function startSsoScenario(options: ExecuteSsoScenarioOptions) {
   const {
     backend,
     baseUrl,
@@ -110,7 +110,7 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
     await onAuthenticatedRedirect(redirect);
   }
 
-  async function handleZhxt(token: string) {
+  async function loginByZhxtToken(token: string) {
     const res = await loginByZhxt(token);
     const authToken = res.data?.authToken;
     if (!authToken) {
@@ -119,7 +119,7 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
     await setTokenAndBootstrap(authToken);
   }
 
-  async function handleYdbg(token: string) {
+  async function loginByYdbgToken(token: string) {
     const res = await loginByYdbg(token);
     const authToken = res.data?.authToken;
     if (!authToken) {
@@ -128,7 +128,7 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
     await setTokenAndBootstrap(authToken);
   }
 
-  async function handleTicket(ticket: string, ticketRedirectUrlRaw: string | null) {
+  async function loginByTicketToken(ticket: string, ticketRedirectUrlRaw: string | null) {
     const serviceUrl = ticketRedirectUrlRaw
       ? `${locationLike.origin}/${ticketRedirectUrlRaw}`
       : locationLike.href;
@@ -145,7 +145,7 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
     await setTokenAndBootstrap(authToken);
   }
 
-  async function handleExternalSso(params: { from: 'om' | 'portal'; token: string }) {
+  async function loginByExternalSso(params: { from: 'om' | 'portal'; token: string }) {
     const res = await loginByExternal({
       from: params.from,
       token: params.token
@@ -166,29 +166,29 @@ export async function executeSsoScenario(options: ExecuteSsoScenarioOptions) {
     await setTokenAndBootstrap(authToken);
   }
 
-  await executeSsoCallbackStrategy({
+  await startSsoCallbackStrategy({
     searchParams,
     handlers: {
       onZhxt: async ({ token }) => {
-        await handleZhxt(token);
+        await loginByZhxtToken(token);
       },
       onYdbg: async ({ token }) => {
-        await handleYdbg(token);
+        await loginByYdbgToken(token);
       },
       onTicket: async ({ ticket, redirectUrlRaw: ticketRedirectUrlRaw }) => {
-        await handleTicket(ticket, ticketRedirectUrlRaw);
+        await loginByTicketToken(ticket, ticketRedirectUrlRaw);
       },
       onTypeToken: async ({ token }) => {
         await setTokenAndBootstrap(token);
       },
       onMoaToken: async ({ token }) => {
-        await handleExternalSso({
+        await loginByExternalSso({
           from: 'om',
           token
         });
       },
       onUserToken: async ({ token }) => {
-        await handleExternalSso({
+        await loginByExternalSso({
           from: 'portal',
           token
         });

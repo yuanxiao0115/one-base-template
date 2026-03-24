@@ -8,7 +8,7 @@ vi.mock('@one-base-template/ui/shell', () => ({
 }));
 
 import { routePaths } from '@/router/constants';
-import { assembleRoutes, type AppRouteAssemblyOptions } from '@/router/assemble-routes';
+import { buildAppRoutes, type AppRouteAssemblyOptions } from '@/router/assemble-routes';
 import { getRouteSignature } from '@/router/route-signature';
 
 function createRouteAssemblyOptions(
@@ -42,7 +42,7 @@ describe('router/assemble-routes', () => {
   }
 
   it('应保留公共固定路由', async () => {
-    const { routes } = await assembleRoutes(createRouteAssemblyOptions(['home']));
+    const { routes } = await buildAppRoutes(createRouteAssemblyOptions(['home']));
     const routePathList = routes.map((item) => item.path);
 
     expect(routePathList).toContain(routePaths.login);
@@ -53,7 +53,7 @@ describe('router/assemble-routes', () => {
   });
 
   it('PortalManagement 模块应使用语义化设计路径并移除历史 alias 路由', async () => {
-    const { routes } = await assembleRoutes(createRouteAssemblyOptions(['PortalManagement']));
+    const { routes } = await buildAppRoutes(createRouteAssemblyOptions(['PortalManagement']));
     const allRoutes = flattenRoutes(routes);
 
     const listRoute = allRoutes.find(
@@ -88,7 +88,7 @@ describe('router/assemble-routes', () => {
   });
 
   it('应从已装配路由自动收集 skipMenuAuth 白名单', async () => {
-    const { routes, skipMenuAuthRouteNames, diagnostics } = await assembleRoutes(
+    const { routes, skipMenuAuthRouteNames, diagnostics } = await buildAppRoutes(
       createRouteAssemblyOptions(['home', 'PortalManagement'])
     );
 

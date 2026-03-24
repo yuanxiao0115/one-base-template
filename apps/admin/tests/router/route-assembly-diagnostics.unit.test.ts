@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 import type { RouteRecordRaw } from 'vue-router';
-import { countRoutes, createRouteAssemblyDiagnostics } from '@/router/route-assembly-diagnostics';
+import { getRouteCount, createRouteAssemblyDiagnostics } from '@/router/route-assembly-diagnostics';
 import { getRouteSignature } from '@/router/route-signature';
 
 const MOCK_ROUTES: RouteRecordRaw[] = [
@@ -22,7 +22,7 @@ const MOCK_ROUTES: RouteRecordRaw[] = [
 
 describe('router/route-assembly-diagnostics', () => {
   it('应统计嵌套路由总数', () => {
-    expect(countRoutes(MOCK_ROUTES)).toBe(3);
+    expect(getRouteCount(MOCK_ROUTES)).toBe(3);
   });
 
   it('应输出确定性 diagnostics', () => {

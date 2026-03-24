@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAppEnv } from '@/config/env';
 import { routePaths } from '@/router/constants';
-import { executeSsoScenario } from '@/services/auth/auth-scenario-provider';
+import { startSsoScenario } from '@/services/auth/auth-scenario-provider';
 
 defineOptions({
   name: 'SsoCallbackPage'
@@ -33,7 +33,7 @@ onMounted(async () => {
 
   try {
     const url = new URL(window.location.href);
-    await executeSsoScenario({
+    await startSsoScenario({
       backend,
       baseUrl,
       tokenKey,

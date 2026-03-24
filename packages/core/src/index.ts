@@ -35,6 +35,15 @@ export {
   type CreateClientSignatureLoader,
   type CreateBasicClientSignatureBeforeRequestOptions
 } from './http/basic-client-signature';
+export {
+  buildClientSignature,
+  getClientSignatureInput,
+  DEFAULT_CLIENT_SIGNATURE_CLIENT_ID,
+  DEFAULT_CLIENT_SIGNATURE_SALT,
+  type ClientSignatureOptions,
+  type BuildClientSignatureOptions,
+  type ClientSignatureResolvedOptions
+} from './http/client-signature';
 export { obHttp, setObHttpClient } from './http/runtime';
 export type {
   CreateObHttpOptions,

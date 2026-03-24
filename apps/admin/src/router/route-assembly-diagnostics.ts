@@ -7,10 +7,10 @@ export interface AppRouteAssemblyDiagnostics {
   signature: string;
 }
 
-export function countRoutes(routes: RouteRecordRaw[]): number {
+export function getRouteCount(routes: RouteRecordRaw[]): number {
   return routes.reduce((total, route) => {
     const childRoutes = Array.isArray(route.children) ? route.children : [];
-    return total + 1 + countRoutes(childRoutes);
+    return total + 1 + getRouteCount(childRoutes);
   }, 0);
 }
 
@@ -20,7 +20,7 @@ export function createRouteAssemblyDiagnostics(params: {
 }): AppRouteAssemblyDiagnostics {
   const { routes, skipMenuAuthRouteNames } = params;
   return {
-    routeCount: countRoutes(routes),
+    routeCount: getRouteCount(routes),
     skipMenuAuthCount: skipMenuAuthRouteNames.length,
     signature: getRouteSignature(routes)
   };

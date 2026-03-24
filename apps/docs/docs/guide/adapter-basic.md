@@ -14,17 +14,19 @@
 ## `config/basic` 职责边界
 
 - `apps/admin/src/config/basic/crypto.ts`
-  - 保留：`createClientSignature()`，供 `@one-base-template/core` 的签名注入 helper 调用
+  - 保留：`createClientSignature()`（SM3 摘要适配），供 `@one-base-template/core` 的签名注入 helper 调用
   - 保留：`sm4EncryptBase64()`，供 admin 侧仍存在的业务字段加密场景复用（如用户管理改账号）
 - `apps/portal/src/config/basic/crypto.ts`
-  - 当前只保留 `createClientSignature()`，供 portal HTTP 请求签名
+  - 当前只保留 `createClientSignature()`（SM3 摘要适配），供 portal HTTP 请求签名
+- 统一签名算法（默认参数 + 三段式拼接）位于：
+  - `packages/core/src/http/client-signature.ts`
 - 统一签名注入逻辑位于：
   - `packages/core/src/http/basic-client-signature.ts`
 - 共享登录相关的 SM4 逻辑已下沉到 UI 组件：
   - `packages/ui/src/components/auth/LoginBox.vue`
   - `packages/ui/src/components/auth/VerifySlide.vue`
 
-因此，`config/basic` 主要负责“请求签名 + 少量 app 级业务加密”，不再承载共享登录框内部加密。
+因此，`config/basic` 主要负责“请求签名的摘要适配 + 少量 app 级业务加密”，不再承载共享登录框内部加密。
 
 ## 多系统菜单
 

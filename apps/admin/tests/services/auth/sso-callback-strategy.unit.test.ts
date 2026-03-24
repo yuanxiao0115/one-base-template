@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 
-import { executeSsoCallbackStrategy } from '@/services/auth/sso-callback-strategy';
+import { startSsoCallbackStrategy } from '@/services/auth/sso-callback-strategy';
 
 describe('services/auth/sso-callback-strategy', () => {
   it('应按优先级优先命中 sourceCode=zhxt', async () => {
@@ -23,7 +23,7 @@ describe('services/auth/sso-callback-strategy', () => {
       redirectUrl: 'sso/redirect'
     });
 
-    await executeSsoCallbackStrategy({ searchParams: sp, handlers });
+    await startSsoCallbackStrategy({ searchParams: sp, handlers });
 
     expect(handlers.onZhxt).toHaveBeenCalledWith({ token: 'zhxt-token' });
     expect(handlers.onYdbg).not.toHaveBeenCalled();
@@ -53,7 +53,7 @@ describe('services/auth/sso-callback-strategy', () => {
       redirectUrl: 'sso/redirect'
     });
 
-    await executeSsoCallbackStrategy({ searchParams: sp, handlers });
+    await startSsoCallbackStrategy({ searchParams: sp, handlers });
 
     expect(handlers.onYdbg).toHaveBeenCalledWith({ token: 'ydbg-token' });
     expect(handlers.onZhxt).not.toHaveBeenCalled();
@@ -83,7 +83,7 @@ describe('services/auth/sso-callback-strategy', () => {
       redirect: '/home/index'
     });
 
-    await executeSsoCallbackStrategy({ searchParams: sp, handlers });
+    await startSsoCallbackStrategy({ searchParams: sp, handlers });
 
     expect(handlers.onTicket).toHaveBeenCalledWith({
       ticket: 'ticket-1',
@@ -109,7 +109,7 @@ describe('services/auth/sso-callback-strategy', () => {
       redirect: '/fallback/home'
     });
 
-    await executeSsoCallbackStrategy({ searchParams: sp, handlers });
+    await startSsoCallbackStrategy({ searchParams: sp, handlers });
 
     expect(handlers.onTicket).toHaveBeenCalledWith({
       ticket: 'ticket-without-redirect-url',
@@ -134,7 +134,7 @@ describe('services/auth/sso-callback-strategy', () => {
       Usertoken: 'user-1'
     });
 
-    await executeSsoCallbackStrategy({ searchParams: sp, handlers });
+    await startSsoCallbackStrategy({ searchParams: sp, handlers });
 
     expect(handlers.onTypeToken).toHaveBeenCalledWith({
       type: 'external',
@@ -159,7 +159,7 @@ describe('services/auth/sso-callback-strategy', () => {
       Usertoken: 'user-1'
     });
 
-    await executeSsoCallbackStrategy({ searchParams: sp, handlers });
+    await startSsoCallbackStrategy({ searchParams: sp, handlers });
 
     expect(handlers.onMoaToken).toHaveBeenCalledWith({ token: 'moa-1' });
     expect(handlers.onUserToken).not.toHaveBeenCalled();
@@ -179,7 +179,7 @@ describe('services/auth/sso-callback-strategy', () => {
       Usertoken: 'user-1'
     });
 
-    await executeSsoCallbackStrategy({ searchParams: sp, handlers });
+    await startSsoCallbackStrategy({ searchParams: sp, handlers });
 
     expect(handlers.onUserToken).toHaveBeenCalledWith({ token: 'user-1' });
   });
@@ -195,7 +195,7 @@ describe('services/auth/sso-callback-strategy', () => {
     };
 
     await expect(
-      executeSsoCallbackStrategy({ searchParams: new URLSearchParams(), handlers })
+      startSsoCallbackStrategy({ searchParams: new URLSearchParams(), handlers })
     ).rejects.toThrowError('登录参数无效');
   });
 
@@ -216,7 +216,7 @@ describe('services/auth/sso-callback-strategy', () => {
       ticket: 'ticket-1'
     });
 
-    await expect(executeSsoCallbackStrategy({ searchParams: sp, handlers })).rejects.toBe(
+    await expect(startSsoCallbackStrategy({ searchParams: sp, handlers })).rejects.toBe(
       expectedError
     );
   });

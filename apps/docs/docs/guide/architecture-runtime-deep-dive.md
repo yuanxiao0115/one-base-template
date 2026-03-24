@@ -17,9 +17,9 @@
 - `apps/admin/src/router/route-assembly-diagnostics.ts`：路由装配诊断聚合（routeCount/skipMenuAuthCount/signature）
 - `apps/admin/src/router/route-signature.ts`：路由装配签名计算（确定性诊断）
 - `apps/admin/src/bootstrap/startup-profiler.ts`：启动阶段耗时打点与汇总
-- `packages/core/src/router/dynamic-import-recovery.ts`：动态路由模块加载失败自动恢复（admin 装配调用）
+- `packages/core/src/router/dynamic-import-recovery.ts`：动态路由模块加载失败自动恢复（admin / portal 装配调用）
 - `packages/core/src/http/basic-client-signature.ts`：basic 签名请求头注入 helper（admin/portal 共享）
-- `apps/admin/src/config/basic/signature.ts`：basic 签名单一实现源（client-signature/crypto 复用）
+- `packages/core/src/http/client-signature.ts`：basic 签名算法单一实现源（默认参数 + 三段式拼接）
 - `apps/admin/src/bootstrap/admin-styles.ts`：基础样式统一入口
 - `apps/admin/src/styles/team-overrides.css`：团队覆写样式入口（仅 `main.ts` 引入）
 
@@ -105,7 +105,8 @@ flowchart TD
 - `bootstrap/plugins.ts` 中 `OneTag.storageKey` 增加 `storageNamespace` 前缀，避免同域冲突
 - `bootstrap/index.ts` 接入 `startup-profiler`，记录 `assemble-routes/create-router/create-http/install-core/setup-router-guards` 等关键阶段耗时
 - `bootstrap/http.ts` 改为复用 `createBasicClientSignatureBeforeRequest()`，避免 admin/portal 重复维护签名注入逻辑
-- `config/basic/client-signature.ts` 与 `config/basic/crypto.ts` 统一复用 `config/basic/signature.ts`，避免签名实现漂移
+- `config/basic/client-signature.ts` 与 `config/basic/crypto.ts` 统一复用 `config/basic/signature.ts`（该文件继续复用 `packages/core/src/http/client-signature.ts`），避免签名实现漂移
+- `apps/portal/src/bootstrap/index.ts` 也接入 `installRouteDynamicImportRecovery(router)`，与 admin 保持一致恢复策略
 
 ## 存储命名空间与首次路由
 

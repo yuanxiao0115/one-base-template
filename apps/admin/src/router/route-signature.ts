@@ -10,14 +10,14 @@ type SerializableValue =
       [key: string]: SerializableValue;
     };
 
-function normalizeRouteName(name: RouteRecordName | null | undefined): string | null {
+function parseRouteName(name: RouteRecordName | null | undefined): string | null {
   if (name == null) {
     return null;
   }
   return String(name);
 }
 
-function normalizeSerializableValue(value: unknown): SerializableValue | undefined {
+function parseSerializableValue(value: unknown): SerializableValue | undefined {
   if (value == null) {
     return null;
   }
@@ -26,7 +26,7 @@ function normalizeSerializableValue(value: unknown): SerializableValue | undefin
   }
   if (Array.isArray(value)) {
     return value
-      .map((item) => normalizeSerializableValue(item))
+      .map((item) => parseSerializableValue(item))
       .filter((item): item is SerializableValue => item !== undefined);
   }
   if (value instanceof Date) {
@@ -40,7 +40,7 @@ function normalizeSerializableValue(value: unknown): SerializableValue | undefin
   for (const [key, item] of Object.entries(value as Record<string, unknown>).sort(
     ([left], [right]) => left.localeCompare(right)
   )) {
-    const normalizedItem = normalizeSerializableValue(item);
+    const normalizedItem = parseSerializableValue(item);
     if (normalizedItem !== undefined) {
       output[key] = normalizedItem;
     }
@@ -53,22 +53,22 @@ function toRouteSnapshot(route: RouteRecordRaw): SerializableValue {
     path: route.path
   };
 
-  const name = normalizeRouteName(route.name);
+  const name = parseRouteName(route.name);
   if (name) {
     output.name = name;
   }
 
-  const alias = normalizeSerializableValue(route.alias);
+  const alias = parseSerializableValue(route.alias);
   if (alias !== undefined) {
     output.alias = alias;
   }
 
-  const redirect = normalizeSerializableValue(route.redirect);
+  const redirect = parseSerializableValue(route.redirect);
   if (redirect !== undefined) {
     output.redirect = redirect;
   }
 
-  const meta = normalizeSerializableValue(route.meta);
+  const meta = parseSerializableValue(route.meta);
   if (meta !== undefined) {
     output.meta = meta;
   }
@@ -80,7 +80,7 @@ function toRouteSnapshot(route: RouteRecordRaw): SerializableValue {
   return output;
 }
 
-function hashString(input: string): string {
+function buildHashString(input: string): string {
   let hash = 2166136261;
   for (let index = 0; index < input.length; index += 1) {
     hash ^= input.charCodeAt(index);
@@ -90,5 +90,5 @@ function hashString(input: string): string {
 }
 
 export function getRouteSignature(routes: RouteRecordRaw[]): string {
-  return hashString(JSON.stringify(routes.map((item) => toRouteSnapshot(item))));
+  return buildHashString(JSON.stringify(routes.map((item) => toRouteSnapshot(item))));
 }
