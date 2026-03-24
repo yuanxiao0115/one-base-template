@@ -2,7 +2,12 @@
 
 .el-loading-mask,
 .el-loading-mask.is-fullscreen {
-  background-color: transparent;
+  background-color: transparent !important;
+}
+
+.el-loading-parent--relative > .el-loading-mask,
+.el-loading-parent--hidden > .el-loading-mask {
+  background-color: transparent !important;
 }
 
 /* 统一 v-loading 默认圆环图标颜色与文案色阶。 */

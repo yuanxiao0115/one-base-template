@@ -63,10 +63,8 @@ function onConfirm() {
 
 <style scoped>
 .category-form {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 14px;
-  background: #fff;
+  padding: 0;
+  background: transparent;
 }
 
 .category-form :deep(.el-form-item) {
@@ -74,12 +72,12 @@ function onConfirm() {
 }
 
 .category-form :deep(.el-form-item__label) {
-  color: #52637a;
+  color: var(--el-text-color-regular);
   font-size: 13px;
   font-weight: 500;
 }
 
 .category-form :deep(.el-input__wrapper) {
-  border-radius: 10px;
+  border-radius: 4px;
 }
 </style>
