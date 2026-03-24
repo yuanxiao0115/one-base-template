@@ -6,7 +6,7 @@ outline: false
 
 文档按“大目录”组织：**入门 → 架构 → 开发实践 → 扩展能力 → 维护治理**。
 
-## 入门
+## 🚀 入门
 
 <p class="guide-section-intro">先跑通项目，再进入后续专题。</p>
 
@@ -25,7 +25,7 @@ outline: false
   </a>
 </div>
 
-## 架构与运行时
+## 🧱 架构与运行时
 
 <p class="guide-section-intro">明确目录边界、模块装配和路由规范，减少返工。</p>
 
@@ -56,7 +56,7 @@ outline: false
   </a>
 </div>
 
-## 开发实践
+## 🛠️ 开发实践
 
 <p class="guide-section-intro">沉淀组件与页面开发范式，保持实现一致性。</p>
 
@@ -87,7 +87,7 @@ outline: false
   </a>
 </div>
 
-## 扩展能力
+## 🔌 扩展能力
 
 <p class="guide-section-intro">门户能力与后端适配能力的接入入口。</p>
 
@@ -114,7 +114,7 @@ outline: false
   </a>
 </div>
 
-## 维护治理
+## 🧰 维护治理
 
 <p class="guide-section-intro">变更前后检查、规则落盘与版本发布。</p>
 
@@ -145,7 +145,7 @@ outline: false
   </a>
 </div>
 
-## 角色入口（可选）
+## 👥 角色入口（可选）
 
 - [框架使用者阅读入口](/guide/for-users)
 - [仓库维护者阅读入口](/guide/for-maintainers)
