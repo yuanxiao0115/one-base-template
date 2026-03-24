@@ -140,7 +140,7 @@ export default defineComponent({
     }
   },
 
-  emits: ['ready', 'success', 'error', 'closeBox'],
+  emits: ['ready', 'success', 'error', 'closeBox', 'loading-change', 'checking-change'],
 
   data() {
     return {
@@ -266,22 +266,27 @@ export default defineComponent({
     },
 
     async getPictrue() {
-      const res = await this.loadCaptcha({
-        captchaKey: this.getUuid()
-      });
+      this.$emit('loading-change', true);
+      try {
+        const res = await this.loadCaptcha({
+          captchaKey: this.getUuid()
+        });
 
-      if (isBizSuccess(res?.code)) {
-        this.visible = true;
-        this.backImgBase = res.data?.originBase64 || '';
-        this.blockBackImgBase = res.data?.jigsawBase64 || '';
-        this.captchaKey = res.data?.captchaKey || '';
-      } else {
-        this.tipWords = res?.message || '验证码获取失败';
-      }
+        if (isBizSuccess(res?.code)) {
+          this.visible = true;
+          this.backImgBase = res.data?.originBase64 || '';
+          this.blockBackImgBase = res.data?.jigsawBase64 || '';
+          this.captchaKey = res.data?.captchaKey || '';
+        } else {
+          this.tipWords = res?.message || '验证码获取失败';
+        }
 
-      if (String(res?.code) === '6201') {
-        this.backImgBase = '';
-        this.blockBackImgBase = '';
+        if (String(res?.code) === '6201') {
+          this.backImgBase = '';
+          this.blockBackImgBase = '';
+        }
+      } finally {
+        this.$emit('loading-change', false);
       }
     },
 
@@ -357,6 +362,7 @@ export default defineComponent({
           this.sm4KeyHex
         );
 
+        this.$emit('checking-change', true);
         try {
           const res = await this.checkCaptcha({
             captcha,
@@ -404,6 +410,8 @@ export default defineComponent({
           setTimeout(() => {
             this.tipWords = '';
           }, 1000);
+        } finally {
+          this.$emit('checking-change', false);
         }
 
         this.status = false;

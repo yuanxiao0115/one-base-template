@@ -26,6 +26,13 @@ interface LoginBoxV2SubmitPayload extends LoginBoxSubmitPayload {
   encrypt?: 1;
 }
 
+type LoginBoxV2Stage =
+  | 'idle'
+  | 'captcha-opening'
+  | 'captcha-loading'
+  | 'captcha-checking'
+  | 'captcha-passed';
+
 const props = withDefaults(
   defineProps<{
     username: string;
@@ -75,6 +82,7 @@ const emit = defineEmits<{
   'update:username': [value: string];
   'update:password': [value: string];
   submit: [payload: LoginBoxV2SubmitPayload];
+  'stage-change': [stage: LoginBoxV2Stage];
 }>();
 
 const verifyRef = ref<InstanceType<typeof VerifySlide> | null>(null);
@@ -82,6 +90,7 @@ const pendingPayload = ref<LoginBoxSubmitPayload | null>(null);
 
 async function handleBaseSubmit(payload: LoginBoxSubmitPayload) {
   pendingPayload.value = payload;
+  emit('stage-change', 'captcha-opening');
   await verifyRef.value?.show();
 }
 
@@ -90,12 +99,29 @@ function handleVerifySuccess(payload: { captcha: string; captchaKey: string }) {
     return;
   }
 
+  emit('stage-change', 'captcha-passed');
   emit('submit', {
     ...pendingPayload.value,
     ...payload,
     ...(props.encrypt ? { encrypt: 1 as const } : {})
   });
   pendingPayload.value = null;
+}
+
+function handleVerifyClose() {
+  emit('stage-change', 'idle');
+}
+
+function handleVerifyError() {
+  emit('stage-change', 'idle');
+}
+
+function handleCaptchaLoadingChange(loading: boolean) {
+  emit('stage-change', loading ? 'captcha-loading' : 'idle');
+}
+
+function handleCaptchaCheckingChange(checking: boolean) {
+  emit('stage-change', checking ? 'captcha-checking' : 'idle');
 }
 </script>
 
@@ -127,6 +153,10 @@ function handleVerifySuccess(payload: { captcha: string; captchaKey: string }) {
     :load-captcha="loadCaptcha"
     :check-captcha="checkCaptcha"
     :sm4-key-hex="sm4KeyHex"
+    @loading-change="handleCaptchaLoadingChange"
+    @checking-change="handleCaptchaCheckingChange"
     @success="handleVerifySuccess"
+    @error="handleVerifyError"
+    @close-box="handleVerifyClose"
   />
 </template>

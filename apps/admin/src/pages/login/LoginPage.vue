@@ -7,7 +7,7 @@ import {
 } from '@one-base-template/core';
 import { LoginBoxV2 as ObLoginBoxV2 } from '@one-base-template/ui/lite-auth';
 import { ElMessage } from 'element-plus';
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getAppEnv } from '@/config/env';
 import { fetchCaptchaCheck, loadCaptcha } from '@/services/auth/auth-captcha-service';
@@ -25,6 +25,15 @@ interface VerifyLoginPayload {
   captchaKey: string;
   encrypt?: 1;
 }
+
+type LoginStage =
+  | 'idle'
+  | 'captcha-opening'
+  | 'captcha-loading'
+  | 'captcha-checking'
+  | 'captcha-passed'
+  | 'logging-in'
+  | 'loading-menus';
 
 const router = useRouter();
 const route = useRoute();
@@ -46,13 +55,38 @@ const form = reactive({
   username: '',
   password: ''
 });
+const loginStage = ref<LoginStage>('idle');
+let loginStageTimer: ReturnType<typeof setTimeout> | null = null;
 
 const loginInfoConfig = ref<LoginPageConfig | null>(null);
 const backgroundImage = ref('');
+const stageTextMap: Record<Exclude<LoginStage, 'idle'>, string> = {
+  'captcha-opening': '正在打开验证码...',
+  'captcha-loading': '正在加载验证码...',
+  'captcha-checking': '正在校验验证码...',
+  'captcha-passed': '验证通过，准备登录...',
+  'logging-in': '正在登录系统...',
+  'loading-menus': '正在加载菜单与权限...'
+};
+const stageText = computed(() => {
+  if (loginStage.value === 'idle') {
+    return '';
+  }
+  return stageTextMap[loginStage.value];
+});
+const showStageTip = computed(() => loginStage.value !== 'idle');
 
 function getRedirectTarget() {
   const raw = route.query.redirect ?? route.query.redirectUrl;
   return resolveAppRedirectTarget(raw, { fallback: loginScenario.fallback, baseUrl });
+}
+
+function clearLoginStageTimer() {
+  if (loginStageTimer === null) {
+    return;
+  }
+  clearTimeout(loginStageTimer);
+  loginStageTimer = null;
 }
 
 async function loadLoginPageConfig() {
@@ -81,8 +115,22 @@ async function handleDirectTokenLogin(token: string) {
   }
 }
 
+function handleLoginStageChange(stage: LoginStage) {
+  if (loading.value) {
+    return;
+  }
+  loginStage.value = stage;
+}
+
 async function doLogin(payload: VerifyLoginPayload) {
   loading.value = true;
+  loginStage.value = 'logging-in';
+  clearLoginStageTimer();
+  loginStageTimer = setTimeout(() => {
+    if (loading.value) {
+      loginStage.value = 'loading-menus';
+    }
+  }, 400);
   try {
     await loginByPassword({
       backend,
@@ -97,9 +145,14 @@ async function doLogin(payload: VerifyLoginPayload) {
     const message = e instanceof Error && e.message ? e.message : '登录失败';
     ElMessage.error(message);
   } finally {
+    clearLoginStageTimer();
+    loginStage.value = 'idle';
     loading.value = false;
   }
 }
+
+const passwordPattern =
+  /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){8,18}$/;
 
 onMounted(async () => {
   if (loginScenario.shouldLoadLoginPageConfig) {
@@ -134,13 +187,18 @@ onMounted(async () => {
             :encrypt="useVerifyLogin"
             :load-captcha="loadCaptcha"
             :check-captcha="fetchCaptchaCheck"
-            :validate-password="useVerifyLogin"
+            :validate-password="false"
             username-label=""
             password-label=""
             username-placeholder="账号"
             password-placeholder="密码"
+            @stage-change="handleLoginStageChange"
             @submit="doLogin"
           />
+          <div v-if="showStageTip" class="login-stage-tip">
+            <span class="login-stage-tip__spinner" />
+            <span>{{ stageText }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -195,5 +253,31 @@ onMounted(async () => {
   align-items: center;
   overflow: hidden;
   text-align: center;
+}
+
+.login-stage-tip {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  color: #0f79e9;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.login-stage-tip__spinner {
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgb(15 121 233 / 30%);
+  border-top-color: #0f79e9;
+  border-radius: 50%;
+  animation: login-stage-spin 0.7s linear infinite;
+}
+
+@keyframes login-stage-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

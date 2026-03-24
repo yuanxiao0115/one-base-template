@@ -59,6 +59,7 @@
   - `packages/ui/src/components/auth/LoginBox.vue`
   - `packages/ui/src/components/auth/LoginBoxV2.vue`
   - `packages/core/src/auth/login.ts`
+- `LoginBoxV2` 对外提供 `stage-change` 事件（如 `captcha-loading`、`captcha-checking`、`captcha-passed`），应用层可据此展示“验证码加载中/校验中/登录与菜单加载中”的阶段反馈，降低登录等待的无感知时段
 - 两端保留各自验证码适配服务：`src/services/auth/auth-captcha-service.ts`
 - `portal` 登录成功后优先处理 `redirect`，否则调用 `/cmict/admin/front-config/portal` 做前台分流
 - `apps/portal` 保持前台独立边界：默认不接 `/cmict/admin/permission/*` 菜单体系
