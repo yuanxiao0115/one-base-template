@@ -147,6 +147,11 @@ docs/
 - **当用户纠正了“目标仓库 / 目标目录 / 目标作用域”时，先校验当前工作目录与改动范围；不要继续修改 `~/.codex` 或其他无关仓库。**
 - 老项目（layout/menu 移植来源）固定为：`/Users/haoqiuzhi/code/basic/standard-oa-web-basic`（不要再误用其他仓库路径）。
 - `.codex/` 目录下的工作文档（如 `operations-log.md` / `testing.md` / `verification.md` / `context-*.md`）如果创建或已存在：**开工前必须先阅读**，开发过程中同步更新，并在回复里引用关键结论；禁止“创建了但不看 / 不维护”。
+- `.codex` 长期保留策略（默认）：
+  - 必保留：`operations-log.md`、`testing.md`、`verification.md`（索引文件）、`verification/*.md`（按日期验证记录）。
+  - 可归档保留：`verification/legacy-*.md`（历史大文件迁移归档）。
+  - 定期清理：临时缓存与快照目录（如 `tmp/`、`lighthouse/`、`screenshots/`、`verify-logs/`、`cmd-logs-*`）及一次性截图文件（`*.png/*.jpg/*.jpeg/*.webp`）。
+  - 维护原则：仅保留“决策与验证证据”，清理“可再生缓存与快照产物”。
 - 新增 / 修改功能后：**必须同步更新文档站点** `apps/docs`（VitePress），确保 `pnpm -C apps/docs build` 可通过且内容与代码一致。
 - admin 迁移与重构需强制遵守“公共组件与 CRUD 红线”，主版本在 `apps/admin/AGENTS.md`，说明文档在 `apps/docs/docs/guide/admin-agent-redlines.md`。
 - 当前阶段尽量减少分支数量：默认在当前工作分支开发；完成后合并回 `main` 并清理临时分支 / 工作区。
