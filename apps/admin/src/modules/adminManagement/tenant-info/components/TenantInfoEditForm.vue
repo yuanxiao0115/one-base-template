@@ -1,17 +1,101 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
+import { computed, ref } from 'vue';
+import type { FormInstance, FormItemRule, FormRules } from 'element-plus';
 import type { CrudFormLike } from '@one-base-template/ui';
 import type { TenantInfoForm } from '../types';
 
 const props = defineProps<{
   rules: FormRules<TenantInfoForm>;
   disabled: boolean;
+  mode: 'create' | 'detail' | 'edit';
+  checkFieldUnique: (params: {
+    id?: string;
+    tenantName?: string;
+    contactPhone?: string;
+  }) => Promise<boolean>;
 }>();
 
 const model = defineModel<TenantInfoForm>({ required: true });
 
 const formRef = ref<FormInstance>();
+
+const uniqueTenantNameRule: FormItemRule = {
+  trigger: 'blur',
+  validator: (_, value, callback) => {
+    const tenantName = String(value || '').trim();
+    if (!tenantName || props.mode === 'detail') {
+      callback();
+      return;
+    }
+
+    void props
+      .checkFieldUnique({
+        id: model.value.id || undefined,
+        tenantName,
+        contactPhone: model.value.contactPhone
+      })
+      .then((isUnique) => {
+        if (!isUnique) {
+          callback(new Error('已存在相同租户名称或联系方式'));
+          return;
+        }
+
+        callback();
+      })
+      .catch((error: unknown) => {
+        callback(new Error(error instanceof Error ? error.message : '租户唯一性校验失败'));
+      });
+  }
+};
+
+const uniqueContactPhoneRule: FormItemRule = {
+  trigger: 'blur',
+  validator: (_, value, callback) => {
+    const contactPhone = String(value || '').trim();
+    if (!contactPhone || props.mode === 'detail') {
+      callback();
+      return;
+    }
+
+    void props
+      .checkFieldUnique({
+        id: model.value.id || undefined,
+        tenantName: model.value.tenantName,
+        contactPhone
+      })
+      .then((isUnique) => {
+        if (!isUnique) {
+          callback(new Error('已存在相同租户名称或联系方式'));
+          return;
+        }
+
+        callback();
+      })
+      .catch((error: unknown) => {
+        callback(new Error(error instanceof Error ? error.message : '租户唯一性校验失败'));
+      });
+  }
+};
+
+const mergedRules = computed<FormRules<TenantInfoForm>>(() => {
+  const baseRules = props.rules || {};
+  const tenantNameRules = Array.isArray(baseRules.tenantName)
+    ? [...baseRules.tenantName]
+    : baseRules.tenantName
+      ? [baseRules.tenantName]
+      : [];
+  const contactPhoneRules = Array.isArray(baseRules.contactPhone)
+    ? [...baseRules.contactPhone]
+    : baseRules.contactPhone
+      ? [baseRules.contactPhone]
+      : [];
+
+  return {
+    ...baseRules,
+    tenantName: [...tenantNameRules, uniqueTenantNameRule],
+    contactPhone: [...contactPhoneRules, uniqueContactPhoneRule]
+  };
+});
 
 defineExpose<CrudFormLike>({
   validate: (...args) => {
@@ -30,7 +114,7 @@ defineExpose<CrudFormLike>({
   <el-form
     ref="formRef"
     :model
-    :rules="props.rules"
+    :rules="mergedRules"
     label-position="top"
     :disabled="props.disabled"
   >

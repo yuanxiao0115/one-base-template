@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
 import type { TreeInstance } from 'element-plus';
+import { message } from '@one-base-template/ui';
 import { roleApi } from '../api';
 import type { PermissionTreeNode } from '../types';
 
@@ -26,9 +27,12 @@ const submitting = ref(false);
 const treeData = ref<PermissionTreeNode[]>([]);
 const treeRenderSeed = ref(0);
 const checkedPermissionIds = ref<string[]>([]);
+const appliedRoleId = ref('');
 
 const expandedAll = ref(true);
 const checkedAll = ref(false);
+let latestLoadToken = 0;
+let latestSaveToken = 0;
 
 const treeProps = {
   children: 'children',
@@ -59,7 +63,30 @@ function getCurrentCheckedPermissionIds(): string[] {
   return [...new Set([...checkedKeys, ...halfCheckedKeys].map((item) => String(item)))];
 }
 
+function clearTreeState() {
+  appliedRoleId.value = '';
+  treeData.value = [];
+  checkedPermissionIds.value = [];
+  treeRenderSeed.value += 1;
+}
+
+function invalidateDialogSession() {
+  latestLoadToken += 1;
+  latestSaveToken += 1;
+  loading.value = false;
+  submitting.value = false;
+  clearTreeState();
+}
+
+function isLatestLoadRequest(requestToken: number, requestRoleId: string) {
+  return requestToken === latestLoadToken && visible.value && requestRoleId === props.roleId;
+}
+
 async function rerenderTreeWithExpandedState() {
+  if (!appliedRoleId.value) {
+    return;
+  }
+
   checkedPermissionIds.value = getCurrentCheckedPermissionIds();
   treeRenderSeed.value += 1;
   await nextTick();
@@ -79,17 +106,21 @@ function setChecked(flag: boolean) {
 }
 
 async function loadDialogData() {
-  if (!props.roleId) {
+  const requestRoleId = props.roleId;
+  if (!requestRoleId) {
+    clearTreeState();
     return;
   }
 
+  const requestToken = ++latestLoadToken;
   loading.value = true;
   checkedAll.value = false;
   expandedAll.value = true;
+  clearTreeState();
 
   try {
     const [permissionIdRes, treeRes] = await Promise.all([
-      roleApi.getRolePermissionIds({ roleId: props.roleId }),
+      roleApi.getRolePermissionIds({ roleId: requestRoleId }),
       roleApi.getPermissionTree()
     ]);
 
@@ -101,24 +132,44 @@ async function loadDialogData() {
       throw new Error(treeRes.message || '加载权限树失败');
     }
 
+    if (!isLatestLoadRequest(requestToken, requestRoleId)) {
+      return;
+    }
+
     treeData.value = Array.isArray(treeRes.data) ? treeRes.data : [];
     checkedPermissionIds.value = Array.isArray(permissionIdRes.data)
       ? permissionIdRes.data.map((item) => String(item))
       : [];
     treeRenderSeed.value += 1;
     await nextTick();
+    if (!isLatestLoadRequest(requestToken, requestRoleId)) {
+      return;
+    }
     treeRef.value?.setCheckedKeys(checkedPermissionIds.value);
+    appliedRoleId.value = requestRoleId;
   } catch (error) {
+    if (!isLatestLoadRequest(requestToken, requestRoleId)) {
+      return;
+    }
+
     const errorMessage = error instanceof Error ? error.message : '加载角色权限失败';
     message.error(errorMessage);
   } finally {
-    loading.value = false;
+    if (requestToken === latestLoadToken) {
+      loading.value = false;
+    }
   }
 }
 
 async function save() {
-  if (!props.roleId) {
+  const submitRoleId = props.roleId;
+  if (!submitRoleId) {
     message.warning('请先选择角色');
+    return;
+  }
+
+  if (!visible.value || loading.value || appliedRoleId.value !== submitRoleId) {
+    message.warning('角色权限正在加载，请稍后再试');
     return;
   }
 
@@ -128,10 +179,11 @@ async function save() {
     ...new Set([...checkedKeys, ...halfCheckedKeys].map((item) => String(item)))
   ];
 
+  const requestToken = ++latestSaveToken;
   submitting.value = true;
   try {
     const response = await roleApi.updateRolePermissions({
-      roleId: props.roleId,
+      roleId: submitRoleId,
       permissionIdList
     });
 
@@ -139,14 +191,29 @@ async function save() {
       throw new Error(response.message || '保存角色权限失败');
     }
 
+    if (
+      requestToken !== latestSaveToken ||
+      !visible.value ||
+      submitRoleId !== props.roleId ||
+      appliedRoleId.value !== submitRoleId
+    ) {
+      return;
+    }
+
     message.success('保存角色权限成功');
     emit('saved');
     visible.value = false;
   } catch (error) {
+    if (requestToken !== latestSaveToken || appliedRoleId.value !== submitRoleId) {
+      return;
+    }
+
     const errorMessage = error instanceof Error ? error.message : '保存角色权限失败';
     message.error(errorMessage);
   } finally {
-    submitting.value = false;
+    if (requestToken === latestSaveToken) {
+      submitting.value = false;
+    }
   }
 }
 
@@ -154,8 +221,20 @@ watch(
   () => visible.value,
   (value) => {
     if (!value) {
+      invalidateDialogSession();
       return;
     }
+    void loadDialogData();
+  }
+);
+
+watch(
+  () => props.roleId,
+  (value, oldValue) => {
+    if (!visible.value || !value || value === oldValue) {
+      return;
+    }
+    invalidateDialogSession();
     void loadDialogData();
   }
 );

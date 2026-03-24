@@ -1,6 +1,6 @@
 import { obHttp } from '@one-base-template/core';
+import type { ApiResponse } from '@/types/api';
 import type {
-  ApiResponse,
   TenantInfoPageData,
   TenantInfoPageParams,
   TenantPermissionTreeNode,

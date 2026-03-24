@@ -1,7 +1,5 @@
 import type { ApiPageData } from '@/types/api';
 
-export type { ApiResponse } from '@/types/api';
-
 export interface TenantInfoRecord {
   id: string;
   tenantName?: string;

@@ -91,12 +91,6 @@ export const userApi = {
       $isUpload: true
     }),
 
-  editPhoto: async (data: FormData) =>
-    obHttp().post<ApiResponse<UploadImageResult>>('/cmict/onemsg/personal/avatar/upload/user', {
-      data,
-      $isUpload: true
-    }),
-
   updateCorporateUser: async (data: { corporateUserId: string; userIds: string[] }) =>
     obHttp().post<ApiResponse<boolean>>('/cmict/admin/corporate-user/update', { data })
 };

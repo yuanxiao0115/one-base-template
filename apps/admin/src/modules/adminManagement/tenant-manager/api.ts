@@ -1,5 +1,6 @@
 import { obHttp } from '@one-base-template/core';
-import type { ApiResponse, TenantManagerPageData, TenantManagerPageParams } from './types';
+import type { ApiResponse } from '@/types/api';
+import type { TenantManagerPageData, TenantManagerPageParams } from './types';
 
 export const tenantManagerApi = {
   page: async (params: TenantManagerPageParams) =>

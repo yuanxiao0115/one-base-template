@@ -3,9 +3,10 @@ import { type CrudErrorContext, type CrudFormLike, useCrudPage } from '@one-base
 import type { TableColumnList } from '@one-base-template/ui';
 import { obConfirm } from '@one-base-template/ui';
 import { message } from '@one-base-template/ui';
+import type { ApiResponse } from '@/types/api';
 import menuColumns from '../columns';
 import { menuPermissionApi } from '../api';
-import type { ApiResponse, MenuPermissionRecord, PermissionTypeOption } from '../types';
+import type { MenuPermissionRecord, PermissionTypeOption } from '../types';
 import {
   defaultMenuPermissionForm,
   type MenuPermissionForm,

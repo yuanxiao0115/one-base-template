@@ -1,5 +1,3 @@
-export type { ApiResponse } from '@/types/api';
-
 type LooseField =
   | string
   | number
