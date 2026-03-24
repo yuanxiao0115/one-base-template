@@ -150,6 +150,19 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
+    fmt: {
+      semi: true,
+      singleQuote: true,
+      trailingComma: 'none',
+      printWidth: 100,
+      tabWidth: 2,
+      sortPackageJson: false,
+      ignorePatterns: [],
+      sortTailwindcss: {
+        stylesheet: './src/styles/index.css',
+        attributes: [':class']
+      }
+    },
     server: {
       // 允许访问 monorepo 根目录，便于直接引用 packages/* 源码
       fs: {
