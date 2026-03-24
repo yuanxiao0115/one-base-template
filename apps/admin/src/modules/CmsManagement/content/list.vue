@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, reactive, ref, watch } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
 import { type CrudErrorContext, type CrudFormLike, useCrudPage } from '@one-base-template/core';
 import { useRoute } from 'vue-router';
-import ContentEditForm from './components/ContentEditForm.vue';
 import ContentSearchForm from './components/ContentSearchForm.vue';
 import contentColumns, { REVIEW_STATUS_LABEL_MAP } from './columns';
 import { contentApi } from './api';
@@ -30,6 +29,12 @@ interface SearchRefExpose {
 
 defineOptions({
   name: 'CmsPublicityContentPage'
+});
+
+const loadContentEditForm = () => import('./components/ContentEditForm.vue');
+const ContentEditForm = defineAsyncComponent({
+  loader: loadContentEditForm,
+  suspensible: false
 });
 
 const route = useRoute();
@@ -200,6 +205,7 @@ function onResetSearch() {
 }
 
 async function openCreate() {
+  void loadContentEditForm();
   await editor.openCreate();
 }
 
@@ -209,10 +215,12 @@ async function openEdit(row: ContentRecord) {
     return;
   }
 
+  void loadContentEditForm();
   await editor.openEdit(row);
 }
 
 async function openDetail(row: ContentRecord) {
+  void loadContentEditForm();
   await editor.openDetail(row);
 }
 

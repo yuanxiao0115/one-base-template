@@ -79,12 +79,24 @@ pre-commit（`vp staged`）当前按文件类型分流：
   - 管理端图标选择器打开时再加载完整集合，菜单渲染只在需要时注册对应集合
   - `ensureMenuIconifyCollectionsRegistered()` 默认只加载 `ep`，`ri` 仅在显式前缀或图标值命中时加载
 - `apps/admin` 当前采用“路由静态声明 + 页面组件异步懒加载”策略；后续继续压缩首屏时，优先调优 vendor/feature chunk 与 preload 规则，避免在 HTTP1.0 场景过度细碎分包
+- 重依赖编辑器（如 `wangeditor`）必须按需加载到“真正打开编辑容器”时：
+  - 列表编排页优先将编辑表单改为 `defineAsyncComponent(() => import(...))`
+  - 表单内部的富文本组件继续异步加载，避免“只看详情/只进列表”也拉起编辑器大包
 - `admin` 仍保留较高的 `chunkSizeWarningLimit`，前提是 vendor / 图标集合 / 重模块已经独立拆出；这样可以避免静态路由壳层的误报噪音
 - `admin` 已增加构建体积预算门禁脚本：`pnpm check:admin:bundle`
   - 检查对象（大 chunk 上沿）：`iconify-ri` / `wangeditor` / `vxe` / `element-plus` / `page-*`
   - 检查对象（HTTP1.0 排队风险）：`startup dependency map js count` / `startup dependency map js gzip` / `tiny chunks` 数量
   - 默认上限：`1120 / 980 / 1080 / 720 / 920 KiB`（大 chunk）+ `22`（startup js 数）+ `820 KiB`（startup js gzip）+ `12`（tiny chunks）
   - CI 在 `pnpm build` 后自动执行，超限直接失败，避免大体积回归静默进入主分支
+
+## admin 列表首屏体感基线（ObVxeTable）
+
+- `ObVxeTable` 默认开启“首屏骨架”策略：仅在 `loading=true 且 data.length=0` 时生效。
+- 骨架策略包含两段门禁：
+  - `skeletonDelayMs`（默认 `120ms`）：短请求不显示骨架，避免闪烁。
+  - `skeletonMinDurationMs`（默认 `200ms`）：已显示后最短保留时长，避免瞬时抖动。
+- 有历史数据时保持表格展示，仅使用表格 loading，不切换骨架。
+- 若业务需要关闭，可在页面层显式传 `:enable-first-load-skeleton="false"`。
 
 ## admin Vite 代理约定
 

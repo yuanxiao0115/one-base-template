@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import type {
   FormInstance,
   FormRules,
@@ -10,7 +10,6 @@ import type {
 } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 import type { CrudFormLike } from '@one-base-template/ui';
-import ObRichTextEditor from '@/components/rich-text/ObRichTextEditor.vue';
 import { message } from '@one-base-template/ui';
 import { contentApi } from '../api';
 import type { ContentCategoryRecord, UploadAttachmentResult, UploadResourceResult } from '../types';
@@ -22,6 +21,12 @@ const props = defineProps<{
   categoryTreeOptions: ContentCategoryRecord[];
   categoryTreeLoading: boolean;
 }>();
+
+const loadObRichTextEditor = () => import('@/components/rich-text/ObRichTextEditor.vue');
+const ObRichTextEditor = defineAsyncComponent({
+  loader: loadObRichTextEditor,
+  suspensible: false
+});
 
 const model = defineModel<ContentForm>({ required: true });
 const formRef = ref<FormInstance>();
@@ -309,6 +314,17 @@ watch(
     model.value.articleSource = '';
     model.value.outerHref = '';
   }
+);
+
+watch(
+  () => props.disabled,
+  (disabled) => {
+    if (disabled) {
+      return;
+    }
+    void loadObRichTextEditor();
+  },
+  { immediate: true }
 );
 
 watch(

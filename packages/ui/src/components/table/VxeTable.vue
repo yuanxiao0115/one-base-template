@@ -47,6 +47,10 @@ interface ObVxeTableProps {
   data?: RowRecord[];
   columns?: TableColumnList;
   loading?: boolean;
+  enableFirstLoadSkeleton?: boolean;
+  skeletonRows?: number;
+  skeletonDelayMs?: number;
+  skeletonMinDurationMs?: number;
   pagination?: TablePagination | false | null;
   paginationSmall?: boolean;
   rowKey?: string;
@@ -66,6 +70,10 @@ const props = withDefaults(defineProps<ObVxeTableProps>(), {
   data: () => [],
   columns: () => [],
   loading: false,
+  enableFirstLoadSkeleton: true,
+  skeletonRows: 8,
+  skeletonDelayMs: 120,
+  skeletonMinDurationMs: 200,
   pagination: null,
   paginationSmall: undefined,
   rowKey: 'id',
@@ -115,6 +123,10 @@ const passthroughAttrs = computed(() => {
     'data',
     'columns',
     'loading',
+    'enableFirstLoadSkeleton',
+    'skeletonRows',
+    'skeletonDelayMs',
+    'skeletonMinDurationMs',
     'pagination',
     'paginationSmall',
     'rowKey',
@@ -447,6 +459,28 @@ const tableShowOverflow = computed<'tooltip' | undefined>(() =>
 
 const normalizedData = computed<RowRecord[]>(() => (Array.isArray(props.data) ? props.data : []));
 
+const resolvedSkeletonRows = computed(() => {
+  const rows = Number(props.skeletonRows || 0);
+  if (!Number.isFinite(rows) || rows <= 0) {
+    return 8;
+  }
+  return Math.max(1, Math.floor(rows));
+});
+
+const skeletonCellCount = computed(() => {
+  const count = Array.isArray(props.columns) ? props.columns.length : 0;
+  return Math.min(Math.max(count || 4, 3), 8);
+});
+
+const shouldUseFirstLoadSkeleton = computed(
+  () => props.enableFirstLoadSkeleton && props.loading && normalizedData.value.length === 0
+);
+
+const showFirstLoadSkeleton = ref(false);
+const skeletonShownAt = ref(0);
+let skeletonDelayTimer: ReturnType<typeof setTimeout> | null = null;
+let skeletonHideTimer: ReturnType<typeof setTimeout> | null = null;
+
 const rowConfig = computed<Record<string, unknown> | undefined>(() => {
   if (!props.rowKey) {
     return undefined;
@@ -516,6 +550,86 @@ function setAdaptive() {
       updateAdaptiveHeight();
     });
   }, timeout);
+}
+
+function clearSkeletonDelayTimer() {
+  if (!skeletonDelayTimer) {
+    return;
+  }
+  clearTimeout(skeletonDelayTimer);
+  skeletonDelayTimer = null;
+}
+
+function clearSkeletonHideTimer() {
+  if (!skeletonHideTimer) {
+    return;
+  }
+  clearTimeout(skeletonHideTimer);
+  skeletonHideTimer = null;
+}
+
+function hideFirstLoadSkeleton() {
+  clearSkeletonDelayTimer();
+  clearSkeletonHideTimer();
+  showFirstLoadSkeleton.value = false;
+  skeletonShownAt.value = 0;
+}
+
+function showFirstLoadSkeletonWithMinDuration() {
+  clearSkeletonDelayTimer();
+  clearSkeletonHideTimer();
+  if (showFirstLoadSkeleton.value) {
+    return;
+  }
+  showFirstLoadSkeleton.value = true;
+  skeletonShownAt.value = Date.now();
+}
+
+function scheduleShowFirstLoadSkeleton() {
+  if (showFirstLoadSkeleton.value) {
+    return;
+  }
+
+  clearSkeletonDelayTimer();
+  const delay = Number(props.skeletonDelayMs ?? 0);
+
+  if (!Number.isFinite(delay) || delay <= 0) {
+    showFirstLoadSkeletonWithMinDuration();
+    return;
+  }
+
+  skeletonDelayTimer = setTimeout(() => {
+    skeletonDelayTimer = null;
+    if (shouldUseFirstLoadSkeleton.value) {
+      showFirstLoadSkeletonWithMinDuration();
+    }
+  }, Math.floor(delay));
+}
+
+function scheduleHideFirstLoadSkeleton() {
+  clearSkeletonDelayTimer();
+  if (!showFirstLoadSkeleton.value) {
+    return;
+  }
+
+  clearSkeletonHideTimer();
+  const minDuration = Number(props.skeletonMinDurationMs ?? 0);
+  if (!Number.isFinite(minDuration) || minDuration <= 0) {
+    hideFirstLoadSkeleton();
+    return;
+  }
+
+  const elapsed = Date.now() - skeletonShownAt.value;
+  const remain = Math.floor(minDuration - elapsed);
+  if (remain <= 0) {
+    hideFirstLoadSkeleton();
+    return;
+  }
+
+  skeletonHideTimer = setTimeout(() => {
+    skeletonHideTimer = null;
+    hideFirstLoadSkeleton();
+  }, remain);
 }
 
 async function clearSelection() {
@@ -589,12 +703,25 @@ watch(
   }
 );
 
+watch(
+  shouldUseFirstLoadSkeleton,
+  (enabled) => {
+    if (enabled) {
+      scheduleShowFirstLoadSkeleton();
+      return;
+    }
+    scheduleHideFirstLoadSkeleton();
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   bindAdaptiveObserver();
 });
 
 onBeforeUnmount(() => {
   unbindAdaptiveObserver();
+  hideFirstLoadSkeleton();
 });
 
 defineExpose({
@@ -607,7 +734,38 @@ defineExpose({
 <template>
   <div ref="wrapperRef" :class="wrapperClass" :style="wrapperStyle">
     <div class="ob-vxe-table__main">
+      <div v-if="showFirstLoadSkeleton" class="ob-vxe-table__skeleton">
+        <el-skeleton animated>
+          <template #template>
+            <div class="ob-vxe-table__skeleton-head">
+              <el-skeleton-item
+                v-for="index in skeletonCellCount"
+                :key="`head-${index}`"
+                variant="text"
+                class="ob-vxe-table__skeleton-cell ob-vxe-table__skeleton-cell--head"
+              />
+            </div>
+
+            <div class="ob-vxe-table__skeleton-body">
+              <div
+                v-for="row in resolvedSkeletonRows"
+                :key="`row-${row}`"
+                class="ob-vxe-table__skeleton-row"
+              >
+                <el-skeleton-item
+                  v-for="index in skeletonCellCount"
+                  :key="`row-${row}-col-${index}`"
+                  variant="text"
+                  class="ob-vxe-table__skeleton-cell"
+                />
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+      </div>
+
       <VxeGrid
+        v-else
         ref="gridRef"
         :data="normalizedData"
         :columns="vxeColumns"
@@ -652,6 +810,57 @@ defineExpose({
   flex: 1;
   width: 100%;
   min-height: 0;
+}
+
+.ob-vxe-table__skeleton {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  padding: 0 12px 12px;
+  overflow: hidden;
+  background: var(--vxe-ui-layout-background-color);
+}
+
+.ob-vxe-table__skeleton :deep(.el-skeleton) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.ob-vxe-table__skeleton-head,
+.ob-vxe-table__skeleton-row {
+  display: grid;
+  gap: 12px;
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.ob-vxe-table__skeleton-head {
+  padding: 12px 0;
+}
+
+.ob-vxe-table__skeleton-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ob-vxe-table__skeleton-row {
+  min-height: 34px;
+}
+
+.ob-vxe-table__skeleton-cell {
+  width: 100%;
+  height: 14px;
+}
+
+.ob-vxe-table__skeleton-cell--head {
+  width: 70%;
+  height: 12px;
 }
 
 .ob-vxe-table__pager {
