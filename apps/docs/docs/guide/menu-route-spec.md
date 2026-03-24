@@ -54,9 +54,12 @@
 }
 ```
 
-## 4. Runtime Config Schema（platform-config.json）
+## 4. 平台配置 Schema（RuntimeConfig）
 
 以下为当前实现可用的 JSON Schema（与 `parseRuntimeConfig` 对齐）：
+
+- `apps/admin` 在 `src/config/platform-config.ts` 内维护同结构对象；
+- `apps/portal` / `apps/template` 在 `public/platform-config.json` 中维护同结构配置。
 
 ```json
 {
@@ -317,7 +320,7 @@
 
 ## 10. 落地检查清单
 
-1. `platform-config.json` 的 `preset`（或 `menuMode`）与目标模式一致
+1. `apps/admin/src/config/platform-config.ts` 的 `preset`（或 `menuMode`）与目标模式一致
 2. 模块页面路由都在 `modules/**/routes*` 下
 3. 需要进菜单的页面都配置了 `meta.title`
 4. 详情/编辑页都配置了 `meta.activePath`

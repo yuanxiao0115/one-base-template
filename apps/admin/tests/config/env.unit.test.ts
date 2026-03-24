@@ -1,17 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
-vi.mock('@/config/platform-config', () => ({
-  getPlatformConfig: vi.fn()
-}));
-
 import { getPlatformConfig } from '@/config/platform-config';
 import { resolveAppEnv, resolveDefaultSystemCode, resolveBasicHeaders } from '@/config/env';
 
-const mockedGetPlatformConfig = vi.mocked(getPlatformConfig);
-
 describe('config/env', () => {
   beforeEach(() => {
-    mockedGetPlatformConfig.mockReset();
+    vi.restoreAllMocks();
   });
 
   it('basic 场景默认系统编码应回退到 admin_server', () => {
@@ -46,25 +40,8 @@ describe('config/env', () => {
     ).toBeUndefined();
   });
 
-  it('应将构建期与运行时配置合并为 appEnv', () => {
-    mockedGetPlatformConfig.mockReturnValue({
-      backend: 'basic',
-      authMode: 'cookie',
-      tokenKey: 'token',
-      idTokenKey: 'idToken',
-      menuMode: 'remote',
-      enabledModules: ['system-management'],
-      authorizationType: 'ADMIN',
-      appsource: 'frame',
-      appcode: 'admin-app',
-      clientSignatureSalt: 'salt-1',
-      clientSignatureClientId: 'client-1',
-      defaultSystemCode: 'admin_server',
-      systemHomeMap: {
-        admin_server: '/home/index'
-      }
-    } as never);
-
+  it('应将构建期与代码静态配置合并为 appEnv', () => {
+    const runtime = getPlatformConfig();
     const appEnv = resolveAppEnv({
       buildEnv: {
         isProd: true,
@@ -77,25 +54,23 @@ describe('config/env', () => {
       isProd: true,
       baseUrl: '/admin/',
       apiBaseUrl: 'https://api.example.com',
-      backend: 'basic',
-      authMode: 'cookie',
-      tokenKey: 'token',
-      idTokenKey: 'idToken',
-      menuMode: 'remote',
-      enabledModules: ['system-management'],
-      storageNamespace: 'admin-app',
-      defaultSystemCode: 'admin_server',
-      basicSystemPermissionCode: 'admin_server',
-      systemHomeMap: {
-        admin_server: '/home/index'
-      },
+      backend: runtime.backend,
+      authMode: runtime.authMode,
+      tokenKey: runtime.tokenKey,
+      idTokenKey: runtime.idTokenKey,
+      menuMode: runtime.menuMode,
+      enabledModules: runtime.enabledModules,
+      storageNamespace: runtime.storageNamespace ?? runtime.appcode,
+      defaultSystemCode: runtime.defaultSystemCode,
+      basicSystemPermissionCode: runtime.defaultSystemCode,
+      systemHomeMap: runtime.systemHomeMap,
       basicHeaders: {
-        'Authorization-Type': 'ADMIN',
-        Appsource: 'frame',
-        Appcode: 'admin-app'
+        'Authorization-Type': runtime.authorizationType,
+        Appsource: runtime.appsource,
+        Appcode: runtime.appcode
       },
-      clientSignatureSalt: 'salt-1',
-      clientSignatureClientId: 'client-1'
+      clientSignatureSalt: runtime.clientSignatureSalt,
+      clientSignatureClientId: runtime.clientSignatureClientId
     });
   });
 });

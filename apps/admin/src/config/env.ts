@@ -7,11 +7,11 @@ import type {
 } from '@one-base-template/core';
 
 /**
- * 运行时环境聚合入口（保留在 config 目录的特例文件）。
+ * 应用环境聚合入口（构建期 env + 代码静态平台配置）。
  *
  * 维护建议：
  * - 日常开发一般无需修改；
- * - 若新增运行时字段，优先先改 `platform-config` 契约，再在这里做透传；
+ * - 若新增业务字段，优先先改 `platform-config.ts` 中的静态配置契约，再在这里做透传；
  * - 业务模块禁止直接读取 `import.meta.env`，统一通过 `getAppEnv()` 取值。
  */
 
@@ -59,7 +59,7 @@ export function resolveBasicHeaders(params: {
     return undefined;
   }
 
-  // basic 老项目请求头约定（由 platform-config.json 提供）。
+  // basic 老项目请求头约定（由代码静态平台配置提供）。
   return {
     'Authorization-Type': authorizationType,
     Appsource: appsource,
@@ -101,30 +101,30 @@ export function resolveBuildEnv(): BuildEnv {
 
 export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   const { buildEnv } = params;
-  const runtime = getPlatformConfig();
+  const platformConfig = getPlatformConfig();
 
-  const { backend } = runtime;
-  const { authMode } = runtime;
-  const { tokenKey } = runtime;
-  const { idTokenKey } = runtime;
-  const { menuMode } = runtime;
-  const { enabledModules } = runtime;
+  const { backend } = platformConfig;
+  const { authMode } = platformConfig;
+  const { tokenKey } = platformConfig;
+  const { idTokenKey } = platformConfig;
+  const { menuMode } = platformConfig;
+  const { enabledModules } = platformConfig;
   const basicHeaders = resolveBasicHeaders({
     backend,
-    authorizationType: runtime.authorizationType,
-    appsource: runtime.appsource,
-    appcode: runtime.appcode
+    authorizationType: platformConfig.authorizationType,
+    appsource: platformConfig.appsource,
+    appcode: platformConfig.appcode
   });
-  const { clientSignatureSalt } = runtime;
-  const { clientSignatureClientId } = runtime;
-  const storageNamespace = runtime.storageNamespace || runtime.appcode;
+  const { clientSignatureSalt } = platformConfig;
+  const { clientSignatureClientId } = platformConfig;
+  const storageNamespace = platformConfig.storageNamespace || platformConfig.appcode;
   const defaultSystemCode = resolveDefaultSystemCode({
     backend,
-    defaultSystemCode: runtime.defaultSystemCode
+    defaultSystemCode: platformConfig.defaultSystemCode
   });
-  const { systemHomeMap } = runtime;
+  const { systemHomeMap } = platformConfig;
 
-  // 菜单根 permissionCode 改由 runtime defaultSystemCode 兜底，避免继续依赖业务 env。
+  // 菜单根 permissionCode 改由 defaultSystemCode 兜底，避免继续依赖业务 env。
   const basicSystemPermissionCode = defaultSystemCode;
 
   return {
@@ -147,12 +147,12 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   };
 }
 
-// 构建期 env 仅保留 Vite dev/proxy 相关值；业务运行时配置统一来自 platform-config.json。
+// 构建期 env 仅保留 Vite dev/proxy 相关值；业务平台配置统一来自代码静态配置。
 export const buildEnv: BuildEnv = resolveBuildEnv();
 
 let cachedAppEnv: AppEnv | null = null;
 
-// 运行时配置必须在 loadPlatformConfig() 完成后才能安全读取，这里改为按需懒加载并缓存。
+// AppEnv 采用按需懒加载并缓存，避免模块初始化时重复解析。
 export function getAppEnv(): AppEnv {
   if (cachedAppEnv) {
     return cachedAppEnv;

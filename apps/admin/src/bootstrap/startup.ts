@@ -1,4 +1,3 @@
-import { startAppWithRuntimeConfig } from '@one-base-template/app-starter';
 import type { bootstrapAdminApp } from './index';
 import { renderBootstrapError } from './error-view';
 import './admin-styles';
@@ -10,16 +9,20 @@ export interface StartAdminAppOptions {
 }
 
 export async function startAdminApp(options: StartAdminAppOptions = {}) {
-  await startAppWithRuntimeConfig({
-    loadRuntimeConfig: async () => {
-      const { loadPlatformConfig } = await import('../config/platform-config');
-      return loadPlatformConfig();
-    },
-    bootstrap: async () => {
-      const { bootstrapAdminApp } = await import('./index');
-      return bootstrapAdminApp();
-    },
-    beforeMount: options.beforeMount,
-    onError: renderBootstrapError
-  });
+  try {
+    const { bootstrapAdminApp } = await import('./index');
+    const context = await bootstrapAdminApp();
+
+    if (options.beforeMount) {
+      await options.beforeMount(context);
+    }
+
+    if (context.router?.isReady) {
+      await context.router.isReady();
+    }
+
+    context.app.mount('#app');
+  } catch (error) {
+    renderBootstrapError(error);
+  }
 }

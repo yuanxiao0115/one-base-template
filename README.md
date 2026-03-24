@@ -98,12 +98,12 @@ pnpm build
 
 ## 配置模型（apps/admin）
 
-`apps/admin` 采用“双层配置”：
+`apps/admin` 采用“构建期 env + 代码静态平台配置”：
 
 - 构建期（`.env*`）：只保留 `VITE_API_BASE_URL` 等 dev/proxy 相关项
-- 运行时（`apps/admin/public/platform-config.json`）：backend/auth/menu/system/module 等业务配置
+- 代码静态平台配置（`apps/admin/src/config/platform-config.ts`）：backend/auth/menu/system/module 等业务配置
 
-`platform-config.json` 关键字段：
+`platform-config.ts` 关键字段：
 
 - `backend`: `default | basic`
 - `authMode`: `cookie | token | mixed`

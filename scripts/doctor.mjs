@@ -87,7 +87,7 @@ async function main() {
   }
 
   const mustFiles = [
-    'apps/admin/public/platform-config.json',
+    'apps/admin/src/config/platform-config.ts',
     'apps/docs/public/cli-naming-whitelist.json',
     'pnpm-lock.yaml',
     'vite.config.ts'

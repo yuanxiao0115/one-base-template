@@ -11,13 +11,13 @@
 
 ### 步骤 1：配置持久化命名空间（防项目污染）
 
-在 `apps/admin/public/platform-config.json` 配置：
+在 `apps/admin/src/config/platform-config.ts` 配置：
 
-```json
-{
-  "appcode": "od",
-  "storageNamespace": "one-base-template-admin"
-}
+```ts
+export const platformConfig = {
+  appcode: 'od',
+  storageNamespace: 'one-base-template-admin'
+};
 ```
 
 说明：

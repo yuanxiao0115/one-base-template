@@ -183,9 +183,9 @@ compat: {
   - admin/router 与 core/router 的边界更清晰（业务装配 vs 通用算法）
   - 避免不同应用重复维护 route.name/path/redirect 的同构实现
 
-## 3) enabledModules 运行时开关
+## 3) enabledModules 配置开关
 
-`apps/admin/public/platform-config.json` 新增：
+`apps/admin/src/config/platform-config.ts` 配置：
 
 ```json
 {
@@ -416,7 +416,7 @@ apps/admin/src/modules/LogManagement/
 - 页面编排：`list.vue` 仅保留 `ObTableBox + ObVxeTable + 详情抽屉` 编排
 - 逻辑下沉：查询、删除、详情拉取统一放在 `composables/use*PageState.ts`
 - 接口契约：`api.ts` 只保留请求调用；`types.ts` 保持“够用即可”，日志实体优先“关键字段 + 索引签名”以降低维护负担
-- 模块装配：`platform-config.json` 的 `enabledModules` 显式加入 `log-management`
+- 模块装配：`apps/admin/src/config/platform-config.ts` 的 `enabledModules` 显式加入 `log-management`
 
 ## 11) SystemManagement 模块示例（菜单管理 + 字典管理）
 
@@ -452,4 +452,4 @@ apps/admin/src/modules/SystemManagement/
   - iconfont 选择值统一保存为完整 class（例如 `dj-icons dj-icon-icon-1`）
   - iconify 选择值保存为 `ep:*` / `ri:*`，运行时按离线集合渲染
 - 字典管理：主表为字典列表，二级弹层内承载字典项 CRUD 与启停能力
-- 模块装配：`platform-config.json` 的 `enabledModules` 需包含 `system-management`
+- 模块装配：`apps/admin/src/config/platform-config.ts` 的 `enabledModules` 需包含 `system-management`

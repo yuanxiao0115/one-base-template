@@ -2,16 +2,15 @@
 
 > 适用范围：`apps/admin`、`apps/portal`、`apps/template`、`packages/app-starter`、`packages/core`
 
-本页承接 [目录结构与边界](/guide/architecture) 的运行时细节，聚焦“应用如何启动、如何收敛路由与运行时配置”。
+本页承接 [目录结构与边界](/guide/architecture) 的运行时细节，聚焦“应用如何启动、如何收敛路由与平台配置”。
 
 ## admin 启动分层
 
 管理端将启动链路集中在以下位置，避免多入口分叉：
 
-- `apps/admin/src/config/platform-config.ts`：读取并校验 `public/platform-config.json`
-- `packages/app-starter/src/runtime-config-loader.ts`：运行时配置加载器（并发复用/超时/重试/快照兜底）
-- `packages/app-starter/src/startup.ts`：统一启动编排（load config -> bootstrap -> router.isReady -> mount）
-- `apps/admin/src/config/env.ts`：聚合构建期 env 与运行时配置
+- `apps/admin/src/config/platform-config.ts`：维护并校验代码静态平台配置
+- `apps/admin/src/bootstrap/startup.ts`：统一启动编排（bootstrap -> beforeMount -> router.isReady -> mount）
+- `apps/admin/src/config/env.ts`：聚合构建期 env 与代码静态平台配置
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块清单扫描与按需路由装配
 - `apps/admin/src/bootstrap/index.ts`：创建 app/pinia/router/http/core，并安装插件与守卫
 - `apps/admin/src/bootstrap/startup-profiler.ts`：启动阶段耗时打点与汇总
@@ -29,14 +28,13 @@
 
 ```mermaid
 flowchart TD
-  A["main.ts：调用 startAdminApp()"] --> B["startup.ts：startAppWithRuntimeConfig()"]
-  B --> C["platform-config.ts：读取并校验 platform-config.json"]
-  C --> D["runtime-config-loader.ts：并发复用/超时/重试/快照兜底"]
-  D --> E["动态导入 bootstrap/index.ts"]
-  E --> F["bootstrap/index.ts：创建 app/pinia/router/http/core 并安装守卫"]
-  F --> G["router.isReady()"]
-  G -->|成功| H["mount：挂载应用"]
-  G -->|失败| I["startup.ts：统一错误视图兜底"]
+  A["main.ts：调用 startAdminApp()"] --> B["startup.ts：统一启动编排"]
+  B --> C["bootstrap/index.ts：创建 app/pinia/router/http/core 并安装守卫"]
+  C --> D["env.ts：聚合构建期 env + 代码静态平台配置"]
+  D --> E["router/assemble-routes.ts：按 enabledModules 装配路由"]
+  E --> F["router.isReady()"]
+  F -->|成功| G["mount：挂载应用"]
+  B -->|失败| H["error-view.ts：统一错误视图兜底"]
 ```
 
 ## template 启动分层（最小静态菜单）
@@ -88,14 +86,11 @@ flowchart TD
 - `portal` 登录成功后优先处理 `redirect`，否则调用 `/cmict/admin/front-config/portal` 做前台分流
 - `apps/portal` 保持前台独立边界：默认不接 `/cmict/admin/permission/*` 菜单体系
 
-## 运行时收敛补充（2026-03）
+## 启动收敛补充（2026-03）
 
 - `bootstrap/index.ts` 内联 `createWebHistory(appEnv.baseUrl)`，避免 `BASE_URL` 来源分散
-- runtime config loader 增强：
-  - 并发复用
-  - 默认 8s 超时
-  - 默认 1 次重试
-  - 可选快照兜底（`VITE_ENABLE_PLATFORM_CONFIG_SNAPSHOT_FALLBACK=true`）
+- `apps/admin` 不再依赖 `public/platform-config.json` 运行时文件，平台配置改为 `src/config/platform-config.ts` 代码静态维护。
+- `apps/portal` / `apps/template` 仍保留 runtime config loader 能力（并发复用、超时、重试、按需快照兜底）。
 - `router/registry.ts` 改为两阶段装配：
   - 先扫描 `modules/**/manifest.ts`（eager）
   - 再按 `enabledModules` 动态导入 `modules/**/module.ts`

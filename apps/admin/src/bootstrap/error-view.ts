@@ -34,12 +34,13 @@ export function renderBootstrapError(error: unknown) {
   title.style.color = '#111827';
 
   const desc = document.createElement('p');
-  desc.textContent = '初始化过程中发生异常，请检查运行时配置、依赖安装与启动日志。';
+  desc.textContent = '初始化过程中发生异常，请检查代码配置、依赖安装与启动日志。';
   desc.style.margin = '0 0 12px';
   desc.style.color = '#4b5563';
 
   const suggestion = document.createElement('p');
-  suggestion.textContent = '建议先确认 platform-config.json 可访问，再重新执行 build 或 preview。';
+  suggestion.textContent =
+    '建议优先检查 apps/admin/src/config/platform-config.ts 与 .env 配置，再重新执行 build 或 preview。';
   suggestion.style.margin = '0 0 12px';
   suggestion.style.color = '#1d4ed8';
 

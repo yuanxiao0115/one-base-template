@@ -14,7 +14,7 @@
 
 ### 目录收敛边界（config / types / services / tests）
 
-- `apps/admin/src/config`：仅放“开发者可维护配置项”与运行时配置入口（`env.ts`、`layout.ts`、`platform-config.ts`、`sso.ts`、`systems.ts`、`theme.ts`、`ui.ts`）。
+- `apps/admin/src/config`：仅放“开发者可维护配置项”与代码静态平台配置入口（`env.ts`、`layout.ts`、`platform-config.ts`、`sso.ts`、`systems.ts`、`theme.ts`、`ui.ts`）。
 - `apps/admin/src/utils`：应用级工具（如 `logger.ts`、`table-response-adapter.ts`），禁止放入 config。
 - `apps/admin/src/services/security`：安全能力（`client-signature.ts`、`signature.ts`、`crypto.ts`），禁止回流到 config。
 - `apps/admin/src/types`：跨模块通用类型定义（如 `types/api.ts` 的 `ApiResponse` / `ApiPageData`）。
@@ -41,14 +41,15 @@
 - SSO 策略优先级：`token` / `ticket` / `oauth code`。
 - exchange 成功流程：`fetchMe()` -> `fetchMenu()` -> 跳转站内安全地址。
 - 默认 Cookie(HttpOnly) 鉴权：HTTP 客户端保持 `withCredentials: true`，前端默认不读写 token。
-- `apps/admin/src/main.ts` 必须保持**单启动链路**：统一执行 `loadPlatformConfig() -> import('./bootstrap/index') -> router.isReady() -> mount`，禁止再次引入 `public/admin` 双启动分流或运行时 OS 字体切换。
+- `apps/admin/src/main.ts` 必须保持**单启动链路**：统一执行 `startAdminApp() -> bootstrapAdminApp() -> router.isReady() -> mount`，禁止再次引入 `public/admin` 双启动分流或运行时 OS 字体切换。
 - 允许在 `apps/admin/src/main.ts` 通过 `startAdminApp({ beforeMount })` 安装项目级插件（`app.use(...)`）；除该扩展位外，不要在业务文件散落全局安装逻辑。
 - 样式入口约定：基础样式与 Element Plus 覆盖统一在 `apps/admin/src/bootstrap/admin-styles.ts`；团队项目覆写样式只允许在 `apps/admin/src/main.ts` 顶部通过 `import './styles/team-overrides.css'` 引入。
 - `/login`、`/sso` 只作为主路由表中的公共路由存在；登录/SSO 成功后统一使用站内 `router.replace()` 跳转，未授权清理仅允许按需动态导入细粒度子入口（如 `@one-base-template/tag/store`），不要恢复匿名独立 bootstrap。
 
 ## 布局与主题（admin 侧）
 
-- Layout 模式与系统切换样式使用代码配置：`apps/admin/src/config/layout.ts`，禁止通过 `platform-config.json` 运行时修改。
+- Layout 模式与系统切换样式使用代码配置：`apps/admin/src/config/layout.ts`，禁止通过运行时文件动态修改。
+- `apps/admin/src/config/env.ts` 仅聚合构建期 env 与代码静态平台配置，禁止再引入运行时配置加载语义。
 - 布局尺寸（TopBar 高度/侧栏展开宽度/侧栏折叠宽度）统一在 `apps/admin/src/config/layout.ts` 配置，禁止在页面或组件内硬编码。
 - TopBar 主题设置入口必须放在用户头像下拉菜单内，并通过弹窗承载独立主题配置组件。
 - 个性设置面板约束：

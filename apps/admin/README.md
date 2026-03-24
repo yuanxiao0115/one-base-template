@@ -22,7 +22,7 @@ src/
   main.ts                    # 最小入口：触发 startAdminApp（共享启动骨架）
   bootstrap/                 # 启动编排（create app/router/pinia/http/core + 插件 + 守卫）
   router/                    # 模块注册与路由装配（manifest 扫描、白名单、保留路由）
-  config/                    # 可维护配置项与运行时配置入口（layout/theme/sso/systems/platform-config/env/ui）
+  config/                    # 可维护配置项与代码静态平台配置入口（layout/theme/sso/systems/platform-config/env/ui）
   services/                  # 应用服务（认证/SSO/验证码等）
   services/security/         # 安全能力（签名与加密）
   types/                     # 跨模块通用类型（如 ApiResponse / ApiPageData）
@@ -51,7 +51,7 @@ src/
 - 把单模块私有逻辑（仅一处使用的 mapper/normalize/helper）上提到 `services`/`types`
   目录边界说明：
 
-- `config/`：环境解析、运行时配置与可维护配置项
+- `config/`：环境解析、代码静态平台配置与可维护配置项
 - `utils/`：应用级工具（如 logger、响应适配器）
 - `services/security/`：basic 签名与加密能力
 - `services/auth/`：认证/SSO/验证码服务
@@ -64,7 +64,7 @@ src/
 - 基建升级主要落在 `bootstrap/router/config/services/types` 与 `packages/*`
 - 业务模块尽量不感知启动链路和底层实现细节
 - 减少“升级基建=大面积改业务文件”的连锁冲突
-- 启动链路统一复用 `@one-base-template/app-starter`，多子项目可同步升级
+- 启动链路统一收敛在 `bootstrap/startup.ts`，减少入口分叉
 
 ## 4. 为什么这套结构更易升级
 

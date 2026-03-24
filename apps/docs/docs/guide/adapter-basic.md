@@ -41,7 +41,7 @@
 
 - `VITE_API_BASE_URL`
 
-运行时业务配置统一放在 `apps/admin/public/platform-config.json`：
+业务平台配置统一放在 `apps/admin/src/config/platform-config.ts`：
 
 - `backend: "basic"`
 - `authMode: "token"`（推荐）

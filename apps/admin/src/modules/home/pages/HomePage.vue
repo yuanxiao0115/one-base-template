@@ -16,7 +16,7 @@ const mockSsoTicket = async (): Promise<void> => {
 };
 
 const staticMenuModeHint = [
-  '你可以通过 apps/admin/public/platform-config.json 的 menuMode=static',
+  '你可以通过 apps/admin/src/config/platform-config.ts 的 menuMode=static',
   '切换为静态菜单模式。'
 ].join(' ');
 

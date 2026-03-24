@@ -152,7 +152,7 @@ UI 行为：
 - 菜单状态（按设计稿）：默认 `--one-text-color-regular`；hover 使用 `--one-color-primary-light-7` + `--one-color-primary-light-1`；**仅叶子菜单项**保留选中高亮，菜单组不做选中高亮；禁用态使用 `--one-text-color-disabled`
 - 菜单层级统一：一级/二级组/子菜单项高度均为 `48px`，默认字重 `400`
 - 三级缩进：一级 `16px`、二级 `40px`、三级 `56px`（仅展开态生效）
-- 切系统后跳系统首页：`systemStore.resolveHomePath(systemCode)`（受 `platform-config.json` 中 `systemHomeMap` 影响）
+- 切系统后跳系统首页：`systemStore.resolveHomePath(systemCode)`（受 `apps/admin/src/config/platform-config.ts` 中 `systemHomeMap` 影响）
 - 空系统过滤：若某系统映射后 `menus.length===0`（例如后端 `children=[]`），则不展示该系统名，也不写该系统菜单缓存
 - 本地缓存策略：只要系统 `menus.length>0`（即使是纯叶子列表）就会写入该系统缓存；空系统会清理对应缓存 key
 
