@@ -8491,6 +8491,7 @@
   - `pnpm -C apps/admin test:run -- tests/bootstrap/index.unit.test.ts`
   - `pnpm test:e2e:minimal-auth`
   - `pnpm -C packages/core typecheck`
+  - `pnpm -C packages/core lint`
   - `pnpm -C apps/admin typecheck`
   - `pnpm -C apps/admin lint`
   - `pnpm -C apps/docs lint`
@@ -8499,4 +8500,25 @@
   - 相关单测全部通过（core `109` 用例通过，admin bootstrap 与最小链路用例通过）。
   - `typecheck` 通过（core/admin）。
   - `apps/admin lint` 通过，保留历史 `OrgManagerDialog.vue` 的 `max-lines` warning（非阻断）。
+  - `apps/docs lint/build` 通过。
+
+## 2026-03-25（登录后访问 /login 仍可进入页：token 缺失会话探测修复）
+
+- 命令：
+  - `pnpm -C packages/core test:run -- src/stores/auth.test.ts`
+  - `pnpm -C packages/core test:run -- src/stores/auth.test.ts src/router/guards.test.ts src/router/auth-minimal-e2e.unit.test.ts`
+  - `pnpm -C apps/admin test:run -- tests/bootstrap/index.unit.test.ts`
+  - `pnpm test:e2e:minimal-auth`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/core` 相关测试通过（新增 token 缺失探测回归已覆盖）。
+  - `apps/admin` bootstrap 单测通过。
+  - `test:e2e:minimal-auth` 聚合链路通过（core + admin）。
+  - `typecheck`（core/admin）通过。
+  - `packages/core lint` 通过（0 warnings / 0 errors）。
+  - `apps/admin lint` 通过，保留历史非阻断 warning：`OrgManagerDialog.vue` `max-lines`。
   - `apps/docs lint/build` 通过。

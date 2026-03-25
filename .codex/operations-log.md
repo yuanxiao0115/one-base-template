@@ -10104,3 +10104,22 @@
   - `apps/admin/package.json` 的 `test:e2e:minimal-auth` 增加上述架构测试。
 - 文档同步：
   - 更新 `apps/docs/docs/guide/module-system.md`，补充守卫扩展点与登录/SSO 链路约束。
+
+## 2026-03-25（登录后访问 /login 仍可进入页：token 缺失会话探测修复）
+
+- 用户反馈：已登录后手输 `/login` 仍可进入登录页。
+- 根因定位：`packages/core/src/stores/auth.ts` 在 `token` 模式下只要缺少本地 token 就直接返回未登录，导致“token 丢失但服务端会话仍有效”场景无法探测，`/login` 守卫分支被放行。
+- 代码修复：
+  - `packages/core/src/stores/auth.ts`
+    - 新增 `pendingTokenlessSessionProbe` 状态。
+    - 初始化时遇到“有缓存用户但 token 缺失”不再立即清缓存，而是标记为待探测。
+    - `ensureAuthed()` 在该场景首次调用时执行一次 `fetchMe()`：成功判定已登录，失败清理缓存并判定未登录。
+    - 在 `fetchMe/logout/reset` 中统一清理探测标记，避免重复探测。
+  - `packages/core/src/stores/auth.test.ts`
+    - 新增并通过 3 条关键回归：
+      - 缺 token + 无缓存用户 -> 未登录。
+      - 缺 token + 有缓存用户 + `fetchMe` 成功 -> 已登录。
+      - 缺 token + 有缓存用户 + `fetchMe` 失败 -> 未登录并清缓存。
+- 文档同步：
+  - `packages/core/README.md`
+  - `apps/docs/docs/guide/module-system.md`

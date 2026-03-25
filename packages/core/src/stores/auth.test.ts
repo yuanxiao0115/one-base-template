@@ -68,12 +68,62 @@ describe('core/stores/auth', () => {
     });
   });
 
-  it('token 模式下缺少 token 时不应信任缓存用户', async () => {
+  it('token 模式下缺少 token 且无缓存用户时应判定未登录', async () => {
+    const store = useAuthStore();
+
+    await expect(store.ensureAuthed()).resolves.toBe(false);
+    expect(store.user).toBeNull();
+  });
+
+  it('token 模式下缺少 token 但存在缓存用户时应尝试探测服务端会话', async () => {
     globalThis.localStorage.setItem(authUserKey, JSON.stringify(createUser()));
+    const fetchMe = vi.fn(async () => createUser());
+    mocks.getCoreOptions.mockReturnValue({
+      storageNamespace: 'unit-test',
+      auth: {
+        mode: 'token',
+        tokenKey: 'token'
+      },
+      adapter: {
+        auth: {
+          fetchMe,
+          login: vi.fn(),
+          logout: vi.fn()
+        }
+      }
+    });
+
+    const store = useAuthStore();
+
+    await expect(store.ensureAuthed()).resolves.toBe(true);
+    expect(fetchMe).toHaveBeenCalledTimes(1);
+    expect(store.user?.id).toBe('u-1');
+  });
+
+  it('token 模式下缺少 token 且服务端会话失效时应清空缓存并判定未登录', async () => {
+    globalThis.localStorage.setItem(authUserKey, JSON.stringify(createUser()));
+    const fetchMe = vi.fn(async () => {
+      throw new Error('session expired');
+    });
+    mocks.getCoreOptions.mockReturnValue({
+      storageNamespace: 'unit-test',
+      auth: {
+        mode: 'token',
+        tokenKey: 'token'
+      },
+      adapter: {
+        auth: {
+          fetchMe,
+          login: vi.fn(),
+          logout: vi.fn()
+        }
+      }
+    });
 
     const store = useAuthStore();
 
     await expect(store.ensureAuthed()).resolves.toBe(false);
+    expect(fetchMe).toHaveBeenCalledTimes(1);
     expect(store.user).toBeNull();
     expect(globalThis.localStorage.getItem(authUserKey)).toBeNull();
   });
