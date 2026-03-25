@@ -1,5 +1,6 @@
 import type { App } from 'vue';
 import type { BackendAdapter, MenuMode, AppMenuItem } from './adapter/types';
+import type { ObAuthMode } from './http/types';
 import { setCoreOptions } from './context';
 import { useLayoutStore, type LayoutOptions } from './stores/layout';
 import { useSystemStore, type SystemOptions } from './stores/system';
@@ -14,6 +15,11 @@ export interface CoreHookOptions {
   tableConfirmAdapter?: CoreTableConfirmAdapter;
 }
 
+export interface CoreAuthOptions {
+  mode: ObAuthMode;
+  tokenKey: string;
+}
+
 export interface CoreOptions {
   /**
    * core 全局存储命名空间。
@@ -22,6 +28,7 @@ export interface CoreOptions {
    */
   storageNamespace?: string;
   adapter: BackendAdapter;
+  auth?: CoreAuthOptions;
   menuMode: MenuMode;
   /**
    * 静态菜单模式下提供的菜单树。

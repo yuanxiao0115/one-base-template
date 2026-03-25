@@ -4,7 +4,7 @@ const introItems = [
   { text: '快速开始', link: '/guide/quick-start' },
   { text: '环境变量', link: '/guide/env' },
   { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' }
-] as const;
+];
 
 const architectureItems = [
   { text: '目录结构与边界', link: '/guide/architecture' },
@@ -13,7 +13,7 @@ const architectureItems = [
   { text: '菜单与路由规范（Schema）', link: '/guide/menu-route-spec' },
   { text: '布局与菜单', link: '/guide/layout-menu' },
   { text: '主题系统', link: '/guide/theme-system' }
-] as const;
+];
 
 const practiceItems = [
   { text: 'CRUD 容器与 Hook', link: '/guide/crud-container' },
@@ -23,7 +23,7 @@ const practiceItems = [
   { text: 'Iconfont 集成', link: '/guide/iconfont' },
   { text: 'Utils 工具包（总览）', link: '/guide/utils' },
   { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
-] as const;
+];
 
 const extensionItems = [
   { text: '门户体系总览', link: '/guide/portal/' },
@@ -31,7 +31,7 @@ const extensionItems = [
   { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
   { text: '门户物料扩展与注册', link: '/guide/portal/material-extension' },
   { text: 'basic Adapter', link: '/guide/adapter-basic' }
-] as const;
+];
 
 const governanceItems = [
   { text: '开发规范与维护', link: '/guide/development' },
@@ -42,17 +42,17 @@ const governanceItems = [
   { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
   { text: '子包发布与版本控制', link: '/guide/package-release' },
   { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' }
-] as const;
+];
 
 const roleItems = [
   { text: '框架使用者阅读入口', link: '/guide/for-users' },
   { text: '仓库维护者阅读入口', link: '/guide/for-maintainers' }
-] as const;
+];
 
 const asSidebar = (moduleText: string, items: ReadonlyArray<{ text: string; link: string }>) => [
   {
     text: moduleText,
-    items
+    items: [...items]
   }
 ];
 

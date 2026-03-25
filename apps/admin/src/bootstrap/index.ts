@@ -129,6 +129,8 @@ export async function bootstrapAdminApp() {
     await profiler.runStage('install-core', () =>
       installCore(app, {
         adapter,
+        authMode: resolvedAppEnv.authMode,
+        tokenKey: resolvedAppEnv.tokenKey,
         menuMode: resolvedAppEnv.menuMode,
         routes: routeAssemblyResult.routes,
         layoutMode: appLayoutMode,

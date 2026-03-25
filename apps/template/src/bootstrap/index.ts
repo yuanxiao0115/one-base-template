@@ -83,6 +83,10 @@ export function bootstrapTemplateApp() {
     createCore({
       storageNamespace: appEnv.storageNamespace,
       adapter,
+      auth: {
+        mode: appEnv.authMode,
+        tokenKey: appEnv.tokenKey
+      },
       menuMode: appEnv.menuMode,
       staticMenus,
       sso: {

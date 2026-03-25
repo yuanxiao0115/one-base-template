@@ -13,8 +13,8 @@ import { message } from '@one-base-template/ui';
 import { routePaths } from '@/router/constants';
 import authAccountService from '@/services/auth/auth-account-service';
 import {
-  isAvatarHidden,
-  resolveAvatarFallbackText
+  buildAvatarFallbackText,
+  isAvatarHidden
 } from '@/services/auth/auth-avatar-preference-service';
 import UserProfileDialog from './dialogs/UserProfileDialog.vue';
 import ChangePasswordDialog from './dialogs/ChangePasswordDialog.vue';
@@ -106,7 +106,7 @@ const userAvatar = computed(() => {
 });
 
 const userAvatarFallback = computed(() => {
-  return resolveAvatarFallbackText(
+  return buildAvatarFallbackText(
     authStore.user?.nickName,
     authStore.user?.name,
     authStore.user?.userAccount

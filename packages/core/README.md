@@ -126,6 +126,7 @@ declare module '@one-base-template/core' {
 ## 4. 存储命名空间与首次路由能力
 
 - `createCore({ storageNamespace })`：为 core 内建状态缓存增加命名空间前缀，避免多应用同域 key 冲突。
+- `createCore({ auth: { mode, tokenKey } })`：当应用使用 `token` 鉴权时，core 会按 token + 用户态共同判定登录态，避免残留 `ob_auth_user` 缓存误放行路由。
 - 已纳入命名空间规则的存储：auth/system/menu/layout/assets。
 - 兼容策略：读取阶段自动回退 legacy key（无命名空间），支持平滑升级。
 

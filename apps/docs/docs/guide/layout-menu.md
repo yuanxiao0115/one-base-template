@@ -244,6 +244,7 @@ admin 当前顶栏在 `apps/admin/src/components/top/AdminTopBar.vue`，基于 `
 注意：
 
 - `skipMenuAuth` 只会跳过“菜单 allowedPaths 校验”，不会跳过登录校验（仍会被重定向到 `/login`）。
+- `token` 模式下的登录态以“本地 token + 当前用户态”共同成立为准；仅残留 `ob_auth_user` 缓存不会放行路由。
 - 该能力会放宽前端权限控制，应谨慎使用；**能用 `activePath` 归属到已有菜单时，优先用 `activePath`**。
 - admin 默认首页 `/home/index` 已按本地静态页处理，使用 `skipMenuAuth` 放行登录后访问，避免被远端菜单差异误拦截到 `403`。
 

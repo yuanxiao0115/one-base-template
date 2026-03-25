@@ -5,8 +5,8 @@ import type { AppUser } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
 import authAccountService from '@/services/auth/auth-account-service';
 import {
+  buildAvatarFallbackText,
   isAvatarHidden,
-  resolveAvatarFallbackText,
   setAvatarHidden
 } from '@/services/auth/auth-avatar-preference-service';
 import AvatarCropDialog from './AvatarCropDialog.vue';
@@ -39,7 +39,7 @@ const mail = computed(() => props.user?.mail || '--');
 const phone = computed(() => props.user?.phone || '--');
 
 const avatarFallback = computed(() => {
-  return resolveAvatarFallbackText(props.user?.nickName, props.user?.name, props.user?.userAccount);
+  return buildAvatarFallbackText(props.user?.nickName, props.user?.name, props.user?.userAccount);
 });
 
 const avatarSrc = computed(() => {

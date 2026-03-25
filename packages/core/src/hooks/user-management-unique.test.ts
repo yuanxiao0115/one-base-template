@@ -7,7 +7,7 @@ import {
   toOrgUniqueSnapshot,
   toPositionUniqueSnapshot,
   toUserUniqueSnapshot
-} from '../../../../apps/admin/src/modules/UserManagement/shared/unique';
+} from '../../../../apps/admin/src/modules/adminManagement/shared/unique';
 
 describe('user-management unique helpers', () => {
   it('assertUniqueCheck 在 code 非 200 时抛出业务错误', () => {

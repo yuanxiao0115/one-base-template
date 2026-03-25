@@ -88,14 +88,29 @@ function clearStoredUser() {
   removeWithLegacy(AUTH_USER_STORAGE_BASE_KEY, ['local', 'session']);
 }
 
+function hasTokenSession() {
+  const authOptions = getCoreOptions().auth;
+  if (authOptions?.mode !== 'token' || !authOptions.tokenKey) {
+    return true;
+  }
+
+  try {
+    return isNonEmptyString(globalThis.localStorage?.getItem(authOptions.tokenKey));
+  } catch {
+    return false;
+  }
+}
+
 export const useAuthStore = defineStore('ob-auth', () => {
   const user = ref<AppUser | null>(null);
   const initialized = ref(false);
 
   // 参考老项目：把用户信息持久化到 localStorage，刷新后可快速恢复 UI 状态
   const stored = readStoredUser();
-  if (stored) {
+  if (stored && hasTokenSession()) {
     user.value = stored;
+  } else if (stored) {
+    clearStoredUser();
   }
 
   const isAuthed = computed(() => !!user.value);
@@ -110,6 +125,13 @@ export const useAuthStore = defineStore('ob-auth', () => {
   }
 
   async function ensureAuthed(): Promise<boolean> {
+    if (!hasTokenSession()) {
+      user.value = null;
+      clearStoredUser();
+      initialized.value = true;
+      return false;
+    }
+
     if (user.value) {
       return true;
     }

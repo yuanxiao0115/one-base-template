@@ -1,10 +1,30 @@
-import { describe, it, expect, beforeEach } from 'vite-plus/test';
+import { describe, it, expect, beforeEach, vi } from 'vite-plus/test';
 import { LocalStorage } from '../local';
+
+function createStorageMock(): Storage {
+  const map = new Map<string, string>();
+
+  return {
+    clear: () => map.clear(),
+    getItem: (key: string) => (map.has(key) ? map.get(key)! : null),
+    key: (index: number) => Array.from(map.keys())[index] ?? null,
+    removeItem: (key: string) => {
+      map.delete(key);
+    },
+    setItem: (key: string, value: string) => {
+      map.set(key, String(value));
+    },
+    get length() {
+      return map.size;
+    }
+  } as Storage;
+}
 
 describe('LocalStorage', () => {
   let storage: LocalStorage;
 
   beforeEach(() => {
+    vi.stubGlobal('localStorage', createStorageMock());
     window.localStorage.clear();
     storage = new LocalStorage({ prefix: 'test_' });
   });

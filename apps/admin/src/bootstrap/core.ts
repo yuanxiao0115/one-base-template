@@ -4,6 +4,7 @@ import {
   type BackendAdapter,
   createCore,
   createStaticMenusFromRoutes,
+  type ObAuthMode,
   type LayoutMode,
   type MenuMode,
   type SystemSwitchStyle
@@ -16,6 +17,8 @@ export function installCore(
   app: App,
   params: {
     adapter: BackendAdapter;
+    authMode: ObAuthMode;
+    tokenKey: string;
     menuMode: MenuMode;
     routes: RouteRecordRaw[];
     layoutMode: LayoutMode;
@@ -30,6 +33,8 @@ export function installCore(
 ) {
   const {
     adapter,
+    authMode,
+    tokenKey,
     menuMode,
     routes,
     layoutMode,
@@ -49,6 +54,10 @@ export function installCore(
     createCore({
       storageNamespace,
       adapter,
+      auth: {
+        mode: authMode,
+        tokenKey
+      },
       menuMode,
       staticMenus,
       sso: appSsoOptions,

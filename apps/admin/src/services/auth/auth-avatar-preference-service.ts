@@ -4,7 +4,7 @@ const AVATAR_HIDDEN_USER_IDS_STORAGE_BASE_KEY = 'ob_admin_avatar_hidden_user_ids
 
 let avatarHiddenUserIds: Set<string> | null = null;
 
-function readAvatarHiddenUserIds(): Set<string> {
+function loadAvatarHiddenUserIds(): Set<string> {
   const key = getNamespacedKey(AVATAR_HIDDEN_USER_IDS_STORAGE_BASE_KEY);
 
   try {
@@ -28,17 +28,17 @@ function readAvatarHiddenUserIds(): Set<string> {
   }
 }
 
-function ensureAvatarHiddenUserIds(): Set<string> {
+function getAvatarHiddenUserIds(): Set<string> {
   if (!avatarHiddenUserIds) {
-    avatarHiddenUserIds = readAvatarHiddenUserIds();
+    avatarHiddenUserIds = loadAvatarHiddenUserIds();
   }
   return avatarHiddenUserIds;
 }
 
-function writeAvatarHiddenUserIds() {
+function saveAvatarHiddenUserIds() {
   const key = getNamespacedKey(AVATAR_HIDDEN_USER_IDS_STORAGE_BASE_KEY);
   try {
-    const values = Array.from(ensureAvatarHiddenUserIds());
+    const values = Array.from(getAvatarHiddenUserIds());
     localStorage.setItem(key, JSON.stringify(values));
   } catch {
     // 本地存储不可用时忽略写入失败
@@ -49,7 +49,7 @@ export function isAvatarHidden(userId: string | number | null | undefined): bool
   if (userId == null) {
     return false;
   }
-  return ensureAvatarHiddenUserIds().has(String(userId));
+  return getAvatarHiddenUserIds().has(String(userId));
 }
 
 export function setAvatarHidden(
@@ -61,7 +61,7 @@ export function setAvatarHidden(
   }
 
   const id = String(userId);
-  const hiddenIds = ensureAvatarHiddenUserIds();
+  const hiddenIds = getAvatarHiddenUserIds();
 
   if (hidden) {
     hiddenIds.add(id);
@@ -69,11 +69,11 @@ export function setAvatarHidden(
     hiddenIds.delete(id);
   }
 
-  writeAvatarHiddenUserIds();
+  saveAvatarHiddenUserIds();
   return true;
 }
 
-export function resolveAvatarFallbackText(...candidates: Array<string | null | undefined>): string {
+export function buildAvatarFallbackText(...candidates: Array<string | null | undefined>): string {
   const value =
     candidates
       .map((item) => (typeof item === 'string' ? item.trim() : ''))

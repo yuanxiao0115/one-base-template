@@ -43,13 +43,13 @@ describe('router/assemble-routes', () => {
 
   it('应保留公共固定路由', async () => {
     const { routes } = await buildAppRoutes(createRouteAssemblyOptions(['home']));
-    const routePathList = routes.map((item) => item.path);
+    const routePathList = flattenRoutes(routes).map((item) => item.path);
 
-    expect(routePathList).toContain(routePaths.login);
-    expect(routePathList).toContain(routePaths.sso);
-    expect(routePathList).toContain(routePaths.forbidden);
-    expect(routePathList).toContain(routePaths.notFound);
-    expect(routePathList).toContain(routePaths.catchall);
+    expect(routePathList.some((path) => isSamePath(path, routePaths.login))).toBe(true);
+    expect(routePathList.some((path) => isSamePath(path, routePaths.sso))).toBe(true);
+    expect(routePathList.some((path) => isSamePath(path, routePaths.forbidden))).toBe(true);
+    expect(routePathList.some((path) => isSamePath(path, routePaths.notFound))).toBe(true);
+    expect(routePathList.some((path) => isSamePath(path, routePaths.catchall))).toBe(true);
   });
 
   it('PortalManagement 模块应使用语义化设计路径并移除历史 alias 路由', async () => {
