@@ -184,13 +184,15 @@
     "icon": { "type": "string" },
     "order": { "type": "number" },
     "keepAlive": { "type": "boolean" },
-    "public": { "type": "boolean" },
+    "access": {
+      "type": "string",
+      "enum": ["open", "auth", "menu"]
+    },
     "hideInMenu": { "type": "boolean" },
     "activePath": {
       "type": "string",
       "pattern": "^/"
     },
-    "skipMenuAuth": { "type": "boolean" },
     "hiddenTab": { "type": "boolean" },
     "noTag": { "type": "boolean" },
     "fullScreen": { "type": "boolean" }
@@ -203,9 +205,9 @@
 模块路由禁止继续散写 `meta: { ... }`，统一使用 `apps/admin/src/router/meta.ts` 导出的 helper：
 
 - `defineRouteMeta(...)`
-- `createPublicRouteMeta(...)`
-- `createSkipMenuAuthRouteMeta(...)`
-- `createFullscreenSkipMenuAuthRouteMeta(...)`
+- `createOpenRouteMeta(...)`
+- `createAuthRouteMeta(...)`
+- `createFullscreenAuthRouteMeta(...)`
 
 对应源码门禁见：`apps/admin/tests/architecture/route-meta-helper-source.unit.test.ts`。
 
@@ -315,8 +317,10 @@
 
 1. 路由始终静态声明，不依赖动态 `addRoute`
 2. 菜单树 path 集合 = `allowedPaths`
-3. 非菜单页（详情/编辑）用 `meta.activePath` 归属菜单
-4. 本地临时页可用 `meta.skipMenuAuth=true`，但仍需登录
+3. 未声明 `meta.access` 时默认按 `menu` 处理
+4. 非菜单页（详情/编辑）用 `meta.activePath` 归属菜单
+5. 不依赖菜单但仍需登录的页面使用 `meta.access='auth'`
+6. 匿名可访问页面使用 `meta.access='open'`
 
 ## 9. 常见误区
 

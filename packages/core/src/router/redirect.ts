@@ -1,3 +1,4 @@
+import type { RouteLocationNormalized, RouteLocationRaw } from 'vue-router';
 import { safeRedirect } from '../auth/flow';
 
 function normalizeBasePath(baseUrl: string): string {
@@ -54,4 +55,16 @@ export function resolveAppRedirectTarget(
   const target = safeRedirect(raw, options.fallback);
   const basePath = normalizeBasePath(options.baseUrl);
   return stripBasePath(target, basePath);
+}
+
+export function buildLoginRedirectLocation(params: {
+  to: Pick<RouteLocationNormalized, 'fullPath'>;
+  loginRoutePath: string;
+}): RouteLocationRaw {
+  return {
+    path: params.loginRoutePath,
+    query: {
+      redirect: params.to.fullPath
+    }
+  };
 }

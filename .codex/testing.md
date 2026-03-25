@@ -8567,3 +8567,22 @@
   - `test:e2e:minimal-auth` 通过。
   - `typecheck/lint`（core/admin）通过；admin 保留历史非阻断 `max-lines` warning。
   - docs lint/build 通过。
+
+## 2026-03-25（路由 access 模型重构：open/auth/menu）
+
+- RED（先失败）：
+  - `pnpm -C packages/core test:run -- src/menu/fromRoutes.test.ts`
+  - `pnpm -C apps/admin test:run -- tests/bootstrap/index.unit.test.ts tests/bootstrap/http.unit.test.ts`
+- GREEN（修复后回归）：
+  - `pnpm -C packages/core test:run -- src/router/guards.test.ts src/router/fixed-routes.test.ts src/router/route-diagnostics.test.ts src/router/module-assembly.test.ts src/router/route-signature.test.ts src/menu/fromRoutes.test.ts`
+  - `pnpm -C apps/admin test:run -- tests/router/assemble-routes.unit.test.ts tests/router/route-policy.unit.test.ts tests/bootstrap/index.unit.test.ts tests/bootstrap/http.unit.test.ts tests/services/auth/auth-scenario-provider.unit.test.ts tests/services/auth/sso-minimal-e2e.unit.test.ts`
+  - `pnpm -w typecheck`
+  - `pnpm -C packages/core build`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - core 路由守卫、固定路由、静态菜单过滤回归全部通过。
+  - admin 路由装配、路由策略、首屏守卫注册、401 回登录页回跳、登录/SSO 最小链路回归全部通过。
+  - 全仓 `typecheck` 通过，`packages/core build`、`apps/admin build`、`apps/docs build` 通过。
+  - 测试过程中存在 `--localstorage-file` warning，为测试环境提示，不影响结论。

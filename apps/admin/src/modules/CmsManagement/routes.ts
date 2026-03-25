@@ -1,4 +1,4 @@
-import { createSkipMenuAuthRouteMeta } from '@/router/meta';
+import { createAuthRouteMeta } from '@/router/meta';
 import type { RouteRecordRaw } from 'vue-router';
 
 export default [
@@ -6,7 +6,7 @@ export default [
     path: '/publicity/column',
     name: 'PublicityColumn',
     component: async () => import('./column/list.vue'),
-    meta: createSkipMenuAuthRouteMeta({
+    meta: createAuthRouteMeta({
       title: '栏目管理',
       keepAlive: true,
       rank: 100
@@ -16,7 +16,7 @@ export default [
     path: '/publicity/content',
     name: 'PublicityContent',
     component: async () => import('./content/list.vue'),
-    meta: createSkipMenuAuthRouteMeta({
+    meta: createAuthRouteMeta({
       title: '宣传内容管理',
       keepAlive: true,
       rank: 200
@@ -26,7 +26,7 @@ export default [
     path: '/publicity/article-list/:categoryId',
     name: 'ArticleList',
     component: async () => import('./content/list.vue'),
-    meta: createSkipMenuAuthRouteMeta({
+    meta: createAuthRouteMeta({
       title: '文章列表',
       keepAlive: true,
       hideInMenu: true,
@@ -37,7 +37,7 @@ export default [
     path: '/publicity/audit',
     name: 'PublicityAudit',
     component: async () => import('./audit/list.vue'),
-    meta: createSkipMenuAuthRouteMeta({
+    meta: createAuthRouteMeta({
       title: '审核管理',
       keepAlive: true,
       rank: 300

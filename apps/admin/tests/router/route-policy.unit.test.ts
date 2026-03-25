@@ -34,10 +34,10 @@ describe('router/route-policy', () => {
     writeFileSync(artifactPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 
     expect(report.routes.length).toBeGreaterThan(0);
-    expect(report.publicRoutes.length).toBeGreaterThan(0);
+    expect(report.openRoutes.length).toBeGreaterThan(0);
   });
 
-  it('public 路由清单应保持在受控范围内', async () => {
+  it('open 路由清单应保持在受控范围内', async () => {
     const config = getPlatformConfig();
     const result = await buildAppRoutes({
       enabledModules: config.enabledModules,
@@ -47,21 +47,13 @@ describe('router/route-policy', () => {
     });
     const report = buildRoutePolicyReport(result.routes);
 
-    const expectedPublicPaths = [
-      routePaths.login,
-      routePaths.sso,
-      routePaths.forbidden,
-      routePaths.notFound,
-      routePaths.catchall,
-      '/portal/preview'
-    ].sort();
-    const actualPublicPaths = [...new Set(report.publicRoutes.map((item) => item.path))].sort();
+    const expectedOpenPaths = [routePaths.login, routePaths.sso, '/portal/preview'].sort();
+    const actualOpenPaths = [...new Set(report.openRoutes.map((item) => item.path))].sort();
 
-    expect(actualPublicPaths).toEqual(expectedPublicPaths);
-    expect(report.publicRoutes.every((item) => item.skipMenuAuth === false)).toBe(true);
+    expect(actualOpenPaths).toEqual(expectedOpenPaths);
   });
 
-  it('skipMenuAuth 与 activePath 规则应保持一致', async () => {
+  it('access 与 activePath 规则应保持一致', async () => {
     const config = getPlatformConfig();
     const result = await buildAppRoutes({
       enabledModules: config.enabledModules,
@@ -77,13 +69,9 @@ describe('router/route-policy', () => {
       expect(routePathSet.has(item.activePath as string)).toBe(true);
     }
 
-    const expectedSkipNames = [...new Set(result.skipMenuAuthRouteNames)].sort();
-    const actualSkipNames = [
-      ...new Set(
-        report.skipMenuAuthRoutes.map((item) => item.name).filter((item): item is string => !!item)
-      )
-    ].sort();
-
-    expect(actualSkipNames).toEqual(expectedSkipNames);
+    expect(report.authRoutes.some((item) => item.path === routePaths.forbidden)).toBe(true);
+    expect(report.authRoutes.some((item) => item.path === routePaths.notFound)).toBe(true);
+    expect(report.authRoutes.some((item) => item.path === '/home/index')).toBe(true);
+    expect(report.menuRoutes.some((item) => item.path === '/portal/design')).toBe(true);
   });
 });

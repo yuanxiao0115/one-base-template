@@ -33,7 +33,8 @@
   - `remote`：后端返回可见菜单树。
   - `static`：基于静态路由 `meta.title` 生成菜单树。
 - 默认权限模型：菜单树出现过的 path 集合即 `allowedPaths`，不在集合统一拦截到 `403`。
-- admin 首页固定走本地静态路由 `/home/index`：通过首页路由 `meta.skipMenuAuth=true` 放行登录后访问；不要再在 core 守卫中新增 `/home` 与 `/home/index` 互认兼容逻辑。
+- admin 路由访问模型统一使用 `meta.access`：`open` 表示匿名可访问，`auth` 表示仅要求登录，未声明时默认按 `menu` 处理。
+- admin 首页固定走本地静态路由 `/home/index`，使用 `meta.access='auth'` 放行登录后访问；大屏、独立页这类“不走菜单但要登录”的页面也沿用同一模型。
 
 ### SSO 与鉴权
 

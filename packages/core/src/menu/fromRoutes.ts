@@ -1,5 +1,6 @@
 import type { RouteMeta, RouteRecordRaw } from 'vue-router';
 import type { AppMenuItem } from '../adapter/types';
+import { getRouteAccess } from '../router/route-access';
 import { isHttpUrl } from '../utils/url';
 
 export interface CreateStaticMenusOptions {
@@ -24,6 +25,14 @@ function readMetaNumber(meta: RouteMeta, key: string): number | undefined {
   return typeof v === 'number' ? v : undefined;
 }
 
+function isOpenRoute(meta: RouteMeta): boolean {
+  if (meta.public === true) {
+    return true;
+  }
+
+  return getRouteAccess(meta) === 'open';
+}
+
 function joinPath(parent: string, child: string): string {
   if (!parent || parent === '/') {
     return child.startsWith('/') ? child : `/${child}`;
@@ -45,8 +54,8 @@ function buildMenus(
     const meta = (record.meta ?? {}) as RouteMeta;
     const fullPath = joinPath(parentPath, record.path);
 
-    // 约定：public 路由不进菜单（例如 /login、/sso、/404 等）
-    if (meta.public === true) {
+    // 开放页不进菜单；旧 public 标记继续在静态菜单场景兜住 portal/template。
+    if (isOpenRoute(meta)) {
       continue;
     }
     if (meta.hideInMenu === true) {
@@ -88,7 +97,8 @@ function buildMenus(
  *
  * 约定：
  * - 以 `meta.title` 作为菜单标题；没有 title 的路由默认不显示（但会提升其子路由）
- * - `meta.public === true` 的路由会被过滤
+ * - `meta.access === 'open'` 的路由会被过滤
+ * - 旧 `meta.public === true` 仍会在静态菜单场景下被过滤
  * - `meta.keepAlive === true` 会映射到菜单项的 `keepAlive`
  */
 export function createStaticMenusFromRoutes(

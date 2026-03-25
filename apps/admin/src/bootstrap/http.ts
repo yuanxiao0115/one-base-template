@@ -1,8 +1,10 @@
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
 import {
+  buildLoginRedirectLocation,
   createBasicClientSignatureBeforeRequest,
   createObHttp,
+  getRouteAccess,
   type ObHttp,
   useAuthStore,
   useMenuStore,
@@ -50,6 +52,23 @@ function resetTagStore() {
   // 统一走单启动链路后，未授权时始终清空 tags，避免残留上一个会话的页签状态。
   void import('@one-base-template/tag/store').then(({ useTagStoreHook }) => {
     useTagStoreHook().handleTags('equal', []);
+  });
+}
+
+function getUnauthorizedRedirect(router: Router) {
+  const currentRoute = router.currentRoute?.value;
+  if (!currentRoute || currentRoute.path === routePaths.login) {
+    return routePaths.login;
+  }
+
+  if (getRouteAccess(currentRoute.meta) === 'open') {
+    return routePaths.login;
+  }
+
+  // 只有受保护页面才保留 redirect，避免开放页把用户又带回匿名场景。
+  return buildLoginRedirectLocation({
+    to: currentRoute,
+    loginRoutePath: routePaths.login
   });
 }
 
@@ -139,7 +158,7 @@ export function createAppHttp(params: {
         useMenuStore(pinia).reset();
         useSystemStore(pinia).reset();
         resetTagStore();
-        router.replace(routePaths.login);
+        router.replace(getUnauthorizedRedirect(router));
       }
     }
   });

@@ -40,8 +40,15 @@ describe('core/router/fixed-routes', () => {
     expect(rootChildren[0]!.path).toBe('/home/index');
     expect(rootChildren[1]!.path).toBe('/403');
 
-    const redirectTarget = (routes[2]!.redirect as () => string)();
-    expect(redirectTarget).toBe('/404');
+    const redirectTarget = (routes[2]!.redirect as (to: { fullPath: string }) => unknown)({
+      fullPath: '/unknown/page?tab=1'
+    });
+    expect(redirectTarget).toEqual({
+      path: '/404',
+      query: {
+        from: '/unknown/page?tab=1'
+      }
+    });
   });
 
   it('未显式传 notFoundPath 时应从 publicRoutes 推断', () => {
@@ -63,7 +70,14 @@ describe('core/router/fixed-routes', () => {
       notFoundCatchallPath: '/:pathMatch(.*)*'
     });
 
-    const redirectTarget = (routes[2]!.redirect as () => string)();
-    expect(redirectTarget).toBe('/404');
+    const redirectTarget = (routes[2]!.redirect as (to: { fullPath: string }) => unknown)({
+      fullPath: '/unknown/page'
+    });
+    expect(redirectTarget).toEqual({
+      path: '/404',
+      query: {
+        from: '/unknown/page'
+      }
+    });
   });
 });

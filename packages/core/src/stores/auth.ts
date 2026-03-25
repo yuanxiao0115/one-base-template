@@ -203,6 +203,7 @@ export const useAuthStore = defineStore('ob-auth', () => {
     user,
     initialized,
     isAuthed,
+    hasTokenSession,
     fetchMe,
     ensureAuthed,
     login,

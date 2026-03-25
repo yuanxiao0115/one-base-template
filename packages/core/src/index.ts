@@ -105,9 +105,10 @@ export {
 } from './router/route-diagnostics';
 export { handleSsoCallback } from './router/sso';
 export { getInitialPath, type GetInitialPathOptions } from './router/initial-path';
-export { resolveAppRedirectTarget } from './router/redirect';
+export { resolveAppRedirectTarget, buildLoginRedirectLocation } from './router/redirect';
 export { getRouteSignature } from './router/route-signature';
 export { buildRouteFullPath, normalizeRoutePath, toRouteNameKey } from './router/route-utils';
+export { getRouteAccess, isRouteAccess, type RouteAccess } from './router/route-access';
 export {
   buildFixedRoutes,
   type BuildFixedRoutesOptions,

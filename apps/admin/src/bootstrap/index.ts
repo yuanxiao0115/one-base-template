@@ -20,7 +20,7 @@ import {
   appTopbarHeight
 } from '../config';
 import { routePaths } from '../router/constants';
-import { guardPublicRoutePaths } from '../router/public-routes';
+import { guardOpenRoutePaths } from '../router/public-routes';
 
 import { createAppHttp } from './http';
 import { createAppAdapter } from './adapter';
@@ -68,8 +68,6 @@ export async function bootstrapAdminApp() {
         }),
       (result) => ({ ...result.diagnostics })
     );
-    const { skipMenuAuthRouteNames } = routeAssemblyResult;
-
     const router = await profiler.runStage(
       'create-router',
       () => {
@@ -139,7 +137,7 @@ export async function bootstrapAdminApp() {
       'setup-router-guards',
       () =>
         setupRouterGuards(router, {
-          publicRoutePaths: [...guardPublicRoutePaths],
+          publicRoutePaths: [...guardOpenRoutePaths],
           loginRoutePath: routePaths.login,
           forbiddenRoutePath: routePaths.forbidden,
           resolveAuthedLoginRedirect: ({ to }) =>
@@ -147,14 +145,12 @@ export async function bootstrapAdminApp() {
               fallback: routePaths.root,
               baseUrl: resolvedAppEnv.baseUrl
             }),
-          // 路由白名单由“已装配路由 + meta.skipMenuAuth”自动生成，避免手工常量与模块启停漂移。
-          allowedSkipMenuAuthRouteNames: skipMenuAuthRouteNames,
           onNavigationStart: () => {
             http.cancelRouteRequests();
           }
         }),
       () => ({
-        skipMenuAuthCount: routeAssemblyResult.diagnostics.skipMenuAuthCount
+        routeCount: routeAssemblyResult.diagnostics.routeCount
       })
     );
 

@@ -1,31 +1,42 @@
 import type { PublicRouteDefinition } from '@one-base-template/core';
 import { ForbiddenPage, NotFoundPage } from '@one-base-template/ui/shell';
 import { routePaths } from './constants';
+import { createAuthRouteMeta, createOpenRouteMeta } from './meta';
 
 export const publicRoutes: PublicRouteDefinition[] = [
   {
     path: routePaths.login,
     name: 'login',
-    component: async () => import('../pages/login/LoginPage.vue')
+    component: async () => import('../pages/login/LoginPage.vue'),
+    meta: createOpenRouteMeta()
   },
   {
     path: routePaths.sso,
     name: 'sso',
-    component: async () => import('../pages/sso/SsoCallbackPage.vue')
+    component: async () => import('../pages/sso/SsoCallbackPage.vue'),
+    meta: createOpenRouteMeta()
   },
   {
     path: routePaths.forbidden,
     name: 'forbidden',
-    component: ForbiddenPage
+    component: ForbiddenPage,
+    meta: createAuthRouteMeta({
+      hiddenTab: true
+    })
   },
   {
     path: routePaths.notFound,
     name: 'not-found',
-    component: NotFoundPage
+    component: NotFoundPage,
+    meta: createAuthRouteMeta({
+      hiddenTab: true
+    })
   }
 ];
 
-export const guardPublicRoutePaths = publicRoutes.map((item) => item.path);
+export const guardOpenRoutePaths = publicRoutes
+  .filter((item) => item.meta?.access === 'open')
+  .map((item) => item.path);
 
 export const reservedRoutePaths = new Set<string>([
   routePaths.root,

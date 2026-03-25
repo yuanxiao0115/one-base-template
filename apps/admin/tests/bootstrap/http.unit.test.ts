@@ -36,8 +36,17 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@one-base-template/core', () => ({
+  buildLoginRedirectLocation: vi.fn(
+    (params: { to: { fullPath: string }; loginRoutePath: string }) => ({
+      path: params.loginRoutePath,
+      query: {
+        redirect: params.to.fullPath
+      }
+    })
+  ),
   createBasicClientSignatureBeforeRequest: mocks.createBasicClientSignatureBeforeRequestMock,
   createObHttp: mocks.createObHttpMock,
+  getRouteAccess: vi.fn((meta?: { access?: string }) => meta?.access ?? 'menu'),
   useAuthStore: () => ({ reset: mocks.authReset }),
   useMenuStore: () => ({ reset: mocks.menuReset }),
   useSystemStore: () => ({ reset: mocks.systemReset })
@@ -180,7 +189,16 @@ describe('bootstrap/http', () => {
       tokenKey: 'token-key',
       idTokenKey: 'id-token-key',
       pinia: {} as never,
-      router: { replace: routerReplace } as never
+      router: {
+        replace: routerReplace,
+        currentRoute: {
+          value: {
+            fullPath: '/system/user?tab=list',
+            meta: {},
+            path: '/system/user'
+          }
+        }
+      } as never
     });
 
     const options = mocks.createObHttpMock.mock.calls[0]?.[0] as ObHttpMockOptions;
@@ -193,6 +211,43 @@ describe('bootstrap/http', () => {
     expect(mocks.authReset).toHaveBeenCalledTimes(1);
     expect(mocks.menuReset).toHaveBeenCalledTimes(1);
     expect(mocks.systemReset).toHaveBeenCalledTimes(1);
+    expect(routerReplace).toHaveBeenCalledWith({
+      path: routePaths.login,
+      query: {
+        redirect: '/system/user?tab=list'
+      }
+    });
+  });
+
+  it('开放路由发生未授权时应直接回登录页', async () => {
+    const routerReplace = vi.fn();
+
+    createAppHttp({
+      backend: 'default',
+      isProd: false,
+      authMode: 'cookie',
+      tokenKey: 'token-key',
+      idTokenKey: 'id-token-key',
+      pinia: {} as never,
+      router: {
+        replace: routerReplace,
+        currentRoute: {
+          value: {
+            fullPath: '/portal/preview?id=1',
+            meta: {
+              access: 'open'
+            },
+            path: '/portal/preview'
+          }
+        }
+      } as never
+    });
+
+    const options = mocks.createObHttpMock.mock.calls[0]?.[0] as ObHttpMockOptions;
+    options.hooks.onUnauthorized();
+    await Promise.resolve();
+    await Promise.resolve();
+
     expect(routerReplace).toHaveBeenCalledWith(routePaths.login);
   });
 

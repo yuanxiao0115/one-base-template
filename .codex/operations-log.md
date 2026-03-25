@@ -10172,3 +10172,8 @@
 - 文档同步：
   - `packages/core/README.md`
   - `apps/docs/docs/guide/module-system.md`
+
+## 2026-03-25 路由重构续作
+
+- 读取技能与仓库约束，准备继续实现 access=open/auth/menu 路由模型。
+- 路由 access 模型重构收尾：统一 `meta.access=open/auth/menu`，补 401 redirect、静态菜单开放页过滤，并同步更新 admin/core/docs 文档口径。

@@ -140,7 +140,7 @@ describe('setupRouterGuards', () => {
     await expect(runGuard({ path: '/sso', fullPath: '/sso' })).resolves.toBe(true);
 
     await expect(
-      runGuard({ path: '/public-page', fullPath: '/public-page', meta: { public: true } })
+      runGuard({ path: '/public-page', fullPath: '/public-page', meta: { access: 'open' } })
     ).resolves.toBe(true);
   });
 
@@ -239,6 +239,39 @@ describe('setupRouterGuards', () => {
     });
   });
 
+  it('未登录访问 auth 路由时也应跳转登录页', async () => {
+    authStore.ensureAuthed.mockResolvedValue(false);
+    const runGuard = createGuardRunner({
+      loginRoutePath: '/login'
+    });
+
+    await expect(
+      runGuard({
+        path: '/404',
+        fullPath: '/404?from=%2Funknown',
+        meta: { access: 'auth' }
+      })
+    ).resolves.toEqual({
+      path: '/login',
+      query: { redirect: '/404?from=%2Funknown' }
+    });
+  });
+
+  it('已登录访问 auth 路由时应直接通过且不触发菜单校验', async () => {
+    const runGuard = createGuardRunner();
+
+    await expect(
+      runGuard({
+        path: '/screen/dashboard',
+        fullPath: '/screen/dashboard',
+        meta: { access: 'auth' }
+      })
+    ).resolves.toBe(true);
+
+    expect(menuStore.isAllowed).not.toHaveBeenCalled();
+    expect(menuStore.loadMenus).not.toHaveBeenCalled();
+  });
+
   it('菜单已允许时应直接通过', async () => {
     menuStore.loaded = true;
     menuStore.isAllowed.mockReturnValue(true);
@@ -252,45 +285,22 @@ describe('setupRouterGuards', () => {
     ).resolves.toBe(true);
   });
 
-  it('skipMenuAuth 严格白名单命中时应放行', async () => {
+  it('access 缺省时应按 menu 路由处理', async () => {
     menuStore.loaded = true;
     menuStore.isAllowed.mockReturnValue(false);
     const runGuard = createGuardRunner({
-      allowedSkipMenuAuthRouteNames: ['MaintainToolPage']
+      forbiddenRoutePath: '/403'
     });
 
     await expect(
       runGuard({
-        path: '/maintain/tool',
-        fullPath: '/maintain/tool',
-        name: 'MaintainToolPage',
-        meta: { skipMenuAuth: true }
+        path: '/maintain/other',
+        fullPath: '/maintain/other?id=1'
       })
-    ).resolves.toBe(true);
-  });
-
-  it('严格模式下 skipMenuAuth 未命中白名单应拦截到 403', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    menuStore.loaded = true;
-    menuStore.isAllowed.mockReturnValue(false);
-    const runGuard = createGuardRunner({
-      forbiddenRoutePath: '/403',
-      allowedSkipMenuAuthRouteNames: ['MaintainToolPage']
-    });
-
-    const result = await runGuard({
-      path: '/maintain/other',
-      fullPath: '/maintain/other?id=1',
-      name: 'OtherMaintainPage',
-      meta: { skipMenuAuth: true }
-    });
-
-    expect(result).toEqual({
+    ).resolves.toEqual({
       path: '/403',
       query: { from: '/maintain/other?id=1' }
     });
-
-    warnSpy.mockRestore();
   });
 
   it('remote 模式下 remoteSynced=false 且 loaded=true 时应后台触发一次 loadMenus 且按 isAllowed 继续判定', async () => {

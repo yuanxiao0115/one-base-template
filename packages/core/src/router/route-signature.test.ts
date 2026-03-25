@@ -21,7 +21,7 @@ function createRoutes(): RouteRecordRaw[] {
     meta: {
       title: '门户配置',
       activePath: '/portal/setting',
-      skipMenuAuth: true
+      access: 'auth'
     },
     children: [designerRoute]
   } as RouteRecordRaw;
@@ -58,7 +58,7 @@ describe('router/route-signature', () => {
       name: 'PortalSetting',
       component: routeComponent,
       meta: {
-        skipMenuAuth: true,
+        access: 'auth',
         activePath: '/portal/setting',
         title: '门户配置'
       },

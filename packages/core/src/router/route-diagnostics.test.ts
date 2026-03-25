@@ -27,13 +27,11 @@ describe('router/route-diagnostics', () => {
 
   it('应输出确定性 diagnostics', () => {
     const diagnostics = createRouteAssemblyDiagnostics({
-      routes: mockRoutes,
-      skipMenuAuthRouteNames: ['RouteA']
+      routes: mockRoutes
     });
 
     expect(diagnostics).toEqual({
       routeCount: 3,
-      skipMenuAuthCount: 1,
       signature: getRouteSignature(mockRoutes)
     });
   });

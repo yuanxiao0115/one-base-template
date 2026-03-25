@@ -1,4 +1,4 @@
-import { createSkipMenuAuthRouteMeta } from '@/router/meta';
+import { createAuthRouteMeta } from '@/router/meta';
 import type { RouteRecordRaw } from 'vue-router';
 
 export default [
@@ -6,7 +6,7 @@ export default [
     path: 'home/index',
     name: 'HomeIndex',
     component: async () => import('./pages/HomePage.vue'),
-    meta: createSkipMenuAuthRouteMeta({
+    meta: createAuthRouteMeta({
       title: '首页',
       keepAlive: true,
       affix: true

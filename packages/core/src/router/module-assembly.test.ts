@@ -31,7 +31,7 @@ function createValidator(warnings: string[]) {
 }
 
 describe('core/router/module-assembly', () => {
-  it('应在路由构建时跳过冲突并收集 skipMenuAuth name', () => {
+  it('应在路由构建时跳过冲突', () => {
     const warnings: string[] = [];
     const validator = createValidator(warnings);
     const modules: RouteAssemblyModule[] = [
@@ -41,8 +41,7 @@ describe('core/router/module-assembly', () => {
           layout: [
             createViewRoute({
               path: '/portal/templates',
-              name: 'PortalTemplateList',
-              meta: { skipMenuAuth: true }
+              name: 'PortalTemplateList'
             }),
             createViewRoute({
               path: '/portal/templates',
@@ -65,7 +64,6 @@ describe('core/router/module-assembly', () => {
     });
 
     expect(routes).toHaveLength(1);
-    expect(validator.listSkipAuthRouteNames()).toEqual(['PortalTemplateList']);
     expect(warnings.some((message) => message.includes('重复 path'))).toBe(true);
     expect(warnings.some((message) => message.includes('保留 path'))).toBe(true);
   });

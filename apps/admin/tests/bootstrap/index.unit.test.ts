@@ -23,10 +23,8 @@ const mocks = vi.hoisted(() => {
     installRouteDynamicImportRecovery: vi.fn(),
     buildAppRoutes: vi.fn(async () => ({
       routes: [{ path: '/' }],
-      skipMenuAuthRouteNames: ['HomeIndex'],
       diagnostics: {
         routeCount: 1,
-        skipMenuAuthCount: 1,
         signature: 'route-signature'
       }
     })),
@@ -116,7 +114,7 @@ vi.mock('@/router/constants', () => ({
 }));
 
 vi.mock('@/router/public-routes', () => ({
-  guardPublicRoutePaths: ['/login', '/sso', '/403', '/404']
+  guardOpenRoutePaths: ['/login', '/sso']
 }));
 
 vi.mock('@/bootstrap/http', () => ({

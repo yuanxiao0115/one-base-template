@@ -67,7 +67,7 @@
 
 - 模块入口：`manifest.ts + module.ts`（先声明元数据，再按白名单装配路由）。
 - 菜单模式：`remote`（后端菜单树）或 `static`（静态路由生成）。
-- 权限判定：默认 `allowedPaths` 由菜单树推导，非菜单路由通过 `meta.activePath` 或 `meta.skipMenuAuth` 处理。
+- 权限判定：默认 `allowedPaths` 由菜单树推导；未声明 `access` 时按 `menu` 处理，非菜单页通过 `meta.activePath` 或 `meta.access='auth'` 处理。
 
 深度说明请看：
 

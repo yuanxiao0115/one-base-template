@@ -51,9 +51,10 @@ apps/admin/src/modules/<module-id>/
 
 - `core`：主链路模块，可按需 `enabledByDefault=true`
 - `optional`：实验/迁移模块；`enabledByDefault` 必须显式写为 `false`（类型层与注册器都会校验）
-- 若路由声明 `meta.skipMenuAuth=true`，必须提供稳定 `route.name`；应用启动时会从已装配路由自动收集白名单，未命名路由不会放行
 - `meta` 采用就近声明：
-  - 业务路由直接在路由项内显式声明 `skipMenuAuth`
+  - 未声明 `access` 时默认按 `menu` 处理
+  - 匿名页显式声明 `access: 'open'`
+  - 登录后可访问但不依赖菜单权限的页面显式声明 `access: 'auth'`
   - compat 别名由装配器统一补齐 `hideInMenu/hiddenTab/activePath`
 
 ### 快速创建模块（推荐）
@@ -120,7 +121,7 @@ await assembleRoutes({
 
 - 路由冲突统一采用 `warn + skip`，不再区分环境策略，降低心智负担
 - 路由装配职责已拆为：
-  - `route-assembly-builder`：递归构造模块路由、activePath 兼容、别名路由生成、冲突校验与 `skipMenuAuth` 路由名收集
+  - `route-assembly-builder`：递归构造模块路由、activePath 兼容、别名路由生成与冲突校验
   - 其中通用算法已下沉到 `packages/core/src/router/module-assembly.ts`，`apps/admin/src/router/route-assembly-builder.ts` 仅保留 admin 常量与日志适配
   - `registry` 的 manifest 校验与 enabledModules 筛选纯逻辑已下沉到 `packages/core/src/router/module-registry.ts`，`apps/admin/src/router/registry.ts` 仅保留 `import.meta.glob` 加载与缓存编排
   - 固定路由（layout/public/catchall）工厂已下沉到 `packages/core/src/router/fixed-routes.ts`，`apps/admin/src/router/assemble-routes.ts` 仅保留应用级参数编排
@@ -152,12 +153,12 @@ compat: {
 ### 2.3 守卫与 SSO 回调分层（第二/第三批优化）
 
 - `packages/core/src/router/guards.ts` 继续作为唯一守卫入口，但内部流程已拆为小函数：
-  - 公开路由判定（public/sso）
+  - 路由访问级别判定（`open/auth/menu`）
   - 登录页回跳判定（已登录访问 `/login` 时，优先按 `redirect/redirectUrl` 回到站内目标，否则回到 `/`）
   - `token/mixed` 模式下的 `/login` 前置判断（无 token 直接放行登录页；有 token 才进入 `ensureAuthed()`）
   - 登录跳转判定
   - 菜单同步与系统切换
-  - `skipMenuAuth` 严格白名单判定
+  - 菜单权限判定（仅 `menu` 路由触发）
 - 对应用层保持兼容：`setupRouterGuards(router, options)` 与 `RouterGuardOptions` 契约保持稳定；当前支持通过 `resolveAuthedLoginRedirect` 注入自定义回跳解析逻辑（用于 baseUrl 子路径部署等场景）。
 - `apps/admin/src/pages/sso/SsoCallbackPage.vue` 的参数分支匹配逻辑已下沉到
   `packages/core/src/auth/sso-callback-strategy.ts`，admin 侧只保留远端登录编排。

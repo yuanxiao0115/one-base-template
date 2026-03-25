@@ -88,22 +88,25 @@ describe('router/assemble-routes', () => {
     ).toBe(false);
   });
 
-  it('应从已装配路由自动收集 skipMenuAuth 白名单', async () => {
-    const { routes, skipMenuAuthRouteNames, diagnostics } = await buildAppRoutes(
+  it('应保留 access 语义并输出 diagnostics', async () => {
+    const { routes, diagnostics } = await buildAppRoutes(
       createRouteAssemblyOptions(['home', 'PortalManagement'])
     );
-
-    expect(skipMenuAuthRouteNames).toEqual(
-      expect.arrayContaining([
-        'HomeIndex',
-        'PortalTemplateList',
-        'PortalDesigner',
-        'PortalPageEditor'
-      ])
+    const allRoutes = flattenRoutes(routes);
+    const homeRoute = allRoutes.find(
+      (item) => isSamePath(item.path, '/home/index') && item.name === 'HomeIndex'
     );
-    expect(skipMenuAuthRouteNames).not.toContain('PortalPreview');
+    const previewRoute = allRoutes.find(
+      (item) => isSamePath(item.path, '/portal/preview') && item.name === 'PortalPreview'
+    );
+    const designerRoute = allRoutes.find(
+      (item) => isSamePath(item.path, '/portal/design') && item.name === 'PortalDesigner'
+    );
+
+    expect((homeRoute?.meta as Record<string, unknown> | undefined)?.access).toBe('auth');
+    expect((previewRoute?.meta as Record<string, unknown> | undefined)?.access).toBe('open');
+    expect((designerRoute?.meta as Record<string, unknown> | undefined)?.access).toBeUndefined();
     expect(diagnostics.routeCount).toBe(flattenRoutes(routes).length);
-    expect(diagnostics.skipMenuAuthCount).toBe(skipMenuAuthRouteNames.length);
     expect(diagnostics.signature).toBe(getRouteSignature(routes));
   });
 });

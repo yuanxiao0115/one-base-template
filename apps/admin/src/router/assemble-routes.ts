@@ -19,7 +19,6 @@ import { getEnabledModules } from './registry';
 import { routePaths } from './constants';
 
 const PUBLIC_ROUTE_META = Object.freeze({
-  public: true,
   hiddenTab: true
 });
 type RouteAssemblyArtifacts = {
@@ -30,7 +29,6 @@ type RouteAssemblyArtifacts = {
 
 export interface AppRouteAssemblyResult {
   routes: RouteRecordRaw[];
-  skipMenuAuthRouteNames: string[];
   diagnostics: RouteAssemblyDiagnostics;
 }
 
@@ -94,7 +92,7 @@ export async function buildAppRoutes(
     validator
   });
 
-  // 路由顺序保持“模块 standalone -> 历史 alias -> 固定公共路由”，与守卫白名单生成保持一致。
+  // 路由顺序保持“模块 standalone -> 历史 alias -> 固定路由”，避免装配结果漂移。
   const routes: RouteRecordRaw[] = [
     ...standaloneRoutes,
     ...aliasRoutes,
@@ -108,19 +106,20 @@ export async function buildAppRoutes(
       // 403/404 挂到 Layout 子路由，保留顶部栏与侧边栏。
       layoutPublicRouteNames: ['forbidden', 'not-found'],
       // 通配 404 走 push 语义，保留原始访问地址在历史栈中。
-      notFoundCatchallPath: routePaths.catchall
+      notFoundCatchallPath: routePaths.catchall,
+      notFoundCatchallMeta: {
+        access: 'auth',
+        hiddenTab: true
+      }
     })
   ];
 
-  const skipMenuAuthRouteNames = validator.listSkipAuthRouteNames();
   const diagnostics = createRouteAssemblyDiagnostics({
-    routes,
-    skipMenuAuthRouteNames
+    routes
   });
 
   return {
     routes,
-    skipMenuAuthRouteNames,
     diagnostics
   };
 }

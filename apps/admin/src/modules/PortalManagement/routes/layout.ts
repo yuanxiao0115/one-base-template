@@ -1,4 +1,4 @@
-import { createSkipMenuAuthRouteMeta, defineRouteMeta } from '@/router/meta';
+import { defineRouteMeta } from '@/router/meta';
 import type { RouteRecordRaw } from 'vue-router';
 
 export default [
@@ -14,7 +14,7 @@ export default [
     path: 'portal/setting',
     name: 'PortalTemplateList',
     component: async () => import('../templatePage/list.vue'),
-    meta: createSkipMenuAuthRouteMeta({
+    meta: defineRouteMeta({
       title: '门户配置',
       keepAlive: true,
       // 不要求后端改菜单：用老路径做权限归属（menuStore.allowedPaths 里通常是 /portal/setting）

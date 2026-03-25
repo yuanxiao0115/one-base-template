@@ -63,7 +63,6 @@ export interface RouteAssemblyValidator {
   saveRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext): void;
   hasAliasConflict(path: string, moduleId: string): boolean;
   saveAliasPath(path: string): void;
-  listSkipAuthRouteNames(): string[];
   warn(message: string): void;
 }
 
@@ -71,7 +70,6 @@ export interface CreateModuleRouteAssemblyValidatorOptions {
   reservedRoutePaths: ReadonlySet<string>;
   reservedRouteNames: ReadonlySet<string>;
   onWarn: (message: string) => void;
-  isSkipAuthRoute?: (route: RouteRecordRaw) => boolean;
   getRouteNameKey?: (name: RouteRecordRaw['name']) => string | null;
 }
 
@@ -92,17 +90,6 @@ function getSourceLabel(source: RouteSource): string {
   return source === 'layout' ? 'layout' : 'standalone';
 }
 
-function createSkipAuthChecker(isSkipAuthRoute?: (route: RouteRecordRaw) => boolean) {
-  if (isSkipAuthRoute) {
-    return isSkipAuthRoute;
-  }
-
-  return (route: RouteRecordRaw) => {
-    const meta = route.meta as Record<string, unknown> | undefined;
-    return meta?.skipMenuAuth === true;
-  };
-}
-
 export function createModuleRouteAssemblyValidator(
   options: CreateModuleRouteAssemblyValidatorOptions
 ): RouteAssemblyValidator {
@@ -110,14 +97,10 @@ export function createModuleRouteAssemblyValidator(
     reservedRoutePaths,
     reservedRouteNames,
     onWarn,
-    isSkipAuthRoute: customSkipAuthChecker,
     getRouteNameKey = toRouteNameKey
   } = options;
-
-  const isSkipAuthRoute = createSkipAuthChecker(customSkipAuthChecker);
   const usedPaths = new Set<string>();
   const usedNames = new Set<string>();
-  const skipMenuAuthRouteNames = new Set<string>();
 
   function getRouteName(name: RouteRecordRaw['name']): string | null {
     return getRouteNameKey(name);
@@ -166,25 +149,12 @@ export function createModuleRouteAssemblyValidator(
     return false;
   }
 
-  function saveRoute(route: RouteRecordRaw, fullPath: string, context: RouteCollectContext) {
+  function saveRoute(route: RouteRecordRaw, fullPath: string) {
     usedPaths.add(fullPath);
     const routeName = getRouteName(route.name);
     if (routeName) {
       usedNames.add(routeName);
     }
-
-    if (!isSkipAuthRoute(route)) {
-      return;
-    }
-
-    if (!routeName) {
-      onWarn(
-        `skipMenuAuth 路由缺少 name：${fullPath}（module=${context.moduleId} source=${context.source}），该路由不会加入守卫白名单。`
-      );
-      return;
-    }
-
-    skipMenuAuthRouteNames.add(routeName);
   }
 
   function hasAliasConflict(path: string, moduleId: string): boolean {
@@ -209,9 +179,6 @@ export function createModuleRouteAssemblyValidator(
     hasAliasConflict,
     saveAliasPath(path: string) {
       usedPaths.add(path);
-    },
-    listSkipAuthRouteNames() {
-      return [...skipMenuAuthRouteNames];
     },
     warn(message: string) {
       onWarn(message);

@@ -1,23 +1,24 @@
 import type { RouteMeta, RouteRecordRaw } from 'vue-router';
-import { buildRouteFullPath, toRouteNameKey } from '@one-base-template/core';
+import {
+  buildRouteFullPath,
+  getRouteAccess,
+  toRouteNameKey,
+  type RouteAccess
+} from '@one-base-template/core';
 
 export interface RoutePolicyEntry {
   name: string | null;
   path: string;
-  public: boolean;
-  skipMenuAuth: boolean;
+  access: RouteAccess;
   activePath?: string;
 }
 
 export interface RoutePolicyReport {
   routes: RoutePolicyEntry[];
-  publicRoutes: RoutePolicyEntry[];
-  skipMenuAuthRoutes: RoutePolicyEntry[];
+  openRoutes: RoutePolicyEntry[];
+  authRoutes: RoutePolicyEntry[];
+  menuRoutes: RoutePolicyEntry[];
   activePathRoutes: RoutePolicyEntry[];
-}
-
-function isMetaFlagEnabled(meta: RouteMeta | undefined, key: string): boolean {
-  return meta?.[key] === true;
 }
 
 function readActivePath(meta: RouteMeta | undefined): string | undefined {
@@ -42,8 +43,7 @@ function collectRoutePolicyEntries(
     const entry: RoutePolicyEntry = {
       name: toRouteNameKey(route.name),
       path: fullPath,
-      public: isMetaFlagEnabled(meta, 'public'),
-      skipMenuAuth: isMetaFlagEnabled(meta, 'skipMenuAuth')
+      access: getRouteAccess(meta)
     };
     const activePath = readActivePath(meta);
     if (activePath) {
@@ -70,14 +70,16 @@ export function buildRoutePolicyReport(routes: RouteRecordRaw[]): RoutePolicyRep
   const allRoutes: RoutePolicyEntry[] = [];
   collectRoutePolicyEntries(routes, '/', allRoutes);
 
-  const publicRoutes = allRoutes.filter((item) => item.public);
-  const skipMenuAuthRoutes = allRoutes.filter((item) => item.skipMenuAuth);
+  const openRoutes = allRoutes.filter((item) => item.access === 'open');
+  const authRoutes = allRoutes.filter((item) => item.access === 'auth');
+  const menuRoutes = allRoutes.filter((item) => item.access === 'menu');
   const activePathRoutes = allRoutes.filter((item) => Boolean(item.activePath));
 
   return {
     routes: sortByPathAndName(allRoutes),
-    publicRoutes: sortByPathAndName(publicRoutes),
-    skipMenuAuthRoutes: sortByPathAndName(skipMenuAuthRoutes),
+    openRoutes: sortByPathAndName(openRoutes),
+    authRoutes: sortByPathAndName(authRoutes),
+    menuRoutes: sortByPathAndName(menuRoutes),
     activePathRoutes: sortByPathAndName(activePathRoutes)
   };
 }

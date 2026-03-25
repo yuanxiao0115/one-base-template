@@ -6,6 +6,7 @@ export interface PublicRouteDefinition {
   path: string;
   name: string;
   component: RouteComponent;
+  meta?: RouteRecordRaw['meta'];
 }
 
 export interface BuildFixedRoutesOptions {
@@ -18,6 +19,7 @@ export interface BuildFixedRoutesOptions {
   layoutPublicRouteNames?: string[];
   notFoundCatchallPath: string;
   notFoundPath?: string;
+  notFoundCatchallMeta?: RouteRecordRaw['meta'];
 }
 
 function createPublicRoute(
@@ -28,7 +30,10 @@ function createPublicRoute(
     path: route.path,
     name: route.name,
     component: route.component,
-    meta
+    meta: {
+      ...meta,
+      ...route.meta
+    }
   };
 }
 
@@ -41,7 +46,12 @@ function createNotFoundCatchallRoute(params: {
 
   return {
     path,
-    redirect: () => notFoundPath,
+    redirect: (to) => ({
+      path: notFoundPath,
+      query: {
+        from: to.fullPath
+      }
+    }),
     meta
   };
 }
@@ -80,7 +90,8 @@ export function buildFixedRoutes(options: BuildFixedRoutesOptions): RouteRecordR
     publicRoutes,
     layoutPublicRouteNames,
     notFoundCatchallPath,
-    notFoundPath
+    notFoundPath,
+    notFoundCatchallMeta
   } = options;
   const resolvedNotFoundPath = resolveNotFoundPath({
     publicRoutes,
@@ -110,7 +121,7 @@ export function buildFixedRoutes(options: BuildFixedRoutesOptions): RouteRecordR
     createNotFoundCatchallRoute({
       path: notFoundCatchallPath,
       notFoundPath: resolvedNotFoundPath,
-      meta: publicRouteMeta
+      meta: notFoundCatchallMeta ?? publicRouteMeta
     })
   ];
 }

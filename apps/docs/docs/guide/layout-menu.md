@@ -223,7 +223,7 @@ admin 当前顶栏在 `apps/admin/src/components/top/AdminTopBar.vue`，基于 `
 
 守卫逻辑会以 `menuKey = to.meta.activePath ?? to.path` 做系统识别与权限校验。
 
-## 本地维护路由（未进菜单）与 meta.skipMenuAuth
+## 本地维护路由（未进菜单）与 meta.access='auth'
 
 有些页面可能由前端先行维护（或开发期联调临时页），暂时**不会出现在后端菜单**里。
 
@@ -236,17 +236,17 @@ admin 当前顶栏在 `apps/admin/src/components/top/AdminTopBar.vue`，基于 `
   path: '/local/page',
   component: () => import('./LocalPage.vue'),
   meta: {
-    skipMenuAuth: true
+    access: 'auth'
   }
 }
 ```
 
 注意：
 
-- `skipMenuAuth` 只会跳过“菜单 allowedPaths 校验”，不会跳过登录校验（仍会被重定向到 `/login`）。
+- `access: 'auth'` 只会跳过“菜单 allowedPaths 校验”，不会跳过登录校验（仍会被重定向到 `/login`）。
 - `token` 模式下的登录态以“本地 token + 当前用户态”共同成立为准；仅残留 `ob_auth_user` 缓存不会放行路由。
 - 该能力会放宽前端权限控制，应谨慎使用；**能用 `activePath` 归属到已有菜单时，优先用 `activePath`**。
-- admin 默认首页 `/home/index` 已按本地静态页处理，使用 `skipMenuAuth` 放行登录后访问，避免被远端菜单差异误拦截到 `403`。
+- admin 默认首页 `/home/index` 已按本地静态页处理，使用 `access: 'auth'` 放行登录后访问，避免被远端菜单差异误拦截到 `403`。
 
 ## 菜单 icon：class / url / minio id / iconify
 

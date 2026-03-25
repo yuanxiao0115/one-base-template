@@ -1,3 +1,4 @@
+import type { RouteAccess } from '@one-base-template/core';
 import type { RouteMeta } from 'vue-router';
 
 export interface AdminRouteMeta extends RouteMeta {
@@ -7,10 +8,9 @@ export interface AdminRouteMeta extends RouteMeta {
   rank?: number;
   keepAlive?: boolean;
   affix?: boolean;
-  public?: boolean;
+  access?: RouteAccess;
   hideInMenu?: boolean;
   activePath?: string;
-  skipMenuAuth?: boolean;
   hiddenTab?: boolean;
   noTag?: boolean;
   fullScreen?: boolean;
@@ -25,37 +25,37 @@ export function defineRouteMeta<TMeta extends AdminRouteMeta>(meta: TMeta): TMet
 }
 
 /**
- * 公开路由：默认隐藏标签页，避免污染 tabs。
+ * 开放路由：未登录也可访问，默认隐藏标签页。
  */
-export function createPublicRouteMeta(meta: Omit<AdminRouteMeta, 'public' | 'hiddenTab'> = {}) {
+export function createOpenRouteMeta(meta: Omit<AdminRouteMeta, 'access' | 'hiddenTab'> = {}) {
   return defineRouteMeta({
-    public: true,
+    access: 'open',
     hiddenTab: true,
     ...meta
   });
 }
 
 /**
- * 本地维护路由：仍需登录，但跳过菜单权限判定。
+ * 登录后可访问但不依赖菜单权限的路由。
  */
-export function createSkipMenuAuthRouteMeta(meta: Omit<AdminRouteMeta, 'skipMenuAuth'>) {
+export function createAuthRouteMeta(meta: Omit<AdminRouteMeta, 'access'>) {
   return defineRouteMeta({
-    skipMenuAuth: true,
+    access: 'auth',
     ...meta
   });
 }
 
 /**
- * 全屏工作区路由：统一收敛全屏与标签页隐藏策略，并要求 skipMenuAuth。
+ * 全屏工作区路由：统一收敛全屏与标签页隐藏策略，但不走菜单权限。
  */
-export function createFullscreenSkipMenuAuthRouteMeta(
-  meta: Omit<AdminRouteMeta, 'fullScreen' | 'hideTabsBar' | 'hiddenTab' | 'skipMenuAuth'>
+export function createFullscreenAuthRouteMeta(
+  meta: Omit<AdminRouteMeta, 'access' | 'fullScreen' | 'hideTabsBar' | 'hiddenTab'>
 ) {
   return defineRouteMeta({
+    access: 'auth',
     fullScreen: true,
     hideTabsBar: true,
     hiddenTab: true,
-    skipMenuAuth: true,
     ...meta
   });
 }

@@ -1,17 +1,16 @@
-import type { RouteLocationNormalized, Router } from 'vue-router';
+import type { RouteLocationNormalized, RouteLocationRaw, Router } from 'vue-router';
 import { getCoreOptions } from '../context';
 import { useAuthStore } from '../stores/auth';
 import { useMenuStore } from '../stores/menu';
 import { useSystemStore } from '../stores/system';
-import { toRouteNameKey } from './route-utils';
+import { buildLoginRedirectLocation } from './redirect';
+import { getRouteAccess } from './route-access';
 
-const DEFAULT_PUBLIC_PATHS = ['/login', '/sso', '/403', '/404'] as const;
+const DEFAULT_OPEN_PATHS = ['/login', '/sso'] as const;
 const DEFAULT_LOGIN_PATH = '/login';
 const DEFAULT_FORBIDDEN_PATH = '/403';
 
-function isPublicRoute(path: string, publicPaths: Set<string>) {
-  return publicPaths.has(path);
-}
+type GuardResult = true | RouteLocationRaw;
 
 function resolveMenuKey(to: { path: string; meta: Record<string, unknown> }): string {
   const raw = to.meta.activePath;
@@ -20,15 +19,15 @@ function resolveMenuKey(to: { path: string; meta: Record<string, unknown> }): st
 
 export interface RouterGuardOptions {
   /**
-   * 每次导航开始前触发（位于鉴权/菜单守卫之前）。
-   * 典型场景：中断上一页在途请求，保证路由切换响应优先级。
+   * 每次导航开始前触发（位于鉴权与菜单判断之前）。
    */
   onNavigationStart?: (ctx: {
     to: RouteLocationNormalized;
     from: RouteLocationNormalized;
   }) => void | Promise<void>;
   /**
-   * 公开路由路径集合，命中后直接放行。
+   * 额外开放路由路径。
+   * 兼容 template / portal 这类尚未完全迁到 meta.access 的场景。
    */
   publicRoutePaths?: string[];
   /**
@@ -40,43 +39,9 @@ export interface RouterGuardOptions {
    */
   forbiddenRoutePath?: string;
   /**
-   * 已登录访问登录页时的回跳路径解析器。
-   * - 未传入时，使用 core 默认安全规则（仅站内路径）。
-   * - 业务可注入 baseUrl 感知逻辑（例如子路径部署）。
+   * 已登录访问登录页时的回跳解析器。
    */
   resolveAuthedLoginRedirect?: (ctx: { to: RouteLocationNormalized }) => string;
-  /**
-   * `meta.skipMenuAuth=true` 的路由白名单（按 route.name）。
-   * 未配置时保持兼容：允许所有 skipMenuAuth。
-   * 只要显式传入（包括空数组）就启用严格模式：不在白名单内的 skipMenuAuth 路由不会放行。
-   */
-  allowedSkipMenuAuthRouteNames?: string[];
-}
-
-type GuardResult = true | { path: string; query: Record<string, string> };
-
-interface GuardRuntimeContext {
-  to: RouteLocationNormalized;
-  forbiddenRoutePath: string;
-  strictSkipMenuAuth: boolean;
-  allowedSkipMenuAuthRouteNames: Set<string>;
-}
-
-function isSsoRoute(params: {
-  to: RouteLocationNormalized;
-  ssoEnabled: boolean;
-  ssoRoutePath: string;
-}) {
-  const { to, ssoEnabled, ssoRoutePath } = params;
-  return ssoEnabled && to.path === ssoRoutePath;
-}
-
-function isExplicitPublicRoute(to: RouteLocationNormalized, publicRoutePaths: Set<string>) {
-  return Boolean(to.meta.public) || isPublicRoute(to.path, publicRoutePaths);
-}
-
-function isSkipMenuAuthRoute(to: RouteLocationNormalized) {
-  return (to.meta as Record<string, unknown>).skipMenuAuth === true;
 }
 
 function isNonEmptyString(value: unknown): value is string {
@@ -113,25 +78,24 @@ function shouldAllowTokenlessLoginRoute(params: {
   }
 }
 
-function buildLoginRedirect(to: RouteLocationNormalized, loginRoutePath: string): GuardResult {
-  return {
-    path: loginRoutePath,
-    query: { redirect: to.fullPath }
-  };
-}
-
-function resolveLoginSuccessRedirect(to: RouteLocationNormalized): string {
+function buildAuthedLoginRedirect(to: RouteLocationNormalized): GuardResult {
   const rawRedirect = to.query.redirect ?? to.query.redirectUrl;
-  if (typeof rawRedirect !== 'string') {
-    return '/';
+  const fallback = '/';
+  if (
+    typeof rawRedirect !== 'string' ||
+    !rawRedirect.startsWith('/') ||
+    rawRedirect.startsWith('//')
+  ) {
+    return {
+      path: fallback,
+      query: {}
+    };
   }
-  if (!rawRedirect.startsWith('/')) {
-    return '/';
-  }
-  if (rawRedirect.startsWith('//')) {
-    return '/';
-  }
-  return rawRedirect;
+
+  return {
+    path: rawRedirect,
+    query: {}
+  };
 }
 
 function buildAuthedLoginRedirectWithResolver(params: {
@@ -144,24 +108,18 @@ function buildAuthedLoginRedirectWithResolver(params: {
   }
 
   try {
-    const resolvedPath = resolveAuthedLoginRedirect({ to });
-    if (typeof resolvedPath !== 'string' || !resolvedPath) {
-      return buildAuthedLoginRedirect(to);
+    const path = resolveAuthedLoginRedirect({ to });
+    if (typeof path === 'string' && path) {
+      return {
+        path,
+        query: {}
+      };
     }
-    return {
-      path: resolvedPath,
-      query: {}
-    };
   } catch {
-    return buildAuthedLoginRedirect(to);
+    // 解析器异常时回退到默认站内跳转。
   }
-}
 
-function buildAuthedLoginRedirect(to: RouteLocationNormalized): GuardResult {
-  return {
-    path: resolveLoginSuccessRedirect(to),
-    query: {}
-  };
+  return buildAuthedLoginRedirect(to);
 }
 
 function buildForbiddenRedirect(
@@ -170,8 +128,22 @@ function buildForbiddenRedirect(
 ): GuardResult {
   return {
     path: forbiddenRoutePath,
-    query: { from: to.fullPath }
+    query: {
+      from: to.fullPath
+    }
   };
+}
+
+function getDefaultAccess(params: {
+  to: RouteLocationNormalized;
+  loginRoutePath: string;
+  openRoutePaths: Set<string>;
+}) {
+  const { to, loginRoutePath, openRoutePaths } = params;
+  if (to.path === loginRoutePath || openRoutePaths.has(to.path)) {
+    return 'open' as const;
+  }
+  return 'menu' as const;
 }
 
 async function syncRemoteMenusIfNeeded(params: {
@@ -199,14 +171,11 @@ async function syncRemoteMenusIfNeeded(params: {
       return;
     }
     markBackgroundSyncAttempted();
-    // 已有缓存时采用“先放行，后同步”，避免首跳被远端慢接口明显阻塞。
-    void loadMenus().catch(() => {
-      // 同步失败由全局 http hooks 统一处理（如 401 跳登录），这里避免未捕获告警。
-    });
+    // 已有缓存时走后台同步，减少正常跳转阻塞。
+    void loadMenus().catch(() => {});
     return;
   }
 
-  // 无缓存时仍需阻塞拉取，确保首次鉴权边界可靠。
   await loadMenus();
 }
 
@@ -240,64 +209,31 @@ async function switchSystemByMenuKeyIfNeeded(params: {
     loadMenus
   } = params;
 
-  const resolvedSystem = resolveSystemByMenuKey(menuKey);
-  if (!resolvedSystem || resolvedSystem === currentSystemCode) {
+  const nextSystemCode = resolveSystemByMenuKey(menuKey);
+  if (!nextSystemCode || nextSystemCode === currentSystemCode) {
     return;
   }
 
-  setCurrentSystem(resolvedSystem);
-  // 如果切到的新系统尚未加载（极少发生：缓存不全/系统列表变化），兜底再拉一次
+  setCurrentSystem(nextSystemCode);
   if (shouldLoadMenus({ loaded, isRemoteMenuMode, remoteSynced })) {
     await loadMenus();
   }
 }
 
-function resolveSkipMenuAuthGuardResult(params: GuardRuntimeContext): GuardResult {
-  const { to, forbiddenRoutePath, strictSkipMenuAuth, allowedSkipMenuAuthRouteNames } = params;
-  if (!strictSkipMenuAuth) {
-    return true;
-  }
-
-  const routeName = toRouteNameKey(to.name);
-  if (!routeName) {
-    console.warn(`[core/router/guards] skipMenuAuth 路由缺少 name：${to.path}`);
-    return buildForbiddenRedirect(to, forbiddenRoutePath);
-  }
-
-  if (allowedSkipMenuAuthRouteNames.has(routeName)) {
-    return true;
-  }
-
-  console.warn(
-    `[core/router/guards] skipMenuAuth 路由未加入白名单：name=${routeName}, path=${to.path}`
-  );
-  return buildForbiddenRedirect(to, forbiddenRoutePath);
-}
-
-async function resolveMenuGuardResult(params: {
-  guardContext: GuardRuntimeContext;
-  isSkipMenuAuth: boolean;
+async function checkMenuAccess(params: {
+  to: RouteLocationNormalized;
+  forbiddenRoutePath: string;
   isRemoteMenuMode: boolean;
 }): Promise<GuardResult> {
-  const { guardContext, isSkipMenuAuth, isRemoteMenuMode } = params;
-  const { to, forbiddenRoutePath } = guardContext;
+  const { to, forbiddenRoutePath, isRemoteMenuMode } = params;
   const menuStore = useMenuStore();
   const systemStore = useSystemStore();
-
-  // 详情/编辑等“非菜单路由”通过 meta.activePath 归属到某个菜单入口：
-  // - 归属系统：用 activePath 反查 systemCode
-  // - 权限校验：以 activePath 为准（只要有菜单权限即可访问详情页）
   const menuKey = resolveMenuKey({ path: to.path, meta: to.meta as Record<string, unknown> });
 
-  // 若当前系统的菜单缓存已就绪，且该路由在当前系统的白名单内，则保持当前系统不变。
-  // 这能避免：
-  // 1) 多系统存在相同 path 时，根据 pathIndex 猜系统导致“刷新后切回默认系统”
-  // 2) 业务未配置 systemHomeMap 时，根路径兜底跳到某个公共首页再被错误切系统
   if (menuStore.loaded && menuStore.isAllowed(menuKey)) {
     return true;
   }
 
-  // 若当前系统菜单未加载，先加载（remote 模式通常一次拉取所有系统菜单）
   if (
     shouldLoadMenus({
       loaded: menuStore.loaded,
@@ -308,13 +244,10 @@ async function resolveMenuGuardResult(params: {
     await menuStore.loadMenus();
   }
 
-  // 菜单加载后如果当前系统已允许访问该路由，则无需再做“按路径切系统”。
-  // 这对“多系统存在相同 path”或“业务未配置 systemHomeMap”场景尤为重要：应以用户当前系统为准，避免刷新时被覆盖。
   if (menuStore.isAllowed(menuKey)) {
     return true;
   }
 
-  // 当前系统不允许访问该路由时，再尝试根据 menuKey 解析目标系统并切换
   await switchSystemByMenuKeyIfNeeded({
     menuKey,
     currentSystemCode: systemStore.currentSystemCode,
@@ -326,26 +259,13 @@ async function resolveMenuGuardResult(params: {
     loadMenus: () => menuStore.loadMenus()
   });
 
-  // 菜单树决定可访问路由：不在 allowedPaths 的一律 403（详情页以 menuKey=activePath 判定）
-  if (!menuStore.isAllowed(menuKey)) {
-    // 某些“本地维护但暂未接入菜单”的页面，允许在已登录的前提下跳过菜单权限校验
-    // 注意：这会放宽前端路由层面的权限控制，应谨慎使用（优先用 activePath 归属到某个菜单入口）。
-    if (isSkipMenuAuth) {
-      return resolveSkipMenuAuthGuardResult(guardContext);
-    }
-    return buildForbiddenRedirect(to, forbiddenRoutePath);
-  }
-
-  return true;
+  return menuStore.isAllowed(menuKey) ? true : buildForbiddenRedirect(to, forbiddenRoutePath);
 }
 
 export function setupRouterGuards(router: Router, options: RouterGuardOptions = {}) {
-  const publicRoutePaths = new Set<string>(options.publicRoutePaths ?? [...DEFAULT_PUBLIC_PATHS]);
+  const openRoutePaths = new Set<string>(options.publicRoutePaths ?? [...DEFAULT_OPEN_PATHS]);
   const loginRoutePath = options.loginRoutePath ?? DEFAULT_LOGIN_PATH;
   const forbiddenRoutePath = options.forbiddenRoutePath ?? DEFAULT_FORBIDDEN_PATH;
-  const hasSkipMenuAuthAllowList = Array.isArray(options.allowedSkipMenuAuthRouteNames);
-  const allowedSkipMenuAuthRouteNames = new Set(options.allowedSkipMenuAuthRouteNames ?? []);
-  const strictSkipMenuAuth = hasSkipMenuAuthAllowList;
   let remoteBackgroundSyncAttempted = false;
 
   router.beforeEach(async (to, from) => {
@@ -353,17 +273,6 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
 
     const coreOptions = getCoreOptions();
     const authStore = useAuthStore();
-
-    // SSO 回调路由默认视为公开
-    if (
-      isSsoRoute({
-        to,
-        ssoEnabled: coreOptions.sso.enabled,
-        ssoRoutePath: coreOptions.sso.routePath
-      })
-    ) {
-      return true;
-    }
 
     if (to.path === loginRoutePath) {
       if (
@@ -377,24 +286,37 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
       }
 
       const authed = await authStore.ensureAuthed();
-      if (authed) {
-        return buildAuthedLoginRedirectWithResolver({
-          to,
-          resolveAuthedLoginRedirect: options.resolveAuthedLoginRedirect
-        });
-      }
-      return true;
+      return authed
+        ? buildAuthedLoginRedirectWithResolver({
+            to,
+            resolveAuthedLoginRedirect: options.resolveAuthedLoginRedirect
+          })
+        : true;
     }
 
-    if (isExplicitPublicRoute(to, publicRoutePaths)) {
+    const access = getRouteAccess(
+      to.meta,
+      getDefaultAccess({
+        to,
+        loginRoutePath,
+        openRoutePaths
+      })
+    );
+
+    if (access === 'open') {
       return true;
     }
-
-    const skipMenuAuth = isSkipMenuAuthRoute(to);
 
     const authed = await authStore.ensureAuthed();
     if (!authed) {
-      return buildLoginRedirect(to, loginRoutePath);
+      return buildLoginRedirectLocation({
+        to,
+        loginRoutePath
+      });
+    }
+
+    if (access === 'auth') {
+      return true;
     }
 
     const menuStore = useMenuStore();
@@ -409,14 +331,9 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
       }
     });
 
-    return resolveMenuGuardResult({
-      guardContext: {
-        to,
-        forbiddenRoutePath,
-        strictSkipMenuAuth,
-        allowedSkipMenuAuthRouteNames
-      },
-      isSkipMenuAuth: skipMenuAuth,
+    return checkMenuAccess({
+      to,
+      forbiddenRoutePath,
       isRemoteMenuMode: coreOptions.menuMode === 'remote'
     });
   });

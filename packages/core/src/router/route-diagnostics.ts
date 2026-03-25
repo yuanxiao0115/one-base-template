@@ -3,7 +3,6 @@ import { getRouteSignature } from './route-signature';
 
 export interface RouteAssemblyDiagnostics {
   routeCount: number;
-  skipMenuAuthCount: number;
   signature: string;
 }
 
@@ -16,12 +15,10 @@ export function getRouteCount(routes: RouteRecordRaw[]): number {
 
 export function createRouteAssemblyDiagnostics(params: {
   routes: RouteRecordRaw[];
-  skipMenuAuthRouteNames: string[];
 }): RouteAssemblyDiagnostics {
-  const { routes, skipMenuAuthRouteNames } = params;
+  const { routes } = params;
   return {
     routeCount: getRouteCount(routes),
-    skipMenuAuthCount: skipMenuAuthRouteNames.length,
     signature: getRouteSignature(routes)
   };
 }
