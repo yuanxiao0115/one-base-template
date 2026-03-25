@@ -10154,3 +10154,21 @@
     - 新增源码约束：必须包含上述已登录兜底回跳逻辑，防止后续回退。
 - 说明：
   - 当前保留“direct token 先于配置加载”的原有顺序，避免影响直登链路性能与行为。
+
+## 2026-03-25（按用户要求收口到全局守卫：/login 按 token 有无分支）
+
+- 用户要求：不要在登录页做兜底回跳，统一在全局路由守卫处理 `/login`，并按“有 token / 无 token”分支。
+- 调整内容：
+  - `packages/core/src/router/guards.ts`
+    - `/login` 分支新增 token 前置判断：
+      - `auth.mode=token|mixed` 且无 token：直接放行登录页（不再触发 `ensureAuthed`）。
+      - 有 token：继续执行 `ensureAuthed`，已登录则回跳，未登录进入登录页。
+  - `packages/core/src/router/guards.test.ts`
+    - 新增回归：`token` 模式下无 token 访问 `/login`，应放行且不触发 `ensureAuthed`。
+  - `apps/admin/src/pages/login/LoginPage.vue`
+    - 移除页面级 `ensureAuthed` 回跳逻辑，避免“先进登录页再回跳”的抖动。
+  - `apps/admin/tests/architecture/login-route-robustness-source.unit.test.ts`
+    - 移除对应页面级兜底约束。
+- 文档同步：
+  - `packages/core/README.md`
+  - `apps/docs/docs/guide/module-system.md`

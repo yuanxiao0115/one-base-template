@@ -116,6 +116,7 @@ declare module '@one-base-template/core' {
 - `setupRouterGuards(router, options?)`：默认实现“未登录跳转登录页 + 菜单 allowedPaths 控制访问”
   - 可注入 `publicRoutePaths/loginRoutePath/forbiddenRoutePath`，避免路由常量多处硬编码
   - 可配置 `allowedSkipMenuAuthRouteNames`，对白名单外的 `skipMenuAuth` 路由执行拒绝并告警（显式传入空数组也会启用严格模式）
+  - `token/mixed` 模式访问 `/login` 时会先按 token 是否存在分支：无 token 直接进入登录页；有 token 再执行 `ensureAuthed()` 判定并按已登录态回跳
 - `installRouteDynamicImportRecovery(router)`：动态 import chunk 加载失败自动恢复（单路由一次重试，避免死循环刷新）
 - `menuMode=remote|static`
   - `remote`：菜单树来自 adapter（后端）

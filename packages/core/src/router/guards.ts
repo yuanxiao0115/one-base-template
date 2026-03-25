@@ -79,6 +79,40 @@ function isSkipMenuAuthRoute(to: RouteLocationNormalized) {
   return (to.meta as Record<string, unknown>).skipMenuAuth === true;
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function shouldAllowTokenlessLoginRoute(params: {
+  authMode: unknown;
+  tokenKey: unknown;
+  authStore: Record<string, unknown>;
+}) {
+  const { authMode, tokenKey, authStore } = params;
+  if (authMode !== 'token' && authMode !== 'mixed') {
+    return false;
+  }
+
+  const hasTokenSession = authStore.hasTokenSession;
+  if (typeof hasTokenSession === 'function') {
+    try {
+      return !(hasTokenSession as () => unknown)();
+    } catch {
+      return true;
+    }
+  }
+
+  if (!isNonEmptyString(tokenKey)) {
+    return false;
+  }
+
+  try {
+    return !isNonEmptyString(globalThis.localStorage?.getItem(tokenKey));
+  } catch {
+    return true;
+  }
+}
+
 function buildLoginRedirect(to: RouteLocationNormalized, loginRoutePath: string): GuardResult {
   return {
     path: loginRoutePath,
@@ -332,6 +366,16 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     }
 
     if (to.path === loginRoutePath) {
+      if (
+        shouldAllowTokenlessLoginRoute({
+          authMode: coreOptions.auth?.mode,
+          tokenKey: coreOptions.auth?.tokenKey,
+          authStore: authStore as unknown as Record<string, unknown>
+        })
+      ) {
+        return true;
+      }
+
       const authed = await authStore.ensureAuthed();
       if (authed) {
         return buildAuthedLoginRedirectWithResolver({

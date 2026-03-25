@@ -26,15 +26,6 @@ describe('architecture/login-route-robustness-source', () => {
     expect(source).toContain('return;');
   });
 
-  it('登录页应在 direct token 之后增加已登录兜底回跳，避免守卫失效时停留登录页', () => {
-    const source = readSourceFile('src/pages/login/LoginPage.vue');
-
-    expect(source).toContain('const authed = await authStore.ensureAuthed();');
-    expect(source).toContain('if (authed) {');
-    expect(source).toContain('await router.replace(getRedirectTarget());');
-    expect(source).toContain('return;');
-  });
-
   it('SSO 失败分支应同时清理 token 与 idToken', () => {
     const source = readSourceFile('src/pages/sso/SsoCallbackPage.vue');
 

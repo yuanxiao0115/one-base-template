@@ -31,6 +31,7 @@ import { setupRouterGuards } from './guards';
 
 interface MockAuthStore {
   ensureAuthed: ReturnType<typeof vi.fn<() => Promise<boolean>>>;
+  hasTokenSession: ReturnType<typeof vi.fn<() => boolean>>;
 }
 
 interface MockMenuStore {
@@ -93,7 +94,8 @@ describe('setupRouterGuards', () => {
 
   beforeEach(() => {
     authStore = {
-      ensureAuthed: vi.fn(async () => true)
+      ensureAuthed: vi.fn(async () => true),
+      hasTokenSession: vi.fn(() => true)
     };
 
     menuStore = {
@@ -110,6 +112,10 @@ describe('setupRouterGuards', () => {
     };
 
     mocks.getCoreOptions.mockReturnValue({
+      auth: {
+        mode: 'token',
+        tokenKey: 'token'
+      },
       sso: {
         enabled: false,
         routePath: '/sso'
@@ -178,6 +184,21 @@ describe('setupRouterGuards', () => {
         fullPath: '/login'
       })
     ).resolves.toBe(true);
+  });
+
+  it('token 模式下无 token 访问 /login 时应直接进入登录页且不触发登录态校验', async () => {
+    authStore.hasTokenSession.mockReturnValue(false);
+    const runGuard = createGuardRunner({
+      loginRoutePath: '/login'
+    });
+
+    await expect(
+      runGuard({
+        path: '/login',
+        fullPath: '/login'
+      })
+    ).resolves.toBe(true);
+    expect(authStore.ensureAuthed).not.toHaveBeenCalled();
   });
 
   it('已登录访问 /login 时应支持自定义回跳解析器', async () => {

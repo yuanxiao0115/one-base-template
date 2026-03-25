@@ -8549,3 +8549,21 @@
   - `test:e2e:minimal-auth` 通过（core/admin）。
   - `apps/admin typecheck` 通过。
   - `apps/admin lint` 通过，保留历史非阻断 warning：`OrgManagerDialog.vue` `max-lines`。
+
+## 2026-03-25（按用户要求收口到全局守卫：/login 按 token 有无分支）
+
+- 命令：
+  - `pnpm -C packages/core test:run -- src/router/guards.test.ts src/router/auth-minimal-e2e.unit.test.ts`
+  - `pnpm -C apps/admin test:run -- tests/architecture/login-route-robustness-source.unit.test.ts tests/bootstrap/index.unit.test.ts`
+  - `pnpm test:e2e:minimal-auth`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C packages/core lint`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - core/admin 相关测试通过。
+  - `test:e2e:minimal-auth` 通过。
+  - `typecheck/lint`（core/admin）通过；admin 保留历史非阻断 `max-lines` warning。
+  - docs lint/build 通过。
