@@ -2,6 +2,15 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, loadEnv } from 'vite-plus';
 import { adminBuildConfig, adminFmtConfig, createAdminPlugins } from './build';
 
+const INTERNAL_WORKSPACE_PACKAGES = [
+  '@one-base-template/core',
+  '@one-base-template/ui',
+  '@one-base-template/tag',
+  '@one-base-template/adapters',
+  '@one-base-template/portal-engine',
+  '@one-base-template/app-starter'
+] as const;
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiBaseUrl = env.VITE_API_BASE_URL;
@@ -18,8 +27,8 @@ export default defineConfig(({ mode }) => {
       }
     },
     optimizeDeps: {
-      // workspace 包频繁迭代时，避免 Vite 预构建缓存导致导出项不一致（如新增组件导出后 dev 仍读旧缓存）
-      exclude: ['@one-base-template/ui']
+      // workspace 源码包频繁迭代时，不走预构建缓存，避免新增导出后 dev 仍命中旧导出表。
+      exclude: [...INTERNAL_WORKSPACE_PACKAGES]
     },
     build: adminBuildConfig,
     fmt: adminFmtConfig,

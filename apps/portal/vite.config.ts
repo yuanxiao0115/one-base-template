@@ -3,6 +3,15 @@ import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite-plus';
 import { createOneAppManualChunks } from '../../scripts/vite/manual-chunks';
 
+const INTERNAL_WORKSPACE_PACKAGES = [
+  '@one-base-template/core',
+  '@one-base-template/ui',
+  '@one-base-template/tag',
+  '@one-base-template/adapters',
+  '@one-base-template/portal-engine',
+  '@one-base-template/app-starter'
+] as const;
+
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -14,7 +23,8 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    exclude: ['@one-base-template/ui']
+    // workspace 源码包不走预构建缓存，避免导出项变更后仍命中旧依赖快照。
+    exclude: [...INTERNAL_WORKSPACE_PACKAGES]
   },
   build: {
     chunkSizeWarningLimit: 3000,
