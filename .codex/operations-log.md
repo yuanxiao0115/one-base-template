@@ -10140,3 +10140,17 @@
 - 文档同步：
   - `packages/core/README.md`
   - `apps/docs/docs/guide/module-system.md`
+
+## 2026-03-25（登录页入口兜底：已登录访问 /login 立即回跳）
+
+- 背景：用户反馈已登录后手输 `/login` 仍停留登录页，要求在进入登录页前就做拦截判断。
+- 实施：
+  - `apps/admin/src/pages/login/LoginPage.vue`
+    - 引入 `useAuthStore`。
+    - 在 `onMounted` 的 `direct token` 分支后、加载登录页配置前，新增：
+      - `const authed = await authStore.ensureAuthed()`
+      - `authed === true` 时立即 `router.replace(getRedirectTarget())` 并 `return`。
+  - `apps/admin/tests/architecture/login-route-robustness-source.unit.test.ts`
+    - 新增源码约束：必须包含上述已登录兜底回跳逻辑，防止后续回退。
+- 说明：
+  - 当前保留“direct token 先于配置加载”的原有顺序，避免影响直登链路性能与行为。

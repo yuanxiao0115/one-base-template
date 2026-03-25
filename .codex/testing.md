@@ -8536,3 +8536,16 @@
   - `test:e2e:minimal-auth` 聚合链路通过。
   - `packages/core typecheck/lint` 通过。
   - admin bootstrap 单测通过。
+
+## 2026-03-25（登录页入口兜底：已登录访问 /login 立即回跳）
+
+- 命令：
+  - `pnpm -C apps/admin test:run -- tests/architecture/login-route-robustness-source.unit.test.ts tests/bootstrap/index.unit.test.ts`
+  - `pnpm test:e2e:minimal-auth`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+- 结果：
+  - admin 定向测试通过（`50 files / 141 tests`）。
+  - `test:e2e:minimal-auth` 通过（core/admin）。
+  - `apps/admin typecheck` 通过。
+  - `apps/admin lint` 通过，保留历史非阻断 warning：`OrgManagerDialog.vue` `max-lines`。

@@ -3,7 +3,8 @@ import {
   buildLoginScenario,
   finalizeAuthSession,
   loginByPassword,
-  resolveAppRedirectTarget
+  resolveAppRedirectTarget,
+  useAuthStore
 } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
 import { LoginBoxV2 as ObLoginBoxV2 } from '@one-base-template/ui/lite-auth';
@@ -38,6 +39,7 @@ type LoginStage =
 const router = useRouter();
 const route = useRoute();
 const appEnv = getAppEnv();
+const authStore = useAuthStore();
 
 const { backend } = appEnv;
 const { baseUrl } = appEnv;
@@ -171,6 +173,12 @@ const passwordPattern =
 onMounted(async () => {
   if (loginScenario.directLoginToken) {
     await handleDirectTokenLogin(loginScenario.directLoginToken);
+    return;
+  }
+
+  const authed = await authStore.ensureAuthed();
+  if (authed) {
+    await router.replace(getRedirectTarget());
     return;
   }
 
