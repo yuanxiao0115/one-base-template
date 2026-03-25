@@ -196,6 +196,18 @@
 - 结果：
   - 单测、`typecheck`、`build` 通过。
   - `lint` 通过，仍保留 `OrgManagerDialog.vue` 的 1 条 `max-lines` warning（非阻断）。
+
+## 2026-03-25（admin 已登录访问 /login 拦截修复）
+
+- 命令：
+  - `pnpm -C packages/core test:run -- src/router/guards.test.ts`
+  - `pnpm -C apps/admin test:run -- tests/bootstrap/index.unit.test.ts tests/router/assemble-routes.unit.test.ts`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 守卫与 admin 路由相关测试通过。
+  - 文档 lint/build 通过。
+  - 运行时有 `--localstorage-file` warning，为测试环境提示，不影响结果。
 - 命令：
   - `pnpm -w typecheck`
   - `pnpm -w lint`（存在少量 warning，不影响通过）

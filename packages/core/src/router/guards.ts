@@ -80,6 +80,27 @@ function buildLoginRedirect(to: RouteLocationNormalized, loginRoutePath: string)
   };
 }
 
+function resolveLoginSuccessRedirect(to: RouteLocationNormalized): string {
+  const rawRedirect = to.query.redirect ?? to.query.redirectUrl;
+  if (typeof rawRedirect !== 'string') {
+    return '/';
+  }
+  if (!rawRedirect.startsWith('/')) {
+    return '/';
+  }
+  if (rawRedirect.startsWith('//')) {
+    return '/';
+  }
+  return rawRedirect;
+}
+
+function buildAuthedLoginRedirect(to: RouteLocationNormalized): GuardResult {
+  return {
+    path: resolveLoginSuccessRedirect(to),
+    query: {}
+  };
+}
+
 function buildForbiddenRedirect(
   to: RouteLocationNormalized,
   forbiddenRoutePath: string
@@ -268,6 +289,7 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     await options.onNavigationStart?.({ to, from });
 
     const coreOptions = getCoreOptions();
+    const authStore = useAuthStore();
 
     // SSO 回调路由默认视为公开
     if (
@@ -280,13 +302,20 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
       return true;
     }
 
+    if (to.path === loginRoutePath) {
+      const authed = await authStore.ensureAuthed();
+      if (authed) {
+        return buildAuthedLoginRedirect(to);
+      }
+      return true;
+    }
+
     if (isExplicitPublicRoute(to, publicRoutePaths)) {
       return true;
     }
 
     const skipMenuAuth = isSkipMenuAuthRoute(to);
 
-    const authStore = useAuthStore();
     const authed = await authStore.ensureAuthed();
     if (!authed) {
       return buildLoginRedirect(to, loginRoutePath);

@@ -138,6 +138,48 @@ describe('setupRouterGuards', () => {
     ).resolves.toBe(true);
   });
 
+  it('已登录访问 /login 时应跳转到安全站内地址', async () => {
+    const runGuard = createGuardRunner({
+      loginRoutePath: '/login'
+    });
+
+    await expect(
+      runGuard({
+        path: '/login',
+        fullPath: '/login?redirect=/system/user',
+        query: { redirect: '/system/user' }
+      })
+    ).resolves.toEqual({
+      path: '/system/user',
+      query: {}
+    });
+
+    await expect(
+      runGuard({
+        path: '/login',
+        fullPath: '/login?redirect=//evil.example',
+        query: { redirect: '//evil.example' }
+      })
+    ).resolves.toEqual({
+      path: '/',
+      query: {}
+    });
+  });
+
+  it('未登录访问 /login 时应允许进入登录页', async () => {
+    authStore.ensureAuthed.mockResolvedValue(false);
+    const runGuard = createGuardRunner({
+      loginRoutePath: '/login'
+    });
+
+    await expect(
+      runGuard({
+        path: '/login',
+        fullPath: '/login'
+      })
+    ).resolves.toBe(true);
+  });
+
   it('未登录应跳转登录页', async () => {
     authStore.ensureAuthed.mockResolvedValue(false);
     const runGuard = createGuardRunner({

@@ -218,6 +218,17 @@
   - `position / role / org / user` 的 `list.vue` 收回模板直接 `crud.openCreate/openEdit/openDetail`。
   - `tenant-info` 类型与 `form.ts` 对齐当前后端契约，去掉 `string | number` 的历史摇摆定义。
   - `menu/columns.ts` 改为显式处理缺失值，避免把 `undefined/null` 静默渲染成正常业务态。
+
+## 2026-03-25（admin 已登录访问 /login 拦截修复）
+
+- 问题定位：
+  - `packages/core/src/router/guards.ts` 对公共路由（含 `/login`）优先直接放行，导致已登录用户仍可手动输入 URL 进入登录页。
+- 修复内容：
+  - 在 `setupRouterGuards` 增加 `/login` 专项分支：已登录时不再放行登录页，改为重定向到站内安全地址。
+  - 新增安全回跳逻辑：优先消费 `redirect/redirectUrl`（仅允许以 `/` 开头且不允许 `//`），否则回落 `/`。
+  - 补充守卫回归测试：已登录访问 `/login` 的回跳与非法 `redirect` 回落；未登录访问 `/login` 仍放行。
+- 文档同步：
+  - 更新 `apps/docs/docs/guide/module-system.md` 的守卫行为说明，明确“已登录访问 `/login` 自动回跳”。
 - 终轮扫描结果：
   - `adminManagement` 模板内联箭头函数：清零。
 
