@@ -10067,3 +10067,19 @@
 - 规则与文档同步：
   - `apps/admin/AGENTS.md`：PortalManagement 路由约束更新为“禁止路由 alias（含 route.alias 与 compat.routeAliases）”。
   - `apps/docs/docs/guide/portal/admin-designer.md`：补充“不再保留旧路径 alias”说明。
+
+## 2026-03-25（路由策略门禁 + meta 收敛 + 最小鉴权链路）
+
+- 路由策略清单能力落地：
+  - 新增 `apps/admin/src/router/route-policy.ts`，统一收集 `public/skipMenuAuth/activePath`。
+  - 新增 `apps/admin/tests/router/route-policy.unit.test.ts`，执行时自动产出 `.codex/route-policy/admin-route-policy.json` 并校验受控范围。
+  - 脚本接入：`apps/admin/package.json` 增加 `check:route-policy`，根 `package.json` 增加 `check:admin:route-policy`。
+- 路由 meta 类型收敛落地：
+  - 新增 `apps/admin/src/router/meta.ts`（`defineRouteMeta/createPublicRouteMeta/createSkipMenuAuthRouteMeta/createFullscreenSkipMenuAuthRouteMeta`）。
+  - 7 个模块路由统一改造为 helper 写法：`home/CmsManagement/PortalManagement(Logical+standalone)/LogManagement/SystemManagement/adminManagement`。
+  - 新增架构门禁 `apps/admin/tests/architecture/route-meta-helper-source.unit.test.ts`，锁定“必须从 `@/router/meta` 导入 + 禁止 `meta: {}` 散写”。
+- 最小鉴权链路测试补齐：
+  - 新增 `packages/core/src/router/auth-minimal-e2e.unit.test.ts`，覆盖“未登录访问受保护页”“已登录访问 /login”。
+  - 新增 `apps/admin/tests/services/auth/sso-minimal-e2e.unit.test.ts`，覆盖“SSO 回调 type+token 落地跳转”。
+  - 新增聚合脚本：根 `test:e2e:minimal-auth`、admin `test:e2e:minimal-auth`。
+- 文档同步：更新 `apps/docs/docs/guide/menu-route-spec.md`，补充 meta helper 强制规则、路由策略门禁命令与最小链路回归命令。

@@ -18,7 +18,9 @@
     "typecheck": "vp run -r typecheck",
     "lint": "vp run -r lint",
     "lint:arch": "vp run --filter admin lint:arch && pnpm check:basic-signature",
+    "check:admin:route-policy": "pnpm -C apps/admin check:route-policy",
     "check:admin:bundle": "node ./scripts/check-admin-build-size.mjs",
+    "test:e2e:minimal-auth": "pnpm -C packages/core test:run -- src/router/auth-minimal-e2e.unit.test.ts && pnpm -C apps/admin test:e2e:minimal-auth",
     "check:basic-signature": "node ./scripts/check-basic-signature-boundary.mjs",
     "test": "vp run -r test",
     "test:run": "vp run -r test:run",
@@ -27,7 +29,7 @@
     "release:packages": "changeset publish",
     "check:naming:config": "node ./scripts/check-naming-whitelist-schema.mjs",
     "check:naming": "pnpm check:naming:config && node ./scripts/check-naming.mjs",
-    "verify": "vp run --filter @one-base-template/portal-engine verify:materials && pnpm check:naming && pnpm lint:arch && pnpm test:run && pnpm typecheck && pnpm lint && pnpm build && pnpm check:admin:bundle",
+    "verify": "vp run --filter @one-base-template/portal-engine verify:materials && pnpm check:naming && pnpm check:admin:route-policy && pnpm lint:arch && pnpm test:run && pnpm typecheck && pnpm lint && pnpm build && pnpm check:admin:bundle",
     "doctor": "node ./scripts/doctor.mjs",
     "prepare": "vp config"
   },

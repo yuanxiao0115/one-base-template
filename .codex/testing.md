@@ -8464,3 +8464,22 @@
   - `assemble-routes.unit.test.ts`：通过（测试进程出现 `--localstorage-file` warning，不影响结论）。
   - `apps/docs lint`：通过（0 warnings / 0 errors）。
   - `apps/docs build`：通过。
+
+## 2026-03-25（路由策略门禁 + meta 收敛 + 最小鉴权链路）
+
+- 命令：
+  - `pnpm -C packages/core test:run -- src/router/auth-minimal-e2e.unit.test.ts`
+  - `pnpm -C apps/admin check:route-policy`
+  - `pnpm -C apps/admin test:e2e:minimal-auth`
+  - `pnpm -C . test:e2e:minimal-auth`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 新增最小链路测试通过：
+    - core：未登录受保护页 -> `/login`，已登录访问 `/login` -> 安全站内回跳。
+    - admin：SSO 回调 `type+token` -> 会话落地并跳转目标页。
+  - 路由策略门禁通过，产物已生成：`.codex/route-policy/admin-route-policy.json`。
+  - `apps/admin lint/typecheck` 通过；lint 保留历史 `OrgManagerDialog.vue` 的 `max-lines` warning（非阻断）。
+  - `apps/docs lint/build` 通过。

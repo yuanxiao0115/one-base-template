@@ -11,6 +11,8 @@
     "test": "vp test --config vitest.config.ts",
     "test:run": "vp test run --config vitest.config.ts",
     "test:run:file": "sh -c 'shift; vp test run --config vitest.config.ts \"$@\"' --",
+    "test:e2e:minimal-auth": "vp test run --config vitest.config.ts tests/architecture/route-meta-helper-source.unit.test.ts tests/services/auth/sso-minimal-e2e.unit.test.ts",
+    "check:route-policy": "vp test run --config vitest.config.ts tests/router/route-policy.unit.test.ts",
     "lint": "vp lint .",
     "lint:arch": "node ../../scripts/check-admin-arch.mjs",
     "lint:fix": "vp check --fix src"

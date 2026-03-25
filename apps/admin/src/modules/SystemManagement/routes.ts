@@ -1,3 +1,4 @@
+import { defineRouteMeta } from '@/router/meta';
 import type { RouteRecordRaw } from 'vue-router';
 
 export default [
@@ -5,9 +6,9 @@ export default [
     path: '/system/dict',
     name: 'SystemDictManagement',
     component: async () => import('./dict/list.vue'),
-    meta: {
+    meta: defineRouteMeta({
       title: '字典管理',
       keepAlive: true
-    }
+    })
   }
 ] satisfies RouteRecordRaw[];

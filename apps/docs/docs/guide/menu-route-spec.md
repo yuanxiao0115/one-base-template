@@ -198,6 +198,17 @@
 }
 ```
 
+### 5.1 Meta 收敛写法（强制）
+
+模块路由禁止继续散写 `meta: { ... }`，统一使用 `apps/admin/src/router/meta.ts` 导出的 helper：
+
+- `defineRouteMeta(...)`
+- `createPublicRouteMeta(...)`
+- `createSkipMenuAuthRouteMeta(...)`
+- `createFullscreenSkipMenuAuthRouteMeta(...)`
+
+对应源码门禁见：`apps/admin/tests/architecture/route-meta-helper-source.unit.test.ts`。
+
 ## 6. 菜单数据 Schema（AppMenuItem）
 
 ```json
@@ -322,6 +333,9 @@
 
 1. `apps/admin/src/config/platform-config.ts` 的 `preset`（或 `menuMode`）与目标模式一致
 2. 模块页面路由都在 `modules/**/routes*` 下
-3. 需要进菜单的页面都配置了 `meta.title`
-4. 详情/编辑页都配置了 `meta.activePath`
-5. 验证通过：`pnpm -C apps/docs lint && pnpm -C apps/docs build`
+3. 路由 `meta` 使用 `@/router/meta` helper，不再直接写 `meta: {}`
+4. 需要进菜单的页面都配置了 `meta.title`
+5. 详情/编辑页都配置了 `meta.activePath`
+6. 生成并校验路由策略清单：`pnpm check:admin:route-policy`（产物：`.codex/route-policy/admin-route-policy.json`）
+7. 最小鉴权链路回归：`pnpm test:e2e:minimal-auth`
+8. 文档验证通过：`pnpm -C apps/docs lint && pnpm -C apps/docs build`
