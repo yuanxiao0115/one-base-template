@@ -127,7 +127,7 @@ describe('setupRouterGuards', () => {
     mocks.useSystemStore.mockReturnValue(systemStore);
   });
 
-  it('public/sso 路由应放行', async () => {
+  it('开放路由应放行，未登录访问 /sso 也应允许进入', async () => {
     const runGuard = createGuardRunner();
 
     mocks.getCoreOptions.mockReturnValue({
@@ -135,13 +135,45 @@ describe('setupRouterGuards', () => {
         enabled: true,
         routePath: '/sso'
       },
+      auth: {
+        mode: 'token',
+        tokenKey: 'token'
+      },
       menuMode: 'static'
     });
+    authStore.hasTokenSession.mockReturnValue(false);
     await expect(runGuard({ path: '/sso', fullPath: '/sso' })).resolves.toBe(true);
 
     await expect(
       runGuard({ path: '/public-page', fullPath: '/public-page', meta: { access: 'open' } })
     ).resolves.toBe(true);
+  });
+
+  it('已登录访问 /sso 时应跳转到安全站内地址', async () => {
+    const runGuard = createGuardRunner();
+
+    mocks.getCoreOptions.mockReturnValue({
+      auth: {
+        mode: 'token',
+        tokenKey: 'token'
+      },
+      sso: {
+        enabled: true,
+        routePath: '/sso'
+      },
+      menuMode: 'static'
+    });
+
+    await expect(
+      runGuard({
+        path: '/sso',
+        fullPath: '/sso?redirect=/system/user',
+        query: { redirect: '/system/user' }
+      })
+    ).resolves.toEqual({
+      path: '/system/user',
+      query: {}
+    });
   });
 
   it('已登录访问 /login 时应跳转到安全站内地址', async () => {

@@ -48,7 +48,7 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
-function shouldAllowTokenlessLoginRoute(params: {
+function shouldAllowTokenlessAuthEntryRoute(params: {
   authMode: unknown;
   tokenKey: unknown;
   authStore: Record<string, unknown>;
@@ -76,6 +76,15 @@ function shouldAllowTokenlessLoginRoute(params: {
   } catch {
     return true;
   }
+}
+
+function isAuthEntryRoute(params: {
+  toPath: string;
+  loginRoutePath: string;
+  ssoRoutePath?: string;
+}) {
+  const { toPath, loginRoutePath, ssoRoutePath } = params;
+  return toPath === loginRoutePath || (typeof ssoRoutePath === 'string' && toPath === ssoRoutePath);
 }
 
 function buildAuthedLoginRedirect(to: RouteLocationNormalized): GuardResult {
@@ -273,10 +282,18 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
 
     const coreOptions = getCoreOptions();
     const authStore = useAuthStore();
+    const ssoRoutePath =
+      typeof coreOptions.sso?.routePath === 'string' ? coreOptions.sso.routePath : undefined;
 
-    if (to.path === loginRoutePath) {
+    if (
+      isAuthEntryRoute({
+        toPath: to.path,
+        loginRoutePath,
+        ssoRoutePath
+      })
+    ) {
       if (
-        shouldAllowTokenlessLoginRoute({
+        shouldAllowTokenlessAuthEntryRoute({
           authMode: coreOptions.auth?.mode,
           tokenKey: coreOptions.auth?.tokenKey,
           authStore: authStore as unknown as Record<string, unknown>

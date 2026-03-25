@@ -116,7 +116,8 @@ declare module '@one-base-template/core' {
 - `setupRouterGuards(router, options?)`：默认实现“先判开放页，再判登录态，最后判菜单权限”
   - 路由访问模型统一使用 `meta.access = 'open' | 'auth' | 'menu'`，未声明时默认按 `menu` 处理
   - 可注入 `publicRoutePaths/loginRoutePath/forbiddenRoutePath`，兼容 portal/template 这类尚未完全迁到 `meta.access` 的场景
-  - `token/mixed` 模式访问 `/login` 时会先按 token 是否存在分支：无 token 直接进入登录页；有 token 再执行 `ensureAuthed()` 判定并按已登录态回跳
+  - `/login`、`/sso` 这类认证入口路由共享同一套回跳逻辑：未登录可进入，已登录会按安全 `redirect` 回到站内页面
+  - `token/mixed` 模式访问认证入口时会先按 token 是否存在分支：无 token 直接进入页面；有 token 再执行 `ensureAuthed()` 判定并按已登录态回跳
 - `installRouteDynamicImportRecovery(router)`：动态 import chunk 加载失败自动恢复（单路由一次重试，避免死循环刷新）
 - `menuMode=remote|static`
   - `remote`：菜单树来自 adapter（后端）

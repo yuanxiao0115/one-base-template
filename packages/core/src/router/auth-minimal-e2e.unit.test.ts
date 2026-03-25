@@ -153,4 +153,21 @@ describe('router/auth-minimal-e2e', () => {
       query: {}
     });
   });
+
+  it('已登录访问 /sso 也应回跳到站内地址', async () => {
+    const runGuard = createGuardRunner();
+
+    await expect(
+      runGuard({
+        path: '/sso',
+        fullPath: '/sso?redirect=/system/user',
+        query: {
+          redirect: '/system/user'
+        }
+      })
+    ).resolves.toEqual({
+      path: '/system/user',
+      query: {}
+    });
+  });
 });

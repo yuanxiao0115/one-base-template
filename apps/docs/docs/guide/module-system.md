@@ -154,8 +154,8 @@ compat: {
 
 - `packages/core/src/router/guards.ts` 继续作为唯一守卫入口，但内部流程已拆为小函数：
   - 路由访问级别判定（`open/auth/menu`）
-  - 登录页回跳判定（已登录访问 `/login` 时，优先按 `redirect/redirectUrl` 回到站内目标，否则回到 `/`）
-  - `token/mixed` 模式下的 `/login` 前置判断（无 token 直接放行登录页；有 token 才进入 `ensureAuthed()`）
+  - 认证入口回跳判定（已登录访问 `/login`、`/sso` 时，优先按 `redirect/redirectUrl` 回到站内目标，否则回到 `/`）
+  - `token/mixed` 模式下的认证入口前置判断（无 token 直接放行；有 token 才进入 `ensureAuthed()`）
   - 登录跳转判定
   - 菜单同步与系统切换
   - 菜单权限判定（仅 `menu` 路由触发）
