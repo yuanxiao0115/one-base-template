@@ -112,15 +112,11 @@ function shouldStrictCookieSessionCheck() {
 export const useAuthStore = defineStore('ob-auth', () => {
   const user = ref<AppUser | null>(null);
   const initialized = ref(false);
-  const pendingTokenlessSessionProbe = ref(false);
 
   // 参考老项目：把用户信息持久化到 localStorage，刷新后可快速恢复 UI 状态
   const stored = readStoredUser();
   if (stored && hasTokenSession()) {
     user.value = stored;
-  } else if (stored) {
-    // token 丢失但存在缓存用户时，不直接放行：首次守卫探测一次服务端会话再决定。
-    pendingTokenlessSessionProbe.value = true;
   }
 
   const isAuthed = computed(() => !!user.value);
@@ -130,19 +126,18 @@ export const useAuthStore = defineStore('ob-auth', () => {
     const me = normalizeUser(await adapter.auth.fetchMe());
     user.value = me;
     initialized.value = true;
-    pendingTokenlessSessionProbe.value = false;
     writeStoredUser(me);
     return me;
   }
 
   async function ensureAuthed(): Promise<boolean> {
     if (!hasTokenSession()) {
-      if (pendingTokenlessSessionProbe.value && !initialized.value) {
+      // 无 token 时首次守卫仍探测一次服务端会话，避免把“已登录但本地 token 缺失”误判为未登录。
+      if (!initialized.value) {
         try {
           await fetchMe();
           return true;
         } catch {
-          pendingTokenlessSessionProbe.value = false;
           user.value = null;
           clearStoredUser();
           initialized.value = true;
@@ -150,7 +145,6 @@ export const useAuthStore = defineStore('ob-auth', () => {
         }
       }
 
-      pendingTokenlessSessionProbe.value = false;
       user.value = null;
       clearStoredUser();
       initialized.value = true;
@@ -195,7 +189,6 @@ export const useAuthStore = defineStore('ob-auth', () => {
     } finally {
       user.value = null;
       initialized.value = true;
-      pendingTokenlessSessionProbe.value = false;
       clearStoredUser();
     }
   }
@@ -203,7 +196,6 @@ export const useAuthStore = defineStore('ob-auth', () => {
   function reset() {
     user.value = null;
     initialized.value = false;
-    pendingTokenlessSessionProbe.value = false;
     clearStoredUser();
   }
 

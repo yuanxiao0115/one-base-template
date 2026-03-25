@@ -8522,3 +8522,17 @@
   - `packages/core lint` 通过（0 warnings / 0 errors）。
   - `apps/admin lint` 通过，保留历史非阻断 warning：`OrgManagerDialog.vue` `max-lines`。
   - `apps/docs lint/build` 通过。
+
+## 2026-03-25（登录路由二次收口：首次缺 token 一律会话探测）
+
+- 命令：
+  - `pnpm -C packages/core test:run -- src/stores/auth.test.ts src/router/guards.test.ts src/router/auth-minimal-e2e.unit.test.ts`
+  - `pnpm test:e2e:minimal-auth`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C packages/core lint`
+  - `pnpm -C apps/admin test:run -- tests/bootstrap/index.unit.test.ts`
+- 结果：
+  - core 相关测试通过（`24 files / 112 tests`）。
+  - `test:e2e:minimal-auth` 聚合链路通过。
+  - `packages/core typecheck/lint` 通过。
+  - admin bootstrap 单测通过。

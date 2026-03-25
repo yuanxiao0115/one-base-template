@@ -165,7 +165,7 @@ compat: {
 - 页面层职责收敛为“状态展示 + handler 注入”，后续新增 SSO 入口优先扩展策略层并补策略单测。
 - 路由装配诊断也已下沉到 `packages/core/src/router/{route-signature,route-diagnostics}.ts`，
   admin 只负责组装业务路由并消费 diagnostics。
-- `token` 鉴权下新增“缺 token 会话探测”兜底：当本地仍有 `ob_auth_user` 缓存但 token 缺失时，首次守卫会尝试一次 `fetchMe()`，成功按已登录处理（避免误进 `/login`），失败再清理缓存并回到未登录态。
+- `token` 鉴权下新增“缺 token 会话探测”兜底：首次命中无 token 时会尝试一次 `fetchMe()`，成功按已登录处理（避免误进 `/login`），失败再清理缓存并回到未登录态。
 - 第三批回归补强已覆盖：
   - `packages/core/src/router/guards.test.ts`：`remote` 模式下 `remoteSynced=false` 的两类边界（`loaded=true` 后台同步、`loaded=false` 阻塞加载）；
   - `packages/core/src/auth/sso-callback-strategy.test.ts`：`ticket` 分支 `redirectUrl` 缺省透传 `null` 与 handler 抛错透传。

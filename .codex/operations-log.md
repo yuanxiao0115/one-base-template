@@ -10123,3 +10123,20 @@
 - 文档同步：
   - `packages/core/README.md`
   - `apps/docs/docs/guide/module-system.md`
+
+## 2026-03-25（登录路由二次收口：首次缺 token 一律会话探测）
+
+- 背景：用户继续反馈“已登录后直输 `/login` 仍进入登录页”。
+- 调整策略：
+  - `packages/core/src/stores/auth.ts`
+    - 将 token 缺失探测从“仅有缓存用户时探测”升级为“首次缺 token 一律探测一次 `fetchMe()`”。
+    - 目的：覆盖“无本地缓存用户但服务端会话仍有效”的场景，避免误进登录页。
+- 测试更新：
+  - `packages/core/src/stores/auth.test.ts` 新增并调整 token 缺失场景：
+    - 无缓存用户 + 探测成功 -> 已登录
+    - 有缓存用户 + 探测成功 -> 已登录
+    - 无缓存用户 + 探测失败 -> 未登录
+    - 有缓存用户 + 探测失败 -> 未登录
+- 文档同步：
+  - `packages/core/README.md`
+  - `apps/docs/docs/guide/module-system.md`
