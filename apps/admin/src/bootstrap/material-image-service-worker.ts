@@ -1,9 +1,10 @@
 import { appMaterialImageCacheConfig } from '@/config';
+import { getAppEnv } from '@/config/env';
 
 const MATERIAL_IMAGE_SW_FILE_NAME = 'material-image-cache-sw.js';
 
 function resolveServiceWorkerUrl() {
-  const baseUrl = new URL(import.meta.env.BASE_URL, window.location.origin);
+  const baseUrl = new URL(getAppEnv().baseUrl, window.location.origin);
   return new URL(MATERIAL_IMAGE_SW_FILE_NAME, baseUrl);
 }
 
@@ -44,7 +45,7 @@ export async function registerMaterialImageServiceWorker() {
     await unregisterMaterialImageServiceWorker();
     return;
   }
-  if (!enableInDev && import.meta.env.DEV) {
+  if (!enableInDev && !getAppEnv().isProd) {
     return;
   }
   if (!window.isSecureContext) {
@@ -54,10 +55,10 @@ export async function registerMaterialImageServiceWorker() {
   const scriptUrl = buildServiceWorkerScriptUrl();
   try {
     await navigator.serviceWorker.register(scriptUrl, {
-      scope: import.meta.env.BASE_URL
+      scope: getAppEnv().baseUrl
     });
   } catch (error) {
-    if (import.meta.env.DEV) {
+    if (!getAppEnv().isProd) {
       console.warn('[material-image-sw] 注册失败', error);
     }
   }
