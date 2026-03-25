@@ -68,7 +68,7 @@
 - admin 下 CRUD 编排页文件名统一使用 `list.vue`（不再使用 `page.vue`），对应路由懒加载路径必须保持一致。
 - 门户模板列表页（`apps/admin/src/modules/PortalManagement/templatePage/list.vue`）必须对齐 admin 列表基线：禁止使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 与 `@one-base-template/ui`。
 - PortalManagement 权限选人左树严格对齐老项目：固定调用 `GET /cmict/admin/org/detail/children-and-user`，不做多接口兼容兜底；根节点请求使用当前登录用户 `companyId`（缺失时才回退 `parentId=\"0\"`）。
-- 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定为：`/portal/setting`、`/portal/design`、`/portal/page/edit`、`/portal/preview`（`/resource/portal/setting` 仅作为兼容 alias），禁止再通过 `compat.routeAliases` 为该模块做旧路径别名兜底。
+- 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定为：`/portal/setting`、`/portal/design`、`/portal/page/edit`、`/portal/preview`，禁止继续为该模块配置路由 alias（含路由 `alias` 属性与 `compat.routeAliases`）。
 - `PortalManagement` 的设计能力统一收敛到 `designPage` 目录，**页面入口直接放在 `designPage/*.vue`，不再新增 `designPage/pages` 冗余层级**；若后续恢复组件目录，仍需按页面边界分组（如 `portal-template`、`preview-render`），禁止在 `components` 根目录平铺堆叠组件。
 - `PortalManagement/materials` 目录禁止再维护 `examples/demo` 分叉；admin 物料扩展统一只在 `materials/extensions/index.ts` 直接罗列注册项，`engine/register.ts` 不再提供 `registerDemoMaterial` 这类示例开关。
 - `PortalManagement/materials` 每个物料目录固定结构为 `material.ts + defaults.ts + index.vue + content.vue + style.vue`；`extensions/index.ts` 必须通过 `import.meta.glob('../*/material.ts')` 自动聚合注册，禁止回退手工 import 每个组件。

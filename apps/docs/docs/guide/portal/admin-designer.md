@@ -18,6 +18,7 @@
 
 - `layout` 路由仅保留模板列表：`/portal/setting`。
 - `standalone` 路由承载全屏工作区：`/portal/design`、`/portal/page/edit`、`/portal/preview`。
+- `PortalManagement` 不再保留旧路径 alias（含路由 `alias` 属性与 `compat.routeAliases`），统一使用上述主路径。
 - `meta.hiddenTab=true`：避免门户编辑页进入顶部标签栏。
 
 ## 素材管理迁移（2026-03-24）

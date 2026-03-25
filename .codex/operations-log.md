@@ -10056,3 +10056,14 @@
   - `apps/docs/docs/guide/admin-agent-redlines.md`
   - `apps/docs/docs/guide/crud-module-best-practice.md`
 - 本轮实施计划已落盘：`docs/plans/2026-03-25-admin-management-rules-rollup-plan.md`
+
+## 2026-03-25（PortalManagement 删除 designer 历史 alias）
+
+- 变更背景：
+  - 用户确认不再保留 `/portal/design` 的历史 alias，避免引入隐性路由入口与审计盲区。
+- 代码调整：
+  - `apps/admin/src/modules/PortalManagement/routes/standalone.ts` 删除 `PortalDesigner` 的 `alias: ['/resource/portal/setting']`。
+  - `apps/admin/tests/router/assemble-routes.unit.test.ts` 增加断言：`PortalDesigner` 路由 `alias` 必须为 `undefined`，防止回流。
+- 规则与文档同步：
+  - `apps/admin/AGENTS.md`：PortalManagement 路由约束更新为“禁止路由 alias（含 route.alias 与 compat.routeAliases）”。
+  - `apps/docs/docs/guide/portal/admin-designer.md`：补充“不再保留旧路径 alias”说明。

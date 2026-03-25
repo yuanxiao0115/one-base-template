@@ -8453,3 +8453,14 @@
 - 结果：
   - `apps/docs lint`：通过（0 warnings / 0 errors）。
   - `apps/docs build`：通过。
+
+## 2026-03-25（PortalManagement 删除 designer 历史 alias）
+
+- 命令：
+  - `pnpm -C apps/admin test:run -- tests/router/assemble-routes.unit.test.ts`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `assemble-routes.unit.test.ts`：通过（测试进程出现 `--localstorage-file` warning，不影响结论）。
+  - `apps/docs lint`：通过（0 warnings / 0 errors）。
+  - `apps/docs build`：通过。

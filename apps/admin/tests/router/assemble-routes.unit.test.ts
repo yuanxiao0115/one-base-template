@@ -74,6 +74,7 @@ describe('router/assemble-routes', () => {
     expect(listRoute).toBeDefined();
     expect(listRoute?.redirect).toBeUndefined();
     expect(designerRoute).toBeDefined();
+    expect(designerRoute?.alias).toBeUndefined();
     expect(pageEditRoute).toBeDefined();
     expect(previewRoute).toBeDefined();
     expect((designerRoute?.meta as Record<string, unknown> | undefined)?.activePath).toBe(

@@ -14,7 +14,6 @@ export default [
   {
     // 门户设计器：全局全屏页，必须是顶层路由，避免被 AdminLayout（侧栏/顶栏）包裹
     path: '/portal/design',
-    alias: ['/resource/portal/setting'],
     name: 'PortalDesigner',
     component: async () => import('../designPage/PortalTemplateSettingPage.vue'),
     meta: {
