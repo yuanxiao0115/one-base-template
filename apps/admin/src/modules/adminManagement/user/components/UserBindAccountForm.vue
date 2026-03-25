@@ -240,12 +240,7 @@ defineExpose({
     </el-form-item>
 
     <div v-if="selectedUsers.length > 0" class="user-bind-form__selected">
-      <el-tag
-        v-for="item in selectedUsers"
-        :key="item.id"
-        closable
-        @close="() => removeUser(item.id)"
-      >
+      <el-tag v-for="item in selectedUsers" :key="item.id" closable @close="removeUser(item.id)">
         {{ item.nickName }}（{{ item.userAccount || item.phone || '--' }}）
       </el-tag>
     </div>

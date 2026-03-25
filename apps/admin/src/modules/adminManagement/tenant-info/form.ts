@@ -24,8 +24,8 @@ export function toTenantInfoForm(record?: Partial<TenantInfoRecord> | null): Ten
     tenantName: record?.tenantName ?? '',
     contactName: record?.contactName ?? '',
     contactPhone: record?.contactPhone ?? '',
-    maxNumber: record?.maxNumber == null ? fallback.maxNumber : Number(record.maxNumber),
-    tenantState: record?.tenantState == null ? fallback.tenantState : Number(record.tenantState),
+    maxNumber: record?.maxNumber ?? fallback.maxNumber,
+    tenantState: record?.tenantState ?? fallback.tenantState,
     managerAccount: record?.managerAccount ?? '',
     expireTime: record?.expireTime ?? '',
     remark: record?.remark ?? ''

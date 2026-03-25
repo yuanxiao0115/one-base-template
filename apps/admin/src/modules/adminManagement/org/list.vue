@@ -52,7 +52,7 @@ const dialogs = reactive(pageState.dialogs);
           <template #orgName="{ row }">
             <div class="org-management-page__name-cell">
               <el-tag size="small" type="info">{{
-                Number(row.orgType) === 1 ? '单位' : '部门'
+                row.orgType === 1 ? '单位' : row.orgType === 0 ? '部门' : '--'
               }}</el-tag>
               <span>{{ row.orgName }}</span>
               <el-tag v-if="row.isExternal" size="small" type="warning">外部</el-tag>
@@ -70,14 +70,10 @@ const dialogs = reactive(pageState.dialogs);
           <template #operation="{ row, size: actionSize }">
             <div class="org-management-page__actions">
               <ObActionButtons>
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="editor.crud.openDetail(row)"
+                <el-button link type="primary" :size="actionSize" @click="actions.openDetail(row)"
                   >查看</el-button
                 >
-                <el-button link type="primary" :size="actionSize" @click="editor.crud.openEdit(row)"
+                <el-button link type="primary" :size="actionSize" @click="actions.openEdit(row)"
                   >编辑</el-button
                 >
                 <el-button

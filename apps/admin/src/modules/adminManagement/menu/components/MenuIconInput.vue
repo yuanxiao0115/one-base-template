@@ -434,7 +434,7 @@ watch(totalPages, (nextPages) => {
                 :title="item.icon"
                 :aria-label="getCandidateAriaLabel(item)"
                 :aria-pressed="isActiveCandidate(item.icon)"
-                @click="() => setDraftIcon(item.icon)"
+                @click="setDraftIcon(item.icon)"
               >
                 <span class="menu-icon-input__item-preview">
                   <ObMenuIcon :icon="item.icon" />

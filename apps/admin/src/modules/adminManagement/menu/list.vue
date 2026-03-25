@@ -57,22 +57,22 @@ const options = reactive(pageState.options);
 
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-dropdown
-                v-if="Number(row.resourceType) !== 3"
-                @command="actions.handleCreateCommand"
+              <el-button
+                v-if="row.resourceType !== 3"
+                link
+                type="primary"
+                :size="actionSize"
+                @click="actions.openCreateChild(row)"
+                >新增子级</el-button
               >
-                <el-button link type="primary" :size="actionSize">新建</el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item :command="{ type: 'child', row }"
-                      >新建子级权限</el-dropdown-item
-                    >
-                    <el-dropdown-item :command="{ type: 'sibling', row }"
-                      >新建平级权限</el-dropdown-item
-                    >
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
+              <el-button
+                v-if="row.resourceType !== 3"
+                link
+                type="primary"
+                :size="actionSize"
+                @click="actions.openCreateSibling(row)"
+                >新增平级</el-button
+              >
 
               <el-button link type="primary" :size="actionSize" @click="actions.openEdit(row)"
                 >编辑</el-button
@@ -80,7 +80,7 @@ const options = reactive(pageState.options);
               <el-button link type="primary" :size="actionSize" @click="actions.openDetail(row)"
                 >查看</el-button
               >
-              <el-button link type="danger" :size="actionSize" @click="actions.handleDelete(row)"
+              <el-button link type="danger" :size="actionSize" @click="actions.remove(row)"
                 >删除</el-button
               >
             </ObActionButtons>

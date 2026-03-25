@@ -253,6 +253,14 @@ export function useOrgPageState() {
     await crud.openCreate();
   }
 
+  async function openEdit(row: OrgRecord) {
+    await crud.openEdit(row);
+  }
+
+  async function openDetail(row: OrgRecord) {
+    await crud.openDetail(row);
+  }
+
   async function handleDelete(row: OrgRecord) {
     markDeletingRow(row);
     await remove(row);
@@ -354,6 +362,8 @@ export function useOrgPageState() {
       openLevelManageDialog,
       openCreateRoot,
       openCreateChild,
+      openEdit,
+      openDetail,
       openManagerDialog,
       handleDelete,
       handleOrgManagerUpdated,

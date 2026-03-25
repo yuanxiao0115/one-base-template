@@ -22,6 +22,12 @@ interface SelectedUser {
   uniqueId: string;
 }
 
+interface StateRequestContext {
+  sessionId: number;
+  requestToken: number;
+  orgId: string;
+}
+
 const props = defineProps<{
   modelValue: boolean;
   orgId: string;
@@ -50,7 +56,8 @@ const nodeChildrenMap = new Map<string, OrgContactNode[]>();
 
 const selectedUsers = ref<SelectedUser[]>([]);
 const originalManagers = ref<OrgManagerRecord[]>([]);
-const initDialogToken = ref(0);
+const dialogSessionId = ref(0);
+const latestStateRequestToken = ref(0);
 
 function isOrgNode(node: OrgContactNode): node is OrgContactOrgNode {
   return node.nodeType === 'org';
@@ -89,6 +96,36 @@ function resetState() {
   nodeChildrenMap.clear();
   selectedUsers.value = [];
   originalManagers.value = [];
+}
+
+function startDialogSession(): number {
+  dialogSessionId.value += 1;
+  return dialogSessionId.value;
+}
+
+function createStateRequest(sessionId = dialogSessionId.value): StateRequestContext {
+  latestStateRequestToken.value += 1;
+
+  return {
+    sessionId,
+    requestToken: latestStateRequestToken.value,
+    orgId: props.orgId
+  };
+}
+
+function isLatestStateRequest(request: StateRequestContext): boolean {
+  return (
+    request.sessionId === dialogSessionId.value &&
+    request.requestToken === latestStateRequestToken.value &&
+    visible.value &&
+    request.orgId === props.orgId
+  );
+}
+
+function invalidateDialogSession() {
+  dialogSessionId.value += 1;
+  latestStateRequestToken.value += 1;
+  resetState();
 }
 
 function syncCurrentNodeChecked() {
@@ -136,7 +173,10 @@ function updateNodeChildren(orgId: string, children: OrgContactNode[]) {
   rootNodes.value = patch(rootNodes.value);
 }
 
-async function loadNodeChildren(parentId: string): Promise<OrgContactNode[]> {
+async function loadNodeChildren(
+  parentId: string,
+  request: StateRequestContext
+): Promise<OrgContactNode[]> {
   const cached = nodeChildrenMap.get(parentId);
   if (cached) {
     return cached;
@@ -148,11 +188,14 @@ async function loadNodeChildren(parentId: string): Promise<OrgContactNode[]> {
   }
 
   const rows = Array.isArray(response.data) ? response.data : [];
+  if (!isLatestStateRequest(request)) {
+    return rows;
+  }
   updateNodeChildren(parentId, rows);
   return rows;
 }
 
-async function loadOrgManagers() {
+async function loadOrgManagers(request: StateRequestContext) {
   if (!props.orgId) {
     return;
   }
@@ -160,6 +203,10 @@ async function loadOrgManagers() {
   const response = await orgApi.queryOrgManagerList({ orgId: props.orgId });
   if (response.code !== 200) {
     throw new Error(response.message || '加载组织管理员失败');
+  }
+
+  if (!isLatestStateRequest(request)) {
+    return;
   }
 
   originalManagers.value = Array.isArray(response.data) ? response.data : [];
@@ -172,14 +219,18 @@ async function loadOrgManagers() {
   }));
 }
 
-async function loadRootNodes() {
-  const rows = await loadNodeChildren('0');
+async function loadRootNodes(request: StateRequestContext) {
+  const rows = await loadNodeChildren('0', request);
+  if (!isLatestStateRequest(request)) {
+    return;
+  }
   currentNodes.value = rows;
   syncCurrentNodeChecked();
 }
 
 async function initDialog() {
-  const currentToken = ++initDialogToken.value;
+  const sessionId = startDialogSession();
+  const request = createStateRequest(sessionId);
 
   if (!props.orgId) {
     message.warning('缺少组织信息，无法设置管理员');
@@ -189,28 +240,32 @@ async function initDialog() {
   resetState();
   loading.value = true;
   try {
-    await loadOrgManagers();
-    if (currentToken !== initDialogToken.value) {
+    await loadOrgManagers(request);
+    if (!isLatestStateRequest(request)) {
       return;
     }
 
-    await loadRootNodes();
+    await loadRootNodes(request);
   } catch (error) {
-    if (currentToken !== initDialogToken.value) {
+    if (!isLatestStateRequest(request)) {
       return;
     }
     message.error(getErrorMessage(error, '初始化组织管理员失败'));
   } finally {
-    if (currentToken === initDialogToken.value) {
+    if (isLatestStateRequest(request)) {
       loading.value = false;
     }
   }
 }
 
 async function enterOrgNode(node: OrgContactOrgNode) {
+  const request = createStateRequest();
   loading.value = true;
   try {
-    const rows = await loadNodeChildren(node.id);
+    const rows = await loadNodeChildren(node.id, request);
+    if (!isLatestStateRequest(request)) {
+      return;
+    }
     currentNodes.value = rows;
     syncCurrentNodeChecked();
 
@@ -225,13 +280,19 @@ async function enterOrgNode(node: OrgContactOrgNode) {
       title: node.title || node.orgName || '组织'
     });
   } catch (error) {
+    if (!isLatestStateRequest(request)) {
+      return;
+    }
     message.error(getErrorMessage(error, '加载组织下级失败'));
   } finally {
-    loading.value = false;
+    if (isLatestStateRequest(request)) {
+      loading.value = false;
+    }
   }
 }
 
 async function gotoBreadcrumb(index: number) {
+  const request = createStateRequest();
   const target = breadcrumbs.value[index];
   if (!target) {
     return;
@@ -239,14 +300,22 @@ async function gotoBreadcrumb(index: number) {
 
   loading.value = true;
   try {
-    const rows = await loadNodeChildren(target.id);
+    const rows = await loadNodeChildren(target.id, request);
+    if (!isLatestStateRequest(request)) {
+      return;
+    }
     currentNodes.value = rows;
     syncCurrentNodeChecked();
     breadcrumbs.value = breadcrumbs.value.slice(0, index + 1);
   } catch (error) {
+    if (!isLatestStateRequest(request)) {
+      return;
+    }
     message.error(getErrorMessage(error, '加载通讯录失败'));
   } finally {
-    loading.value = false;
+    if (isLatestStateRequest(request)) {
+      loading.value = false;
+    }
   }
 }
 
@@ -282,8 +351,12 @@ function clearSelected() {
 }
 
 async function handleSearch() {
+  const request = createStateRequest();
   const keyword = searchKeyword.value.trim();
   if (!keyword) {
+    if (!isLatestStateRequest(request)) {
+      return;
+    }
     showBreadcrumb.value = true;
     currentNodes.value = rootNodes.value;
     syncCurrentNodeChecked();
@@ -293,6 +366,9 @@ async function handleSearch() {
   loading.value = true;
   try {
     const response = await orgApi.searchContactUsers({ search: keyword });
+    if (!isLatestStateRequest(request)) {
+      return;
+    }
     if (response.code !== 200) {
       throw new Error(response.message || '搜索人员失败');
     }
@@ -301,13 +377,19 @@ async function handleSearch() {
     currentNodes.value = Array.isArray(response.data) ? response.data : [];
     syncCurrentNodeChecked();
   } catch (error) {
+    if (!isLatestStateRequest(request)) {
+      return;
+    }
     message.error(getErrorMessage(error, '搜索人员失败'));
   } finally {
-    loading.value = false;
+    if (isLatestStateRequest(request)) {
+      loading.value = false;
+    }
   }
 }
 
 function handleSearchClear() {
+  createStateRequest();
   searchKeyword.value = '';
   showBreadcrumb.value = true;
   currentNodes.value = rootNodes.value;
@@ -367,8 +449,7 @@ watch(
   () => [props.modelValue, props.orgId] as const,
   ([visibleValue]) => {
     if (!visibleValue) {
-      initDialogToken.value += 1;
-      resetState();
+      invalidateDialogSession();
       return;
     }
 
@@ -404,11 +485,9 @@ watch(
             :key="item.id"
             class="org-manager-dialog__breadcrumb-item"
           >
-            <span
-              class="org-manager-dialog__breadcrumb-title"
-              @click="() => gotoBreadcrumb(index)"
-              >{{ item.title }}</span
-            >
+            <span class="org-manager-dialog__breadcrumb-title" @click="gotoBreadcrumb(index)">{{
+              item.title
+            }}</span>
             <span
               v-if="index < breadcrumbs.length - 1"
               class="org-manager-dialog__breadcrumb-separator"
@@ -422,7 +501,7 @@ watch(
             <div v-for="node in currentNodes" :key="node.id" class="org-manager-dialog__node-item">
               <template v-if="node.nodeType === 'org'">
                 <el-icon class="org-manager-dialog__org-icon"><Folder /></el-icon>
-                <span class="org-manager-dialog__org-title" @click="() => enterOrgNode(node)">{{
+                <span class="org-manager-dialog__org-title" @click="enterOrgNode(node)">{{
                   node.title
                 }}</span>
               </template>
@@ -433,7 +512,7 @@ watch(
                 <el-checkbox
                   class="org-manager-dialog__user-checkbox"
                   :model-value="selectedUsers.some((item) => item.userId === node.userId)"
-                  @update:model-value="(checked: unknown) => toggleUser(node, Boolean(checked))"
+                  @update:model-value="toggleUser(node, Boolean($event))"
                 />
               </template>
             </div>
@@ -461,9 +540,7 @@ watch(
                 user.phone ? `(${user.phone})` : ''
               }}</span>
             </div>
-            <el-button link type="danger" @click="() => removeSelectedById(user.userId)"
-              >移除</el-button
-            >
+            <el-button link type="danger" @click="removeSelectedById(user.userId)">移除</el-button>
           </div>
 
           <el-empty v-if="selectedUsers.length === 0" description="未选择人员" :image-size="80" />

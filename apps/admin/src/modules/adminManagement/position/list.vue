@@ -30,9 +30,7 @@ const editor = reactive(pageState.editor);
       @reset-form="actions.onResetSearch"
     >
       <template #buttons>
-        <el-button type="primary" :icon="Plus" @click="editor.crud.openCreate()"
-          >新增职位</el-button
-        >
+        <el-button type="primary" :icon="Plus" @click="actions.openCreate">新增职位</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
@@ -48,10 +46,10 @@ const editor = reactive(pageState.editor);
         >
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
-              <el-button link type="primary" :size="actionSize" @click="editor.crud.openEdit(row)"
+              <el-button link type="primary" :size="actionSize" @click="actions.openEdit(row)"
                 >编辑</el-button
               >
-              <el-button link type="primary" :size="actionSize" @click="editor.crud.openDetail(row)"
+              <el-button link type="primary" :size="actionSize" @click="actions.openDetail(row)"
                 >查看</el-button
               >
               <el-button link type="danger" :size="actionSize" @click="actions.handleDelete(row)"

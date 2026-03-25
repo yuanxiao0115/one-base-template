@@ -147,6 +147,18 @@ export function usePositionPageState() {
     resetForm(searchRef, 'postName');
   }
 
+  async function openCreate() {
+    await crud.openCreate();
+  }
+
+  async function openEdit(row: PositionRecord) {
+    await crud.openEdit(row);
+  }
+
+  async function openDetail(row: PositionRecord) {
+    await crud.openDetail(row);
+  }
+
   async function handleDelete(row: PositionRecord) {
     await remove(row);
   }
@@ -177,6 +189,9 @@ export function usePositionPageState() {
       tableSearch,
       onKeywordUpdate,
       onResetSearch,
+      openCreate,
+      openEdit,
+      openDetail,
       handleSizeChange,
       handleCurrentChange,
       handleDelete

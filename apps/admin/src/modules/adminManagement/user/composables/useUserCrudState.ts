@@ -258,6 +258,18 @@ export function useUserCrudState() {
     return getUserTypeLabel(value, userTypeLabelMap);
   }
 
+  async function openCreate() {
+    await crud.openCreate();
+  }
+
+  async function openEdit(row: UserListRecord) {
+    await crud.openEdit(row);
+  }
+
+  async function openDetail(row: UserListRecord) {
+    await crud.openDetail(row);
+  }
+
   async function handleDelete(row: UserListRecord) {
     await remove(row);
   }
@@ -339,6 +351,9 @@ export function useUserCrudState() {
       onResetSearch,
       handleNodeClick,
       getUserTypeLabel: getCurrentUserTypeLabel,
+      openCreate,
+      openEdit,
+      openDetail,
       handleDelete,
       handleSingleStatus,
       handleBatchStatus,

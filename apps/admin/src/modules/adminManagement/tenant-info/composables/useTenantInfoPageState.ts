@@ -166,11 +166,11 @@ export function useTenantInfoPageState() {
   const crudForm = crud.form;
 
   function isTenantEnabled(row: TenantInfoRecord): boolean {
-    return Number(row.tenantState ?? 0) === 0;
+    return (row.tenantState ?? 0) === 0;
   }
 
   function getTenantStatusType(row: TenantInfoRecord): 'success' | 'danger' | 'warning' {
-    const value = Number(row.tenantState ?? 0);
+    const value = row.tenantState ?? 0;
     if (value === 0) {
       return 'success';
     }
@@ -181,7 +181,7 @@ export function useTenantInfoPageState() {
   }
 
   function getTenantStatusText(row: TenantInfoRecord): string {
-    const value = Number(row.tenantState ?? 0);
+    const value = row.tenantState ?? 0;
     if (value === 0) {
       return '正常';
     }
@@ -233,8 +233,8 @@ export function useTenantInfoPageState() {
 
   function openPermission(row: TenantInfoRecord) {
     permissionVisible.value = true;
-    permissionTenantId.value = String(row.id);
-    permissionTenantName.value = row.tenantName == null ? '' : String(row.tenantName);
+    permissionTenantId.value = row.id;
+    permissionTenantName.value = row.tenantName ?? '';
   }
 
   function onPermissionDialogChange(visible: boolean) {

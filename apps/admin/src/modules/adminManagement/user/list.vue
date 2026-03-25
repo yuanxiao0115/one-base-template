@@ -97,7 +97,7 @@ function getStatusTagType(isEnable?: boolean) {
 
         <el-button :icon="Unlock" @click="actions.handleBatchStatus(true)">批量启用</el-button>
         <el-button :icon="Lock" @click="actions.handleBatchStatus(false)">批量停用</el-button>
-        <el-button type="primary" :icon="Plus" @click="editor.crud.openCreate()">新增</el-button>
+        <el-button type="primary" :icon="Plus" @click="actions.openCreate">新增</el-button>
       </template>
 
       <template #default="{ size, dynamicColumns }">
@@ -133,26 +133,16 @@ function getStatusTagType(isEnable?: boolean) {
           </template>
 
           <template #userType="{ row }">
-            {{ actions.getUserTypeLabel(Number(row.userType)) }}
+            {{ row.userType == null ? '--' : actions.getUserTypeLabel(row.userType) }}
           </template>
 
           <template #operation="{ row, size: actionSize }">
             <div class="user-management-page__actions">
               <ObActionButtons>
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="editor.crud.openEdit(row)"
-                >
+                <el-button link type="primary" :size="actionSize" @click="actions.openEdit(row)">
                   编辑
                 </el-button>
-                <el-button
-                  link
-                  type="primary"
-                  :size="actionSize"
-                  @click="editor.crud.openDetail(row)"
-                >
+                <el-button link type="primary" :size="actionSize" @click="actions.openDetail(row)">
                   查看
                 </el-button>
                 <el-button
@@ -180,7 +170,7 @@ function getStatusTagType(isEnable?: boolean) {
                   重置密码
                 </el-button>
                 <el-button
-                  v-if="Number(row.userType) === 1"
+                  v-if="row.userType === 1"
                   link
                   type="primary"
                   :size="actionSize"

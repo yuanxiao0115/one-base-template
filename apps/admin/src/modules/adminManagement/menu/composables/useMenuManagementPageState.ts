@@ -1,7 +1,6 @@
 import { computed, onMounted, reactive, ref, type Ref } from 'vue';
 import { type CrudErrorContext, type CrudFormLike, useCrudPage } from '@one-base-template/core';
 import type { TableColumnList } from '@one-base-template/ui';
-import { obConfirm } from '@one-base-template/ui';
 import { message } from '@one-base-template/ui';
 import type { ApiResponse } from '@/types/api';
 import menuColumns from '../columns';
@@ -21,25 +20,6 @@ interface SearchFormExpose {
 }
 
 type DialogMode = 'create' | 'detail' | 'edit';
-type CreateCommandType = 'child' | 'sibling';
-
-interface CreateCommandPayload {
-  type: CreateCommandType;
-  row: MenuPermissionRecord;
-}
-
-function isCreateCommandPayload(payload: unknown): payload is CreateCommandPayload {
-  if (!payload || typeof payload !== 'object') {
-    return false;
-  }
-
-  const record = payload as Partial<CreateCommandPayload>;
-  return (
-    (record.type === 'child' || record.type === 'sibling') &&
-    Boolean(record.row) &&
-    typeof record.row === 'object'
-  );
-}
 
 export function useMenuManagementPageState() {
   const tableRef = ref<unknown>(null);
@@ -83,6 +63,21 @@ export function useMenuManagementPageState() {
       },
       params: searchForm,
       pagination: false
+    },
+    remove: {
+      api: async (payload: { id: string }) => menuPermissionApi.deletePermission(payload.id),
+      deleteConfirm: {
+        nameKey: 'resourceName',
+        title: '删除确认',
+        message: '是否确认删除权限「{name}」？若存在下级权限会一并删除。'
+      },
+      onSuccess: () => {
+        message.success('删除成功');
+      },
+      onError: (error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : '删除失败';
+        message.error(errorMessage);
+      }
     }
   });
 
@@ -149,6 +144,7 @@ export function useMenuManagementPageState() {
 
   const { loading, dataList, onSearch, resetForm } = crudPage.table;
   const crud = crudPage.editor;
+  const { remove } = crudPage.actions;
 
   const crudVisible = crud.visible;
   const crudMode = crud.mode;
@@ -277,6 +273,14 @@ export function useMenuManagementPageState() {
     void openCreateDialog();
   }
 
+  function openCreateChild(row: MenuPermissionRecord) {
+    void openCreateDialog(row.id);
+  }
+
+  function openCreateSibling(row: MenuPermissionRecord) {
+    void openCreateDialog(row.parentId || '0');
+  }
+
   async function openEdit(row: MenuPermissionRecord) {
     await openEditDialog('edit', row);
   }
@@ -285,36 +289,8 @@ export function useMenuManagementPageState() {
     await openEditDialog('detail', row);
   }
 
-  function handleCreateCommand(payload: unknown) {
-    if (!isCreateCommandPayload(payload)) {
-      return;
-    }
-
-    const parentId = payload.type === 'child' ? payload.row.id : payload.row.parentId || '0';
-    void openCreateDialog(parentId);
-  }
-
-  async function handleDelete(row: MenuPermissionRecord) {
-    try {
-      await obConfirm.warn(
-        `是否确认删除权限「${row.resourceName}」？若存在下级权限会一并删除。`,
-        '删除确认'
-      );
-
-      const response = await menuPermissionApi.deletePermission(row.id);
-      if (response.code !== 200) {
-        throw new Error(response.message || '删除失败');
-      }
-
-      message.success('删除成功');
-      await onSearch(false);
-    } catch (error) {
-      if (error === 'cancel' || error === 'close') {
-        return;
-      }
-      const errorMessage = error instanceof Error ? error.message : '删除失败';
-      message.error(errorMessage);
-    }
+  async function handleRemove(row: MenuPermissionRecord) {
+    await remove(row);
   }
 
   async function onConfirmCrud() {
@@ -374,11 +350,12 @@ export function useMenuManagementPageState() {
       onResetSearch,
       openRootCreateDialog,
       openCreateDialog,
+      openCreateChild,
+      openCreateSibling,
       openEdit,
       openDetail,
       openEditDialog,
-      handleCreateCommand,
-      handleDelete,
+      remove: handleRemove,
       onConfirmCrud
     }
   };

@@ -328,7 +328,7 @@ defineExpose<CrudFormLike>({
     <template v-for="(orgItem, orgIndex) in model.userOrgs" :key="orgItem._key">
       <div class="ob-crud-container__item--full user-edit-form__org-title">
         <span>部门{{ orgIndex + 1 }}</span>
-        <el-button v-if="!props.disabled" link type="danger" @click="() => removeOrg(orgIndex)"
+        <el-button v-if="!props.disabled" link type="danger" @click="removeOrg(orgIndex)"
           >删除部门</el-button
         >
       </div>
@@ -426,7 +426,7 @@ defineExpose<CrudFormLike>({
       </el-row>
 
       <el-form-item class="ob-crud-container__item--full">
-        <el-button class="user-edit-form__add-btn" :icon="Plus" @click="() => addPost(orgIndex)"
+        <el-button class="user-edit-form__add-btn" :icon="Plus" @click="addPost(orgIndex)"
           >新增职位</el-button
         >
       </el-form-item>
@@ -489,7 +489,7 @@ defineExpose<CrudFormLike>({
                 link
                 type="danger"
                 :icon="Delete"
-                @click="() => removePost(orgIndex, postIndex)"
+                @click="removePost(orgIndex, postIndex)"
               />
             </div>
           </el-form-item>

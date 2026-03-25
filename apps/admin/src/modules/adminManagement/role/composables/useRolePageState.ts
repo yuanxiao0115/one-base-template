@@ -119,6 +119,18 @@ export function useRolePageState() {
     resetForm(searchRef, 'roleName');
   }
 
+  async function openCreate() {
+    await crud.openCreate();
+  }
+
+  async function openEdit(row: RoleRecord) {
+    await crud.openEdit(row);
+  }
+
+  async function openDetail(row: RoleRecord) {
+    await crud.openDetail(row);
+  }
+
   async function handleDelete(row: RoleRecord) {
     await remove(row);
   }
@@ -168,6 +180,9 @@ export function useRolePageState() {
       tableSearch,
       onKeywordUpdate,
       onResetSearch,
+      openCreate,
+      openEdit,
+      openDetail,
       handleSizeChange,
       handleCurrentChange,
       handleDelete,

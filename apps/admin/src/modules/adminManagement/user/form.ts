@@ -64,25 +64,6 @@ function createUserFormKey(prefix: 'org' | 'post'): string {
   return `${prefix}-${Date.now()}-${userFormKeySeed}`;
 }
 
-function toNaturalNumber(value: unknown, fallback = 1): number {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return Math.max(Math.trunc(value), 0);
-  }
-
-  if (typeof value === 'string' && value.trim()) {
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) {
-      return Math.max(Math.trunc(parsed), 0);
-    }
-  }
-
-  return fallback;
-}
-
-function trimText(value: string | undefined): string {
-  return (value || '').trim();
-}
-
 export function createDefaultUserOrgPost(): UserOrgPostForm {
   return {
     _key: createUserFormKey('post'),
@@ -265,9 +246,9 @@ function toUserOrgPostForm(item: UserOrgPostRecord): UserOrgPostForm {
   return {
     _key: createUserFormKey('post'),
     id: item.id,
-    postId: item.postId || '',
-    sort: toNaturalNumber(item.sort, 1),
-    status: toNaturalNumber(item.status, 1)
+    postId: item.postId,
+    sort: item.sort ?? 1,
+    status: item.status ?? 1
   };
 }
 
@@ -275,11 +256,11 @@ function toUserOrgForm(item: UserOrgRecord): UserOrgForm {
   return {
     _key: createUserFormKey('org'),
     id: item.id,
-    orgId: item.orgId || '',
-    orgRankType: item.orgRankType == null ? null : toNaturalNumber(item.orgRankType, 0),
-    ownSort: toNaturalNumber(item.ownSort, 1),
-    sort: toNaturalNumber(item.sort, 1),
-    status: toNaturalNumber(item.status, 1),
+    orgId: item.orgId,
+    orgRankType: item.orgRankType ?? null,
+    ownSort: item.ownSort ?? 1,
+    sort: item.sort ?? 1,
+    status: item.status ?? 1,
     postVos:
       Array.isArray(item.postVos) && item.postVos.length > 0
         ? item.postVos.map((post) => toUserOrgPostForm(post))
@@ -294,35 +275,33 @@ export function toUserForm(detail: UserDetailData): UserForm {
       ? userInfo.userOrgs.map((item) => toUserOrgForm(item))
       : [createDefaultUserOrg()];
 
-  const roleIds = Array.isArray(userInfo.roleIds)
-    ? userInfo.roleIds.map((item) => String(item)).filter(Boolean)
-    : [];
+  const roleIds = Array.isArray(userInfo.roleIds) ? userInfo.roleIds.filter(Boolean) : [];
 
   return {
     id: userInfo.id,
-    nickName: userInfo.nickName || '',
-    userAccount: userInfo.userAccount || '',
-    phone: userInfo.phone || '',
+    nickName: userInfo.nickName,
+    userAccount: userInfo.userAccount,
+    phone: userInfo.phone,
     phoneShow: userInfo.phoneShow,
-    mail: userInfo.mail || '',
-    gender: toNaturalNumber(userInfo.gender, 1),
-    isEnable: Boolean(userInfo.isEnable),
-    userType: toNaturalNumber(userInfo.userType, 0),
-    isExternal: Boolean(userInfo.isExternal),
-    remark: userInfo.remark || '',
+    mail: userInfo.mail ?? '',
+    gender: userInfo.gender ?? 1,
+    isEnable: userInfo.isEnable ?? true,
+    userType: userInfo.userType ?? 0,
+    isExternal: userInfo.isExternal ?? false,
+    remark: userInfo.remark ?? '',
     roleIds,
     userOrgs,
-    avatar: userInfo.avatar || '',
-    createTime: userInfo.createTime || ''
+    avatar: userInfo.avatar ?? '',
+    createTime: userInfo.createTime ?? ''
   };
 }
 
 function toUserOrgPostPayload(item: UserOrgPostForm): UserOrgPostRecord {
   return {
     id: item.id,
-    postId: trimText(item.postId),
-    sort: toNaturalNumber(item.sort, 1),
-    status: toNaturalNumber(item.status, 1)
+    postId: item.postId,
+    sort: item.sort,
+    status: item.status
   };
 }
 
@@ -333,11 +312,11 @@ function toUserOrgPayload(item: UserOrgForm): UserOrgRecord {
 
   return {
     id: item.id,
-    orgId: trimText(item.orgId),
-    orgRankType: item.orgRankType == null ? null : toNaturalNumber(item.orgRankType, 0),
-    ownSort: toNaturalNumber(item.ownSort, 1),
-    sort: toNaturalNumber(item.sort, 1),
-    status: toNaturalNumber(item.status, 1),
+    orgId: item.orgId,
+    orgRankType: item.orgRankType,
+    ownSort: item.ownSort,
+    sort: item.sort,
+    status: item.status,
     postVos
   };
 }
@@ -349,17 +328,17 @@ export function toUserPayload(form: UserForm): UserSavePayload {
 
   return {
     id: form.id,
-    nickName: trimText(form.nickName),
-    userAccount: trimText(form.userAccount),
-    phone: trimText(form.phone),
-    phoneShow: Boolean(form.phoneShow),
-    mail: trimText(form.mail),
-    gender: toNaturalNumber(form.gender, 1),
-    isEnable: Boolean(form.isEnable),
-    userType: toNaturalNumber(form.userType, 0),
-    isExternal: Boolean(form.isExternal),
-    remark: trimText(form.remark),
-    roleIds: form.roleIds.map((item) => String(item)).filter(Boolean),
+    nickName: form.nickName,
+    userAccount: form.userAccount,
+    phone: form.phone,
+    phoneShow: form.phoneShow,
+    mail: form.mail,
+    gender: form.gender,
+    isEnable: form.isEnable,
+    userType: form.userType,
+    isExternal: form.isExternal,
+    remark: form.remark,
+    roleIds: form.roleIds.filter(Boolean),
     userOrgs
   };
 }

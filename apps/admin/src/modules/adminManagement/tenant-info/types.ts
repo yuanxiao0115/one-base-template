@@ -5,8 +5,8 @@ export interface TenantInfoRecord {
   tenantName?: string;
   contactName?: string;
   contactPhone?: string;
-  tenantState?: number | string;
-  maxNumber?: number | string;
+  tenantState?: number;
+  maxNumber?: number;
   managerAccount?: string;
   expireTime?: string;
   remark?: string;

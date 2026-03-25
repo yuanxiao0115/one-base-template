@@ -1,5 +1,13 @@
 import type { TableColumnList } from '@one-base-template/ui';
 
+function formatMenuBinaryValue(cellValue: unknown, enabledLabel: string, disabledLabel: string) {
+  if (cellValue == null) {
+    return '--';
+  }
+
+  return cellValue === 1 ? enabledLabel : disabledLabel;
+}
+
 export const menuColumns: TableColumnList = [
   {
     label: '权限名称',
@@ -29,7 +37,8 @@ export const menuColumns: TableColumnList = [
     label: '缓存路由',
     prop: 'routeCache',
     width: 112,
-    formatter: ({ cellValue }: { cellValue: unknown }) => (Number(cellValue) === 1 ? '是' : '否')
+    formatter: ({ cellValue }: { cellValue: unknown }) =>
+      formatMenuBinaryValue(cellValue, '是', '否')
   },
   {
     label: '访问路径',
@@ -41,14 +50,14 @@ export const menuColumns: TableColumnList = [
     prop: 'hidden',
     width: 98,
     formatter: ({ cellValue }: { cellValue: unknown }) =>
-      Number(cellValue) === 0 ? '显示' : '隐藏'
+      cellValue == null ? '--' : cellValue === 0 ? '显示' : '隐藏'
   },
   {
     label: '打开方式',
     prop: 'openMode',
     width: 112,
     formatter: ({ cellValue }: { cellValue: unknown }) =>
-      Number(cellValue) === 0 ? '内部' : '外部'
+      cellValue == null ? '--' : cellValue === 0 ? '内部' : '外部'
   },
   {
     label: '跳转地址',
