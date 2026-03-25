@@ -89,6 +89,7 @@ pnpm new:module user-center --title 用户中心
 - 清单扫描：`apps/admin/src/modules/**/manifest.ts`
 - 模块加载：按 `enabledModules` 动态加载 `apps/admin/src/modules/**/module.ts`
 - 全局固定路由仅保留：`/login`、`/sso`、`/403`、`/404`、404 兜底
+  - 其中 `/login`、`/sso` 都按“认证入口”处理，不是“登录后也可反复进入的普通开放页”
 - admin 当前约定：`/403`、`/404` 作为 `AdminLayout` 子路由渲染（保留顶部栏与侧栏），404 通配兜底默认使用 push 语义
 - 业务路由一律来自模块 Manifest
 

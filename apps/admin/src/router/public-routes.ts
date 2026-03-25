@@ -11,6 +11,8 @@ export const publicRoutes: PublicRouteDefinition[] = [
     meta: createOpenRouteMeta()
   },
   {
+    // /sso 仍声明为开放路由，保证未登录时可进入回调页；
+    // 已登录再次访问是否放行，由 core 守卫统一按认证入口分支拦截。
     path: routePaths.sso,
     name: 'sso',
     component: async () => import('../pages/sso/SsoCallbackPage.vue'),

@@ -6,6 +6,7 @@ import { useSystemStore } from '../stores/system';
 import { buildLoginRedirectLocation } from './redirect';
 import { getRouteAccess } from './route-access';
 
+// `/login`、`/sso` 默认都属于认证入口：未登录可进入，已登录由守卫回跳。
 const DEFAULT_OPEN_PATHS = ['/login', '/sso'] as const;
 const DEFAULT_LOGIN_PATH = '/login';
 const DEFAULT_FORBIDDEN_PATH = '/403';
@@ -26,7 +27,7 @@ export interface RouterGuardOptions {
     from: RouteLocationNormalized;
   }) => void | Promise<void>;
   /**
-   * 额外开放路由路径。
+   * 额外匿名可访问路由路径。
    * 兼容 template / portal 这类尚未完全迁到 meta.access 的场景。
    */
   publicRoutePaths?: string[];
@@ -285,13 +286,8 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     const ssoRoutePath =
       typeof coreOptions.sso?.routePath === 'string' ? coreOptions.sso.routePath : undefined;
 
-    if (
-      isAuthEntryRoute({
-        toPath: to.path,
-        loginRoutePath,
-        ssoRoutePath
-      })
-    ) {
+    // 认证入口单独收口，避免“已登录还能进 login/sso”与普通开放页逻辑混在一起。
+    if (isAuthEntryRoute({ toPath: to.path, loginRoutePath, ssoRoutePath })) {
       if (
         shouldAllowTokenlessAuthEntryRoute({
           authMode: coreOptions.auth?.mode,

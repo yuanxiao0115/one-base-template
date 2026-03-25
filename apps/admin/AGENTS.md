@@ -38,14 +38,14 @@
 
 ### SSO 与鉴权
 
-- SSO 回调路由统一为 `/sso`（白名单）。
+- SSO 认证入口 / 回调路由统一为 `/sso`；未登录允许进入完成回调，已登录再次访问时由全局守卫回跳。
 - SSO 策略优先级：`token` / `ticket` / `oauth code`。
 - exchange 成功流程：`fetchMe()` -> `fetchMenu()` -> 跳转站内安全地址。
 - 默认 Cookie(HttpOnly) 鉴权：HTTP 客户端保持 `withCredentials: true`，前端默认不读写 token。
 - `apps/admin/src/main.ts` 必须保持**单启动链路**：统一执行 `startAdminApp() -> bootstrapAdminApp() -> router.isReady() -> mount`，禁止再次引入 `public/admin` 双启动分流或运行时 OS 字体切换。
 - 允许在 `apps/admin/src/main.ts` 通过 `startAdminApp({ beforeMount })` 安装项目级插件（`app.use(...)`）；除该扩展位外，不要在业务文件散落全局安装逻辑。
 - 样式入口约定：基础样式与 Element Plus 覆盖统一在 `apps/admin/src/bootstrap/admin-styles.ts`；团队项目覆写样式只允许在 `apps/admin/src/main.ts` 顶部通过 `import './styles/team-overrides.css'` 引入。
-- `/login`、`/sso` 只作为主路由表中的公共路由存在；登录/SSO 成功后统一使用站内 `router.replace()` 跳转，未授权清理仅允许按需动态导入细粒度子入口（如 `@one-base-template/tag/store`），不要恢复匿名独立 bootstrap。
+- `/login`、`/sso` 只作为主路由表中的认证入口存在；登录/SSO 成功后统一使用站内 `router.replace()` 跳转，已登录访问这两个入口时也必须由守卫拦截回跳，未授权清理仅允许按需动态导入细粒度子入口（如 `@one-base-template/tag/store`），不要恢复匿名独立 bootstrap。
 
 ## 布局与主题（admin 侧）
 

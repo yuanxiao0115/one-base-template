@@ -139,8 +139,9 @@ pnpm build
 
 ## SSO 单点登录
 
-- 回调路由：`/sso`（默认白名单）
-- 策略配置：`apps/admin/src/main.ts` -> `createCore({ sso: { strategies: [...] } })`
+- 认证入口 / 回调路由：`/sso`
+- 路由语义：未登录允许进入以完成回调；已登录再次访问时会被全局守卫拦截并安全回跳到站内地址
+- 策略配置：`apps/admin/src/config/sso.ts`
 - 示例：
   - `/sso?token=demo&redirect=%2Fhome`
   - `/sso?ticket=st-demo&redirect=%2Fhome`

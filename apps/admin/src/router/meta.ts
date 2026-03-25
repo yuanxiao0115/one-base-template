@@ -26,6 +26,7 @@ export function defineRouteMeta<TMeta extends AdminRouteMeta>(meta: TMeta): TMet
 
 /**
  * 开放路由：未登录也可访问，默认隐藏标签页。
+ * `/sso` 这类认证入口也使用该标记，但登录后是否允许再次进入由守卫单独处理。
  */
 export function createOpenRouteMeta(meta: Omit<AdminRouteMeta, 'access' | 'hiddenTab'> = {}) {
   return defineRouteMeta({
