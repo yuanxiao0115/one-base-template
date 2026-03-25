@@ -237,6 +237,19 @@
   - 修正 `packages/utils/src/storage/__tests__/local.test.ts` 的存储测试基座。
   - 修正 `apps/docs/docs/.vitepress/config.ts` 的 readonly 配置类型问题。
   - 收回 `apps/admin/src/services/auth/auth-avatar-preference-service.ts` 的命名白名单违规函数名。
+
+## 2026-03-25（admin 首屏守卫注册时序修复）
+
+- 浏览器复现（Safari）：
+  - 在 `http://localhost:5173/` 清除 `localStorage.token` 后，页面仍直接落到 `/home/index`。
+  - 复现时 `localStorage` 仅剩 `one-base-template-admin:ob_system_current` 与 `one-base-template-admin:ob_theme`，`sessionStorage` 为空，`document.cookie` 为空，页面右上角显示“未登录”。
+- 根因：
+  - `apps/admin/src/bootstrap/index.ts` 在 `app.use(router)` 后才执行 `setupRouterGuards()`。
+  - Vue Router 首屏导航在安装 router 时就已启动，导致 `/ -> /home/index` 这次初始跳转未经过登录守卫。
+- 收口：
+  - `createRouter` 阶段仅创建 router，不立即 `app.use(router)`。
+  - 守卫与动态导入恢复注册完成后，再执行 `install-router`。
+  - 新增测试 `apps/admin/tests/bootstrap/index.unit.test.ts`，锁定“守卫先于 router 安装”的启动顺序。
   - `adminManagement` 模板直接 `crud.openCreate/openEdit/openDetail`：清零。
   - `adminManagement` 的 `ObActionButtons + el-dropdown` 例外：清零。
   - `lint:arch` 仅剩写集外历史问题：`apps/admin/src/bootstrap/material-image-service-worker.ts` 的 `import.meta.env`。

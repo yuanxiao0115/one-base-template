@@ -77,20 +77,10 @@ export async function bootstrapAdminApp() {
           routes: routeAssemblyResult.routes,
           strict: true
         });
-        app.use(nextRouter);
         return nextRouter;
       },
       () => ({
         routeCount: routeAssemblyResult.diagnostics.routeCount
-      })
-    );
-
-    await profiler.runStage('install-app-shell-plugins', () =>
-      installAppShellPlugins({
-        app,
-        pinia,
-        router,
-        storageNamespace: resolvedAppEnv.storageNamespace
       })
     );
 
@@ -164,6 +154,19 @@ export async function bootstrapAdminApp() {
 
     await profiler.runStage('install-route-dynamic-import-recovery', () =>
       installRouteDynamicImportRecovery(router)
+    );
+
+    await profiler.runStage('install-router', () => {
+      app.use(router);
+    });
+
+    await profiler.runStage('install-app-shell-plugins', () =>
+      installAppShellPlugins({
+        app,
+        pinia,
+        router,
+        storageNamespace: resolvedAppEnv.storageNamespace
+      })
     );
 
     profiler.complete({

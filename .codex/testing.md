@@ -177,6 +177,25 @@
   - `apps/docs typecheck/build` 通过。
   - `pnpm verify` 通过。
   - 备注：`apps/admin` lint 仍有 `OrgManagerDialog.vue` 的 `max-lines` warning，但不阻断门禁。
+
+## 2026-03-25（admin 首屏守卫注册时序修复）
+
+- RED（先失败）：
+  - `pnpm -C apps/admin test:run -- tests/bootstrap/index.unit.test.ts`
+  - 结果：失败，`setupRouterGuards` 调用顺序晚于 `app.use(router)`，证明首屏导航未受守卫保护。
+- 浏览器复现：
+  - Safari 访问 `http://localhost:5173/`
+  - 执行 `localStorage.removeItem('token'); sessionStorage.clear(); location.href='/'`
+  - 结果：修复前落到 `/home/index`，且页面右上角显示“未登录”。
+- GREEN（修复后回归）：
+  - `pnpm -C apps/admin test:run -- tests/bootstrap/index.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin build`
+  - 浏览器复测：Safari 清掉 `token` 后重新访问 `/`，最终落到 `/login?redirect=/home/index`
+- 结果：
+  - 单测、`typecheck`、`build` 通过。
+  - `lint` 通过，仍保留 `OrgManagerDialog.vue` 的 1 条 `max-lines` warning（非阻断）。
 - 命令：
   - `pnpm -w typecheck`
   - `pnpm -w lint`（存在少量 warning，不影响通过）
