@@ -8483,3 +8483,20 @@
   - 路由策略门禁通过，产物已生成：`.codex/route-policy/admin-route-policy.json`。
   - `apps/admin lint/typecheck` 通过；lint 保留历史 `OrgManagerDialog.vue` 的 `max-lines` warning（非阻断）。
   - `apps/docs lint/build` 通过。
+
+## 2026-03-25（登录路由板块稳定性/扩展性/性能收口）
+
+- 命令：
+  - `pnpm -C packages/core test:run -- src/stores/auth.test.ts src/router/guards.test.ts`
+  - `pnpm -C apps/admin test:run -- tests/bootstrap/index.unit.test.ts`
+  - `pnpm test:e2e:minimal-auth`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 相关单测全部通过（core `109` 用例通过，admin bootstrap 与最小链路用例通过）。
+  - `typecheck` 通过（core/admin）。
+  - `apps/admin lint` 通过，保留历史 `OrgManagerDialog.vue` 的 `max-lines` warning（非阻断）。
+  - `apps/docs lint/build` 通过。

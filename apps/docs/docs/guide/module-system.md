@@ -157,7 +157,7 @@ compat: {
   - 登录跳转判定
   - 菜单同步与系统切换
   - `skipMenuAuth` 严格白名单判定
-- 对应用层保持兼容：`setupRouterGuards(router, options)` 与 `RouterGuardOptions` 契约不变，admin 无需改调用方式。
+- 对应用层保持兼容：`setupRouterGuards(router, options)` 与 `RouterGuardOptions` 契约保持稳定；当前支持通过 `resolveAuthedLoginRedirect` 注入自定义回跳解析逻辑（用于 baseUrl 子路径部署等场景）。
 - `apps/admin/src/pages/sso/SsoCallbackPage.vue` 的参数分支匹配逻辑已下沉到
   `packages/core/src/auth/sso-callback-strategy.ts`，admin 侧只保留远端登录编排。
 - `sso-callback-strategy` 约定优先级固定为：
@@ -172,6 +172,8 @@ compat: {
   - 新增 `apps/admin/src/services/auth/auth-scenario-provider.ts`，统一封装 `default/basic` 登录与 SSO 场景；
   - 页面层（`LoginPage.vue` / `SsoCallbackPage.vue`）只保留 UI 状态与跳转编排，不再直接拼接后端分支细节；
   - 新增 `auth-scenario-provider` 单测，覆盖场景分支、token 回填与异常分支。
+  - 登录页直登 token 场景优先执行会话收口与跳转，避免被登录页配置接口阻塞。
+  - SSO 失败分支统一清理 `tokenKey` 与 `idTokenKey`，降低残留状态影响。
 
 ### 2.4 路由冲突策略与测试护栏（第四批续）
 

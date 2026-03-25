@@ -18,6 +18,12 @@ export interface CoreHookOptions {
 export interface CoreAuthOptions {
   mode: ObAuthMode;
   tokenKey: string;
+  /**
+   * cookie 鉴权模式下是否在首次路由守卫时强制校验会话有效性。
+   * - true（默认）：即使命中本地缓存用户，也会先调用 fetchMe 校验一次服务端会话。
+   * - false：沿用缓存快速放行策略，由后续接口按需触发 401 回收。
+   */
+  strictCookieSession?: boolean;
 }
 
 export interface CoreOptions {

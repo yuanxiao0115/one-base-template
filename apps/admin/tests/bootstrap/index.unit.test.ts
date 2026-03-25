@@ -19,6 +19,7 @@ const mocks = vi.hoisted(() => {
     createWebHistory: vi.fn(() => ({ __history: true })),
     setObHttpClient: vi.fn(),
     setupRouterGuards: vi.fn(),
+    resolveAppRedirectTarget: vi.fn(() => '/'),
     installRouteDynamicImportRecovery: vi.fn(),
     buildAppRoutes: vi.fn(async () => ({
       routes: [{ path: '/' }],
@@ -77,6 +78,7 @@ vi.mock('vue-router', () => ({
 
 vi.mock('@one-base-template/core', () => ({
   installRouteDynamicImportRecovery: mocks.installRouteDynamicImportRecovery,
+  resolveAppRedirectTarget: mocks.resolveAppRedirectTarget,
   setObHttpClient: mocks.setObHttpClient,
   setupRouterGuards: mocks.setupRouterGuards
 }));
@@ -107,6 +109,7 @@ vi.mock('@/config', () => ({
 
 vi.mock('@/router/constants', () => ({
   routePaths: {
+    root: '/',
     login: '/login',
     forbidden: '/403'
   }
@@ -157,5 +160,28 @@ describe('bootstrap/index', () => {
     expect(mocks.setupRouterGuards.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.appUseRouter.mock.invocationCallOrder[0]
     );
+  });
+
+  it('应为已登录访问 /login 注入可扩展的回跳解析器', async () => {
+    await bootstrapAdminApp();
+
+    const guardOptions = mocks.setupRouterGuards.mock.calls[0]?.[1] as
+      | { resolveAuthedLoginRedirect?: (ctx: { to: { query: Record<string, unknown> } }) => string }
+      | undefined;
+    expect(typeof guardOptions?.resolveAuthedLoginRedirect).toBe('function');
+
+    const resolved = guardOptions?.resolveAuthedLoginRedirect?.({
+      to: {
+        query: {
+          redirect: '/admin/system/user'
+        }
+      }
+    });
+
+    expect(mocks.resolveAppRedirectTarget).toHaveBeenCalledWith('/admin/system/user', {
+      fallback: '/',
+      baseUrl: '/'
+    });
+    expect(resolved).toBe('/');
   });
 });

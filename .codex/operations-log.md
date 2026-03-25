@@ -10083,3 +10083,24 @@
   - 新增 `apps/admin/tests/services/auth/sso-minimal-e2e.unit.test.ts`，覆盖“SSO 回调 type+token 落地跳转”。
   - 新增聚合脚本：根 `test:e2e:minimal-auth`、admin `test:e2e:minimal-auth`。
 - 文档同步：更新 `apps/docs/docs/guide/menu-route-spec.md`，补充 meta helper 强制规则、路由策略门禁命令与最小链路回归命令。
+
+## 2026-03-25（登录路由板块稳定性/扩展性/性能收口）
+
+- 守卫扩展：
+  - `packages/core/src/router/guards.ts` 新增 `resolveAuthedLoginRedirect` 扩展点，已登录访问 `/login` 时允许应用层注入回跳解析逻辑。
+  - `apps/admin/src/bootstrap/index.ts` 注入 `resolveAppRedirectTarget`，在 `/admin` 子路径部署下正确剥离 base 前缀，避免 `/admin/admin/*` 误跳。
+- 鉴权稳定性：
+  - `packages/core/src/stores/auth.ts` 新增 cookie 模式首次守卫强校验（`strictCookieSession`，默认开启），避免仅凭本地 `ob_auth_user` 缓存误判已登录。
+  - `packages/core/src/createCore.ts` 扩展 `CoreAuthOptions.strictCookieSession` 配置契约。
+- 登录链路性能：
+  - `apps/admin/src/pages/login/LoginPage.vue` 调整 `onMounted` 顺序：`direct token` 优先处理并立即跳转，不再等待登录配置接口。
+- SSO 异常清理：
+  - `apps/admin/src/pages/sso/SsoCallbackPage.vue` 失败分支补充 `idTokenKey` 清理。
+- 测试与门禁补齐：
+  - `packages/core/src/router/guards.test.ts` 增加自定义回跳解析器用例。
+  - `packages/core/src/stores/auth.test.ts` 增加 cookie 严格校验与关闭严格模式回归用例。
+  - `apps/admin/tests/bootstrap/index.unit.test.ts` 增加回跳解析器注入断言。
+  - 新增 `apps/admin/tests/architecture/login-route-robustness-source.unit.test.ts`，锁定 direct token 优先与 SSO 双 token 清理。
+  - `apps/admin/package.json` 的 `test:e2e:minimal-auth` 增加上述架构测试。
+- 文档同步：
+  - 更新 `apps/docs/docs/guide/module-system.md`，补充守卫扩展点与登录/SSO 链路约束。

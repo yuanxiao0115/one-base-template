@@ -77,4 +77,60 @@ describe('core/stores/auth', () => {
     expect(store.user).toBeNull();
     expect(globalThis.localStorage.getItem(authUserKey)).toBeNull();
   });
+
+  it('cookie 模式下首次守卫应校验服务端会话，失败时清空缓存用户', async () => {
+    globalThis.localStorage.setItem(authUserKey, JSON.stringify(createUser()));
+
+    const fetchMe = vi.fn(async () => {
+      throw new Error('session expired');
+    });
+    mocks.getCoreOptions.mockReturnValue({
+      storageNamespace: 'unit-test',
+      auth: {
+        mode: 'cookie',
+        tokenKey: 'token'
+      },
+      adapter: {
+        auth: {
+          fetchMe,
+          login: vi.fn(),
+          logout: vi.fn()
+        }
+      }
+    });
+
+    const store = useAuthStore();
+
+    await expect(store.ensureAuthed()).resolves.toBe(false);
+    expect(fetchMe).toHaveBeenCalledTimes(1);
+    expect(store.user).toBeNull();
+    expect(globalThis.localStorage.getItem(authUserKey)).toBeNull();
+  });
+
+  it('cookie 模式可关闭严格会话校验以兼容缓存快速恢复', async () => {
+    globalThis.localStorage.setItem(authUserKey, JSON.stringify(createUser()));
+
+    const fetchMe = vi.fn(async () => createUser());
+    mocks.getCoreOptions.mockReturnValue({
+      storageNamespace: 'unit-test',
+      auth: {
+        mode: 'cookie',
+        tokenKey: 'token',
+        strictCookieSession: false
+      },
+      adapter: {
+        auth: {
+          fetchMe,
+          login: vi.fn(),
+          logout: vi.fn()
+        }
+      }
+    });
+
+    const store = useAuthStore();
+
+    await expect(store.ensureAuthed()).resolves.toBe(true);
+    expect(fetchMe).not.toHaveBeenCalled();
+    expect(store.user?.id).toBe('u-1');
+  });
 });

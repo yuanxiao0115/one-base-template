@@ -101,6 +101,14 @@ function hasTokenSession() {
   }
 }
 
+function shouldStrictCookieSessionCheck() {
+  const authOptions = getCoreOptions().auth;
+  if (authOptions?.mode !== 'cookie') {
+    return false;
+  }
+  return authOptions.strictCookieSession !== false;
+}
+
 export const useAuthStore = defineStore('ob-auth', () => {
   const user = ref<AppUser | null>(null);
   const initialized = ref(false);
@@ -130,6 +138,18 @@ export const useAuthStore = defineStore('ob-auth', () => {
       clearStoredUser();
       initialized.value = true;
       return false;
+    }
+
+    if (shouldStrictCookieSessionCheck() && !initialized.value) {
+      try {
+        await fetchMe();
+        return true;
+      } catch {
+        user.value = null;
+        clearStoredUser();
+        initialized.value = true;
+        return false;
+      }
     }
 
     if (user.value) {

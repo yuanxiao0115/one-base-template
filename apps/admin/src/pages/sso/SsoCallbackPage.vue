@@ -67,6 +67,7 @@ onMounted(async () => {
       void message.error(errorMessage.value);
     }
     localStorage.removeItem(tokenKey);
+    localStorage.removeItem(idTokenKey);
   } finally {
     loading.value = false;
   }

@@ -40,6 +40,12 @@ export interface RouterGuardOptions {
    */
   forbiddenRoutePath?: string;
   /**
+   * 已登录访问登录页时的回跳路径解析器。
+   * - 未传入时，使用 core 默认安全规则（仅站内路径）。
+   * - 业务可注入 baseUrl 感知逻辑（例如子路径部署）。
+   */
+  resolveAuthedLoginRedirect?: (ctx: { to: RouteLocationNormalized }) => string;
+  /**
    * `meta.skipMenuAuth=true` 的路由白名单（按 route.name）。
    * 未配置时保持兼容：允许所有 skipMenuAuth。
    * 只要显式传入（包括空数组）就启用严格模式：不在白名单内的 skipMenuAuth 路由不会放行。
@@ -92,6 +98,29 @@ function resolveLoginSuccessRedirect(to: RouteLocationNormalized): string {
     return '/';
   }
   return rawRedirect;
+}
+
+function buildAuthedLoginRedirectWithResolver(params: {
+  to: RouteLocationNormalized;
+  resolveAuthedLoginRedirect?: (ctx: { to: RouteLocationNormalized }) => string;
+}): GuardResult {
+  const { to, resolveAuthedLoginRedirect } = params;
+  if (!resolveAuthedLoginRedirect) {
+    return buildAuthedLoginRedirect(to);
+  }
+
+  try {
+    const resolvedPath = resolveAuthedLoginRedirect({ to });
+    if (typeof resolvedPath !== 'string' || !resolvedPath) {
+      return buildAuthedLoginRedirect(to);
+    }
+    return {
+      path: resolvedPath,
+      query: {}
+    };
+  } catch {
+    return buildAuthedLoginRedirect(to);
+  }
 }
 
 function buildAuthedLoginRedirect(to: RouteLocationNormalized): GuardResult {
@@ -305,7 +334,10 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     if (to.path === loginRoutePath) {
       const authed = await authStore.ensureAuthed();
       if (authed) {
-        return buildAuthedLoginRedirect(to);
+        return buildAuthedLoginRedirectWithResolver({
+          to,
+          resolveAuthedLoginRedirect: options.resolveAuthedLoginRedirect
+        });
       }
       return true;
     }

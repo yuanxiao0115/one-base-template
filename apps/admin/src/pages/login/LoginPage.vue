@@ -169,12 +169,13 @@ const passwordPattern =
   /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)(?!([^(0-9a-zA-Z)]|[()])+$)(?!^.*[\u4E00-\u9FA5].*$)([^(0-9a-zA-Z)]|[()]|[a-z]|[A-Z]|[0-9]){8,18}$/;
 
 onMounted(async () => {
-  if (loginScenario.shouldLoadLoginPageConfig) {
-    await loadLoginPageConfig();
-  }
-
   if (loginScenario.directLoginToken) {
     await handleDirectTokenLogin(loginScenario.directLoginToken);
+    return;
+  }
+
+  if (loginScenario.shouldLoadLoginPageConfig) {
+    await loadLoginPageConfig();
   }
 });
 </script>

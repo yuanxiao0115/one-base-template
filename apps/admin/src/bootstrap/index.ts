@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { createRouter, createWebHistory } from 'vue-router';
 import {
   installRouteDynamicImportRecovery,
+  resolveAppRedirectTarget,
   setObHttpClient,
   setupRouterGuards
 } from '@one-base-template/core';
@@ -141,6 +142,11 @@ export async function bootstrapAdminApp() {
           publicRoutePaths: [...guardPublicRoutePaths],
           loginRoutePath: routePaths.login,
           forbiddenRoutePath: routePaths.forbidden,
+          resolveAuthedLoginRedirect: ({ to }) =>
+            resolveAppRedirectTarget(to.query.redirect ?? to.query.redirectUrl, {
+              fallback: routePaths.root,
+              baseUrl: resolvedAppEnv.baseUrl
+            }),
           // 路由白名单由“已装配路由 + meta.skipMenuAuth”自动生成，避免手工常量与模块启停漂移。
           allowedSkipMenuAuthRouteNames: skipMenuAuthRouteNames,
           onNavigationStart: () => {

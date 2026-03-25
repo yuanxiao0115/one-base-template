@@ -180,6 +180,27 @@ describe('setupRouterGuards', () => {
     ).resolves.toBe(true);
   });
 
+  it('已登录访问 /login 时应支持自定义回跳解析器', async () => {
+    const resolveAuthedLoginRedirect = vi.fn(() => '/system/custom-home');
+    const runGuard = createGuardRunner({
+      loginRoutePath: '/login',
+      resolveAuthedLoginRedirect
+    });
+
+    await expect(
+      runGuard({
+        path: '/login',
+        fullPath: '/login?redirect=/admin/system/user',
+        query: { redirect: '/admin/system/user' }
+      })
+    ).resolves.toEqual({
+      path: '/system/custom-home',
+      query: {}
+    });
+
+    expect(resolveAuthedLoginRedirect).toHaveBeenCalledTimes(1);
+  });
+
   it('未登录应跳转登录页', async () => {
     authStore.ensureAuthed.mockResolvedValue(false);
     const runGuard = createGuardRunner({
