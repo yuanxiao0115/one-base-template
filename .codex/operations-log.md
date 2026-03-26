@@ -10177,3 +10177,17 @@
 
 - 读取技能与仓库约束，准备继续实现 access=open/auth/menu 路由模型。
 - 路由 access 模型重构收尾：统一 `meta.access=open/auth/menu`，补 401 redirect、静态菜单开放页过滤，并同步更新 admin/core/docs 文档口径。
+
+## 2026-03-25（/sso 认证入口语义统一）
+
+- 收尾最近的路由守卫改造，不再修改守卫行为，只统一 `/sso` 的语义描述与注释。
+- 更新文件：
+  - `README.md`
+  - `apps/admin/AGENTS.md`
+  - `apps/admin/src/config/sso.ts`
+  - `apps/admin/src/router/public-routes.ts`
+  - `apps/admin/src/router/meta.ts`
+  - `packages/core/src/router/guards.ts`
+  - `apps/docs/docs/guide/module-system.md`
+- 统一口径：`/sso` 是“认证入口 / SSO 回调入口”，未登录允许进入完成回调，已登录再次访问时由全局守卫安全回跳；不再用“白名单开放页”描述该路由。
+- 顺手修正根 README 中 SSO 配置入口的旧描述，改为 `apps/admin/src/config/sso.ts`。

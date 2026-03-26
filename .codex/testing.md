@@ -8586,3 +8586,18 @@
   - admin 路由装配、路由策略、首屏守卫注册、401 回登录页回跳、登录/SSO 最小链路回归全部通过。
   - 全仓 `typecheck` 通过，`packages/core build`、`apps/admin build`、`apps/docs build` 通过。
   - 测试过程中存在 `--localstorage-file` warning，为测试环境提示，不影响结论。
+
+## 2026-03-25（/sso 认证入口语义统一）
+
+- 命令：
+  - `pnpm -C packages/core test:run -- src/router/guards.test.ts src/router/auth-minimal-e2e.unit.test.ts`
+  - `pnpm -C apps/admin test:run -- tests/services/auth/sso-minimal-e2e.unit.test.ts tests/bootstrap/index.unit.test.ts`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/core` 路由守卫相关测试通过（`25 files / 117 tests`）。
+  - `apps/admin` 定向测试通过（`50 files / 141 tests`）。
+  - `apps/admin build` 通过。
+  - `apps/docs lint/build` 通过。
+  - 测试过程中仍有 Node `--localstorage-file` warning，为测试环境提示，不影响结论。
