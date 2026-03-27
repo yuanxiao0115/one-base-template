@@ -28,14 +28,16 @@
 
 ![admin 启动顺序流程图（SVG）](/diagrams/runtime-admin-startup.svg)
 
-## template 启动分层（最小静态菜单）
+## template 启动分层（迁移基座）
 
-- `apps/template/public/platform-config.json`：运行时配置（推荐 `preset=static-single`）
-- `apps/template/src/config/platform-config.ts`：配置加载与校验
-- `apps/template/src/main.ts`：串联运行时配置与挂载
-- `apps/template/src/infra/local-adapter.ts`：本地鉴权适配器
-- `apps/template/src/router/routes.ts`：静态路由与菜单来源
-- `apps/template/src/bootstrap/index.ts`：安装 router + core + ui + tag + 守卫
+- `apps/template/src/config/platform-config.ts`：代码静态平台配置入口（默认 `remote-single + token + backend=basic`）
+- `apps/template/src/config/env.ts`：聚合构建期 env 与平台静态配置
+- `apps/template/src/main.ts`：保留 beforeMount 扩展入口
+- `apps/template/src/bootstrap/startup.ts`：统一启动编排与错误兜底
+- `apps/template/src/bootstrap/index.ts`：创建 app/pinia/router/http/core，并安装插件与守卫
+- `apps/template/src/bootstrap/{http,adapter,core,plugins,error-view}.ts`：HTTP、后端适配、core 安装、壳层插件、错误视图分层
+- `apps/template/src/router/{registry,assemble-routes,meta,public-routes}.ts`：模块声明加载、路由装配、meta helper、公共路由定义
+- `apps/template/src/modules/**/{manifest,module,routes}.ts`：模块契约与路由声明
 
 ### template 启动顺序（流程图）
 
@@ -68,7 +70,7 @@
 
 - `bootstrap/index.ts` 内联 `createWebHistory(appEnv.baseUrl)`，避免 `BASE_URL` 来源分散
 - `apps/admin` 不再依赖 `public/platform-config.json` 运行时文件，平台配置改为 `src/config/platform-config.ts` 代码静态维护。
-- `apps/portal` / `apps/template` 仍保留 runtime config loader 能力（并发复用、超时、重试、按需快照兜底）。
+- `apps/portal` 仍保留 runtime config loader 能力（并发复用、超时、重试、按需快照兜底）；`apps/template` 已收敛到代码静态配置。
 - `router/registry.ts` 改为两阶段装配：
   - 先扫描 `modules/**/manifest.ts`（eager）
   - 再按 `enabledModules` 动态导入 `modules/**/module.ts`
@@ -81,6 +83,7 @@
 - `bootstrap/http.ts` 改为复用 `createBasicClientSignatureBeforeRequest()`，避免 admin/portal 重复维护签名注入逻辑
 - `services/security/client-signature.ts` 与 `services/security/crypto.ts` 统一复用 `services/security/signature.ts`（该文件继续复用 `packages/core/src/http/client-signature.ts`），避免签名实现漂移
 - `apps/portal/src/bootstrap/index.ts` 也接入 `installRouteDynamicImportRecovery(router)`，与 admin 保持一致恢复策略
+- `apps/template/src/bootstrap/index.ts` 同步接入 `installRouteDynamicImportRecovery(router)` 与 `registerMessageUtils`，保证与 admin 启动职责一致
 
 ## 存储命名空间与首次路由
 

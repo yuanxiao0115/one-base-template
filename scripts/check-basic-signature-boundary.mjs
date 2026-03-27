@@ -4,7 +4,8 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const targetFiles = [
   'apps/admin/src/services/security/signature.ts',
-  'apps/portal/src/config/basic/signature.ts'
+  'apps/portal/src/config/basic/signature.ts',
+  'apps/template/src/services/security/signature.ts'
 ];
 
 const requiredImports = ['buildClientSignature', 'getClientSignatureInput'];

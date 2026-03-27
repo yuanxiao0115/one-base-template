@@ -1,123 +1,112 @@
 import { createApp } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
+import { createRouter, createWebHistory } from 'vue-router';
 import {
-  ONE_BUILTIN_THEMES,
-  createCore,
-  createStaticMenusFromRoutes,
+  installRouteDynamicImportRecovery,
+  resolveAppRedirectTarget,
+  setObHttpClient,
   setupRouterGuards
 } from '@one-base-template/core';
-import { registerOneLiteUiComponents } from '@one-base-template/ui/lite';
-import OneTag from '@one-base-template/tag';
-import '@one-base-template/tag/style';
-
+import { registerMessageUtils } from '@one-base-template/ui';
 import App from '@/App.vue';
-import { appEnv } from '@/infra/env';
-import { createTemplateLocalAdapter } from '@/infra/local-adapter';
+import { buildAppRoutes } from '@/router/assemble-routes';
+import { getAppEnv } from '@/config/env';
 import {
-  APP_FORBIDDEN_ROUTE_PATH,
-  APP_LOGIN_ROUTE_PATH,
-  APP_NOT_FOUND_ROUTE_PATH,
-  APP_PUBLIC_ROUTE_PATHS,
-  APP_ROOT_PATH
-} from '@/router/constants';
-import { createAppRouter } from '@/router';
-import { templateRoutes } from '@/router/routes';
+  appLayoutMode,
+  appSidebarCollapsedWidth,
+  appSidebarWidth,
+  appSystemSwitchStyle,
+  appTopbarHeight
+} from '@/config';
+import { routePaths } from '@/router/constants';
+import { guardOpenRoutePaths } from '@/router/public-routes';
+import { createAppHttp } from './http';
+import { createAppAdapter } from './adapter';
+import { installCore } from './core';
+import { installAppShellPlugins } from './plugins';
 
-function isHiddenTagRoute(route: unknown): boolean {
-  if (!route || typeof route !== 'object') {
-    return false;
-  }
+export async function bootstrapTemplateApp() {
+  const appEnv = getAppEnv();
 
-  const { meta } = route as { meta?: Record<string, unknown> };
-  return meta?.hiddenTab === true || meta?.noTag === true;
-}
-
-export function bootstrapTemplateApp() {
   const app = createApp(App);
+  registerMessageUtils(app);
 
   const pinia = createPinia();
   app.use(pinia);
   setActivePinia(pinia);
 
-  const router = createAppRouter();
-  app.use(router);
-
-  registerOneLiteUiComponents(app, {
-    prefix: 'Ob',
-    aliases: false,
-    include: {
-      LoginBox: false,
-      LoginBoxV2: false
-    }
+  const routeAssemblyResult = await buildAppRoutes({
+    enabledModules: appEnv.enabledModules,
+    defaultSystemCode: appEnv.defaultSystemCode,
+    systemHomeMap: appEnv.systemHomeMap,
+    storageNamespace: appEnv.storageNamespace
   });
 
-  app.use(OneTag, {
+  const router = createRouter({
+    history: createWebHistory(appEnv.baseUrl),
+    routes: routeAssemblyResult.routes,
+    strict: true
+  });
+
+  const http = createAppHttp({
+    backend: appEnv.backend,
+    isProd: appEnv.isProd,
+    apiBaseUrl: appEnv.apiBaseUrl,
+    authMode: appEnv.authMode,
+    tokenKey: appEnv.tokenKey,
+    idTokenKey: appEnv.idTokenKey,
+    basicHeaders: appEnv.basicHeaders,
+    clientSignatureSalt: appEnv.clientSignatureSalt,
+    clientSignatureClientId: appEnv.clientSignatureClientId,
     pinia,
-    router,
-    homePath: '/home/index',
-    homeTitle: '首页',
-    storageType: 'session',
-    storageKey: `${appEnv.storageNamespace}:ob_tags`,
-    ignoredRoutes: [
-      { path: APP_LOGIN_ROUTE_PATH },
-      { path: APP_FORBIDDEN_ROUTE_PATH },
-      { path: APP_NOT_FOUND_ROUTE_PATH },
-      { path: APP_ROOT_PATH },
-      {
-        test: (route) => isHiddenTagRoute(route)
-      }
-    ]
+    router
+  });
+  setObHttpClient(http);
+
+  const adapter = createAppAdapter({
+    backend: appEnv.backend,
+    http,
+    tokenKey: appEnv.tokenKey,
+    basicSystemPermissionCode: appEnv.basicSystemPermissionCode
   });
 
-  const adapter = createTemplateLocalAdapter({
+  installCore(app, {
+    adapter,
+    authMode: appEnv.authMode,
+    tokenKey: appEnv.tokenKey,
+    menuMode: appEnv.menuMode,
+    routes: routeAssemblyResult.routes,
+    layoutMode: appLayoutMode,
+    systemSwitchStyle: appSystemSwitchStyle,
+    topbarHeight: appTopbarHeight,
+    sidebarWidth: appSidebarWidth,
+    sidebarCollapsedWidth: appSidebarCollapsedWidth,
     storageNamespace: appEnv.storageNamespace,
-    tokenKey: appEnv.tokenKey
+    defaultSystemCode: appEnv.defaultSystemCode,
+    systemHomeMap: appEnv.systemHomeMap
   });
-
-  const staticMenus =
-    appEnv.menuMode === 'static'
-      ? createStaticMenusFromRoutes(templateRoutes, { rootPath: '/' })
-      : undefined;
-
-  app.use(
-    createCore({
-      storageNamespace: appEnv.storageNamespace,
-      adapter,
-      auth: {
-        mode: appEnv.authMode,
-        tokenKey: appEnv.tokenKey
-      },
-      menuMode: appEnv.menuMode,
-      staticMenus,
-      sso: {
-        enabled: false,
-        routePath: '/sso',
-        strategies: []
-      },
-      theme: {
-        defaultTheme: 'blue',
-        allowCustomPrimary: true,
-        storageNamespace: appEnv.storageNamespace,
-        themes: {
-          ...ONE_BUILTIN_THEMES
-        }
-      },
-      layout: {
-        defaultMode: 'side',
-        persist: true
-      },
-      systems: {
-        defaultCode: appEnv.defaultSystemCode,
-        homeMap: appEnv.systemHomeMap,
-        fallbackHome: '/home/index'
-      }
-    })
-  );
 
   setupRouterGuards(router, {
-    publicRoutePaths: [...APP_PUBLIC_ROUTE_PATHS],
-    loginRoutePath: APP_LOGIN_ROUTE_PATH,
-    forbiddenRoutePath: APP_FORBIDDEN_ROUTE_PATH
+    publicRoutePaths: [...guardOpenRoutePaths],
+    loginRoutePath: routePaths.login,
+    forbiddenRoutePath: routePaths.forbidden,
+    resolveAuthedLoginRedirect: ({ to }) =>
+      resolveAppRedirectTarget(to.query.redirect, {
+        fallback: routePaths.root,
+        baseUrl: appEnv.baseUrl
+      }),
+    onNavigationStart: () => {
+      http.cancelRouteRequests();
+    }
+  });
+  installRouteDynamicImportRecovery(router);
+
+  app.use(router);
+  installAppShellPlugins({
+    app,
+    pinia,
+    router,
+    storageNamespace: appEnv.storageNamespace
   });
 
   return {

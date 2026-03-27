@@ -37,7 +37,7 @@ pnpm dev:portal
 vp run --filter portal dev
 ```
 
-## 启动最小模板（template，静态菜单）
+## 启动模板基座（template，迁移承接）
 
 ```bash
 pnpm dev:template
@@ -72,7 +72,7 @@ pnpm changeset
 
 说明：
 
-- `pnpm lint:arch` 会检查 admin 的架构边界约束（模块边界、启动边界、env 读取边界等）。
+- `pnpm lint:arch` 会串联检查 admin + template 的架构边界约束（模块边界、启动边界、env 读取边界等）。
 - `pnpm test:run` 会执行工作区内已配置的单元测试任务。
 - `pnpm build` 会通过 Vite Task 递归构建所有 workspace 应用与子包（含 `apps/portal` 与 `apps/docs`）。
 - 子包发布与版本管理流程见：`/guide/package-release`。

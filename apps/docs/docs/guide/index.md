@@ -20,8 +20,8 @@ outline: false
     <p>区分构建期变量与运行时 platform-config，避免配置入口混乱。</p>
   </a>
   <a class="guide-card" href="/guide/template-static-app">
-    <h3>Template 最小静态菜单项目</h3>
-    <p>用于验证最小可运行闭环，适合作为新应用起点。</p>
+    <h3>Template 迁移基座项目</h3>
+    <p>与 admin 同构的子项目骨架，用于新应用孵化与老项目迁移承接。</p>
   </a>
 </div>
 
@@ -134,6 +134,10 @@ outline: false
   <a class="guide-card" href="/guide/admin-agent-redlines">
     <h3>Admin Agent 红线</h3>
     <p>公共组件复用、CRUD 范式与 lint:arch 门禁的强制基线。</p>
+  </a>
+  <a class="guide-card" href="/guide/template-agent-redlines">
+    <h3>Template Agent 红线</h3>
+    <p>继承 admin 红线并扩展 template 启动骨架、模块契约与迁移边界。</p>
   </a>
   <a class="guide-card" href="/guide/admin-legacy-migration-workflow">
     <h3>Admin 老项目迁移工作流</h3>

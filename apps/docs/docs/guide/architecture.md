@@ -22,7 +22,7 @@
 | ---------- | -------------------------------------------- | -------------------------------------- |
 | `admin`    | `core`、`ui`、`adapters`                     | 主后台应用，启动链路在本地 `bootstrap` |
 | `portal`   | `core`、`ui`、`portal-engine`、`app-starter` | 前台消费者，复用门户引擎               |
-| `template` | `core`、`ui`、`app-starter`                  | 最小静态菜单示例                       |
+| `template` | `core`、`ui`、`adapters`、`tag`              | 子项目孵化与迁移承接基座               |
 | `docs`     | 无业务运行时依赖（仅文档构建）               | VitePress 文档站                       |
 
 > 阅读提示：先看“树图”定位目录，再看“依赖关系表”判断每个应用该关注哪些共享包。
@@ -33,7 +33,7 @@
 
 - `apps/admin`：主后台应用（路由装配、业务页面、管理端样式）。
 - `apps/portal`：前台门户消费者应用（独立渲染入口，不接后台菜单接口）。
-- `apps/template`：最小静态菜单示例（验证模板闭环）。
+- `apps/template`：与 admin 同构的迁移基座（模块契约 + 架构门禁 + 示例模块）。
 - `apps/docs`：文档站（规则、架构、实践沉淀）。
 
 ### packages（共享层）
@@ -56,7 +56,7 @@
 ## 启动链路摘要
 
 - admin：`main.ts -> startAdminApp() -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`
-- template：同骨架最小化运行，默认静态菜单与本地 adapter。
+- template：同 admin 启动骨架，默认 `remote-single + token + backend=basic`，并保留双后端适配分支。
 - portal：沿用骨架并保留前台独立边界，登录后做前台分流。
 
 深度说明请看：

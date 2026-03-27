@@ -20,14 +20,18 @@ pnpm version:packages
 pnpm release:packages
 ```
 
-admin 常用 lint 脚本（在仓库根目录执行）：
+admin/template 常用 lint 脚本（在仓库根目录执行）：
 
 ```bash
 pnpm lint
 pnpm lint:arch
 pnpm -C apps/admin lint
 pnpm -C apps/admin lint:fix
+pnpm -C apps/template lint
+pnpm -C apps/template lint:arch
 ```
+
+说明：根命令 `pnpm lint:arch` 当前会串联执行 `apps/admin lint:arch` 与 `apps/template lint:arch`，最后执行 `pnpm check:basic-signature`。
 
 说明：仓库 lint 已统一走 `vp lint`，不再维护 Biome 配置文件。
 
@@ -249,7 +253,7 @@ pnpm check:naming
 pnpm check:basic-signature
 ```
 
-该门禁用于检查 admin / portal 的签名入口（admin: `services/security/signature.ts`；portal: `config/basic/signature.ts`）是否继续复用 `@one-base-template/core` 的签名辅助方法，避免三段式签名拼接重新散落回应用层。
+该门禁用于检查 admin / portal / template 的签名入口（admin: `services/security/signature.ts`；portal: `config/basic/signature.ts`；template: `services/security/signature.ts`）是否继续复用 `@one-base-template/core` 的签名辅助方法，避免三段式签名拼接重新散落回应用层。
 
 ## admin 架构源码约束测试
 

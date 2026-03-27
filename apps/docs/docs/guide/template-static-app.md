@@ -1,9 +1,29 @@
-# Template 最小静态菜单项目
+# Template 迁移基座项目
 
 > 项目路径：`apps/template`
-> 目标：提供“开箱可跑、配置最少”的静态菜单后台示例。
+> 当前定位：**与 admin 同构的子项目基座**（非最小静态示例）
 
-## 1. 启动方式
+## TL;DR
+
+- template 已升级为“可复制底盘”，用于后续新子项目孵化与老项目迁移承接。
+- 平台配置入口固定为 `src/config/platform-config.ts`，不再依赖 `public/platform-config.json`。
+- 模块契约固定为 `manifest.ts + module.ts + routes.ts`，路由装配统一走 `registry + assemble`。
+- 默认鉴权口径：`remote-single + token + backend=basic`，并保留 `default/basic` 双后端分支。
+
+## 1. 目标与边界
+
+### 目标
+
+- 提供与 admin 一致的启动分层：`startup/index/core/http/adapter/plugins/error-view`。
+- 提供可执行红线：`pnpm -C apps/template lint:arch`。
+- 让后续迁移模块主要只改 `modules/**` 与少量 `config/**`。
+
+### 非目标
+
+- 本轮不迁移具体老项目业务页面。
+- 本轮不实现 `new:app` 脚手架命令。
+
+## 2. 启动方式
 
 在仓库根目录执行：
 
@@ -17,63 +37,108 @@ pnpm dev:template
 pnpm -C apps/template dev
 ```
 
-## 2. 配置位置
+## 3. 启动骨架（与 admin 对齐）
 
-运行时配置文件：`apps/template/public/platform-config.json`
+核心链路：
 
-推荐最简写法：
+- `src/main.ts`：仅保留 `beforeMount` 扩展入口
+- `src/bootstrap/startup.ts`：统一启动编排与错误兜底
+- `src/bootstrap/index.ts`：创建 app/pinia/router/http/core，注册守卫与插件
+- `src/bootstrap/{http,adapter,core,plugins,error-view}.ts`：按职责拆分
 
-```json
-{
-  "preset": "static-single",
-  "appcode": "template"
-}
-```
+关键约束：
+
+- `setupRouterGuards(...)` 必须先于 `app.use(router)`，保证首屏导航可拦截。
+- `registerMessageUtils`、`OneUiPlugin`、`OneTag` 统一在 bootstrap 链路安装。
+
+## 4. 配置入口（代码静态配置）
+
+唯一平台配置入口：
+
+- `apps/template/src/config/platform-config.ts`
+
+默认配置口径：
+
+- `preset: 'remote-single'`
+- `authMode: 'token'`
+- `backend: 'basic'`
+- `menuMode: 'remote'`
+- `enabledModules: ['home', 'demo']`
+
+环境聚合入口：
+
+- `apps/template/src/config/env.ts`
 
 说明：
 
-- `preset=static-single` 会自动补齐 `backend/auth/token/menu/system` 默认值。
-- 菜单模式固定为 `static`（禁止与 `remote` 混配）。
+- 禁止恢复 `apps/template/public/platform-config.json` 运行时加载。
+- 除 `config/env.ts` 与 `utils/logger.ts` 外，禁止直接使用 `import.meta.env`。
 
-## 3. 静态菜单放置规则
+## 5. 模块契约与路由装配
 
-静态菜单不单独维护 JSON，直接从路由生成：
+模块目录契约：
 
-- `apps/template/src/modules/**/routes.ts`
-- 关键字段：`meta.title`、`meta.icon`、`meta.order`、`meta.keepAlive`
+- `modules/<module>/manifest.ts`：模块元信息（id、版本、层级、默认启用）
+- `modules/<module>/module.ts`：模块声明（apiNamespace、routes）
+- `modules/<module>/routes.ts`：路由静态声明
 
-示例：
+路由装配入口：
 
-```ts
-{
-  path: "demo/about",
-  name: "TemplateAbout",
-  component: AboutPage,
-  meta: {
-    title: "关于模板",
-    icon: "ep:info-filled",
-    order: 2,
-  },
-}
+- `src/router/registry.ts`：manifest 扫描 + enabledModules 过滤 + module 声明加载
+- `src/router/assemble-routes.ts`：固定路由与模块路由统一装配
+- `src/router/meta.ts`：`open/auth/menu` 语义 helper
+- `src/router/public-routes.ts`：登录/SSO/403/404 公共路由定义
+
+## 6. 登录与服务分层
+
+登录基线：
+
+- 登录页统一使用 `@one-base-template/ui/lite-auth` 的 `LoginBox`/`LoginBoxV2`
+- 禁止 `demo/demo` 自动预填
+- 验证码服务统一收口到 `src/services/auth/auth-captcha-service.ts`
+
+服务与类型分层：
+
+- `src/services/auth/*`：登录/SSO 场景服务
+- `src/services/security/*`：签名与加密能力
+- `src/types/api.ts`：通用 API 类型
+- `src/utils/*`：应用级工具
+
+## 7. 架构门禁（必须执行）
+
+```bash
+pnpm -C apps/template lint:arch
 ```
 
-## 4. 启动链路（最小）
+门禁脚本：`scripts/check-template-arch.mjs`，覆盖：
 
-1. `src/main.ts`：先加载 `platform-config.json`
-2. `src/infra/env.ts`：解析运行时配置
-3. `src/bootstrap/index.ts`：安装 router + core + UI
-4. `src/router/routes.ts`：声明静态路由并生成静态菜单
+- 启动骨架边界（禁止业务侧创建 app/pinia/router）
+- 全局安装边界（禁止业务侧 `app.use(...)`）
+- 模块边界（禁止模块间直接 import）
+- CRUD 红线（`list.vue` 禁止 `el-table/el-dialog/el-upload`）
+- 模板事件红线（禁止内联箭头函数）
+- API 红线（禁止 `obHttp` 中间变量与类型中转导出）
 
-## 5. 鉴权策略（模板默认）
-
-- 登录页：`/login`
-- 鉴权来源：本地鉴权适配器（local adapter，无后端依赖；仅 `template` 示例）
-- 登录成功后执行 `finalizeAuthSession()`，统一加载用户态与菜单态
-
-## 6. 最低验证
+## 8. 提测命令清单
 
 ```bash
 pnpm -C apps/template typecheck
 pnpm -C apps/template lint
+pnpm -C apps/template lint:arch
+pnpm -C apps/template test:run
 pnpm -C apps/template build
 ```
+
+跨仓门禁（根目录）：
+
+```bash
+pnpm lint:arch
+```
+
+说明：根 `lint:arch` 已串联 `apps/template lint:arch`。
+
+## 9. 相关规范入口
+
+- Template 红线主版本：`apps/template/AGENTS.md`
+- 可读版文档：`/guide/template-agent-redlines`
+- 全仓规则分层：`/guide/agents-scope`

@@ -8634,3 +8634,19 @@
 - 结果：
   - `apps/docs lint` 通过，`0 warnings / 0 errors`。
   - `apps/docs build` 通过，VitePress 构建完成。
+
+## 2026-03-27（template 全量对齐与红线落地）
+
+- 命令：
+  - `pnpm -C apps/template typecheck`
+  - `pnpm -C apps/template test:run`
+  - `pnpm -C apps/template lint`
+  - `pnpm -C apps/template lint:arch`
+  - `pnpm -C apps/template build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `pnpm lint:arch`
+- 结果：
+  - template `typecheck/test/lint/lint:arch/build` 全部通过。
+  - docs `lint/build` 通过。
+  - 根 `lint:arch` 已验证串联 `admin + template + check:basic-signature`，全部通过。

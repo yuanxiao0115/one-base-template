@@ -17,7 +17,7 @@
     "build": "vp run -r build",
     "typecheck": "vp run -r typecheck",
     "lint": "vp run -r lint",
-    "lint:arch": "vp run --filter admin lint:arch && pnpm check:basic-signature",
+    "lint:arch": "vp run --filter admin lint:arch && pnpm -C apps/template lint:arch && pnpm check:basic-signature",
     "check:admin:route-policy": "pnpm -C apps/admin check:route-policy",
     "check:admin:bundle": "node ./scripts/check-admin-build-size.mjs",
     "test:e2e:minimal-auth": "pnpm -C packages/core test:run -- src/router/auth-minimal-e2e.unit.test.ts && pnpm -C apps/admin test:e2e:minimal-auth",

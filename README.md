@@ -9,7 +9,7 @@ Vue 3 + Vite Plus + Tailwind(v4) + Element Plus + Pinia + Vue Router 的 Monorep
 ```text
 apps/admin            # 主应用
 apps/portal           # 门户消费者应用（独立渲染）
-apps/template         # 最小可用示例（静态菜单）
+apps/template         # 子项目孵化与迁移承接基座（admin 同构骨架）
 packages/core         # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等
 packages/ui           # UI 壳：布局/菜单/顶栏/tabs/keep-alive 等
 packages/adapters     # Adapter 示例（默认/后端协议适配）
@@ -82,7 +82,7 @@ pnpm -C apps/docs dev
 pnpm -C apps/docs build
 ```
 
-说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `vp run --filter admin dev`）；`pnpm dev:portal` 启动门户消费者应用（等价于 `vp run --filter portal dev`）；`pnpm dev:template` 启动最小静态菜单示例（等价于 `vp run --filter template dev`）；`pnpm dev:all` 启动全部 workspace 的 dev 任务。
+说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `vp run --filter admin dev`）；`pnpm dev:portal` 启动门户消费者应用（等价于 `vp run --filter portal dev`）；`pnpm dev:template` 启动 template 迁移基座应用（等价于 `vp run --filter template dev`）；`pnpm dev:all` 启动全部 workspace 的 dev 任务。
 
 `apps/admin` 开发默认通过 Vite 代理直连后端（配置 `VITE_API_BASE_URL`）：
 

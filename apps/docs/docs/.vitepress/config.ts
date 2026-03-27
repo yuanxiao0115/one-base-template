@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress';
 const introItems = [
   { text: '快速开始', link: '/guide/quick-start' },
   { text: '环境变量', link: '/guide/env' },
-  { text: 'Template 最小静态菜单项目', link: '/guide/template-static-app' }
+  { text: 'Template 迁移基座项目', link: '/guide/template-static-app' }
 ];
 
 const architectureItems = [
@@ -38,6 +38,7 @@ const governanceItems = [
   { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
   { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
   { text: 'Admin Agent 红线', link: '/guide/admin-agent-redlines' },
+  { text: 'Template Agent 红线', link: '/guide/template-agent-redlines' },
   { text: 'Admin 老项目迁移工作流', link: '/guide/admin-legacy-migration-workflow' },
   { text: 'Admin Management Standardizer', link: '/guide/admin-management-standardizer' },
   { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
@@ -134,6 +135,7 @@ export default defineConfig({
       '/guide/agents-scope': governanceSidebar,
       '/guide/agent-harness': governanceSidebar,
       '/guide/admin-agent-redlines': governanceSidebar,
+      '/guide/template-agent-redlines': governanceSidebar,
       '/guide/admin-legacy-migration-workflow': governanceSidebar,
       '/guide/admin-management-standardizer': governanceSidebar,
       '/guide/naming-whitelist': governanceSidebar,

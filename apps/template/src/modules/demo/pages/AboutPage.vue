@@ -8,12 +8,12 @@ defineOptions({
   <ObPageContainer padding="16px">
     <el-card>
       <template #header>
-        <div>配置说明</div>
+        <div>改造说明</div>
       </template>
       <ul>
-        <li>运行时配置文件：`apps/template/public/platform-config.json`</li>
-        <li>推荐最小配置：`{ "preset": "static-single" }`</li>
-        <li>登录数据：本地鉴权（无后端依赖，仅 template 示例）</li>
+        <li>平台配置入口：`apps/template/src/config/platform-config.ts`</li>
+        <li>模块契约：`manifest.ts + module.ts + routes.ts`</li>
+        <li>架构门禁：`pnpm -C apps/template lint:arch`</li>
       </ul>
     </el-card>
   </ObPageContainer>

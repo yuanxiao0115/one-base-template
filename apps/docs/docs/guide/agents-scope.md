@@ -33,6 +33,7 @@
 | ------------------ | ---------------------------------- | ------------------------------------------------------ |
 | 全仓通用           | `AGENTS.md`                        | 工作流、协作规范、目录边界、知识入口                   |
 | admin 应用         | `apps/admin/AGENTS.md`             | 路由菜单、SSO、布局主题、表格迁移、UserManagement 细则 |
+| template 应用      | `apps/template/AGENTS.md`          | 启动骨架、模块契约、迁移边界、架构门禁红线             |
 | docs 站点          | `apps/docs/AGENTS.md`              | 文档同步、导航维护、VitePress 构建校验                 |
 | adapters 子包      | `packages/adapters/AGENTS.md`      | 后端协议适配、字段映射边界                             |
 | core 子包          | `packages/core/AGENTS.md`          | 逻辑契约、主题 token、核心 hooks 约束                  |
@@ -51,12 +52,13 @@
 - 当字段契约已经明确时，禁止过度防御性映射；`form.ts` / `mapper` / `adapter` 优先直白赋值，只在真实跨边界转换处做一次必要归一化。
 - 项目目标一旦明确，应优先修改仓库内文件，不误改全局 Codex 配置。
 
-### 2) admin 专属规则（迁入 `apps/admin/AGENTS.md`）
+### 2) admin/template 专属规则（迁入各自 `AGENTS.md`）
 
 - 静态路由 + 动态菜单、`allowedPaths` 权限模型。
 - `/sso` 登录回调、Cookie 模式鉴权。
 - Layout/TopBar/个性设置规范、UserManagement 迁移细则。
 - 表格迁移样式与结构规范（`ObPageContainer + ObTableBox + ObVxeTable`）。
+- template 迁移基座红线（`manifest/module/routes` 契约、`lint:arch` 门禁、代码静态配置入口）。
 
 ### 3) core/ui 专属规则（分别下沉）
 

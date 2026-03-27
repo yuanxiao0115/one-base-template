@@ -10243,3 +10243,21 @@
   - `docs/plans/2026-03-06-cms-publicity-migration-implementation.md`
   - `docs/plans/2026-03-09-cms-content-richtext-fullscreen-implementation.md`
   - `docs/plans/2026-03-23-usermanagement-full-rollout-standardization-plan.md`
+
+## 2026-03-27（template 全量对齐与红线落地）
+
+- 继续执行“Template 全量对齐与红线落地计划”，将 `apps/template` 从最小静态示例收敛为迁移基座骨架。
+- 已补齐 template 测试基础设施与关键单测：
+  - `apps/template/tests/config/{platform-config,env}.unit.test.ts`
+  - `apps/template/tests/router/{registry,assemble-routes}.unit.test.ts`
+  - `apps/template/tests/bootstrap/{index,startup}.unit.test.ts`
+- 已落地 template 规则主版本：`apps/template/AGENTS.md`，明确继承 admin 红线 + template 专属红线（启动骨架、模块契约、迁移边界、HTTP/API、模板事件）。
+- 已同步 docs：
+  - 新增 `apps/docs/docs/guide/template-agent-redlines.md`
+  - 重写 `apps/docs/docs/guide/template-static-app.md`（迁移基座口径）
+  - 更新 `apps/docs/docs/.vitepress/config.ts`、`guide/index.md`、`guide/architecture.md`、`guide/architecture-runtime-deep-dive.md`、`guide/development.md`、`guide/agents-scope.md`、`guide/quick-start.md`
+- 根规则与门禁串联已更新：
+  - `AGENTS.md` 增加 template 作用域入口
+  - `package.json` 的 `lint:arch` 串联 `pnpm -C apps/template lint:arch`
+  - `scripts/check-basic-signature-boundary.mjs` 纳入 template 签名入口检查
+- 模板改造过程中保持“仅基建与规范，不迁移具体业务模块”的边界。

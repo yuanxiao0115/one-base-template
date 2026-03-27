@@ -1,28 +1,36 @@
 import { parseRuntimeConfig, type RuntimeConfig } from '@one-base-template/core';
-import {
-  PlatformConfigLoadError,
-  createRuntimeConfigLoader,
-  type PlatformConfigLoadErrorCode
-} from '@one-base-template/app-starter';
 
-const CONFIG_URL = `${import.meta.env.BASE_URL}platform-config.json`;
-
-const runtimeConfigLoader = createRuntimeConfigLoader<RuntimeConfig>({
-  configUrl: CONFIG_URL,
-  parseConfig: parseRuntimeConfig
+/**
+ * template 平台配置入口（代码静态配置）。
+ *
+ * 维护建议：
+ * - 仅维护这里的配置常量，不再依赖 public/platform-config.json；
+ * - 如需新增字段，先对齐 `packages/core/src/config/platform-config.ts` 契约。
+ */
+const platformConfig: RuntimeConfig = parseRuntimeConfig({
+  preset: 'remote-single',
+  backend: 'basic',
+  authMode: 'token',
+  tokenKey: 'token',
+  idTokenKey: 'idToken',
+  menuMode: 'remote',
+  authorizationType: 'ADMIN',
+  appsource: 'frame',
+  appcode: 'template',
+  storageNamespace: 'one-base-template-template',
+  clientSignatureClientId: '1',
+  clientSignatureSalt: 'fc54f9655dc04da486663f1055978ba8',
+  defaultSystemCode: 'admin_server',
+  systemHomeMap: {
+    admin_server: '/home/index'
+  },
+  enabledModules: ['home', 'demo']
 });
 
-export { PlatformConfigLoadError };
-export type { PlatformConfigLoadErrorCode };
-
-export function isPlatformConfigLoadError(error: unknown): error is PlatformConfigLoadError {
-  return runtimeConfigLoader.isLoadError(error);
-}
-
 export async function loadPlatformConfig(): Promise<RuntimeConfig> {
-  return runtimeConfigLoader.loadConfig();
+  return platformConfig;
 }
 
 export function getPlatformConfig(): RuntimeConfig {
-  return runtimeConfigLoader.getConfig();
+  return platformConfig;
 }
