@@ -1,5 +1,7 @@
 # UserManagement 第一批高优修复 Implementation Plan
 
+> 历史命名说明：下文提到的 `user/page.vue`、`org/page.vue` 属于当时命名；当前 admin 现行基线已统一为 `list.vue`。
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** 修复 UserManagement 当前最高优先级的正确性与交互问题，降低回归风险并统一行为。

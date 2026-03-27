@@ -10228,3 +10228,18 @@
   - 以 `apps/admin/AGENTS.md` 为唯一主版本：admin 下 CRUD 编排页文件名统一使用 `list.vue`
   - skill / reference / docs 只保留“页面只负责编排”的职责描述，不再把 `page.vue` 当现行文件名基线
   - 历史实施计划暂不回写，避免混淆“历史记录”和“当前规范”
+
+## 2026-03-27（docs/plans 历史命名注释化清扫）
+
+- 按用户要求继续清扫 `docs/plans/**` 中残留的 `page.vue` 历史口径。
+- 处理原则：
+  - 不重写历史方案与已执行结论
+  - 只在会误导当前执行的历史计划开头补“历史命名说明”
+  - 统一说明：文中 `page.vue` 为当时命名，当前 admin 现行 CRUD 编排页基线为 `list.vue`
+- 已补注释文件：
+  - `docs/plans/2026-03-02-user-management-migration-design.md`
+  - `docs/plans/2026-03-02-user-management-migration.md`
+  - `docs/plans/2026-03-02-usermanagement-first-batch-fixes.md`
+  - `docs/plans/2026-03-06-cms-publicity-migration-implementation.md`
+  - `docs/plans/2026-03-09-cms-content-richtext-fullscreen-implementation.md`
+  - `docs/plans/2026-03-23-usermanagement-full-rollout-standardization-plan.md`

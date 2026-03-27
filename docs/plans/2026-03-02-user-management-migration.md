@@ -1,5 +1,7 @@
 # UserManagement 用户管理迁移实施计划
 
+> 历史命名说明：本文中的 `page.vue` 为当时计划命名；当前 admin 现行 CRUD 编排页文件名已统一为 `list.vue`，执行或复盘时请按 `list.vue` 理解。
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** 在当前仓库完整迁移 `/system/user` 功能，并沉淀可配置导入上传组件 `ObImportUpload`。

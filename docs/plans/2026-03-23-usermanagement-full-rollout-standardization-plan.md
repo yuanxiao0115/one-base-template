@@ -1,5 +1,7 @@
 # UserManagement 全模块横向推广 Standardization Plan
 
+> 历史命名说明：本文中“确认红线项无回退：`page.vue`”指历史命名残留检查；当前 admin 现行 CRUD 编排页文件名基线为 `list.vue`。
+
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 将 `apps/admin/src/modules/UserManagement/**` 下全部子模块按当前 admin CRUD/可读性基线完成横向收口，统一页面编排与场景对象语义。

@@ -1,5 +1,7 @@
 # CmsManagement Publicity 迁移实施计划
 
+> 历史命名说明：本文中的 `page.vue` 为迁移当时的编排页命名。当前 admin 现行 CRUD 基线已统一为 `list.vue`，阅读或复用本计划时请按 `list.vue` 对照理解。
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** 在 `apps/admin` 新增 `CmsManagement` 模块，迁移老项目 publicity 的栏目/内容/审核三页能力并统一 UI 风格。

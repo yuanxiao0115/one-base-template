@@ -8625,3 +8625,12 @@
   - `crud-module-best-practice` 结构校验通过，输出 `Skill is valid!`。
   - `apps/docs lint` 通过，`0 warnings / 0 errors`。
   - `apps/docs build` 通过，VitePress 构建完成。
+
+## 2026-03-27（docs/plans 历史命名注释化清扫）
+
+- 命令：
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `apps/docs lint` 通过，`0 warnings / 0 errors`。
+  - `apps/docs build` 通过，VitePress 构建完成。

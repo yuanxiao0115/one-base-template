@@ -1,5 +1,7 @@
 # UserManagement 用户管理迁移设计（User 模块 + 导入上传组件）
 
+> 历史命名说明：本文形成时，CRUD 编排页仍写作 `page.vue`。当前 admin 现行规则已统一为 `list.vue`，阅读本文时请将相关 `page.vue` 表述按“当时命名 / 现行对应 `list.vue`”理解。
+
 ## 背景与目标
 
 本次在 `apps/admin/src/modules/UserManagement` 下完整迁移老项目用户管理能力（`/system/user`），并在 `packages/ui` 沉淀可配置上传组件 `ObImportUpload`。目标是保持老项目操作习惯，同时收敛到当前仓库统一架构：
