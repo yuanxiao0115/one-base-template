@@ -10261,3 +10261,12 @@
   - `package.json` 的 `lint:arch` 串联 `pnpm -C apps/template lint:arch`
   - `scripts/check-basic-signature-boundary.mjs` 纳入 template 签名入口检查
 - 模板改造过程中保持“仅基建与规范，不迁移具体业务模块”的边界。
+
+## 2026-03-27（new app 脚手架）
+
+- 新增 `scripts/new-app.mjs`：支持 `pnpm new:app <app-id>`、`--with-crud-starter`、`--dry-run`。
+- 新增 `scripts/run-app-lint-arch.mjs`：自动发现 `apps/*/package.json` 中声明了 `lint:arch` 的 app 并逐个执行。
+- 改造 `scripts/check-template-arch.mjs`：支持 `--app <app-id>`，让 template 派生 app 复用同一套架构门禁。
+- 根 `package.json` 新增 `new:app`，并把根 `lint:arch` 收敛为“自动发现 app + `check:basic-signature`”。
+- `new:app` 默认复制 `apps/template`，重写应用名 / 平台标识 / 样式入口 / 测试常量；可选生成本地内存版 `starter-crud` 模块骨架。
+- 文档同步：更新 `README.md`、`apps/docs/docs/guide/template-static-app.md`、`apps/docs/docs/guide/development.md`。

@@ -21,7 +21,6 @@
 ### 非目标
 
 - 本轮不迁移具体老项目业务页面。
-- 本轮不实现 `new:app` 脚手架命令。
 
 ## 2. 启动方式
 
@@ -36,6 +35,42 @@ pnpm dev:template
 ```bash
 pnpm -C apps/template dev
 ```
+
+## 2.1 以 template 派生新 app
+
+默认从仓库根目录执行：
+
+```bash
+pnpm new:app <app-id>
+```
+
+若需要同时带一套默认 CRUD starter：
+
+```bash
+pnpm new:app <app-id> --with-crud-starter
+```
+
+仅预览生成结果、不落盘：
+
+```bash
+pnpm new:app <app-id> --dry-run
+```
+
+生成后建议直接验证：
+
+```bash
+pnpm -C apps/<app-id> typecheck
+pnpm -C apps/<app-id> lint
+pnpm -C apps/<app-id> lint:arch
+pnpm -C apps/<app-id> test:run
+pnpm -C apps/<app-id> build
+```
+
+说明：
+
+- 新 app 统一复制 `apps/template`，再按 `<app-id>` 重写应用名、平台标识、样式入口与测试常量。
+- 启动命令统一使用 `vp run --filter <app-id> dev`，不额外向根 `package.json` 增长 `dev:<app-id>` 脚本。
+- `--with-crud-starter` 会生成 `starter-crud` 模块，使用本地内存数据演示查询 / 新增 / 编辑 / 删除闭环。
 
 ## 3. 启动骨架（与 admin 对齐）
 
@@ -135,7 +170,7 @@ pnpm -C apps/template build
 pnpm lint:arch
 ```
 
-说明：根 `lint:arch` 已串联 `apps/template lint:arch`。
+说明：根 `lint:arch` 会自动发现 `apps/*/package.json` 中声明了 `lint:arch` 的 app，并在最后补跑 `pnpm check:basic-signature`。
 
 ## 9. 相关规范入口
 

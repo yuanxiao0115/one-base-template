@@ -29,12 +29,52 @@ pnpm doctor
 常用开发命令：
 
 ```bash
+pnpm new:app <app-id>
+pnpm new:app <app-id> --with-crud-starter
+pnpm new:app <app-id> --dry-run
 pnpm new:module <module-id>
 pnpm lint:arch
 pnpm test:run
 pnpm check:naming
 pnpm verify
 ```
+
+## 从 template 派生新 app
+
+默认以 `apps/template` 为母版生成新 app：
+
+```bash
+pnpm new:app <app-id>
+```
+
+若需要一套可本地闭环运行的 CRUD 起步模块：
+
+```bash
+pnpm new:app <app-id> --with-crud-starter
+```
+
+只预览目标目录与生成内容，不落盘：
+
+```bash
+pnpm new:app <app-id> --dry-run
+```
+
+生成后常用命令：
+
+```bash
+vp run --filter <app-id> dev
+pnpm -C apps/<app-id> typecheck
+pnpm -C apps/<app-id> lint
+pnpm -C apps/<app-id> lint:arch
+pnpm -C apps/<app-id> test:run
+pnpm -C apps/<app-id> build
+```
+
+说明：
+
+- 默认生成最小可运行 app，继承 template 的启动骨架、模块契约与架构门禁。
+- `--with-crud-starter` 会追加 `starter-crud` 模块，提供本地内存数据的 CRUD 闭环，便于后续迁移真实业务模块。
+- 根 `pnpm lint:arch` 会自动发现 `apps/*/package.json` 中声明了 `lint:arch` 的 app，并串联执行。
 
 ## Vite Plus 使用说明
 

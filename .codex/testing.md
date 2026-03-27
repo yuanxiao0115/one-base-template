@@ -8650,3 +8650,31 @@
   - template `typecheck/test/lint/lint:arch/build` 全部通过。
   - docs `lint/build` 通过。
   - 根 `lint:arch` 已验证串联 `admin + template + check:basic-signature`，全部通过。
+
+## 2026-03-27（new app 脚手架）
+
+- RED（先失败）：
+  - `node --test scripts/__tests__/new-app.test.mjs`
+  - `node --test scripts/__tests__/new-app.test.mjs scripts/__tests__/run-app-lint-arch.test.mjs`
+  - 结果：失败，确认缺少 `scripts/new-app.mjs` 与 `scripts/run-app-lint-arch.mjs`，符合 TDD 预期。
+- GREEN（脚本实现后回归）：
+  - `node --test scripts/__tests__/new-app.test.mjs scripts/__tests__/run-app-lint-arch.test.mjs`
+  - `pnpm new:app sample-app --dry-run`
+  - `pnpm new:app sample-crud-app --with-crud-starter --dry-run`
+  - `pnpm new:app sample-app`
+  - `pnpm -C apps/sample-app typecheck`
+  - `pnpm -C apps/sample-app lint`
+  - `pnpm -C apps/sample-app lint:arch`
+  - `pnpm -C apps/sample-app test:run`
+  - `pnpm -C apps/sample-app build`
+  - `pnpm new:app sample-crud-app --with-crud-starter`
+  - `pnpm -C apps/sample-crud-app typecheck`
+  - `pnpm -C apps/sample-crud-app lint`
+  - `pnpm -C apps/sample-crud-app lint:arch`
+  - `pnpm -C apps/sample-crud-app test:run`
+  - `pnpm -C apps/sample-crud-app build`
+  - `pnpm lint:arch`
+- 结果：以上命令全部通过。
+- 过程修复：
+  - 首轮真实构建暴露了 `template` 文本替换过宽，误伤 Vue `<template>` 标签；已改为明确替换矩阵。
+  - `starter-crud/api.ts` 首轮存在类型约束与未使用变量问题；修正后 `typecheck/lint/build` 已通过。

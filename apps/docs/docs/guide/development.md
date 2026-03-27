@@ -31,7 +31,7 @@ pnpm -C apps/template lint
 pnpm -C apps/template lint:arch
 ```
 
-说明：根命令 `pnpm lint:arch` 当前会串联执行 `apps/admin lint:arch` 与 `apps/template lint:arch`，最后执行 `pnpm check:basic-signature`。
+说明：根命令 `pnpm lint:arch` 当前会自动发现 `apps/*/package.json` 中声明了 `lint:arch` 的 app，逐个执行后再补跑 `pnpm check:basic-signature`。
 
 说明：仓库 lint 已统一走 `vp lint`，不再维护 Biome 配置文件。
 

@@ -3,7 +3,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const templateSrcDir = path.join(rootDir, 'apps/template/src');
 const targetExtensions = new Set(['.ts', '.tsx', '.vue']);
 const importMetaEnvAllowList = new Set(['config/env.ts', 'utils/logger.ts']);
 
@@ -208,13 +207,45 @@ function isModuleApiFile(relativePath) {
   return /^modules\/[^/]+(?:\/[^/]+)*\/api\.ts$/.test(relativePath);
 }
 
+function parseArgs(argv) {
+  const args = {
+    appId: 'template'
+  };
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = argv[index];
+    if (token === '--app') {
+      const nextValue = argv[index + 1];
+      if (!nextValue) {
+        throw new Error('参数 --app 缺少应用名。');
+      }
+      args.appId = nextValue;
+      index += 1;
+      continue;
+    }
+    throw new Error(`未知参数: ${token}`);
+  }
+
+  return args;
+}
+
 async function main() {
-  const files = await collectSourceFiles(templateSrcDir);
+  const args = parseArgs(process.argv.slice(2));
+  const appDir = path.join(rootDir, 'apps', args.appId);
+  const appSrcDir = path.join(appDir, 'src');
+
+  try {
+    await fs.access(appSrcDir);
+  } catch {
+    throw new Error(`未找到应用源码目录: apps/${args.appId}/src`);
+  }
+
+  const files = await collectSourceFiles(appSrcDir);
   /** @type {Violation[]} */
   const violations = [];
 
   for (const absolutePath of files) {
-    const relativePath = path.relative(templateSrcDir, absolutePath).replaceAll(path.sep, '/');
+    const relativePath = path.relative(appSrcDir, absolutePath).replaceAll(path.sep, '/');
     const content = await fs.readFile(absolutePath, 'utf8');
     const importSources = collectImportSources(content);
     const ownerModuleName = resolveOwnerModuleName(relativePath);
@@ -388,11 +419,11 @@ async function main() {
   }
 
   if (violations.length === 0) {
-    console.log('template 架构边界检查通过。');
+    console.log(`${args.appId} 架构边界检查通过。`);
     return;
   }
 
-  console.error(`template 架构边界检查失败，共 ${violations.length} 处问题：`);
+  console.error(`${args.appId} 架构边界检查失败，共 ${violations.length} 处问题：`);
   for (const violation of violations) {
     const filePath = path.relative(rootDir, violation.file).replaceAll(path.sep, '/');
     console.error(`- ${filePath}:${violation.line}:${violation.column} ${violation.message}`);
@@ -402,6 +433,6 @@ async function main() {
 
 main().catch((error) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`template 架构边界检查执行失败：${message}`);
+  console.error(`架构边界检查执行失败：${message}`);
   process.exit(1);
 });
