@@ -23,6 +23,10 @@ outline: false
     <h3>Template 迁移基座项目</h3>
     <p>与 admin 同构的子项目骨架，用于新应用孵化与老项目迁移承接。</p>
   </a>
+  <a class="guide-card" href="/guide/zfw-system-sfss-quick-start">
+    <h3>zfw-system-sfss 快速使用手册</h3>
+    <p>面向同事交接：一页搞定启动、验证命令与 starter-crud 上手路径。</p>
+  </a>
 </div>
 
 ## 🧱 架构与运行时

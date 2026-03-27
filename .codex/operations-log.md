@@ -10270,3 +10270,13 @@
 - 根 `package.json` 新增 `new:app`，并把根 `lint:arch` 收敛为“自动发现 app + `check:basic-signature`”。
 - `new:app` 默认复制 `apps/template`，重写应用名 / 平台标识 / 样式入口 / 测试常量；可选生成本地内存版 `starter-crud` 模块骨架。
 - 文档同步：更新 `README.md`、`apps/docs/docs/guide/template-static-app.md`、`apps/docs/docs/guide/development.md`。
+
+## 2026-03-27（zfw-system-sfss 快速使用手册）
+
+- 文档新增：`apps/docs/docs/guide/zfw-system-sfss-quick-start.md`，提供同事交接可直接执行的启动/验证/模块落地手册。
+- 文档入口同步：
+  - `apps/docs/docs/.vitepress/config.ts`（入门导航与侧边栏）
+  - `apps/docs/docs/guide/index.md`（入门卡片）
+  - `apps/docs/docs/guide/for-users.md`（5 分钟阅读路径）
+  - `apps/docs/docs/guide/template-static-app.md`（新增示例互链）
+- 目标：让 `zfw-system-sfss` 可以作为“template 派生 + starter-crud 骨架”的团队共享上手入口。

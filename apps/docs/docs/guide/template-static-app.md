@@ -71,6 +71,7 @@ pnpm -C apps/<app-id> build
 - 新 app 统一复制 `apps/template`，再按 `<app-id>` 重写应用名、平台标识、样式入口与测试常量。
 - 启动命令统一使用 `vp run --filter <app-id> dev`，不额外向根 `package.json` 增长 `dev:<app-id>` 脚本。
 - `--with-crud-starter` 会生成 `starter-crud` 模块，使用本地内存数据演示查询 / 新增 / 编辑 / 删除闭环。
+- 示例参考：`zfw-system-sfss` 已完成 `--with-crud-starter` 生成，可直接查看 [zfw-system-sfss 快速使用手册](/guide/zfw-system-sfss-quick-start)。
 
 ## 3. 启动骨架（与 admin 对齐）
 

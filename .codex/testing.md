@@ -8678,3 +8678,10 @@
 - 过程修复：
   - 首轮真实构建暴露了 `template` 文本替换过宽，误伤 Vue `<template>` 标签；已改为明确替换矩阵。
   - `starter-crud/api.ts` 首轮存在类型约束与未使用变量问题；修正后 `typecheck/lint/build` 已通过。
+
+## 2026-03-27（zfw-system-sfss 快速使用手册）
+
+- 命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：全部通过。

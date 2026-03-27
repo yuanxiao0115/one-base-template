@@ -3,7 +3,8 @@ import { defineConfig } from 'vitepress';
 const introItems = [
   { text: '快速开始', link: '/guide/quick-start' },
   { text: '环境变量', link: '/guide/env' },
-  { text: 'Template 迁移基座项目', link: '/guide/template-static-app' }
+  { text: 'Template 迁移基座项目', link: '/guide/template-static-app' },
+  { text: 'zfw-system-sfss 快速使用手册', link: '/guide/zfw-system-sfss-quick-start' }
 ];
 
 const architectureItems = [
@@ -115,6 +116,7 @@ export default defineConfig({
       '/guide/quick-start': introSidebar,
       '/guide/env': introSidebar,
       '/guide/template-static-app': introSidebar,
+      '/guide/zfw-system-sfss-quick-start': introSidebar,
 
       '/guide/architecture': architectureSidebar,
       '/guide/architecture-runtime-deep-dive': architectureSidebar,

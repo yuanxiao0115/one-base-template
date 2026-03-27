@@ -10,7 +10,8 @@ outline: false
 
 1. [快速开始](/guide/quick-start)：先跑起来。
 2. [环境变量](/guide/env)：确认配置入口。
-3. [目录结构与边界](/guide/architecture)：避免跨层误改。
+3. [zfw-system-sfss 快速使用手册](/guide/zfw-system-sfss-quick-start)：按实战项目快速上手。
+4. [目录结构与边界](/guide/architecture)：避免跨层误改。
 
 ## 开发主线
 
