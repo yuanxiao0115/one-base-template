@@ -1,0 +1,4 @@
+interface:
+  display_name: 'CRUD Module Best Practice'
+  short_description: 'Create standardized CRUD modules with Position + useTable adapter guardrails'
+  default_prompt: 'Generate a project-aligned CRUD module using Position patterns, obConfirm conventions, ActionButtons-only action column, actions.ts extraction for non-CRUD logic, table alignment rules (header left, numeric right, action right, others left), and verify useTable responseAdapter compatibility for both paged data and code=200,data=array tree/list responses'

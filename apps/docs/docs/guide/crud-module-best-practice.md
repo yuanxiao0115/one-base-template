@@ -34,6 +34,8 @@ modules/<FeatureName>/<EntityName>/
     └── <Entity>SearchForm.vue  # 高级筛选表单
 ```
 
+当前 admin 规则主版本以 `list.vue` 为准。旧迁移稿中若出现 `page.vue`，仅表示“页面编排层”这一职责概念，不再代表当前文件名基线。
+
 职责边界：
 
 - `api.ts`：只关心接口契约与字段映射，**不写页面状态逻辑**
@@ -80,6 +82,8 @@ Hook 来源建议：
 3. 绑定分页事件与查询事件（由 `actions` 输出）
 4. 在 `operation` 插槽编排行操作（编辑/查看/删除）
 5. `openCreate/openEdit/openDetail` 先收口到显式 handler 或 `actions`，模板不要直接写 `crud.openCreate/openEdit/openDetail`
+
+这里的文件名约束来自 `apps/admin/AGENTS.md`：admin 下 CRUD 编排页统一使用 `list.vue`，并要求与 `routes.ts` 的懒加载路径保持一致。
 
 ### 3.2 删除交互
 

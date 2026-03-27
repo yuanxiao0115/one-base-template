@@ -10215,3 +10215,16 @@
   - 本地删除 `.codex/skills/legacy-module-migration-executor`
 - 说明：
   - `.codex/skills/**` 默认被 `.gitignore` 忽略；本次新 skill 需按既有做法强制纳入版本控制。
+
+## 2026-03-27（CRUD skill 文件名基线收口）
+
+- 用户确认继续执行：把 `crud-module-best-practice` 中残留的 `page.vue` 口径统一收口到当前 admin 的 `list.vue` 基线。
+- 更新范围：
+  - `.codex/skills/crud-module-best-practice/SKILL.md`
+  - `.codex/skills/crud-module-best-practice/references/position-crud-blueprint.md`
+  - `.codex/skills/admin-management-standardizer/references/checklists.md`
+  - `apps/docs/docs/guide/crud-module-best-practice.md`
+- 收口策略：
+  - 以 `apps/admin/AGENTS.md` 为唯一主版本：admin 下 CRUD 编排页文件名统一使用 `list.vue`
+  - skill / reference / docs 只保留“页面只负责编排”的职责描述，不再把 `page.vue` 当现行文件名基线
+  - 历史实施计划暂不回写，避免混淆“历史记录”和“当前规范”

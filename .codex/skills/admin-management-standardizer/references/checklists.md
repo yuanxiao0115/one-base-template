@@ -13,7 +13,7 @@
 
 ### 精简
 
-- [ ] `page.vue` 是否只保留编排与事件路由
+- [ ] `list.vue` 是否只保留编排与事件路由
 - [ ] 字段映射是否收敛到 `form.ts` 或语义明确的 composable
 - [ ] 是否存在无意义 helper / mapper / wrapper 中转层
 - [ ] 命名是否短、清楚、通用

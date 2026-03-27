@@ -8614,3 +8614,14 @@
   - `quick_validate.py` 通过，输出 `Skill is valid!`。
   - `apps/docs lint` 通过，`0 warnings / 0 errors`。
   - `apps/docs build` 通过，VitePress 构建完成。
+
+## 2026-03-27（crud-module-best-practice 文件名基线收口）
+
+- 命令：
+  - `python3 /Users/haoqiuzhi/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/haoqiuzhi/code/one-base-template/.codex/skills/crud-module-best-practice`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `crud-module-best-practice` 结构校验通过，输出 `Skill is valid!`。
+  - `apps/docs lint` 通过，`0 warnings / 0 errors`。
+  - `apps/docs build` 通过，VitePress 构建完成。
