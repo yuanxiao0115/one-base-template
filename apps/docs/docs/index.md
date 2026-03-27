@@ -41,6 +41,10 @@ features:
     <h3>🧱 架构与边界</h3>
     <p>先看目录分层、模块切割与路由装配规则，避免返工。</p>
   </a>
+  <a class="doc-quick-card" href="/guide/admin-legacy-migration-workflow">
+    <h3>🧭 老项目迁移</h3>
+    <p>旧 admin 能力迁入模板时，从统一迁移工作流进入最省心。</p>
+  </a>
   <a class="doc-quick-card" href="/guide/crud-module-best-practice">
     <h3>🛠️ 开发实践</h3>
     <p>以 CRUD、表格迁移和组件规范形成统一开发范式。</p>

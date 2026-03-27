@@ -135,6 +135,10 @@ outline: false
     <h3>Admin Agent 红线</h3>
     <p>公共组件复用、CRUD 范式与 lint:arch 门禁的强制基线。</p>
   </a>
+  <a class="guide-card" href="/guide/admin-legacy-migration-workflow">
+    <h3>Admin 老项目迁移工作流</h3>
+    <p>把老项目迁移、管理模块标准化与验证收口串成一条主流程。</p>
+  </a>
   <a class="guide-card" href="/guide/naming-whitelist">
     <h3>命名白名单（CLI）</h3>
     <p>统一动词+名词命名，保证脚手架生成物可维护。</p>

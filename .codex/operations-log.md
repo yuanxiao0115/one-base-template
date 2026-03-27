@@ -10191,3 +10191,27 @@
   - `apps/docs/docs/guide/module-system.md`
 - 统一口径：`/sso` 是“认证入口 / SSO 回调入口”，未登录允许进入完成回调，已登录再次访问时由全局守卫安全回跳；不再用“白名单开放页”描述该路由。
 - 顺手修正根 README 中 SSO 配置入口的旧描述，改为 `apps/admin/src/config/sso.ts`。
+
+## 2026-03-27（重写老项目迁移 skill）
+
+- 合并两个旧迁移 skill：
+  - `legacy-project-migration-best-practice`
+  - `legacy-module-migration-executor`
+- 新建 repo-local skill：`.codex/skills/admin-legacy-migration-workflow`
+  - 主体：`SKILL.md`
+  - 参考：`references/{migration-workflow,layer-placement,management-module-bridge,verification-evidence}.md`
+  - 模板：`assets/migration-plan-template.md`
+  - 元数据：`agents/openai.yaml`
+- 新 skill 定位：
+  - 作为“老项目 -> one-base-template”的 admin 迁移主入口
+  - 命中 `*Management` CRUD 模块时，显式桥接 `admin-management-standardizer` 与 `crud-module-best-practice`
+  - 补充当前 admin 仓库优先级修正：CRUD 编排页文件名以 `list.vue` 为准，不继续沿用旧 skill 的 `page.vue`
+- 同步 docs：
+  - 新增 `apps/docs/docs/guide/admin-legacy-migration-workflow.md`
+  - 更新首页、guide 总览、使用者入口与 VitePress sidebar/nav
+  - 更新 `apps/docs/docs/guide/admin-management-standardizer.md`，明确它是迁移主流程命中管理模块后的子流程
+- 清理：
+  - 本地删除 `.codex/skills/legacy-project-migration-best-practice`
+  - 本地删除 `.codex/skills/legacy-module-migration-executor`
+- 说明：
+  - `.codex/skills/**` 默认被 `.gitignore` 忽略；本次新 skill 需按既有做法强制纳入版本控制。

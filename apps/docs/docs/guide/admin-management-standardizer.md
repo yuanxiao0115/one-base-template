@@ -4,6 +4,8 @@
 
 本页适用于仓库内的本地 skill：`admin-management-standardizer`。
 
+如果需求是“把老项目模块迁进 one-base-template”，先走 [Admin Legacy Migration Workflow](/guide/admin-legacy-migration-workflow)；本页只负责命中 `*Management` 模块之后的页内标准化与规则推广。
+
 首版只覆盖：
 
 - `apps/admin/src/modules/*Management/**`
@@ -29,6 +31,13 @@
 3. 扫描差异并落计划
 4. 默认直接推进整改
 5. 跑固定门禁并上提新规则
+
+## 与老项目迁移主入口的关系
+
+- `admin-legacy-migration-workflow`：处理“老项目迁移进仓库”的主流程
+- `admin-management-standardizer`：处理“已经进入 admin 范围后”的管理模块标准化
+
+也就是说，迁移流程命中 `apps/admin/src/modules/*Management/**` 时，会把本 skill 作为子流程接入；如果没有老项目来源、只是页内横向整改，则可以直接从本 skill 开始。
 
 ## 规则源与 skill 的关系
 
@@ -127,6 +136,7 @@ pnpm -C apps/docs build
 
 ## 相关入口
 
+- [Admin Legacy Migration Workflow](/guide/admin-legacy-migration-workflow)
 - [AGENTS 规则分层](/guide/agents-scope)
 - [Admin Agent 红线](/guide/admin-agent-redlines)
 - [CRUD 模块最佳实践](/guide/crud-module-best-practice)

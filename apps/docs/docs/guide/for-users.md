@@ -18,7 +18,8 @@ outline: false
 2. [菜单与路由规范（Schema）](/guide/menu-route-spec)
 3. [布局与菜单](/guide/layout-menu)
 4. [CRUD 模块最佳实践](/guide/crud-module-best-practice)
-5. [VXE 表格迁移](/guide/table-vxe-migration)
+5. [Admin 老项目迁移工作流](/guide/admin-legacy-migration-workflow)
+6. [VXE 表格迁移](/guide/table-vxe-migration)
 
 ## 最短开发闭环（可直接照做）
 

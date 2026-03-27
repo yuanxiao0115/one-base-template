@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Admin Legacy Migration Workflow'
+  short_description: '老项目 admin 迁移、规则收敛与验证统一工作流'
+  default_prompt: 'Use $admin-legacy-migration-workflow to migrate a legacy admin module into one-base-template with admin rules, CRUD baselines, and verification gates.'

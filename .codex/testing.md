@@ -8601,3 +8601,16 @@
   - `apps/admin build` 通过。
   - `apps/docs lint/build` 通过。
   - 测试过程中仍有 Node `--localstorage-file` warning，为测试环境提示，不影响结论。
+
+## 2026-03-27（admin-legacy-migration-workflow skill 重写）
+
+- 命令：
+  - `python3 /Users/haoqiuzhi/.codex/skills/.system/skill-creator/scripts/generate_openai_yaml.py /Users/haoqiuzhi/code/one-base-template/.codex/skills/admin-legacy-migration-workflow --interface display_name='Admin Legacy Migration Workflow' --interface short_description='老项目 admin 迁移、规则收敛与验证统一工作流' --interface default_prompt='Use $admin-legacy-migration-workflow to migrate a legacy admin module into one-base-template with admin rules, CRUD baselines, and verification gates.'`
+  - `python3 /Users/haoqiuzhi/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/haoqiuzhi/code/one-base-template/.codex/skills/admin-legacy-migration-workflow`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `generate_openai_yaml.py` 通过，已生成新 skill 的 `agents/openai.yaml`。
+  - `quick_validate.py` 通过，输出 `Skill is valid!`。
+  - `apps/docs lint` 通过，`0 warnings / 0 errors`。
+  - `apps/docs build` 通过，VitePress 构建完成。
