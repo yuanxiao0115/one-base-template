@@ -2,6 +2,50 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-03-27（公文表单引擎包化：代码与集成）
+
+- 命令：
+  - `pnpm install`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C packages/document-form-engine lint`
+  - `pnpm -C packages/document-form-engine test:run`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/engine/register.unit.test.ts tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `pnpm typecheck`
+  - `pnpm lint`
+  - `pnpm build`
+  - `pnpm verify`
+- 结果：
+  - 新增共享包 `packages/document-form-engine` 的 `typecheck/lint/test:run` 通过。
+  - admin 新模块 `DocumentFormManagement` 的定向 typecheck 与单测通过。
+  - docs lint/build 通过。
+  - 根 `pnpm typecheck`、`pnpm lint`、`pnpm build` 通过（`lint` 仅保留既有 warning：`OrgManagerDialog.vue` 的 `max-lines`）。
+  - 根 `pnpm verify` 未通过，阻塞在既有命名门禁（与本次改动无关）：
+    - `apps/admin/src/router/route-policy.ts:24` `readActivePath`
+    - `apps/admin/src/router/route-policy.ts:35` `collectRoutePolicyEntries`
+    - `apps/admin/src/router/route-policy.ts:60` `sortByPathAndName`
+  - 处理动作：未修改无关历史文件，保留现状并在验证记录中显式标注。
+
+## 2026-03-27（公文表单引擎包化：文档与记录同步）
+
+- 本轮仅修改：
+  - `apps/docs/docs/guide/document-form-designer.md`
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/architecture.md`
+  - `.codex/operations-log.md`
+  - `.codex/testing.md`
+  - `.codex/verification.md`
+- 预期：
+  - 待主线代码落地后执行 `pnpm -C apps/docs lint`
+  - 待主线代码落地后执行 `pnpm -C apps/docs build`
+  - 待主线代码落地后由主线统一执行 `pnpm verify`
+- 结果：
+  - 当前子任务未单独执行命令，不声明通过结论
+  - 文档内容已按“包化边界 + 待验证”口径同步
+
 ## 2026-02-11（基线）
 
 - 预期：`pnpm typecheck` / `pnpm lint` / `pnpm build` 全绿

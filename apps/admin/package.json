@@ -21,6 +21,7 @@
     "@one-base-template/adapters": "workspace:*",
     "@one-base-template/app-starter": "workspace:*",
     "@one-base-template/core": "workspace:*",
+    "@one-base-template/document-form-engine": "workspace:*",
     "@one-base-template/portal-engine": "workspace:*",
     "@one-base-template/tag": "workspace:*",
     "@one-base-template/ui": "workspace:*",

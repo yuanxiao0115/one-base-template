@@ -8,6 +8,7 @@ describe('config/platform-config', () => {
     expect(config.backend).toBe('basic');
     expect(config.menuMode).toBe('remote');
     expect(config.enabledModules).toContain('home');
+    expect(config.enabledModules).toContain('DocumentFormManagement');
     expect(config.systemHomeMap.admin_server).toBe('/home/index');
   });
 

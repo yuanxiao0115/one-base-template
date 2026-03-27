@@ -100,6 +100,28 @@
 
 - 2026-02-11 14:29:08 降级：mcp**augment-context-engine**codebase-retrieval 无法索引当前目录（安全限制），改用 rg/ls 本地检索。
 
+## 2026-03-27（公文表单引擎包化：文档与记录同步）
+
+- 新增文档页 `apps/docs/docs/guide/document-form-designer.md`，沉淀 `document-form-engine` 的包化边界、MVP 物料、admin 接入方式与验证命令。
+- 更新 `apps/docs/docs/.vitepress/config.ts`，将“公文表单设计引擎”挂入“扩展能力”导航与侧边栏。
+- 更新 `apps/docs/docs/guide/architecture.md`，将 `packages/document-form-engine` 纳入共享层摘要。
+- 同步维护 `.codex/testing.md` 与 `.codex/verification.md`，记录本轮为“文档与记录先行同步”，验证结论待主线代码落地后补录。
+
+## 2026-03-27（公文表单引擎包化：代码落地与主线收口）
+
+- 并行落地三个子任务并完成主线集成：
+  - `packages/document-form-engine/**`：新增独立共享包（schema/materials/designer/runtime/register/tests）。
+  - `apps/admin/src/modules/DocumentFormManagement/**`：新增薄模块（路由、设计页、预览页、注入入口）。
+  - `apps/docs/**` + `.codex/**`：新增设计引擎文档并同步记录。
+- 主线修正项：
+  - 为 `designer` 出口补齐 `DocumentFormDesignerLayout` 别名组件与 route helper 导出。
+  - 统一 admin 与共享包 context 类型，移除临时 `document-form-engine.d.ts` 占位。
+  - 修复 preview 页对 runtime renderer 的调用方式，改为基于 `buildRenderModel` 渲染。
+  - 补充 `apps/admin/package.json` 对 `@one-base-template/document-form-engine` 的 workspace 依赖并执行 `pnpm install`。
+- 验证结论：
+  - 包级、admin 定向、docs 以及根级 `typecheck/lint/build` 全部通过。
+  - 根级 `pnpm verify` 失败于既有命名门禁（`apps/admin/src/router/route-policy.ts` 三处历史命名），未在本次改动中处理无关文件。
+
 ## 2026-03-18
 
 - PortalManagement P0 优化落地（仅改动 `packages/portal-engine` 与 Portal 模块消费链路）：

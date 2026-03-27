@@ -1,0 +1,32 @@
+{
+  "name": "@one-base-template/document-form-engine",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "default": "./index.ts"
+    },
+    "./designer": {
+      "types": "./designer/index.ts",
+      "default": "./designer/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "pnpm typecheck",
+    "typecheck": "vue-tsc --noEmit",
+    "lint": "vp lint .",
+    "test": "vp test",
+    "test:run": "vp test run"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.28"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.4",
+    "happy-dom": "^20.0.10",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

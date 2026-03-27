@@ -6,6 +6,7 @@
 
 - 日期：2026-03-27
 - 文件：`.codex/verification/2026-03-27.md`
+- 补充：公文表单引擎包化已完成主线验证，`typecheck/lint/build` 通过；`pnpm verify` 仍被既有命名门禁（`apps/admin/src/router/route-policy.ts`）阻塞。
 
 ## 历史归档
 

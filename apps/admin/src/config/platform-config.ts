@@ -30,7 +30,8 @@ const platformConfig: RuntimeConfig = parseRuntimeConfig({
     'log-management',
     'system-management',
     'cms-management',
-    'PortalManagement'
+    'PortalManagement',
+    'DocumentFormManagement'
   ]
 });
 

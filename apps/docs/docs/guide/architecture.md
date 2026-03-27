@@ -42,6 +42,7 @@
 - `packages/core`：鉴权、菜单、主题、HTTP、store 等纯逻辑能力（无 UI 依赖）。
 - `packages/ui`：布局壳、导航壳、页面容器、错误页等可复用 UI 壳。
 - `packages/tag`：标签栏能力包（tag store + route guard 协作）。
+- `packages/document-form-engine`：公文表单设计/渲染共享引擎（admin 首个消费者，后续可跨应用复用）。
 - `packages/portal-engine`：门户编辑/渲染共享引擎（admin 与 portal 复用）。
 - `packages/adapters`：后端接口协议适配与字段映射。
 - `packages/utils`：通用工具函数与 hooks。

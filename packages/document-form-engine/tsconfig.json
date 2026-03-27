@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["vite/client"]
+  },
+  "include": [
+    "index.ts",
+    "env.d.ts",
+    "schema/**/*.ts",
+    "materials/**/*.ts",
+    "designer/**/*.ts",
+    "designer/**/*.vue",
+    "runtime/**/*.ts",
+    "register/**/*.ts",
+    "tests/**/*.ts"
+  ]
+}
