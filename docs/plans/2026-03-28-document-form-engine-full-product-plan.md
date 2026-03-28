@@ -90,8 +90,8 @@
 - Create: `packages/document-form-engine/runtime/print-renderer.ts`
 - Create: `packages/document-form-engine/tests/runtime-sheet-parity.test.ts`
 
-- [ ] 运行态消费 `sheet` 配置，保证区域布局和样式一致。
-- [ ] 打印态复用同一套样式映射，减少设计/打印偏差。
+- [x] 运行态消费 `sheet` 配置，保证区域布局和样式一致。
+- [x] 打印态复用同一套样式映射，减少设计/打印偏差。
 
 ### Phase 6：admin 集成与模板生命周期
 

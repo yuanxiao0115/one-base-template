@@ -162,6 +162,28 @@ import {
 - 样式常量位于 `materials/sheet-style.ts`
 - 默认物料预设位于 `materials/default-materials.ts`
 
+## 运行态与打印态一致性（Sheet Render Parity）
+
+`runtime` 侧已新增：
+
+- `runtime/sheet-renderer.ts`：构建运行态 sheet 渲染模型。
+- `runtime/print-renderer.ts`：打印态复用同一份 sheet 渲染模型。
+
+当前约束：
+
+- 节点组件 props：`defaultProps + node.props`。
+- 区域样式优先级：`template.sheet.styles` 覆盖 `material.stylePreset.style`。
+- 打印态输出：与运行态 `sheet-renderer` 保持同构输出，减少版式偏差。
+
+可直接使用：
+
+```ts
+import {
+  createDocumentPrintRenderer,
+  createDocumentSheetRenderer
+} from '@one-base-template/document-form-engine';
+```
+
 ## 验证命令
 
 最小验证口径如下：

@@ -10354,3 +10354,18 @@
 - 文档同步：
   - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 3/4 已完成项。
   - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充“右侧配置面 + 物料样式协议”说明。
+
+## 2026-03-28（document-form-engine 运行态/打印态 sheet 对齐）
+
+- 推进完整产品化计划 Phase 5：
+  - 新增 `packages/document-form-engine/runtime/sheet-renderer.ts`：
+    - 统一构建 sheet 渲染模型（rows/columns/merges/styles/viewport/cells）。
+    - 区域样式优先级：模板 `sheet.styles` 覆盖物料 `stylePreset.style`。
+  - 新增 `packages/document-form-engine/runtime/print-renderer.ts`：
+    - 打印态复用 `sheet-renderer` 输出，保证运行态/打印态一致。
+  - `packages/document-form-engine/index.ts` 补充 `sheet/print renderer` 类型与函数导出。
+- 测试补强：
+  - 新增 `packages/document-form-engine/tests/runtime-sheet-parity.test.ts`，验证运行态与打印态同构输出、样式回退策略。
+- 文档同步：
+  - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 5 已完成项。
+  - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充运行态/打印态一致性说明。

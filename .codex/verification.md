@@ -6,7 +6,7 @@
 
 - 日期：2026-03-28
 - 文件：`.codex/verification/2026-03-28.md`
-- 补充：document-form-engine 已完成设计态 Univer 画布接入、SheetSchema v2（含 `v1 -> v2` 自动迁移）以及物料样式协议/右侧配置面（合并 + 样式应用），`test/typecheck/build` 与 docs 验证通过，包级 lint 受既有 `vite-plus` 异常影响。
+- 补充：document-form-engine 已完成设计态 Univer 画布接入、SheetSchema v2（含 `v1 -> v2` 自动迁移）、物料样式协议/右侧配置面（合并 + 样式应用）以及运行态/打印态 sheet 渲染对齐，`test/typecheck/build` 与 docs 验证通过，包级 lint 受既有 `vite-plus` 异常影响。
 
 ## 历史归档
 

@@ -8783,3 +8783,18 @@
   - `pnpm -C apps/docs build`
 - 结果：
   - 以上命令全部通过。
+
+## 2026-03-28（document-form-engine 运行态/打印态 sheet 对齐）
+
+- RED（先失败）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/runtime-sheet-parity.test.ts`
+  - 结果：失败，提示缺少 `runtime/sheet-renderer.ts` 与 `runtime/print-renderer.ts`。
+- GREEN（实现后回归）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/runtime-sheet-parity.test.ts`
+  - `pnpm -C packages/document-form-engine test:run`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C packages/document-form-engine build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 以上命令全部通过。

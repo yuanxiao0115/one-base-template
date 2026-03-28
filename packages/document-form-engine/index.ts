@@ -61,3 +61,15 @@ export type {
   DocumentRuntimeRenderer
 } from './runtime/renderer';
 export { createDocumentRuntimeRenderer } from './runtime/renderer';
+export type {
+  CreateDocumentSheetRendererOptions,
+  DocumentSheetRenderCell,
+  DocumentSheetRenderModel,
+  DocumentSheetRenderer
+} from './runtime/sheet-renderer';
+export { createDocumentSheetRenderer } from './runtime/sheet-renderer';
+export type {
+  CreateDocumentPrintRendererOptions,
+  DocumentPrintRenderer
+} from './runtime/print-renderer';
+export { createDocumentPrintRenderer } from './runtime/print-renderer';
