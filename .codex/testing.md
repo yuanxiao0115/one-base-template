@@ -8798,3 +8798,17 @@
   - `pnpm -C apps/docs build`
 - 结果：
   - 以上命令全部通过。
+
+## 2026-03-28（admin 模板生命周期接入）
+
+- RED（先失败）：
+  - `pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/services/template-service.unit.test.ts`
+  - 结果：失败，缺少 `template-service.ts`。
+- GREEN（实现后回归）：
+  - `pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/services/template-service.unit.test.ts src/modules/DocumentFormManagement/engine/register.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 以上命令全部通过。

@@ -9,8 +9,13 @@ import {
   getDocumentFormEngineAdminContext,
   resetDocumentFormEngineAdminContextForTesting
 } from './context';
+import {
+  createDocumentTemplateService,
+  type DocumentTemplateService
+} from '../services/template-service';
 
 const DOCUMENT_FORM_ADMIN_ADAPTERS_KEY = Symbol('document-form-admin-adapters');
+const DOCUMENT_FORM_ADMIN_SERVICES_KEY = Symbol('document-form-admin-services');
 
 export interface DocumentFormAdminAdapters {
   personnelSelector: Component;
@@ -20,6 +25,11 @@ export interface DocumentFormAdminAdapters {
 
 export interface DocumentFormEngineAdminRegisterOptions {
   adapters?: Partial<DocumentFormAdminAdapters>;
+  services?: Partial<DocumentFormAdminServices>;
+}
+
+export interface DocumentFormAdminServices {
+  templateService: DocumentTemplateService;
 }
 
 let initialized = false;
@@ -40,6 +50,20 @@ function writeAdapters(
   return adapters;
 }
 
+function createDefaultServices(): DocumentFormAdminServices {
+  return {
+    templateService: createDocumentTemplateService()
+  };
+}
+
+function writeServices(
+  context: DocumentFormEngineAdminContext,
+  services: DocumentFormAdminServices
+): DocumentFormAdminServices {
+  context.values.set(DOCUMENT_FORM_ADMIN_SERVICES_KEY, services);
+  return services;
+}
+
 export function getDocumentFormAdminAdapters(
   context: DocumentFormEngineAdminContext = getDocumentFormEngineAdminContext()
 ): DocumentFormAdminAdapters {
@@ -48,6 +72,16 @@ export function getDocumentFormAdminAdapters(
     return stored as DocumentFormAdminAdapters;
   }
   return writeAdapters(context, createDefaultAdapters());
+}
+
+export function getDocumentFormAdminServices(
+  context: DocumentFormEngineAdminContext = getDocumentFormEngineAdminContext()
+): DocumentFormAdminServices {
+  const stored = context.values.get(DOCUMENT_FORM_ADMIN_SERVICES_KEY);
+  if (stored) {
+    return stored as DocumentFormAdminServices;
+  }
+  return writeServices(context, createDefaultServices());
 }
 
 export function setupDocumentFormEngineForAdmin(
@@ -63,8 +97,13 @@ export function setupDocumentFormEngineForAdmin(
     ...getDocumentFormAdminAdapters(context),
     ...options.adapters
   };
+  const nextServices = {
+    ...getDocumentFormAdminServices(context),
+    ...options.services
+  };
 
   writeAdapters(context, nextAdapters);
+  writeServices(context, nextServices);
 
   return context;
 }

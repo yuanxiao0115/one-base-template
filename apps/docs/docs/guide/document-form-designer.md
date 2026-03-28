@@ -184,6 +184,21 @@ import {
 } from '@one-base-template/document-form-engine';
 ```
 
+## admin 模板生命周期（草稿 / 发布 / 回滚）
+
+`apps/admin/src/modules/DocumentFormManagement/services/template-service.ts` 已提供模板生命周期服务：
+
+- `ensureDraft`：初始化草稿。
+- `updateDraft`：更新草稿。
+- `publishDraft`：发布并生成递增版本。
+- `rollbackToPublished`：回滚到指定或最新发布版本。
+
+接入位置：
+
+- `engine/register.ts`：注入 `templateService` 到 admin 上下文服务集合。
+- `designPage/DocumentFormDesignerPage.vue`：设计页工具栏触发发布/回滚。
+- `designPage/DocumentFormPreviewPage.vue`：预览页优先加载已发布模板，其次草稿模板。
+
 ## 验证命令
 
 最小验证口径如下：

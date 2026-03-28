@@ -102,8 +102,8 @@
 - Create: `apps/admin/src/modules/DocumentFormManagement/services/template-service.ts`
 - Create: `apps/admin/src/modules/DocumentFormManagement/tests/template-service.unit.test.ts`
 
-- [ ] 新增模板“草稿/发布/回滚”接口对接。
-- [ ] 加入版本号与 schema 迁移执行。
+- [x] 新增模板“草稿/发布/回滚”接口对接（当前通过 admin 本地服务先打通生命周期链路）。
+- [x] 加入版本号与 schema 迁移执行（模板协议已是 v2，解析链路内置 `v1 -> v2` 迁移）。
 
 ### Phase 7：文档、验证、发布门禁
 

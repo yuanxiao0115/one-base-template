@@ -7,6 +7,7 @@ import ObRichTextEditor from '@/components/rich-text/ObRichTextEditor.vue';
 
 import {
   getDocumentFormAdminAdapters,
+  getDocumentFormAdminServices,
   resetDocumentFormEngineAdminSetupForTesting,
   setupDocumentFormEngineForAdmin
 } from './register';
@@ -40,5 +41,39 @@ describe('DocumentFormManagement/engine/register', () => {
 
     expect(secondContext).toBe(firstContext);
     expect(adapters.richTextEditor).toBe(customEditor);
+  });
+
+  it('应注入模板生命周期服务并支持覆盖', () => {
+    const customService = {
+      ensureDraft() {
+        throw new Error('skip');
+      },
+      updateDraft() {
+        throw new Error('skip');
+      },
+      publishDraft() {
+        throw new Error('skip');
+      },
+      rollbackToPublished() {
+        return null;
+      },
+      getSnapshot() {
+        return {
+          draft: null,
+          published: null,
+          history: []
+        };
+      }
+    };
+
+    const context = setupDocumentFormEngineForAdmin({
+      services: {
+        templateService: customService
+      }
+    });
+
+    const services = getDocumentFormAdminServices(context);
+
+    expect(services.templateService).toBe(customService);
   });
 });

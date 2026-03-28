@@ -7,7 +7,7 @@ import {
 } from '@one-base-template/document-form-engine';
 
 import { createMockDocumentTemplate } from '../mock/template';
-import { setupDocumentFormEngineForAdmin } from '../engine/register';
+import { getDocumentFormAdminServices, setupDocumentFormEngineForAdmin } from '../engine/register';
 
 defineOptions({
   name: 'DocumentFormPreviewPage'
@@ -15,7 +15,11 @@ defineOptions({
 
 const router = useRouter();
 const context = setupDocumentFormEngineForAdmin();
-const template = computed(() => createMockDocumentTemplate());
+const templateService = getDocumentFormAdminServices(context).templateService;
+const template = computed(() => {
+  const snapshot = templateService.getSnapshot();
+  return snapshot.published?.template ?? snapshot.draft?.template ?? createMockDocumentTemplate();
+});
 const runtimeRenderer = createDocumentRuntimeRenderer(context);
 
 const renderModel = computed(() => runtimeRenderer.buildRenderModel(template.value));

@@ -10369,3 +10369,21 @@
 - 文档同步：
   - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 5 已完成项。
   - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充运行态/打印态一致性说明。
+
+## 2026-03-28（admin 模板生命周期接入）
+
+- 推进完整产品化计划 Phase 6：
+  - 新增 `apps/admin/src/modules/DocumentFormManagement/services/template-service.ts`：
+    - 提供草稿初始化、草稿更新、发布、回滚、快照读取。
+    - 发布版本号递增，回滚基于历史发布版本创建新草稿。
+  - 新增 `apps/admin/src/modules/DocumentFormManagement/services/template-service.unit.test.ts`。
+  - 升级 `apps/admin/src/modules/DocumentFormManagement/engine/register.ts`：
+    - 新增 `services.templateService` 注入能力。
+  - 升级 `apps/admin/src/modules/DocumentFormManagement/engine/register.unit.test.ts`：
+    - 增加服务注入覆盖场景。
+  - 升级设计页/预览页：
+    - `designPage/DocumentFormDesignerPage.vue` 新增发布/回滚工具栏并接草稿生命周期。
+    - `designPage/DocumentFormPreviewPage.vue` 优先读取已发布模板，回退草稿模板。
+- 文档同步：
+  - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 6 已完成项。
+  - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充 admin 生命周期接入说明。
