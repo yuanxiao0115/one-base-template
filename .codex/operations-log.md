@@ -10332,3 +10332,25 @@
 - 计划与文档同步：
   - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 1/2 已完成项。
   - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充“合并单元格/线色/边框/行高列宽”的 `sheet` 配置入口与 JSON 示例。
+
+## 2026-03-28（document-form-engine 物料样式协议与右侧配置面）
+
+- 持续推进完整产品化计划 Phase 3/4：
+  - 新增 `packages/document-form-engine/materials/sheet-style.ts`，沉淀 `sheetLayout/stylePreset` 协议与默认样式工厂。
+  - 升级 `packages/document-form-engine/materials/types.ts`，`DocumentMaterialDefinition` 新增 `sheetLayout`、`stylePreset`。
+  - 升级 `packages/document-form-engine/materials/default-materials.ts`，为默认物料补齐布局与样式预设。
+  - 新增 `packages/document-form-engine/designer/sheet-ops.ts`，沉淀样式应用与合并区域增删逻辑。
+  - 新增面板组件：
+    - `packages/document-form-engine/designer/panels/SheetStyleEditor.vue`
+    - `packages/document-form-engine/designer/panels/MergeEditor.vue`
+  - 改造：
+    - `packages/document-form-engine/designer/DocumentPropertyInspector.vue`
+    - `packages/document-form-engine/designer/DocumentDesignerWorkbench.vue`
+    - `packages/document-form-engine/designer/index.ts`
+- 测试补强：
+  - 新增 `tests/material-sheet-style.test.ts`
+  - 新增 `tests/designer-sheet-ops.test.ts`
+  - 调整 `tests/register.test.ts` 以适配新物料协议。
+- 文档同步：
+  - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 3/4 已完成项。
+  - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充“右侧配置面 + 物料样式协议”说明。

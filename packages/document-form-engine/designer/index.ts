@@ -4,6 +4,8 @@ export { default as DocumentMaterialPalette } from './DocumentMaterialPalette.vu
 export { default as DocumentCanvas } from './DocumentCanvas.vue';
 export { default as UniverDocumentCanvas } from './UniverDocumentCanvas.vue';
 export { default as DocumentPropertyInspector } from './DocumentPropertyInspector.vue';
+export { default as MergeEditor } from './panels/MergeEditor.vue';
+export { default as SheetStyleEditor } from './panels/SheetStyleEditor.vue';
 export type {
   DocumentDesignerRouteQueryLike,
   DocumentDesignerRouteQueryPrimitive,
@@ -19,4 +21,5 @@ export {
 } from './canvas-bridge';
 export type { CanvasGridMetrics, CanvasMaterialCell } from './canvas-render-model';
 export { buildCanvasMaterialCells, resolveCanvasGridMetrics } from './canvas-render-model';
+export { addSheetMergeByAnchor, applySheetStyleToAnchor, removeSheetMergeAt } from './sheet-ops';
 export { createMaterialNode, useDocumentDesignerState } from './useDocumentDesignerState';

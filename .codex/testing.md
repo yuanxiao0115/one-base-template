@@ -8765,3 +8765,21 @@
   - `pnpm -C apps/docs build`
 - 结果：
   - 以上命令全部通过。
+
+## 2026-03-28（document-form-engine 物料样式协议与右侧配置面）
+
+- RED（先失败）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/material-sheet-style.test.ts`
+    - 失败原因：缺少 `materials/sheet-style.ts`。
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-sheet-ops.test.ts`
+    - 失败原因：缺少 `designer/sheet-ops.ts`。
+- GREEN（实现后回归）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/material-sheet-style.test.ts`
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-sheet-ops.test.ts tests/material-sheet-style.test.ts`
+  - `pnpm -C packages/document-form-engine test:run`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C packages/document-form-engine build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 以上命令全部通过。

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 import {
+  createDefaultMaterialSheetLayout,
+  createDocumentMaterialStylePreset
+} from '../materials/sheet-style';
+import {
   createDocumentFormEngineContext,
   getDocumentMaterials,
   registerDocumentMaterials
@@ -19,6 +23,10 @@ describe('document material registry', () => {
           rowspan: 10,
           colspan: 24
         },
+        sheetLayout: createDefaultMaterialSheetLayout(10, 24),
+        stylePreset: createDocumentMaterialStylePreset('body-extend', '正文扩展样式', {
+          borderColor: '#1d4ed8'
+        }),
         defaultProps: {
           placeholder: '扩展正文'
         },

@@ -136,6 +136,32 @@ import {
 
 `schema/template.ts` 在解析模板时会自动执行 `v1 -> v2` 迁移并补齐 `sheet` 默认值，admin 持久化层无需先做历史数据回写。
 
+## 设计器右侧配置面（当前能力）
+
+`DocumentPropertyInspector` 已接入两个表格编辑面板：
+
+- `MergeEditor`：按当前选中物料区域新增合并，或删除已有合并区域。
+- `SheetStyleEditor`：编辑边框线色、填充色、字体、对齐、换行，并应用到当前选中物料区域。
+
+配置回写路径：
+
+- 合并区域：`template.sheet.merges`
+- 样式区域：`template.sheet.styles`
+
+当前版本的样式应用粒度是“当前选中物料区域”，后续如需“任意选区样式刷”可在 Univer 选区事件上继续扩展。
+
+## 物料样式协议（Material Sheet Style）
+
+`materials/types.ts` 中的物料定义已新增：
+
+- `sheetLayout`：定义物料在 sheet 中的区域布局（默认主区域）。
+- `stylePreset`：定义物料默认样式预设。
+
+默认实现：
+
+- 样式常量位于 `materials/sheet-style.ts`
+- 默认物料预设位于 `materials/default-materials.ts`
+
 ## 验证命令
 
 最小验证口径如下：

@@ -1,5 +1,10 @@
 import { computed, defineComponent, h, type PropType } from 'vue';
 import type { DocumentMaterialNode } from '../schema/types';
+import {
+  createDefaultMaterialSheetLayout,
+  createDocumentMaterialStylePreset,
+  DEFAULT_DOCUMENT_MATERIAL_STYLE_PRESET
+} from './sheet-style';
 import type { DocumentMaterialDefinition } from './types';
 
 function createShellComponent(
@@ -32,6 +37,13 @@ function createShellComponent(
           ]
         );
     }
+  });
+}
+
+function createMaterialStylePreset(key: string, borderColor: string) {
+  return createDocumentMaterialStylePreset(key, '基础样式', {
+    borderColor,
+    backgroundColor: '#f8fafc'
   });
 }
 
@@ -70,6 +82,8 @@ export const DEFAULT_DOCUMENT_MATERIALS: DocumentMaterialDefinition[] = [
     description: '文头、标题、文号与签发人信息',
     icon: 'ri:file-text-line',
     defaultSize: { rowspan: 6, colspan: 24 },
+    sheetLayout: createDefaultMaterialSheetLayout(6, 24),
+    stylePreset: createMaterialStylePreset('header', '#7c2d12'),
     defaultProps: {
       title: '关于推进公文表单引擎建设的通知',
       documentNumber: '〔2026〕01号',
@@ -92,6 +106,8 @@ export const DEFAULT_DOCUMENT_MATERIALS: DocumentMaterialDefinition[] = [
     description: '主送、抄送和报送对象',
     icon: 'ri:group-line',
     defaultSize: { rowspan: 4, colspan: 24 },
+    sheetLayout: createDefaultMaterialSheetLayout(4, 24),
+    stylePreset: createMaterialStylePreset('recipient', '#9a3412'),
     defaultProps: {
       primaryLabel: '主送',
       primaryValue: '',
@@ -114,6 +130,8 @@ export const DEFAULT_DOCUMENT_MATERIALS: DocumentMaterialDefinition[] = [
     description: '正文编辑区或正文占位区',
     icon: 'ri:article-line',
     defaultSize: { rowspan: 12, colspan: 24 },
+    sheetLayout: createDefaultMaterialSheetLayout(12, 24),
+    stylePreset: createMaterialStylePreset('body', '#1d4ed8'),
     defaultProps: {
       placeholder: '请输入正文内容',
       minRows: 12
@@ -132,6 +150,8 @@ export const DEFAULT_DOCUMENT_MATERIALS: DocumentMaterialDefinition[] = [
     description: '拟稿、核稿、会签、领导意见统一物料',
     icon: 'ri:chat-3-line',
     defaultSize: { rowspan: 6, colspan: 24 },
+    sheetLayout: createDefaultMaterialSheetLayout(6, 24),
+    stylePreset: createMaterialStylePreset('opinion', '#0f766e'),
     defaultProps: {
       roleCode: 'draft',
       roleLabel: '拟稿意见',
@@ -172,6 +192,8 @@ export const DEFAULT_DOCUMENT_MATERIALS: DocumentMaterialDefinition[] = [
     description: '附件说明与附件列表',
     icon: 'ri:attachment-2',
     defaultSize: { rowspan: 4, colspan: 24 },
+    sheetLayout: createDefaultMaterialSheetLayout(4, 24),
+    stylePreset: createMaterialStylePreset('attachment', '#4338ca'),
     defaultProps: {
       label: '附件',
       maxCount: 9
@@ -190,6 +212,17 @@ export const DEFAULT_DOCUMENT_MATERIALS: DocumentMaterialDefinition[] = [
     description: '落款、签名和盖章占位',
     icon: 'ri:stamp-line',
     defaultSize: { rowspan: 5, colspan: 12 },
+    sheetLayout: createDefaultMaterialSheetLayout(5, 12),
+    stylePreset: {
+      ...DEFAULT_DOCUMENT_MATERIAL_STYLE_PRESET,
+      key: 'stamp',
+      style: {
+        ...DEFAULT_DOCUMENT_MATERIAL_STYLE_PRESET.style,
+        border: {
+          ...DEFAULT_DOCUMENT_MATERIAL_STYLE_PRESET.style.border
+        }
+      }
+    },
     defaultProps: {
       label: '签章区',
       showDate: true
@@ -208,6 +241,8 @@ export const DEFAULT_DOCUMENT_MATERIALS: DocumentMaterialDefinition[] = [
     description: '拟稿人、部门、时间等元数据',
     icon: 'ri:profile-line',
     defaultSize: { rowspan: 4, colspan: 12 },
+    sheetLayout: createDefaultMaterialSheetLayout(4, 12),
+    stylePreset: createMaterialStylePreset('meta', '#475569'),
     defaultProps: {
       fieldsLabel: '拟稿人 / 拟稿部门 / 日期'
     },

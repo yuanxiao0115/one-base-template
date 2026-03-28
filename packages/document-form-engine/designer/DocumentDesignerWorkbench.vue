@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import type { DocumentMaterialSheetStyleValue } from '../materials/sheet-style';
 import type { DocumentMaterialDefinition } from '../materials/types';
 import type { DocumentTemplateSchema } from '../schema/types';
 import { createDefaultDocumentTemplate, normalizeDocumentTemplate } from '../schema/template';
 import DocumentMaterialPalette from './DocumentMaterialPalette.vue';
 import DocumentPropertyInspector from './DocumentPropertyInspector.vue';
+import { addSheetMergeByAnchor, applySheetStyleToAnchor, removeSheetMergeAt } from './sheet-ops';
 import UniverDocumentCanvas from './UniverDocumentCanvas.vue';
 import { useDocumentDesignerState } from './useDocumentDesignerState';
 
@@ -56,6 +58,33 @@ const {
   updateSelectedNodeProp,
   updateNodeAnchor
 } = useDocumentDesignerState(template, materialsRef);
+
+function applySelectedNodeSheetStyle(style: DocumentMaterialSheetStyleValue) {
+  if (!selectedNode.value) {
+    return;
+  }
+
+  template.value.sheet.styles = applySheetStyleToAnchor(
+    template.value.sheet.styles,
+    selectedNode.value.anchor,
+    style
+  );
+}
+
+function addCurrentMerge() {
+  if (!selectedNode.value) {
+    return;
+  }
+
+  template.value.sheet.merges = addSheetMergeByAnchor(
+    template.value.sheet.merges,
+    selectedNode.value.anchor
+  );
+}
+
+function removeMerge(index: number) {
+  template.value.sheet.merges = removeSheetMergeAt(template.value.sheet.merges, index);
+}
 </script>
 
 <template>
@@ -78,7 +107,11 @@ const {
       <DocumentPropertyInspector
         :definition="selectedDefinition"
         :node="selectedNode"
+        :template="template"
         @update:field="updateSelectedNodeProp"
+        @apply-sheet-style="applySelectedNodeSheetStyle"
+        @add-current-merge="addCurrentMerge"
+        @remove-merge="removeMerge"
         @remove="removeSelectedNode"
       />
     </div>

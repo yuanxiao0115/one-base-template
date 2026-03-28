@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import type { DocumentMaterialSheetStyleValue } from '../materials/sheet-style';
 import type { DocumentMaterialDefinition } from '../materials/types';
-import type { DocumentMaterialNode } from '../schema/types';
+import type { DocumentMaterialNode, DocumentTemplateSchema } from '../schema/types';
+import MergeEditor from './panels/MergeEditor.vue';
+import SheetStyleEditor from './panels/SheetStyleEditor.vue';
 
 defineOptions({
   name: 'DocumentPropertyInspector'
@@ -9,12 +13,33 @@ defineOptions({
 const props = defineProps<{
   definition: DocumentMaterialDefinition | null;
   node: DocumentMaterialNode | null;
+  template: DocumentTemplateSchema;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:field', key: string, value: unknown): void;
   (e: 'remove'): void;
+  (e: 'apply-sheet-style', value: DocumentMaterialSheetStyleValue): void;
+  (e: 'add-current-merge'): void;
+  (e: 'remove-merge', index: number): void;
 }>();
+
+const selectedRangeStyle = computed(() => {
+  if (!props.node) {
+    return null;
+  }
+  return (
+    props.template.sheet.styles.find(
+      (item) =>
+        item.row === props.node?.anchor.row &&
+        item.col === props.node?.anchor.col &&
+        item.rowspan === props.node?.anchor.rowspan &&
+        item.colspan === props.node?.anchor.colspan
+    ) ?? null
+  );
+});
+
+const defaultStyle = computed(() => props.definition?.stylePreset.style ?? null);
 </script>
 
 <template>
@@ -67,6 +92,17 @@ const emit = defineEmits<{
           </option>
         </select>
       </label>
+      <MergeEditor
+        :merges="props.template.sheet.merges"
+        :node-anchor="props.node.anchor"
+        @add-current="emit('add-current-merge')"
+        @remove="(index) => emit('remove-merge', index)"
+      />
+      <SheetStyleEditor
+        :model-value="selectedRangeStyle"
+        :default-style="defaultStyle"
+        @apply="(value) => emit('apply-sheet-style', value)"
+      />
     </template>
     <div v-else class="empty-text">请选择画布中的物料节点</div>
   </aside>

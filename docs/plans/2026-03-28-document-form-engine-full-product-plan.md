@@ -64,9 +64,9 @@
 - Create: `packages/document-form-engine/materials/sheet-style.ts`
 - Create: `packages/document-form-engine/tests/material-sheet-style.test.ts`
 
-- [ ] 物料定义新增 `sheetLayout` 与 `stylePreset`。
-- [ ] `stylePreset` 支持边框颜色、线宽、背景色、字体、对齐。
-- [ ] 默认值仍放 `default-materials.ts`，但样式常量抽到 `sheet-style.ts`。
+- [x] 物料定义新增 `sheetLayout` 与 `stylePreset`。
+- [x] `stylePreset` 支持边框颜色、线宽、背景色、字体、对齐。
+- [x] 默认值仍放 `default-materials.ts`，但样式常量抽到 `sheet-style.ts`。
 
 ### Phase 4：设计器能力补齐（完整产品操作面）
 
@@ -77,9 +77,9 @@
 - Create: `packages/document-form-engine/designer/panels/MergeEditor.vue`
 - Modify: `packages/document-form-engine/designer/DocumentDesignerWorkbench.vue`
 
-- [ ] 右侧新增“单元格样式”面板：边框线色、线型、填充、字体、对齐。
-- [ ] 右侧新增“合并区域”面板：添加/拆分合并区域。
-- [ ] 支持“当前选区应用样式”。
+- [x] 右侧新增“单元格样式”面板：边框线色、线型、填充、字体、对齐。
+- [x] 右侧新增“合并区域”面板：添加/拆分合并区域。
+- [x] 支持“当前选区应用样式”（当前实现为“当前选中物料区域应用样式”）。
 
 ### Phase 5：运行态与打印态对齐
 

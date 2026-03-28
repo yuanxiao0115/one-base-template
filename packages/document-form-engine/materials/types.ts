@@ -1,5 +1,6 @@
 import type { Component } from 'vue';
 import type { DocumentMaterialNode } from '../schema/types';
+import type { DocumentMaterialSheetLayout, DocumentMaterialStylePreset } from './sheet-style';
 
 export type DocumentMaterialFieldType = 'text' | 'textarea' | 'number' | 'boolean' | 'select';
 
@@ -39,6 +40,8 @@ export interface DocumentMaterialDefinition<
     colspan: number;
   };
   defaultProps: TProps;
+  sheetLayout: DocumentMaterialSheetLayout;
+  stylePreset: DocumentMaterialStylePreset;
   propertySchema: DocumentMaterialFieldSchema[];
   designerPreview: Component;
   runtimeRenderer: Component;

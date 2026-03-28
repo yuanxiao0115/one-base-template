@@ -30,7 +30,21 @@ export type {
   DocumentMaterialRenderContext,
   DocumentResolvedMaterialNode
 } from './materials/types';
+export type {
+  CreateMaterialStylePresetOptions,
+  DocumentMaterialSheetLayout,
+  DocumentMaterialSheetLayoutRegion,
+  DocumentMaterialSheetStyleValue,
+  DocumentMaterialStylePreset
+} from './materials/sheet-style';
 export { DEFAULT_DOCUMENT_MATERIALS } from './materials/default-materials';
+export {
+  createDefaultMaterialSheetLayout,
+  createDocumentMaterialStylePreset,
+  DEFAULT_DOCUMENT_MATERIAL_STYLE_PRESET,
+  DEFAULT_MATERIAL_BACKGROUND_COLOR,
+  DEFAULT_MATERIAL_BORDER_COLOR
+} from './materials/sheet-style';
 export type {
   DocumentFormEngineContext,
   DocumentFormEngineContextOptions
