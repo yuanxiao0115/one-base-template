@@ -116,6 +116,10 @@ outline: false
     <h3>basic Adapter</h3>
     <p>后端接口适配与字段映射的实现约定。</p>
   </a>
+  <a class="guide-card" href="/guide/document-form-sheet-schema">
+    <h3>公文表单 Sheet Schema</h3>
+    <p>查看合并、边框线色、样式区域、冻结区与版本迁移口径。</p>
+  </a>
 </div>
 
 ## 🧰 维护治理

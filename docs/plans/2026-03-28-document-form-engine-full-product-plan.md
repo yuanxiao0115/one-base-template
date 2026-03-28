@@ -115,8 +115,8 @@
 - Modify: `.codex/testing.md`
 - Modify: `.codex/verification.md`
 
-- [ ] 文档补齐“配置项索引 + 示例 JSON + 迁移策略”。
-- [ ] 验证命令固化到文档。
+- [x] 文档补齐“配置项索引 + 示例 JSON + 迁移策略”。
+- [x] 验证命令固化到文档。
 
 ## 3. 你最关心的配置归属（最终口径）
 

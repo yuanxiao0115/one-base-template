@@ -136,6 +136,8 @@ import {
 
 `schema/template.ts` 在解析模板时会自动执行 `v1 -> v2` 迁移并补齐 `sheet` 默认值，admin 持久化层无需先做历史数据回写。
 
+完整字段与迁移口径见：[公文表单 Sheet Schema（v2）](/guide/document-form-sheet-schema)。
+
 ## 设计器右侧配置面（当前能力）
 
 `DocumentPropertyInspector` 已接入两个表格编辑面板：
@@ -196,7 +198,7 @@ import {
 接入位置：
 
 - `engine/register.ts`：注入 `templateService` 到 admin 上下文服务集合。
-- `designPage/DocumentFormDesignerPage.vue`：设计页工具栏触发发布/回滚。
+- `designPage/DocumentFormDesignerPage.vue`：设计页工具栏支持发布备注、发布历史展示、指定版本回滚。
 - `designPage/DocumentFormPreviewPage.vue`：预览页优先加载已发布模板，其次草稿模板。
 
 ## 验证命令

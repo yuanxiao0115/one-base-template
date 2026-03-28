@@ -28,6 +28,7 @@ const practiceItems = [
 
 const extensionItems = [
   { text: '公文表单设计引擎', link: '/guide/document-form-designer' },
+  { text: '公文表单 Sheet Schema', link: '/guide/document-form-sheet-schema' },
   { text: '门户体系总览', link: '/guide/portal/' },
   { text: 'PortalManagement 管理端接入', link: '/guide/portal/admin-designer' },
   { text: 'portal-engine 边界与导出层', link: '/guide/portal/engine-boundary' },
@@ -112,6 +113,7 @@ export default defineConfig({
     ],
     sidebar: {
       '/guide/document-form-designer': extensionSidebar,
+      '/guide/document-form-sheet-schema': extensionSidebar,
       '/guide/portal/': extensionSidebar,
       '/guide/adapter-basic': extensionSidebar,
 

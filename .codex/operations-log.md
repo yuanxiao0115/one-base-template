@@ -10387,3 +10387,16 @@
 - 文档同步：
   - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 6 已完成项。
   - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充 admin 生命周期接入说明。
+
+## 2026-03-28（admin 版本历史回滚面板 + Phase 7 收口）
+
+- 继续优化 DocumentForm 设计页生命周期交互：
+  - 改造 `apps/admin/src/modules/DocumentFormManagement/designPage/DocumentFormDesignerPage.vue`：
+    - 新增发布备注输入、发布历史展示、指定版本回滚选择器。
+    - 回滚支持指定版本（默认最新发布版本）。
+    - 发布/回滚后统一同步快照状态。
+- 文档收口（Phase 7）：
+  - 新增 `apps/docs/docs/guide/document-form-sheet-schema.md`，补齐 sheet 配置索引、示例 JSON 与迁移策略。
+  - 更新 `apps/docs/docs/.vitepress/config.ts`、`apps/docs/docs/guide/index.md`，接入新文档导航入口。
+  - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充版本历史回滚面板口径。
+  - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 7 已完成项。

@@ -8812,3 +8812,15 @@
   - `pnpm -C apps/docs build`
 - 结果：
   - 以上命令全部通过。
+
+## 2026-03-28（admin 版本历史回滚面板 + Phase 7 收口）
+
+- 命令：
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin typecheck` 通过。
+  - `apps/admin lint` 通过（存在既有 warning：`adminManagement/org/components/OrgManagerDialog.vue` 文件行数超限）。
+  - `apps/docs lint/build` 通过。
