@@ -8750,3 +8750,18 @@
   - `pnpm -C apps/docs build`
 - 其他记录：
   - `pnpm -C packages/document-form-engine lint` 当前因 `vite-plus` 解析配置异常失败：`callablePlugin.getOrder is not a function`。
+
+## 2026-03-28（document-form-engine SheetSchema v2）
+
+- RED（先失败）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/sheet-schema.test.ts`
+  - 结果：3 个用例失败，失败点为 `version` 仍是 `1` 且缺少 `sheet`，符合预期。
+- GREEN（实现后回归）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/sheet-schema.test.ts`
+  - `pnpm -C packages/document-form-engine test:run`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C packages/document-form-engine build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 以上命令全部通过。

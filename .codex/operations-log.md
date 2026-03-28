@@ -10319,3 +10319,16 @@
 - 文档同步：
   - 更新 `apps/docs/docs/guide/document-form-designer.md`，明确“设计态 Univer + 运行态 Vue 物料”口径。
   - 新增实施计划 `docs/plans/2026-03-28-document-form-univer-canvas-plan.md`。
+
+## 2026-03-28（document-form-engine SheetSchema v2）
+
+- 按“完整产品化计划”继续推进 Phase 2：
+  - 新增 `packages/document-form-engine/schema/sheet.ts`，定义 `rows/columns/rowHeights/columnWidths/merges/styles/viewport` 与 normalize 能力。
+  - 升级 `packages/document-form-engine/schema/types.ts`：`DocumentTemplateSchema` 统一输出 `version: '2'`，新增 `sheet`，并补 `DocumentTemplateSchemaV1` 迁移输入类型。
+  - 改造 `packages/document-form-engine/schema/template.ts`：
+    - `createDefaultDocumentTemplate()` 默认生成 `v2 + sheet`。
+    - `normalize/parse` 支持 `v1 -> v2` 自动迁移。
+  - 更新 `packages/document-form-engine/index.ts` 导出 `sheet` 相关类型与函数。
+- 计划与文档同步：
+  - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 1/2 已完成项。
+  - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充“合并单元格/线色/边框/行高列宽”的 `sheet` 配置入口与 JSON 示例。

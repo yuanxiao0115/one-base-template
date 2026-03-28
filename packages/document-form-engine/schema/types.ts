@@ -1,3 +1,4 @@
+import type { DocumentTemplateSheetConfig } from './sheet';
 export type DocumentPageSize = 'A4';
 
 export interface DocumentTemplatePageConfig {
@@ -37,6 +38,24 @@ export interface DocumentMaterialNode<
 }
 
 export interface DocumentTemplateSchema {
+  version: '2';
+  kind: 'dispatch-form';
+  title: string;
+  page: DocumentTemplatePageConfig;
+  grid: DocumentTemplateGridConfig;
+  materials: DocumentMaterialNode[];
+  print: {
+    showGrid: boolean;
+  };
+  sheet: DocumentTemplateSheetConfig;
+}
+
+export interface DocumentTemplateSerializationResult {
+  serialized: string;
+  template: DocumentTemplateSchema;
+}
+
+export interface DocumentTemplateSchemaV1 {
   version: '1';
   kind: 'dispatch-form';
   title: string;
@@ -48,7 +67,4 @@ export interface DocumentTemplateSchema {
   };
 }
 
-export interface DocumentTemplateSerializationResult {
-  serialized: string;
-  template: DocumentTemplateSchema;
-}
+export type AnyDocumentTemplateSchema = DocumentTemplateSchema | DocumentTemplateSchemaV1;

@@ -8,12 +8,12 @@ import '@univerjs/preset-sheets-core/lib/index.css';
 import type { DocumentMaterialDefinition } from '../materials/types';
 import type { DocumentMaterialAnchor, DocumentTemplateSchema } from '../schema/types';
 import {
-  anchorToCanvasRange,
   canvasRangeToAnchor,
   clampCanvasRange,
   normalizeCanvasRange,
   type CanvasGridRange
 } from './canvas-bridge';
+import { buildCanvasMaterialCells, resolveCanvasGridMetrics } from './canvas-render-model';
 
 defineOptions({
   name: 'UniverDocumentCanvas'
@@ -40,31 +40,11 @@ interface UniverRuntime {
   disposables: IDisposable[];
 }
 
-interface GridMetrics {
-  maxRows: number;
-  maxColumns: number;
-  rowHeight: number;
-  columnWidth: number;
-}
-
 const hostRef = ref<HTMLElement | null>(null);
 const runtimeRef = shallowRef<UniverRuntime | null>(null);
 const renderingRef = ref(false);
+const renderQueuedRef = ref(false);
 const selectionMoveStartRef = ref<CanvasGridRange | null>(null);
-
-function resolveGridMetrics(template: DocumentTemplateSchema): GridMetrics {
-  const maxColumns = Math.max(1, template.grid.columns);
-  const maxRows = Math.max(1, Math.ceil(template.page.minHeight / template.grid.rowHeight));
-  const rowHeight = Math.max(20, template.grid.rowHeight);
-  const columnWidth = Math.max(32, Math.floor(template.page.width / maxColumns));
-
-  return {
-    maxRows,
-    maxColumns,
-    rowHeight,
-    columnWidth
-  };
-}
 
 function isSameRange(a: CanvasGridRange | null, b: CanvasGridRange | null) {
   if (!a || !b) {
@@ -131,6 +111,74 @@ function disposeRuntime() {
   runtime.setup.univer.dispose();
   runtimeRef.value = null;
   selectionMoveStartRef.value = null;
+  renderQueuedRef.value = false;
+}
+
+function renderCanvas() {
+  const runtime = runtimeRef.value;
+  if (!runtime) {
+    return;
+  }
+
+  const { worksheet } = runtime;
+  const metrics = resolveCanvasGridMetrics(props.template);
+  const cells = buildCanvasMaterialCells(props.template, props.materials, props.selectedNodeId);
+
+  renderingRef.value = true;
+
+  try {
+    worksheet.clear();
+    worksheet.setColumnWidths(0, metrics.maxColumns, metrics.columnWidth);
+    worksheet.setRowHeightsForced(0, metrics.maxRows, metrics.rowHeight);
+
+    cells.forEach((cell) => {
+      const cellRange = worksheet.getRange(
+        cell.range.startRow,
+        cell.range.startColumn,
+        cell.rowCount,
+        cell.columnCount
+      );
+
+      if (cell.rowCount > 1 || cell.columnCount > 1) {
+        cellRange.merge({
+          isForceMerge: true
+        });
+      }
+
+      cellRange
+        .setValue(cell.label)
+        .setWrap(true)
+        .setHorizontalAlignment('center')
+        .setVerticalAlignment('middle')
+        .setFontSize(12)
+        .setBackground(cell.isActive ? '#dbeafe' : '#f8fafc');
+
+      cellRange.setBorder(
+        runtime.setup.univerAPI.Enum.BorderType.ALL,
+        runtime.setup.univerAPI.Enum.BorderStyleTypes.THIN,
+        cell.isActive ? '#2563eb' : '#cbd5e1'
+      );
+    });
+
+    const selectedCell = cells.find((item) => item.isActive) ?? null;
+    if (selectedCell) {
+      worksheet.scrollToCell(selectedCell.range.startRow, selectedCell.range.startColumn, 0);
+    }
+  } finally {
+    renderingRef.value = false;
+  }
+}
+
+function scheduleRender() {
+  if (renderQueuedRef.value) {
+    return;
+  }
+
+  renderQueuedRef.value = true;
+  queueMicrotask(() => {
+    renderQueuedRef.value = false;
+    renderCanvas();
+  });
 }
 
 function bindCanvasEvents(runtime: UniverRuntime) {
@@ -171,12 +219,13 @@ function bindCanvasEvents(runtime: UniverRuntime) {
         return;
       }
 
-      const metrics = resolveGridMetrics(props.template);
-      const selectedNodeRange = clampCanvasRange(anchorToCanvasRange(selectedNode.anchor), metrics);
+      const metrics = resolveCanvasGridMetrics(props.template);
+      const cells = buildCanvasMaterialCells(props.template, props.materials, props.selectedNodeId);
+      const selectedCell = cells.find((item) => item.nodeId === props.selectedNodeId) ?? null;
       const startedRange = selectionMoveStartRef.value;
       selectionMoveStartRef.value = null;
 
-      if (!isSameRange(startedRange, selectedNodeRange)) {
+      if (!selectedCell || !isSameRange(startedRange, selectedCell.range)) {
         return;
       }
 
@@ -194,68 +243,6 @@ function bindCanvasEvents(runtime: UniverRuntime) {
     selectionMoveStartDisposable,
     selectionMoveEndDisposable
   );
-}
-
-function renderCanvas() {
-  const runtime = runtimeRef.value;
-  if (!runtime) {
-    return;
-  }
-
-  const { worksheet } = runtime;
-  const metrics = resolveGridMetrics(props.template);
-
-  renderingRef.value = true;
-
-  try {
-    worksheet.clear();
-    worksheet.setColumnWidths(0, metrics.maxColumns, metrics.columnWidth);
-    worksheet.setRowHeightsForced(0, metrics.maxRows, metrics.rowHeight);
-
-    props.template.materials.forEach((node) => {
-      const normalizedRange = clampCanvasRange(anchorToCanvasRange(node.anchor), metrics);
-      const rowCount = normalizedRange.endRow - normalizedRange.startRow + 1;
-      const columnCount = normalizedRange.endColumn - normalizedRange.startColumn + 1;
-      const cellRange = worksheet.getRange(
-        normalizedRange.startRow,
-        normalizedRange.startColumn,
-        rowCount,
-        columnCount
-      );
-
-      if (rowCount > 1 || columnCount > 1) {
-        cellRange.merge({
-          isForceMerge: true
-        });
-      }
-
-      const isActive = node.id === props.selectedNodeId;
-      const materialLabel =
-        props.materials.find((item) => item.type === node.type)?.label ?? node.type;
-
-      cellRange
-        .setValue(`${materialLabel} · ${node.title}`)
-        .setWrap(true)
-        .setHorizontalAlignment('center')
-        .setVerticalAlignment('middle')
-        .setFontSize(12)
-        .setBackground(isActive ? '#dbeafe' : '#f8fafc');
-
-      cellRange.setBorder(
-        runtime.setup.univerAPI.Enum.BorderType.ALL,
-        runtime.setup.univerAPI.Enum.BorderStyleTypes.THIN,
-        isActive ? '#2563eb' : '#cbd5e1'
-      );
-    });
-
-    const selectedNode = resolveNodeById(props.selectedNodeId);
-    if (selectedNode) {
-      const selectedRange = clampCanvasRange(anchorToCanvasRange(selectedNode.anchor), metrics);
-      worksheet.scrollToCell(selectedRange.startRow, selectedRange.startColumn, 0);
-    }
-  } finally {
-    renderingRef.value = false;
-  }
 }
 
 function initializeUniverCanvas() {
@@ -296,13 +283,13 @@ function initializeUniverCanvas() {
 
   bindCanvasEvents(runtime);
   runtimeRef.value = runtime;
-  renderCanvas();
+  scheduleRender();
 }
 
 watch(
   () => props.template,
   () => {
-    renderCanvas();
+    scheduleRender();
   },
   { deep: true }
 );
@@ -310,7 +297,7 @@ watch(
 watch(
   () => props.selectedNodeId,
   () => {
-    renderCanvas();
+    scheduleRender();
   }
 );
 
@@ -335,6 +322,9 @@ onBeforeUnmount(() => {
 <style scoped>
 .univer-canvas-shell {
   position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
   min-width: 0;
   min-height: 0;
   padding: 16px;
@@ -347,15 +337,18 @@ onBeforeUnmount(() => {
       rgb(148 163 184 / 10%) 23px,
       rgb(148 163 184 / 10%) 24px
     );
+  overflow: hidden;
 }
 
 .univer-canvas-host {
-  position: absolute;
-  inset: 16px;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
   border: 1px solid #d6deea;
-  overflow: hidden;
   background: #fff;
   box-shadow: 0 18px 48px -30px rgb(15 23 42 / 45%);
+  overflow: hidden;
 }
 
 .univer-canvas-empty {

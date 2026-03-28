@@ -91,6 +91,51 @@ import {
 } from '@one-base-template/document-form-engine/designer';
 ```
 
+## SheetSchema v2（Excel 能力配置入口）
+
+`packages/document-form-engine/schema/sheet.ts` 已定义统一的 `sheet` 协议，模板侧统一通过 `template.sheet` 配置表格行为：
+
+- `sheet.merges`：单元格合并区域（`row/col/rowspan/colspan`）。
+- `sheet.styles`：区域样式（边框、线色、填充、字体、对齐）。
+- `sheet.rowHeights / sheet.columnWidths`：行高与列宽覆盖。
+- `sheet.viewport`：网格线显示、缩放、冻结区。
+
+示例：
+
+```json
+{
+  "version": "2",
+  "sheet": {
+    "rows": 40,
+    "columns": 24,
+    "merges": [{ "row": 2, "col": 2, "rowspan": 2, "colspan": 3 }],
+    "styles": [
+      {
+        "row": 2,
+        "col": 2,
+        "rowspan": 2,
+        "colspan": 3,
+        "backgroundColor": "#f8fafc",
+        "border": {
+          "top": { "color": "#1e293b", "style": "solid", "width": 1 },
+          "right": { "color": "#1e293b", "style": "solid", "width": 1 },
+          "bottom": { "color": "#1e293b", "style": "solid", "width": 1 },
+          "left": { "color": "#1e293b", "style": "solid", "width": 1 }
+        }
+      }
+    ],
+    "viewport": {
+      "showGrid": true,
+      "zoom": 100,
+      "frozenRows": 0,
+      "frozenColumns": 0
+    }
+  }
+}
+```
+
+`schema/template.ts` 在解析模板时会自动执行 `v1 -> v2` 迁移并补齐 `sheet` 默认值，admin 持久化层无需先做历史数据回写。
+
 ## 验证命令
 
 最小验证口径如下：

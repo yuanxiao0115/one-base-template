@@ -17,4 +17,6 @@ export {
   clampCanvasRange,
   normalizeCanvasRange
 } from './canvas-bridge';
+export type { CanvasGridMetrics, CanvasMaterialCell } from './canvas-render-model';
+export { buildCanvasMaterialCells, resolveCanvasGridMetrics } from './canvas-render-model';
 export { createMaterialNode, useDocumentDesignerState } from './useDocumentDesignerState';
