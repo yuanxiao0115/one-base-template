@@ -4,9 +4,9 @@
 
 ## 最新记录
 
-- 日期：2026-03-27
-- 文件：`.codex/verification/2026-03-27.md`
-- 补充：公文表单引擎包化已完成主线验证，`typecheck/lint/build` 通过；`pnpm verify` 仍被既有命名门禁（`apps/admin/src/router/route-policy.ts`）阻塞。
+- 日期：2026-03-28
+- 文件：`.codex/verification/2026-03-28.md`
+- 补充：document-form-engine 设计器画布已切换 Univer，选中联动与拖拽排版可用；`test/typecheck/build` 与 docs 验证通过，包级 lint 受既有 `vite-plus` 异常影响。
 
 ## 历史归档
 

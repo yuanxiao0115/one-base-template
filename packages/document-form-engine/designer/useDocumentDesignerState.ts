@@ -93,6 +93,19 @@ export function useDocumentDesignerState(
     );
   }
 
+  function updateNodeAnchor(nodeId: string, anchor: DocumentMaterialAnchor) {
+    templateRef.value.materials = templateRef.value.materials.map((item) =>
+      item.id === nodeId
+        ? {
+            ...item,
+            anchor: {
+              ...anchor
+            }
+          }
+        : item
+    );
+  }
+
   return {
     selectedNodeId,
     selectedNode,
@@ -100,6 +113,7 @@ export function useDocumentDesignerState(
     addMaterial,
     selectNode,
     removeSelectedNode,
-    updateSelectedNodeProp
+    updateSelectedNodeProp,
+    updateNodeAnchor
   };
 }

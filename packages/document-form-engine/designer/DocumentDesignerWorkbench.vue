@@ -3,9 +3,9 @@ import { computed, ref, watch } from 'vue';
 import type { DocumentMaterialDefinition } from '../materials/types';
 import type { DocumentTemplateSchema } from '../schema/types';
 import { createDefaultDocumentTemplate, normalizeDocumentTemplate } from '../schema/template';
-import DocumentCanvas from './DocumentCanvas.vue';
 import DocumentMaterialPalette from './DocumentMaterialPalette.vue';
 import DocumentPropertyInspector from './DocumentPropertyInspector.vue';
+import UniverDocumentCanvas from './UniverDocumentCanvas.vue';
 import { useDocumentDesignerState } from './useDocumentDesignerState';
 
 defineOptions({
@@ -53,7 +53,8 @@ const {
   addMaterial,
   selectNode,
   removeSelectedNode,
-  updateSelectedNodeProp
+  updateSelectedNodeProp,
+  updateNodeAnchor
 } = useDocumentDesignerState(template, materialsRef);
 </script>
 
@@ -67,11 +68,12 @@ const {
     </header>
     <div class="workbench-body">
       <DocumentMaterialPalette :materials="props.materials" @add="addMaterial" />
-      <DocumentCanvas
+      <UniverDocumentCanvas
         :template="template"
         :materials="props.materials"
         :selected-node-id="selectedNodeId"
         @select="selectNode"
+        @update-anchor="updateNodeAnchor"
       />
       <DocumentPropertyInspector
         :definition="selectedDefinition"

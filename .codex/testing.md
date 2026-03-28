@@ -8729,3 +8729,24 @@
   - `pnpm -C apps/docs lint`
   - `pnpm -C apps/docs build`
 - 结果：全部通过。
+
+## 2026-03-28（document-form-engine Univer 画布替换）
+
+- RED（先失败）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-canvas-bridge.test.ts`
+    - 失败原因：缺少 `designer/canvas-bridge` 模块。
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-state.test.ts`
+    - 失败原因：`state.updateNodeAnchor is not a function`。
+- GREEN（实现后回归）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-canvas-bridge.test.ts`
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-state.test.ts`
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-canvas-bridge.test.ts tests/designer-state.test.ts`
+  - `pnpm -C packages/document-form-engine test:run`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C packages/document-form-engine build`
+  - `pnpm -C apps/admin typecheck`
+- 文档验证：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 其他记录：
+  - `pnpm -C packages/document-form-engine lint` 当前因 `vite-plus` 解析配置异常失败：`callablePlugin.getOrder is not a function`。

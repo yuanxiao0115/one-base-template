@@ -10302,3 +10302,20 @@
   - `apps/docs/docs/guide/for-users.md`（5 分钟阅读路径）
   - `apps/docs/docs/guide/template-static-app.md`（新增示例互链）
 - 目标：让 `zfw-system-sfss` 可以作为“template 派生 + starter-crud 骨架”的团队共享上手入口。
+
+## 2026-03-28（document-form-engine 设计器画布切换 Univer）
+
+- 在 `packages/document-form-engine` 内完成设计态画布替换：
+  - 新增 `designer/UniverDocumentCanvas.vue`，使用 `createUniver + UniverSheetsCorePreset` 渲染网格画布。
+  - 新增 `designer/canvas-bridge.ts`，统一 `anchor <-> canvas range` 转换与边界裁剪。
+  - `DocumentDesignerWorkbench.vue` 切换到 Univer 画布，并接入 `update-anchor` 事件回写。
+  - `useDocumentDesignerState.ts` 新增 `updateNodeAnchor`，支持拖拽排版回写 schema。
+  - `designer/index.ts` 补充 Univer 画布与桥接函数导出。
+- 测试补强：
+  - 新增 `tests/designer-canvas-bridge.test.ts`（桥接与拖拽范围回写）。
+  - 新增 `tests/designer-state.test.ts`（状态层 anchor 回写）。
+- 依赖更新：
+  - `packages/document-form-engine/package.json` 中 Univer 依赖升级至 `0.18.0`（`0.11.6` 在镜像源不可安装）。
+- 文档同步：
+  - 更新 `apps/docs/docs/guide/document-form-designer.md`，明确“设计态 Univer + 运行态 Vue 物料”口径。
+  - 新增实施计划 `docs/plans/2026-03-28-document-form-univer-canvas-plan.md`。

@@ -7,7 +7,7 @@
 - 公文表单能力以独立包 `@one-base-template/document-form-engine` 形态沉淀到 `packages/`，不在 `apps/admin` 内复制画布、物料、schema 与设置面板实现。
 - `apps/admin` 只做消费层：路由挂载、接口注入、权限接入、页面薄壳与业务适配器注入。
 - MVP 先覆盖**发文单**，统一交付“左物料 / 中画布 / 右设置”的三栏设计器与运行态渲染能力。
-- 设计态优先使用**物料壳 + Mock 预览**，运行态再挂真实 Vue 组件，保证版式稳定、打印一致、边界清晰。
+- 设计态画布已切换为 **Univer Sheet**，通过 `anchor(row/col/rowspan/colspan)` 与网格范围桥接实现选中与拖拽排版；运行态继续挂真实 Vue 组件，保证版式稳定、打印一致、边界清晰。
 
 ## 包化边界
 
@@ -18,6 +18,7 @@
 - 模板协议：页面尺寸、网格、锚点、节点、绑定、打印配置
 - 物料注册：物料定义、默认配置、属性面板 schema、设计态预览、运行态渲染
 - 设计器：物料面板、画布、属性面板、设计态路由 helper
+- 设计器画布桥接：Univer 选区事件与 `DocumentTemplateSchema` 锚点双向映射（`canvas-bridge.ts`）
 - 运行态：模板渲染器、组件映射、打印渲染入口
 - 上下文与注册：`createDocumentFormEngineContext()`、`registerDocumentMaterials()` 等公共入口
 
@@ -115,3 +116,4 @@ pnpm verify
 - 第一阶段采用**单包先行**，不拆 `runtime/ui` 子包。
 - MVP 只做发文单，不含正式电子签、Excel 导入导出、收文单与签报单。
 - 文档允许先行沉淀边界与接口，但验证结论必须以 `.codex/testing.md` 与 `.codex/verification.md` 的实际记录为准。
+- 设计态拖拽排版当前以 `SelectionMoveStart/SelectionMoveEnd` 事件回写 anchor，后续复杂碰撞策略（自动避让、吸附）再增量补齐。
