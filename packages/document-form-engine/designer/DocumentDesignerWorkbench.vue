@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { DocumentMaterialSheetStyleValue } from '../materials/sheet-style';
-import type { DocumentMaterialDefinition } from '../materials/types';
-import type { DocumentTemplateSchema } from '../schema/types';
+
+import type {
+  DocumentTemplateField,
+  DocumentTemplatePlacement,
+  DocumentTemplateSchema
+} from '../schema/types';
 import { createDefaultDocumentTemplate, normalizeDocumentTemplate } from '../schema/template';
-import DocumentMaterialPalette from './DocumentMaterialPalette.vue';
+import type { DocumentSheetRange } from '../schema/sheet';
+import DocumentCanvas from './DocumentCanvas.vue';
 import DocumentPropertyInspector from './DocumentPropertyInspector.vue';
-import { addSheetMergeByAnchor, applySheetStyleToAnchor, removeSheetMergeAt } from './sheet-ops';
-import UniverDocumentCanvas from './UniverDocumentCanvas.vue';
-import { useDocumentDesignerState } from './useDocumentDesignerState';
+import {
+  DOCUMENT_DESIGNER_FIELD_BLUEPRINTS,
+  useDocumentDesignerState
+} from './useDocumentDesignerState';
 
 defineOptions({
   name: 'DocumentDesignerWorkbench'
@@ -17,7 +22,6 @@ defineOptions({
 const props = withDefaults(
   defineProps<{
     modelValue?: DocumentTemplateSchema;
-    materials: DocumentMaterialDefinition[];
     title?: string;
   }>(),
   {
@@ -36,7 +40,8 @@ watch(
   () => props.modelValue,
   (value) => {
     template.value = normalizeDocumentTemplate(value);
-  }
+  },
+  { deep: true }
 );
 
 watch(
@@ -47,72 +52,113 @@ watch(
   { deep: true }
 );
 
-const materialsRef = computed(() => props.materials);
-const {
-  selectedNodeId,
-  selectedNode,
-  selectedDefinition,
-  addMaterial,
-  selectNode,
-  removeSelectedNode,
-  updateSelectedNodeProp,
-  updateNodeAnchor
-} = useDocumentDesignerState(template, materialsRef);
+const state = useDocumentDesignerState(template);
+const activeRange = computed(() => state.activeRange.value);
+const selectedPlacementId = computed(() => state.selectedPlacementId.value);
+const selectedPlacement = computed(() => state.selectedPlacement.value);
+const selectedField = computed(() => state.selectedField.value);
 
-function applySelectedNodeSheetStyle(style: DocumentMaterialSheetStyleValue) {
-  if (!selectedNode.value) {
-    return;
+const activeRangeSummary = computed(() => {
+  const range = activeRange.value;
+  return `R${range.row} C${range.col} · ${range.rowspan} x ${range.colspan}`;
+});
+
+const selectedFieldSummary = computed(() => {
+  if (!selectedField.value) {
+    return '未选中字段';
   }
 
-  template.value.sheet.styles = applySheetStyleToAnchor(
-    template.value.sheet.styles,
-    selectedNode.value.anchor,
-    style
-  );
+  return `${selectedField.value.label} · ${selectedField.value.type}`;
+});
+
+function handleRangeSelect(range: DocumentSheetRange) {
+  state.setActiveRange(range);
 }
 
-function addCurrentMerge() {
-  if (!selectedNode.value) {
-    return;
-  }
-
-  template.value.sheet.merges = addSheetMergeByAnchor(
-    template.value.sheet.merges,
-    selectedNode.value.anchor
-  );
+function handlePlacementSelect(placementId: string | null) {
+  state.selectPlacement(placementId);
 }
 
-function removeMerge(index: number) {
-  template.value.sheet.merges = removeSheetMergeAt(template.value.sheet.merges, index);
+function handlePlacementRangeUpdate(placementId: string, range: DocumentSheetRange) {
+  state.updatePlacementRange(placementId, range);
+  state.selectPlacement(placementId);
+  state.setActiveRange(range);
+}
+
+function handleFieldUpdate(patch: Partial<DocumentTemplateField>) {
+  state.updateSelectedField(patch);
+}
+
+function handleFieldOptionsUpdate(options: Array<{ label: string; value: string }>) {
+  state.updateSelectedFieldOptions(options);
+}
+
+function handlePlacementUpdate(
+  patch: Partial<Pick<DocumentTemplatePlacement, 'displayMode' | 'section' | 'readonly'>>
+) {
+  state.updateSelectedPlacement(patch);
 }
 </script>
 
 <template>
   <div class="workbench">
     <header class="workbench-head">
-      <div>
+      <div class="workbench-head__main">
         <div class="workbench-title">{{ props.title }}</div>
-        <div class="workbench-meta">MVP 设计态使用物料壳预览，运行态再映射真实组件</div>
+        <div class="workbench-meta">
+          Sheet-first 设计态：Univer 负责表格、合并、边框与选区；Vue 负责运行态真实预览。
+        </div>
+      </div>
+      <div class="workbench-head__status">
+        <span>{{ activeRangeSummary }}</span>
+        <span>{{ selectedFieldSummary }}</span>
       </div>
     </header>
+
+    <section class="workbench-toolbar">
+      <div class="toolbar-group">
+        <span class="toolbar-label">插入字段</span>
+        <div class="toolbar-actions toolbar-actions--chips">
+          <button
+            v-for="blueprint in DOCUMENT_DESIGNER_FIELD_BLUEPRINTS"
+            :key="blueprint.type"
+            type="button"
+            class="field-chip"
+            @click="state.insertField(blueprint.type)"
+          >
+            {{ blueprint.label }}
+          </button>
+        </div>
+      </div>
+      <div class="toolbar-group toolbar-group--end">
+        <button type="button" class="toolbar-btn" @click="state.resetToDispatchPreset">
+          恢复发文单预设
+        </button>
+      </div>
+    </section>
+
     <div class="workbench-body">
-      <DocumentMaterialPalette :materials="props.materials" @add="addMaterial" />
-      <UniverDocumentCanvas
+      <DocumentCanvas
+        :active-range="activeRange"
+        :selected-placement-id="selectedPlacementId"
         :template="template"
-        :materials="props.materials"
-        :selected-node-id="selectedNodeId"
-        @select="selectNode"
-        @update-anchor="updateNodeAnchor"
+        @select-placement="handlePlacementSelect"
+        @select-range="handleRangeSelect"
+        @update-placement-range="handlePlacementRangeUpdate"
       />
       <DocumentPropertyInspector
-        :definition="selectedDefinition"
-        :node="selectedNode"
+        :active-range="activeRange"
+        :selected-field="selectedField"
+        :selected-placement="selectedPlacement"
         :template="template"
-        @update:field="updateSelectedNodeProp"
-        @apply-sheet-style="applySelectedNodeSheetStyle"
-        @add-current-merge="addCurrentMerge"
-        @remove-merge="removeMerge"
-        @remove="removeSelectedNode"
+        @add-current-merge="state.addMergeForActiveRange"
+        @apply-sheet-style="state.applyStyleToActiveRange"
+        @remove-merge="state.removeMerge"
+        @remove-placement="state.removeSelectedPlacement"
+        @select-placement="handlePlacementSelect"
+        @update-field="handleFieldUpdate"
+        @update-field-options="handleFieldOptionsUpdate"
+        @update-placement="handlePlacementUpdate"
       />
     </div>
   </div>
@@ -130,11 +176,19 @@ function removeMerge(index: number) {
 
 .workbench-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 14px 18px;
+  gap: 16px;
+  padding: 16px 18px 14px;
   border-bottom: 1px solid #cbd5e1;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.workbench-head__main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .workbench-title {
@@ -143,28 +197,102 @@ function removeMerge(index: number) {
   font-weight: 700;
 }
 
-.workbench-meta {
-  color: rgb(226 232 240 / 80%);
+.workbench-meta,
+.workbench-head__status {
+  color: rgb(226 232 240 / 82%);
   font-size: 12px;
+}
+
+.workbench-head__status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.workbench-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #d8dee8;
+  background: #f8fafc;
+}
+
+.toolbar-group {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbar-group--end {
+  margin-left: auto;
+}
+
+.toolbar-label {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-actions--chips {
+  flex-wrap: wrap;
+}
+
+.field-chip,
+.toolbar-btn {
+  padding: 7px 12px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.field-chip:hover,
+.toolbar-btn:hover {
+  border-color: #93c5fd;
+  color: #1d4ed8;
 }
 
 .workbench-body {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   flex: 1;
   min-height: 0;
 }
 
-@media (max-width: 1180px) {
-  .workbench-body {
-    grid-template-columns: 240px minmax(0, 1fr) 280px;
+@media (max-width: 1080px) {
+  .workbench-head {
+    flex-direction: column;
+  }
+
+  .workbench-head__status {
+    align-items: flex-start;
+  }
+
+  .workbench-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .toolbar-group--end {
+    margin-left: 0;
   }
 }
 
 @media (max-width: 960px) {
   .workbench-body {
     grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr) auto;
   }
 }
 </style>

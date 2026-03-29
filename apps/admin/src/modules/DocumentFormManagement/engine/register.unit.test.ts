@@ -1,8 +1,4 @@
 import { beforeEach, describe, expect, it } from 'vite-plus/test';
-
-import { ImportUpload } from '@one-base-template/ui';
-
-import PersonnelSelector from '@/components/PersonnelSelector/PersonnelSelector.vue';
 import ObRichTextEditor from '@/components/rich-text/ObRichTextEditor.vue';
 
 import {
@@ -21,26 +17,33 @@ describe('DocumentFormManagement/engine/register', () => {
     const context = setupDocumentFormEngineForAdmin();
     const adapters = getDocumentFormAdminAdapters(context);
 
-    expect(adapters.personnelSelector).toBe(PersonnelSelector);
-    expect(adapters.attachmentUpload).toBe(ImportUpload);
     expect(adapters.richTextEditor).toBe(ObRichTextEditor);
+    expect(adapters.personnelSelector).toBeUndefined();
+    expect(adapters.departmentSelector).toBeUndefined();
+    expect(adapters.attachmentUpload).toBeUndefined();
+    expect(adapters.stampPicker).toBeUndefined();
   });
 
   it('重复 setup 应复用同一 context 并允许覆盖适配器', () => {
     const customEditor = {
       name: 'CustomEditor'
     };
+    const customStampPicker = {
+      name: 'CustomStampPicker'
+    };
 
     const firstContext = setupDocumentFormEngineForAdmin();
     const secondContext = setupDocumentFormEngineForAdmin({
       adapters: {
-        richTextEditor: customEditor
+        richTextEditor: customEditor,
+        stampPicker: customStampPicker
       }
     });
     const adapters = getDocumentFormAdminAdapters(secondContext);
 
     expect(secondContext).toBe(firstContext);
     expect(adapters.richTextEditor).toBe(customEditor);
+    expect(adapters.stampPicker).toBe(customStampPicker);
   });
 
   it('应注入模板生命周期服务并支持覆盖', () => {

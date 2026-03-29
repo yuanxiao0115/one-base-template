@@ -46,6 +46,12 @@ function handleBack() {
   });
 }
 
+function handlePreview() {
+  void router.push({
+    name: 'DocumentFormPreview'
+  });
+}
+
 function handleTemplateChange(nextTemplate: DocumentTemplateSchema) {
   template.value = nextTemplate;
   const nextDraft = templateService.updateDraft(nextTemplate, '设计器实时保存草稿');
@@ -122,6 +128,7 @@ function rollbackToPublished() {
               </option>
             </select>
           </label>
+          <button type="button" @click="handlePreview">预览</button>
           <button type="button" @click="publishDraft">发布</button>
           <button type="button" :disabled="!publishedVersion" @click="rollbackToPublished">
             回滚

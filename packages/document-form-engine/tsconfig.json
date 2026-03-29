@@ -7,7 +7,6 @@
     "index.ts",
     "env.d.ts",
     "schema/**/*.ts",
-    "materials/**/*.ts",
     "designer/**/*.ts",
     "designer/**/*.vue",
     "runtime/**/*.ts",

@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { DocumentFormEngineContext } from '../register/context';
-import { createDocumentFormEngineContext } from '../register/context';
-import { getDocumentMaterials } from '../register/materials';
 import type { DocumentTemplateSchema } from '../schema/types';
 import DocumentDesignerWorkbench from './DocumentDesignerWorkbench.vue';
 
@@ -11,7 +7,6 @@ defineOptions({
 });
 
 const props = defineProps<{
-  context?: DocumentFormEngineContext;
   template: DocumentTemplateSchema;
   title?: string;
 }>();
@@ -20,11 +15,6 @@ const emit = defineEmits<{
   (e: 'back'): void;
   (e: 'update:template', value: DocumentTemplateSchema): void;
 }>();
-
-const internalContext = computed(
-  () => props.context ?? createDocumentFormEngineContext({ appId: 'document-form-designer' })
-);
-const materials = computed(() => getDocumentMaterials(internalContext.value));
 </script>
 
 <template>
@@ -33,9 +23,8 @@ const materials = computed(() => getDocumentMaterials(internalContext.value));
       <button type="button" class="layout-back-btn" @click="emit('back')">返回</button>
     </div>
     <DocumentDesignerWorkbench
-      :title="props.title || '公文表单设计器'"
       :model-value="props.template"
-      :materials="materials"
+      :title="props.title || '公文表单设计器'"
       @update:model-value="emit('update:template', $event)"
     />
   </div>

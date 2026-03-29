@@ -1,4 +1,5 @@
-import type { DocumentTemplateSheetConfig } from './sheet';
+import type { DocumentTemplateSheetConfig, DocumentSheetRange } from './sheet';
+
 export type DocumentPageSize = 'A4';
 
 export interface DocumentTemplatePageConfig {
@@ -8,46 +9,99 @@ export interface DocumentTemplatePageConfig {
   padding: [number, number, number, number];
 }
 
-export interface DocumentTemplateGridConfig {
-  columns: number;
-  rowHeight: number;
+export type DocumentFieldType =
+  | 'text'
+  | 'textarea'
+  | 'richText'
+  | 'number'
+  | 'amount'
+  | 'date'
+  | 'select'
+  | 'radio'
+  | 'checkbox'
+  | 'person'
+  | 'department'
+  | 'attachment'
+  | 'opinion'
+  | 'stamp'
+  | 'serialNo';
+
+export interface DocumentFieldOption {
+  label: string;
+  value: string;
 }
 
-export interface DocumentMaterialAnchor {
-  row: number;
-  col: number;
-  rowspan: number;
-  colspan: number;
+export interface DocumentFieldRule {
+  type: 'required' | 'min' | 'max' | 'pattern';
+  value?: unknown;
+  message?: string;
 }
 
-export interface DocumentTemplateBinding {
-  field: string;
-  defaultValue?: unknown;
+export interface DocumentFieldBinding {
+  key: string;
+  path?: string;
 }
 
-export interface DocumentMaterialNode<
-  TType extends string = string,
-  TProps extends Record<string, unknown> = Record<string, unknown>
-> {
+export interface DocumentFieldDataSource {
+  kind: 'static';
+  options: DocumentFieldOption[];
+}
+
+export interface DocumentTemplateField {
   id: string;
-  type: TType;
-  title: string;
-  anchor: DocumentMaterialAnchor;
-  props: TProps;
-  binding?: DocumentTemplateBinding;
+  type: DocumentFieldType;
+  label: string;
+  defaultValue?: unknown;
+  required?: boolean;
+  rules?: DocumentFieldRule[];
+  widgetProps?: Record<string, unknown>;
+  binding?: DocumentFieldBinding;
+  dataSource?: DocumentFieldDataSource;
+}
+
+export type DocumentPlacementDisplayMode =
+  | 'singleCell'
+  | 'mergedRange'
+  | 'inlineText'
+  | 'imageSlot'
+  | 'tableRegion';
+
+export type DocumentTemplateSection =
+  | 'header'
+  | 'recipient'
+  | 'body'
+  | 'opinion'
+  | 'attachment'
+  | 'footer'
+  | 'meta';
+
+export interface DocumentTemplatePlacement {
+  id: string;
+  fieldId: string;
+  range: DocumentSheetRange;
+  displayMode: DocumentPlacementDisplayMode;
+  section?: DocumentTemplateSection;
+  readonly?: boolean;
+}
+
+export interface DocumentTemplatePresetDescriptor {
+  key: 'dispatch-form';
+  label: string;
+  version: string;
 }
 
 export interface DocumentTemplateSchema {
-  version: '2';
+  version: '3';
   kind: 'dispatch-form';
   title: string;
   page: DocumentTemplatePageConfig;
-  grid: DocumentTemplateGridConfig;
-  materials: DocumentMaterialNode[];
   print: {
     showGrid: boolean;
   };
+  preset: DocumentTemplatePresetDescriptor;
   sheet: DocumentTemplateSheetConfig;
+  fields: DocumentTemplateField[];
+  placements: DocumentTemplatePlacement[];
 }
 
 export interface DocumentTemplateSerializationResult {
@@ -55,16 +109,6 @@ export interface DocumentTemplateSerializationResult {
   template: DocumentTemplateSchema;
 }
 
-export interface DocumentTemplateSchemaV1 {
-  version: '1';
-  kind: 'dispatch-form';
-  title: string;
-  page: DocumentTemplatePageConfig;
-  grid: DocumentTemplateGridConfig;
-  materials: DocumentMaterialNode[];
-  print: {
-    showGrid: boolean;
-  };
-}
+export type AnyDocumentTemplateSchema = DocumentTemplateSchema;
 
-export type AnyDocumentTemplateSchema = DocumentTemplateSchema | DocumentTemplateSchemaV1;
+export type DocumentMaterialAnchor = DocumentSheetRange;

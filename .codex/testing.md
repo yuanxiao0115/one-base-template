@@ -2,6 +2,30 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-03-28（公文表单设计器 v3：Sheet-first 收口）
+
+- RED（先失败）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-state.test.ts`
+  - 结果：
+    - `selectPlacement()` 未同步当前选区。
+    - `removeSelectedPlacement()` 缺失或未清理 placement 关联状态。
+- GREEN / 回归：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-state.test.ts`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C packages/document-form-engine test:run`
+  - `pnpm -C packages/document-form-engine build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/engine/register.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `document-form-engine`：`typecheck / test / build` 通过。
+  - `apps/admin`：`register.unit.test.ts` 与 `typecheck` 通过。
+  - `apps/admin lint`：0 error，保留 1 条既有 warning（`OrgManagerDialog.vue` `max-lines`）。
+  - `apps/docs`：`lint / build` 通过。
+  - `apps/docs build` 有 `PLUGIN_TIMINGS` 性能提示，但不影响构建成功。
+
 ## 2026-03-27（公文表单引擎包化：代码与集成）
 
 - 命令：

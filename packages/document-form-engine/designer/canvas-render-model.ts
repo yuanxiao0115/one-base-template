@@ -1,6 +1,5 @@
-import type { DocumentMaterialDefinition } from '../materials/types';
 import type { DocumentTemplateSchema } from '../schema/types';
-import { anchorToCanvasRange, clampCanvasRange, type CanvasGridRange } from './canvas-bridge';
+import { anchorToCanvasRange, type CanvasGridRange } from './canvas-bridge';
 
 export interface CanvasGridMetrics {
   maxRows: number;
@@ -9,54 +8,63 @@ export interface CanvasGridMetrics {
   columnWidth: number;
 }
 
-export interface CanvasMaterialCell {
-  nodeId: string;
-  type: string;
-  title: string;
+export interface CanvasSheetCell {
+  id: string;
+  kind: 'static' | 'field';
   label: string;
-  isActive: boolean;
   range: CanvasGridRange;
   rowCount: number;
   columnCount: number;
+  isActive: boolean;
 }
 
 export function resolveCanvasGridMetrics(template: DocumentTemplateSchema): CanvasGridMetrics {
-  const maxColumns = Math.max(1, template.grid.columns);
-  const maxRows = Math.max(1, Math.ceil(template.page.minHeight / template.grid.rowHeight));
-  const rowHeight = Math.max(20, template.grid.rowHeight);
-  const columnWidth = Math.max(32, Math.floor(template.page.width / maxColumns));
-
   return {
-    maxRows,
-    maxColumns,
-    rowHeight,
-    columnWidth
+    maxRows: Math.max(1, template.sheet.rows),
+    maxColumns: Math.max(1, template.sheet.columns),
+    rowHeight: 28,
+    columnWidth: Math.max(32, Math.floor(template.page.width / Math.max(1, template.sheet.columns)))
   };
 }
 
-export function buildCanvasMaterialCells(
+export function buildCanvasSheetCells(
   template: DocumentTemplateSchema,
-  materials: DocumentMaterialDefinition[],
-  selectedNodeId: string | null | undefined
-): CanvasMaterialCell[] {
-  const metrics = resolveCanvasGridMetrics(template);
-  const labelByType = new Map(materials.map((item) => [item.type, item.label]));
+  selectedPlacementId: string | null | undefined
+): CanvasSheetCell[] {
+  const placementRoots = new Set(
+    template.placements.map((item) => `${item.range.row}:${item.range.col}`)
+  );
 
-  return template.materials.map((node) => {
-    const range = clampCanvasRange(anchorToCanvasRange(node.anchor), metrics);
-    const rowCount = range.endRow - range.startRow + 1;
-    const columnCount = range.endColumn - range.startColumn + 1;
-    const materialLabel = labelByType.get(node.type) ?? node.type;
+  const staticCells = template.sheet.cells
+    .filter((cell) => !placementRoots.has(`${cell.row}:${cell.col}`))
+    .map((cell) => {
+      const range = anchorToCanvasRange(cell);
+
+      return {
+        id: `static:${cell.row}:${cell.col}`,
+        kind: 'static' as const,
+        label: cell.value,
+        range,
+        rowCount: range.endRow - range.startRow + 1,
+        columnCount: range.endColumn - range.startColumn + 1,
+        isActive: false
+      };
+    });
+
+  const placementCells = template.placements.map((placement) => {
+    const field = template.fields.find((item) => item.id === placement.fieldId);
+    const range = anchorToCanvasRange(placement.range);
 
     return {
-      nodeId: node.id,
-      type: node.type,
-      title: node.title,
-      label: `${materialLabel} · ${node.title}`,
-      isActive: node.id === selectedNodeId,
+      id: placement.id,
+      kind: 'field' as const,
+      label: `[${field?.type ?? 'field'}] ${field?.label ?? placement.fieldId}`,
       range,
-      rowCount,
-      columnCount
+      rowCount: range.endRow - range.startRow + 1,
+      columnCount: range.endColumn - range.startColumn + 1,
+      isActive: placement.id === selectedPlacementId
     };
   });
+
+  return [...staticCells, ...placementCells];
 }

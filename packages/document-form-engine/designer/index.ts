@@ -1,6 +1,5 @@
 export { default as DocumentDesignerWorkbench } from './DocumentDesignerWorkbench.vue';
 export { default as DocumentFormDesignerLayout } from './DocumentFormDesignerLayout.vue';
-export { default as DocumentMaterialPalette } from './DocumentMaterialPalette.vue';
 export { default as DocumentCanvas } from './DocumentCanvas.vue';
 export { default as UniverDocumentCanvas } from './UniverDocumentCanvas.vue';
 export { default as DocumentPropertyInspector } from './DocumentPropertyInspector.vue';
@@ -19,7 +18,11 @@ export {
   clampCanvasRange,
   normalizeCanvasRange
 } from './canvas-bridge';
-export type { CanvasGridMetrics, CanvasMaterialCell } from './canvas-render-model';
-export { buildCanvasMaterialCells, resolveCanvasGridMetrics } from './canvas-render-model';
+export type { CanvasGridMetrics, CanvasSheetCell } from './canvas-render-model';
+export { buildCanvasSheetCells, resolveCanvasGridMetrics } from './canvas-render-model';
+export type { DocumentSheetStylePatch } from './sheet-ops';
 export { addSheetMergeByAnchor, applySheetStyleToAnchor, removeSheetMergeAt } from './sheet-ops';
-export { createMaterialNode, useDocumentDesignerState } from './useDocumentDesignerState';
+export {
+  DOCUMENT_DESIGNER_FIELD_BLUEPRINTS,
+  useDocumentDesignerState
+} from './useDocumentDesignerState';

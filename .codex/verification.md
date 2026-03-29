@@ -6,7 +6,7 @@
 
 - 日期：2026-03-28
 - 文件：`.codex/verification/2026-03-28.md`
-- 补充：document-form-engine/admin 已完成设计态 Univer 画布接入、SheetSchema v2（含 `v1 -> v2` 自动迁移）、物料样式协议/右侧配置面（合并 + 样式应用）、运行态/打印态 sheet 渲染对齐、admin 草稿/发布/回滚生命周期接入，以及版本历史回滚面板与文档收口（Phase 7）；`test/typecheck/build` 与 docs 验证通过，包级 lint 受既有 `vite-plus` 异常影响。
+- 补充：本轮已将公文表单设计器收敛到 `v3 / sheet-first` 主线，设计态使用 `Univer`，预览页使用 `DocumentRuntimePreview`，admin 适配器改为可选注入；`document-form-engine`、`apps/admin`、`apps/docs` 的本轮验证命令均通过。
 
 ## 历史归档
 

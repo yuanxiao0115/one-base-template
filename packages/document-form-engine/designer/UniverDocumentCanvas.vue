@@ -5,15 +5,16 @@ import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core';
 import zhCN from '@univerjs/preset-sheets-core/locales/zh-CN';
 import '@univerjs/preset-sheets-core/lib/index.css';
 
-import type { DocumentMaterialDefinition } from '../materials/types';
-import type { DocumentMaterialAnchor, DocumentTemplateSchema } from '../schema/types';
+import type { DocumentSheetRange, DocumentSheetStyle } from '../schema/sheet';
+import type { DocumentTemplateSchema } from '../schema/types';
 import {
+  anchorToCanvasRange,
   canvasRangeToAnchor,
   clampCanvasRange,
   normalizeCanvasRange,
   type CanvasGridRange
 } from './canvas-bridge';
-import { buildCanvasMaterialCells, resolveCanvasGridMetrics } from './canvas-render-model';
+import { buildCanvasSheetCells, resolveCanvasGridMetrics } from './canvas-render-model';
 
 defineOptions({
   name: 'UniverDocumentCanvas'
@@ -21,13 +22,14 @@ defineOptions({
 
 const props = defineProps<{
   template: DocumentTemplateSchema;
-  materials: DocumentMaterialDefinition[];
-  selectedNodeId?: string | null;
+  activeRange?: DocumentSheetRange | null;
+  selectedPlacementId?: string | null;
 }>();
 
 const emit = defineEmits<{
-  (e: 'select', nodeId: string): void;
-  (e: 'update-anchor', nodeId: string, anchor: DocumentMaterialAnchor): void;
+  (e: 'select-placement', placementId: string | null): void;
+  (e: 'select-range', range: DocumentSheetRange): void;
+  (e: 'update-placement-range', placementId: string, range: DocumentSheetRange): void;
 }>();
 
 type UniverSetup = ReturnType<typeof createUniver>;
@@ -43,7 +45,9 @@ interface UniverRuntime {
 const hostRef = ref<HTMLElement | null>(null);
 const runtimeRef = shallowRef<UniverRuntime | null>(null);
 const renderingRef = ref(false);
-const renderQueuedRef = ref(false);
+const renderPendingRef = ref(false);
+const renderScheduledRef = ref(false);
+const canvasReadyRef = ref(false);
 const selectionMoveStartRef = ref<CanvasGridRange | null>(null);
 
 function isSameRange(a: CanvasGridRange | null, b: CanvasGridRange | null) {
@@ -59,15 +63,33 @@ function isSameRange(a: CanvasGridRange | null, b: CanvasGridRange | null) {
   );
 }
 
-function isSameAnchor(a: DocumentMaterialAnchor, b: DocumentMaterialAnchor) {
+function isSameAnchor(a: DocumentSheetRange, b: DocumentSheetRange) {
   return a.row === b.row && a.col === b.col && a.rowspan === b.rowspan && a.colspan === b.colspan;
 }
 
-function resolveNodeById(nodeId: string | null | undefined) {
-  if (!nodeId) {
+function isRangeCoveringCell(range: DocumentSheetRange, row: number, col: number) {
+  return (
+    row >= range.row &&
+    row <= range.row + range.rowspan - 1 &&
+    col >= range.col &&
+    col <= range.col + range.colspan - 1
+  );
+}
+
+function resolvePlacementByRange(range: DocumentSheetRange) {
+  return (
+    props.template.placements.find((item) =>
+      isRangeCoveringCell(item.range, range.row, range.col)
+    ) ?? null
+  );
+}
+
+function resolvePlacementById(placementId: string | null | undefined) {
+  if (!placementId) {
     return null;
   }
-  return props.template.materials.find((item) => item.id === nodeId) ?? null;
+
+  return props.template.placements.find((item) => item.id === placementId) ?? null;
 }
 
 function rangeFromSelection(range: IRange): CanvasGridRange {
@@ -79,24 +101,88 @@ function rangeFromSelection(range: IRange): CanvasGridRange {
   };
 }
 
-function resolveNodeIdByRange(range: CanvasGridRange): string | null {
-  const normalized = normalizeCanvasRange(range);
-  const selectedRow = normalized.startRow + 1;
-  const selectedCol = normalized.startColumn + 1;
+function cloneStyle(style: DocumentSheetStyle): DocumentSheetStyle {
+  return {
+    row: style.row,
+    col: style.col,
+    rowspan: style.rowspan,
+    colspan: style.colspan,
+    backgroundColor: style.backgroundColor,
+    textColor: style.textColor,
+    fontSize: style.fontSize,
+    fontWeight: style.fontWeight,
+    horizontalAlign: style.horizontalAlign,
+    verticalAlign: style.verticalAlign,
+    wrap: style.wrap,
+    border: style.border
+      ? {
+          ...style.border
+        }
+      : undefined
+  };
+}
 
-  const matched = props.template.materials.find((node) => {
-    const rowEnd = node.anchor.row + node.anchor.rowspan - 1;
-    const colEnd = node.anchor.col + node.anchor.colspan - 1;
+function resolveStyle(styles: DocumentSheetStyle[], row: number, col: number) {
+  const matched = styles.filter((item) => isRangeCoveringCell(item, row, col));
+  if (matched.length === 0) {
+    return null;
+  }
 
-    return (
-      selectedRow >= node.anchor.row &&
-      selectedRow <= rowEnd &&
-      selectedCol >= node.anchor.col &&
-      selectedCol <= colEnd
-    );
-  });
+  return matched.reduce<DocumentSheetStyle | null>((result, current) => {
+    if (!result) {
+      return cloneStyle(current);
+    }
 
-  return matched?.id ?? null;
+    return {
+      ...result,
+      ...cloneStyle(current),
+      border: current.border
+        ? {
+            ...result.border,
+            ...current.border
+          }
+        : result.border
+    };
+  }, null);
+}
+
+function collectMergedRanges() {
+  const rangeMap = new Map<string, DocumentSheetRange>();
+
+  [...props.template.sheet.merges, ...props.template.sheet.cells, ...props.template.placements]
+    .map((item) => ('range' in item ? item.range : item))
+    .filter((item) => item.rowspan > 1 || item.colspan > 1)
+    .forEach((item) => {
+      rangeMap.set([item.row, item.col, item.rowspan, item.colspan].join(':'), item);
+    });
+
+  return [...rangeMap.values()];
+}
+
+function flushRender() {
+  renderScheduledRef.value = false;
+
+  if (!canvasReadyRef.value || !renderPendingRef.value) {
+    return;
+  }
+
+  renderPendingRef.value = false;
+  renderCanvas();
+
+  if (renderPendingRef.value) {
+    scheduleRender();
+  }
+}
+
+function scheduleRender() {
+  renderPendingRef.value = true;
+
+  if (!canvasReadyRef.value || renderScheduledRef.value) {
+    return;
+  }
+
+  renderScheduledRef.value = true;
+  queueMicrotask(flushRender);
 }
 
 function disposeRuntime() {
@@ -109,76 +195,139 @@ function disposeRuntime() {
     item.dispose();
   });
   runtime.setup.univer.dispose();
+  runtime.setup.univerAPI.dispose();
+
   runtimeRef.value = null;
   selectionMoveStartRef.value = null;
-  renderQueuedRef.value = false;
+  renderPendingRef.value = false;
+  renderScheduledRef.value = false;
+  canvasReadyRef.value = false;
+}
+
+function applyCellStyle(
+  runtime: UniverRuntime,
+  cellRange: ReturnType<UniverWorksheet['getRange']>,
+  style: DocumentSheetStyle | null
+) {
+  const horizontalAlign =
+    style?.horizontalAlign === 'right' ? 'normal' : (style?.horizontalAlign ?? 'center');
+
+  cellRange
+    .setWrap(style?.wrap ?? true)
+    .setFontSize(style?.fontSize ?? 12)
+    .setHorizontalAlignment(horizontalAlign)
+    .setVerticalAlignment((style?.verticalAlign ?? 'middle') as never)
+    .setBackground(style?.backgroundColor ?? '#ffffff');
+
+  if (style?.fontWeight === 'bold' || Number(style?.fontWeight) >= 600) {
+    cellRange.setFontWeight('bold');
+  }
+
+  const borderColor = style?.border?.top?.color ?? '#cbd5e1';
+  cellRange.setBorder(
+    runtime.setup.univerAPI.Enum.BorderType.ALL,
+    runtime.setup.univerAPI.Enum.BorderStyleTypes.THIN,
+    borderColor
+  );
 }
 
 function renderCanvas() {
   const runtime = runtimeRef.value;
-  if (!runtime) {
+  if (!runtime || !canvasReadyRef.value) {
     return;
   }
 
-  const { worksheet } = runtime;
   const metrics = resolveCanvasGridMetrics(props.template);
-  const cells = buildCanvasMaterialCells(props.template, props.materials, props.selectedNodeId);
+  const cells = buildCanvasSheetCells(props.template, props.selectedPlacementId);
+  const mergedRanges = collectMergedRanges();
 
   renderingRef.value = true;
 
   try {
-    worksheet.clear();
-    worksheet.setColumnWidths(0, metrics.maxColumns, metrics.columnWidth);
-    worksheet.setRowHeightsForced(0, metrics.maxRows, metrics.rowHeight);
+    runtime.worksheet.clear();
+    runtime.worksheet.setColumnWidths(0, metrics.maxColumns, metrics.columnWidth);
+    runtime.worksheet.setRowHeightsForced(0, metrics.maxRows, metrics.rowHeight);
+
+    for (let colIndex = 1; colIndex <= props.template.sheet.columns; colIndex += 1) {
+      const width = props.template.sheet.columnWidths[String(colIndex)];
+      if (width) {
+        runtime.worksheet.setColumnWidths(colIndex - 1, 1, width);
+      }
+    }
+
+    for (let rowIndex = 1; rowIndex <= props.template.sheet.rows; rowIndex += 1) {
+      const height = props.template.sheet.rowHeights[String(rowIndex)];
+      if (height) {
+        runtime.worksheet.setRowHeightsForced(rowIndex - 1, 1, height);
+      }
+    }
+
+    mergedRanges.forEach((range) => {
+      runtime.worksheet.getRange(range.row - 1, range.col - 1, range.rowspan, range.colspan).merge({
+        isForceMerge: true
+      });
+    });
 
     cells.forEach((cell) => {
-      const cellRange = worksheet.getRange(
+      const rootRow = cell.range.startRow + 1;
+      const rootCol = cell.range.startColumn + 1;
+      const baseStyle = resolveStyle(props.template.sheet.styles, rootRow, rootCol);
+      const cellRange = runtime.worksheet.getRange(
         cell.range.startRow,
         cell.range.startColumn,
         cell.rowCount,
         cell.columnCount
       );
 
-      if (cell.rowCount > 1 || cell.columnCount > 1) {
-        cellRange.merge({
-          isForceMerge: true
-        });
-      }
+      const finalStyle: DocumentSheetStyle | null =
+        cell.kind === 'field'
+          ? {
+              row: rootRow,
+              col: rootCol,
+              rowspan: cell.rowCount,
+              colspan: cell.columnCount,
+              backgroundColor: cell.isActive
+                ? '#dbeafe'
+                : (baseStyle?.backgroundColor ?? '#eff6ff'),
+              textColor: baseStyle?.textColor ?? '#1d4ed8',
+              fontSize: baseStyle?.fontSize,
+              fontWeight: baseStyle?.fontWeight ?? 'bold',
+              horizontalAlign: baseStyle?.horizontalAlign ?? 'center',
+              verticalAlign: baseStyle?.verticalAlign ?? 'middle',
+              wrap: baseStyle?.wrap ?? true,
+              border: {
+                top: {
+                  color: cell.isActive ? '#2563eb' : '#93c5fd',
+                  style: 'solid' as const,
+                  width: 1
+                },
+                right: {
+                  color: cell.isActive ? '#2563eb' : '#93c5fd',
+                  style: 'solid' as const,
+                  width: 1
+                },
+                bottom: {
+                  color: cell.isActive ? '#2563eb' : '#93c5fd',
+                  style: 'solid' as const,
+                  width: 1
+                },
+                left: {
+                  color: cell.isActive ? '#2563eb' : '#93c5fd',
+                  style: 'solid' as const,
+                  width: 1
+                }
+              }
+            }
+          : baseStyle;
 
-      cellRange
-        .setValue(cell.label)
-        .setWrap(true)
-        .setHorizontalAlignment('center')
-        .setVerticalAlignment('middle')
-        .setFontSize(12)
-        .setBackground(cell.isActive ? '#dbeafe' : '#f8fafc');
-
-      cellRange.setBorder(
-        runtime.setup.univerAPI.Enum.BorderType.ALL,
-        runtime.setup.univerAPI.Enum.BorderStyleTypes.THIN,
-        cell.isActive ? '#2563eb' : '#cbd5e1'
-      );
+      cellRange.setValue(cell.label);
+      applyCellStyle(runtime, cellRange, finalStyle);
     });
-
-    const selectedCell = cells.find((item) => item.isActive) ?? null;
-    if (selectedCell) {
-      worksheet.scrollToCell(selectedCell.range.startRow, selectedCell.range.startColumn, 0);
-    }
+  } catch (error) {
+    console.error('[UniverDocumentCanvas] render failed', error);
   } finally {
     renderingRef.value = false;
   }
-}
-
-function scheduleRender() {
-  if (renderQueuedRef.value) {
-    return;
-  }
-
-  renderQueuedRef.value = true;
-  queueMicrotask(() => {
-    renderQueuedRef.value = false;
-    renderCanvas();
-  });
 }
 
 function bindCanvasEvents(runtime: UniverRuntime) {
@@ -189,10 +338,9 @@ function bindCanvasEvents(runtime: UniverRuntime) {
         return;
       }
 
-      const nodeId = resolveNodeIdByRange(rangeFromSelection(selections[0]!));
-      if (nodeId && nodeId !== props.selectedNodeId) {
-        emit('select', nodeId);
-      }
+      const range = canvasRangeToAnchor(rangeFromSelection(selections[0]!));
+      emit('select-range', range);
+      emit('select-placement', resolvePlacementByRange(range)?.id ?? null);
     }
   );
 
@@ -210,30 +358,28 @@ function bindCanvasEvents(runtime: UniverRuntime) {
   const selectionMoveEndDisposable = runtime.setup.univerAPI.addEvent(
     runtime.setup.univerAPI.Event.SelectionMoveEnd,
     ({ selections }) => {
-      if (renderingRef.value || selections.length === 0 || !props.selectedNodeId) {
+      if (renderingRef.value || selections.length === 0 || !props.selectedPlacementId) {
         return;
       }
 
-      const selectedNode = resolveNodeById(props.selectedNodeId);
-      if (!selectedNode) {
+      const placement = resolvePlacementById(props.selectedPlacementId);
+      if (!placement) {
+        return;
+      }
+
+      const startedRange = selectionMoveStartRef.value;
+      selectionMoveStartRef.value = null;
+
+      if (!isSameRange(startedRange, normalizeCanvasRange(anchorToCanvasRange(placement.range)))) {
         return;
       }
 
       const metrics = resolveCanvasGridMetrics(props.template);
-      const cells = buildCanvasMaterialCells(props.template, props.materials, props.selectedNodeId);
-      const selectedCell = cells.find((item) => item.nodeId === props.selectedNodeId) ?? null;
-      const startedRange = selectionMoveStartRef.value;
-      selectionMoveStartRef.value = null;
-
-      if (!selectedCell || !isSameRange(startedRange, selectedCell.range)) {
-        return;
-      }
-
       const nextRange = clampCanvasRange(rangeFromSelection(selections[0]!), metrics);
       const nextAnchor = canvasRangeToAnchor(nextRange);
 
-      if (!isSameAnchor(nextAnchor, selectedNode.anchor)) {
-        emit('update-anchor', selectedNode.id, nextAnchor);
+      if (!isSameAnchor(nextAnchor, placement.range)) {
+        emit('update-placement-range', placement.id, nextAnchor);
       }
     }
   );
@@ -273,14 +419,27 @@ function initializeUniverCanvas() {
     id: 'document-form-designer',
     name: '公文设计画布'
   });
-  const worksheet = workbook.getActiveSheet();
 
   const runtime: UniverRuntime = {
     setup,
-    worksheet,
+    worksheet: workbook.getActiveSheet(),
     disposables: []
   };
 
+  const lifecycleDisposable = setup.univerAPI.addEvent(
+    setup.univerAPI.Event.LifeCycleChanged,
+    ({ stage }) => {
+      const lifecycleEnum = setup.univerAPI.Enum.LifecycleStages;
+      if (stage !== lifecycleEnum.Rendered && stage !== lifecycleEnum.Steady) {
+        return;
+      }
+
+      canvasReadyRef.value = true;
+      scheduleRender();
+    }
+  );
+
+  runtime.disposables.push(lifecycleDisposable);
   bindCanvasEvents(runtime);
   runtimeRef.value = runtime;
   scheduleRender();
@@ -295,10 +454,18 @@ watch(
 );
 
 watch(
-  () => props.selectedNodeId,
+  () => props.selectedPlacementId,
   () => {
     scheduleRender();
   }
+);
+
+watch(
+  () => props.activeRange,
+  () => {
+    scheduleRender();
+  },
+  { deep: true }
 );
 
 onMounted(() => {
@@ -313,8 +480,11 @@ onBeforeUnmount(() => {
 <template>
   <section class="univer-canvas-shell">
     <div ref="hostRef" class="univer-canvas-host" />
-    <div v-if="props.template.materials.length === 0" class="univer-canvas-empty">
-      从左侧选择一个物料开始编排
+    <div
+      v-if="props.template.placements.length === 0 && props.template.sheet.cells.length === 0"
+      class="univer-canvas-empty"
+    >
+      先在画布里选区，再点击顶部字段按钮插入组件
     </div>
   </section>
 </template>

@@ -100,6 +100,20 @@
 
 - 2026-02-11 14:29:08 降级：mcp**augment-context-engine**codebase-retrieval 无法索引当前目录（安全限制），改用 rg/ls 本地检索。
 
+## 2026-03-28（公文表单设计器 v3：Sheet-first 收口）
+
+- `packages/document-form-engine`：
+  - 完成设计器 v3 收口，移除旧 `materials/palette` 主链，统一到 `sheet + fields + placements`。
+  - 重写 `DocumentDesignerWorkbench`、`DocumentPropertyInspector`、`UniverDocumentCanvas`、`DocumentCanvas`、`designer/index.ts`。
+  - 补齐 `useDocumentDesignerState` 的字段删除、placement 更新、选区同步能力。
+  - 修复 `scheduleRender` 的 ready 阶段短路问题，确保 Univer 画布在 `Rendered/Steady` 后能稳定重绘。
+- `apps/admin`：
+  - 设计页增加预览按钮，预览页切换为 `DocumentRuntimePreview`。
+  - mock 模板改为 `createDispatchDocumentTemplate()`。
+  - admin 适配器契约改为可选注入，默认仅保留 `richTextEditor`，不再把选人/上传组件强塞进共享包运行态。
+- `apps/docs`：
+  - `document-form-designer.md` 改写为 `v3 / sheet-first / preview` 口径，删除旧 material/MVP 描述。
+
 ## 2026-03-27（公文表单引擎包化：文档与记录同步）
 
 - 新增文档页 `apps/docs/docs/guide/document-form-designer.md`，沉淀 `document-form-engine` 的包化边界、MVP 物料、admin 接入方式与验证命令。

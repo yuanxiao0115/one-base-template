@@ -1,7 +1,5 @@
-import { ImportUpload } from '@one-base-template/ui';
 import type { Component } from 'vue';
 
-import PersonnelSelector from '@/components/PersonnelSelector/PersonnelSelector.vue';
 import ObRichTextEditor from '@/components/rich-text/ObRichTextEditor.vue';
 
 import {
@@ -18,9 +16,11 @@ const DOCUMENT_FORM_ADMIN_ADAPTERS_KEY = Symbol('document-form-admin-adapters');
 const DOCUMENT_FORM_ADMIN_SERVICES_KEY = Symbol('document-form-admin-services');
 
 export interface DocumentFormAdminAdapters {
-  personnelSelector: Component;
-  attachmentUpload: Component;
-  richTextEditor: Component;
+  personnelSelector?: Component;
+  departmentSelector?: Component;
+  attachmentUpload?: Component;
+  richTextEditor?: Component;
+  stampPicker?: Component;
 }
 
 export interface DocumentFormEngineAdminRegisterOptions {
@@ -32,12 +32,8 @@ export interface DocumentFormAdminServices {
   templateService: DocumentTemplateService;
 }
 
-let initialized = false;
-
 function createDefaultAdapters(): DocumentFormAdminAdapters {
   return {
-    personnelSelector: PersonnelSelector,
-    attachmentUpload: ImportUpload,
     richTextEditor: ObRichTextEditor
   };
 }
@@ -89,10 +85,6 @@ export function setupDocumentFormEngineForAdmin(
 ): DocumentFormEngineAdminContext {
   const context = getDocumentFormEngineAdminContext();
 
-  if (!initialized) {
-    initialized = true;
-  }
-
   const nextAdapters = {
     ...getDocumentFormAdminAdapters(context),
     ...options.adapters
@@ -109,6 +101,5 @@ export function setupDocumentFormEngineForAdmin(
 }
 
 export function resetDocumentFormEngineAdminSetupForTesting() {
-  initialized = false;
   resetDocumentFormEngineAdminContextForTesting();
 }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue';
-import type { DocumentMaterialSheetStyleValue } from '../../materials/sheet-style';
+
 import type { DocumentSheetStyle } from '../../schema/sheet';
+import type { DocumentSheetStylePatch } from '../sheet-ops';
 
 defineOptions({
   name: 'SheetStyleEditor'
@@ -9,41 +10,29 @@ defineOptions({
 
 const props = defineProps<{
   modelValue: DocumentSheetStyle | null;
-  defaultStyle: DocumentMaterialSheetStyleValue | null;
 }>();
 
 const emit = defineEmits<{
-  (e: 'apply', value: DocumentMaterialSheetStyleValue): void;
+  (e: 'apply', value: DocumentSheetStylePatch): void;
 }>();
 
-interface SheetStyleFormState {
-  backgroundColor: string;
-  textColor: string;
-  borderColor: string;
-  fontSize: number;
-  fontWeight: 'normal' | 'bold';
-  horizontalAlign: 'left' | 'center' | 'right';
-  verticalAlign: 'top' | 'middle' | 'bottom';
-  wrap: boolean;
-}
-
-const form = reactive<SheetStyleFormState>({
+const form = reactive({
   backgroundColor: '#ffffff',
   textColor: '#0f172a',
   borderColor: '#cbd5e1',
-  fontSize: 12,
-  fontWeight: 'normal',
-  horizontalAlign: 'left',
-  verticalAlign: 'middle',
+  fontSize: 13,
+  fontWeight: 'normal' as 'normal' | 'bold',
+  horizontalAlign: 'left' as 'left' | 'center' | 'right',
+  verticalAlign: 'middle' as 'top' | 'middle' | 'bottom',
   wrap: true
 });
 
-function applySourceToForm() {
-  const source = props.modelValue ?? props.defaultStyle;
+function syncForm() {
+  const source = props.modelValue;
   form.backgroundColor = source?.backgroundColor ?? '#ffffff';
   form.textColor = source?.textColor ?? '#0f172a';
   form.borderColor = source?.border?.top?.color ?? '#cbd5e1';
-  form.fontSize = source?.fontSize ?? 12;
+  form.fontSize = source?.fontSize ?? 13;
   form.fontWeight = source?.fontWeight === 'bold' ? 'bold' : 'normal';
   form.horizontalAlign = source?.horizontalAlign ?? 'left';
   form.verticalAlign = source?.verticalAlign ?? 'middle';
@@ -51,9 +40,9 @@ function applySourceToForm() {
 }
 
 watch(
-  () => [props.modelValue, props.defaultStyle],
+  () => props.modelValue,
   () => {
-    applySourceToForm();
+    syncForm();
   },
   { immediate: true, deep: true }
 );
@@ -81,7 +70,7 @@ function handleApply() {
   <section class="panel">
     <div class="panel-head">
       <strong>单元格样式</strong>
-      <button type="button" @click="handleApply">应用到当前物料区域</button>
+      <button type="button" @click="handleApply">应用到当前选区</button>
     </div>
     <label class="row">
       <span>背景色</span>

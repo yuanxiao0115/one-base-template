@@ -1,48 +1,36 @@
-import type { DocumentMaterialSheetStyleValue } from '../materials/sheet-style';
-import type { DocumentSheetMerge, DocumentSheetStyle } from '../schema/sheet';
-import type { DocumentMaterialAnchor } from '../schema/types';
+import type { DocumentSheetMerge, DocumentSheetRange, DocumentSheetStyle } from '../schema/sheet';
 
-function isSameRange(
-  row: number,
-  col: number,
-  rowspan: number,
-  colspan: number,
-  anchor: DocumentMaterialAnchor
-) {
-  return (
-    row === anchor.row &&
-    col === anchor.col &&
-    rowspan === anchor.rowspan &&
-    colspan === anchor.colspan
-  );
+export type DocumentSheetStylePatch = Omit<
+  DocumentSheetStyle,
+  'row' | 'col' | 'rowspan' | 'colspan'
+>;
+
+function isSameRange(a: DocumentSheetRange, b: DocumentSheetRange) {
+  return a.row === b.row && a.col === b.col && a.rowspan === b.rowspan && a.colspan === b.colspan;
 }
 
-function toSheetStyle(anchor: DocumentMaterialAnchor, value: DocumentMaterialSheetStyleValue) {
-  const border = value.border
-    ? {
-        ...value.border
-      }
-    : undefined;
-
+function toSheetStyle(range: DocumentSheetRange, value: DocumentSheetStylePatch) {
   return {
-    row: anchor.row,
-    col: anchor.col,
-    rowspan: anchor.rowspan,
-    colspan: anchor.colspan,
+    row: range.row,
+    col: range.col,
+    rowspan: range.rowspan,
+    colspan: range.colspan,
     ...value,
-    border
+    border: value.border
+      ? {
+          ...value.border
+        }
+      : undefined
   } as DocumentSheetStyle;
 }
 
 export function applySheetStyleToAnchor(
   styles: DocumentSheetStyle[],
-  anchor: DocumentMaterialAnchor,
-  value: DocumentMaterialSheetStyleValue
+  range: DocumentSheetRange,
+  value: DocumentSheetStylePatch
 ) {
-  const scopedStyle = toSheetStyle(anchor, value);
-  const targetIndex = styles.findIndex((item) =>
-    isSameRange(item.row, item.col, item.rowspan, item.colspan, anchor)
-  );
+  const scopedStyle = toSheetStyle(range, value);
+  const targetIndex = styles.findIndex((item) => isSameRange(item, range));
 
   if (targetIndex < 0) {
     return [...styles, scopedStyle];
@@ -51,13 +39,8 @@ export function applySheetStyleToAnchor(
   return styles.map((item, index) => (index === targetIndex ? scopedStyle : item));
 }
 
-export function addSheetMergeByAnchor(
-  merges: DocumentSheetMerge[],
-  anchor: DocumentMaterialAnchor
-) {
-  const exists = merges.some((item) =>
-    isSameRange(item.row, item.col, item.rowspan, item.colspan, anchor)
-  );
+export function addSheetMergeByAnchor(merges: DocumentSheetMerge[], range: DocumentSheetRange) {
+  const exists = merges.some((item) => isSameRange(item, range));
 
   if (exists) {
     return [...merges];
@@ -66,10 +49,10 @@ export function addSheetMergeByAnchor(
   return [
     ...merges,
     {
-      row: anchor.row,
-      col: anchor.col,
-      rowspan: anchor.rowspan,
-      colspan: anchor.colspan
+      row: range.row,
+      col: range.col,
+      rowspan: range.rowspan,
+      colspan: range.colspan
     }
   ];
 }

@@ -1,25 +1,25 @@
 import type { DocumentTemplateSchema } from '../schema/types';
-import type { DocumentFormEngineContext } from '../register/context';
-import {
-  createDocumentSheetRenderer,
-  type CreateDocumentSheetRendererOptions,
-  type DocumentSheetRenderModel
-} from './sheet-renderer';
+import type {
+  CreateDocumentRuntimeRendererOptions,
+  DocumentRuntimeRenderResult,
+  DocumentRuntimeRenderer
+} from './renderer';
+import { createDocumentRuntimeRenderer } from './renderer';
 
 export interface DocumentPrintRenderer {
-  buildPrintModel(template: DocumentTemplateSchema): DocumentSheetRenderModel;
+  buildPrintModel(template: DocumentTemplateSchema): DocumentRuntimeRenderResult;
 }
 
-export type CreateDocumentPrintRendererOptions = CreateDocumentSheetRendererOptions;
+export type CreateDocumentPrintRendererOptions = CreateDocumentRuntimeRendererOptions;
 
 export function createDocumentPrintRenderer(
-  input?: DocumentFormEngineContext | CreateDocumentPrintRendererOptions
+  input?: CreateDocumentPrintRendererOptions
 ): DocumentPrintRenderer {
-  const sheetRenderer = createDocumentSheetRenderer(input);
+  const runtimeRenderer: DocumentRuntimeRenderer = createDocumentRuntimeRenderer(input);
 
   return {
     buildPrintModel(template: DocumentTemplateSchema) {
-      return sheetRenderer.buildSheetRenderModel(template);
+      return runtimeRenderer.buildRenderModel(template);
     }
   };
 }

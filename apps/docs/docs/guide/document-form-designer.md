@@ -4,226 +4,201 @@
 
 ## TL;DR
 
-- 公文表单能力以独立包 `@one-base-template/document-form-engine` 形态沉淀到 `packages/`，不在 `apps/admin` 内复制画布、物料、schema 与设置面板实现。
-- `apps/admin` 只做消费层：路由挂载、接口注入、权限接入、页面薄壳与业务适配器注入。
-- MVP 先覆盖**发文单**，统一交付“左物料 / 中画布 / 右设置”的三栏设计器与运行态渲染能力。
-- 设计态画布已切换为 **Univer Sheet**，通过 `anchor(row/col/rowspan/colspan)` 与网格范围桥接实现选中与拖拽排版；运行态继续挂真实 Vue 组件，保证版式稳定、打印一致、边界清晰。
+- 当前主线已经明确为 **Sheet-first**：
+  - 设计态使用 `Univer`
+  - 模板协议使用 `version: '3'`
+  - 运行态与预览态使用 Vue 组件渲染
+- 首发模板固定为 **发文单**，默认种子来自 `createDispatchDocumentTemplate()`。
+- 设计页提供 **预览** 按钮，打开独立全屏预览页，默认读取当前草稿。
+- admin 侧只做页面组装与业务服务注入，不再维护平行的物料协议。
 
-## 包化边界
+## 架构分工
 
 ### `packages/document-form-engine`
 
 负责：
 
-- 模板协议：页面尺寸、网格、锚点、节点、绑定、打印配置
-- 物料注册：物料定义、默认配置、属性面板 schema、设计态预览、运行态渲染
-- 设计器：物料面板、画布、属性面板、设计态路由 helper
-- 设计器画布桥接：Univer 选区事件与 `DocumentTemplateSchema` 锚点双向映射（`canvas-bridge.ts`）
-- 运行态：模板渲染器、组件映射、打印渲染入口
-- 上下文与注册：`createDocumentFormEngineContext()`、`registerDocumentMaterials()` 等公共入口
+- 模板协议：`schema/types.ts`、`schema/sheet.ts`、`schema/template.ts`
+- 设计器：`designer/**`
+- 字段组件注册：`register/field-widgets.ts`
+- 运行态渲染：`runtime/renderer.ts`、`runtime/DocumentRuntimePreview.vue`
 
 禁止：
 
 - 直接依赖 `apps/*`
-- 写死 admin 的接口路径、人员组件、上传组件、富文本组件
-- 在包内散落 app 级消息提示、路由跳转与菜单逻辑
+- 写死 admin 私有组件或接口
+- 在共享包内处理页面跳转、菜单或消息提示
 
 ### `apps/admin`
 
 负责：
 
-- `DocumentFormManagement` 模块路由与页面装配
-- `setupDocumentFormEngineForAdmin()` 注入 API、通知与业务适配器
-- 菜单权限、模块开关与页面壳样式
+- 路由与页面薄壳
+- 模板草稿/发布/回滚生命周期服务
+- admin 专属适配器契约与后续真实业务组件接入
 
 禁止：
 
-- 在 admin 内定义公文物料本体
-- 复制一套平行的 schema、画布协议或属性面板
-- 页面层直接 import 包内部未公开的实现文件
+- 复制一套旧 `materials`/绝对定位画布
+- 页面层直接引用共享包内部未导出的实现文件
 
-## MVP 物料清单
+## 模板协议（v3）
 
-首批物料固定为以下 7 类：
+当前模板结构收敛为三块：
 
-| 物料                  | 作用                         | 设计态表现             | 运行态职责            |
-| --------------------- | ---------------------------- | ---------------------- | --------------------- |
-| `DocumentHeaderBlock` | 文头、标题、文号、签发信息   | 红头区块与标题预览壳   | 渲染发文核心元数据    |
-| `RecipientBlock`      | 主送、抄送、报送范围         | 收件对象表格式壳子     | 渲染多行收件对象      |
-| `BodyBlock`           | 正文区                       | 正文占位与模拟文本     | 接富文本/正文组件     |
-| `OpinionBlock`        | 拟稿/核稿/会签/领导意见      | 意见区壳 + 签名位 Mock | 按配置渲染意见流      |
-| `AttachmentBlock`     | 附件说明与附件列表           | 附件表格壳             | 接上传/附件列表适配器 |
-| `StampBlock`          | 签章位、签名位、落款位       | 图片章/签字占位壳      | 渲染签章图片或签字图  |
-| `MetaInfoBlock`       | 拟稿人、部门、日期、流程信息 | 元信息卡片壳           | 渲染流程/基础字段     |
+### 1. `template.sheet`
 
-其中 `OpinionBlock` 统一承载拟稿、核稿、会签、领导意见，通过配置切换 `label`、`roleCode`、`showSigner`、`showTime` 等行为；`RecipientBlock` 统一承载主送与抄送，避免拆成重复组件。
+负责 Excel/表格层能力：
 
-## admin 接入方式
+- `rows / columns`
+- `cells`
+- `merges`
+- `styles`
+- `rowHeights / columnWidths`
+- `viewport`
 
-### 模块职责
+合并单元格、边框颜色、底色、字号、对齐方式都在这里配置。
 
-`apps/admin/src/modules/DocumentFormManagement` 只保留三类文件：
+### 2. `template.fields`
 
-- 模块声明：`manifest.ts + module.ts + routes/**`
-- 页面薄壳：设计页、运行页、预览页
-- 引擎注入：`engine/register.ts`
+负责字段定义：
 
-### 注入入口
+- `type`
+- `label`
+- `required`
+- `widgetProps`
+- `dataSource`
+- `binding`
 
-`setupDocumentFormEngineForAdmin()` 是 admin 侧唯一引擎注入入口，负责把以下差异注入共享包：
+### 3. `template.placements`
 
-- 模板增删改查 API
-- 人员选择器适配器
-- 附件上传适配器
-- 富文本正文适配器
-- `message/confirm` 等通知能力
+负责字段放置到 sheet 的位置：
 
-页面层只消费公开导出：
+- `fieldId`
+- `range`
+- `displayMode`
+- `section`
+- `readonly`
 
-```ts
-import {
-  createDocumentFormEngineContext,
-  registerDocumentMaterials
-} from '@one-base-template/document-form-engine';
-import {
-  DocumentFormDesignerLayout,
-  useDocumentFormDesignerRoute
-} from '@one-base-template/document-form-engine/designer';
-```
+## 设计态实现
 
-## SheetSchema v2（Excel 能力配置入口）
+设计器页面由三部分组成：
 
-`packages/document-form-engine/schema/sheet.ts` 已定义统一的 `sheet` 协议，模板侧统一通过 `template.sheet` 配置表格行为：
+- 顶部工具条：插入字段、恢复发文单预设
+- 中央画布：`UniverDocumentCanvas`
+- 右侧面板：`DocumentPropertyInspector`
 
-- `sheet.merges`：单元格合并区域（`row/col/rowspan/colspan`）。
-- `sheet.styles`：区域样式（边框、线色、填充、字体、对齐）。
-- `sheet.rowHeights / sheet.columnWidths`：行高与列宽覆盖。
-- `sheet.viewport`：网格线显示、缩放、冻结区。
+当前 `Univer` 画布职责：
 
-示例：
+- 展示 `sheet.cells`
+- 展示字段放置区 `placements`
+- 响应选区变化
+- 支持拖拽移动字段区域
+- 把合并、边框、底色等配置回写到模板
 
-```json
-{
-  "version": "2",
-  "sheet": {
-    "rows": 40,
-    "columns": 24,
-    "merges": [{ "row": 2, "col": 2, "rowspan": 2, "colspan": 3 }],
-    "styles": [
-      {
-        "row": 2,
-        "col": 2,
-        "rowspan": 2,
-        "colspan": 3,
-        "backgroundColor": "#f8fafc",
-        "border": {
-          "top": { "color": "#1e293b", "style": "solid", "width": 1 },
-          "right": { "color": "#1e293b", "style": "solid", "width": 1 },
-          "bottom": { "color": "#1e293b", "style": "solid", "width": 1 },
-          "left": { "color": "#1e293b", "style": "solid", "width": 1 }
-        }
-      }
-    ],
-    "viewport": {
-      "showGrid": true,
-      "zoom": 100,
-      "frozenRows": 0,
-      "frozenColumns": 0
-    }
-  }
-}
-```
+当前右侧面板职责：
 
-`schema/template.ts` 在解析模板时会自动执行 `v1 -> v2` 迁移并补齐 `sheet` 默认值，admin 持久化层无需先做历史数据回写。
+- 字段列表切换
+- 字段标签、必填、占位提示、行数、静态选项编辑
+- placement 的展示模式、区域归属、只读开关
+- 合并区域编辑
+- 单元格样式编辑
 
-完整字段与迁移口径见：[公文表单 Sheet Schema（v2）](/guide/document-form-sheet-schema)。
+## 运行态与预览态
 
-## 设计器右侧配置面（当前能力）
+运行态不再直接运行一个 `Univer` 表单，而是走 Vue 渲染：
 
-`DocumentPropertyInspector` 已接入两个表格编辑面板：
+- `runtime/renderer.ts` 把 `sheet + fields + placements` 转成运行态表格模型
+- `runtime/DocumentRuntimePreview.vue` 用 HTML `table` 渲染真实版式
+- `apps/admin` 的预览页直接复用 `DocumentRuntimePreview`
 
-- `MergeEditor`：按当前选中物料区域新增合并，或删除已有合并区域。
-- `SheetStyleEditor`：编辑边框线色、填充色、字体、对齐、换行，并应用到当前选中物料区域。
+预览页规则：
 
-配置回写路径：
+- 路由：`/document-form/preview`
+- 默认优先读取当前草稿
+- 无草稿时回退发布版本
+- 再无数据时回退 `createDispatchDocumentTemplate()`
 
-- 合并区域：`template.sheet.merges`
-- 样式区域：`template.sheet.styles`
+## admin 接入
 
-当前版本的样式应用粒度是“当前选中物料区域”，后续如需“任意选区样式刷”可在 Univer 选区事件上继续扩展。
+admin 模块主要文件：
 
-## 物料样式协议（Material Sheet Style）
+- `designPage/DocumentFormDesignerPage.vue`
+- `designPage/DocumentFormPreviewPage.vue`
+- `engine/register.ts`
+- `services/template-service.ts`
+- `mock/template.ts`
 
-`materials/types.ts` 中的物料定义已新增：
+### 模板生命周期
 
-- `sheetLayout`：定义物料在 sheet 中的区域布局（默认主区域）。
-- `stylePreset`：定义物料默认样式预设。
+`template-service.ts` 当前提供：
 
-默认实现：
+- `ensureDraft`
+- `updateDraft`
+- `publishDraft`
+- `rollbackToPublished`
+- `getSnapshot`
 
-- 样式常量位于 `materials/sheet-style.ts`
-- 默认物料预设位于 `materials/default-materials.ts`
+### 适配器契约
 
-## 运行态与打印态一致性（Sheet Render Parity）
+`setupDocumentFormEngineForAdmin()` 当前暴露的是 **可选适配器契约**，不是强制运行态绑定：
 
-`runtime` 侧已新增：
+- `personnelSelector?`
+- `departmentSelector?`
+- `attachmentUpload?`
+- `richTextEditor?`
+- `stampPicker?`
 
-- `runtime/sheet-renderer.ts`：构建运行态 sheet 渲染模型。
-- `runtime/print-renderer.ts`：打印态复用同一份 sheet 渲染模型。
+当前版本里，运行态预览默认继续使用共享包内置字段组件；admin 真实业务组件后续按需渐进接入。
 
-当前约束：
+## Univer 组件扩展说明
 
-- 节点组件 props：`defaultProps + node.props`。
-- 区域样式优先级：`template.sheet.styles` 覆盖 `material.stylePreset.style`。
-- 打印态输出：与运行态 `sheet-renderer` 保持同构输出，减少版式偏差。
+当前设计器优先使用 `Univer` 自身表格能力完成 MVP 到产品主链：
 
-可直接使用：
+- 表格
+- 合并
+- 边框
+- 单元格选区
+- 拖拽移动
+
+如果后续要在画布上叠加 Vue 自定义组件，应优先走官方扩展方式：
+
+- `univerAPI.registerComponent(...)`
+- `worksheet.addFloatDomToRange(...)`
+- `@univerjs/ui-adapter-vue3`
+
+并遵守两个约束：
+
+- 只在 `LifeCycleChanged -> Rendered/Steady` 之后挂载
+- 组件与 Univer 实例都必须在卸载时 `dispose`
+
+## 默认模板
+
+默认发文单模板统一使用：
 
 ```ts
-import {
-  createDocumentPrintRenderer,
-  createDocumentSheetRenderer
-} from '@one-base-template/document-form-engine';
+import { createDispatchDocumentTemplate } from '@one-base-template/document-form-engine';
+
+const template = createDispatchDocumentTemplate();
 ```
 
-## admin 模板生命周期（草稿 / 发布 / 回滚）
-
-`apps/admin/src/modules/DocumentFormManagement/services/template-service.ts` 已提供模板生命周期服务：
-
-- `ensureDraft`：初始化草稿。
-- `updateDraft`：更新草稿。
-- `publishDraft`：发布并生成递增版本。
-- `rollbackToPublished`：回滚到指定或最新发布版本。
-
-接入位置：
-
-- `engine/register.ts`：注入 `templateService` 到 admin 上下文服务集合。
-- `designPage/DocumentFormDesignerPage.vue`：设计页工具栏支持发布备注、发布历史展示、指定版本回滚。
-- `designPage/DocumentFormPreviewPage.vue`：预览页优先加载已发布模板，其次草稿模板。
+不要再在 admin 侧手写旧 `materials` 结构。
 
 ## 验证命令
 
-最小验证口径如下：
-
 ```bash
-pnpm -C packages/document-form-engine typecheck
-pnpm -C packages/document-form-engine lint
 pnpm -C packages/document-form-engine test:run
+pnpm -C packages/document-form-engine typecheck
+pnpm -C packages/document-form-engine build
+pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/engine/register.unit.test.ts
 pnpm -C apps/admin typecheck
-pnpm -C apps/admin lint
 pnpm -C apps/docs lint
 pnpm -C apps/docs build
 ```
 
-收口前建议再执行：
+## 当前范围
 
-```bash
-pnpm verify
-```
-
-## 当前阶段约束
-
-- 第一阶段采用**单包先行**，不拆 `runtime/ui` 子包。
-- MVP 只做发文单，不含正式电子签、Excel 导入导出、收文单与签报单。
-- 文档允许先行沉淀边界与接口，但验证结论必须以 `.codex/testing.md` 与 `.codex/verification.md` 的实际记录为准。
-- 设计态拖拽排版当前以 `SelectionMoveStart/SelectionMoveEnd` 事件回写 anchor，后续复杂碰撞策略（自动避让、吸附）再增量补齐。
+- 当前只覆盖 **发文单**
+- 设计态优先收敛到 sheet 能力，不再围绕左侧旧物料栏设计
+- 运行态预览优先保证版式还原与字段链路可用
+- 真实选人、附件、签章业务组件后续按契约渐进接入

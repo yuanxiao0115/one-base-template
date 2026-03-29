@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import {
-  createDocumentRuntimeRenderer,
-  getDocumentMaterialDefinition
-} from '@one-base-template/document-form-engine';
+import { DocumentRuntimePreview } from '@one-base-template/document-form-engine';
 
 import { createMockDocumentTemplate } from '../mock/template';
 import { getDocumentFormAdminServices, setupDocumentFormEngineForAdmin } from '../engine/register';
@@ -16,52 +13,29 @@ defineOptions({
 const router = useRouter();
 const context = setupDocumentFormEngineForAdmin();
 const templateService = getDocumentFormAdminServices(context).templateService;
+
 const template = computed(() => {
   const snapshot = templateService.getSnapshot();
-  return snapshot.published?.template ?? snapshot.draft?.template ?? createMockDocumentTemplate();
+  return snapshot.draft?.template ?? snapshot.published?.template ?? createMockDocumentTemplate();
 });
-const runtimeRenderer = createDocumentRuntimeRenderer(context);
-
-const renderModel = computed(() => runtimeRenderer.buildRenderModel(template.value));
-
-function resolveStyle(node: (typeof renderModel.value)[number]) {
-  const { columns, rowHeight } = template.value.grid;
-  return {
-    left: `${((node.anchor.col - 1) / columns) * 100}%`,
-    top: `${(((node.anchor.row - 1) * rowHeight) / template.value.page.minHeight) * 100}%`,
-    width: `${(node.anchor.colspan / columns) * 100}%`,
-    height: `${((node.anchor.rowspan * rowHeight) / template.value.page.minHeight) * 100}%`
-  };
-}
 
 function handleBack() {
   void router.push({
-    name: 'DocumentFormTemplateList'
+    name: 'DocumentFormDesigner'
   });
 }
 </script>
 
 <template>
   <div class="preview-page">
-    <div class="preview-head">
+    <header class="preview-head">
       <div>
         <h1 class="preview-title">公文表单预览</h1>
-        <p class="preview-meta">运行态根据模板节点映射共享包物料组件。</p>
+        <p class="preview-meta">当前预览默认读取设计器草稿，运行态按 Vue 组件版式渲染。</p>
       </div>
-      <el-button @click="handleBack">返回管理页</el-button>
-    </div>
-    <div class="preview-body">
-      <div class="preview-canvas">
-        <component
-          :is="getDocumentMaterialDefinition(node.type, context)?.runtimeRenderer"
-          v-for="node in renderModel"
-          :key="node.id"
-          class="preview-node"
-          :style="resolveStyle(node)"
-          :node="node"
-        />
-      </div>
-    </div>
+      <button type="button" class="preview-back-btn" @click="handleBack">返回设计器</button>
+    </header>
+    <DocumentRuntimePreview :context="context" :readonly="true" :template="template" />
   </div>
 </template>
 
@@ -71,15 +45,14 @@ function handleBack() {
   min-height: 100vh;
   flex-direction: column;
   background: #eef3f8;
-  padding: 24px;
 }
 
 .preview-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 16px;
+  gap: 16px;
+  padding: 20px 24px 0;
 }
 
 .preview-title {
@@ -95,32 +68,11 @@ function handleBack() {
   font-size: 13px;
 }
 
-.preview-body {
-  overflow: auto;
-}
-
-.preview-canvas {
-  position: relative;
-  width: 794px;
-  min-height: 1123px;
-  border: 1px solid #d6deea;
+.preview-back-btn {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
   background: #fff;
-  box-shadow: 0 18px 48px -30px rgb(15 23 42 / 45%);
-}
-
-.preview-node {
-  position: absolute;
-  overflow: hidden;
-}
-
-.preview-node :deep(.document-material-shell) {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 10px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  color: #334155;
+  cursor: pointer;
 }
 </style>
