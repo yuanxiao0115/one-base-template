@@ -8868,3 +8868,6 @@
   - `document-form-engine` typecheck/build 通过。
   - `apps/admin` typecheck 通过。
   - `apps/docs` lint/build 通过。
+- 补充（提交后复跑）：
+  - `pnpm -C packages/document-form-engine test:run` 失败，报错 `Error: Failed to convert napi value into rust type 'bool'`（`Plugin: vite:oxc`，发生在测试文件 transform 阶段）。
+  - 当前判断为工具链环境异常，`typecheck` 与业务修复用例逻辑不受影响；后续需单独排查 `vite-plus/oxc` 版本与 Node 运行时兼容性。

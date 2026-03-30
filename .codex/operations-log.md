@@ -10425,3 +10425,5 @@
   - `tests/dispatch-preset.test.ts` 新增“画布合并区域不重叠”断言。
   - `tests/designer-sheet-ops.test.ts` 新增“冲突 merge 不入库”断言。
 - 文档同步：`apps/docs/docs/guide/document-form-designer.md` 增加“冲突 merge 自动跳过，防止渲染中断”说明。
+- 提交后复跑补充：
+  - `pnpm -C packages/document-form-engine test:run` 在当前环境触发 `vite:oxc` NAPI 转换异常（`Failed to convert napi value into rust type 'bool'`），已记录到 `.codex/testing.md` 与 `.codex/verification/2026-03-30.md`，待单独排查工具链兼容性。

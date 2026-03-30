@@ -6,7 +6,7 @@
 
 - 日期：2026-03-30
 - 文件：`.codex/verification/2026-03-30.md`
-- 补充：已修复 Excel 画布 merge 重叠导致的渲染中断，增加 merge 冲突过滤与写入防护；`document-form-engine` 测试/typecheck/build、`apps/admin typecheck`、`apps/docs lint/build` 通过。
+- 补充：已修复 Excel 画布 merge 重叠导致的渲染中断，增加 merge 冲突过滤与写入防护；`document-form-engine`、`apps/admin`、`apps/docs` 主要验证通过。提交后复跑完整测试出现 `vite:oxc` 工具链异常，见 `.codex/verification/2026-03-30.md` 风险备注。
 
 ## 历史归档
 
