@@ -2,14 +2,14 @@
 
 Vue 3 + Vite Plus + Tailwind(v4) + Element Plus + Pinia + Vue Router 的 Monorepo 脚手架（pnpm workspaces + Vite Task）。
 
-目标：提供一个“可拆可切”的后台壳模板，核心逻辑沉到 `packages/core`，UI 壳沉到 `packages/ui`，不同项目只需要替换 Adapter 与页面样式即可。
+目标：提供一个“可拆可切”的后台壳模板，核心逻辑沉到 `packages/core`，UI 壳沉到 `packages/ui`，不同项目优先从 `apps/admin-lite` 派生并按需替换 Adapter 与页面样式。
 
 ## 目录结构
 
 ```text
 apps/admin            # 主应用
 apps/portal           # 门户消费者应用（独立渲染）
-apps/template         # 子项目孵化与迁移承接基座（admin 同构骨架）
+apps/admin-lite        # 后台快速起项目基座（admin 同构骨架）
 packages/core         # 纯逻辑：鉴权/SSO/菜单/主题/tabs/http 等
 packages/ui           # UI 壳：布局/菜单/顶栏/tabs/keep-alive 等
 packages/adapters     # Adapter 示例（默认/后端协议适配）
@@ -22,7 +22,7 @@ packages/app-starter  # 跨应用启动骨架（runtime config + 统一启动编
 pnpm install
 pnpm dev
 pnpm dev:portal
-pnpm dev:template
+pnpm dev:admin-lite
 pnpm doctor
 ```
 
@@ -39,9 +39,9 @@ pnpm check:naming
 pnpm verify
 ```
 
-## 从 template 派生新 app
+## 从 admin-lite 派生新 app
 
-默认以 `apps/template` 为母版生成新 app：
+默认以 `apps/admin-lite` 为母版生成新 app：
 
 ```bash
 pnpm new:app <app-id>
@@ -72,7 +72,7 @@ pnpm -C apps/<app-id> build
 
 说明：
 
-- 默认生成最小可运行 app，继承 template 的启动骨架、模块契约与架构门禁。
+- 默认生成最小可运行 app，继承 `admin-lite` 的启动骨架、模块契约与架构门禁。
 - `--with-crud-starter` 会追加 `starter-crud` 模块，提供本地内存数据的 CRUD 闭环，便于后续迁移真实业务模块。
 - 根 `pnpm lint:arch` 会自动发现 `apps/*/package.json` 中声明了 `lint:arch` 的 app，并串联执行。
 
@@ -87,7 +87,7 @@ pnpm install
 # 启动指定应用
 pnpm exec vp run --filter admin dev
 pnpm exec vp run --filter portal dev
-pnpm exec vp run --filter template dev
+pnpm exec vp run --filter admin-lite dev
 
 # 全仓任务
 pnpm exec vp run -r lint
@@ -104,7 +104,7 @@ pnpm exec vp test run
 
 - 根脚本已统一通过 `vp run` 编排（见根 `package.json`）。
 - 推荐通过 `pnpm doctor` 检查全局/本地 `vp` 一致性与工具链锁定版本。
-- `apps/admin` / `apps/portal` / `apps/template` 的 `build` 使用了包装脚本过滤 Rolldown 插件耗时噪音日志，不影响失败退出码。
+- `apps/admin` / `apps/portal` / `apps/admin-lite` 的 `build` 使用了包装脚本过滤 Rolldown 插件耗时噪音日志，不影响失败退出码。
 - 文档站 `apps/docs` 的 `build` 使用包装脚本过滤 VitePress 上游已知弃用提示，不影响真实错误输出。
 
 ## 文档站点（VitePress）
@@ -123,7 +123,7 @@ pnpm -C apps/docs dev
 pnpm -C apps/docs build
 ```
 
-说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `vp run --filter admin dev`）；`pnpm dev:portal` 启动门户消费者应用（等价于 `vp run --filter portal dev`）；`pnpm dev:template` 启动 template 迁移基座应用（等价于 `vp run --filter template dev`）；`pnpm dev:all` 启动全部 workspace 的 dev 任务。
+说明：`pnpm dev` 默认启动 `apps/admin`（等价于 `vp run --filter admin dev`）；`pnpm dev:portal` 启动门户消费者应用（等价于 `vp run --filter portal dev`）；`pnpm dev:admin-lite` 启动后台基座应用（等价于 `vp run --filter admin-lite dev`）；`pnpm dev:all` 启动全部 workspace 的 dev 任务。
 
 `apps/admin` 开发默认通过 Vite 代理直连后端（配置 `VITE_API_BASE_URL`）：
 

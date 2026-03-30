@@ -43,7 +43,7 @@ yuanxiao owns this. Start: say hi + 1 motivating line.
 apps/
   admin/                 # 主应用（Vite + Vue）
   portal/                # 门户消费者应用（独立渲染）
-  template/              # 子项目孵化与迁移承接基座（admin 同构骨架）
+  admin-lite/            # 后台快速起项目基座（admin 同构骨架）
   docs/                  # 文档站点（VitePress）
 packages/
   adapters/              # Adapter：对接后端接口/字段映射
@@ -67,7 +67,7 @@ docs/
 - `packages/adapters`：只做后端协议适配与字段映射；禁止承载 UI 逻辑。
 - `apps/admin`：只做组装与页面样式；对接不同后端时优先替换 adapters。
 - `apps/portal`：维持前台独立静态应用边界；默认不依赖后台菜单接口。
-- `apps/template`：承接 admin 同构骨架、迁移示例契约与架构门禁，作为后续子项目派生基座。
+- `apps/admin-lite`：承担后台快速起项目基座职责，默认只保留通用后台骨架与可开关扩展入口。
 - `apps/docs`：只做文档内容与站点配置，保证与代码行为一致。
 
 ---
@@ -78,7 +78,7 @@ docs/
 | ------------------ | -------------------------------------------------------------------------- | ----------------------------------------------- |
 | 全仓通用           | `/Users/haoqiuzhi/code/one-base-template/AGENTS.md`                        | 工作流、项目边界、协作规范、知识入口            |
 | admin 应用         | `/Users/haoqiuzhi/code/one-base-template/apps/admin/AGENTS.md`             | 路由菜单、主题、表格、UserManagement 等实现细则 |
-| template 应用      | `/Users/haoqiuzhi/code/one-base-template/apps/template/AGENTS.md`          | 启动骨架、模块契约、迁移边界、架构门禁红线      |
+| admin-lite 应用    | `/Users/haoqiuzhi/code/one-base-template/apps/admin-lite/AGENTS.md`        | 后台基座规则、模块契约、扩展开关与架构门禁      |
 | docs 站点          | `/Users/haoqiuzhi/code/one-base-template/apps/docs/AGENTS.md`              | 文档结构、导航同步、构建校验                    |
 | adapters 子包      | `/Users/haoqiuzhi/code/one-base-template/packages/adapters/AGENTS.md`      | 适配层契约、字段映射、mock / 真实接口边界       |
 | core 子包          | `/Users/haoqiuzhi/code/one-base-template/packages/core/AGENTS.md`          | 逻辑内核、主题 token、无 UI 依赖                |

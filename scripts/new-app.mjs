@@ -101,32 +101,53 @@ function shouldCopySource(sourcePath) {
 function createTransformContext(appId) {
   const appPascal = toPascalCase(appId);
   const runtimeAppPascal = toRuntimeAppPascal(appPascal);
+  const buildName = `${appPascal}BuildConfig`;
+  const fmtName = `${appPascal}FmtConfig`;
+  const pluginFactoryName = `create${appPascal}Plugins`;
+  const prunePluginFactoryName = `create${appPascal}PruneLoginHtmlAssetsPlugin`;
 
   return {
     appId,
     appPascal,
     runtimeAppPascal,
     directReplacements: [
-      ['StartTemplateAppBeforeMountContext', `Start${runtimeAppPascal}BeforeMountContext`],
-      ['StartTemplateAppOptions', `Start${runtimeAppPascal}Options`],
-      ['bootstrapTemplateApp', `bootstrap${runtimeAppPascal}`],
-      ['startTemplateApp', `start${runtimeAppPascal}`],
-      ['StartTemplateApp', `Start${runtimeAppPascal}`],
-      ["appcode: 'template'", `appcode: '${appId}'`],
-      ["Appcode: 'template'", `Appcode: '${appId}'`],
-      ['one-base-template-template', `one-base-template-${appId}`],
-      ['template-test', `${appId}-test`],
-      ['template-login', `${appId}-login`],
-      ['<title>template</title>', `<title>${appId}</title>`],
-      ["appName: 'template'", `appName: '${appId}'`],
-      ['template-home', `${appId}-home`],
-      ['template-demo', `${appId}-demo`],
-      ['/apps/template/src/modules/home/', `/apps/${appId}/src/modules/home/`],
-      ['/apps/template/src/modules/demo/', `/apps/${appId}/src/modules/demo/`],
-      ['template-styles', `${appId}-styles`],
-      ['apps/template', `apps/${appId}`],
-      ['pnpm -C apps/template', `pnpm -C apps/${appId}`],
-      ['/template/', `/${appId}/`]
+      ['StartAdminLiteAppBeforeMountContext', `Start${runtimeAppPascal}BeforeMountContext`],
+      ['StartAdminLiteAppOptions', `Start${runtimeAppPascal}Options`],
+      ['bootstrapAdminLiteApp', `bootstrap${runtimeAppPascal}`],
+      ['startAdminLiteApp', `start${runtimeAppPascal}`],
+      ['StartAdminLiteApp', `Start${runtimeAppPascal}`],
+      ['adminLiteBuildConfig', buildName],
+      ['adminLiteFmtConfig', fmtName],
+      ['createAdminLitePlugins', pluginFactoryName],
+      ['createAdminLitePruneLoginHtmlAssetsPlugin', prunePluginFactoryName],
+      ['vite-admin-lite-build-config', `vite-${appId}-build-config`],
+      ["appcode: 'admin-lite'", `appcode: '${appId}'`],
+      ["Appcode: 'admin-lite'", `Appcode: '${appId}'`],
+      ['one-base-template-admin-lite', `one-base-template-${appId}`],
+      ['admin-lite-test', `${appId}-test`],
+      ['admin-lite-login', `${appId}-login`],
+      ['<title>admin-lite</title>', `<title>${appId}</title>`],
+      ["appName: 'admin-lite'", `appName: '${appId}'`],
+      ['admin-lite-runtime', `${appId}-runtime`],
+      ['admin-lite-auth', `${appId}-auth`],
+      ['admin-lite-app-shell', `${appId}-app-shell`],
+      ['admin-lite-home', `${appId}-home`],
+      ['admin-lite-log-management', `${appId}-log-management`],
+      ['admin-lite-system-management', `${appId}-system-management`],
+      ['/apps/admin-lite/src/modules/home/', `/apps/${appId}/src/modules/home/`],
+      ['/apps/admin-lite/src/modules/LogManagement/', `/apps/${appId}/src/modules/LogManagement/`],
+      [
+        '/apps/admin-lite/src/modules/SystemManagement/',
+        `/apps/${appId}/src/modules/SystemManagement/`
+      ],
+      [
+        '/apps/admin-lite/src/modules/adminManagement/',
+        `/apps/${appId}/src/modules/adminManagement/`
+      ],
+      ['admin-lite-styles', `${appId}-styles`],
+      ['apps/admin-lite', `apps/${appId}`],
+      ['pnpm -C apps/admin-lite', `pnpm -C apps/${appId}`],
+      ['/admin-lite/', `/${appId}/`]
     ]
   };
 }
@@ -138,10 +159,10 @@ function applyAppTextTransforms(content, context) {
     nextContent = nextContent.split(from).join(to);
   }
 
-  nextContent = nextContent.replace(/Template/g, context.appPascal);
+  nextContent = nextContent.replace(/AdminLite/g, context.appPascal);
   nextContent = nextContent.replaceAll(
     `apps/docs/docs/guide/${context.appId}-agent-redlines.md`,
-    'apps/docs/docs/guide/template-agent-redlines.md'
+    'apps/docs/docs/guide/admin-lite-agent-redlines.md'
   );
 
   return nextContent;
@@ -166,8 +187,23 @@ async function transformCopiedFiles(targetDir, context, dryRun) {
 }
 
 async function renameStyleEntry(targetDir, appId, dryRun) {
-  const sourcePath = path.join(targetDir, 'src/bootstrap/template-styles.ts');
+  const sourcePath = path.join(targetDir, 'src/bootstrap/admin-lite-styles.ts');
   const targetPath = path.join(targetDir, `src/bootstrap/${appId}-styles.ts`);
+
+  if (!(await pathExists(sourcePath))) {
+    return null;
+  }
+
+  if (!dryRun) {
+    await fs.rename(sourcePath, targetPath);
+  }
+
+  return targetPath;
+}
+
+async function renameBuildConfigEntry(targetDir, appId, dryRun) {
+  const sourcePath = path.join(targetDir, 'build/vite-admin-lite-build-config.ts');
+  const targetPath = path.join(targetDir, `build/vite-${appId}-build-config.ts`);
 
   if (!(await pathExists(sourcePath))) {
     return null;
@@ -185,7 +221,7 @@ async function updateGeneratedPackageJson(targetDir, appId, dryRun) {
   const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
   packageJson.name = appId;
   packageJson.scripts = packageJson.scripts || {};
-  packageJson.scripts['lint:arch'] = `node ../../scripts/check-template-arch.mjs --app ${appId}`;
+  packageJson.scripts['lint:arch'] = `node ../../scripts/check-admin-lite-arch.mjs --app ${appId}`;
 
   if (!dryRun) {
     await fs.writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
@@ -996,8 +1032,8 @@ async function enableCrudStarter(targetDir, dryRun) {
   const platformConfigPath = path.join(targetDir, 'src/config/platform-config.ts');
   const platformConfig = await fs.readFile(platformConfigPath, 'utf8');
   const nextPlatformConfig = platformConfig.replace(
-    /enabledModules:\s*\['home', 'demo'\]/,
-    "enabledModules: ['home', 'demo', 'starter-crud']"
+    /enabledModules:\s*\[\s*'home',\s*'admin-management',\s*'log-management',\s*'system-management'\s*\]/,
+    "enabledModules: ['home', 'admin-management', 'log-management', 'system-management', 'starter-crud']"
   );
 
   if (!dryRun && nextPlatformConfig !== platformConfig) {
@@ -1017,11 +1053,11 @@ export async function scaffoldApp(options) {
     throw new Error(`应用名不合法: "${appId}"。仅支持小写字母、数字、短横线，且必须字母开头。`);
   }
 
-  const templateDir = path.join(rootDir, 'apps/template');
+  const adminLiteDir = path.join(rootDir, 'apps/admin-lite');
   const targetDir = path.join(rootDir, 'apps', appId);
 
-  if (!(await pathExists(templateDir))) {
-    throw new Error(`未找到模板目录: ${templateDir}`);
+  if (!(await pathExists(adminLiteDir))) {
+    throw new Error(`未找到基座目录: ${adminLiteDir}`);
   }
   if (await pathExists(targetDir)) {
     throw new Error(`目标目录已存在: ${targetDir}`);
@@ -1031,7 +1067,11 @@ export async function scaffoldApp(options) {
   const plannedFiles = [];
 
   if (dryRun) {
-    plannedFiles.push(targetDir, path.join(targetDir, `src/bootstrap/${appId}-styles.ts`));
+    plannedFiles.push(
+      targetDir,
+      path.join(targetDir, `src/bootstrap/${appId}-styles.ts`),
+      path.join(targetDir, `build/vite-${appId}-build-config.ts`)
+    );
     if (withCrudStarter) {
       plannedFiles.push(path.join(targetDir, 'src/modules/starter-crud'));
     }
@@ -1046,7 +1086,7 @@ export async function scaffoldApp(options) {
     };
   }
 
-  await cp(templateDir, targetDir, {
+  await cp(adminLiteDir, targetDir, {
     recursive: true,
     filter: shouldCopySource
   });
@@ -1055,6 +1095,10 @@ export async function scaffoldApp(options) {
   const renamedStyleFile = await renameStyleEntry(targetDir, appId, false);
   if (renamedStyleFile) {
     plannedFiles.push(renamedStyleFile);
+  }
+  const renamedBuildConfigFile = await renameBuildConfigEntry(targetDir, appId, false);
+  if (renamedBuildConfigFile) {
+    plannedFiles.push(renamedBuildConfigFile);
   }
 
   await transformCopiedFiles(targetDir, context, false);

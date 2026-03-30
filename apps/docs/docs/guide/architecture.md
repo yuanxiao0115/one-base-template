@@ -9,7 +9,7 @@
 
 1. 目录分层按“应用组装（apps）+ 共享能力（packages）”组织，**禁止跨层反向依赖**。
 2. `packages/core` 只做逻辑契约，`packages/ui` 只做壳层交互，`packages/adapters` 只做后端协议映射。
-3. admin/portal/template 共用同一套分层启动思想（`core + ui + adapter`），但保持各自应用边界。
+3. admin/admin-lite/portal 共用同一套分层启动思想（`core + ui + adapter`），但保持各自应用边界。
 4. 模块与路由采用 Manifest 装配策略，菜单权限与路由权限按统一契约收敛。
 
 ## Monorepo 架构总览（树图）
@@ -18,12 +18,12 @@
 
 ### 应用与共享包依赖关系（最小可读版）
 
-| 应用       | 主要依赖共享包                               | 说明                                   |
-| ---------- | -------------------------------------------- | -------------------------------------- |
-| `admin`    | `core`、`ui`、`adapters`                     | 主后台应用，启动链路在本地 `bootstrap` |
-| `portal`   | `core`、`ui`、`portal-engine`、`app-starter` | 前台消费者，复用门户引擎               |
-| `template` | `core`、`ui`、`adapters`、`tag`              | 子项目孵化与迁移承接基座               |
-| `docs`     | 无业务运行时依赖（仅文档构建）               | VitePress 文档站                       |
+| 应用         | 主要依赖共享包                               | 说明                                   |
+| ------------ | -------------------------------------------- | -------------------------------------- |
+| `admin`      | `core`、`ui`、`adapters`                     | 主后台应用，启动链路在本地 `bootstrap` |
+| `portal`     | `core`、`ui`、`portal-engine`、`app-starter` | 前台消费者，复用门户引擎               |
+| `admin-lite` | `core`、`ui`、`adapters`、`tag`              | 后台快速起项目基座                     |
+| `docs`       | 无业务运行时依赖（仅文档构建）               | VitePress 文档站                       |
 
 > 阅读提示：先看“树图”定位目录，再看“依赖关系表”判断每个应用该关注哪些共享包。
 
@@ -33,7 +33,7 @@
 
 - `apps/admin`：主后台应用（路由装配、业务页面、管理端样式）。
 - `apps/portal`：前台门户消费者应用（独立渲染入口，不接后台菜单接口）。
-- `apps/template`：与 admin 同构的迁移基座（模块契约 + 架构门禁 + 示例模块）。
+- `apps/admin-lite`：与 admin 同构的后台基座（模块契约 + 架构门禁 + 默认管理模块）。
 - `apps/docs`：文档站（规则、架构、实践沉淀）。
 
 ### packages（共享层）
@@ -57,7 +57,7 @@
 ## 启动链路摘要
 
 - admin：`main.ts -> startAdminApp() -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`
-- template：同 admin 启动骨架，默认 `remote-single + token + backend=basic`，并保留双后端适配分支。
+- admin-lite：同 admin 启动骨架，默认 `remote-single + token + backend=basic`，并保留双后端适配分支。
 - portal：沿用骨架并保留前台独立边界，登录后做前台分流。
 
 深度说明请看：

@@ -2,7 +2,7 @@
 
 ## 目标
 
-这份白名单用于统一 `apps/admin`、`apps/portal`、`apps/template`、`packages/*` 与后续 CLI 生成器的命名风格，减少“同义不同名”导致的生成差异和维护成本。
+这份白名单用于统一 `apps/admin`、`apps/admin-lite`、`apps/portal`、`packages/*` 与后续 CLI 生成器的命名风格，减少“同义不同名”导致的生成差异和维护成本。
 
 核心原则：
 
@@ -133,7 +133,7 @@ pnpm check:naming
 - `apps/portal/src/modules/**/module.ts`
 - `apps/portal/src/modules/**/api/*.ts`
 - `apps/portal/src/modules/**/services/*.ts`
-- `apps/template/src/modules/**/routes.ts`
+- `apps/admin-lite/src/modules/**/routes.ts`
 
 ## 精确豁免（结构化治理）
 

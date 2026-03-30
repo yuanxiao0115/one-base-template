@@ -5,14 +5,14 @@
 
 ## TL;DR
 
-- 这是从 `template` 派生的新 app，并已带 `starter-crud` 默认业务骨架。
+- 这是从 `admin-lite` 派生的新 app，并已带 `starter-crud` 默认业务骨架。
 - 一分钟启动命令：`vp run --filter zfw-system-sfss dev`。
 - 关键配置入口：`apps/zfw-system-sfss/src/config/platform-config.ts`。
 - 提交前至少执行：`typecheck/lint/lint:arch/test:run/build`。
 
 ## 1. 背景与目标
 
-`zfw-system-sfss` 用于承载新业务迁移，底层沿用 template 与 admin 的同构分层。
+`zfw-system-sfss` 用于承载新业务迁移，底层沿用 `admin-lite` 与 `admin` 的同构分层。
 这份手册只解决一件事：让同事**最快跑起来并开始做业务模块开发**。
 
 ## 2. 范围与非范围
@@ -112,6 +112,6 @@ pnpm -C apps/docs build
 
 ## 9. 相关文档
 
-- [Template 迁移基座项目](/guide/template-static-app)
-- [Template Agent 红线](/guide/template-agent-redlines)
+- [admin-lite 后台基座](/guide/admin-lite-base-app)
+- [admin-lite Agent 红线](/guide/admin-lite-agent-redlines)
 - [框架使用者阅读入口](/guide/for-users)

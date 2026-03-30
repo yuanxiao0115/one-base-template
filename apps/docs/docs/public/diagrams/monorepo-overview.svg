@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 980" role="img" aria-labelledby="title desc">
   <title id="title">one-base-template Monorepo 架构总览</title>
-  <desc id="desc">按应用层与共享层展示仓库目录结构，强调 admin 本地启动与 portal/template 的 app-starter 启动骨架。</desc>
+  <desc id="desc">按应用层与共享层展示仓库目录结构，强调 admin 与 admin-lite 本地启动，以及 portal 的 app-starter 启动骨架。</desc>
   <defs>
     <style>
       .bg { fill: #f8fafc; }
@@ -42,8 +42,8 @@
   <text class="small" x="118" y="526">前台门户消费者（依赖 app-starter 启动骨架）</text>
 
   <rect class="apps" x="92" y="582" width="556" height="114" />
-  <text class="text" x="118" y="628">template</text>
-  <text class="small" x="118" y="660">最小静态菜单示例（依赖 app-starter 启动骨架）</text>
+  <text class="text" x="118" y="628">admin-lite</text>
+  <text class="small" x="118" y="660">后台快速起项目基座（本地 bootstrap 启动）</text>
 
   <rect class="apps" x="92" y="716" width="556" height="114" />
   <text class="text" x="118" y="762">docs</text>
@@ -65,7 +65,7 @@
   <text class="text" x="776" y="624">portal-engine：门户编辑与渲染引擎</text>
 
   <rect class="pkgs" x="752" y="666" width="556" height="76" />
-  <text class="text" x="776" y="712">app-starter：portal/template 启动编排与兜底</text>
+  <text class="text" x="744" y="712">app-starter：portal 启动编排与兜底</text>
 
   <rect class="pkgs" x="752" y="754" width="556" height="76" />
   <text class="text" x="776" y="800">tag / utils：标签与通用工具能力</text>

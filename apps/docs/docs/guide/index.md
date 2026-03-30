@@ -13,14 +13,14 @@ outline: false
 <div class="guide-grid">
   <a class="guide-card" href="/guide/quick-start">
     <h3>快速开始</h3>
-    <p>安装依赖、启动 admin/portal/template/docs，并完成基础验证。</p>
+    <p>安装依赖、启动 admin/admin-lite/portal/docs，并完成基础验证。</p>
   </a>
   <a class="guide-card" href="/guide/env">
     <h3>环境变量</h3>
     <p>区分构建期变量与运行时 platform-config，避免配置入口混乱。</p>
   </a>
-  <a class="guide-card" href="/guide/template-static-app">
-    <h3>Template 迁移基座项目</h3>
+  <a class="guide-card" href="/guide/admin-lite-base-app">
+    <h3>admin-lite 后台基座</h3>
     <p>与 admin 同构的子项目骨架，用于新应用孵化与老项目迁移承接。</p>
   </a>
   <a class="guide-card" href="/guide/zfw-system-sfss-quick-start">
@@ -40,7 +40,7 @@ outline: false
   </a>
   <a class="guide-card" href="/guide/architecture-runtime-deep-dive">
     <h3>启动链路细节（深度）</h3>
-    <p>查看 admin/portal/template 的启动编排与运行时细节。</p>
+    <p>查看 admin/admin-lite/portal 的启动编排与运行时细节。</p>
   </a>
   <a class="guide-card" href="/guide/module-system">
     <h3>模块系统与切割</h3>
@@ -143,9 +143,9 @@ outline: false
     <h3>Admin Agent 红线</h3>
     <p>公共组件复用、CRUD 范式与 lint:arch 门禁的强制基线。</p>
   </a>
-  <a class="guide-card" href="/guide/template-agent-redlines">
-    <h3>Template Agent 红线</h3>
-    <p>继承 admin 红线并扩展 template 启动骨架、模块契约与迁移边界。</p>
+  <a class="guide-card" href="/guide/admin-lite-agent-redlines">
+    <h3>admin-lite Agent 红线</h3>
+    <p>约束后台基座的默认模块、启动骨架、可开关扩展与派生边界。</p>
   </a>
   <a class="guide-card" href="/guide/admin-legacy-migration-workflow">
     <h3>Admin 老项目迁移工作流</h3>

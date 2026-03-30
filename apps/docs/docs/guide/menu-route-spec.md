@@ -1,7 +1,7 @@
 # 菜单与路由规范（含 Schema）
 
-> 适用范围：`apps/admin` + `packages/core` + `packages/adapters` + `packages/ui`  
-> 目标：给模板使用者一份“能直接照做”的菜单/路由规范，降低理解与配置成本。
+> 适用范围：`apps/admin` + `apps/admin-lite` + `packages/core` + `packages/adapters` + `packages/ui`  
+> 目标：给后台基座使用者一份“能直接照做”的菜单/路由规范，降低理解与配置成本。
 
 ## 1. 推荐模式（不混合）
 
@@ -32,7 +32,7 @@
 
 ## 3. 最小配置示例
 
-### 3.1 static-single（推荐模板默认）
+### 3.1 static-single（最简模式）
 
 ```json
 {
@@ -40,7 +40,7 @@
 }
 ```
 
-### 3.2 remote-single（保留后端权限）
+### 3.2 remote-single（admin / admin-lite 默认）
 
 ```json
 {
@@ -58,8 +58,8 @@
 
 以下为当前实现可用的 JSON Schema（与 `parseRuntimeConfig` 对齐）：
 
-- `apps/admin` 在 `src/config/platform-config.ts` 内维护同结构对象；
-- `apps/portal` / `apps/template` 在 `public/platform-config.json` 中维护同结构配置。
+- `apps/admin` / `apps/admin-lite` 在各自 `src/config/platform-config.ts` 内维护同结构对象；
+- `apps/portal` 仍通过 `public/platform-config.json` 维护运行时配置。
 
 ```json
 {

@@ -6,7 +6,7 @@ titleTemplate: false
 hero:
   name: one-base-template
   text: 清晰可扩展的后台模板文档
-  tagline: 覆盖 admin / portal / template / packages 的架构、模块与协作规范
+  tagline: 覆盖 admin / admin-lite / portal / packages 的架构、模块与协作规范
   actions:
     - theme: brand
       text: 开始阅读
@@ -23,7 +23,7 @@ features:
   - title: 🧱 架构与实现并重
     details: 不只讲概念，同时给出可复制的落地路径与文件位置。
   - title: 🧩 支持多应用场景
-    details: 同时覆盖 admin、portal、template 以及跨包协作模式。
+    details: 同时覆盖 admin、admin-lite、portal 以及跨包协作模式。
   - title: 🔌 扩展能力可追踪
     details: 门户设计器、portal-engine、adapter 接入都有独立入口。
   - title: ✅ 协作流程可落盘
@@ -35,7 +35,7 @@ features:
 <div class="doc-quick-grid">
   <a class="doc-quick-card" href="/guide/quick-start">
     <h3>🚀 入门启动</h3>
-    <p>先跑通 admin/portal/template/docs，再进入后续专题。</p>
+    <p>先跑通 admin/admin-lite/portal/docs，再进入后续专题。</p>
   </a>
   <a class="doc-quick-card" href="/guide/architecture">
     <h3>🧱 架构与边界</h3>
@@ -65,7 +65,7 @@ features:
 
 ## 文档覆盖范围
 
-- **应用层**：`apps/admin`、`apps/portal`、`apps/template` 的启动、路由、菜单与业务模块实践。
+- **应用层**：`apps/admin`、`apps/admin-lite`、`apps/portal` 的启动、路由、菜单与业务模块实践。
 - **基础包层**：`packages/core`、`packages/ui`、`packages/tag`、`packages/portal-engine`、`packages/adapters`、`packages/utils`。
 - **协作层**：AGENTS 规则分层、验证口径、变更落盘位置与发布流程。
 

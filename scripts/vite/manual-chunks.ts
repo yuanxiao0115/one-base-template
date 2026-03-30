@@ -4,7 +4,7 @@ interface AppFeatureChunk {
 }
 
 interface OneAppManualChunkOptions {
-  appName: 'admin' | 'portal' | 'template';
+  appName: string;
   featureChunks?: AppFeatureChunk[];
 }
 
@@ -166,75 +166,85 @@ const WORKSPACE_CHUNK_RULES: AppFeatureChunk[] = [
   }
 ];
 
-const ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES = [
-  'assets/admin-entry-',
-  'assets/admin-app-shell-',
-  'assets/admin-home-',
-  'assets/admin-log-management-',
-  'assets/admin-system-management-',
-  'assets/admin-user-management-',
-  'assets/admin-portal-',
-  'assets/portal-engine-',
-  'assets/sortable-grid-',
-  'assets/one-ui-shell-',
-  'assets/one-ui-table-',
-  'assets/iconify-ri-',
-  'assets/wangeditor-',
-  'assets/vxe-'
-];
+function isAdminShellAppName(appName: string) {
+  return appName === 'admin' || appName === 'admin-lite';
+}
 
-const ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES = [
-  ...ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES,
-  'assets/admin-auth-',
-  'assets/LoginPage-',
-  'assets/one-ui-auth-',
-  'assets/element-plus-',
-  'assets/iconify-runtime-',
-  'assets/arrow-left-s-line-',
-  'assets/dist-web-',
-  'assets/module-'
-];
+function createAdminShellPreloadBlockedPrefixes(appName: string) {
+  return [
+    `assets/${appName}-entry-`,
+    `assets/${appName}-app-shell-`,
+    `assets/${appName}-home-`,
+    `assets/${appName}-log-management-`,
+    `assets/${appName}-system-management-`,
+    'assets/admin-management-',
+    `assets/${appName}-portal-`,
+    'assets/portal-engine-',
+    'assets/sortable-grid-',
+    'assets/one-ui-shell-',
+    'assets/one-ui-table-',
+    'assets/iconify-ri-',
+    'assets/wangeditor-',
+    'assets/vxe-'
+  ];
+}
 
-const ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES = [
-  'assets/admin-app-shell-',
-  'assets/one-ui-shell-',
-  'assets/one-ui-table-',
-  'assets/iconify-ri-',
-  'assets/wangeditor-',
-  'assets/vxe-'
-];
+function createAdminRuntimePreloadBlockedPrefixes(appName: string) {
+  return [
+    ...createAdminShellPreloadBlockedPrefixes(appName),
+    `assets/${appName}-auth-`,
+    'assets/LoginPage-',
+    'assets/one-ui-auth-',
+    'assets/element-plus-',
+    'assets/iconify-runtime-',
+    'assets/arrow-left-s-line-',
+    'assets/dist-web-',
+    'assets/module-'
+  ];
+}
 
-const ADMIN_INDEX_HTML_BLOCKED_STYLE_PREFIXES = [
-  'assets/admin-entry-',
-  'assets/admin-user-management-',
-  'assets/admin-system-management-',
-  'assets/portal-engine-',
-  'assets/admin-portal-',
-  'assets/vxe-',
-  'assets/one-ui-table-',
-  'assets/one-ui-shell-'
-];
+function createAdminLoginPagePreloadBlockedPrefixes(appName: string) {
+  return [
+    `assets/${appName}-app-shell-`,
+    'assets/one-ui-shell-',
+    'assets/one-ui-table-',
+    'assets/iconify-ri-',
+    'assets/wangeditor-',
+    'assets/vxe-'
+  ];
+}
+
+function createAdminIndexHtmlBlockedStylePrefixes(appName: string) {
+  return [
+    `assets/${appName}-entry-`,
+    'assets/admin-management-',
+    `assets/${appName}-system-management-`,
+    'assets/portal-engine-',
+    `assets/${appName}-portal-`,
+    'assets/vxe-',
+    'assets/one-ui-table-',
+    'assets/one-ui-shell-'
+  ];
+}
 
 export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
   const appSegment = `/apps/${options.appName}/src/`;
   const featureChunks = options.featureChunks ?? [];
-  const adminRuntimePatterns =
-    options.appName === 'admin'
-      ? [
-          `${appSegment}bootstrap/http.ts`,
-          `${appSegment}bootstrap/adapter.ts`,
-          `${appSegment}bootstrap/core.ts`,
-          `${appSegment}bootstrap/router.ts`,
-          `${appSegment}config/`,
-          `${appSegment}services/`,
-          `${appSegment}types/`,
-          `${appSegment}router/constants.ts`
-        ]
-      : [];
-  const adminAuthPatterns =
-    options.appName === 'admin'
-      ? [`${appSegment}pages/login/`, `${appSegment}pages/sso/`, `${appSegment}services/auth/auth-`]
-      : [];
+  const adminRuntimePatterns = isAdminShellAppName(options.appName)
+    ? [
+        `${appSegment}bootstrap/http.ts`,
+        `${appSegment}bootstrap/adapter.ts`,
+        `${appSegment}bootstrap/core.ts`,
+        `${appSegment}bootstrap/router.ts`,
+        `${appSegment}config/`,
+        `${appSegment}services/`,
+        `${appSegment}types/`,
+        `${appSegment}router/constants.ts`
+      ]
+    : [];
+  const adminAuthPatterns = isAdminShellAppName(options.appName)
+    ? [`${appSegment}pages/login/`, `${appSegment}pages/sso/`, `${appSegment}services/auth/auth-`]
+    : [];
 
   return function manualChunks(rawId: string) {
     const id = normalizeModuleId(rawId);
@@ -263,11 +273,11 @@ export function createOneAppManualChunks(options: OneAppManualChunkOptions) {
     }
 
     if (adminRuntimePatterns.length > 0 && includesAny(id, adminRuntimePatterns)) {
-      return 'admin-runtime';
+      return `${options.appName}-runtime`;
     }
 
     if (adminAuthPatterns.length > 0 && includesAny(id, adminAuthPatterns)) {
-      return 'admin-auth';
+      return `${options.appName}-auth`;
     }
 
     if (includesAny(id, [`${appSegment}pages/login/`, `${appSegment}pages/sso/`])) {
@@ -321,10 +331,10 @@ export function createOneAppCodeSplitting(
       patterns: rule.patterns,
       priority: 500 - index
     })),
-    ...(options.appName === 'admin'
+    ...(isAdminShellAppName(options.appName)
       ? [
           {
-            chunkName: 'admin-runtime',
+            chunkName: `${options.appName}-runtime`,
             patterns: [
               `${appSegment}bootstrap/http.ts`,
               `${appSegment}bootstrap/adapter.ts`,
@@ -338,7 +348,7 @@ export function createOneAppCodeSplitting(
             priority: 620
           },
           {
-            chunkName: 'admin-auth',
+            chunkName: `${options.appName}-auth`,
             patterns: [
               `${appSegment}pages/login/`,
               `${appSegment}pages/sso/`,
@@ -347,7 +357,7 @@ export function createOneAppCodeSplitting(
             priority: 610
           },
           {
-            chunkName: 'admin-app-shell',
+            chunkName: `${options.appName}-app-shell`,
             patterns: [
               `${appSegment}bootstrap/`,
               `${appSegment}router/`,
@@ -392,25 +402,34 @@ export function createOneAppCodeSplitting(
 }
 
 export function createOneAppPreloadDependenciesResolver(options: OneAppManualChunkOptions) {
-  if (options.appName !== 'admin') {
+  if (!isAdminShellAppName(options.appName)) {
     return (_filename: string, deps: string[]) => deps;
   }
 
+  const adminRuntimeBlockedPrefixes = createAdminRuntimePreloadBlockedPrefixes(options.appName);
+  const adminShellBlockedPrefixes = createAdminShellPreloadBlockedPrefixes(options.appName);
+  const adminLoginBlockedPrefixes = createAdminLoginPagePreloadBlockedPrefixes(options.appName);
+
   return (filename: string, deps: string[], context: PreloadDependencyContext) => {
     if (context.hostType === 'html' && matchesOutputPrefix(filename, ['assets/index-'])) {
-      return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES);
+      return filterPreloadDependencies(deps, adminRuntimeBlockedPrefixes);
     }
 
-    if (matchesOutputPrefix(filename, ['assets/admin-runtime-', 'assets/admin-app-shell-'])) {
-      return filterPreloadDependencies(deps, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES);
+    if (
+      matchesOutputPrefix(filename, [
+        `assets/${options.appName}-runtime-`,
+        `assets/${options.appName}-app-shell-`
+      ])
+    ) {
+      return filterPreloadDependencies(deps, adminRuntimeBlockedPrefixes);
     }
 
-    if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/lite-'])) {
-      return filterPreloadDependencies(deps, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES);
+    if (matchesOutputPrefix(filename, [`assets/${options.appName}-auth-`, 'assets/lite-'])) {
+      return filterPreloadDependencies(deps, adminShellBlockedPrefixes);
     }
 
     if (matchesOutputPrefix(filename, ['assets/LoginPage-'])) {
-      return filterPreloadDependencies(deps, ADMIN_LOGIN_PAGE_PRELOAD_BLOCKED_PREFIXES);
+      return filterPreloadDependencies(deps, adminLoginBlockedPrefixes);
     }
 
     return deps;
@@ -418,14 +437,18 @@ export function createOneAppPreloadDependenciesResolver(options: OneAppManualChu
 }
 
 export function stripIndexHtmlUnusedStylesheets(html: string, options: OneAppManualChunkOptions) {
-  if (options.appName !== 'admin') {
+  if (!isAdminShellAppName(options.appName)) {
     return html;
   }
+
+  const adminIndexHtmlBlockedStylePrefixes = createAdminIndexHtmlBlockedStylePrefixes(
+    options.appName
+  );
 
   return html.replace(
     /^[ \t]*<link rel="stylesheet" crossorigin href="\/([^"]+)">\n?/gm,
     (match, href: string) => {
-      return matchesOutputPrefix(href, ADMIN_INDEX_HTML_BLOCKED_STYLE_PREFIXES) ? '' : match;
+      return matchesOutputPrefix(href, adminIndexHtmlBlockedStylePrefixes) ? '' : match;
     }
   );
 }
@@ -447,22 +470,31 @@ export function pruneBuiltChunkPreloadMaps(
   filename: string,
   options: OneAppManualChunkOptions
 ) {
-  if (options.appName !== 'admin') {
+  if (!isAdminShellAppName(options.appName)) {
     return code;
   }
+
+  const adminRuntimeBlockedPrefixes = createAdminRuntimePreloadBlockedPrefixes(options.appName);
+  const adminShellBlockedPrefixes = createAdminShellPreloadBlockedPrefixes(options.appName);
 
   if (
     matchesOutputPrefix(filename, [
       'assets/index-',
-      'assets/admin-runtime-',
-      'assets/admin-app-shell-'
+      `assets/${options.appName}-runtime-`,
+      `assets/${options.appName}-app-shell-`
     ])
   ) {
-    return rewriteChunkPreloadMap(code, ADMIN_RUNTIME_PRELOAD_BLOCKED_PREFIXES);
+    return rewriteChunkPreloadMap(code, adminRuntimeBlockedPrefixes);
   }
 
-  if (matchesOutputPrefix(filename, ['assets/admin-auth-', 'assets/LoginPage-', 'assets/lite-'])) {
-    return rewriteChunkPreloadMap(code, ADMIN_SHELL_PRELOAD_BLOCKED_PREFIXES);
+  if (
+    matchesOutputPrefix(filename, [
+      `assets/${options.appName}-auth-`,
+      'assets/LoginPage-',
+      'assets/lite-'
+    ])
+  ) {
+    return rewriteChunkPreloadMap(code, adminShellBlockedPrefixes);
   }
 
   return code;

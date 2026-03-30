@@ -10,9 +10,9 @@
     "typecheck": "vue-tsc --noEmit",
     "test": "vp test --config vitest.config.ts",
     "test:run": "vp test run --config vitest.config.ts",
-    "lint": "vp lint .",
-    "lint:arch": "node ../../scripts/check-template-arch.mjs --app zfw-system-sfss",
-    "lint:fix": "vp check --fix src"
+    "lint": "node ../../scripts/run-vp-task-from-root.mjs lint",
+    "lint:arch": "node ../../scripts/check-admin-lite-arch.mjs --app zfw-system-sfss",
+    "lint:fix": "node ../../scripts/run-vp-task-from-root.mjs check --fix src"
   },
   "dependencies": {
     "@one-base-template/adapters": "workspace:*",

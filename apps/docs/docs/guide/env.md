@@ -67,5 +67,6 @@
 
 ## 6) 其他应用说明
 
-- `apps/portal` 与 `apps/template` 当前仍使用各自 `public/platform-config.json` 运行时文件
-- 本页仅描述 `apps/admin` 配置模型
+- `apps/portal` 仍使用 `public/platform-config.json` 运行时文件
+- `apps/admin-lite` 与 `apps/admin` 一样，采用“构建期 env + 代码静态平台配置”模式
+- 本页以 `apps/admin` 为主说明，`apps/admin-lite` 可按同口径理解

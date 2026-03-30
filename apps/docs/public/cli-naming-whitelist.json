@@ -57,6 +57,6 @@
     "portalModuleApi": "apps/portal/src/modules/**/api",
     "portalModuleServices": "apps/portal/src/modules/**/services",
     "portalModuleEntry": "apps/portal/src/modules/**/module.ts",
-    "templateModuleRoutes": "apps/template/src/modules/**/routes.ts"
+    "adminLiteModuleRoutes": "apps/admin-lite/src/modules/**/routes.ts"
   }
 }

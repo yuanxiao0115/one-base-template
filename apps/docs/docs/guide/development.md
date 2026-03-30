@@ -20,20 +20,22 @@ pnpm version:packages
 pnpm release:packages
 ```
 
-admin/template 常用 lint 脚本（在仓库根目录执行）：
+admin/admin-lite 常用 lint 脚本（在仓库根目录执行）：
 
 ```bash
 pnpm lint
 pnpm lint:arch
 pnpm -C apps/admin lint
 pnpm -C apps/admin lint:fix
-pnpm -C apps/template lint
-pnpm -C apps/template lint:arch
+pnpm -C apps/admin-lite lint
+pnpm -C apps/admin-lite lint:arch
 ```
 
 说明：根命令 `pnpm lint:arch` 当前会自动发现 `apps/*/package.json` 中声明了 `lint:arch` 的 app，逐个执行后再补跑 `pnpm check:basic-signature`。
 
 说明：仓库 lint 已统一走 `vp lint`，不再维护 Biome 配置文件。
+
+说明：`admin-lite` 及其派生 app 的 `lint` / `lint:fix` 已通过仓库根包装脚本转发到 `pnpm exec vp lint|check apps/...`，规避 `vite-plus@0.1.14` 在子应用 cwd 下解析 universal vite config 的已知异常。
 
 pre-commit（`vp staged`）当前按文件类型分流：
 
@@ -60,12 +62,12 @@ pre-commit（`vp staged`）当前按文件类型分流：
 
 ## 构建 chunk warning 排查优先级
 
-- `admin` / `portal` / `template` 出现大 chunk warning 时，**先看 Vite 的 `manualChunks` 是否已经把 vendor / workspace shell / 重模块拆开**
+- `admin` / `admin-lite` / `portal` 出现大 chunk warning 时，**先看 Vite 的 `manualChunks` 是否已经把 vendor / workspace shell / 重模块拆开**
 - 当前仓库优先采用“低风险拆包”策略：
   - 在 `apps/*/vite.config.ts` 中接入共享 helper：`scripts/vite/manual-chunks.ts`
   - 先拆 `vue`、`element-plus`、`vxe`、`iconify`、`gm-crypto` 等 vendor
   - 再按 app feature 拆 `portal` / `UserManagement` / `SystemManagement` / `LogManagement` 等重模块
-- `admin` / `portal` / `template` 的路由壳层都不应默认引用完整 `@one-base-template/ui` 入口：
+- `admin` / `admin-lite` / `portal` 的路由壳层都不应默认引用完整 `@one-base-template/ui` 入口：
   - 路由壳组件改走 `@one-base-template/ui/shell`
   - 登录页优先直引 `@one-base-template/ui/lite-auth`，避免再经 `ui/lite` barrel 把 `one-ui-shell` 借道带回匿名首屏
 - `admin` 的构建后处理会继续收紧 `index-*` / `admin-auth-*` / `LoginPage-*` / `lite-*` 的 preload map，避免登录相关页面提前拉起 `one-ui-shell` / `vxe` / `portal-engine` 等业务壳资源
@@ -245,7 +247,7 @@ pnpm check:naming
 - `apps/portal/src/modules/**/module.ts`
 - `apps/portal/src/modules/**/api/*.ts`
 - `apps/portal/src/modules/**/services/*.ts`
-- `apps/template/src/modules/**/routes.ts`
+- `apps/admin-lite/src/modules/**/routes.ts`
 
 为锁定 `basic` 签名算法边界，仓库还提供：
 
@@ -253,7 +255,7 @@ pnpm check:naming
 pnpm check:basic-signature
 ```
 
-该门禁用于检查 admin / portal / template 的签名入口（admin: `services/security/signature.ts`；portal: `config/basic/signature.ts`；template: `services/security/signature.ts`）是否继续复用 `@one-base-template/core` 的签名辅助方法，避免三段式签名拼接重新散落回应用层。
+该门禁用于检查 admin / portal / admin-lite 的签名入口（admin: `services/security/signature.ts`；portal: `config/basic/signature.ts`；admin-lite: `services/security/signature.ts`）是否继续复用 `@one-base-template/core` 的签名辅助方法，避免三段式签名拼接重新散落回应用层。
 
 ## admin 架构源码约束测试
 

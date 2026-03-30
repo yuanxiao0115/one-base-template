@@ -10,11 +10,11 @@ import { fileURLToPath } from 'node:url';
 import { scaffoldApp } from '../new-app.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const templateSourceDir = path.join(repoRoot, 'apps/template');
+const adminLiteSourceDir = path.join(repoRoot, 'apps/admin-lite');
 
 async function createWorkspaceFixture() {
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'one-base-template-new-app-'));
-  await cp(templateSourceDir, path.join(tempRoot, 'apps/template'), {
+  await cp(adminLiteSourceDir, path.join(tempRoot, 'apps/admin-lite'), {
     recursive: true,
     filter: (source) => {
       const normalized = source.replaceAll('\\', '/');
@@ -45,6 +45,11 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
     await readFile(path.join(rootDir, 'apps/sample-app/package.json'), 'utf8')
   );
   assert.equal(packageJson.name, 'sample-app');
+  assert.equal(packageJson.scripts.lint, 'node ../../scripts/run-vp-task-from-root.mjs lint');
+  assert.equal(
+    packageJson.scripts['lint:fix'],
+    'node ../../scripts/run-vp-task-from-root.mjs check --fix src'
+  );
 
   const platformConfig = await readFile(
     path.join(rootDir, 'apps/sample-app/src/config/platform-config.ts'),
@@ -54,14 +59,28 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
   assert.match(platformConfig, /storageNamespace: 'one-base-template-sample-app'/);
 
   const viteConfig = await readFile(path.join(rootDir, 'apps/sample-app/vite.config.ts'), 'utf8');
-  assert.match(viteConfig, /appName: 'sample-app'/);
-  assert.match(viteConfig, /sample-app-home/);
-  assert.doesNotMatch(viteConfig, /\/apps\/template\/src\/modules\/home\//);
+  assert.match(viteConfig, /SampleAppBuildConfig/);
+  assert.match(viteConfig, /createSampleAppPlugins/);
+
+  const buildConfig = await readFile(
+    path.join(rootDir, 'apps/sample-app/build/vite-sample-app-build-config.ts'),
+    'utf8'
+  );
+  assert.match(buildConfig, /appName: 'sample-app'/);
+  assert.match(buildConfig, /sample-app-home/);
+  assert.doesNotMatch(buildConfig, /\/apps\/admin-lite\/src\/modules\/home\//);
 
   const mainFile = await readFile(path.join(rootDir, 'apps/sample-app/src/main.ts'), 'utf8');
   assert.match(mainFile, /startSampleApp\s*\(/);
 
+  const generatedPackageJson = await readFile(
+    path.join(rootDir, 'apps/sample-app/package.json'),
+    'utf8'
+  );
+  assert.match(generatedPackageJson, /check-admin-lite-arch\.mjs --app sample-app/);
+
   await assertExists(path.join(rootDir, 'apps/sample-app/src/bootstrap/sample-app-styles.ts'));
+  await assertExists(path.join(rootDir, 'apps/sample-app/build/vite-sample-app-build-config.ts'));
 });
 
 test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', async () => {
@@ -78,7 +97,10 @@ test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', asyn
     path.join(rootDir, 'apps/sample-crud-app/src/config/platform-config.ts'),
     'utf8'
   );
-  assert.match(platformConfig, /enabledModules: \['home', 'demo', 'starter-crud'\]/);
+  assert.match(
+    platformConfig,
+    /enabledModules: \['home', 'admin-management', 'log-management', 'system-management', 'starter-crud'\]/
+  );
 
   await assertExists(path.join(rootDir, 'apps/sample-crud-app/src/modules/starter-crud/list.vue'));
 

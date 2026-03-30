@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "vp run --filter admin dev",
-    "dev:template": "vp run --filter template dev",
+    "dev:admin-lite": "vp run --filter admin-lite dev",
     "dev:portal": "vp run --filter portal dev",
     "dev:all": "vp run -r dev",
     "new:app": "node ./scripts/new-app.mjs",

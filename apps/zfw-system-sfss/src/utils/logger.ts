@@ -1,5 +1,5 @@
 /**
- * template 应用日志工具。
+ * zfw-system-sfss 应用日志工具。
  */
 type LoggerLevel = 'debug' | 'error' | 'info' | 'warn';
 
