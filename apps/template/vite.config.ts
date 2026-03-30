@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from 'node:url';
-import vue from '@vitejs/plugin-vue';
 import { defineConfig, loadEnv } from 'vite-plus';
 import { createOneAppManualChunks } from '../../scripts/vite/manual-chunks';
+import { createTemplatePlugins } from './build';
 
 const INTERNAL_WORKSPACE_PACKAGES = [
   '@one-base-template/core',
@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
   const apiBaseUrl = env.VITE_API_BASE_URL;
 
   return {
-    plugins: [vue()],
+    plugins: createTemplatePlugins(),
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),

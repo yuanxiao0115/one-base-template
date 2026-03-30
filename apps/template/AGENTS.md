@@ -13,6 +13,7 @@
 ## 启动骨架红线
 
 - 启动链路固定为：`main.ts -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`。
+- `vite.config.ts` 必须通过 `build/vite-plugins.ts` 的 `createTemplatePlugins()` 统一装配插件，保持与 admin 一致的 Element Plus 组件解析链路；禁止回退到仅 `vue()` 的最小配置。
 - Vue App / Pinia / Router 创建只允许出现在 `src/bootstrap/**`，禁止回流到 `modules/**`、`pages/**`。
 - 全局能力注册（`app.use/component/directive/provide`）仅允许在 `src/bootstrap/**` 或 `src/main.ts` 的 beforeMount 扩展中处理。
 - 应用反馈能力统一走 `@one-base-template/ui`：`registerMessageUtils`、`message`、`obConfirm`；禁止业务层直连 `ElMessage` / `ElMessageBox`。

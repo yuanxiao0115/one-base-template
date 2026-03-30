@@ -86,6 +86,7 @@ pnpm -C apps/<app-id> build
 
 - `setupRouterGuards(...)` 必须先于 `app.use(router)`，保证首屏导航可拦截。
 - `registerMessageUtils`、`OneUiPlugin`、`OneTag` 统一在 bootstrap 链路安装。
+- `vite.config.ts` 必须通过 `build/vite-plugins.ts` 的 `createTemplatePlugins()` 接入 Element Plus 自动导入与组件解析；否则共享 `LoginBox` 内部的 `el-form/el-input/el-button` 会退化为原生自定义标签，`formRef.validate()` 这类实例方法无法工作。
 
 ## 4. 配置入口（代码静态配置）
 
