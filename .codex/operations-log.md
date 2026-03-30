@@ -10477,3 +10477,13 @@
   - 文件：`apps/admin/src/modules/DocumentFormManagement/services/template-service.ts`
   - 使用 `localStorage`（key: `ob_document_form_template_store_v1`）持久化 draft/published/history，并在服务初始化时自动恢复。
   - 测试：`apps/admin/src/modules/DocumentFormManagement/services/template-service.unit.test.ts` 新增本地恢复用例。
+
+## 2026-03-30（打印态纯展示渲染链路）
+
+- `packages/document-form-engine/register/field-widgets.ts`
+  - 默认 `printRenderer` 全量切换为纯展示组件，不再复用输入控件渲染器。
+  - 新增打印组件：文本块/多行块/选项展示/意见展示/附件留白/签章留白。
+- `packages/document-form-engine/runtime/DocumentRuntimePreview.vue`
+  - 补充打印展示样式类（`document-field-widget--print` 等）。
+- `packages/document-form-engine/tests/field-widget-registry.test.ts`
+  - 新增断言：默认 `printRenderer` 与 `runtimeRenderer` 分离。

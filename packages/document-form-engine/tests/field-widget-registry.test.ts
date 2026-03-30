@@ -36,4 +36,15 @@ describe('document field widget registry', () => {
       placeholder: '请输入长文本'
     });
   });
+
+  it('默认打印渲染器应与填写态渲染器分离', () => {
+    const context = createDocumentFormEngineContext({ appId: 'field-widget-print-test' });
+    const textDefinition = getDocumentFieldWidgetDefinition('text', context);
+    const selectDefinition = getDocumentFieldWidgetDefinition('select', context);
+
+    expect(textDefinition).toBeTruthy();
+    expect(selectDefinition).toBeTruthy();
+    expect(textDefinition?.printRenderer).not.toBe(textDefinition?.runtimeRenderer);
+    expect(selectDefinition?.printRenderer).not.toBe(selectDefinition?.runtimeRenderer);
+  });
 });

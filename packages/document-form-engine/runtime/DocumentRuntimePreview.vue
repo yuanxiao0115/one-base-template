@@ -229,4 +229,49 @@ const actualReadonly = computed(() => (props.mode === 'print' ? true : props.rea
   font-size: 12px;
   text-align: right;
 }
+
+:deep(.document-field-widget--print .document-field-widget__label) {
+  color: #1f2937;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+:deep(.document-field-widget__print-text) {
+  min-height: 28px;
+  border: 1px solid #d5deea;
+  background: #fff;
+  color: #0f172a;
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+:deep(.document-field-widget__print-block) {
+  min-height: 72px;
+  border: 1px solid #d5deea;
+  background: #fff;
+  color: #0f172a;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+:deep(.document-field-widget__print-opinion) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+:deep(.document-field-widget__print-box) {
+  display: flex;
+  min-height: 96px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #94a3b8;
+  background: #fff;
+  color: #64748b;
+  font-size: 12px;
+}
 </style>

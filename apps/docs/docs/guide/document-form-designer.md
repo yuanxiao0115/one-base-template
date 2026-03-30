@@ -120,7 +120,7 @@
 - 再无数据时回退 `createDefaultDocumentTemplate()`
 - 支持双模式切换：
   - `mode=runtime`：填写态（Vue 字段组件）
-  - `mode=print`：打印态（固定版式渲染）
+  - `mode=print`：打印态（固定版式 + 纯展示字段，不输出输入控件）
 
 ## admin 接入
 

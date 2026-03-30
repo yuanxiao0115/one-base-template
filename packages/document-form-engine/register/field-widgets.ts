@@ -28,7 +28,8 @@ const DOCUMENT_FIELD_WIDGETS_KEY = Symbol('document-form-engine-field-widgets');
 
 function createFieldShellRenderer(
   name: string,
-  renderBody: (props: DocumentFieldWidgetRenderProps) => ReturnType<typeof h>
+  renderBody: (props: DocumentFieldWidgetRenderProps) => ReturnType<typeof h>,
+  shellClass = 'document-field-widget'
 ) {
   return defineComponent({
     name,
@@ -52,12 +53,43 @@ function createFieldShellRenderer(
     },
     setup(props) {
       return () =>
-        h('div', { class: 'document-field-widget' }, [
+        h('div', { class: shellClass }, [
           h('div', { class: 'document-field-widget__label' }, props.field.label),
           renderBody(props)
         ]);
     }
   });
+}
+
+function resolvePrintableValue(props: DocumentFieldWidgetRenderProps, fallback = '') {
+  const value = props.modelValue ?? props.field.defaultValue ?? fallback;
+  return String(value ?? '').trim();
+}
+
+function normalizeValueArray(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item) => item !== undefined && item !== null && String(item).trim() !== '')
+    .map((item) => String(item));
+}
+
+function resolveOptionLabels(props: DocumentFieldWidgetRenderProps) {
+  const selectedValues = normalizeValueArray(
+    Array.isArray(props.modelValue)
+      ? props.modelValue
+      : [props.modelValue ?? props.field.defaultValue]
+  );
+
+  if (selectedValues.length === 0) {
+    return '';
+  }
+
+  const optionMap = new Map((props.options || []).map((item) => [item.value, item.label]));
+  const labels = selectedValues.map((value) => optionMap.get(value) ?? value).filter(Boolean);
+  return labels.join('、');
 }
 
 function createInputRenderer(name: string, type: 'text' | 'number' | 'date') {
@@ -184,13 +216,63 @@ const selectorRenderer = createFieldShellRenderer('DocumentSelectorFieldRenderer
   })
 );
 
+const printTextRenderer = createFieldShellRenderer(
+  'DocumentPrintTextFieldRenderer',
+  (props) =>
+    h(
+      'div',
+      { class: 'document-field-widget__print-text' },
+      resolvePrintableValue(props, String(props.field.widgetProps?.placeholder ?? ''))
+    ),
+  'document-field-widget document-field-widget--print'
+);
+
+const printTextareaRenderer = createFieldShellRenderer(
+  'DocumentPrintTextareaFieldRenderer',
+  (props) =>
+    h(
+      'div',
+      { class: 'document-field-widget__print-block' },
+      resolvePrintableValue(props, String(props.field.widgetProps?.placeholder ?? ''))
+    ),
+  'document-field-widget document-field-widget--print'
+);
+
+const printSelectRenderer = createFieldShellRenderer(
+  'DocumentPrintSelectFieldRenderer',
+  (props) => h('div', { class: 'document-field-widget__print-text' }, resolveOptionLabels(props)),
+  'document-field-widget document-field-widget--print'
+);
+
+const printOpinionRenderer = createFieldShellRenderer(
+  'DocumentPrintOpinionFieldRenderer',
+  (props) =>
+    h('div', { class: 'document-field-widget__print-opinion' }, [
+      h('div', { class: 'document-field-widget__print-block' }, resolvePrintableValue(props, '')),
+      h('div', { class: 'document-field-widget__meta' }, '签名 / 时间')
+    ]),
+  'document-field-widget document-field-widget--print'
+);
+
+const printAttachmentRenderer = createFieldShellRenderer(
+  'DocumentPrintAttachmentFieldRenderer',
+  () => h('div', { class: 'document-field-widget__print-box' }, '附件（打印留白）'),
+  'document-field-widget document-field-widget--print'
+);
+
+const printStampRenderer = createFieldShellRenderer(
+  'DocumentPrintStampFieldRenderer',
+  () => h('div', { class: 'document-field-widget__print-box' }, '签章区'),
+  'document-field-widget document-field-widget--print'
+);
+
 const DEFAULT_DOCUMENT_FIELD_WIDGETS: DocumentFieldWidgetDefinition[] = [
   {
     type: 'text',
     label: '文本',
     previewRenderer: textRenderer,
     runtimeRenderer: textRenderer,
-    printRenderer: textRenderer,
+    printRenderer: printTextRenderer,
     defaultWidgetProps: {
       placeholder: '请输入文本'
     }
@@ -200,7 +282,7 @@ const DEFAULT_DOCUMENT_FIELD_WIDGETS: DocumentFieldWidgetDefinition[] = [
     label: '多行文本',
     previewRenderer: textareaRenderer,
     runtimeRenderer: textareaRenderer,
-    printRenderer: textareaRenderer,
+    printRenderer: printTextareaRenderer,
     defaultWidgetProps: {
       placeholder: '请输入内容',
       rows: 4
@@ -211,7 +293,7 @@ const DEFAULT_DOCUMENT_FIELD_WIDGETS: DocumentFieldWidgetDefinition[] = [
     label: '富文本',
     previewRenderer: richTextRenderer,
     runtimeRenderer: richTextRenderer,
-    printRenderer: richTextRenderer,
+    printRenderer: printTextareaRenderer,
     defaultWidgetProps: {
       placeholder: '请输入正文'
     }
@@ -221,70 +303,70 @@ const DEFAULT_DOCUMENT_FIELD_WIDGETS: DocumentFieldWidgetDefinition[] = [
     label: '数字',
     previewRenderer: numberRenderer,
     runtimeRenderer: numberRenderer,
-    printRenderer: numberRenderer
+    printRenderer: printTextRenderer
   },
   {
     type: 'amount',
     label: '金额',
     previewRenderer: numberRenderer,
     runtimeRenderer: numberRenderer,
-    printRenderer: numberRenderer
+    printRenderer: printTextRenderer
   },
   {
     type: 'date',
     label: '日期',
     previewRenderer: dateRenderer,
     runtimeRenderer: dateRenderer,
-    printRenderer: dateRenderer
+    printRenderer: printTextRenderer
   },
   {
     type: 'select',
     label: '下拉',
     previewRenderer: selectRenderer,
     runtimeRenderer: selectRenderer,
-    printRenderer: selectRenderer
+    printRenderer: printSelectRenderer
   },
   {
     type: 'radio',
     label: '单选',
     previewRenderer: radioRenderer,
     runtimeRenderer: radioRenderer,
-    printRenderer: radioRenderer
+    printRenderer: printSelectRenderer
   },
   {
     type: 'checkbox',
     label: '多选',
     previewRenderer: checkboxRenderer,
     runtimeRenderer: checkboxRenderer,
-    printRenderer: checkboxRenderer
+    printRenderer: printSelectRenderer
   },
   {
     type: 'person',
     label: '人员',
     previewRenderer: selectorRenderer,
     runtimeRenderer: selectorRenderer,
-    printRenderer: selectorRenderer
+    printRenderer: printTextRenderer
   },
   {
     type: 'department',
     label: '部门',
     previewRenderer: selectorRenderer,
     runtimeRenderer: selectorRenderer,
-    printRenderer: selectorRenderer
+    printRenderer: printTextRenderer
   },
   {
     type: 'attachment',
     label: '附件',
     previewRenderer: attachmentRenderer,
     runtimeRenderer: attachmentRenderer,
-    printRenderer: attachmentRenderer
+    printRenderer: printAttachmentRenderer
   },
   {
     type: 'opinion',
     label: '意见',
     previewRenderer: opinionRenderer,
     runtimeRenderer: opinionRenderer,
-    printRenderer: opinionRenderer,
+    printRenderer: printOpinionRenderer,
     defaultWidgetProps: {
       rows: 4
     }
@@ -294,14 +376,14 @@ const DEFAULT_DOCUMENT_FIELD_WIDGETS: DocumentFieldWidgetDefinition[] = [
     label: '签章',
     previewRenderer: stampRenderer,
     runtimeRenderer: stampRenderer,
-    printRenderer: stampRenderer
+    printRenderer: printStampRenderer
   },
   {
     type: 'serialNo',
     label: '编号',
     previewRenderer: textRenderer,
     runtimeRenderer: textRenderer,
-    printRenderer: textRenderer,
+    printRenderer: printTextRenderer,
     defaultWidgetProps: {
       placeholder: '请输入编号'
     }

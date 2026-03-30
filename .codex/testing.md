@@ -8930,3 +8930,17 @@
   - `/document-form/design`：右侧出现“结构视图”并可展示模板结构 JSON。
   - `/document-form/preview`：可切换填写态/打印态，URL 同步 `?mode=runtime|print`。
   - 持久化：插入字段后刷新设计页，字段仍存在（草稿恢复成功）。
+
+## 2026-03-30（打印态纯展示渲染链路）
+
+- 命令：
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C packages/document-form-engine test:run -- tests/field-widget-registry.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 全部通过。
+- 浏览器回归：
+  - `/document-form/preview?mode=runtime`：存在 textbox（填写态）。
+  - `/document-form/preview?mode=print`：无 textbox/select，字段以纯文本展示。
