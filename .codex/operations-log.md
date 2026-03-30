@@ -10427,3 +10427,26 @@
 - 文档同步：`apps/docs/docs/guide/document-form-designer.md` 增加“冲突 merge 自动跳过，防止渲染中断”说明。
 - 提交后复跑补充：
   - `pnpm -C packages/document-form-engine test:run` 在当前环境触发 `vite:oxc` NAPI 转换异常（`Failed to convert napi value into rust type 'bool'`），已记录到 `.codex/testing.md` 与 `.codex/verification/2026-03-30.md`，待单独排查工具链兼容性。
+
+## 2026-03-30（工具链版本锁定与 vp 漂移防护）
+
+- 锁定工具链版本来源：
+  - 更新 `pnpm-workspace.yaml`，将 `vite` / `vite-plus` / `vitest` 从 `latest` 改为固定 `0.1.14` 族版本，避免多人安装时漂移。
+  - 更新 `package.json` engines，Node 最低版本提升到 `20.19.0`，pnpm 最低版本提升到 `10.32.1`。
+- 增强环境自检：
+  - 更新 `scripts/doctor.mjs`，新增 `vp` 全局与本地版本一致性校验（`vp --version` vs `pnpm exec vp --version`）。
+  - 新增 `pnpm-workspace.yaml` 工具链锁定规则校验，若出现未锁定配置直接报错。
+- 文档同步：
+  - 更新 `README.md` 的 Vite Plus 使用说明，默认推荐 `pnpm` 脚本 / `pnpm exec vp`，并补充 `pnpm doctor` 说明。
+  - 更新 `apps/docs/docs/guide/development.md`，补充 `doctor` 新检查项与手动排查命令。
+
+## 2026-03-30（document-form-engine：Excel 画布列数越界导致物料不可见修复）
+
+- 根因定位：`Univer` worksheet 默认最大列数为 `20`，而发文单模板 `sheet.columns=24`，导致 `merge/getRange` 越界报错并中断整轮渲染。
+- 代码修复：
+  - `packages/document-form-engine/designer/UniverDocumentCanvas.vue`
+  - 在 `renderCanvas()` 中 `clear()` 后先执行 `setRowCount(metrics.maxRows)` 与 `setColumnCount(metrics.maxColumns)`，再进行 `merge`、写值与样式渲染。
+- 浏览器实测：
+  - 使用 `agent-browser --session codex` 进入 `/document-form/design`。
+  - 实测多选区（`R3 C1 · 6 x 24`）后点击“文本”，`placements` 从 `11 -> 12`，且对应 root 单元格值为 `[text] 文本`。
+  - 截图：`.codex/document-form-design-after-fix.png`。

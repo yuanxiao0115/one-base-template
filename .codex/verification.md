@@ -6,7 +6,7 @@
 
 - 日期：2026-03-30
 - 文件：`.codex/verification/2026-03-30.md`
-- 补充：已修复 Excel 画布 merge 重叠导致的渲染中断，增加 merge 冲突过滤与写入防护；`document-form-engine`、`apps/admin`、`apps/docs` 主要验证通过。提交后复跑完整测试出现 `vite:oxc` 工具链异常，见 `.codex/verification/2026-03-30.md` 风险备注。
+- 补充：已修复 Excel 画布 merge 重叠导致的渲染中断，新增 merge 冲突过滤与写入防护；并修复 worksheet 默认列数不足导致 `Range is out of bounds` 从而画布空白的问题（重绘前同步 `rows/columns`）。同时完成工具链版本锁定（`vite/vite-plus/vitest@0.1.14`）与 `doctor` 一致性校验增强。`document-form-engine`、`apps/admin`、`apps/docs` 主要验证通过，提交后复跑完整测试出现 `vite:oxc` 工具链异常，见 `.codex/verification/2026-03-30.md` 风险备注。
 
 ## 历史归档
 

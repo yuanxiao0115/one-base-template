@@ -283,6 +283,8 @@ function renderCanvas() {
 
   try {
     runtime.worksheet.clear();
+    runtime.worksheet.setRowCount(metrics.maxRows);
+    runtime.worksheet.setColumnCount(metrics.maxColumns);
     runtime.worksheet.setColumnWidths(0, metrics.maxColumns, metrics.columnWidth);
     runtime.worksheet.setRowHeightsForced(0, metrics.maxRows, metrics.rowHeight);
 

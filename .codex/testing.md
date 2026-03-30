@@ -8871,3 +8871,30 @@
 - 补充（提交后复跑）：
   - `pnpm -C packages/document-form-engine test:run` 失败，报错 `Error: Failed to convert napi value into rust type 'bool'`（`Plugin: vite:oxc`，发生在测试文件 transform 阶段）。
   - 当前判断为工具链环境异常，`typecheck` 与业务修复用例逻辑不受影响；后续需单独排查 `vite-plus/oxc` 版本与 Node 运行时兼容性。
+
+## 2026-03-30（工具链版本锁定与防漂移）
+
+- 命令：
+  - `pnpm install`
+  - `node scripts/doctor.mjs`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm install` 成功，`vite-plus` 由 `0.1.11` 升级并统一到 `0.1.14`。
+  - `doctor` 通过：Node/pnpm、`vp` 全局与本地一致性、`pnpm-workspace.yaml` 工具链锁定规则均通过。
+  - `apps/docs` lint/build 通过。
+  - `doctor` 保留既有环境警告：`~/.bash_profile` 中引用的 `~/.cargo/env` 文件不存在（非本次改动引入）。
+
+## 2026-03-30（document-form-engine：Excel 画布列数越界修复）
+
+- 命令：
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 以上命令全部通过。
+- 浏览器自动化验证（`agent-browser --session codex`）：
+  - 复现路径：`/document-form/design`。
+  - 验证点 1：修复后 worksheet `maxCols=24`，`A1/F3/X1` 都可读到文本值。
+  - 验证点 2：多选区后点击“文本”，`placements` 增加，且新 placement 左上角单元格值为 `[text] 文本`。
