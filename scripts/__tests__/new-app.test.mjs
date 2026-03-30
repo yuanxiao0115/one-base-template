@@ -81,6 +81,8 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
 
   await assertExists(path.join(rootDir, 'apps/sample-app/src/bootstrap/sample-app-styles.ts'));
   await assertExists(path.join(rootDir, 'apps/sample-app/build/vite-sample-app-build-config.ts'));
+  await assertExists(path.join(rootDir, 'apps/sample-app/src/types/auto-imports.d.ts'));
+  await assertExists(path.join(rootDir, 'apps/sample-app/src/types/components.d.ts'));
 });
 
 test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', async () => {

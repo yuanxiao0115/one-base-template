@@ -37,6 +37,8 @@ pnpm -C apps/admin-lite lint:arch
 
 说明：`admin-lite` 及其派生 app 的 `lint` / `lint:fix` 已通过仓库根包装脚本转发到 `pnpm exec vp lint|check apps/...`，规避 `vite-plus@0.1.14` 在子应用 cwd 下解析 universal vite config 的已知异常。
 
+说明：`admin` / `admin-lite` 的 auto-import 与组件全局声明已收口到 `src/types/auto-imports.d.ts`、`src/types/components.d.ts`，对应 app 的 `tsconfig.json` 必须包含 `src/**/*.d.ts`，否则 `vue-tsc` 无法识别 `message`、`obConfirm`、`useTable`、`useEntityEditor` 等全局注入标识。
+
 pre-commit（`vp staged`）当前按文件类型分流：
 
 - `*.{js,cjs,mjs,ts,tsx,cts,mts,vue}`：`vp check --fix`（格式化 + lint）

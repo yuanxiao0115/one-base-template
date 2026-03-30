@@ -126,6 +126,7 @@ pnpm -C apps/admin-lite build
 说明：
 
 - `lint` / `lint:fix` 已收口到仓库根包装脚本，避免 `vite-plus@0.1.14` 在派生 app 目录下直接执行 `vp lint/check` 时触发通用配置解析异常。
+- 自动导入与组件全局声明已固化到 `src/types/auto-imports.d.ts`、`src/types/components.d.ts`；`tsconfig.json` 必须继续包含 `src/**/*.d.ts`。
 
 涉及文档或规则改动时，再补：
 

@@ -29,11 +29,11 @@ export function createAdminPlugins() {
           type: true
         }
       ],
-      dts: 'src/auto-imports.d.ts',
+      dts: 'src/types/auto-imports.d.ts',
       resolvers: [ElementPlusResolver()]
     }),
     Components({
-      dts: 'src/components.d.ts',
+      dts: 'src/types/components.d.ts',
       resolvers: [ElementPlusResolver({ importStyle: 'css' })]
     }),
     createPruneLoginHtmlAssetsPlugin()
