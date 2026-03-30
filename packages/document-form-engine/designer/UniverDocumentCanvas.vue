@@ -7,6 +7,7 @@ import '@univerjs/preset-sheets-core/lib/index.css';
 
 import type { DocumentSheetRange } from '../schema/sheet';
 import type { DocumentTemplateSchema } from '../schema/types';
+import { extractDesignerUniverSnapshotData } from '../schema/template';
 import {
   anchorToCanvasRange,
   canvasRangeToAnchor,
@@ -171,12 +172,7 @@ function safeSerialize(value: unknown) {
 }
 
 function extractTemplateSnapshot() {
-  const snapshot = props.template.designer?.univerSnapshot;
-  if (!snapshot || typeof snapshot !== 'object') {
-    return null;
-  }
-
-  return snapshot as Record<string, unknown>;
+  return extractDesignerUniverSnapshotData(props.template.designer?.univerSnapshot);
 }
 
 function buildStructureHash() {

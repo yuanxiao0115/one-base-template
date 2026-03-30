@@ -6,7 +6,11 @@ import type {
   DocumentTemplatePlacement,
   DocumentTemplateSchema
 } from '../schema/types';
-import { createDefaultDocumentTemplate, normalizeDocumentTemplate } from '../schema/template';
+import {
+  createDefaultDocumentTemplate,
+  createDesignerUniverSnapshotEnvelope,
+  normalizeDocumentTemplate
+} from '../schema/template';
 import type { DocumentSheetRange } from '../schema/sheet';
 import DocumentCanvas from './DocumentCanvas.vue';
 import DocumentPropertyInspector from './DocumentPropertyInspector.vue';
@@ -35,18 +39,28 @@ const emit = defineEmits<{
 }>();
 
 const template = ref<DocumentTemplateSchema>(normalizeDocumentTemplate(props.modelValue));
+const syncingFromParent = ref(false);
 
 watch(
   () => props.modelValue,
   (value) => {
+    if (value === template.value) {
+      return;
+    }
+
+    syncingFromParent.value = true;
     template.value = normalizeDocumentTemplate(value);
-  },
-  { deep: true }
+  }
 );
 
 watch(
   template,
   (value) => {
+    if (syncingFromParent.value) {
+      syncingFromParent.value = false;
+      return;
+    }
+
     emit('update:modelValue', value);
   },
   { deep: true }
@@ -106,7 +120,7 @@ function handleSheetViewportUpdate(patch: Partial<DocumentTemplateSchema['sheet'
 function handleUniverSnapshotSync(snapshot: Record<string, unknown>) {
   template.value.designer = {
     ...template.value.designer,
-    univerSnapshot: snapshot
+    univerSnapshot: createDesignerUniverSnapshotEnvelope(snapshot)
   };
 }
 </script>

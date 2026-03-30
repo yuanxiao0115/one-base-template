@@ -20,6 +20,45 @@ const DEFAULT_DOCUMENT_PRESET = {
   version: '1.0.0'
 } as const;
 
+export const DESIGNER_UNIVER_SNAPSHOT_KIND = 'ob-univer-snapshot';
+export const DESIGNER_UNIVER_SNAPSHOT_VERSION = 1;
+
+type DesignerUniverSnapshotEnvelope = {
+  __kind: typeof DESIGNER_UNIVER_SNAPSHOT_KIND;
+  __version: typeof DESIGNER_UNIVER_SNAPSHOT_VERSION;
+  data: Record<string, unknown>;
+};
+
+export function createDesignerUniverSnapshotEnvelope(
+  snapshot: Record<string, unknown>
+): DesignerUniverSnapshotEnvelope {
+  return {
+    __kind: DESIGNER_UNIVER_SNAPSHOT_KIND,
+    __version: DESIGNER_UNIVER_SNAPSHOT_VERSION,
+    data: { ...snapshot }
+  };
+}
+
+export function extractDesignerUniverSnapshotData(
+  snapshot: unknown
+): Record<string, unknown> | null {
+  if (!snapshot || typeof snapshot !== 'object') {
+    return null;
+  }
+
+  const envelope = snapshot as Record<string, unknown>;
+  if (
+    envelope.__kind !== DESIGNER_UNIVER_SNAPSHOT_KIND ||
+    envelope.__version !== DESIGNER_UNIVER_SNAPSHOT_VERSION ||
+    !envelope.data ||
+    typeof envelope.data !== 'object'
+  ) {
+    return null;
+  }
+
+  return { ...(envelope.data as Record<string, unknown>) };
+}
+
 function normalizeFieldOptions(options: DocumentFieldOption[] | undefined) {
   if (!Array.isArray(options)) {
     return undefined;
@@ -413,6 +452,7 @@ export function normalizeDocumentTemplate(
     ...fallback.print,
     ...input.print
   };
+  const snapshotData = extractDesignerUniverSnapshotData(input.designer?.univerSnapshot);
 
   return {
     version: '3',
@@ -433,17 +473,13 @@ export function normalizeDocumentTemplate(
     sheet: normalizeDocumentSheet(input.sheet, fallback.sheet),
     fields: normalizeFields(input.fields),
     placements: normalizePlacements(input.placements),
-    designer:
-      input.designer && typeof input.designer === 'object'
-        ? {
-            univerSnapshot:
-              input.designer.univerSnapshot && typeof input.designer.univerSnapshot === 'object'
-                ? { ...(input.designer.univerSnapshot as Record<string, unknown>) }
-                : undefined
-          }
-        : {
-            ...fallback.designer
-          }
+    designer: snapshotData
+      ? {
+          univerSnapshot: createDesignerUniverSnapshotEnvelope(snapshotData)
+        }
+      : {
+          ...fallback.designer
+        }
   };
 }
 

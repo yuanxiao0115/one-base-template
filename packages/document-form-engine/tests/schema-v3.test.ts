@@ -5,7 +5,11 @@ import {
   parseDocumentTemplate,
   serializeDocumentTemplate
 } from '../index';
-import { createDispatchDocumentTemplate } from '../schema/template';
+import {
+  createDesignerUniverSnapshotEnvelope,
+  createDispatchDocumentTemplate,
+  extractDesignerUniverSnapshotData
+} from '../schema/template';
 
 describe('document template schema v3', () => {
   it('应创建 v3 默认模板骨架', () => {
@@ -28,5 +32,33 @@ describe('document template schema v3', () => {
     expect(parsed.fields.length).toBeGreaterThan(0);
     expect(parsed.placements.length).toBeGreaterThan(0);
     expect(parsed.sheet.cells.length).toBeGreaterThan(0);
+  });
+
+  it('应丢弃未封装的旧版 univerSnapshot', () => {
+    const template = createDispatchDocumentTemplate();
+    template.designer = {
+      univerSnapshot: {
+        legacy: true
+      }
+    };
+
+    const parsed = parseDocumentTemplate(serializeDocumentTemplate(template));
+    const snapshot = extractDesignerUniverSnapshotData(parsed.designer?.univerSnapshot);
+    expect(snapshot).toBeNull();
+  });
+
+  it('应保留新版封装的 univerSnapshot', () => {
+    const template = createDispatchDocumentTemplate();
+    template.designer = {
+      univerSnapshot: createDesignerUniverSnapshotEnvelope({
+        seed: 'snapshot-v1'
+      })
+    };
+
+    const parsed = parseDocumentTemplate(serializeDocumentTemplate(template));
+    const snapshot = extractDesignerUniverSnapshotData(parsed.designer?.univerSnapshot);
+    expect(snapshot).toMatchObject({
+      seed: 'snapshot-v1'
+    });
   });
 });

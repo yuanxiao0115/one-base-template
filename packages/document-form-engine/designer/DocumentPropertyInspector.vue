@@ -81,6 +81,27 @@ function parseOptions(value: string) {
     });
 }
 
+function resolveViewportZoom(raw: string) {
+  const nextValue = Number(raw);
+  if (!Number.isFinite(nextValue)) {
+    return 100;
+  }
+
+  return Math.min(400, Math.max(10, Math.round(nextValue)));
+}
+
+function handleShowGridChange(event: Event) {
+  emit('update-sheet-viewport', {
+    showGrid: (event.target as HTMLInputElement).checked
+  });
+}
+
+function handleZoomChange(event: Event) {
+  emit('update-sheet-viewport', {
+    zoom: resolveViewportZoom((event.target as HTMLInputElement).value)
+  });
+}
+
 const placementSummaries = computed(() =>
   props.template.placements.map((placement) => {
     const field = props.template.fields.find((item) => item.id === placement.fieldId);
@@ -202,11 +223,7 @@ const templateStructureJson = computed(() =>
           <input
             :checked="props.template.sheet.viewport.showGrid"
             type="checkbox"
-            @change="
-              emit('update-sheet-viewport', {
-                showGrid: ($event.target as HTMLInputElement).checked
-              })
-            "
+            @change="handleShowGridChange"
           />
           <span>显示网格线</span>
         </label>
@@ -217,11 +234,7 @@ const templateStructureJson = computed(() =>
             type="number"
             min="10"
             max="400"
-            @input="
-              emit('update-sheet-viewport', {
-                zoom: Number(($event.target as HTMLInputElement).value || 100)
-              })
-            "
+            @change="handleZoomChange"
           />
         </label>
         <div class="range-meta">

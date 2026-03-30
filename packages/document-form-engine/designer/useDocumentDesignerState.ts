@@ -246,10 +246,20 @@ export function useDocumentDesignerState(templateRef: { value: DocumentTemplateS
   }
 
   function updateSheetViewport(patch: Partial<DocumentTemplateSchema['sheet']['viewport']>) {
-    templateRef.value.sheet.viewport = {
-      ...templateRef.value.sheet.viewport,
+    const currentViewport = templateRef.value.sheet.viewport;
+    const nextViewport = {
+      ...currentViewport,
       ...patch
     };
+
+    if (
+      nextViewport.showGrid === currentViewport.showGrid &&
+      nextViewport.zoom === currentViewport.zoom
+    ) {
+      return;
+    }
+
+    templateRef.value.sheet.viewport = nextViewport;
   }
 
   function applyStyleToActiveRange(patch: Parameters<typeof applySheetStyleToAnchor>[2]) {

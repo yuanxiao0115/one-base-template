@@ -97,12 +97,14 @@
 - 支持 Univer 原生工具栏与右键菜单编辑字体、边框、底色、对齐、合并等画布能力
 - 合并区域发生重叠冲突时，自动跳过冲突项，避免整张画布渲染中断
 - 每次重绘前会先同步 worksheet 行列上限到 `template.sheet.rows/columns`，避免范围越界导致画布空白
+- 仅加载 `ob-univer-snapshot@v1` 封装快照，历史原始快照会自动忽略，避免 `getConfig/getSheetId` 初始化崩溃
 
 当前右侧面板职责：
 
 - 画布设置：网格线、缩放、画布参数与操作入口提示
 - 组件设置：字段清单、字段标签、必填、占位提示、行数、静态选项、placement 属性
 - 结构视图：模板结构摘要（sheet/fields/placements/snapshot）与只读 JSON
+- Workbench 模板同步：父到子只做引用变更同步，子到父仅在本地编辑后回传，避免 `deep watch + normalize` 触发递归更新
 
 ## 运行态与预览态
 

@@ -96,4 +96,16 @@ describe('document designer state', () => {
     expect(templateRef.value.sheet.viewport.showGrid).toBe(true);
     expect(templateRef.value.sheet.viewport.zoom).toBe(125);
   });
+
+  it('视口参数未变化时不应重复写入', () => {
+    const templateRef = ref(createDispatchDocumentTemplate());
+    const state = useDocumentDesignerState(templateRef);
+    const currentViewport = templateRef.value.sheet.viewport;
+
+    state.updateSheetViewport({
+      zoom: currentViewport.zoom
+    });
+
+    expect(templateRef.value.sheet.viewport).toBe(currentViewport);
+  });
 });
