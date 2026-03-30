@@ -4,9 +4,9 @@
 
 ## 最新记录
 
-- 日期：2026-03-28
-- 文件：`.codex/verification/2026-03-28.md`
-- 补充：本轮已将公文表单设计器收敛到 `v3 / sheet-first` 主线，设计态使用 `Univer`，预览页使用 `DocumentRuntimePreview`，admin 适配器改为可选注入；`document-form-engine`、`apps/admin`、`apps/docs` 的本轮验证命令均通过。
+- 日期：2026-03-30
+- 文件：`.codex/verification/2026-03-30.md`
+- 补充：已修复 Excel 画布 merge 重叠导致的渲染中断，增加 merge 冲突过滤与写入防护；`document-form-engine` 测试/typecheck/build、`apps/admin typecheck`、`apps/docs lint/build` 通过。
 
 ## 历史归档
 

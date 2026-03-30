@@ -8848,3 +8848,23 @@
   - `apps/admin typecheck` 通过。
   - `apps/admin lint` 通过（存在既有 warning：`adminManagement/org/components/OrgManagerDialog.vue` 文件行数超限）。
   - `apps/docs lint/build` 通过。
+
+## 2026-03-30（document-form-engine：Excel 画布可见性修复）
+
+- RED（先失败）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/dispatch-preset.test.ts tests/designer-sheet-ops.test.ts`
+  - 结果：
+    - `dispatch-preset.test.ts` 新增断言失败：存在重叠范围（`[3,1,3,24]` vs `[3,1,1,5]`）。
+    - `designer-sheet-ops.test.ts` 新增断言失败：冲突 merge 仍被写入。
+- GREEN / 回归：
+  - `pnpm -C packages/document-form-engine test:run -- tests/dispatch-preset.test.ts tests/designer-sheet-ops.test.ts`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C packages/document-form-engine build`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `document-form-engine` 定向测试通过（7 files / 19 tests 全绿）。
+  - `document-form-engine` typecheck/build 通过。
+  - `apps/admin` typecheck 通过。
+  - `apps/docs` lint/build 通过。

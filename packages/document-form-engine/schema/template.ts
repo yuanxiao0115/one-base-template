@@ -175,7 +175,7 @@ export function createDispatchDocumentTemplate(): DocumentTemplateSchema {
   ];
   template.sheet.merges = [
     { row: 1, col: 1, rowspan: 1, colspan: 24 },
-    { row: 3, col: 1, rowspan: 3, colspan: 24 },
+    { row: 3, col: 6, rowspan: 3, colspan: 19 },
     { row: 7, col: 3, rowspan: 2, colspan: 22 },
     { row: 9, col: 3, rowspan: 2, colspan: 22 },
     { row: 12, col: 1, rowspan: 12, colspan: 24 },
@@ -317,7 +317,7 @@ export function createDispatchDocumentTemplate(): DocumentTemplateSchema {
     {
       id: 'placement-document-title',
       fieldId: 'documentTitle',
-      range: { row: 3, col: 1, rowspan: 3, colspan: 24 },
+      range: { row: 3, col: 6, rowspan: 3, colspan: 19 },
       displayMode: 'mergedRange',
       section: 'header'
     },

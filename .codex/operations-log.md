@@ -10414,3 +10414,14 @@
   - 更新 `apps/docs/docs/.vitepress/config.ts`、`apps/docs/docs/guide/index.md`，接入新文档导航入口。
   - 更新 `apps/docs/docs/guide/document-form-designer.md`，补充版本历史回滚面板口径。
   - 更新 `docs/plans/2026-03-28-document-form-engine-full-product-plan.md`，勾选 Phase 7 已完成项。
+
+## 2026-03-30（document-form-engine：Excel 画布物料可见性修复）
+
+- 根因定位：`createDispatchDocumentTemplate()` 中标题区域存在重叠 merge（`sheet.merges` 与 `sheet.cells/placements` 冲突），触发 Univer `merge()` 异常后导致整轮渲染中断。
+- 修复 `packages/document-form-engine/designer/sheet-ops.ts`：`addSheetMergeByAnchor` 增加重叠检测，冲突时不再写入新 merge。
+- 修复 `packages/document-form-engine/schema/template.ts`：发文单预设标题 placement/merge 改为 `row=3 col=6 rowspan=3 colspan=19`，消除与标题标签区重叠。
+- 修复 `packages/document-form-engine/designer/UniverDocumentCanvas.vue`：`collectMergedRanges` 改为“placements 优先 + 去重 + 冲突过滤”，避免冲突 merge 让画布整次渲染失败。
+- 补充回归测试：
+  - `tests/dispatch-preset.test.ts` 新增“画布合并区域不重叠”断言。
+  - `tests/designer-sheet-ops.test.ts` 新增“冲突 merge 不入库”断言。
+- 文档同步：`apps/docs/docs/guide/document-form-designer.md` 增加“冲突 merge 自动跳过，防止渲染中断”说明。

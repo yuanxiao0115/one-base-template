@@ -84,4 +84,32 @@ describe('designer sheet ops', () => {
     expect(deduped).toHaveLength(1);
     expect(removed).toHaveLength(0);
   });
+
+  it('新增合并区域与已有区域冲突时应保持原结果', () => {
+    const merges = addSheetMergeByAnchor(
+      [
+        {
+          row: 2,
+          col: 3,
+          rowspan: 4,
+          colspan: 6
+        }
+      ],
+      {
+        row: 3,
+        col: 5,
+        rowspan: 2,
+        colspan: 2
+      }
+    );
+
+    expect(merges).toEqual([
+      {
+        row: 2,
+        col: 3,
+        rowspan: 4,
+        colspan: 6
+      }
+    ]);
+  });
 });

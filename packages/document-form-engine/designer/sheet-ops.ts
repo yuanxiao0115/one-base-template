@@ -9,6 +9,15 @@ function isSameRange(a: DocumentSheetRange, b: DocumentSheetRange) {
   return a.row === b.row && a.col === b.col && a.rowspan === b.rowspan && a.colspan === b.colspan;
 }
 
+function isRangeOverlapping(a: DocumentSheetRange, b: DocumentSheetRange) {
+  const aEndRow = a.row + a.rowspan - 1;
+  const aEndCol = a.col + a.colspan - 1;
+  const bEndRow = b.row + b.rowspan - 1;
+  const bEndCol = b.col + b.colspan - 1;
+
+  return !(aEndRow < b.row || bEndRow < a.row || aEndCol < b.col || bEndCol < a.col);
+}
+
 function toSheetStyle(range: DocumentSheetRange, value: DocumentSheetStylePatch) {
   return {
     row: range.row,
@@ -41,8 +50,9 @@ export function applySheetStyleToAnchor(
 
 export function addSheetMergeByAnchor(merges: DocumentSheetMerge[], range: DocumentSheetRange) {
   const exists = merges.some((item) => isSameRange(item, range));
+  const overlapping = merges.some((item) => isRangeOverlapping(item, range));
 
-  if (exists) {
+  if (exists || overlapping) {
     return [...merges];
   }
 

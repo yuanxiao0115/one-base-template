@@ -67,6 +67,19 @@ function isSameAnchor(a: DocumentSheetRange, b: DocumentSheetRange) {
   return a.row === b.row && a.col === b.col && a.rowspan === b.rowspan && a.colspan === b.colspan;
 }
 
+function isRangeOverlapping(a: DocumentSheetRange, b: DocumentSheetRange) {
+  const aEndRow = a.row + a.rowspan - 1;
+  const aEndCol = a.col + a.colspan - 1;
+  const bEndRow = b.row + b.rowspan - 1;
+  const bEndCol = b.col + b.colspan - 1;
+
+  return !(aEndRow < b.row || bEndRow < a.row || aEndCol < b.col || bEndCol < a.col);
+}
+
+function createRangeKey(range: DocumentSheetRange) {
+  return [range.row, range.col, range.rowspan, range.colspan].join(':');
+}
+
 function isRangeCoveringCell(range: DocumentSheetRange, row: number, col: number) {
   return (
     row >= range.row &&
@@ -147,16 +160,41 @@ function resolveStyle(styles: DocumentSheetStyle[], row: number, col: number) {
 }
 
 function collectMergedRanges() {
-  const rangeMap = new Map<string, DocumentSheetRange>();
+  const pickedRanges: DocumentSheetRange[] = [];
+  const seenRangeKeys = new Set<string>();
+  const candidates: DocumentSheetRange[] = [
+    ...props.template.placements.map((item) => item.range),
+    ...props.template.sheet.merges,
+    ...props.template.sheet.cells
+  ];
 
-  [...props.template.sheet.merges, ...props.template.sheet.cells, ...props.template.placements]
-    .map((item) => ('range' in item ? item.range : item))
+  candidates
     .filter((item) => item.rowspan > 1 || item.colspan > 1)
     .forEach((item) => {
-      rangeMap.set([item.row, item.col, item.rowspan, item.colspan].join(':'), item);
+      const range: DocumentSheetRange = {
+        row: item.row,
+        col: item.col,
+        rowspan: item.rowspan,
+        colspan: item.colspan
+      };
+      const key = createRangeKey(range);
+
+      if (seenRangeKeys.has(key)) {
+        return;
+      }
+
+      const hasConflict = pickedRanges.some(
+        (existing) => !isSameAnchor(existing, range) && isRangeOverlapping(existing, range)
+      );
+      if (hasConflict) {
+        return;
+      }
+
+      seenRangeKeys.add(key);
+      pickedRanges.push(range);
     });
 
-  return [...rangeMap.values()];
+  return pickedRanges;
 }
 
 function flushRender() {
