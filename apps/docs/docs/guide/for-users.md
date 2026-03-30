@@ -10,17 +10,19 @@ outline: false
 
 1. [快速开始](/guide/quick-start)：先跑起来。
 2. [环境变量](/guide/env)：确认配置入口。
-3. [zfw-system-sfss 快速使用手册](/guide/zfw-system-sfss-quick-start)：按实战项目快速上手。
-4. [目录结构与边界](/guide/architecture)：避免跨层误改。
+3. [admin-lite 后台基座](/guide/admin-lite-base-app)：先理解后台起项目母版的默认边界。
+4. [zfw-system-sfss 快速使用手册](/guide/zfw-system-sfss-quick-start)：按实战项目快速上手。
+5. [目录结构与边界](/guide/architecture)：避免跨层误改。
 
 ## 开发主线
 
 1. [模块系统与切割](/guide/module-system)
 2. [菜单与路由规范（Schema）](/guide/menu-route-spec)
 3. [布局与菜单](/guide/layout-menu)
-4. [CRUD 模块最佳实践](/guide/crud-module-best-practice)
-5. [Admin 老项目迁移工作流](/guide/admin-legacy-migration-workflow)
-6. [VXE 表格迁移](/guide/table-vxe-migration)
+4. [admin-lite Agent 红线](/guide/admin-lite-agent-redlines)
+5. [CRUD 模块最佳实践](/guide/crud-module-best-practice)
+6. [Admin 老项目迁移工作流](/guide/admin-legacy-migration-workflow)
+7. [VXE 表格迁移](/guide/table-vxe-migration)
 
 ## 最短开发闭环（可直接照做）
 

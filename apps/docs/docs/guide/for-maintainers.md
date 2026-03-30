@@ -11,14 +11,16 @@ outline: false
 1. [开发规范与维护](/guide/development)
 2. [AGENTS 规则分层](/guide/agents-scope)
 3. [Agent Harness 与仓库知识](/guide/agent-harness)
+4. [admin-lite 后台基座](/guide/admin-lite-base-app)
 
 ## 维护工作主线
 
 1. [目录结构与边界](/guide/architecture)
 2. [启动链路细节（深度）](/guide/architecture-runtime-deep-dive)
-3. [portal-engine 边界与导出层](/guide/portal/engine-boundary)
-4. [Admin Agent 红线](/guide/admin-agent-redlines)
-5. [子包发布与版本控制](/guide/package-release)
+3. [admin-lite Agent 红线](/guide/admin-lite-agent-redlines)
+4. [portal-engine 边界与导出层](/guide/portal/engine-boundary)
+5. [Admin Agent 红线](/guide/admin-agent-redlines)
+6. [子包发布与版本控制](/guide/package-release)
 
 ## 文档治理主线
 
