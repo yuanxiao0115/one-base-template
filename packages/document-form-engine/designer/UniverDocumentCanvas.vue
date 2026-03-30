@@ -61,8 +61,10 @@ const snapshotSyncTimerRef = ref<ReturnType<typeof setTimeout> | null>(null);
 const lastSnapshotHashRef = ref('');
 const lastLoadedSnapshotHashRef = ref('');
 const lastStructureHashRef = ref('');
+const lastSelectionHashRef = ref('');
 const renderedCellRootsRef = ref<Set<string>>(new Set());
 const runtimeTokenRef = ref(0);
+const syncingSelectionRef = ref(false);
 
 function isSameRange(a: CanvasGridRange | null, b: CanvasGridRange | null) {
   if (!a || !b) {
@@ -178,6 +180,25 @@ function extractTemplateSnapshot() {
   return extractDesignerUniverSnapshotData(props.template.designer?.univerSnapshot);
 }
 
+function getSafeWorksheet(runtime: UniverRuntime | null) {
+  if (!runtime) {
+    return null;
+  }
+
+  const worksheet = runtime.worksheet as typeof runtime.worksheet & {
+    _disposed?: boolean;
+  };
+  const workbook = worksheet.getWorkbook() as ReturnType<typeof worksheet.getWorkbook> & {
+    _disposed?: boolean;
+  };
+
+  if (worksheet._disposed || workbook._disposed) {
+    return null;
+  }
+
+  return worksheet;
+}
+
 function buildStructureHash() {
   return safeSerialize({
     rows: props.template.sheet.rows,
@@ -216,15 +237,11 @@ function emitSnapshotIfChanged(runtimeToken = runtimeTokenRef.value) {
     return;
   }
 
-  const worksheet = runtime.worksheet as typeof runtime.worksheet & {
-    _disposed?: boolean;
-  };
-  const workbook = worksheet.getWorkbook() as ReturnType<typeof worksheet.getWorkbook> & {
-    _disposed?: boolean;
-  };
-  if (worksheet._disposed || workbook._disposed) {
+  const worksheet = getSafeWorksheet(runtime);
+  if (!worksheet) {
     return;
   }
+  const workbook = worksheet.getWorkbook();
 
   const snapshot = sanitizeDesignerUniverSnapshotData(
     workbook.save() as unknown as Record<string, unknown>
@@ -307,6 +324,65 @@ function scheduleRender(runtimeToken = runtimeTokenRef.value) {
   });
 }
 
+function resolveSelectionAnchor() {
+  if (props.activeRange) {
+    return props.activeRange;
+  }
+
+  return resolvePlacementById(props.selectedPlacementId)?.range ?? null;
+}
+
+function syncCanvasSelection(runtimeToken = runtimeTokenRef.value) {
+  if (runtimeToken !== runtimeTokenRef.value) {
+    return;
+  }
+
+  if (!canvasReadyRef.value || renderingRef.value) {
+    return;
+  }
+
+  const runtime = runtimeRef.value;
+  const worksheet = getSafeWorksheet(runtime);
+  const targetAnchor = resolveSelectionAnchor();
+  if (!runtime || !worksheet || !targetAnchor) {
+    return;
+  }
+
+  const targetRange = anchorToCanvasRange(targetAnchor);
+  const nextSelectionHash = createRangeKey(targetAnchor);
+  if (nextSelectionHash === lastSelectionHashRef.value) {
+    return;
+  }
+
+  const targetCellRange = worksheet.getRange(
+    targetRange.startRow,
+    targetRange.startColumn,
+    targetRange.endRow - targetRange.startRow + 1,
+    targetRange.endColumn - targetRange.startColumn + 1
+  ) as {
+    activate?: () => void;
+  };
+  const typedWorksheet = worksheet as typeof worksheet & {
+    setActiveSelection?: (range: unknown) => void;
+  };
+
+  syncingSelectionRef.value = true;
+  try {
+    if (typeof typedWorksheet.setActiveSelection === 'function') {
+      typedWorksheet.setActiveSelection(targetCellRange);
+    } else if (typeof targetCellRange.activate === 'function') {
+      targetCellRange.activate();
+    }
+    lastSelectionHashRef.value = nextSelectionHash;
+  } catch (error) {
+    console.warn('[UniverDocumentCanvas] sync canvas selection failed', error);
+  } finally {
+    queueMicrotask(() => {
+      syncingSelectionRef.value = false;
+    });
+  }
+}
+
 function disposeRuntime() {
   // 失效旧异步任务，避免卸载后旧回调访问已销毁实例。
   runtimeTokenRef.value += 1;
@@ -338,6 +414,7 @@ function disposeRuntime() {
 
   lastLoadedSnapshotHashRef.value = '';
   lastStructureHashRef.value = '';
+  lastSelectionHashRef.value = '';
   renderedCellRootsRef.value = new Set();
 }
 
@@ -359,7 +436,12 @@ function renderCanvas(runtimeToken = runtimeTokenRef.value) {
   const templateSnapshotHash = templateSnapshot ? safeSerialize(templateSnapshot) : '';
   const shouldLoadTemplateSnapshot =
     Boolean(templateSnapshotHash) && templateSnapshotHash !== lastLoadedSnapshotHashRef.value;
-  const workbook = runtime.worksheet.getWorkbook();
+  const worksheetSnapshot = getSafeWorksheet(runtime);
+  if (!worksheetSnapshot) {
+    return;
+  }
+
+  const workbook = worksheetSnapshot.getWorkbook();
   const structureHash = buildStructureHash();
   const structureChanged = structureHash !== lastStructureHashRef.value;
   const shouldSyncCellLabels =
@@ -452,6 +534,7 @@ function renderCanvas(runtimeToken = runtimeTokenRef.value) {
   } finally {
     suppressSnapshotSyncRef.value = false;
     renderingRef.value = false;
+    syncCanvasSelection(runtimeToken);
     scheduleSnapshotSync(0, runtimeToken);
   }
 }
@@ -474,6 +557,11 @@ function bindCanvasEvents(runtime: UniverRuntime, runtimeToken: number) {
       }
 
       const range = canvasRangeToAnchor(rangeFromSelection(selections[0]!));
+      lastSelectionHashRef.value = createRangeKey(range);
+      if (syncingSelectionRef.value) {
+        return;
+      }
+
       if (!props.activeRange || !isSameAnchor(props.activeRange, range)) {
         emit('select-range', range);
       }
@@ -580,6 +668,8 @@ function initializeUniverCanvas() {
 
   disposeRuntime();
   const runtimeToken = runtimeTokenRef.value;
+  const templateSnapshot = extractTemplateSnapshot();
+  const templateSnapshotHash = templateSnapshot ? safeSerialize(templateSnapshot) : '';
 
   const setup = createUniver({
     locale: LocaleType.ZH_CN,
@@ -598,10 +688,14 @@ function initializeUniverCanvas() {
     ]
   });
 
-  const workbook = setup.univerAPI.createWorkbook({
-    id: 'document-form-designer',
-    name: '公文设计画布'
-  });
+  const workbook = setup.univerAPI.createWorkbook(
+    templateSnapshot
+      ? (templateSnapshot as never)
+      : {
+          id: 'document-form-designer',
+          name: '公文设计画布'
+        }
+  );
 
   const runtime: UniverRuntime = {
     setup,
@@ -609,6 +703,11 @@ function initializeUniverCanvas() {
     disposables: [],
     cellDataChangeDisposable: null
   };
+
+  if (templateSnapshotHash) {
+    lastLoadedSnapshotHashRef.value = templateSnapshotHash;
+    lastSnapshotHashRef.value = templateSnapshotHash;
+  }
 
   const lifecycleDisposable = setup.univerAPI.addEvent(
     setup.univerAPI.Event.LifeCycleChanged,
@@ -634,9 +733,16 @@ function initializeUniverCanvas() {
 }
 
 watch(
-  () => [buildStructureHash(), safeSerialize(extractTemplateSnapshot()), props.selectedPlacementId],
+  () => [buildStructureHash(), safeSerialize(extractTemplateSnapshot())],
   () => {
     scheduleRender();
+  }
+);
+
+watch(
+  () => props.activeRange,
+  () => {
+    syncCanvasSelection();
   }
 );
 

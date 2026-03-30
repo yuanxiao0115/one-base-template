@@ -54,7 +54,7 @@ const emit = defineEmits<{
   (e: 'remove-placement'): void;
 }>();
 
-const activePanel = ref<'canvas' | 'component' | 'structure'>('canvas');
+const activePanel = ref<'canvas' | 'component'>('canvas');
 
 function formatOptions(options: DocumentFieldOption[] | undefined) {
   if (!options || options.length === 0) {
@@ -145,42 +145,6 @@ const showOptionsEditor = computed(() => {
     Boolean(props.selectedField?.dataSource)
   );
 });
-
-const templateStructureSummary = computed(() => ({
-  rows: props.template.sheet.rows,
-  columns: props.template.sheet.columns,
-  cells: props.template.sheet.cells.length,
-  merges: props.template.sheet.merges.length,
-  styles: props.template.sheet.styles.length,
-  fields: props.template.fields.length,
-  placements: props.template.placements.length,
-  hasSnapshot: Boolean(props.template.designer?.univerSnapshot)
-}));
-
-const templateStructureJson = computed(() =>
-  JSON.stringify(
-    {
-      page: props.template.page,
-      sheet: {
-        rows: props.template.sheet.rows,
-        columns: props.template.sheet.columns,
-        viewport: props.template.sheet.viewport,
-        rowHeights: props.template.sheet.rowHeights,
-        columnWidths: props.template.sheet.columnWidths,
-        cells: props.template.sheet.cells,
-        merges: props.template.sheet.merges,
-        styles: props.template.sheet.styles
-      },
-      fields: props.template.fields,
-      placements: props.template.placements,
-      designer: {
-        hasUniverSnapshot: Boolean(props.template.designer?.univerSnapshot)
-      }
-    },
-    null,
-    2
-  )
-);
 </script>
 
 <template>
@@ -203,14 +167,6 @@ const templateStructureJson = computed(() =>
         @click="activePanel = 'component'"
       >
         组件设置
-      </button>
-      <button
-        type="button"
-        class="tab-btn"
-        :class="{ 'tab-btn--active': activePanel === 'structure' }"
-        @click="activePanel = 'structure'"
-      >
-        结构视图
       </button>
     </section>
 
@@ -424,33 +380,6 @@ const templateStructureJson = computed(() =>
         <div v-else class="empty-text">当前未选中字段，可先在画布里点中某个字段区域。</div>
       </section>
     </template>
-
-    <template v-else>
-      <section class="panel">
-        <div class="panel-head">
-          <strong>结构摘要</strong>
-        </div>
-        <div class="structure-summary">
-          <span
-            >网格：{{ templateStructureSummary.rows }} x
-            {{ templateStructureSummary.columns }}</span
-          >
-          <span>静态单元格：{{ templateStructureSummary.cells }}</span>
-          <span>合并区域：{{ templateStructureSummary.merges }}</span>
-          <span>样式块：{{ templateStructureSummary.styles }}</span>
-          <span>字段：{{ templateStructureSummary.fields }}</span>
-          <span>落位：{{ templateStructureSummary.placements }}</span>
-          <span>设计快照：{{ templateStructureSummary.hasSnapshot ? '已保存' : '未保存' }}</span>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <strong>模板结构 JSON</strong>
-        </div>
-        <pre class="json-view">{{ templateStructureJson }}</pre>
-      </section>
-    </template>
   </aside>
 </template>
 
@@ -608,26 +537,5 @@ const templateStructureJson = computed(() =>
   cursor: pointer;
   font-size: 12px;
   padding: 6px 10px;
-}
-
-.structure-summary {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  color: #334155;
-  font-size: 12px;
-}
-
-.json-view {
-  max-height: 320px;
-  margin: 0;
-  padding: 10px;
-  border: 1px solid #d8dee8;
-  background: #f8fafc;
-  color: #0f172a;
-  font-size: 11px;
-  line-height: 1.55;
-  overflow: auto;
-  white-space: pre;
 }
 </style>

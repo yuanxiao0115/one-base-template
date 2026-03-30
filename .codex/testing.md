@@ -2,6 +2,54 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-03-30（公文设计器 Phase 1 Univer 画布收口）
+
+- GREEN / 回归：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-canvas-source.test.ts tests/designer-controller.test.ts tests/designer-state.test.ts tests/designer-workbench-source.test.ts tests/schema-v3.test.ts`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/designPage/DocumentFormDesignerPage.source.test.ts src/modules/DocumentFormManagement/services/template-service.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 浏览器回归：
+  - 自动化：`agent-browser --session codex`
+  - 结果：
+    - 进入 `/document-form/design` 正常，交互快照只出现 `画布设置 / 组件设置` 两个右侧面板入口。
+    - 操作前 `placements === 2`，且 `designer.univerSnapshot.__kind === 'ob-univer-snapshot'`。
+    - 通过页面内 `Univer` 实例将 A1 背景设置为 `#ff0000` 并保存快照，再点击“日期”后 `placements === 3`，背景未回滚。
+    - 刷新后仍停留 `/document-form/design`，`placements === 3`，A1 背景仍为 `#ff0000`。
+    - 切到“组件设置”后可看到字段清单与“删除字段”按钮；删除后 `placements` 从 `3` 回到 `2`，页面错误列表为空。
+- 结果：
+  - `document-form-engine`：定向测试命令通过，runner 输出 `10` 个测试文件、`31` 条测试通过，`typecheck` 通过。
+  - `apps/admin`：2 个定向测试文件共 `5` 条测试通过，`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-30（公文设计器控制层重构）
+
+- RED（先失败）：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-controller.test.ts tests/designer-state.test.ts`
+  - 结果：
+    - `useDocumentDesignerController` 文件不存在。
+    - `useDocumentDesignerState().syncSelectionState` 不存在。
+- GREEN / 回归：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-controller.test.ts tests/designer-state.test.ts tests/designer-workbench-source.test.ts tests/schema-v3.test.ts`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/services/template-service.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 浏览器回归：
+  - `agent-browser --session codex`
+  - 结果：
+    - 注入本地登录态后进入 `/document-form/design` 正常。
+    - 点击“文本”两次后，`ob_document_form_template_store_v1.draft.template.placements.length === 2`。
+    - 通过页面内 `Univer` 实例把 A1 背景色设为 `#ff0000` 并保存快照，再插入字段后颜色保持 `#ff0000`，未再出现 `getConfig`。
+    - 刷新后草稿仍在，进入 `/document-form/preview` 后 `window.__errLogs=[]`。
+- 结果：
+  - `document-form-engine` 定向测试与 `typecheck` 通过。
+  - `apps/admin` 定向测试与 `typecheck` 通过。
+  - `apps/docs lint / build` 通过。
+
 ## 2026-03-28（公文表单设计器 v3：Sheet-first 收口）
 
 - RED（先失败）：
@@ -8958,3 +9006,43 @@
   - 在 `/document-form/design` 注入全局错误监听后执行路由切换（设计/预览往返）。
   - 页面端 `window.__errLogs` 未再捕获 `getConfig/getSheetId` 异常。
   - Vite+ 客户端日志在修复后仅出现既有“路由不应添加为标签”警告，未再出现 Univer `getConfig/getSheetId/getCellMatrix` 崩溃堆栈。
+- 追加回归：直接进入 `/document-form/design` 注入全局错误监听并等待初始化阶段，`window.__errLogs=[]`。
+
+## 2026-03-30（document-form-engine：递归更新与快照协议收口）
+
+- 命令：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-state.test.ts`
+  - `pnpm -C packages/document-form-engine test:run -- tests/schema-v3.test.ts tests/designer-state.test.ts`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `document-form-engine` 定向测试通过（`7 files / 23 tests`）。
+  - `document-form-engine typecheck` 通过。
+  - `apps/admin typecheck` 通过。
+  - `apps/docs lint/build` 通过。
+- 浏览器自动化回归（`agent-browser --session codex`）：
+  - 构造历史 raw `univerSnapshot` 草稿后进入 `/document-form/design`，页面可渲染且可交互。
+  - 连续操作“显示网格线 + 缩放比例”，页面侧 `window.__errLogs=[]`。
+  - 持久化快照已写为 `{"__kind":"ob-univer-snapshot","__version":1,"data":...}`。
+
+## 2026-03-30（template 登录页 Element Plus 解析链路修复）
+
+- RED：
+  - `pnpm -C apps/template test:run -- tests/architecture/vite-plugin-parity-source.unit.test.ts`
+  - 结果：失败，确认 `apps/template/vite.config.ts` 仍是 `plugins: [vue()]`，且缺少 `apps/template/build/vite-plugins.ts`。
+- GREEN / 回归：
+  - `pnpm -C apps/template test:run -- tests/architecture/vite-plugin-parity-source.unit.test.ts`
+  - `pnpm -C apps/template typecheck`
+  - `pnpm -C apps/template lint`
+  - `pnpm -C apps/template lint:arch`
+  - `pnpm -C apps/template build`
+- 结果：
+  - template 架构门禁测试通过（`7 files / 18 tests`）。
+  - `apps/template typecheck` 通过。
+  - `apps/template lint` 通过（`0 warnings / 0 errors`）。
+  - `apps/template lint:arch` 通过。
+  - `apps/template build` 通过。
+  - `pnpm -C apps/docs lint` 通过（`0 warnings / 0 errors`）。
+  - `pnpm -C apps/docs build` 通过。

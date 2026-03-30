@@ -2,15 +2,22 @@
 
 > 适用范围：`packages/document-form-engine` 与 `apps/admin/src/modules/DocumentFormManagement/**`
 
-## TL;DR
+## 当前阶段
 
-- 当前主线已经明确为 **Sheet-first**：
-  - 设计态使用 `Univer`
-  - 模板协议使用 `version: '3'`
-  - 运行态与预览态使用 Vue 组件渲染
-- 设计器默认从 **空白模板** 开始，模板版式通过 Univer 画布直接编辑。
-- 设计页提供 **预览** 按钮，打开独立全屏预览页，默认读取当前草稿。
-- admin 侧只做页面组装与业务服务注入，不再维护平行的物料协议。
+当前只交付 **Phase 1：Univer 画布编辑 MVP**。
+
+- 设计页只保留草稿加载、草稿自动保存和返回列表
+- 画布编辑统一基于 `Univer`
+- 右侧面板只保留 **画布设置 / 组件设置**
+- 字体、边框、底色、对齐、表格线、合并等能力统一走 `Univer` 原生工具栏与右键菜单
+
+本期**不交付**：
+
+- 预览页
+- 发布 / 回滚 / 历史版本
+- 结构视图
+- 打印态 / 填写态双模式
+- 真实 Vue 业务组件运行态接入
 
 ## 架构分工
 
@@ -20,35 +27,37 @@
 
 - 模板协议：`schema/types.ts`、`schema/sheet.ts`、`schema/template.ts`
 - 设计器：`designer/**`
-- 字段组件注册：`register/field-widgets.ts`
-- 运行态渲染：`runtime/renderer.ts`、`runtime/DocumentRuntimePreview.vue`
+- 设计态控制层：`designer/useDocumentDesignerController.ts`
+- 画布运行时：`designer/UniverDocumentCanvas.vue`
 
 禁止：
 
 - 直接依赖 `apps/*`
-- 写死 admin 私有组件或接口
-- 在共享包内处理页面跳转、菜单或消息提示
+- 写死 admin 私有服务、页面跳转和消息提示
 
 ### `apps/admin`
 
 负责：
 
-- 路由与页面薄壳
-- 模板草稿/发布/回滚生命周期服务
-- admin 专属适配器契约与后续真实业务组件接入
+- 设计页薄壳与路由承接
+- 草稿生命周期服务
+- admin 侧注册与注入
 
-禁止：
+当前 Phase 1 页面只依赖：
 
-- 复制一套旧 `materials`/绝对定位画布
-- 页面层直接引用共享包内部未导出的实现文件
+- `ensureDraft`
+- `updateDraft`
+- 返回列表
 
-## 模板协议（v3）
+即使模板服务仍保留 `publishDraft`、`rollbackToPublished` 等接口，当前设计页也**不再暴露这些能力**。
 
-当前模板结构收敛为三块：
+## 模板协议
+
+当前模板主结构分为四块：
 
 ### 1. `template.sheet`
 
-负责 Excel/表格层能力：
+负责表格结构与静态样式：
 
 - `rows / columns`
 - `cells`
@@ -57,11 +66,9 @@
 - `rowHeights / columnWidths`
 - `viewport`
 
-合并单元格、边框颜色、底色、字号、对齐方式都在这里配置。
-
 ### 2. `template.fields`
 
-负责字段定义：
+负责字段语义定义：
 
 - `type`
 - `label`
@@ -72,7 +79,7 @@
 
 ### 3. `template.placements`
 
-负责字段放置到 sheet 的位置：
+负责字段放置位置：
 
 - `fieldId`
 - `range`
@@ -80,137 +87,91 @@
 - `section`
 - `readonly`
 
-## 设计态实现
+### 4. `designer.univerSnapshot`
 
-设计器页面由三部分组成：
+负责持久化 `Univer` 画布编辑结果。
 
-- 顶部工具条：插入字段
-- 中央画布：`UniverDocumentCanvas`
-- 右侧面板：`DocumentPropertyInspector`（画布设置 / 组件设置）
+约束：
 
-当前 `Univer` 画布职责：
+- 只用于恢复画布编辑状态
+- 不参与字段语义判断
+- 只接收清洗后的 `ob-univer-snapshot@v1` 封装数据
+- 会过滤临时 `selection` 状态，避免脏选区回放导致 `getConfig/getSheetId`
 
-- 展示 `sheet.cells`
-- 展示字段放置区 `placements`
-- 响应选区变化
-- 支持拖拽移动字段区域
-- 支持 Univer 原生工具栏与右键菜单编辑字体、边框、底色、对齐、合并等画布能力
-- 合并区域发生重叠冲突时，自动跳过冲突项，避免整张画布渲染中断
-- 每次重绘前会先同步 worksheet 行列上限到 `template.sheet.rows/columns`，避免范围越界导致画布空白
-- 仅加载 `ob-univer-snapshot@v1` 封装快照，历史原始快照会自动忽略，避免 `getConfig/getSheetId` 初始化崩溃
-- 设计态保存与回放统一使用“清洗后的 snapshot”，会过滤临时 `selection` 状态，避免样式回写后又被当作新快照重复 `load`
-- 组件卸载时会先断开本地事件与 runtime 引用，再销毁 Univer 实例，避免跳预览/返回列表时出现 `getConfig/getSheetId`
+## Phase 1 页面结构
 
-当前右侧面板职责：
+设计页由三层组成：
 
-- 画布设置：网格线、缩放、画布参数与操作入口提示
-- 组件设置：字段清单、字段标签、必填、占位提示、行数、静态选项、placement 属性
-- 结构视图：模板结构摘要（sheet/fields/placements/snapshot）与只读 JSON
-- Workbench 通过控制层 composable 管理 `template / activeRange / selectedPlacement / snapshot sync`
-- 父到子只做引用变更同步，子到父仅在显式 action 后回传，避免 `deep watch + normalize` 触发递归更新
+### `DocumentFormDesignerPage.vue`
 
-## 运行态与预览态
+页面层已经降级为草稿壳：
 
-运行态不再直接运行一个 `Univer` 表单，而是走 Vue 渲染：
+- 进入页面时执行 `ensureDraft(createMockDocumentTemplate())`
+- 设计器变更时执行 `updateDraft(nextTemplate, '设计器实时保存草稿')`
+- 顶部只显示草稿版本与保存提示
 
-- `runtime/renderer.ts` 把 `sheet + fields + placements` 转成运行态表格模型
-- `runtime/DocumentRuntimePreview.vue` 用 HTML `table` 渲染真实版式
-- `apps/admin` 的预览页直接复用 `DocumentRuntimePreview`
+### `DocumentDesignerWorkbench.vue`
 
-预览页规则：
+只做编排，不再持有额外模板真源。
 
-- 路由：`/document-form/preview`
-- 默认优先读取当前草稿
-- 无草稿时回退发布版本
-- 再无数据时回退 `createDefaultDocumentTemplate()`
-- 支持双模式切换：
-  - `mode=runtime`：填写态（Vue 字段组件）
-  - `mode=print`：打印态（固定版式 + 纯展示字段，不输出输入控件）
+所有模板写入统一通过 `useDocumentDesignerController.ts` 收口，避免页面、Workbench、Canvas 多处同时改模板。
 
-## admin 接入
+### `DocumentPropertyInspector.vue`
 
-admin 模块主要文件：
+当前只保留两个面板：
 
-- `designPage/DocumentFormDesignerPage.vue`
-- `designPage/DocumentFormPreviewPage.vue`
-- `engine/register.ts`
-- `services/template-service.ts`
-- `mock/template.ts`
+- 画布设置：网格线、缩放、当前网格信息、原生操作提示
+- 组件设置：字段清单、字段标签、必填、占位提示、行数、静态选项、placement 属性、删除字段
 
-### 模板生命周期
+### `UniverDocumentCanvas.vue`
 
-`template-service.ts` 当前提供：
+当前只负责四件事：
 
-- `ensureDraft`
-- `updateDraft`
-- `publishDraft`
-- `rollbackToPublished`
-- `getSnapshot`
+- 初始化 / 销毁 `Univer`
+- 渲染 sheet 与 placement 标签
+- 向外抛出选区与拖拽事件
+- 输出清洗后的 snapshot
 
-当前草稿与发布快照会持久化到浏览器 `localStorage`（key: `ob_document_form_template_store_v1`），刷新页面后会自动恢复最近一次草稿状态。
-恢复时会经过 `normalizeDocumentTemplate()`，旧版 raw snapshot 会被忽略，带临时选区状态的 snapshot 会被自动清洗。
+## Phase 1 关键修复
 
-### 适配器契约
+当前稳定性依赖以下约束：
 
-`setupDocumentFormEngineForAdmin()` 当前暴露的是 **可选适配器契约**，不是强制运行态绑定：
+- 初始化时若草稿已带 snapshot，直接 `createWorkbook(templateSnapshot)`，不再先建空 workbook 再二次加载
+- 结构变更重绘与外部选区同步拆开处理，`activeRange` 变化只走 `syncCanvasSelection()`
+- 访问 worksheet / workbook 前先做有效性判断，已销毁对象直接短路
+- 快照保存统一走清洗与哈希去重，避免样式修改后再次插入字段时被旧快照回滚
+- 组件卸载时先断开本地 runtime 与事件，再整体销毁 `Univer`
 
-- `personnelSelector?`
-- `departmentSelector?`
-- `attachmentUpload?`
-- `richTextEditor?`
-- `stampPicker?`
+## 草稿持久化
 
-当前版本里，运行态预览默认继续使用共享包内置字段组件；admin 真实业务组件后续按需渐进接入。
+当前草稿仍持久化到浏览器 `localStorage`：
 
-## Univer 组件扩展说明
+- key：`ob_document_form_template_store_v1`
 
-当前设计器优先使用 `Univer` 自身表格能力完成 MVP 到产品主链：
+Phase 1 验收口径：
 
-- 表格
-- 合并
-- 边框
-- 单元格选区
-- 拖拽移动
-
-如果后续要在画布上叠加 Vue 自定义组件，应优先走官方扩展方式：
-
-- `univerAPI.registerComponent(...)`
-- `worksheet.addFloatDomToRange(...)`
-- `@univerjs/ui-adapter-vue3`
-
-并遵守两个约束：
-
-- 只在 `LifeCycleChanged -> Rendered/Steady` 之后挂载
-- 组件与 Univer 实例都必须在卸载时 `dispose`
-- 设计态切页/卸载时必须先失效异步调度（`queueMicrotask/setTimeout`），避免旧回调在销毁后访问失效 sheet 导致 `getConfig/getSheetId` 异常
-
-## 默认模板
-
-默认空白模板统一使用：
-
-```ts
-import { createDefaultDocumentTemplate } from '@one-base-template/document-form-engine';
-
-const template = createDefaultDocumentTemplate();
-```
-
-不要再在 admin 侧手写旧 `materials` 结构。
+1. 能进入 `/document-form/design`
+2. 选区后点击顶部字段按钮，可插入并在画布上可见
+3. 使用 `Univer` 修改样式后，再插入字段、切换选区、刷新页面，样式不回滚
+4. placement 可移动、可删除
+5. 刷新后草稿仍能恢复
 
 ## 验证命令
 
 ```bash
-pnpm -C packages/document-form-engine test:run
+pnpm -C packages/document-form-engine test:run -- tests/designer-canvas-source.test.ts tests/designer-controller.test.ts tests/designer-state.test.ts tests/designer-workbench-source.test.ts tests/schema-v3.test.ts
 pnpm -C packages/document-form-engine typecheck
-pnpm -C packages/document-form-engine build
-pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/engine/register.unit.test.ts
+pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/designPage/DocumentFormDesignerPage.source.test.ts src/modules/DocumentFormManagement/services/template-service.unit.test.ts
 pnpm -C apps/admin typecheck
 pnpm -C apps/docs lint
 pnpm -C apps/docs build
 ```
 
-## 当前范围
+## 下一阶段
 
-- 当前只覆盖 **发文单**
-- 设计态优先收敛到 sheet 能力，不再围绕左侧旧物料栏设计
-- 运行态预览优先保证版式还原与字段链路可用
-- 真实选人、附件、签章业务组件后续按契约渐进接入
+Phase 1 收口后，后续再单独推进：
+
+- 打印态 / 填写态双预览
+- 真实 Vue 运行态字段组件
+- 发布 / 回滚 / 历史版本
+- 模板结构视图

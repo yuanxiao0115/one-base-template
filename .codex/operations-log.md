@@ -2,6 +2,47 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-03-30（公文设计器 Phase 1 Univer 画布收口）
+
+- 按 `docs/plans/2026-03-30-document-form-phase1-univer-design.md` 与 `docs/plans/2026-03-30-document-form-phase1-univer-plan.md` 收口当前交付范围：只保留 `Univer` 画布编辑 MVP，不再把预览、发布、回滚、结构视图继续混在设计态主链里。
+- `apps/admin/src/modules/DocumentFormManagement/designPage/DocumentFormDesignerPage.vue` 已降级为草稿壳：页面只处理 `ensureDraft`、`updateDraft` 与返回列表，顶部仅展示草稿版本和自动保存提示。
+- `packages/document-form-engine/designer/DocumentPropertyInspector.vue` 已收缩为 `画布设置 / 组件设置` 两个面板，结构视图入口从本期主链移除。
+- `packages/document-form-engine/designer/UniverDocumentCanvas.vue` 补齐 Phase 1 稳定性主链：
+  - 初始化时若已有快照，直接 `createWorkbook(templateSnapshot)`。
+  - 外部 `activeRange` 改为单独同步到 `Univer` 选区，不再依赖全量重绘。
+  - 访问 worksheet / workbook 前增加已销毁对象短路。
+  - 继续使用清洗后的 snapshot + 哈希去重，避免样式修改后插入字段触发回滚。
+- 新增源码门禁测试：
+  - `packages/document-form-engine/tests/designer-canvas-source.test.ts`
+  - `apps/admin/src/modules/DocumentFormManagement/designPage/DocumentFormDesignerPage.source.test.ts`
+- 更新 `apps/docs/docs/guide/document-form-designer.md`，将文档口径同步为“Phase 1 只交付设计态草稿编辑 MVP”。
+- 浏览器回归采用 `agent-browser --session codex`（仓库要求的 `ab` 不可用，按约定使用可用回退）：
+  - 设计页可直接进入 `/document-form/design`
+  - 右侧仅看到 `画布设置 / 组件设置`
+  - A1 背景设为 `#ff0000` 后插入字段，样式未回滚
+  - 刷新后草稿仍恢复，删除字段后 `placements` 从 `3` 回到 `2`
+  - 页面错误列表为空
+- 浏览器证据：
+  - `.codex/document-form-phase1-design-refresh-fixed.png`
+  - `.codex/document-form-phase1-component-panel.png`
+
+## 2026-03-30（公文设计器控制层重构与快照卸载修复）
+
+- 新增 `packages/document-form-engine/designer/useDocumentDesignerController.ts`，把 `template / activeRange / selectedPlacement / snapshot sync` 收口到单一控制层，Workbench 不再维护 `syncingFromParent + deep watch(template)`。
+- `DocumentDesignerWorkbench.vue` 改为显式 action 回传：字段插入、placement 更新、viewport 更新、snapshot 回写都通过控制层提交。
+- `useDocumentDesignerState.ts` 新增 `syncSelectionState()`，在外部替换模板或删除 placement 后统一回退到有效选区。
+- `schema/template.ts` 增加 snapshot 清洗：过滤 `selection/selections/selectionData/activeSelection`，避免把临时选区状态持久化后再次灌回 Univer。
+- `UniverDocumentCanvas.vue` 收紧为“结构哈希 + 清洗后 snapshot 哈希”驱动重绘；保存快照时直接输出清洗后数据，避免样式变更后因 hash 不一致重复 `load`。
+- `UniverDocumentCanvas.vue` 销毁顺序调整为“先断开本地 runtime 与事件，再整体销毁 Univer 实例”，解决设计页跳预览时残留 `getSheetId`。
+- 浏览器自动化（`agent-browser --session codex`）完成设计页回归：
+  - 通过预置本地 token/user/menu 缓存绕过本地登录门禁；
+  - 在 `/document-form/design` 插入字段成功，草稿 `placements` 持久化递增；
+  - 直接通过页面内 `Univer` 实例设置 A1 背景色并触发 snapshot 保存，再插入字段后颜色保持 `#ff0000`；
+  - 刷新后草稿仍在，点击“预览”进入 `/document-form/preview`，`window.__errLogs=[]`。
+- 浏览器证据：
+  - `.codex/document-form-design-refactor.png`
+  - `.codex/document-form-preview-refactor.png`
+
 ## 2026-02-11
 
 - 初始化会话：读取 `AGENTS.md`，加载并遵循 `pnpm` / `turborepo` 相关规范
@@ -10501,3 +10542,41 @@
   - 继续保留 snapshot 同步/渲染短路守卫，减少 mount/unmount 高频切换时序竞态。
 - 文档同步：
   - `apps/docs/docs/guide/document-form-designer.md` 增补“卸载前必须失效异步调度，避免 `getConfig/getSheetId`”约束。
+- 追加修复：`workbook.load(snapshot)` 后刷新 `FWorksheet` 引用（`univerAPI.getActiveWorkbook()?.getActiveSheet()`），并重绑 `onCellDataChange` 监听，避免继续写入旧 sheet 引用导致内部 selection/formula 服务读取异常。
+
+## 2026-03-30（document-form-engine：设计页递归更新与快照协议收口）
+
+- 根因复盘（从头梳理）：
+  - `DocumentDesignerWorkbench.vue` 同时存在两条 `deep watch`（`props.modelValue -> template` 与 `template -> emit`）。
+  - `normalizeDocumentTemplate()` 每次返回新对象，导致父子间出现 `normalize -> emit -> 回写 -> 再 normalize` 的反馈环。
+  - `DocumentPropertyInspector.vue` 的缩放使用 `@input`，高频输入放大了反馈环触发概率，最终报 `Maximum recursive updates exceeded`。
+- 代码收口：
+  - `packages/document-form-engine/designer/DocumentDesignerWorkbench.vue`
+    - 改为“父到子引用变更同步 + 子到父单向回传”门闩：新增 `syncingFromParent`，去掉 `props` 侧 `deep watch`。
+  - `packages/document-form-engine/designer/useDocumentDesignerState.ts`
+    - `updateSheetViewport()` 增加“无变化短路”，避免重复写入触发无意义更新。
+  - `packages/document-form-engine/designer/DocumentPropertyInspector.vue`
+    - 缩放由 `@input` 改为 `@change`，并增加 `10-400` 归一化；网格线/缩放事件改为显式 handler。
+- Univer 快照协议收口（针对历史脏快照导致的初始化崩溃）：
+  - `packages/document-form-engine/schema/template.ts`
+    - 新增 `ob-univer-snapshot@v1` 封装协议：`createDesignerUniverSnapshotEnvelope / extractDesignerUniverSnapshotData`。
+    - `normalizeDocumentTemplate()` 仅接受 v1 封装快照；历史原始 `univerSnapshot` 自动丢弃。
+  - `packages/document-form-engine/designer/DocumentDesignerWorkbench.vue`
+    - 同步快照时写入 v1 封装结构。
+  - `packages/document-form-engine/designer/UniverDocumentCanvas.vue`
+    - 加载快照时只解析 v1 封装数据，不再直接加载任意对象。
+- 文档同步：
+  - `apps/docs/docs/guide/document-form-designer.md` 增补：
+    - Workbench 单向同步门闩说明（避免递归更新）。
+    - `ob-univer-snapshot@v1` 协议说明（历史快照自动忽略，避免 `getConfig/getSheetId` 崩溃）。
+- 浏览器自动化验证：
+  - 使用 `agent-browser --session codex`。
+  - 构造“历史 raw snapshot 草稿”后直接进入 `/document-form/design`，页面可正常渲染，网格线/缩放操作链路稳定。
+  - 页面侧 `window.__errLogs` 在交互后保持 `[]`。
+
+## 2026-03-30（template 登录页 Element Plus 解析链路修复）
+
+- 新增 `apps/template/build/vite-plugins.ts` 与 `apps/template/build/index.ts`，通过 `createTemplatePlugins()` 为 template 补齐 `AutoImport + Components + ElementPlusResolver`。
+- `apps/template/vite.config.ts` 改为使用 `createTemplatePlugins()`，不再停留在仅 `vue()` 的最小插件链。
+- `apps/template/tests/architecture/vite-plugin-parity-source.unit.test.ts` 新增源码门禁，锁定 template 必须保持与 admin 一致的 Element Plus 解析链路。
+- `apps/template/AGENTS.md` 与 `apps/docs/docs/guide/template-static-app.md` 补充启动骨架红线，明确 `createTemplatePlugins()` 为必选项。
