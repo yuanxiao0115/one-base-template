@@ -176,6 +176,7 @@ admin 模块主要文件：
 
 - 只在 `LifeCycleChanged -> Rendered/Steady` 之后挂载
 - 组件与 Univer 实例都必须在卸载时 `dispose`
+- 设计态切页/卸载时必须先失效异步调度（`queueMicrotask/setTimeout`），避免旧回调在销毁后访问失效 sheet 导致 `getConfig/getSheetId` 异常
 
 ## 默认模板
 

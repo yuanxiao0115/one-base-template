@@ -57,6 +57,7 @@ const lastSnapshotHashRef = ref('');
 const lastLoadedSnapshotHashRef = ref('');
 const lastStructureHashRef = ref('');
 const renderedCellRootsRef = ref<Set<string>>(new Set());
+const runtimeTokenRef = ref(0);
 
 function isSameRange(a: CanvasGridRange | null, b: CanvasGridRange | null) {
   if (!a || !b) {
@@ -196,7 +197,11 @@ function buildStructureHash() {
   });
 }
 
-function emitSnapshotIfChanged() {
+function emitSnapshotIfChanged(runtimeToken = runtimeTokenRef.value) {
+  if (runtimeToken !== runtimeTokenRef.value) {
+    return;
+  }
+
   if (suppressSnapshotSyncRef.value) {
     return;
   }
@@ -216,7 +221,11 @@ function emitSnapshotIfChanged() {
   emit('sync-univer-snapshot', snapshot as unknown as Record<string, unknown>);
 }
 
-function scheduleSnapshotSync(delay = 0) {
+function scheduleSnapshotSync(delay = 0, runtimeToken = runtimeTokenRef.value) {
+  if (runtimeToken !== runtimeTokenRef.value) {
+    return;
+  }
+
   if (delay > 0) {
     if (snapshotSyncTimerRef.value) {
       clearTimeout(snapshotSyncTimerRef.value);
@@ -224,7 +233,7 @@ function scheduleSnapshotSync(delay = 0) {
 
     snapshotSyncTimerRef.value = setTimeout(() => {
       snapshotSyncTimerRef.value = null;
-      scheduleSnapshotSync();
+      scheduleSnapshotSync(0, runtimeToken);
     }, delay);
     return;
   }
@@ -235,12 +244,20 @@ function scheduleSnapshotSync(delay = 0) {
 
   snapshotSyncScheduledRef.value = true;
   queueMicrotask(() => {
+    if (runtimeToken !== runtimeTokenRef.value) {
+      return;
+    }
+
     snapshotSyncScheduledRef.value = false;
-    emitSnapshotIfChanged();
+    emitSnapshotIfChanged(runtimeToken);
   });
 }
 
-function flushRender() {
+function flushRender(runtimeToken = runtimeTokenRef.value) {
+  if (runtimeToken !== runtimeTokenRef.value) {
+    return;
+  }
+
   renderScheduledRef.value = false;
 
   if (!canvasReadyRef.value || !renderPendingRef.value) {
@@ -248,14 +265,18 @@ function flushRender() {
   }
 
   renderPendingRef.value = false;
-  renderCanvas();
+  renderCanvas(runtimeToken);
 
   if (renderPendingRef.value) {
-    scheduleRender();
+    scheduleRender(runtimeToken);
   }
 }
 
-function scheduleRender() {
+function scheduleRender(runtimeToken = runtimeTokenRef.value) {
+  if (runtimeToken !== runtimeTokenRef.value) {
+    return;
+  }
+
   renderPendingRef.value = true;
 
   if (!canvasReadyRef.value || renderScheduledRef.value) {
@@ -263,20 +284,37 @@ function scheduleRender() {
   }
 
   renderScheduledRef.value = true;
-  queueMicrotask(flushRender);
+  queueMicrotask(() => {
+    flushRender(runtimeToken);
+  });
 }
 
 function disposeRuntime() {
-  const runtime = runtimeRef.value;
-  if (!runtime) {
-    return;
-  }
+  // 失效旧异步任务，避免卸载后旧回调访问已销毁实例。
+  runtimeTokenRef.value += 1;
 
-  runtime.disposables.forEach((item) => {
-    item.dispose();
-  });
-  runtime.setup.univer.dispose();
-  runtime.setup.univerAPI.dispose();
+  if (snapshotSyncTimerRef.value) {
+    clearTimeout(snapshotSyncTimerRef.value);
+  }
+  snapshotSyncTimerRef.value = null;
+  snapshotSyncScheduledRef.value = false;
+
+  const runtime = runtimeRef.value;
+  if (runtime) {
+    const workbookId = runtime.worksheet.getWorkbook().getUnitId();
+    if (workbookId) {
+      try {
+        runtime.setup.univerAPI.disposeUnit(workbookId);
+      } catch (error) {
+        console.warn('[UniverDocumentCanvas] dispose unit failed', error);
+      }
+    }
+
+    runtime.disposables.forEach((item) => {
+      item.dispose();
+    });
+    runtime.setup.univer.dispose();
+  }
 
   runtimeRef.value = null;
   selectionMoveStartRef.value = null;
@@ -284,17 +322,16 @@ function disposeRuntime() {
   renderScheduledRef.value = false;
   canvasReadyRef.value = false;
   suppressSnapshotSyncRef.value = false;
-  snapshotSyncScheduledRef.value = false;
-  if (snapshotSyncTimerRef.value) {
-    clearTimeout(snapshotSyncTimerRef.value);
-  }
-  snapshotSyncTimerRef.value = null;
   lastLoadedSnapshotHashRef.value = '';
   lastStructureHashRef.value = '';
   renderedCellRootsRef.value = new Set();
 }
 
-function renderCanvas() {
+function renderCanvas(runtimeToken = runtimeTokenRef.value) {
+  if (runtimeToken !== runtimeTokenRef.value) {
+    return;
+  }
+
   const runtime = runtimeRef.value;
   if (!runtime || !canvasReadyRef.value) {
     return;
@@ -311,6 +348,8 @@ function renderCanvas() {
   const workbook = runtime.worksheet.getWorkbook();
   const structureHash = buildStructureHash();
   const structureChanged = structureHash !== lastStructureHashRef.value;
+  const shouldSyncCellLabels =
+    !hasTemplateSnapshot || (structureChanged && !shouldLoadTemplateSnapshot);
   if (structureHash) {
     lastStructureHashRef.value = structureHash;
   }
@@ -364,7 +403,7 @@ function renderCanvas() {
           });
       });
     }
-    if (!hasTemplateSnapshot || structureChanged) {
+    if (shouldSyncCellLabels) {
       renderedCellRootsRef.value.forEach((key) => {
         const [rowPart, colPart] = key.split(':');
         const row = Number(rowPart);
@@ -390,38 +429,38 @@ function renderCanvas() {
   } finally {
     suppressSnapshotSyncRef.value = false;
     renderingRef.value = false;
-    scheduleSnapshotSync();
+    scheduleSnapshotSync(0, runtimeToken);
   }
 }
 
-function bindCanvasEvents(runtime: UniverRuntime) {
+function bindCanvasEvents(runtime: UniverRuntime, runtimeToken: number) {
   const host = hostRef.value;
   const triggerSnapshotSync = () => {
-    if (renderingRef.value) {
+    if (runtimeToken !== runtimeTokenRef.value || renderingRef.value) {
       return;
     }
 
-    scheduleSnapshotSync(120);
+    scheduleSnapshotSync(120, runtimeToken);
   };
 
   const selectionChangedDisposable = runtime.setup.univerAPI.addEvent(
     runtime.setup.univerAPI.Event.SelectionChanged,
     ({ selections }) => {
-      if (renderingRef.value || selections.length === 0) {
+      if (runtimeToken !== runtimeTokenRef.value || renderingRef.value || selections.length === 0) {
         return;
       }
 
       const range = canvasRangeToAnchor(rangeFromSelection(selections[0]!));
       emit('select-range', range);
       emit('select-placement', resolvePlacementByRange(range)?.id ?? null);
-      scheduleSnapshotSync();
+      scheduleSnapshotSync(0, runtimeToken);
     }
   );
 
   const selectionMoveStartDisposable = runtime.setup.univerAPI.addEvent(
     runtime.setup.univerAPI.Event.SelectionMoveStart,
     ({ selections }) => {
-      if (renderingRef.value || selections.length === 0) {
+      if (runtimeToken !== runtimeTokenRef.value || renderingRef.value || selections.length === 0) {
         return;
       }
 
@@ -432,7 +471,12 @@ function bindCanvasEvents(runtime: UniverRuntime) {
   const selectionMoveEndDisposable = runtime.setup.univerAPI.addEvent(
     runtime.setup.univerAPI.Event.SelectionMoveEnd,
     ({ selections }) => {
-      if (renderingRef.value || selections.length === 0 || !props.selectedPlacementId) {
+      if (
+        runtimeToken !== runtimeTokenRef.value ||
+        renderingRef.value ||
+        selections.length === 0 ||
+        !props.selectedPlacementId
+      ) {
         return;
       }
 
@@ -456,16 +500,16 @@ function bindCanvasEvents(runtime: UniverRuntime) {
         emit('update-placement-range', placement.id, nextAnchor);
       }
 
-      scheduleSnapshotSync();
+      scheduleSnapshotSync(0, runtimeToken);
     }
   );
 
   const cellDataChangeDisposable = runtime.worksheet.onCellDataChange(() => {
-    if (renderingRef.value) {
+    if (runtimeToken !== runtimeTokenRef.value || renderingRef.value) {
       return;
     }
 
-    scheduleSnapshotSync();
+    scheduleSnapshotSync(0, runtimeToken);
   });
 
   const interactiveEventNames = ['pointerup', 'keyup', 'paste', 'cut', 'drop'];
@@ -502,6 +546,7 @@ function initializeUniverCanvas() {
   }
 
   disposeRuntime();
+  const runtimeToken = runtimeTokenRef.value;
 
   const setup = createUniver({
     locale: LocaleType.ZH_CN,
@@ -534,20 +579,24 @@ function initializeUniverCanvas() {
   const lifecycleDisposable = setup.univerAPI.addEvent(
     setup.univerAPI.Event.LifeCycleChanged,
     ({ stage }) => {
+      if (runtimeToken !== runtimeTokenRef.value) {
+        return;
+      }
+
       const lifecycleEnum = setup.univerAPI.Enum.LifecycleStages;
       if (stage !== lifecycleEnum.Rendered && stage !== lifecycleEnum.Steady) {
         return;
       }
 
       canvasReadyRef.value = true;
-      scheduleRender();
+      scheduleRender(runtimeToken);
     }
   );
 
   runtime.disposables.push(lifecycleDisposable);
-  bindCanvasEvents(runtime);
+  bindCanvasEvents(runtime, runtimeToken);
   runtimeRef.value = runtime;
-  scheduleRender();
+  scheduleRender(runtimeToken);
 }
 
 watch(

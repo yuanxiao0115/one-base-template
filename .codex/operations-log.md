@@ -10487,3 +10487,17 @@
   - 补充打印展示样式类（`document-field-widget--print` 等）。
 - `packages/document-form-engine/tests/field-widget-registry.test.ts`
   - 新增断言：默认 `printRenderer` 与 `runtimeRenderer` 分离。
+
+## 2026-03-30（document-form-engine：Univer 设计态切页 `getConfig/getSheetId` 崩溃修复）
+
+- 复现与证据：
+  - 使用 `agent-browser --session codex` 在 `/document-form/design` 注入 `window.onerror/unhandledrejection` 监听。
+  - 通过“设计页 -> 预览页”切换复现 `Cannot read properties of undefined (reading 'getConfig')` 与 `getSheetId` 报错。
+  - 对照 Vite+ 客户端日志定位到 `@univerjs/sheets-ui` 选区计算与 `@univerjs/sheets-formula` 脏数据计算链路。
+- 修复文件：`packages/document-form-engine/designer/UniverDocumentCanvas.vue`
+  - 增加 runtime token（代次守卫），对 `queueMicrotask/setTimeout` 的旧回调统一失效，避免销毁后回调触发。
+  - `disposeRuntime()` 在销毁前先 `runtime.setup.univerAPI.disposeUnit(workbookUnitId)`，再回收监听并销毁实例。
+  - 单元格标签写入策略收敛：新增 `shouldSyncCellLabels`，避免“已加载 snapshot 后立刻二次 `setValue`”导致额外公式链路抖动。
+  - 继续保留 snapshot 同步/渲染短路守卫，减少 mount/unmount 高频切换时序竞态。
+- 文档同步：
+  - `apps/docs/docs/guide/document-form-designer.md` 增补“卸载前必须失效异步调度，避免 `getConfig/getSheetId`”约束。

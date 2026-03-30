@@ -8944,3 +8944,17 @@
 - 浏览器回归：
   - `/document-form/preview?mode=runtime`：存在 textbox（填写态）。
   - `/document-form/preview?mode=print`：无 textbox/select，字段以纯文本展示。
+
+## 2026-03-30（document-form-engine：Univer 切页崩溃修复）
+
+- 命令：
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 全部通过。
+- 浏览器验证（`agent-browser --session codex`）：
+  - 在 `/document-form/design` 注入全局错误监听后执行路由切换（设计/预览往返）。
+  - 页面端 `window.__errLogs` 未再捕获 `getConfig/getSheetId` 异常。
+  - Vite+ 客户端日志在修复后仅出现既有“路由不应添加为标签”警告，未再出现 Univer `getConfig/getSheetId/getCellMatrix` 崩溃堆栈。
