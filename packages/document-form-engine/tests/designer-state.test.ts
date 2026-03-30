@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { ref } from 'vue';
 
-import { createDefaultDocumentTemplate, createDispatchDocumentTemplate } from '../schema/template';
+import { createDispatchDocumentTemplate } from '../schema/template';
 import { useDocumentDesignerState } from '../designer/useDocumentDesignerState';
 
 describe('document designer state', () => {
@@ -84,15 +84,16 @@ describe('document designer state', () => {
     expect(state.selectedPlacement.value?.id).toBe(templateRef.value.placements[0]?.id);
   });
 
-  it('应支持重置回发文单预设', () => {
-    const templateRef = ref(createDefaultDocumentTemplate());
+  it('应支持更新画布视口配置', () => {
+    const templateRef = ref(createDispatchDocumentTemplate());
     const state = useDocumentDesignerState(templateRef);
 
-    state.resetToDispatchPreset();
+    state.updateSheetViewport({
+      showGrid: true,
+      zoom: 125
+    });
 
-    expect(templateRef.value.title).toBe('发文单示例模板');
-    expect(templateRef.value.placements).not.toHaveLength(0);
-    expect(state.selectedPlacement.value?.id).toBe(templateRef.value.placements[0]?.id);
-    expect(state.activeRange.value).toMatchObject(templateRef.value.placements[0]?.range ?? {});
+    expect(templateRef.value.sheet.viewport.showGrid).toBe(true);
+    expect(templateRef.value.sheet.viewport.zoom).toBe(125);
   });
 });

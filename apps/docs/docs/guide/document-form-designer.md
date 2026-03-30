@@ -8,7 +8,7 @@
   - 设计态使用 `Univer`
   - 模板协议使用 `version: '3'`
   - 运行态与预览态使用 Vue 组件渲染
-- 首发模板固定为 **发文单**，默认种子来自 `createDispatchDocumentTemplate()`。
+- 设计器默认从 **空白模板** 开始，模板版式通过 Univer 画布直接编辑。
 - 设计页提供 **预览** 按钮，打开独立全屏预览页，默认读取当前草稿。
 - admin 侧只做页面组装与业务服务注入，不再维护平行的物料协议。
 
@@ -84,9 +84,9 @@
 
 设计器页面由三部分组成：
 
-- 顶部工具条：插入字段、恢复发文单预设
+- 顶部工具条：插入字段
 - 中央画布：`UniverDocumentCanvas`
-- 右侧面板：`DocumentPropertyInspector`
+- 右侧面板：`DocumentPropertyInspector`（画布设置 / 组件设置）
 
 当前 `Univer` 画布职责：
 
@@ -94,17 +94,14 @@
 - 展示字段放置区 `placements`
 - 响应选区变化
 - 支持拖拽移动字段区域
-- 把合并、边框、底色等配置回写到模板
+- 支持 Univer 原生工具栏与右键菜单编辑字体、边框、底色、对齐、合并等画布能力
 - 合并区域发生重叠冲突时，自动跳过冲突项，避免整张画布渲染中断
 - 每次重绘前会先同步 worksheet 行列上限到 `template.sheet.rows/columns`，避免范围越界导致画布空白
 
 当前右侧面板职责：
 
-- 字段列表切换
-- 字段标签、必填、占位提示、行数、静态选项编辑
-- placement 的展示模式、区域归属、只读开关
-- 合并区域编辑
-- 单元格样式编辑
+- 画布设置：网格线、缩放、画布参数与操作入口提示
+- 组件设置：字段清单、字段标签、必填、占位提示、行数、静态选项、placement 属性
 
 ## 运行态与预览态
 
@@ -119,7 +116,7 @@
 - 路由：`/document-form/preview`
 - 默认优先读取当前草稿
 - 无草稿时回退发布版本
-- 再无数据时回退 `createDispatchDocumentTemplate()`
+- 再无数据时回退 `createDefaultDocumentTemplate()`
 
 ## admin 接入
 
@@ -176,12 +173,12 @@ admin 模块主要文件：
 
 ## 默认模板
 
-默认发文单模板统一使用：
+默认空白模板统一使用：
 
 ```ts
-import { createDispatchDocumentTemplate } from '@one-base-template/document-form-engine';
+import { createDefaultDocumentTemplate } from '@one-base-template/document-form-engine';
 
-const template = createDispatchDocumentTemplate();
+const template = createDefaultDocumentTemplate();
 ```
 
 不要再在 admin 侧手写旧 `materials` 结构。

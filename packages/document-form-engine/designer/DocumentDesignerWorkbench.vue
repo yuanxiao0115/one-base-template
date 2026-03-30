@@ -98,6 +98,17 @@ function handlePlacementUpdate(
 ) {
   state.updateSelectedPlacement(patch);
 }
+
+function handleSheetViewportUpdate(patch: Partial<DocumentTemplateSchema['sheet']['viewport']>) {
+  state.updateSheetViewport(patch);
+}
+
+function handleUniverSnapshotSync(snapshot: Record<string, unknown>) {
+  template.value.designer = {
+    ...template.value.designer,
+    univerSnapshot: snapshot
+  };
+}
 </script>
 
 <template>
@@ -130,11 +141,6 @@ function handlePlacementUpdate(
           </button>
         </div>
       </div>
-      <div class="toolbar-group toolbar-group--end">
-        <button type="button" class="toolbar-btn" @click="state.resetToDispatchPreset">
-          恢复发文单预设
-        </button>
-      </div>
     </section>
 
     <div class="workbench-body">
@@ -144,20 +150,18 @@ function handlePlacementUpdate(
         :template="template"
         @select-placement="handlePlacementSelect"
         @select-range="handleRangeSelect"
+        @sync-univer-snapshot="handleUniverSnapshotSync"
         @update-placement-range="handlePlacementRangeUpdate"
       />
       <DocumentPropertyInspector
-        :active-range="activeRange"
         :selected-field="selectedField"
         :selected-placement="selectedPlacement"
         :template="template"
-        @add-current-merge="state.addMergeForActiveRange"
-        @apply-sheet-style="state.applyStyleToActiveRange"
-        @remove-merge="state.removeMerge"
         @remove-placement="state.removeSelectedPlacement"
         @select-placement="handlePlacementSelect"
         @update-field="handleFieldUpdate"
         @update-field-options="handleFieldOptionsUpdate"
+        @update-sheet-viewport="handleSheetViewportUpdate"
         @update-placement="handlePlacementUpdate"
       />
     </div>

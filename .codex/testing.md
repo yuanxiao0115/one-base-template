@@ -8898,3 +8898,20 @@
   - 复现路径：`/document-form/design`。
   - 验证点 1：修复后 worksheet `maxCols=24`，`A1/F3/X1` 都可读到文本值。
   - 验证点 2：多选区后点击“文本”，`placements` 增加，且新 placement 左上角单元格值为 `[text] 文本`。
+
+## 2026-03-30（公文设计器：Univer 样式回滚修复）
+
+- 命令：
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 上述命令全部通过。
+- 浏览器回归（`agent-browser --session codex`）：
+  - 路径：`/document-form/design`
+  - 断言 1：Univer 原生 ribbon 可见，右侧为“画布设置/组件设置”。
+  - 断言 2：先设置 A1 背景色，再执行“插入字段”触发结构变更，A1 样式保持不变（未复原）。
+- 追加回归：
+  - `pnpm -C packages/document-form-engine test:run -- tests/designer-state.test.ts`
+  - 结果：通过（`7 files / 19 tests`）。

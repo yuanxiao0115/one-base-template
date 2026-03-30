@@ -5,7 +5,7 @@ import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core';
 import zhCN from '@univerjs/preset-sheets-core/locales/zh-CN';
 import '@univerjs/preset-sheets-core/lib/index.css';
 
-import type { DocumentSheetRange, DocumentSheetStyle } from '../schema/sheet';
+import type { DocumentSheetRange } from '../schema/sheet';
 import type { DocumentTemplateSchema } from '../schema/types';
 import {
   anchorToCanvasRange,
@@ -30,6 +30,7 @@ const emit = defineEmits<{
   (e: 'select-placement', placementId: string | null): void;
   (e: 'select-range', range: DocumentSheetRange): void;
   (e: 'update-placement-range', placementId: string, range: DocumentSheetRange): void;
+  (e: 'sync-univer-snapshot', snapshot: Record<string, unknown>): void;
 }>();
 
 type UniverSetup = ReturnType<typeof createUniver>;
@@ -49,6 +50,13 @@ const renderPendingRef = ref(false);
 const renderScheduledRef = ref(false);
 const canvasReadyRef = ref(false);
 const selectionMoveStartRef = ref<CanvasGridRange | null>(null);
+const suppressSnapshotSyncRef = ref(false);
+const snapshotSyncScheduledRef = ref(false);
+const snapshotSyncTimerRef = ref<ReturnType<typeof setTimeout> | null>(null);
+const lastSnapshotHashRef = ref('');
+const lastLoadedSnapshotHashRef = ref('');
+const lastStructureHashRef = ref('');
+const renderedCellRootsRef = ref<Set<string>>(new Set());
 
 function isSameRange(a: CanvasGridRange | null, b: CanvasGridRange | null) {
   if (!a || !b) {
@@ -114,51 +122,6 @@ function rangeFromSelection(range: IRange): CanvasGridRange {
   };
 }
 
-function cloneStyle(style: DocumentSheetStyle): DocumentSheetStyle {
-  return {
-    row: style.row,
-    col: style.col,
-    rowspan: style.rowspan,
-    colspan: style.colspan,
-    backgroundColor: style.backgroundColor,
-    textColor: style.textColor,
-    fontSize: style.fontSize,
-    fontWeight: style.fontWeight,
-    horizontalAlign: style.horizontalAlign,
-    verticalAlign: style.verticalAlign,
-    wrap: style.wrap,
-    border: style.border
-      ? {
-          ...style.border
-        }
-      : undefined
-  };
-}
-
-function resolveStyle(styles: DocumentSheetStyle[], row: number, col: number) {
-  const matched = styles.filter((item) => isRangeCoveringCell(item, row, col));
-  if (matched.length === 0) {
-    return null;
-  }
-
-  return matched.reduce<DocumentSheetStyle | null>((result, current) => {
-    if (!result) {
-      return cloneStyle(current);
-    }
-
-    return {
-      ...result,
-      ...cloneStyle(current),
-      border: current.border
-        ? {
-            ...result.border,
-            ...current.border
-          }
-        : result.border
-    };
-  }, null);
-}
-
 function collectMergedRanges() {
   const pickedRanges: DocumentSheetRange[] = [];
   const seenRangeKeys = new Set<string>();
@@ -195,6 +158,86 @@ function collectMergedRanges() {
     });
 
   return pickedRanges;
+}
+
+function safeSerialize(value: unknown) {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '';
+  }
+}
+
+function extractTemplateSnapshot() {
+  const snapshot = props.template.designer?.univerSnapshot;
+  if (!snapshot || typeof snapshot !== 'object') {
+    return null;
+  }
+
+  return snapshot as Record<string, unknown>;
+}
+
+function buildStructureHash() {
+  return safeSerialize({
+    rows: props.template.sheet.rows,
+    columns: props.template.sheet.columns,
+    staticCells: props.template.sheet.cells.map((item) => ({
+      row: item.row,
+      col: item.col,
+      rowspan: item.rowspan,
+      colspan: item.colspan,
+      value: item.value
+    })),
+    placements: props.template.placements.map((item) => ({
+      id: item.id,
+      fieldId: item.fieldId,
+      range: item.range
+    }))
+  });
+}
+
+function emitSnapshotIfChanged() {
+  if (suppressSnapshotSyncRef.value) {
+    return;
+  }
+
+  const runtime = runtimeRef.value;
+  if (!runtime || !canvasReadyRef.value) {
+    return;
+  }
+
+  const snapshot = runtime.worksheet.getWorkbook().save();
+  const nextHash = safeSerialize(snapshot);
+  if (!nextHash || nextHash === lastSnapshotHashRef.value) {
+    return;
+  }
+
+  lastSnapshotHashRef.value = nextHash;
+  emit('sync-univer-snapshot', snapshot as unknown as Record<string, unknown>);
+}
+
+function scheduleSnapshotSync(delay = 0) {
+  if (delay > 0) {
+    if (snapshotSyncTimerRef.value) {
+      clearTimeout(snapshotSyncTimerRef.value);
+    }
+
+    snapshotSyncTimerRef.value = setTimeout(() => {
+      snapshotSyncTimerRef.value = null;
+      scheduleSnapshotSync();
+    }, delay);
+    return;
+  }
+
+  if (snapshotSyncScheduledRef.value) {
+    return;
+  }
+
+  snapshotSyncScheduledRef.value = true;
+  queueMicrotask(() => {
+    snapshotSyncScheduledRef.value = false;
+    emitSnapshotIfChanged();
+  });
 }
 
 function flushRender() {
@@ -240,33 +283,15 @@ function disposeRuntime() {
   renderPendingRef.value = false;
   renderScheduledRef.value = false;
   canvasReadyRef.value = false;
-}
-
-function applyCellStyle(
-  runtime: UniverRuntime,
-  cellRange: ReturnType<UniverWorksheet['getRange']>,
-  style: DocumentSheetStyle | null
-) {
-  const horizontalAlign =
-    style?.horizontalAlign === 'right' ? 'normal' : (style?.horizontalAlign ?? 'center');
-
-  cellRange
-    .setWrap(style?.wrap ?? true)
-    .setFontSize(style?.fontSize ?? 12)
-    .setHorizontalAlignment(horizontalAlign)
-    .setVerticalAlignment((style?.verticalAlign ?? 'middle') as never)
-    .setBackground(style?.backgroundColor ?? '#ffffff');
-
-  if (style?.fontWeight === 'bold' || Number(style?.fontWeight) >= 600) {
-    cellRange.setFontWeight('bold');
+  suppressSnapshotSyncRef.value = false;
+  snapshotSyncScheduledRef.value = false;
+  if (snapshotSyncTimerRef.value) {
+    clearTimeout(snapshotSyncTimerRef.value);
   }
-
-  const borderColor = style?.border?.top?.color ?? '#cbd5e1';
-  cellRange.setBorder(
-    runtime.setup.univerAPI.Enum.BorderType.ALL,
-    runtime.setup.univerAPI.Enum.BorderStyleTypes.THIN,
-    borderColor
-  );
+  snapshotSyncTimerRef.value = null;
+  lastLoadedSnapshotHashRef.value = '';
+  lastStructureHashRef.value = '';
+  renderedCellRootsRef.value = new Set();
 }
 
 function renderCanvas() {
@@ -277,14 +302,37 @@ function renderCanvas() {
 
   const metrics = resolveCanvasGridMetrics(props.template);
   const cells = buildCanvasSheetCells(props.template, props.selectedPlacementId);
-  const mergedRanges = collectMergedRanges();
+  const mergedRanges = collectMergedRanges().map((item) => anchorToCanvasRange(item));
+  const templateSnapshot = extractTemplateSnapshot();
+  const hasTemplateSnapshot = Boolean(templateSnapshot);
+  const templateSnapshotHash = templateSnapshot ? safeSerialize(templateSnapshot) : '';
+  const shouldLoadTemplateSnapshot =
+    Boolean(templateSnapshotHash) && templateSnapshotHash !== lastLoadedSnapshotHashRef.value;
+  const workbook = runtime.worksheet.getWorkbook();
+  const structureHash = buildStructureHash();
+  const structureChanged = structureHash !== lastStructureHashRef.value;
+  if (structureHash) {
+    lastStructureHashRef.value = structureHash;
+  }
 
   renderingRef.value = true;
+  suppressSnapshotSyncRef.value = true;
 
   try {
-    runtime.worksheet.clear();
+    if (templateSnapshot && shouldLoadTemplateSnapshot) {
+      workbook.load(templateSnapshot as never);
+      lastLoadedSnapshotHashRef.value = templateSnapshotHash;
+      lastSnapshotHashRef.value = templateSnapshotHash;
+    } else if (!templateSnapshotHash) {
+      lastLoadedSnapshotHashRef.value = '';
+    }
+
     runtime.worksheet.setRowCount(metrics.maxRows);
     runtime.worksheet.setColumnCount(metrics.maxColumns);
+    runtime.worksheet.setHiddenGridlines(!props.template.sheet.viewport.showGrid);
+    runtime.worksheet.zoom(
+      Math.max(0.1, Math.min(4, (props.template.sheet.viewport.zoom || 100) / 100))
+    );
     runtime.worksheet.setColumnWidths(0, metrics.maxColumns, metrics.columnWidth);
     runtime.worksheet.setRowHeightsForced(0, metrics.maxRows, metrics.rowHeight);
 
@@ -302,75 +350,60 @@ function renderCanvas() {
       }
     }
 
-    mergedRanges.forEach((range) => {
-      runtime.worksheet.getRange(range.row - 1, range.col - 1, range.rowspan, range.colspan).merge({
-        isForceMerge: true
+    if (!hasTemplateSnapshot) {
+      mergedRanges.forEach((range) => {
+        runtime.worksheet
+          .getRange(
+            range.startRow,
+            range.startColumn,
+            range.endRow - range.startRow + 1,
+            range.endColumn - range.startColumn + 1
+          )
+          .merge({
+            isForceMerge: true
+          });
       });
-    });
+    }
+    if (!hasTemplateSnapshot || structureChanged) {
+      renderedCellRootsRef.value.forEach((key) => {
+        const [rowPart, colPart] = key.split(':');
+        const row = Number(rowPart);
+        const col = Number(colPart);
+        if (!Number.isFinite(row) || !Number.isFinite(col)) {
+          return;
+        }
 
-    cells.forEach((cell) => {
-      const rootRow = cell.range.startRow + 1;
-      const rootCol = cell.range.startColumn + 1;
-      const baseStyle = resolveStyle(props.template.sheet.styles, rootRow, rootCol);
-      const cellRange = runtime.worksheet.getRange(
-        cell.range.startRow,
-        cell.range.startColumn,
-        cell.rowCount,
-        cell.columnCount
-      );
+        runtime.worksheet.getRange(row, col, 1, 1).setValue('');
+      });
 
-      const finalStyle: DocumentSheetStyle | null =
-        cell.kind === 'field'
-          ? {
-              row: rootRow,
-              col: rootCol,
-              rowspan: cell.rowCount,
-              colspan: cell.columnCount,
-              backgroundColor: cell.isActive
-                ? '#dbeafe'
-                : (baseStyle?.backgroundColor ?? '#eff6ff'),
-              textColor: baseStyle?.textColor ?? '#1d4ed8',
-              fontSize: baseStyle?.fontSize,
-              fontWeight: baseStyle?.fontWeight ?? 'bold',
-              horizontalAlign: baseStyle?.horizontalAlign ?? 'center',
-              verticalAlign: baseStyle?.verticalAlign ?? 'middle',
-              wrap: baseStyle?.wrap ?? true,
-              border: {
-                top: {
-                  color: cell.isActive ? '#2563eb' : '#93c5fd',
-                  style: 'solid' as const,
-                  width: 1
-                },
-                right: {
-                  color: cell.isActive ? '#2563eb' : '#93c5fd',
-                  style: 'solid' as const,
-                  width: 1
-                },
-                bottom: {
-                  color: cell.isActive ? '#2563eb' : '#93c5fd',
-                  style: 'solid' as const,
-                  width: 1
-                },
-                left: {
-                  color: cell.isActive ? '#2563eb' : '#93c5fd',
-                  style: 'solid' as const,
-                  width: 1
-                }
-              }
-            }
-          : baseStyle;
-
-      cellRange.setValue(cell.label);
-      applyCellStyle(runtime, cellRange, finalStyle);
-    });
+      const nextRoots = new Set<string>();
+      cells.forEach((cell) => {
+        runtime.worksheet
+          .getRange(cell.range.startRow, cell.range.startColumn, 1, 1)
+          .setValue(cell.label);
+        nextRoots.add(`${cell.range.startRow}:${cell.range.startColumn}`);
+      });
+      renderedCellRootsRef.value = nextRoots;
+    }
   } catch (error) {
     console.error('[UniverDocumentCanvas] render failed', error);
   } finally {
+    suppressSnapshotSyncRef.value = false;
     renderingRef.value = false;
+    scheduleSnapshotSync();
   }
 }
 
 function bindCanvasEvents(runtime: UniverRuntime) {
+  const host = hostRef.value;
+  const triggerSnapshotSync = () => {
+    if (renderingRef.value) {
+      return;
+    }
+
+    scheduleSnapshotSync(120);
+  };
+
   const selectionChangedDisposable = runtime.setup.univerAPI.addEvent(
     runtime.setup.univerAPI.Event.SelectionChanged,
     ({ selections }) => {
@@ -381,6 +414,7 @@ function bindCanvasEvents(runtime: UniverRuntime) {
       const range = canvasRangeToAnchor(rangeFromSelection(selections[0]!));
       emit('select-range', range);
       emit('select-placement', resolvePlacementByRange(range)?.id ?? null);
+      scheduleSnapshotSync();
     }
   );
 
@@ -421,14 +455,45 @@ function bindCanvasEvents(runtime: UniverRuntime) {
       if (!isSameAnchor(nextAnchor, placement.range)) {
         emit('update-placement-range', placement.id, nextAnchor);
       }
+
+      scheduleSnapshotSync();
     }
   );
+
+  const cellDataChangeDisposable = runtime.worksheet.onCellDataChange(() => {
+    if (renderingRef.value) {
+      return;
+    }
+
+    scheduleSnapshotSync();
+  });
+
+  const interactiveEventNames = ['pointerup', 'keyup', 'paste', 'cut', 'drop'];
+  if (host) {
+    interactiveEventNames.forEach((eventName) => {
+      host.addEventListener(eventName, triggerSnapshotSync, true);
+    });
+  }
 
   runtime.disposables.push(
     selectionChangedDisposable,
     selectionMoveStartDisposable,
     selectionMoveEndDisposable
   );
+  if (cellDataChangeDisposable) {
+    runtime.disposables.push(cellDataChangeDisposable);
+  }
+  runtime.disposables.push({
+    dispose: () => {
+      if (!host) {
+        return;
+      }
+
+      interactiveEventNames.forEach((eventName) => {
+        host.removeEventListener(eventName, triggerSnapshotSync, true);
+      });
+    }
+  });
 }
 
 function initializeUniverCanvas() {
@@ -446,11 +511,11 @@ function initializeUniverCanvas() {
     presets: [
       UniverSheetsCorePreset({
         container: hostRef.value,
-        header: false,
-        toolbar: false,
-        formulaBar: false,
+        header: true,
+        toolbar: true,
+        formulaBar: true,
         footer: false,
-        contextMenu: false
+        contextMenu: true
       })
     ]
   });
@@ -487,21 +552,6 @@ function initializeUniverCanvas() {
 
 watch(
   () => props.template,
-  () => {
-    scheduleRender();
-  },
-  { deep: true }
-);
-
-watch(
-  () => props.selectedPlacementId,
-  () => {
-    scheduleRender();
-  }
-);
-
-watch(
-  () => props.activeRange,
   () => {
     scheduleRender();
   },

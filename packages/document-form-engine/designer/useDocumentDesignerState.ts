@@ -1,6 +1,5 @@
 import { computed, ref } from 'vue';
 
-import { createDispatchDocumentTemplate } from '../schema/template';
 import type {
   DocumentFieldOption,
   DocumentFieldType,
@@ -178,14 +177,6 @@ export function useDocumentDesignerState(templateRef: { value: DocumentTemplateS
     selectedPlacementId.value = placementId;
   }
 
-  function resetToDispatchPreset() {
-    templateRef.value = createDispatchDocumentTemplate();
-    selectedPlacementId.value = templateRef.value.placements[0]?.id ?? null;
-    activeRange.value = templateRef.value.placements[0]?.range
-      ? cloneRange(templateRef.value.placements[0].range)
-      : createInitialRange();
-  }
-
   function updateSelectedField(patch: Partial<DocumentTemplateField>) {
     if (!selectedField.value) {
       return;
@@ -254,6 +245,13 @@ export function useDocumentDesignerState(templateRef: { value: DocumentTemplateS
     );
   }
 
+  function updateSheetViewport(patch: Partial<DocumentTemplateSchema['sheet']['viewport']>) {
+    templateRef.value.sheet.viewport = {
+      ...templateRef.value.sheet.viewport,
+      ...patch
+    };
+  }
+
   function applyStyleToActiveRange(patch: Parameters<typeof applySheetStyleToAnchor>[2]) {
     templateRef.value.sheet.styles = applySheetStyleToAnchor(
       templateRef.value.sheet.styles,
@@ -310,10 +308,10 @@ export function useDocumentDesignerState(templateRef: { value: DocumentTemplateS
     selectPlacement,
     insertField,
     removeSelectedPlacement,
-    resetToDispatchPreset,
     updateSelectedField,
     updateSelectedFieldOptions,
     updateSelectedPlacement,
+    updateSheetViewport,
     updatePlacementRange,
     applyStyleToActiveRange,
     addMergeForActiveRange,

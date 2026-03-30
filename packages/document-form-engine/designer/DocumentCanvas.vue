@@ -17,6 +17,7 @@ const emit = defineEmits<{
   (e: 'select-placement', placementId: string | null): void;
   (e: 'select-range', range: DocumentSheetRange): void;
   (e: 'update-placement-range', placementId: string, range: DocumentSheetRange): void;
+  (e: 'sync-univer-snapshot', snapshot: Record<string, unknown>): void;
 }>();
 
 function handlePlacementRangeUpdate(placementId: string, range: DocumentSheetRange) {
@@ -31,6 +32,7 @@ function handlePlacementRangeUpdate(placementId: string, range: DocumentSheetRan
     :template="props.template"
     @select-placement="emit('select-placement', $event)"
     @select-range="emit('select-range', $event)"
+    @sync-univer-snapshot="emit('sync-univer-snapshot', $event)"
     @update-placement-range="handlePlacementRangeUpdate"
   />
 </template>

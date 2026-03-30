@@ -108,7 +108,7 @@ export function createDefaultDocumentTemplate(): DocumentTemplateSchema {
   return {
     version: '3',
     kind: 'dispatch-form',
-    title: '发文单模板',
+    title: '公文模板',
     page,
     print: {
       showGrid: false
@@ -123,7 +123,8 @@ export function createDefaultDocumentTemplate(): DocumentTemplateSchema {
       showGrid: false
     }),
     fields: [],
-    placements: []
+    placements: [],
+    designer: {}
   };
 }
 
@@ -431,7 +432,18 @@ export function normalizeDocumentTemplate(
           },
     sheet: normalizeDocumentSheet(input.sheet, fallback.sheet),
     fields: normalizeFields(input.fields),
-    placements: normalizePlacements(input.placements)
+    placements: normalizePlacements(input.placements),
+    designer:
+      input.designer && typeof input.designer === 'object'
+        ? {
+            univerSnapshot:
+              input.designer.univerSnapshot && typeof input.designer.univerSnapshot === 'object'
+                ? { ...(input.designer.univerSnapshot as Record<string, unknown>) }
+                : undefined
+          }
+        : {
+            ...fallback.designer
+          }
   };
 }
 

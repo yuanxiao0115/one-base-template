@@ -90,6 +90,10 @@ export interface DocumentTemplatePresetDescriptor {
   version: string;
 }
 
+export interface DocumentTemplateDesignerState {
+  univerSnapshot?: Record<string, unknown>;
+}
+
 export interface DocumentTemplateSchema {
   version: '3';
   kind: 'dispatch-form';
@@ -102,6 +106,7 @@ export interface DocumentTemplateSchema {
   sheet: DocumentTemplateSheetConfig;
   fields: DocumentTemplateField[];
   placements: DocumentTemplatePlacement[];
+  designer?: DocumentTemplateDesignerState;
 }
 
 export interface DocumentTemplateSerializationResult {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import type {
   DocumentFieldOption,
@@ -7,10 +7,6 @@ import type {
   DocumentTemplatePlacement,
   DocumentTemplateSchema
 } from '../schema/types';
-import type { DocumentSheetRange } from '../schema/sheet';
-import type { DocumentSheetStylePatch } from './sheet-ops';
-import MergeEditor from './panels/MergeEditor.vue';
-import SheetStyleEditor from './panels/SheetStyleEditor.vue';
 
 defineOptions({
   name: 'DocumentPropertyInspector'
@@ -42,7 +38,6 @@ const SECTION_OPTIONS: Array<{
 
 const props = defineProps<{
   template: DocumentTemplateSchema;
-  activeRange: DocumentSheetRange | null;
   selectedPlacement: DocumentTemplatePlacement | null;
   selectedField: DocumentTemplateField | null;
 }>();
@@ -55,15 +50,11 @@ const emit = defineEmits<{
     e: 'update-placement',
     patch: Partial<Pick<DocumentTemplatePlacement, 'displayMode' | 'section' | 'readonly'>>
   ): void;
+  (e: 'update-sheet-viewport', patch: Partial<DocumentTemplateSchema['sheet']['viewport']>): void;
   (e: 'remove-placement'): void;
-  (e: 'apply-sheet-style', value: DocumentSheetStylePatch): void;
-  (e: 'add-current-merge'): void;
-  (e: 'remove-merge', index: number): void;
 }>();
 
-function isSameRange(a: DocumentSheetRange, b: DocumentSheetRange) {
-  return a.row === b.row && a.col === b.col && a.rowspan === b.rowspan && a.colspan === b.colspan;
-}
+const activePanel = ref<'canvas' | 'component'>('canvas');
 
 function formatOptions(options: DocumentFieldOption[] | undefined) {
   if (!options || options.length === 0) {
@@ -89,14 +80,6 @@ function parseOptions(value: string) {
       };
     });
 }
-
-const selectedRangeStyle = computed(() => {
-  if (!props.activeRange) {
-    return null;
-  }
-
-  return props.template.sheet.styles.find((item) => isSameRange(item, props.activeRange!)) ?? null;
-});
 
 const placementSummaries = computed(() =>
   props.template.placements.map((placement) => {
@@ -145,199 +128,245 @@ const showOptionsEditor = computed(() => {
 
 <template>
   <aside class="inspector">
-    <div class="panel-title">字段与表格设置</div>
+    <div class="panel-title">设计设置</div>
 
-    <section class="panel">
-      <div class="panel-head">
-        <strong>字段清单</strong>
-        <span class="panel-count">{{ placementSummaries.length }} 项</span>
-      </div>
-      <div v-if="placementSummaries.length > 0" class="placement-list">
-        <button
-          v-for="placement in placementSummaries"
-          :key="placement.id"
-          type="button"
-          class="placement-item"
-          :class="{ 'placement-item--active': placement.id === props.selectedPlacement?.id }"
-          @click="emit('select-placement', placement.id)"
-        >
-          <span class="placement-item__label">{{ placement.label }}</span>
-          <span class="placement-item__meta">{{ placement.type }} · {{ placement.section }}</span>
-        </button>
-      </div>
-      <div v-else class="empty-text">当前模板还没有字段绑定</div>
+    <section class="panel panel--tabs">
+      <button
+        type="button"
+        class="tab-btn"
+        :class="{ 'tab-btn--active': activePanel === 'canvas' }"
+        @click="activePanel = 'canvas'"
+      >
+        画布设置
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        :class="{ 'tab-btn--active': activePanel === 'component' }"
+        @click="activePanel = 'component'"
+      >
+        组件设置
+      </button>
     </section>
 
-    <section class="panel">
-      <div class="panel-head">
-        <strong>当前选区</strong>
-        <span v-if="props.activeRange" class="range-pill">
-          R{{ props.activeRange.row }} C{{ props.activeRange.col }} ·
-          {{ props.activeRange.rowspan }} x {{ props.activeRange.colspan }}
-        </span>
-      </div>
-      <div v-if="props.activeRange" class="range-meta">
-        当前画布操作以选区为准：合并、边框、底色、字号都直接写入 `template.sheet`。
-      </div>
-      <div v-else class="empty-text">先在 Univer 画布里选中一个单元格或区域</div>
-      <MergeEditor
-        :active-range="props.activeRange"
-        :merges="props.template.sheet.merges"
-        @add-current="emit('add-current-merge')"
-        @remove="(index) => emit('remove-merge', index)"
-      />
-      <SheetStyleEditor
-        :model-value="selectedRangeStyle"
-        @apply="(value) => emit('apply-sheet-style', value)"
-      />
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <strong>字段属性</strong>
-        <button
-          v-if="props.selectedPlacement && props.selectedField"
-          type="button"
-          class="danger-btn"
-          @click="emit('remove-placement')"
-        >
-          删除字段
-        </button>
-      </div>
-      <template v-if="props.selectedPlacement && props.selectedField">
-        <div class="field-grid">
-          <label class="field">
-            <span>字段标签</span>
-            <input
-              :value="props.selectedField.label"
-              type="text"
-              @input="emit('update-field', { label: ($event.target as HTMLInputElement).value })"
-            />
-          </label>
-          <label class="field">
-            <span>字段类型</span>
-            <input :value="props.selectedField.type" type="text" readonly />
-          </label>
-          <label class="field checkbox-field">
-            <input
-              :checked="Boolean(props.selectedField.required)"
-              type="checkbox"
-              @change="
-                emit('update-field', { required: ($event.target as HTMLInputElement).checked })
-              "
-            />
-            <span>必填</span>
-          </label>
-          <label class="field checkbox-field">
-            <input
-              :checked="Boolean(props.selectedPlacement.readonly)"
-              type="checkbox"
-              @change="
-                emit('update-placement', { readonly: ($event.target as HTMLInputElement).checked })
-              "
-            />
-            <span>只读</span>
-          </label>
-          <label v-if="showPlaceholderInput" class="field field--full">
-            <span>占位提示</span>
-            <input
-              :value="String(props.selectedField.widgetProps?.placeholder ?? '')"
-              type="text"
-              @input="
-                emit('update-field', {
-                  widgetProps: {
-                    placeholder: ($event.target as HTMLInputElement).value
-                  }
-                })
-              "
-            />
-          </label>
-          <label v-if="showRowsInput" class="field">
-            <span>默认行数</span>
-            <input
-              :value="Number(props.selectedField.widgetProps?.rows ?? 4)"
-              type="number"
-              min="2"
-              max="12"
-              @input="
-                emit('update-field', {
-                  widgetProps: {
-                    rows: Number(($event.target as HTMLInputElement).value || 4)
-                  }
-                })
-              "
-            />
-          </label>
-          <label v-if="showAttachmentLimit" class="field">
-            <span>附件数量</span>
-            <input
-              :value="Number(props.selectedField.widgetProps?.maxCount ?? 9)"
-              type="number"
-              min="1"
-              max="99"
-              @input="
-                emit('update-field', {
-                  widgetProps: {
-                    maxCount: Number(($event.target as HTMLInputElement).value || 1)
-                  }
-                })
-              "
-            />
-          </label>
-          <label class="field">
-            <span>展示模式</span>
-            <select
-              :value="props.selectedPlacement.displayMode"
-              @change="
-                emit('update-placement', {
-                  displayMode: ($event.target as HTMLSelectElement)
-                    .value as DocumentTemplatePlacement['displayMode']
-                })
-              "
-            >
-              <option
-                v-for="option in DISPLAY_MODE_OPTIONS"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.label }}
-              </option>
-            </select>
-          </label>
-          <label class="field">
-            <span>所属区块</span>
-            <select
-              :value="props.selectedPlacement.section ?? 'body'"
-              @change="
-                emit('update-placement', {
-                  section: ($event.target as HTMLSelectElement)
-                    .value as DocumentTemplatePlacement['section']
-                })
-              "
-            >
-              <option v-for="option in SECTION_OPTIONS" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </label>
-          <label v-if="showOptionsEditor" class="field field--full">
-            <span>静态选项</span>
-            <textarea
-              :value="optionsText"
-              rows="5"
-              placeholder="每行一个选项，格式：标签:值"
-              @input="
-                emit(
-                  'update-field-options',
-                  parseOptions(($event.target as HTMLTextAreaElement).value)
-                )
-              "
-            />
-          </label>
+    <template v-if="activePanel === 'canvas'">
+      <section class="panel">
+        <div class="panel-head">
+          <strong>画布参数</strong>
         </div>
-      </template>
-      <div v-else class="empty-text">当前未选中字段，可先在画布里点中某个字段区域。</div>
-    </section>
+        <label class="field checkbox-field">
+          <input
+            :checked="props.template.sheet.viewport.showGrid"
+            type="checkbox"
+            @change="
+              emit('update-sheet-viewport', {
+                showGrid: ($event.target as HTMLInputElement).checked
+              })
+            "
+          />
+          <span>显示网格线</span>
+        </label>
+        <label class="field">
+          <span>缩放比例（%）</span>
+          <input
+            :value="props.template.sheet.viewport.zoom"
+            type="number"
+            min="10"
+            max="400"
+            @input="
+              emit('update-sheet-viewport', {
+                zoom: Number(($event.target as HTMLInputElement).value || 100)
+              })
+            "
+          />
+        </label>
+        <div class="range-meta">
+          当前网格：{{ props.template.sheet.rows }} 行 x {{ props.template.sheet.columns }} 列
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <strong>操作方式</strong>
+        </div>
+        <div class="range-meta">
+          字体、边框、底色、对齐、表格线、合并等能力请直接使用画布内 Univer
+          原生工具栏与右键菜单操作。
+        </div>
+      </section>
+    </template>
+
+    <template v-else>
+      <section class="panel">
+        <div class="panel-head">
+          <strong>字段清单</strong>
+          <span class="panel-count">{{ placementSummaries.length }} 项</span>
+        </div>
+        <div v-if="placementSummaries.length > 0" class="placement-list">
+          <button
+            v-for="placement in placementSummaries"
+            :key="placement.id"
+            type="button"
+            class="placement-item"
+            :class="{ 'placement-item--active': placement.id === props.selectedPlacement?.id }"
+            @click="emit('select-placement', placement.id)"
+          >
+            <span class="placement-item__label">{{ placement.label }}</span>
+            <span class="placement-item__meta">{{ placement.type }} · {{ placement.section }}</span>
+          </button>
+        </div>
+        <div v-else class="empty-text">当前模板还没有字段绑定</div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <strong>字段属性</strong>
+          <button
+            v-if="props.selectedPlacement && props.selectedField"
+            type="button"
+            class="danger-btn"
+            @click="emit('remove-placement')"
+          >
+            删除字段
+          </button>
+        </div>
+        <template v-if="props.selectedPlacement && props.selectedField">
+          <div class="field-grid">
+            <label class="field">
+              <span>字段标签</span>
+              <input
+                :value="props.selectedField.label"
+                type="text"
+                @input="emit('update-field', { label: ($event.target as HTMLInputElement).value })"
+              />
+            </label>
+            <label class="field">
+              <span>字段类型</span>
+              <input :value="props.selectedField.type" type="text" readonly />
+            </label>
+            <label class="field checkbox-field">
+              <input
+                :checked="Boolean(props.selectedField.required)"
+                type="checkbox"
+                @change="
+                  emit('update-field', { required: ($event.target as HTMLInputElement).checked })
+                "
+              />
+              <span>必填</span>
+            </label>
+            <label class="field checkbox-field">
+              <input
+                :checked="Boolean(props.selectedPlacement.readonly)"
+                type="checkbox"
+                @change="
+                  emit('update-placement', {
+                    readonly: ($event.target as HTMLInputElement).checked
+                  })
+                "
+              />
+              <span>只读</span>
+            </label>
+            <label v-if="showPlaceholderInput" class="field field--full">
+              <span>占位提示</span>
+              <input
+                :value="String(props.selectedField.widgetProps?.placeholder ?? '')"
+                type="text"
+                @input="
+                  emit('update-field', {
+                    widgetProps: {
+                      placeholder: ($event.target as HTMLInputElement).value
+                    }
+                  })
+                "
+              />
+            </label>
+            <label v-if="showRowsInput" class="field">
+              <span>默认行数</span>
+              <input
+                :value="Number(props.selectedField.widgetProps?.rows ?? 4)"
+                type="number"
+                min="2"
+                max="12"
+                @input="
+                  emit('update-field', {
+                    widgetProps: {
+                      rows: Number(($event.target as HTMLInputElement).value || 4)
+                    }
+                  })
+                "
+              />
+            </label>
+            <label v-if="showAttachmentLimit" class="field">
+              <span>附件数量</span>
+              <input
+                :value="Number(props.selectedField.widgetProps?.maxCount ?? 9)"
+                type="number"
+                min="1"
+                max="99"
+                @input="
+                  emit('update-field', {
+                    widgetProps: {
+                      maxCount: Number(($event.target as HTMLInputElement).value || 1)
+                    }
+                  })
+                "
+              />
+            </label>
+            <label class="field">
+              <span>展示模式</span>
+              <select
+                :value="props.selectedPlacement.displayMode"
+                @change="
+                  emit('update-placement', {
+                    displayMode: ($event.target as HTMLSelectElement)
+                      .value as DocumentTemplatePlacement['displayMode']
+                  })
+                "
+              >
+                <option
+                  v-for="option in DISPLAY_MODE_OPTIONS"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </label>
+            <label class="field">
+              <span>所属区块</span>
+              <select
+                :value="props.selectedPlacement.section ?? 'body'"
+                @change="
+                  emit('update-placement', {
+                    section: ($event.target as HTMLSelectElement)
+                      .value as DocumentTemplatePlacement['section']
+                  })
+                "
+              >
+                <option v-for="option in SECTION_OPTIONS" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </label>
+            <label v-if="showOptionsEditor" class="field field--full">
+              <span>静态选项</span>
+              <textarea
+                :value="optionsText"
+                rows="5"
+                placeholder="每行一个选项，格式：标签:值"
+                @input="
+                  emit(
+                    'update-field-options',
+                    parseOptions(($event.target as HTMLTextAreaElement).value)
+                  )
+                "
+              />
+            </label>
+          </div>
+        </template>
+        <div v-else class="empty-text">当前未选中字段，可先在画布里点中某个字段区域。</div>
+      </section>
+    </template>
   </aside>
 </template>
 
@@ -369,6 +398,29 @@ const showOptionsEditor = computed(() => {
   box-shadow: 0 10px 30px -28px rgb(15 23 42 / 45%);
 }
 
+.panel--tabs {
+  flex-direction: row;
+  gap: 8px;
+  padding: 8px;
+}
+
+.tab-btn {
+  flex: 1;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.tab-btn--active {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
 .panel-head {
   display: flex;
   align-items: center;
@@ -384,12 +436,6 @@ const showOptionsEditor = computed(() => {
   line-height: 1.6;
 }
 
-.range-pill {
-  color: #1d4ed8;
-  font-size: 12px;
-  font-weight: 600;
-}
-
 .placement-list {
   display: flex;
   flex-direction: column;
@@ -398,30 +444,33 @@ const showOptionsEditor = computed(() => {
 
 .placement-item {
   display: flex;
-  width: 100%;
   flex-direction: column;
-  align-items: flex-start;
   gap: 2px;
-  padding: 8px 10px;
-  border: 1px solid #d8dee8;
-  background: #f8fafc;
-  color: #0f172a;
+  border: 1px solid #d1dbe8;
+  background: #fff;
+  color: #334155;
   cursor: pointer;
+  padding: 7px 8px;
+  text-align: left;
+}
+
+.placement-item:hover {
+  border-color: #93c5fd;
 }
 
 .placement-item--active {
-  border-color: #93c5fd;
-  background: #eff6ff;
+  border-color: #2563eb;
+  box-shadow: inset 0 0 0 1px #2563eb;
 }
 
 .placement-item__label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .placement-item__meta {
   color: #64748b;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .field-grid {
@@ -432,9 +481,8 @@ const showOptionsEditor = computed(() => {
 
 .field {
   display: flex;
-  min-width: 0;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   color: #334155;
   font-size: 12px;
 }
@@ -444,18 +492,13 @@ const showOptionsEditor = computed(() => {
 }
 
 .field input,
-.field textarea,
-.field select {
-  width: 100%;
-  padding: 8px 10px;
+.field select,
+.field textarea {
+  padding: 6px 8px;
   border: 1px solid #cbd5e1;
   background: #fff;
   color: #0f172a;
-}
-
-.field input[readonly] {
-  background: #f8fafc;
-  color: #64748b;
+  font-size: 12px;
 }
 
 .field textarea {
@@ -466,30 +509,20 @@ const showOptionsEditor = computed(() => {
   flex-direction: row;
   align-items: center;
   gap: 8px;
-  padding-top: 24px;
 }
 
 .checkbox-field input {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   padding: 0;
 }
 
 .danger-btn {
-  padding: 6px 10px;
-  border: 1px solid #fda4af;
-  background: #fff1f2;
-  color: #be123c;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
   cursor: pointer;
-}
-
-@media (max-width: 960px) {
-  .field-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .checkbox-field {
-    padding-top: 0;
-  }
+  font-size: 12px;
+  padding: 6px 10px;
 }
 </style>

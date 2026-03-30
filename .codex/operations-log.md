@@ -10450,3 +10450,15 @@
   - 使用 `agent-browser --session codex` 进入 `/document-form/design`。
   - 实测多选区（`R3 C1 · 6 x 24`）后点击“文本”，`placements` 从 `11 -> 12`，且对应 root 单元格值为 `[text] 文本`。
   - 截图：`.codex/document-form-design-after-fix.png`。
+
+## 2026-03-30（公文设计器：Univer 样式回滚修复）
+
+- `packages/document-form-engine/designer/UniverDocumentCanvas.vue`
+  - 新增 `snapshotSyncTimerRef`，支持延迟快照调度（`scheduleSnapshotSync(delay)`）。
+  - 绑定画布宿主交互事件（`pointerup/keyup/paste/cut/drop`）触发延迟同步，覆盖工具栏与右键菜单链路。
+  - 修复重绘回滚：`workbook.load(templateSnapshot)` 改为“仅在快照哈希变化时加载”，避免每次结构更新都回灌旧快照导致样式复原。
+  - 销毁阶段补齐 timer 清理与 `lastLoadedSnapshotHashRef` 重置。
+- 浏览器验证（`agent-browser --session codex`）确认：
+  - 右侧面板维持“画布设置/组件设置”双区。
+  - 在 A1 设置背景色后，再次插入字段触发结构变更，A1 样式未被重绘覆盖。
+  - 新增截图：`.codex/document-form-design-toolbar-tabs.png`。

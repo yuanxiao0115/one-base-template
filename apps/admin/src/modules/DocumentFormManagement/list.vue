@@ -36,9 +36,7 @@ function openPreview() {
           </template>
           <div class="space-y-4 text-sm leading-6 text-[var(--el-text-color-regular)]">
             <p>当前模块只保留 admin 侧薄壳，设计器、运行态和物料协议统一由共享包提供。</p>
-            <p>
-              第一阶段先用发文单示例模板打通设计页与预览页，后续保存、加载和权限由 API 注入扩展。
-            </p>
+            <p>当前版本默认从空白模板开始设计，后续保存、加载和权限由 API 注入扩展。</p>
           </div>
         </el-card>
       </el-col>
