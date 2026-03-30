@@ -10462,3 +10462,18 @@
   - 右侧面板维持“画布设置/组件设置”双区。
   - 在 A1 设置背景色后，再次插入字段触发结构变更，A1 样式未被重绘覆盖。
   - 新增截图：`.codex/document-form-design-toolbar-tabs.png`。
+
+## 2026-03-30（公文设计器：结构视图 + 双预览模式 + 草稿持久化）
+
+- 设计器右侧面板新增“结构视图”：
+  - 文件：`packages/document-form-engine/designer/DocumentPropertyInspector.vue`
+  - 新增结构摘要（sheet/fields/placements/snapshot）与只读 JSON 结构展示。
+- 预览页支持双模式切换：
+  - 文件：`apps/admin/src/modules/DocumentFormManagement/designPage/DocumentFormPreviewPage.vue`
+  - 新增“填写态预览 / 打印态预览”切换，并通过 `mode` query 持久化。
+  - 文件：`packages/document-form-engine/runtime/DocumentRuntimePreview.vue`
+  - 新增 `mode` 入参（`runtime | print`），按模式选择渲染器并收口只读策略。
+- 草稿持久化落地：
+  - 文件：`apps/admin/src/modules/DocumentFormManagement/services/template-service.ts`
+  - 使用 `localStorage`（key: `ob_document_form_template_store_v1`）持久化 draft/published/history，并在服务初始化时自动恢复。
+  - 测试：`apps/admin/src/modules/DocumentFormManagement/services/template-service.unit.test.ts` 新增本地恢复用例。

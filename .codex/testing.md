@@ -8915,3 +8915,18 @@
 - 追加回归：
   - `pnpm -C packages/document-form-engine test:run -- tests/designer-state.test.ts`
   - 结果：通过（`7 files / 19 tests`）。
+
+## 2026-03-30（公文设计器：结构视图 + 双预览模式 + 草稿持久化）
+
+- 命令：
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/services/template-service.unit.test.ts`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 全部通过。
+- 浏览器回归（`agent-browser --session codex`）：
+  - `/document-form/design`：右侧出现“结构视图”并可展示模板结构 JSON。
+  - `/document-form/preview`：可切换填写态/打印态，URL 同步 `?mode=runtime|print`。
+  - 持久化：插入字段后刷新设计页，字段仍存在（草稿恢复成功）。

@@ -102,6 +102,7 @@
 
 - 画布设置：网格线、缩放、画布参数与操作入口提示
 - 组件设置：字段清单、字段标签、必填、占位提示、行数、静态选项、placement 属性
+- 结构视图：模板结构摘要（sheet/fields/placements/snapshot）与只读 JSON
 
 ## 运行态与预览态
 
@@ -117,6 +118,9 @@
 - 默认优先读取当前草稿
 - 无草稿时回退发布版本
 - 再无数据时回退 `createDefaultDocumentTemplate()`
+- 支持双模式切换：
+  - `mode=runtime`：填写态（Vue 字段组件）
+  - `mode=print`：打印态（固定版式渲染）
 
 ## admin 接入
 
@@ -137,6 +141,8 @@ admin 模块主要文件：
 - `publishDraft`
 - `rollbackToPublished`
 - `getSnapshot`
+
+当前草稿与发布快照会持久化到浏览器 `localStorage`（key: `ob_document_form_template_store_v1`），刷新页面后会自动恢复最近一次草稿状态。
 
 ### 适配器契约
 

@@ -1,4 +1,7 @@
-import type { DocumentTemplateSchema } from '@one-base-template/document-form-engine';
+import {
+  normalizeDocumentTemplate,
+  type DocumentTemplateSchema
+} from '@one-base-template/document-form-engine';
 
 export type DocumentTemplateStatus = 'draft' | 'published';
 
@@ -32,7 +35,10 @@ interface DocumentTemplateStore {
   history: DocumentTemplateRecord[];
 }
 
+export const DOCUMENT_TEMPLATE_STORAGE_KEY = 'ob_document_form_template_store_v1';
+
 let recordSeed = 0;
+let hydrated = false;
 const store: DocumentTemplateStore = {
   draft: null,
   published: null,
@@ -50,6 +56,26 @@ function createRecordId() {
 
 function cloneTemplate(template: DocumentTemplateSchema): DocumentTemplateSchema {
   return JSON.parse(JSON.stringify(template)) as DocumentTemplateSchema;
+}
+
+function getStorage() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeRecord(record: DocumentTemplateRecord): DocumentTemplateRecord {
+  const template = normalizeDocumentTemplate(record.template);
+  return {
+    ...record,
+    template
+  };
 }
 
 function cloneRecord(record: DocumentTemplateRecord): DocumentTemplateRecord {
@@ -75,6 +101,72 @@ function upsertHistory(record: DocumentTemplateRecord) {
   store.history = nextHistory;
 }
 
+function syncRecordSeed() {
+  const records = [store.draft, store.published, ...store.history].filter(
+    Boolean
+  ) as DocumentTemplateRecord[];
+  const maxSeed = records.reduce((seed, record) => {
+    const matched = record.id.match(/document-template-(\d+)$/);
+    if (!matched) {
+      return seed;
+    }
+
+    return Math.max(seed, Number(matched[1]));
+  }, 0);
+  recordSeed = Math.max(recordSeed, maxSeed);
+}
+
+function persistStore() {
+  const storage = getStorage();
+  if (!storage) {
+    return;
+  }
+
+  try {
+    storage.setItem(DOCUMENT_TEMPLATE_STORAGE_KEY, JSON.stringify(cloneSnapshot()));
+  } catch (error) {
+    console.warn('[DocumentTemplateService] 持久化草稿失败', error);
+  }
+}
+
+function hydrateStoreFromStorage() {
+  if (hydrated) {
+    return;
+  }
+  hydrated = true;
+
+  const storage = getStorage();
+  if (!storage) {
+    return;
+  }
+
+  const raw = storage.getItem(DOCUMENT_TEMPLATE_STORAGE_KEY);
+  if (!raw) {
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<DocumentTemplateSnapshot>;
+    store.draft =
+      parsed.draft && parsed.draft.status === 'draft'
+        ? normalizeRecord(parsed.draft as DocumentTemplateRecord)
+        : null;
+    store.published =
+      parsed.published && parsed.published.status === 'published'
+        ? normalizeRecord(parsed.published as DocumentTemplateRecord)
+        : null;
+    store.history = Array.isArray(parsed.history)
+      ? parsed.history
+          .filter((item) => item && (item.status === 'draft' || item.status === 'published'))
+          .map((item) => normalizeRecord(item as DocumentTemplateRecord))
+      : [];
+    syncRecordSeed();
+  } catch (error) {
+    console.warn('[DocumentTemplateService] 读取持久化草稿失败，已回退内存态', error);
+    storage.removeItem(DOCUMENT_TEMPLATE_STORAGE_KEY);
+  }
+}
+
 function createDraftRecord(
   template: DocumentTemplateSchema,
   note = '草稿初始化'
@@ -93,9 +185,12 @@ function createDraftRecord(
 }
 
 export function createDocumentTemplateService(): DocumentTemplateService {
+  hydrateStoreFromStorage();
+
   function ensureDraft(seedTemplate: DocumentTemplateSchema) {
     if (!store.draft) {
       store.draft = createDraftRecord(seedTemplate);
+      persistStore();
     }
     return cloneRecord(store.draft);
   }
@@ -110,6 +205,7 @@ export function createDocumentTemplateService(): DocumentTemplateService {
       note,
       template: cloneTemplate(template)
     };
+    persistStore();
 
     return cloneRecord(store.draft);
   }
@@ -138,6 +234,7 @@ export function createDocumentTemplateService(): DocumentTemplateService {
       note: `草稿基于发布 v${nextVersion}`
     };
     upsertHistory(publishedRecord);
+    persistStore();
     return cloneRecord(publishedRecord);
   }
 
@@ -155,6 +252,7 @@ export function createDocumentTemplateService(): DocumentTemplateService {
     const nextDraft = createDraftRecord(source.template, `回滚到发布 v${source.version}`);
     nextDraft.version = source.version;
     store.draft = nextDraft;
+    persistStore();
     return cloneRecord(nextDraft);
   }
 
@@ -172,8 +270,13 @@ export function createDocumentTemplateService(): DocumentTemplateService {
 }
 
 export function resetDocumentTemplateServiceForTesting() {
+  const storage = getStorage();
   recordSeed = 0;
+  hydrated = false;
   store.draft = null;
   store.published = null;
   store.history = [];
+  if (storage) {
+    storage.removeItem(DOCUMENT_TEMPLATE_STORAGE_KEY);
+  }
 }

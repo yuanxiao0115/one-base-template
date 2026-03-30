@@ -16,9 +16,11 @@ const props = withDefaults(
     context?: DocumentFormEngineContext;
     template: DocumentTemplateSchema;
     readonly?: boolean;
+    mode?: 'runtime' | 'print';
   }>(),
   {
-    readonly: true
+    readonly: true,
+    mode: 'runtime'
   }
 );
 
@@ -28,10 +30,24 @@ const internalContext = computed(
 const renderer = computed(() => createDocumentRuntimeRenderer(internalContext.value));
 const renderModel = computed(() => renderer.value.buildRenderModel(props.template));
 
+const pageStyle = computed<CSSProperties>(() => {
+  const [paddingTop, paddingRight, paddingBottom, paddingLeft] = renderModel.value.page.padding;
+  return {
+    width: `${renderModel.value.page.width}px`,
+    minHeight: `${renderModel.value.page.minHeight}px`,
+    padding: `${paddingTop}px ${paddingRight}px ${paddingBottom}px ${paddingLeft}px`
+  };
+});
+
+function resolveContentWidth() {
+  const [, paddingRight, , paddingLeft] = renderModel.value.page.padding;
+  return Math.max(1, renderModel.value.page.width - paddingLeft - paddingRight);
+}
+
 function resolveColumnWidth(index: number) {
   return (
     renderModel.value.sheet.columnWidths[String(index)] ??
-    Math.floor(renderModel.value.page.width / renderModel.value.sheet.columns)
+    Math.floor(resolveContentWidth() / renderModel.value.sheet.columns)
   );
 }
 
@@ -59,11 +75,21 @@ function resolveCellStyle(style: DocumentSheetStyle | null): CSSProperties {
       : '1px solid #d5deea'
   };
 }
+
+function resolvePlacementRenderer(cell: (typeof renderModel.value.rows)[number]['cells'][number]) {
+  if (!cell.placement) {
+    return null;
+  }
+
+  return props.mode === 'print' ? cell.placement.printRenderer : cell.placement.runtimeRenderer;
+}
+
+const actualReadonly = computed(() => (props.mode === 'print' ? true : props.readonly));
 </script>
 
 <template>
-  <section class="runtime-preview">
-    <div class="runtime-preview__page">
+  <section class="runtime-preview" :class="{ 'runtime-preview--print': props.mode === 'print' }">
+    <div class="runtime-preview__page" :style="pageStyle">
       <table class="runtime-preview__table">
         <colgroup>
           <col
@@ -86,10 +112,10 @@ function resolveCellStyle(style: DocumentSheetStyle | null): CSSProperties {
               :style="resolveCellStyle(cell.style)"
             >
               <component
-                :is="cell.placement.runtimeRenderer"
+                :is="resolvePlacementRenderer(cell)"
                 v-if="cell.placement"
                 :field="cell.placement.field"
-                :readonly="props.readonly"
+                :readonly="actualReadonly"
                 :model-value="cell.placement.field.defaultValue"
                 :options="cell.placement.options"
                 v-bind="cell.placement.componentProps"
@@ -112,10 +138,11 @@ function resolveCellStyle(style: DocumentSheetStyle | null): CSSProperties {
   overflow: auto;
 }
 
+.runtime-preview--print {
+  background: #fff;
+}
+
 .runtime-preview__page {
-  width: 794px;
-  min-height: 1123px;
-  padding: 18px;
   border: 1px solid #d6deea;
   background: #fff;
   box-shadow: 0 18px 48px -30px rgb(15 23 42 / 45%);
