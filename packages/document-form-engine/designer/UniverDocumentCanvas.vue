@@ -41,6 +41,7 @@ interface UniverRuntime {
   setup: UniverSetup;
   worksheet: UniverWorksheet;
   disposables: IDisposable[];
+  cellDataChangeDisposable: IDisposable | null;
 }
 
 const hostRef = ref<HTMLElement | null>(null);
@@ -301,7 +302,8 @@ function disposeRuntime() {
 
   const runtime = runtimeRef.value;
   if (runtime) {
-    const workbookId = runtime.worksheet.getWorkbook().getUnitId();
+    const activeWorkbook = runtime.setup.univerAPI.getActiveWorkbook();
+    const workbookId = activeWorkbook?.getId() || runtime.worksheet.getWorkbook().getUnitId();
     if (workbookId) {
       try {
         runtime.setup.univerAPI.disposeUnit(workbookId);
@@ -350,6 +352,7 @@ function renderCanvas(runtimeToken = runtimeTokenRef.value) {
   const structureChanged = structureHash !== lastStructureHashRef.value;
   const shouldSyncCellLabels =
     !hasTemplateSnapshot || (structureChanged && !shouldLoadTemplateSnapshot);
+  let worksheet = runtime.worksheet;
   if (structureHash) {
     lastStructureHashRef.value = structureHash;
   }
@@ -360,38 +363,45 @@ function renderCanvas(runtimeToken = runtimeTokenRef.value) {
   try {
     if (templateSnapshot && shouldLoadTemplateSnapshot) {
       workbook.load(templateSnapshot as never);
+      const nextSheet = runtime.setup.univerAPI.getActiveWorkbook()?.getActiveSheet();
+      if (nextSheet) {
+        runtime.worksheet = nextSheet;
+        worksheet = nextSheet;
+        if (runtime.cellDataChangeDisposable) {
+          runtime.cellDataChangeDisposable.dispose();
+        }
+        runtime.cellDataChangeDisposable = bindWorksheetCellDataChange(runtime, runtimeToken);
+      }
       lastLoadedSnapshotHashRef.value = templateSnapshotHash;
       lastSnapshotHashRef.value = templateSnapshotHash;
     } else if (!templateSnapshotHash) {
       lastLoadedSnapshotHashRef.value = '';
     }
 
-    runtime.worksheet.setRowCount(metrics.maxRows);
-    runtime.worksheet.setColumnCount(metrics.maxColumns);
-    runtime.worksheet.setHiddenGridlines(!props.template.sheet.viewport.showGrid);
-    runtime.worksheet.zoom(
-      Math.max(0.1, Math.min(4, (props.template.sheet.viewport.zoom || 100) / 100))
-    );
-    runtime.worksheet.setColumnWidths(0, metrics.maxColumns, metrics.columnWidth);
-    runtime.worksheet.setRowHeightsForced(0, metrics.maxRows, metrics.rowHeight);
+    worksheet.setRowCount(metrics.maxRows);
+    worksheet.setColumnCount(metrics.maxColumns);
+    worksheet.setHiddenGridlines(!props.template.sheet.viewport.showGrid);
+    worksheet.zoom(Math.max(0.1, Math.min(4, (props.template.sheet.viewport.zoom || 100) / 100)));
+    worksheet.setColumnWidths(0, metrics.maxColumns, metrics.columnWidth);
+    worksheet.setRowHeightsForced(0, metrics.maxRows, metrics.rowHeight);
 
     for (let colIndex = 1; colIndex <= props.template.sheet.columns; colIndex += 1) {
       const width = props.template.sheet.columnWidths[String(colIndex)];
       if (width) {
-        runtime.worksheet.setColumnWidths(colIndex - 1, 1, width);
+        worksheet.setColumnWidths(colIndex - 1, 1, width);
       }
     }
 
     for (let rowIndex = 1; rowIndex <= props.template.sheet.rows; rowIndex += 1) {
       const height = props.template.sheet.rowHeights[String(rowIndex)];
       if (height) {
-        runtime.worksheet.setRowHeightsForced(rowIndex - 1, 1, height);
+        worksheet.setRowHeightsForced(rowIndex - 1, 1, height);
       }
     }
 
     if (!hasTemplateSnapshot) {
       mergedRanges.forEach((range) => {
-        runtime.worksheet
+        worksheet
           .getRange(
             range.startRow,
             range.startColumn,
@@ -412,14 +422,12 @@ function renderCanvas(runtimeToken = runtimeTokenRef.value) {
           return;
         }
 
-        runtime.worksheet.getRange(row, col, 1, 1).setValue('');
+        worksheet.getRange(row, col, 1, 1).setValue('');
       });
 
       const nextRoots = new Set<string>();
       cells.forEach((cell) => {
-        runtime.worksheet
-          .getRange(cell.range.startRow, cell.range.startColumn, 1, 1)
-          .setValue(cell.label);
+        worksheet.getRange(cell.range.startRow, cell.range.startColumn, 1, 1).setValue(cell.label);
         nextRoots.add(`${cell.range.startRow}:${cell.range.startColumn}`);
       });
       renderedCellRootsRef.value = nextRoots;
@@ -504,13 +512,7 @@ function bindCanvasEvents(runtime: UniverRuntime, runtimeToken: number) {
     }
   );
 
-  const cellDataChangeDisposable = runtime.worksheet.onCellDataChange(() => {
-    if (runtimeToken !== runtimeTokenRef.value || renderingRef.value) {
-      return;
-    }
-
-    scheduleSnapshotSync(0, runtimeToken);
-  });
+  runtime.cellDataChangeDisposable = bindWorksheetCellDataChange(runtime, runtimeToken);
 
   const interactiveEventNames = ['pointerup', 'keyup', 'paste', 'cut', 'drop'];
   if (host) {
@@ -524,11 +526,11 @@ function bindCanvasEvents(runtime: UniverRuntime, runtimeToken: number) {
     selectionMoveStartDisposable,
     selectionMoveEndDisposable
   );
-  if (cellDataChangeDisposable) {
-    runtime.disposables.push(cellDataChangeDisposable);
-  }
   runtime.disposables.push({
     dispose: () => {
+      runtime.cellDataChangeDisposable?.dispose();
+      runtime.cellDataChangeDisposable = null;
+
       if (!host) {
         return;
       }
@@ -537,6 +539,16 @@ function bindCanvasEvents(runtime: UniverRuntime, runtimeToken: number) {
         host.removeEventListener(eventName, triggerSnapshotSync, true);
       });
     }
+  });
+}
+
+function bindWorksheetCellDataChange(runtime: UniverRuntime, runtimeToken: number) {
+  return runtime.worksheet.onCellDataChange(() => {
+    if (runtimeToken !== runtimeTokenRef.value || renderingRef.value) {
+      return;
+    }
+
+    scheduleSnapshotSync(0, runtimeToken);
   });
 }
 
@@ -573,7 +585,8 @@ function initializeUniverCanvas() {
   const runtime: UniverRuntime = {
     setup,
     worksheet: workbook.getActiveSheet(),
-    disposables: []
+    disposables: [],
+    cellDataChangeDisposable: null
   };
 
   const lifecycleDisposable = setup.univerAPI.addEvent(
