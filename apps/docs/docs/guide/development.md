@@ -290,6 +290,19 @@ pnpm verify
 pnpm doctor
 ```
 
+`doctor` 默认会检查以下项：
+
+- Node / pnpm 最低版本
+- 全局 `vp` 与本地 `pnpm exec vp` 版本是否一致
+- `pnpm-workspace.yaml` 中 `vite/vite-plus/vitest` 是否为仓库锁定版本（防止 `latest` 漂移）
+
+若需要手动定位 `vp` 版本问题，可执行：
+
+```bash
+vp --version
+pnpm exec vp --version
+```
+
 ## 子包发布与版本控制（Changesets）
 
 仓库已接入 `changesets`，用于管理多子包版本发布：

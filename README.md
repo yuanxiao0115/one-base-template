@@ -78,31 +78,32 @@ pnpm -C apps/<app-id> build
 
 ## Vite Plus 使用说明
 
-本项目已经切换为 Vite Plus（`vp`），日常仍可直接用 `pnpm` 脚本，也可直接使用 `vp` 命令：
+本项目已经切换为 Vite Plus（`vp`），**默认请优先使用 `pnpm` 脚本或 `pnpm exec vp`**，避免全局 `vp` 与仓库本地版本漂移：
 
 ```bash
 # 安装依赖（等价于 pnpm install）
-vp install
+pnpm install
 
 # 启动指定应用
-vp run --filter admin dev
-vp run --filter portal dev
-vp run --filter template dev
+pnpm exec vp run --filter admin dev
+pnpm exec vp run --filter portal dev
+pnpm exec vp run --filter template dev
 
 # 全仓任务
-vp run -r lint
-vp run -r test:run
-vp run -r typecheck
-vp run -r build
+pnpm exec vp run -r lint
+pnpm exec vp run -r test:run
+pnpm exec vp run -r typecheck
+pnpm exec vp run -r build
 
 # 单仓质量检查
-vp lint .
-vp test run
+pnpm exec vp lint .
+pnpm exec vp test run
 ```
 
 说明：
 
 - 根脚本已统一通过 `vp run` 编排（见根 `package.json`）。
+- 推荐通过 `pnpm doctor` 检查全局/本地 `vp` 一致性与工具链锁定版本。
 - `apps/admin` / `apps/portal` / `apps/template` 的 `build` 使用了包装脚本过滤 Rolldown 插件耗时噪音日志，不影响失败退出码。
 - 文档站 `apps/docs` 的 `build` 使用包装脚本过滤 VitePress 上游已知弃用提示，不影响真实错误输出。
 
