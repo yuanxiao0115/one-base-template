@@ -8,7 +8,8 @@ import {
 import {
   createDesignerUniverSnapshotEnvelope,
   createDispatchDocumentTemplate,
-  extractDesignerUniverSnapshotData
+  extractDesignerUniverSnapshotData,
+  sanitizeDesignerUniverSnapshotData
 } from '../schema/template';
 
 describe('document template schema v3', () => {
@@ -60,5 +61,42 @@ describe('document template schema v3', () => {
     expect(snapshot).toMatchObject({
       seed: 'snapshot-v1'
     });
+  });
+
+  it('应剥离快照中的临时选区状态', () => {
+    const snapshot = sanitizeDesignerUniverSnapshotData({
+      workbook: {
+        activeSheetId: 'sheet-1'
+      },
+      selections: [
+        {
+          sheetId: 'sheet-1'
+        }
+      ],
+      sheetData: {
+        sheet1: {
+          selectionData: {
+            current: 'A1'
+          },
+          cellData: {
+            A1: '标题'
+          }
+        }
+      }
+    });
+
+    expect(snapshot).toMatchObject({
+      workbook: {
+        activeSheetId: 'sheet-1'
+      },
+      sheetData: {
+        sheet1: {
+          cellData: {
+            A1: '标题'
+          }
+        }
+      }
+    });
+    expect('selections' in snapshot).toBe(false);
   });
 });

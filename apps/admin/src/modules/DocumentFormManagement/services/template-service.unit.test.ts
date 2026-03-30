@@ -76,4 +76,69 @@ describe('DocumentFormManagement/services/template-service', () => {
     expect(draft.version).toBe(9);
     expect(draft.template.title).toBe('本地持久化草稿');
   });
+
+  it('应在持久化恢复时过滤快照里的临时选区状态', () => {
+    const persistedTemplate = createMockDocumentTemplate();
+    persistedTemplate.designer = {
+      univerSnapshot: {
+        __kind: 'ob-univer-snapshot',
+        __version: 1,
+        data: {
+          workbook: {
+            activeSheetId: 'sheet-1'
+          },
+          selections: [
+            {
+              sheetId: 'sheet-1',
+              startRow: 1
+            }
+          ],
+          sheetData: {
+            sheet1: {
+              selectionData: {
+                current: 'A1'
+              },
+              cellData: {
+                A1: '标题'
+              }
+            }
+          }
+        }
+      }
+    };
+
+    window.localStorage.setItem(
+      DOCUMENT_TEMPLATE_STORAGE_KEY,
+      JSON.stringify({
+        draft: {
+          id: 'document-template-10',
+          version: 10,
+          status: 'draft',
+          note: '快照清洗',
+          template: persistedTemplate,
+          createdAt: '2026-03-30T00:00:00.000Z'
+        },
+        published: null,
+        history: []
+      })
+    );
+
+    const service = createDocumentTemplateService();
+    const draft = service.ensureDraft(createMockDocumentTemplate());
+    const snapshot = draft.template.designer?.univerSnapshot as {
+      data?: Record<string, unknown>;
+    };
+
+    expect(snapshot.data?.workbook).toMatchObject({
+      activeSheetId: 'sheet-1'
+    });
+    expect(snapshot.data?.selections).toBeUndefined();
+    expect(snapshot.data?.sheetData).toMatchObject({
+      sheet1: {
+        cellData: {
+          A1: '标题'
+        }
+      }
+    });
+  });
 });

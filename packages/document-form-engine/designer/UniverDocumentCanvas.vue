@@ -7,7 +7,10 @@ import '@univerjs/preset-sheets-core/lib/index.css';
 
 import type { DocumentSheetRange } from '../schema/sheet';
 import type { DocumentTemplateSchema } from '../schema/types';
-import { extractDesignerUniverSnapshotData } from '../schema/template';
+import {
+  extractDesignerUniverSnapshotData,
+  sanitizeDesignerUniverSnapshotData
+} from '../schema/template';
 import {
   anchorToCanvasRange,
   canvasRangeToAnchor,
@@ -179,6 +182,11 @@ function buildStructureHash() {
   return safeSerialize({
     rows: props.template.sheet.rows,
     columns: props.template.sheet.columns,
+    viewport: props.template.sheet.viewport,
+    rowHeights: props.template.sheet.rowHeights,
+    columnWidths: props.template.sheet.columnWidths,
+    merges: props.template.sheet.merges,
+    styles: props.template.sheet.styles,
     staticCells: props.template.sheet.cells.map((item) => ({
       row: item.row,
       col: item.col,
@@ -208,13 +216,26 @@ function emitSnapshotIfChanged(runtimeToken = runtimeTokenRef.value) {
     return;
   }
 
-  const snapshot = runtime.worksheet.getWorkbook().save();
+  const worksheet = runtime.worksheet as typeof runtime.worksheet & {
+    _disposed?: boolean;
+  };
+  const workbook = worksheet.getWorkbook() as ReturnType<typeof worksheet.getWorkbook> & {
+    _disposed?: boolean;
+  };
+  if (worksheet._disposed || workbook._disposed) {
+    return;
+  }
+
+  const snapshot = sanitizeDesignerUniverSnapshotData(
+    workbook.save() as unknown as Record<string, unknown>
+  );
   const nextHash = safeSerialize(snapshot);
   if (!nextHash || nextHash === lastSnapshotHashRef.value) {
     return;
   }
 
   lastSnapshotHashRef.value = nextHash;
+  lastLoadedSnapshotHashRef.value = nextHash;
   emit('sync-univer-snapshot', snapshot as unknown as Record<string, unknown>);
 }
 
@@ -295,31 +316,26 @@ function disposeRuntime() {
   }
   snapshotSyncTimerRef.value = null;
   snapshotSyncScheduledRef.value = false;
-
-  const runtime = runtimeRef.value;
-  if (runtime) {
-    const activeWorkbook = runtime.setup.univerAPI.getActiveWorkbook();
-    const workbookId = activeWorkbook?.getId() || runtime.worksheet.getWorkbook().getUnitId();
-    if (workbookId) {
-      try {
-        runtime.setup.univerAPI.disposeUnit(workbookId);
-      } catch (error) {
-        console.warn('[UniverDocumentCanvas] dispose unit failed', error);
-      }
-    }
-
-    runtime.disposables.forEach((item) => {
-      item.dispose();
-    });
-    runtime.setup.univer.dispose();
-  }
-
-  runtimeRef.value = null;
+  canvasReadyRef.value = false;
   selectionMoveStartRef.value = null;
   renderPendingRef.value = false;
   renderScheduledRef.value = false;
-  canvasReadyRef.value = false;
   suppressSnapshotSyncRef.value = false;
+
+  const runtime = runtimeRef.value;
+  runtimeRef.value = null;
+  if (runtime) {
+    runtime.disposables.forEach((item) => {
+      item.dispose();
+    });
+
+    try {
+      runtime.setup.univer.dispose();
+    } catch (error) {
+      console.warn('[UniverDocumentCanvas] dispose runtime failed', error);
+    }
+  }
+
   lastLoadedSnapshotHashRef.value = '';
   lastStructureHashRef.value = '';
   renderedCellRootsRef.value = new Set();
@@ -360,14 +376,17 @@ function renderCanvas(runtimeToken = runtimeTokenRef.value) {
     if (templateSnapshot && shouldLoadTemplateSnapshot) {
       workbook.load(templateSnapshot as never);
       const nextSheet = runtime.setup.univerAPI.getActiveWorkbook()?.getActiveSheet();
-      if (nextSheet) {
-        runtime.worksheet = nextSheet;
-        worksheet = nextSheet;
-        if (runtime.cellDataChangeDisposable) {
-          runtime.cellDataChangeDisposable.dispose();
-        }
-        runtime.cellDataChangeDisposable = bindWorksheetCellDataChange(runtime, runtimeToken);
+      if (!nextSheet) {
+        lastLoadedSnapshotHashRef.value = templateSnapshotHash;
+        return;
       }
+
+      runtime.worksheet = nextSheet;
+      worksheet = nextSheet;
+      if (runtime.cellDataChangeDisposable) {
+        runtime.cellDataChangeDisposable.dispose();
+      }
+      runtime.cellDataChangeDisposable = bindWorksheetCellDataChange(runtime, runtimeToken);
       lastLoadedSnapshotHashRef.value = templateSnapshotHash;
       lastSnapshotHashRef.value = templateSnapshotHash;
     } else if (!templateSnapshotHash) {
@@ -455,8 +474,14 @@ function bindCanvasEvents(runtime: UniverRuntime, runtimeToken: number) {
       }
 
       const range = canvasRangeToAnchor(rangeFromSelection(selections[0]!));
-      emit('select-range', range);
-      emit('select-placement', resolvePlacementByRange(range)?.id ?? null);
+      if (!props.activeRange || !isSameAnchor(props.activeRange, range)) {
+        emit('select-range', range);
+      }
+
+      const nextPlacementId = resolvePlacementByRange(range)?.id ?? null;
+      if (nextPlacementId !== (props.selectedPlacementId ?? null)) {
+        emit('select-placement', nextPlacementId);
+      }
       scheduleSnapshotSync(0, runtimeToken);
     }
   );
@@ -609,11 +634,10 @@ function initializeUniverCanvas() {
 }
 
 watch(
-  () => props.template,
+  () => [buildStructureHash(), safeSerialize(extractTemplateSnapshot()), props.selectedPlacementId],
   () => {
     scheduleRender();
-  },
-  { deep: true }
+  }
 );
 
 onMounted(() => {

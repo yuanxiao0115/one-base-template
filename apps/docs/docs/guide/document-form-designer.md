@@ -98,13 +98,16 @@
 - 合并区域发生重叠冲突时，自动跳过冲突项，避免整张画布渲染中断
 - 每次重绘前会先同步 worksheet 行列上限到 `template.sheet.rows/columns`，避免范围越界导致画布空白
 - 仅加载 `ob-univer-snapshot@v1` 封装快照，历史原始快照会自动忽略，避免 `getConfig/getSheetId` 初始化崩溃
+- 设计态保存与回放统一使用“清洗后的 snapshot”，会过滤临时 `selection` 状态，避免样式回写后又被当作新快照重复 `load`
+- 组件卸载时会先断开本地事件与 runtime 引用，再销毁 Univer 实例，避免跳预览/返回列表时出现 `getConfig/getSheetId`
 
 当前右侧面板职责：
 
 - 画布设置：网格线、缩放、画布参数与操作入口提示
 - 组件设置：字段清单、字段标签、必填、占位提示、行数、静态选项、placement 属性
 - 结构视图：模板结构摘要（sheet/fields/placements/snapshot）与只读 JSON
-- Workbench 模板同步：父到子只做引用变更同步，子到父仅在本地编辑后回传，避免 `deep watch + normalize` 触发递归更新
+- Workbench 通过控制层 composable 管理 `template / activeRange / selectedPlacement / snapshot sync`
+- 父到子只做引用变更同步，子到父仅在显式 action 后回传，避免 `deep watch + normalize` 触发递归更新
 
 ## 运行态与预览态
 
@@ -145,6 +148,7 @@ admin 模块主要文件：
 - `getSnapshot`
 
 当前草稿与发布快照会持久化到浏览器 `localStorage`（key: `ob_document_form_template_store_v1`），刷新页面后会自动恢复最近一次草稿状态。
+恢复时会经过 `normalizeDocumentTemplate()`，旧版 raw snapshot 会被忽略，带临时选区状态的 snapshot 会被自动清洗。
 
 ### 适配器契约
 

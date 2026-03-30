@@ -1,23 +1,17 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, watch } from 'vue';
 
 import type {
   DocumentTemplateField,
   DocumentTemplatePlacement,
   DocumentTemplateSchema
 } from '../schema/types';
-import {
-  createDefaultDocumentTemplate,
-  createDesignerUniverSnapshotEnvelope,
-  normalizeDocumentTemplate
-} from '../schema/template';
+import { createDefaultDocumentTemplate } from '../schema/template';
 import type { DocumentSheetRange } from '../schema/sheet';
 import DocumentCanvas from './DocumentCanvas.vue';
 import DocumentPropertyInspector from './DocumentPropertyInspector.vue';
-import {
-  DOCUMENT_DESIGNER_FIELD_BLUEPRINTS,
-  useDocumentDesignerState
-} from './useDocumentDesignerState';
+import { DOCUMENT_DESIGNER_FIELD_BLUEPRINTS } from './useDocumentDesignerState';
+import { useDocumentDesignerController } from './useDocumentDesignerController';
 
 defineOptions({
   name: 'DocumentDesignerWorkbench'
@@ -38,39 +32,24 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: DocumentTemplateSchema): void;
 }>();
 
-const template = ref<DocumentTemplateSchema>(normalizeDocumentTemplate(props.modelValue));
-const syncingFromParent = ref(false);
+const controller = useDocumentDesignerController(props.modelValue, {
+  onTemplateChange(value) {
+    emit('update:modelValue', value);
+  }
+});
 
 watch(
   () => props.modelValue,
   (value) => {
-    if (value === template.value) {
-      return;
-    }
-
-    syncingFromParent.value = true;
-    template.value = normalizeDocumentTemplate(value);
+    controller.replaceTemplate(value);
   }
 );
 
-watch(
-  template,
-  (value) => {
-    if (syncingFromParent.value) {
-      syncingFromParent.value = false;
-      return;
-    }
-
-    emit('update:modelValue', value);
-  },
-  { deep: true }
-);
-
-const state = useDocumentDesignerState(template);
-const activeRange = computed(() => state.activeRange.value);
-const selectedPlacementId = computed(() => state.selectedPlacementId.value);
-const selectedPlacement = computed(() => state.selectedPlacement.value);
-const selectedField = computed(() => state.selectedField.value);
+const template = computed(() => controller.template.value);
+const activeRange = computed(() => controller.activeRange.value);
+const selectedPlacementId = computed(() => controller.selectedPlacementId.value);
+const selectedPlacement = computed(() => controller.selectedPlacement.value);
+const selectedField = computed(() => controller.selectedField.value);
 
 const activeRangeSummary = computed(() => {
   const range = activeRange.value;
@@ -86,42 +65,37 @@ const selectedFieldSummary = computed(() => {
 });
 
 function handleRangeSelect(range: DocumentSheetRange) {
-  state.setActiveRange(range);
+  controller.selectRange(range);
 }
 
 function handlePlacementSelect(placementId: string | null) {
-  state.selectPlacement(placementId);
+  controller.selectPlacement(placementId);
 }
 
 function handlePlacementRangeUpdate(placementId: string, range: DocumentSheetRange) {
-  state.updatePlacementRange(placementId, range);
-  state.selectPlacement(placementId);
-  state.setActiveRange(range);
+  controller.updatePlacementRange(placementId, range);
 }
 
 function handleFieldUpdate(patch: Partial<DocumentTemplateField>) {
-  state.updateSelectedField(patch);
+  controller.updateField(patch);
 }
 
 function handleFieldOptionsUpdate(options: Array<{ label: string; value: string }>) {
-  state.updateSelectedFieldOptions(options);
+  controller.updateFieldOptions(options);
 }
 
 function handlePlacementUpdate(
   patch: Partial<Pick<DocumentTemplatePlacement, 'displayMode' | 'section' | 'readonly'>>
 ) {
-  state.updateSelectedPlacement(patch);
+  controller.updatePlacement(patch);
 }
 
 function handleSheetViewportUpdate(patch: Partial<DocumentTemplateSchema['sheet']['viewport']>) {
-  state.updateSheetViewport(patch);
+  controller.updateSheetViewport(patch);
 }
 
 function handleUniverSnapshotSync(snapshot: Record<string, unknown>) {
-  template.value.designer = {
-    ...template.value.designer,
-    univerSnapshot: createDesignerUniverSnapshotEnvelope(snapshot)
-  };
+  controller.syncUniverSnapshot(snapshot);
 }
 </script>
 
@@ -149,7 +123,7 @@ function handleUniverSnapshotSync(snapshot: Record<string, unknown>) {
             :key="blueprint.type"
             type="button"
             class="field-chip"
-            @click="state.insertField(blueprint.type)"
+            @click="controller.insertField(blueprint.type)"
           >
             {{ blueprint.label }}
           </button>
@@ -171,7 +145,7 @@ function handleUniverSnapshotSync(snapshot: Record<string, unknown>) {
         :selected-field="selectedField"
         :selected-placement="selectedPlacement"
         :template="template"
-        @remove-placement="state.removeSelectedPlacement"
+        @remove-placement="controller.removeSelectedPlacement"
         @select-placement="handlePlacementSelect"
         @update-field="handleFieldUpdate"
         @update-field-options="handleFieldOptionsUpdate"

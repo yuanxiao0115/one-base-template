@@ -22,6 +22,12 @@ const DEFAULT_DOCUMENT_PRESET = {
 
 export const DESIGNER_UNIVER_SNAPSHOT_KIND = 'ob-univer-snapshot';
 export const DESIGNER_UNIVER_SNAPSHOT_VERSION = 1;
+const DESIGNER_UNIVER_TRANSIENT_KEYS = new Set([
+  'selection',
+  'selections',
+  'selectionData',
+  'activeSelection'
+]);
 
 type DesignerUniverSnapshotEnvelope = {
   __kind: typeof DESIGNER_UNIVER_SNAPSHOT_KIND;
@@ -29,13 +35,38 @@ type DesignerUniverSnapshotEnvelope = {
   data: Record<string, unknown>;
 };
 
+function sanitizeDesignerUniverSnapshotValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizeDesignerUniverSnapshotValue(item));
+  }
+
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+
+  const nextValue: Record<string, unknown> = {};
+  Object.entries(value as Record<string, unknown>).forEach(([key, entryValue]) => {
+    if (DESIGNER_UNIVER_TRANSIENT_KEYS.has(key)) {
+      return;
+    }
+
+    nextValue[key] = sanitizeDesignerUniverSnapshotValue(entryValue);
+  });
+
+  return nextValue;
+}
+
+export function sanitizeDesignerUniverSnapshotData(snapshot: Record<string, unknown>) {
+  return sanitizeDesignerUniverSnapshotValue(snapshot) as Record<string, unknown>;
+}
+
 export function createDesignerUniverSnapshotEnvelope(
   snapshot: Record<string, unknown>
 ): DesignerUniverSnapshotEnvelope {
   return {
     __kind: DESIGNER_UNIVER_SNAPSHOT_KIND,
     __version: DESIGNER_UNIVER_SNAPSHOT_VERSION,
-    data: { ...snapshot }
+    data: sanitizeDesignerUniverSnapshotData(snapshot)
   };
 }
 
@@ -56,7 +87,7 @@ export function extractDesignerUniverSnapshotData(
     return null;
   }
 
-  return { ...(envelope.data as Record<string, unknown>) };
+  return sanitizeDesignerUniverSnapshotData(envelope.data as Record<string, unknown>);
 }
 
 function normalizeFieldOptions(options: DocumentFieldOption[] | undefined) {

@@ -130,6 +130,20 @@ export function useDocumentDesignerState(templateRef: { value: DocumentTemplateS
     activeRange.value = cloneRange(range);
   }
 
+  function syncSelectionState() {
+    const currentPlacement = templateRef.value.placements.find(
+      (item) => item.id === selectedPlacementId.value
+    );
+    if (currentPlacement) {
+      activeRange.value = cloneRange(currentPlacement.range);
+      return;
+    }
+
+    const nextPlacement = templateRef.value.placements[0] ?? null;
+    selectedPlacementId.value = nextPlacement?.id ?? null;
+    activeRange.value = nextPlacement ? cloneRange(nextPlacement.range) : createInitialRange();
+  }
+
   function selectPlacement(placementId: string | null) {
     selectedPlacementId.value = placementId;
 
@@ -304,9 +318,7 @@ export function useDocumentDesignerState(templateRef: { value: DocumentTemplateS
       templateRef.value.fields = templateRef.value.fields.filter((item) => item.id !== fieldId);
     }
 
-    const nextPlacement = templateRef.value.placements[0] ?? null;
-    selectedPlacementId.value = nextPlacement?.id ?? null;
-    activeRange.value = nextPlacement ? cloneRange(nextPlacement.range) : createInitialRange();
+    syncSelectionState();
   }
 
   return {
@@ -315,6 +327,7 @@ export function useDocumentDesignerState(templateRef: { value: DocumentTemplateS
     selectedPlacement,
     selectedField,
     setActiveRange,
+    syncSelectionState,
     selectPlacement,
     insertField,
     removeSelectedPlacement,

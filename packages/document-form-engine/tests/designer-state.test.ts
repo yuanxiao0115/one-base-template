@@ -108,4 +108,19 @@ describe('document designer state', () => {
 
     expect(templateRef.value.sheet.viewport).toBe(currentViewport);
   });
+
+  it('当前选中区域失效时应回退到首个有效 placement', () => {
+    const templateRef = ref(createDispatchDocumentTemplate());
+    const state = useDocumentDesignerState(templateRef);
+
+    state.selectPlacement('placement-document-title');
+    templateRef.value.placements = templateRef.value.placements.filter(
+      (item) => item.id !== 'placement-document-title'
+    );
+
+    state.syncSelectionState();
+
+    expect(state.selectedPlacement.value?.id).toBe(templateRef.value.placements[0]?.id);
+    expect(state.activeRange.value).toEqual(templateRef.value.placements[0]?.range);
+  });
 });

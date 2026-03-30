@@ -26,3 +26,5 @@ export {
   DOCUMENT_DESIGNER_FIELD_BLUEPRINTS,
   useDocumentDesignerState
 } from './useDocumentDesignerState';
+export type { DocumentDesignerControllerOptions } from './useDocumentDesignerController';
+export { useDocumentDesignerController } from './useDocumentDesignerController';
