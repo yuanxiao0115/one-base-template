@@ -3,6 +3,7 @@
   "backend": "basic",
   "appsource": "frame",
   "appcode": "portal",
+  "storageNamespace": "one-base-template-portal",
   "defaultSystemCode": "admin_server",
   "systemHomeMap": {
     "admin_server": "/portal/index"

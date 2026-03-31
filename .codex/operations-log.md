@@ -2,6 +2,19 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-03-31（tokenKey 多子项目污染修复）
+
+- 定位问题：`tokenKey='token'`/`idTokenKey='idToken'` 在多子项目并行本地启动时会共享同一 localStorage key，导致登录态互相覆盖。
+- `packages/core/src/config/platform-config.ts` 调整 preset 默认策略：当未显式配置 `tokenKey/idTokenKey` 时，按 `storageNamespace`（未配置回退 `appcode`）自动生成 `${scope}-token` 与 `${scope}-id-token`。
+- `apps/admin`、`apps/admin-lite`、`apps/zfw-system-sfss` 的 `platform-config.ts` 移除硬编码 token key，统一走 core 自动生成逻辑。
+- `apps/portal/public/platform-config.json` 补充 `storageNamespace: 'one-base-template-portal'`，确保 portal 运行时配置也使用独立 token 作用域。
+- 新增/更新回归断言：
+  - `packages/core/src/config/platform-config.test.ts`
+  - `apps/admin/tests/config/platform-config.unit.test.ts`
+  - `apps/admin-lite/tests/config/platform-config.unit.test.ts`
+  - `apps/zfw-system-sfss/tests/config/platform-config.unit.test.ts`
+- 文档同步：`apps/docs/docs/guide/env.md`、`README.md` 增补 token key 自动生成规则说明。
+
 ## 2026-03-30（公文设计器 Phase 1 Univer 画布收口）
 
 - 按 `docs/plans/2026-03-30-document-form-phase1-univer-design.md` 与 `docs/plans/2026-03-30-document-form-phase1-univer-plan.md` 收口当前交付范围：只保留 `Univer` 画布编辑 MVP，不再把预览、发布、回滚、结构视图继续混在设计态主链里。

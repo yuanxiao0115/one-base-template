@@ -2,6 +2,26 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-03-31（tokenKey 多子项目污染修复）
+
+- GREEN / 回归：
+  - `pnpm -C packages/core test:run src/config/platform-config.test.ts`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C apps/admin test:run:file -- tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss test:run tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/zfw-system-sfss typecheck`
+  - `pnpm -C apps/portal typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/core`：配置解析测试 `10` 条通过，`typecheck` 通过。
+  - `apps/admin`、`apps/admin-lite`、`apps/zfw-system-sfss`：定向配置测试均通过，`typecheck` 均通过。
+  - `apps/portal`：`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
 ## 2026-03-30（公文设计器 Phase 1 Univer 画布收口）
 
 - GREEN / 回归：

@@ -14,6 +14,9 @@ describe('config/platform-config', () => {
       'log-management',
       'system-management'
     ]);
+    expect(config.storageNamespace).toBe('one-base-template-admin-lite');
+    expect(config.tokenKey).toBe('one-base-template-admin-lite-token');
+    expect(config.idTokenKey).toBe('one-base-template-admin-lite-id-token');
     expect(config.systemHomeMap.admin_server).toBe('/home/index');
   });
 

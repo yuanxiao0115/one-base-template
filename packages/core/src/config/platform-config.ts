@@ -81,6 +81,16 @@ function getPresetExpectedMenuMode(preset: MenuRoutePreset): MenuMode {
   return preset === 'static-single' ? 'static' : 'remote';
 }
 
+function resolveTokenStorageScope(normalized: Record<string, unknown>): string {
+  if (isNonEmptyString(normalized.storageNamespace)) {
+    return normalized.storageNamespace;
+  }
+  if (isNonEmptyString(normalized.appcode)) {
+    return normalized.appcode;
+  }
+  return 'one-base-template';
+}
+
 function normalizePresetRuntimeConfig(
   input: Record<string, unknown>,
   errors: string[]
@@ -116,8 +126,6 @@ function normalizePresetRuntimeConfig(
     preset: rawPreset,
     backend: 'default',
     authMode: 'token',
-    tokenKey: 'token',
-    idTokenKey: 'idToken',
     menuMode: expectedMenuMode,
     enabledModules: '*',
     authorizationType: 'ADMIN',
@@ -133,6 +141,14 @@ function normalizePresetRuntimeConfig(
   // storageNamespace 未显式配置时与 appcode 对齐，降低最小配置成本。
   if (!isNonEmptyString(normalized.storageNamespace) && isNonEmptyString(normalized.appcode)) {
     normalized.storageNamespace = normalized.appcode;
+  }
+
+  const tokenStorageScope = resolveTokenStorageScope(normalized);
+  if (!isNonEmptyString(normalized.tokenKey)) {
+    normalized.tokenKey = `${tokenStorageScope}-token`;
+  }
+  if (!isNonEmptyString(normalized.idTokenKey)) {
+    normalized.idTokenKey = `${tokenStorageScope}-id-token`;
   }
 
   return {

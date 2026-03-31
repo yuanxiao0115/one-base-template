@@ -24,6 +24,7 @@
 - `enabledModules`: `"*"` 或 `string[]`（模块白名单）
 - `defaultSystemCode` / `systemHomeMap`: 多系统默认与首页映射
 - `storageNamespace`: 前端持久化命名空间
+- `tokenKey` / `idTokenKey`: preset 模式下可省略，默认按 `storageNamespace`（未配置则回退 `appcode`）自动生成，形如 `${scope}-token` 与 `${scope}-id-token`
 - `clientSignatureClientId` / `clientSignatureSalt`: basic 签名参数
 
 说明：

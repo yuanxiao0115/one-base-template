@@ -151,6 +151,7 @@ pnpm build
 - `menuMode`: `remote | static`
 - `enabledModules`: `"*"` 或 `string[]`（模块白名单）
 - `defaultSystemCode` / `systemHomeMap`: 多系统默认与首页映射
+- `tokenKey` / `idTokenKey`：preset 模式下默认按 `storageNamespace`（未配置则回退 `appcode`）自动生成，形如 `${scope}-token`、`${scope}-id-token`，避免多应用同域 token 污染
 - `VITE_API_BASE_URL=https://your-backend.example.com`
   - 开发环境：存在时会启用 Vite 代理 `/api`、`/cmict` 到 `VITE_API_BASE_URL`
   - 生产环境：如需跨域直连，可作为 Axios `baseURL`（默认仍推荐同源 `/api`）

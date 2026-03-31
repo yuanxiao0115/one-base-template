@@ -11,8 +11,6 @@ const platformConfig: RuntimeConfig = parseRuntimeConfig({
   preset: 'remote-single',
   backend: 'basic',
   authMode: 'token',
-  tokenKey: 'token',
-  idTokenKey: 'idToken',
   menuMode: 'remote',
   authorizationType: 'ADMIN',
   appsource: 'frame',

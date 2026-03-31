@@ -9,6 +9,9 @@ describe('config/platform-config', () => {
     expect(config.menuMode).toBe('remote');
     expect(config.authMode).toBe('token');
     expect(config.enabledModules).toContain('home');
+    expect(config.storageNamespace).toBe('one-base-template-zfw-system-sfss');
+    expect(config.tokenKey).toBe('one-base-template-zfw-system-sfss-token');
+    expect(config.idTokenKey).toBe('one-base-template-zfw-system-sfss-id-token');
     expect(config.systemHomeMap.admin_server).toBe('/home/index');
   });
 

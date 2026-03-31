@@ -11,8 +11,8 @@ describe('parseRuntimeConfig preset 收敛', () => {
     expect(config.menuMode).toBe('static');
     expect(config.backend).toBe('default');
     expect(config.authMode).toBe('token');
-    expect(config.tokenKey).toBe('token');
-    expect(config.idTokenKey).toBe('idToken');
+    expect(config.tokenKey).toBe('one-base-template-token');
+    expect(config.idTokenKey).toBe('one-base-template-id-token');
     expect(config.defaultSystemCode).toBe('default');
     expect(config.systemHomeMap).toEqual({
       default: '/home/index'
@@ -27,6 +27,8 @@ describe('parseRuntimeConfig preset 收敛', () => {
     expect(config.preset).toBe('remote-single');
     expect(config.menuMode).toBe('remote');
     expect(config.backend).toBe('default');
+    expect(config.tokenKey).toBe('one-base-template-token');
+    expect(config.idTokenKey).toBe('one-base-template-id-token');
     expect(config.defaultSystemCode).toBe('default');
     expect(config.systemHomeMap).toEqual({
       default: '/home/index'
@@ -41,6 +43,8 @@ describe('parseRuntimeConfig preset 收敛', () => {
 
     expect(config.appcode).toBe('demo-admin');
     expect(config.storageNamespace).toBe('demo-admin');
+    expect(config.tokenKey).toBe('demo-admin-token');
+    expect(config.idTokenKey).toBe('demo-admin-id-token');
   });
 
   it('preset 与 menuMode 冲突时应报错', () => {
@@ -85,6 +89,21 @@ describe('parseRuntimeConfig preset 收敛', () => {
 
     expect(config.appcode).toBe('demo-admin');
     expect(config.storageNamespace).toBe('demo-storage');
+    expect(config.tokenKey).toBe('demo-storage-token');
+    expect(config.idTokenKey).toBe('demo-storage-id-token');
+  });
+
+  it('preset 下显式传 tokenKey/idTokenKey 时应优先使用显式值', () => {
+    const config = parseRuntimeConfig({
+      preset: 'remote-single',
+      appcode: 'demo-admin',
+      storageNamespace: 'demo-storage',
+      tokenKey: 'custom-token',
+      idTokenKey: 'custom-id-token'
+    });
+
+    expect(config.tokenKey).toBe('custom-token');
+    expect(config.idTokenKey).toBe('custom-id-token');
   });
 });
 
