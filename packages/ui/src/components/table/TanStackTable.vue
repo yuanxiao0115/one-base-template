@@ -625,6 +625,7 @@ function resolveHeaderClass(header: TanStackHeader) {
       ? 'is-fixed-right-edge'
       : '',
     `is-align-${meta.headerAlign}`,
+    meta.isTreeNode ? 'is-tree-node' : '',
     header.column.getCanSort() ? 'is-sortable' : '',
     sortOrder ? `is-sort-${sortOrder}` : ''
   ];
@@ -1010,6 +1011,18 @@ defineExpose({
   height: 100%;
   min-height: 0;
   background: var(--ob-table-bg);
+  --ob-table-tree-toggle-size: 22px;
+  --ob-table-tree-toggle-gap: 10px;
+  --ob-table-tree-toggle-radius: 4px;
+  --ob-table-tree-toggle-border-color: var(--el-border-color);
+  --ob-table-tree-toggle-bg: var(--el-bg-color-overlay);
+  --ob-table-tree-toggle-text-color: var(--el-text-color-secondary);
+  --ob-table-tree-toggle-hover-border-color: var(--one-color-primary, var(--el-color-primary));
+  --ob-table-tree-toggle-hover-bg: var(
+    --one-color-primary-light-1,
+    var(--el-color-primary-light-9)
+  );
+  --ob-table-tree-toggle-hover-text-color: var(--one-color-primary, var(--el-color-primary));
 }
 
 .ob-tanstack-table__main {
@@ -1072,13 +1085,20 @@ defineExpose({
   align-items: center;
   min-height: var(--ob-table-row-height-default);
   padding: 0 12px;
+  font-size: 14px;
+  font-weight: 400;
   color: var(--el-text-color-primary);
 }
 
 .ob-tanstack-table__cell--header {
   position: relative;
+  font-size: 14px;
   font-weight: var(--ob-table-header-font-weight);
   color: var(--ob-table-header-color);
+}
+
+.ob-tanstack-table__th.is-tree-node .ob-tanstack-table__cell--header {
+  padding-left: calc(12px + var(--ob-table-tree-toggle-size) + var(--ob-table-tree-toggle-gap));
 }
 
 .ob-tanstack-table__cell--header.is-clickable {
@@ -1123,7 +1143,7 @@ defineExpose({
 .ob-tanstack-table__sort-indicator {
   margin-left: 6px;
   color: var(--ob-table-header-color);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1;
 }
 
@@ -1201,10 +1221,10 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: var(--ob-table-tree-toggle-size);
+  height: var(--ob-table-tree-toggle-size);
   margin-right: 8px;
-  color: var(--one-color-primary, var(--el-color-primary));
+  color: var(--ob-table-tree-toggle-text-color);
   background: transparent;
   border: 0;
 }
@@ -1217,12 +1237,67 @@ defineExpose({
 
 .ob-tanstack-table__tree-placeholder {
   display: inline-block;
-  width: 20px;
-  margin-right: 8px;
+  width: var(--ob-table-tree-toggle-size);
+  margin-right: var(--ob-table-tree-toggle-gap);
+}
+
+.ob-tanstack-table__tree-toggle {
+  margin-right: var(--ob-table-tree-toggle-gap);
+  background: var(--ob-table-tree-toggle-bg);
+  border: 1px solid var(--ob-table-tree-toggle-border-color);
+  border-radius: var(--ob-table-tree-toggle-radius);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.ob-tanstack-table__tree-toggle:hover:not(:disabled) {
+  color: var(--ob-table-tree-toggle-hover-text-color);
+  background: var(--ob-table-tree-toggle-hover-bg);
+  border-color: var(--ob-table-tree-toggle-hover-border-color);
+}
+
+.ob-tanstack-table__tree-toggle:focus-visible {
+  outline: 2px solid var(--ob-table-tree-toggle-hover-border-color);
+  outline-offset: 1px;
+}
+
+.ob-tanstack-table__tree-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.ob-tanstack-table__tree-toggle-icon {
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+
+.ob-tanstack-table__tree-toggle.is-expanded .ob-tanstack-table__tree-toggle-icon {
+  transform: rotate(90deg);
+}
+
+.ob-tanstack-table__tree-toggle.is-loading .ob-tanstack-table__tree-toggle-icon {
+  animation: ob-tanstack-table-tree-toggle-spin 0.9s linear infinite;
+}
+
+.ob-tanstack-table__tree-toggle.is-loading.is-expanded .ob-tanstack-table__tree-toggle-icon {
+  transform: rotate(0deg);
 }
 
 .ob-tanstack-table__tree-content {
   min-width: 0;
+}
+
+@keyframes ob-tanstack-table-tree-toggle-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .is-overflow .ob-tanstack-table__cell {

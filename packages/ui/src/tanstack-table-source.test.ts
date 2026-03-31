@@ -68,6 +68,18 @@ describe('TanStackTable source', () => {
     );
   });
 
+  it('树表表头样式应与普通表头对齐，并固定字重字级口径', () => {
+    expect(source).toContain("meta.isTreeNode ? 'is-tree-node' : ''");
+    expect(source).toContain(
+      '.ob-tanstack-table__th.is-tree-node .ob-tanstack-table__cell--header'
+    );
+    expect(source).toContain('--ob-table-tree-toggle-size: 22px;');
+    expect(source).toContain('font-size: 14px;');
+    expect(source).toContain('font-weight: 400;');
+    expect(source).toContain('font-weight: var(--ob-table-header-font-weight);');
+    expect(source).toContain('.ob-tanstack-table__tree-toggle-icon');
+  });
+
   it('应支持 custom sort 仅发事件不本地排序，并保留 sortBy 字段映射', () => {
     expect(engineSource).toContain("isCustomSort: column.sortable === 'custom'");
     expect(engineSource).toContain('sortingFn: meta.isCustomSort ? () => 0 : undefined');
@@ -76,6 +88,12 @@ describe('TanStackTable source', () => {
   });
 
   it('应补齐树表 trigger/reserve 与 slot size 兼容参数', () => {
+    expect(engineSource).toContain("import { Icon } from '@iconify/vue/dist/offline';");
+    expect(engineSource).toContain('import { ensureMenuIconifyCollectionsRegistered }');
+    expect(engineSource).toContain("void ensureMenuIconifyCollectionsRegistered('ri');");
+    expect(engineSource).toContain('icon: isLoading ? TREE_TOGGLE_LOADING_ICON : TREE_TOGGLE_ICON');
+    expect(engineSource).toContain('TREE_TOGGLE_LOADING_ICON');
+    expect(engineSource).toContain('TREE_TOGGLE_ICON');
     expect(engineSource).toContain(
       'function resolveTreeTrigger(treeConfig?: Record<string, unknown>) {'
     );
@@ -110,6 +128,19 @@ describe('TanStackTable source', () => {
     expect(engineSource).toContain('onColumnVisibilityChange,');
     expect(engineSource).toContain('onColumnOrderChange,');
     expect(engineSource).toContain('onColumnSizingChange,');
+  });
+
+  it('列宽配置应优先消费 width/minWidth，避免默认宽度覆盖列定义', () => {
+    expect(engineSource).toContain('function resolveColumnSizeStyle(value?: string | number)');
+    expect(engineSource).toContain(
+      'const hasConfiguredWidth = meta.width != null && String(meta.width).trim().length > 0;'
+    );
+    expect(engineSource).toContain(
+      'const hasManualSizing = Object.prototype.hasOwnProperty.call(columnSizing.value, column.id);'
+    );
+    expect(engineSource).toContain('if (!hasConfiguredWidth && !hasManualSizing) {');
+    expect(engineSource).toContain('minWidth: resolvedMinWidth');
+    expect(engineSource).toContain('maxWidth: resolvedWidth');
   });
 
   it('应支持表头拖拽换序与列宽拖拽手柄交互', () => {

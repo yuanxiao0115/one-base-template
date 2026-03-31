@@ -6,7 +6,7 @@
 
 - 日期：2026-03-31
 - 文件：`.codex/verification/2026-03-31.md`
-- 补充：最新条目为“菜单管理树形表格（TanStack）”。
+- 补充：最新条目为“TanStack 列宽 width/minWidth 生效修复”。
 
 ## 历史归档
 

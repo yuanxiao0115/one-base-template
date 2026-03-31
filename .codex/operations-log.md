@@ -10733,3 +10733,36 @@
   - `apps/admin/src/modules/adminManagement/menu/list.source.test.ts`
   - `packages/ui/src/tanstack-table-source.test.ts`（树表 expandAll 断言）
 - 文档同步：`apps/docs/docs/guide/table-vxe-migration.md` 补充菜单管理灰度落地与树形能力口径。
+
+## 2026-03-31（树形表格视觉对齐 + 展开按钮美化）
+
+- 按用户提供的参考样式，统一树表视觉口径：
+  - 表头与内容字号统一为 `14px`；
+  - 表头字重维持 `600`，内容字重固定为 `400`。
+- `packages/ui/src/components/table/TanStackTable.vue`：
+  - `resolveHeaderClass` 增加树节点列表头类：`is-tree-node`；
+  - 树列表头增加偏移对齐，保证与树节点文本基线一致；
+  - 树展开按钮重绘为边框方形按钮，补齐 hover/focus/disabled/expanded/loading 状态；
+  - `tree-placeholder` 与按钮尺寸、间距统一，避免树列文本抖动。
+- `packages/ui/src/components/table/internal/tanstack-engine.ts`：
+  - 树展开按钮由纯文本切换为 Iconify 图标（`ri:arrow-right-s-line` / `ri:loader-4-line`）；
+  - 引入 `ensureMenuIconifyCollectionsRegistered('ri')`，确保离线图标集合就绪。
+- 源码门禁与文档同步：
+  - `packages/ui/src/tanstack-table-source.test.ts` 增加树表对齐、Iconify 渲染结构断言；
+  - `apps/docs/docs/guide/table-vxe-migration.md` 补充“树表视觉对齐”说明。
+
+## 2026-03-31（TanStack 列宽 width/minWidth 生效修复）
+
+- 用户反馈：列配置里 `width/minWidth` 未按预期生效。
+- 根因定位：
+  - `getColumnStyle` 直接优先使用 `column.getSize()`；
+  - 未配置 `width` 的列也会拿到 TanStack 默认宽度（150），从而覆盖了仅配置 `minWidth` 的视觉结果。
+- 修复动作：
+  - `packages/ui/src/components/table/internal/tanstack-engine.ts`
+    - 新增 `resolveColumnSizeStyle`；
+    - `getColumnStyle` 改为“仅在配置 `width` 或发生手动拖拽后”输出 `width/maxWidth`；
+    - 仅配置 `minWidth` 时不再被默认宽度覆盖。
+  - `packages/ui/src/tanstack-table-source.test.ts`
+    - 新增 `width/minWidth` 生效链路源码门禁断言。
+  - `apps/docs/docs/guide/table-vxe-migration.md`
+    - 补充 TanStack 列宽契约说明。

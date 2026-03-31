@@ -1,4 +1,5 @@
 import { computed, h, ref, watch, type ComputedRef, type Slots, type VNodeChild } from 'vue';
+import { Icon } from '@iconify/vue/dist/offline';
 import {
   type Cell,
   type ColumnOrderState,
@@ -20,10 +21,13 @@ import {
   type Table as TanStackTableInstance,
   type VisibilityState
 } from '@tanstack/vue-table';
+import { ensureMenuIconifyCollectionsRegistered } from '../../../iconify/menu-iconify';
 import type { TableAlign, TableColumn, TableColumnList, TableColumnRendererParams } from '../types';
 
 type RowRecord = Record<string, unknown>;
 type VxeEventParams = Record<string, unknown>;
+const TREE_TOGGLE_ICON = 'ri:arrow-right-s-line';
+const TREE_TOGGLE_LOADING_ICON = 'ri:loader-4-line';
 
 interface TableRuntimeProps extends Record<string, unknown> {
   rowKey: string;
@@ -103,6 +107,16 @@ function resolveColumnSize(value?: string | number): number | undefined {
   if (typeof value === 'string' && value.trim().length > 0) {
     const parsed = Number.parseFloat(value);
     return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+}
+
+function resolveColumnSizeStyle(value?: string | number): string | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return `${value}px`;
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value;
   }
   return undefined;
 }
@@ -343,6 +357,8 @@ function createSortOrder(
 }
 
 export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
+  void ensureMenuIconifyCollectionsRegistered('ri');
+
   const sorting = ref<SortingState>([]);
   const rowSelection = ref<RowSelectionState>({});
   const expanded = ref<ExpandedState>({});
@@ -518,7 +534,11 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
           ? h(
               'button',
               {
-                class: 'ob-tanstack-table__tree-toggle',
+                class: [
+                  'ob-tanstack-table__tree-toggle',
+                  isExpanded ? 'is-expanded' : '',
+                  isLoading ? 'is-loading' : ''
+                ],
                 type: 'button',
                 disabled: isLoading,
                 onClick: (event: MouseEvent) => {
@@ -526,7 +546,15 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
                   void toggleTreeExpand();
                 }
               },
-              isLoading ? '...' : isExpanded ? '-' : '+'
+              [
+                h(Icon, {
+                  icon: isLoading ? TREE_TOGGLE_LOADING_ICON : TREE_TOGGLE_ICON,
+                  class: 'ob-tanstack-table__tree-toggle-icon',
+                  width: '1em',
+                  height: '1em',
+                  'aria-hidden': 'true'
+                })
+              ]
             )
           : h('span', { class: 'ob-tanstack-table__tree-placeholder' }, ''),
         h('span', { class: 'ob-tanstack-table__tree-content' }, [defaultNode])
@@ -993,17 +1021,24 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
   }
 
   function getColumnStyle(column: Column<RowRecord, unknown>, meta: TableColumnMeta) {
+    const hasConfiguredWidth = meta.width != null && String(meta.width).trim().length > 0;
+    const hasManualSizing = Object.prototype.hasOwnProperty.call(columnSizing.value, column.id);
     const dynamicSize = column.getSize();
+    const resolvedMinWidth = resolveColumnSizeStyle(meta.minWidth);
+
+    if (!hasConfiguredWidth && !hasManualSizing) {
+      return {
+        minWidth: resolvedMinWidth
+      };
+    }
+
+    const resolvedWidth = Number.isFinite(dynamicSize)
+      ? `${dynamicSize}px`
+      : resolveColumnSizeStyle(meta.width);
     return {
-      width: Number.isFinite(dynamicSize)
-        ? `${dynamicSize}px`
-        : typeof meta.width === 'number'
-          ? `${meta.width}px`
-          : (meta.width as string | undefined),
-      minWidth:
-        typeof meta.minWidth === 'number'
-          ? `${meta.minWidth}px`
-          : (meta.minWidth as string | undefined)
+      width: resolvedWidth,
+      minWidth: resolvedMinWidth ?? resolvedWidth,
+      maxWidth: resolvedWidth
     };
   }
 

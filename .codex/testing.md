@@ -9263,3 +9263,33 @@
   - `packages/ui`：源码门禁测试通过（`10/10`），`typecheck/lint` 通过。
   - `apps/admin`：源码门禁测试通过（`4/4`），`typecheck/build` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（树形表格视觉对齐 + 展开按钮美化）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin test:run:file -- src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts src/modules/LogManagement/login-log/list.source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin build`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`11/11`），`typecheck/lint` 通过。
+  - `apps/admin`：源码门禁测试通过（`4/4`），`typecheck/build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（TanStack 列宽 width/minWidth 生效修复）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin test:run:file -- src/modules/adminManagement/menu/list.source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`12/12`），`typecheck/lint` 通过。
+  - `apps/admin`：菜单管理源码门禁测试通过（`1/1`）。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
