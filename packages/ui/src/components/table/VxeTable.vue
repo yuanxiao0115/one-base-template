@@ -950,10 +950,12 @@ defineExpose({
 .ob-vxe-table :deep(.vxe-header--column) {
   background: var(--ob-table-header-bg);
   color: var(--ob-table-header-color);
+  font-size: var(--ob-table-font-size);
   font-weight: var(--ob-table-header-font-weight);
 }
 
 .ob-vxe-table :deep(.vxe-header--column .vxe-cell) {
+  font-size: var(--ob-table-font-size);
   font-weight: var(--ob-table-header-font-weight);
 }
 
@@ -969,6 +971,9 @@ defineExpose({
 
 .ob-vxe-table :deep(.vxe-body--column) {
   background: var(--ob-table-row-bg);
+  color: var(--ob-table-body-color);
+  font-size: var(--ob-table-font-size);
+  font-weight: var(--ob-table-body-font-weight);
   border-bottom: 1px solid var(--ob-table-border-color);
 }
 

@@ -16,7 +16,7 @@ import ActionButtons from './components/table/ActionButtons.vue';
 import TableBox from './components/table/TableBox.vue';
 import CardTable from './components/table/CardTable.vue';
 import VxeTable from './components/table/VxeTable.vue';
-import TanStackTable from './components/table/TanStackTable.vue';
+import ElementTable from './components/table/ElementTable.vue';
 import ImportUpload from './components/upload/ImportUpload.vue';
 import { setUseTableDefaults, type UseTableDefaults } from '@one-base-template/core';
 import {
@@ -43,7 +43,7 @@ const UI_COMPONENTS = {
   TableBox,
   CardTable,
   VxeTable,
-  TanStackTable,
+  ElementTable,
   ImportUpload
 } as const;
 

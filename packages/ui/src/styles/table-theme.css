@@ -4,7 +4,10 @@
   --ob-table-surface-bg: var(--el-bg-color-overlay);
   --ob-table-header-bg: var(--one-table-header-bg);
   --ob-table-header-color: var(--el-text-color-primary);
+  --ob-table-font-size: 14px;
   --ob-table-header-font-weight: 600;
+  --ob-table-body-font-weight: 400;
+  --ob-table-body-color: var(--el-text-color-primary);
   --ob-table-border-color: var(--one-table-header-border-bottom-color);
 
   --ob-table-row-bg: var(--el-bg-color-overlay);

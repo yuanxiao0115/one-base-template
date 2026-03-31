@@ -9420,3 +9420,22 @@
   - `packages/ui`：源码门禁测试通过（`17/17`），`typecheck/lint` 通过。
   - `apps/admin`：组织管理源码门禁通过（`1/1`），`typecheck` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（Element Table 收口：删除 TanStack 并完成 5 页回切）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm exec vp test run packages/ui/src/element-table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm install --lockfile-only`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：`element-table-source`/入口/插件源码门禁测试通过（`3 files / 8 tests`），`typecheck/lint/build` 通过。
+  - `apps/admin`：5 个页面源码门禁测试通过（`5/5`），`typecheck` 与 `build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+  - `pnpm-lock.yaml` 已更新，`rg "@tanstack"` 仅剩设计/计划文档中的历史说明，不再残留运行时代码与锁文件依赖。

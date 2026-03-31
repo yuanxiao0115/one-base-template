@@ -26,15 +26,16 @@
 - `el-button` 的 `link + danger` 组合不得覆盖 hover/active 颜色，保留 Element 默认 danger 交互态。
 - 调整错误页能力时，必须同时检查 `403` 与 `404` 页面的一致性。
 
-## ObVxeTable 规范（组件实现侧）
+## 表格壳组件规范（组件实现侧）
 
-- `ObVxeTable` 必须在 `one-table-bar__content` 内撑满可用高度，分页器能力不可丢失（确保 VXE Pager 与样式已注册）。
+- `ObVxeTable` 与 `ObElementTable` 都必须在 `one-table-bar__content` 内撑满可用高度，分页器能力不可丢失。
 - 默认采用“容器自适应撑满 + 分页器置底”布局。
 - 颜色相关样式必须复用主题 token（`--one-*` / `--el-*`），禁止组件内维护硬编码色值体系。
-- VXE 主题变量统一在 `packages/ui/src/styles/vxe-theme.css` 管理（通过 `packages/ui/src/index.ts` 引入），禁止在 `ObVxeTable` 内重复定义 `--vxe-ui-*`。
+- 共享表格 token 统一在 `packages/ui/src/styles/table-theme.css` 管理；VXE 专属变量统一在 `packages/ui/src/styles/vxe-theme.css` 管理（通过 `packages/ui/src/index.ts` 引入），禁止在组件内重复定义主题变量。
 - 默认铺满 `one-table-bar__content` 可用宽度，避免右侧留白；纵向滚动条使用窄轨道轻量样式。
 - `not--scroll-x` 场景下自动折叠 fixed 左右包裹层，禁止固定列占位导致右侧空白。
-- 最后一行（`vxe-body--row:last-child`）默认不绘制 `border-bottom`，避免与分页分隔线双线叠加。
+- `ObVxeTable` 最后一行（`vxe-body--row:last-child`）默认不绘制 `border-bottom`，避免与分页分隔线双线叠加。
+- `ObElementTable` 必须使用 `Element Plus` 的 `el-pagination`，分页文案固定中文，空态统一走组件内置图片与文案。
 
 ## 验证命令（ui）
 

@@ -2,6 +2,22 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-03-31（Element Table 收口：回收 TanStack 链路）
+
+- 按用户指定边界收口表格方案：保留提交 `dea7b24c4bf39e85f1c53b946784038693f4a796` 与 `9c359a5e13c2b4dd4e7729c3e132654aadff7875`，其余 TanStack 表格链路改为删除/替换，不做整段 `git reset --hard`。
+- `packages/ui` 新增 `packages/ui/src/components/table/ElementTable.vue` 作为 `ObElementTable` 默认实现，基于 `Element Plus el-table + el-pagination`，保留 `selection-change / page-size-change / page-current-change / sort-change / getTableRef / setAdaptive / clearSelection` 契约。
+- 组织/菜单/角色/角色分配/登录日志 5 个灰度页面统一切换到 `ObElementTable`，对应源码门禁测试改为断言 `<ObElementTable>`。
+- 删除 TanStack 资产与依赖残留：
+  - `packages/ui/src/components/table/TanStackTable.vue`
+  - `packages/ui/src/components/table/internal/tanstack-engine.ts`
+  - `packages/ui/src/components/table/internal/tanstack-pagination.ts`
+  - `packages/ui/src/components/table/assets/tree-toggle-collapsed.svg`
+  - `packages/ui/src/components/table/assets/tree-toggle-expanded.svg`
+  - `packages/ui/src/tanstack-table-source.test.ts`
+  - `docs/superpowers/plans/2026-03-31-tanstack-table-wrapper.md`
+- `pnpm-lock.yaml` 已通过 `pnpm install --lockfile-only` 收口，锁文件中不再残留 `@tanstack/*` 依赖。
+- `packages/ui/AGENTS.md`、`apps/admin/AGENTS.md`、`apps/docs/docs/guide/admin-agent-redlines.md`、`apps/docs/docs/guide/table-vxe-migration.md` 已同步改为“页面层禁止直接 `<el-table>`，统一使用 `ObVxeTable` 或 `ObElementTable`”。
+
 ## 2026-03-31（admin-lite README 快速使用手册补充）
 
 - 按用户诉求增强 `apps/admin-lite/README.md`，新增“快速使用手册（先跑起来）”与“配置入口速查”。

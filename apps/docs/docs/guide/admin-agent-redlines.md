@@ -6,7 +6,7 @@ outline: [2, 3]
 
 ## 背景
 
-admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`ObPageContainer`、`ObTableBox`、`ObVxeTable`、`@one-base-template/ui` 等）。  
+admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`ObPageContainer`、`ObTableBox`、`ObVxeTable`、`ObElementTable`、`@one-base-template/ui` 等）。
 后续迁移与重构必须优先复用这些公共能力，避免回退到分散实现，保证封装持续产生价值。
 
 ## 适用范围
@@ -17,7 +17,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 
 ## 强制红线
 
-- CRUD 列表编排页必须使用 `ObPageContainer + ObTableBox + ObVxeTable`，禁止使用 `el-table`。
+- CRUD 列表编排页必须使用 `ObPageContainer + ObTableBox + ObVxeTable/ObElementTable`，禁止页面层直接使用 `el-table`。
 - CRUD 新增/编辑/查看容器必须使用 `ObCrudContainer`，禁止在 CRUD 场景直接使用 `el-dialog` 或 `el-drawer` 编排。
 - 业务消息提示统一使用 `@one-base-template/ui`，禁止在模块业务代码中直接使用 `ElMessage`。
 - 业务确认交互统一使用 `@one-base-template/ui` 的 `obConfirm`/`tryConfirmWarn`，禁止直接使用 `ElMessageBox`。
@@ -45,7 +45,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 
 ## 开发自检清单
 
-1. 列表是否采用 `ObPageContainer + ObTableBox + ObVxeTable`？
+1. 列表是否采用 `ObPageContainer + ObTableBox + ObVxeTable/ObElementTable`？
 2. 新增/编辑弹层是否采用 `ObCrudContainer`？
 3. 消息与确认是否走统一入口（`message`、`obConfirm`）？
 4. 上传是否满足“导入走 `ObImportUpload`，业务上传不出现在 `list.vue`”？

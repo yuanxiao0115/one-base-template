@@ -139,7 +139,7 @@ importers:
         version: 0.1.14(@types/node@25.2.3)(@voidzero-dev/vite-plus-core@0.1.14(@types/node@25.2.3)(esbuild@0.27.4)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(yaml@2.8.2))(esbuild@0.27.4)(happy-dom@20.7.0)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(yaml@2.8.2)
       vitest:
         specifier: npm:@voidzero-dev/vite-plus-test@0.1.14
-        version: '@voidzero-dev/vite-plus-test@0.1.14(@types/node@25.2.3)(esbuild@0.27.4)(happy-dom@20.7.0)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(vite@8.0.2(@types/node@25.2.3)(esbuild@0.27.4)(jiti@2.6.1)(sass@1.97.3)(yaml@2.8.2))(yaml@2.8.2)'
+        version: '@voidzero-dev/vite-plus-test@0.1.14(@types/node@25.2.3)(@voidzero-dev/vite-plus-core@0.1.14(@types/node@25.2.3)(esbuild@0.27.4)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(yaml@2.8.2))(esbuild@0.27.4)(happy-dom@20.7.0)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(yaml@2.8.2)'
 
   apps/admin-lite:
     dependencies:
@@ -221,7 +221,7 @@ importers:
         version: 0.1.14(@types/node@25.2.3)(@voidzero-dev/vite-plus-core@0.1.14(@types/node@25.2.3)(esbuild@0.27.4)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(yaml@2.8.2))(esbuild@0.27.4)(happy-dom@20.7.0)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(yaml@2.8.2)
       vitest:
         specifier: npm:@voidzero-dev/vite-plus-test@0.1.14
-        version: '@voidzero-dev/vite-plus-test@0.1.14(@types/node@25.2.3)(esbuild@0.27.4)(happy-dom@20.7.0)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(vite@8.0.2(@types/node@25.2.3)(esbuild@0.27.4)(jiti@2.6.1)(sass@1.97.3)(yaml@2.8.2))(yaml@2.8.2)'
+        version: '@voidzero-dev/vite-plus-test@0.1.14(@types/node@25.2.3)(@voidzero-dev/vite-plus-core@0.1.14(@types/node@25.2.3)(esbuild@0.27.4)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(yaml@2.8.2))(esbuild@0.27.4)(happy-dom@20.7.0)(jiti@2.6.1)(sass@1.97.3)(typescript@5.9.3)(yaml@2.8.2)'
 
   apps/docs:
     devDependencies:
@@ -419,12 +419,6 @@ importers:
       '@one-base-template/tag':
         specifier: workspace:*
         version: link:../tag
-      '@tanstack/vue-table':
-        specifier: ^8.21.3
-        version: 8.21.3(vue@3.5.28(typescript@5.9.3))
-      '@tanstack/vue-virtual':
-        specifier: ^3.13.23
-        version: 3.13.23(vue@3.5.28(typescript@5.9.3))
       element-plus:
         specifier: ^2.13.2
         version: 2.13.2(vue@3.5.28(typescript@5.9.3))
@@ -2007,24 +2001,6 @@ packages:
 
   '@tailwindcss/postcss@4.1.18':
     resolution: {integrity: sha512-Ce0GFnzAOuPyfV5SxjXGn0CubwGcuDB0zcdaPuCSzAa/2vII24JTkH+I6jcbXLb1ctjZMZZI6OjDaLPJQL1S0g==}
-
-  '@tanstack/table-core@8.21.3':
-    resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
-    engines: {node: '>=12'}
-
-  '@tanstack/virtual-core@3.13.23':
-    resolution: {integrity: sha512-zSz2Z2HNyLjCplANTDyl3BcdQJc2k1+yyFoKhNRmCr7V7dY8o8q5m8uFTI1/Pg1kL+Hgrz6u3Xo6eFUB7l66cg==}
-
-  '@tanstack/vue-table@8.21.3':
-    resolution: {integrity: sha512-rusRyd77c5tDPloPskctMyPLFEQUeBzxdQ+2Eow4F7gDPlPOB1UnnhzfpdvqZ8ZyX2rRNGmqNnQWm87OI2OQPw==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      vue: '>=3.2'
-
-  '@tanstack/vue-virtual@3.13.23':
-    resolution: {integrity: sha512-b5jPluAR6U3eOq6GWAYSpj3ugnAIZgGR0e6aGAgyRse0Yu6MVQQ0ZWm9SArSXWtageogn6bkVD8D//c4IjW3xQ==}
-    peerDependencies:
-      vue: ^2.7.0 || ^3.0.0
 
   '@transloadit/prettier-bytes@0.0.7':
     resolution: {integrity: sha512-VeJbUb0wEKbcwaSlj5n+LscBl9IPgLPkHVGBkh00cztv6X4L/TJXK58LzFuBKX7/GAfiGhIwH67YTLTlzvIzBA==}
@@ -6286,20 +6262,6 @@ snapshots:
       '@tailwindcss/oxide': 4.1.18
       postcss: 8.5.6
       tailwindcss: 4.1.18
-
-  '@tanstack/table-core@8.21.3': {}
-
-  '@tanstack/virtual-core@3.13.23': {}
-
-  '@tanstack/vue-table@8.21.3(vue@3.5.28(typescript@5.9.3))':
-    dependencies:
-      '@tanstack/table-core': 8.21.3
-      vue: 3.5.28(typescript@5.9.3)
-
-  '@tanstack/vue-virtual@3.13.23(vue@3.5.28(typescript@5.9.3))':
-    dependencies:
-      '@tanstack/virtual-core': 3.13.23
-      vue: 3.5.28(typescript@5.9.3)
 
   '@transloadit/prettier-bytes@0.0.7': {}
 

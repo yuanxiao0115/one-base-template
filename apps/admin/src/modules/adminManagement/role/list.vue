@@ -36,7 +36,7 @@ const dialogs = reactive(pageState.dialogs);
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObTanStackTable
+        <ObElementTable
           :ref="refs.tableRef"
           :loading="table.loading"
           :size
@@ -67,7 +67,7 @@ const dialogs = reactive(pageState.dialogs);
               >
             </ObActionButtons>
           </template>
-        </ObTanStackTable>
+        </ObElementTable>
       </template>
 
       <template #drawer>
