@@ -9319,3 +9319,12 @@
 - 结果：
   - `packages/ui`：源码门禁测试通过（`12/12`），`typecheck/lint` 通过。
   - `apps/admin`：`typecheck/build` 通过，已无 SVG 路径解析报错。
+
+## 2026-03-31（树表图标间距与同级左对齐细化）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`12/12`），`typecheck/lint` 通过。

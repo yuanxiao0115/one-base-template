@@ -10792,3 +10792,17 @@
   - 补充 `declare module '*.svg'`，消除 TypeScript 模块声明缺失。
 - `packages/ui/src/tanstack-table-source.test.ts`：
   - 更新树表源码门禁断言，匹配新的 SVG 引入方式。
+
+## 2026-03-31（树表图标间距与同级左对齐细化）
+
+- 按用户新要求调整 TanStack 树表细节：
+  - 图标与文字间距改为 `8px`；
+  - 同级行文本左对齐：无子集行保留与图标同宽占位；
+  - 鼠标移动到图标时保持可点击态（`cursor: pointer`）。
+- 关键实现：
+  - `packages/ui/src/components/table/TanStackTable.vue`
+    - `--ob-table-tree-toggle-size` 收敛为 `16px`；
+    - `--ob-table-tree-toggle-gap` 收敛为 `8px`；
+    - 树节点占位宽度继续复用 `--ob-table-tree-toggle-size`，保证无子节点与有子节点文本起点一致。
+  - `packages/ui/src/tanstack-table-source.test.ts`
+    - 更新树表样式门禁断言（`size=16px`、`gap=8px`）。

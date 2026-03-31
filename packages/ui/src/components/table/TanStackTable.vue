@@ -1011,8 +1011,8 @@ defineExpose({
   height: 100%;
   min-height: 0;
   background: var(--ob-table-bg);
-  --ob-table-tree-toggle-size: 22px;
-  --ob-table-tree-toggle-gap: 10px;
+  --ob-table-tree-toggle-size: 16px;
+  --ob-table-tree-toggle-gap: 8px;
   --ob-table-tree-toggle-hover-bg: var(--one-fill-color-light, var(--el-fill-color-light));
   --ob-table-tree-toggle-focus-outline: var(--one-color-primary, var(--el-color-primary));
 }
@@ -1204,12 +1204,11 @@ defineExpose({
 
 .ob-tanstack-table__checkbox,
 .ob-tanstack-table__expand-toggle,
-.ob-tanstack-table__tree-toggle {
+.ob-tanstack-table__tree-toggle-icon {
   cursor: pointer;
 }
 
-.ob-tanstack-table__expand-toggle,
-.ob-tanstack-table__tree-toggle {
+.ob-tanstack-table__expand-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1234,32 +1233,29 @@ defineExpose({
   margin-right: var(--ob-table-tree-toggle-gap);
 }
 
-.ob-tanstack-table__tree-toggle {
+.ob-tanstack-table__tree-toggle-icon {
   margin-right: var(--ob-table-tree-toggle-gap);
+  width: 16px;
+  height: 16px;
+  display: block;
+  border-radius: 4px;
+  transition:
+    background-color 180ms ease,
+    opacity 180ms ease;
 }
 
-.ob-tanstack-table__tree-toggle:hover:not(:disabled) {
+.ob-tanstack-table__tree-toggle-icon:hover {
   background: var(--ob-table-tree-toggle-hover-bg);
 }
 
-.ob-tanstack-table__tree-toggle:focus-visible {
+.ob-tanstack-table__tree-toggle-icon:focus-visible {
   outline: 2px solid var(--ob-table-tree-toggle-focus-outline);
   outline-offset: 1px;
 }
 
-.ob-tanstack-table__tree-toggle:disabled {
-  cursor: not-allowed;
-  opacity: 0.72;
-}
-
-.ob-tanstack-table__tree-toggle-icon {
-  width: 16px;
-  height: 16px;
-  display: block;
-}
-
-.ob-tanstack-table__tree-toggle.is-loading .ob-tanstack-table__tree-toggle-icon {
+.ob-tanstack-table__tree-toggle-icon.is-loading {
   opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .ob-tanstack-table__tree-content {

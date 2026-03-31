@@ -519,7 +519,7 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
             return;
           }
           const target = event.target as HTMLElement | null;
-          if (target?.closest('.ob-tanstack-table__tree-toggle')) {
+          if (target?.closest('.ob-tanstack-table__tree-toggle-icon')) {
             return;
           }
           void toggleTreeExpand();
@@ -527,30 +527,19 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
       },
       [
         canExpand
-          ? h(
-              'button',
-              {
-                class: [
-                  'ob-tanstack-table__tree-toggle',
-                  isExpanded ? 'is-expanded' : '',
-                  isLoading ? 'is-loading' : ''
-                ],
-                type: 'button',
-                disabled: isLoading,
-                onClick: (event: MouseEvent) => {
-                  event.stopPropagation();
-                  void toggleTreeExpand();
+          ? h('img', {
+              src: isExpanded ? treeToggleExpandedIcon : treeToggleCollapsedIcon,
+              class: ['ob-tanstack-table__tree-toggle-icon', isLoading ? 'is-loading' : ''],
+              alt: '',
+              'aria-hidden': 'true',
+              onClick: (event: MouseEvent) => {
+                event.stopPropagation();
+                if (isLoading) {
+                  return;
                 }
-              },
-              [
-                h('img', {
-                  src: isExpanded ? treeToggleExpandedIcon : treeToggleCollapsedIcon,
-                  class: 'ob-tanstack-table__tree-toggle-icon',
-                  alt: '',
-                  'aria-hidden': 'true'
-                })
-              ]
-            )
+                void toggleTreeExpand();
+              }
+            })
           : h('span', { class: 'ob-tanstack-table__tree-placeholder' }, ''),
         h('span', { class: 'ob-tanstack-table__tree-content' }, [defaultNode])
       ]
