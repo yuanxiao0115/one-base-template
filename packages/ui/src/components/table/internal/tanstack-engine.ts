@@ -32,6 +32,8 @@ interface TableRuntimeProps extends Record<string, unknown> {
   alignWhole: TableAlign;
   headerAlign?: TableAlign;
   showOverflowTooltip: boolean;
+  showEmptyValue: boolean;
+  emptyValueText: string;
   treeConfig?: Record<string, unknown>;
   reserveSelection?: boolean;
 }
@@ -301,7 +303,7 @@ function resolveColumnOverflow(column: TableColumn, index: number, props: TableR
   return {
     showOverflow: isOperationColumn
       ? false
-      : (column.showOverflowTooltip ?? props.showOverflowTooltip),
+      : (column.showOverflowTooltip ?? column.ellipsis ?? props.showOverflowTooltip),
     isOperationColumn
   };
 }
@@ -320,14 +322,39 @@ function getRowValue(row: RowRecord, field?: string) {
   return row[field];
 }
 
+function isEmptyCellValue(value: unknown) {
+  if (value == null) {
+    return true;
+  }
+  return typeof value === 'string' && value.trim().length === 0;
+}
+
+function resolveCellDisplayValue(
+  value: unknown,
+  showEmptyValue: boolean,
+  emptyValueText: string
+): unknown {
+  if (!isEmptyCellValue(value)) {
+    return value;
+  }
+  if (!showEmptyValue) {
+    return '';
+  }
+  return emptyValueText;
+}
+
 function createDefaultCellValue(
   row: RowRecord,
   column: TableColumn,
-  index: number
+  index: number,
+  props: TableRuntimeProps
 ): string | number | VNodeChild {
   const field = resolveColumnField(column.prop, index);
   const value = getRowValue(row, field);
-  return (value ?? '') as string | number | VNodeChild;
+  const showEmptyValue = column.showEmptyValue ?? props.showEmptyValue;
+  const emptyValueText = column.emptyValueText ?? props.emptyValueText;
+  const displayValue = resolveCellDisplayValue(value, showEmptyValue, emptyValueText);
+  return (displayValue ?? '') as string | number | VNodeChild;
 }
 
 function createCheckboxNode(params: {
@@ -705,7 +732,12 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
           } else if (column.cellRenderer) {
             content = column.cellRenderer(slotParams);
           } else {
-            content = createDefaultCellValue(context.row.original, column, index);
+            content = createDefaultCellValue(
+              context.row.original,
+              column,
+              index,
+              resolvedProps.value
+            );
           }
 
           return renderTreeCell({
@@ -1050,8 +1082,10 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
     if (!meta.showOverflow || meta.isOperationColumn) {
       return undefined;
     }
-    const value = cell.getValue();
-    return value == null ? undefined : String(value);
+    const showEmptyValue = meta.originalColumn.showEmptyValue ?? resolvedProps.value.showEmptyValue;
+    const emptyValueText = meta.originalColumn.emptyValueText ?? resolvedProps.value.emptyValueText;
+    const value = resolveCellDisplayValue(cell.getValue(), showEmptyValue, emptyValueText);
+    return value == null || value === '' ? undefined : String(value);
   }
 
   return {

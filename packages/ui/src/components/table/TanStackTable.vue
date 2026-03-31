@@ -46,6 +46,9 @@ interface ObTanStackTableProps {
   rowKey?: string;
   tableLayout?: 'fixed' | 'auto';
   showOverflowTooltip?: boolean;
+  showEmptyValue?: boolean;
+  emptyValueText?: string;
+  emptyText?: string;
   alignWhole?: TableAlign;
   headerAlign?: TableAlign;
   stripe?: boolean;
@@ -70,6 +73,9 @@ const props = withDefaults(defineProps<ObTanStackTableProps>(), {
   rowKey: 'id',
   tableLayout: 'auto',
   showOverflowTooltip: true,
+  showEmptyValue: true,
+  emptyValueText: '---',
+  emptyText: '暂未生产任何数据',
   alignWhole: 'left',
   headerAlign: undefined,
   stripe: false,
@@ -118,6 +124,9 @@ const passthroughAttrs = computed(() => {
     'rowKey',
     'tableLayout',
     'showOverflowTooltip',
+    'showEmptyValue',
+    'emptyValueText',
+    'emptyText',
     'alignWhole',
     'headerAlign',
     'stripe',
@@ -136,6 +145,11 @@ const normalizedData = computed<RowRecord[]>(() => (Array.isArray(props.data) ? 
 const normalizedColumns = computed<TableColumnList>(() =>
   Array.isArray(props.columns) ? props.columns : []
 );
+
+const resolvedEmptyText = computed(() => {
+  const content = props.emptyText?.trim();
+  return content && content.length > 0 ? content : '暂未生产任何数据';
+});
 
 const normalizedPagination = computed<TablePagination | null>(() => {
   if (!props.pagination) {
@@ -157,6 +171,8 @@ const engine = useTanStackTableEngine({
     alignWhole: props.alignWhole,
     headerAlign: props.headerAlign,
     showOverflowTooltip: props.showOverflowTooltip,
+    showEmptyValue: props.showEmptyValue,
+    emptyValueText: props.emptyValueText,
     treeConfig: props.treeConfig,
     reserveSelection: props.reserveSelection
   })),
@@ -1018,7 +1034,7 @@ defineExpose({
                   class="ob-tanstack-table__empty-image"
                 />
               </div>
-              <p class="ob-tanstack-table__empty-text">暂未生产任何数据</p>
+              <p class="ob-tanstack-table__empty-text">{{ resolvedEmptyText }}</p>
             </div>
           </div>
         </div>
@@ -1122,6 +1138,7 @@ defineExpose({
 .ob-tanstack-table__cell {
   display: flex;
   align-items: center;
+  min-width: 0;
   min-height: var(--ob-table-row-height-default);
   padding: 0 12px;
   font-size: 14px;
@@ -1312,6 +1329,13 @@ defineExpose({
 }
 
 .is-overflow .ob-tanstack-table__cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.is-overflow .ob-tanstack-table__cell > * {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

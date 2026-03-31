@@ -55,8 +55,28 @@ describe('TanStackTable source', () => {
     expect(source).toContain('ob-tanstack-table__empty-overlay');
     expect(source).toContain('.ob-tanstack-table__table-scroll.is-empty');
     expect(source).not.toContain('ob-tanstack-table__tr--empty');
-    expect(source).toContain('暂未生产任何数据');
+    expect(source).toContain("emptyText: '暂未生产任何数据'");
+    expect(source).toContain('const resolvedEmptyText = computed(() => {');
+    expect(source).toContain('{{ resolvedEmptyText }}');
     expect(source).toContain('ob-tanstack-table__empty-image');
+  });
+
+  it('应支持空值占位与空态文案配置，默认分别使用 --- 和 暂未生产任何数据', () => {
+    expect(source).toContain('showEmptyValue?: boolean;');
+    expect(source).toContain('emptyValueText?: string;');
+    expect(source).toContain('emptyText?: string;');
+    expect(source).toContain('showEmptyValue: true');
+    expect(source).toContain("emptyValueText: '---'");
+    expect(source).toContain("emptyText: '暂未生产任何数据'");
+    expect(source).toContain('showEmptyValue: props.showEmptyValue');
+    expect(source).toContain('emptyValueText: props.emptyValueText');
+    expect(engineSource).toContain('function resolveCellDisplayValue(');
+    expect(engineSource).toContain(
+      'const showEmptyValue = column.showEmptyValue ?? props.showEmptyValue;'
+    );
+    expect(engineSource).toContain(
+      'const emptyValueText = column.emptyValueText ?? props.emptyValueText;'
+    );
   });
 
   it('应补齐固定列吸附样式能力，避免左右 fixed 在横向滚动时失效', () => {
@@ -158,13 +178,24 @@ describe('TanStackTable source', () => {
     expect(engineSource).toContain('maxWidth: resolvedWidth');
   });
 
+  it('超长文本应支持省略与 tooltip，并兼容 ellipsis 列配置别名', () => {
+    expect(source).toContain('.is-overflow .ob-tanstack-table__cell {');
+    expect(source).toContain('.is-overflow .ob-tanstack-table__cell > * {');
+    expect(engineSource).toContain(
+      ': (column.showOverflowTooltip ?? column.ellipsis ?? props.showOverflowTooltip),'
+    );
+    expect(engineSource).toContain('function getCellTitle(cell: Cell<RowRecord, unknown>) {');
+    expect(engineSource).toContain(
+      'const showEmptyValue = meta.originalColumn.showEmptyValue ?? resolvedProps.value.showEmptyValue;'
+    );
+  });
+
   it('应根据虚拟滚动与列宽配置自动收口 tableLayout，减少布局抖动', () => {
     expect(source).toContain("const resolvedTableLayout = computed<'fixed' | 'auto'>(() => {");
     expect(source).toContain('if (virtualEnabled.value) {');
     expect(source).toContain('if (Object.keys(engine.columnSizing.value).length > 0) {');
-    expect(source).toContain(
-      'const hasExplicitSizing = visibleLeafColumns.value.some((column) => hasConfiguredColumnSize(column));'
-    );
+    expect(source).toContain('const hasExplicitSizing = visibleLeafColumns.value.some((column) =>');
+    expect(source).toContain('hasConfiguredColumnSize(column)');
     expect(source).toContain("'--ob-tanstack-table-layout': resolvedTableLayout.value");
   });
 

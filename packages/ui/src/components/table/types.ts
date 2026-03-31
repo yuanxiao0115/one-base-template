@@ -25,7 +25,10 @@ export interface TableColumn {
   fixed?: TableFixed;
   sortable?: TableSortable;
   sortBy?: string | string[] | ((row: Record<string, unknown>, index: number) => string);
+  ellipsis?: boolean;
   showOverflowTooltip?: boolean;
+  showEmptyValue?: boolean;
+  emptyValueText?: string;
   align?: TableAlign;
   headerAlign?: TableAlign;
   className?: string;

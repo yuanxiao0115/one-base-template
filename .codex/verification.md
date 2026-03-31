@@ -6,7 +6,7 @@
 
 - 日期：2026-03-31
 - 文件：`.codex/verification/2026-03-31.md`
-- 补充：最新条目为“adminManagement/org 灰度：组织管理页切 TanStack”。
+- 补充：最新条目为“TanStack 表格增强：超长省略 tooltip + 空值占位”。
 
 ## 历史归档
 

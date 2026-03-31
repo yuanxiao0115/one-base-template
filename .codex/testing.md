@@ -9391,3 +9391,17 @@
 - 结果：
   - `apps/admin`：4 个源码门禁测试通过（`4/4`），`typecheck` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（TanStack：超长省略 tooltip + 空值占位可配置）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`16/16`），`typecheck/lint` 通过。
+  - `apps/admin`：`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

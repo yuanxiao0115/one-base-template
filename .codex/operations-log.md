@@ -10857,3 +10857,17 @@
 - `apps/admin/src/modules/adminManagement/org/list.vue`：将组织管理页主表从 `ObVxeTable` 替换为 `ObTanStackTable`，保留树形配置、无分页模式与操作列交互。
 - `apps/admin/src/modules/adminManagement/org/list.source.test.ts`：新增源码门禁，锁定“组织管理必须使用 `ObTanStackTable`”且保留 `tree-config` 与 `operation` 插槽。
 - `apps/docs/docs/guide/table-vxe-migration.md`：补充 `/system/org` 页面灰度切换记录（`2026-03-31`）。
+
+## 2026-03-31（TanStack：超长省略 tooltip + 空值占位可配置）
+
+- `packages/ui/src/components/table/TanStackTable.vue`：
+  - 新增 `showEmptyValue`、`emptyValueText`、`emptyText` 三个 props；
+  - 空态文案改为 `resolvedEmptyText` 可配置输出；
+  - `ob-tanstack-table__cell` 与其子节点补齐 `min-width: 0` + overflow 样式，提升超长内容省略稳定性。
+- `packages/ui/src/components/table/internal/tanstack-engine.ts`：
+  - 新增空值识别与显示兜底（默认 `---`）；
+  - tooltip 文案与单元格展示统一走空值兜底逻辑；
+  - 列配置新增 `ellipsis` 作为 `showOverflowTooltip` 的别名能力。
+- `packages/ui/src/components/table/types.ts`：补充 `ellipsis/showEmptyValue/emptyValueText` 列级类型字段。
+- `packages/ui/src/tanstack-table-source.test.ts`：新增源码门禁断言，覆盖空值占位、空态文案配置与超长省略能力。
+- `apps/docs/docs/guide/table-vxe-migration.md`：同步新增配置能力说明。
