@@ -1,6 +1,7 @@
 export type BackendKind = 'default' | 'basic';
 export type AuthMode = 'cookie' | 'token' | 'mixed';
 export type MenuMode = 'remote' | 'static';
+export type RouterHistoryMode = 'history' | 'hash';
 export type EnabledModulesSetting = '*' | string[];
 export type MenuRoutePreset = 'static-single' | 'remote-single';
 
@@ -8,6 +9,7 @@ export interface RuntimeConfig {
   preset?: MenuRoutePreset;
   backend: BackendKind;
   authMode: AuthMode;
+  historyMode: RouterHistoryMode;
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
@@ -126,6 +128,7 @@ function normalizePresetRuntimeConfig(
     preset: rawPreset,
     backend: 'default',
     authMode: 'token',
+    historyMode: 'history',
     menuMode: expectedMenuMode,
     enabledModules: '*',
     authorizationType: 'ADMIN',
@@ -217,6 +220,7 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
 
   const backend = expectEnum(normalized, 'backend', ['default', 'basic'], errors);
   const authMode = expectEnum(normalized, 'authMode', ['cookie', 'token', 'mixed'], errors);
+  const historyMode = expectEnum(normalized, 'historyMode', ['history', 'hash'], errors);
   const tokenKey = expectString(normalized, 'tokenKey', errors);
   const idTokenKey = expectString(normalized, 'idTokenKey', errors);
   const menuMode = expectEnum(normalized, 'menuMode', ['remote', 'static'], errors);
@@ -257,6 +261,7 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
     preset,
     backend: backend!,
     authMode: authMode!,
+    historyMode: historyMode!,
     tokenKey: tokenKey!,
     idTokenKey: idTokenKey!,
     menuMode: menuMode!,

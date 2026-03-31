@@ -2,6 +2,24 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-03-31（admin-lite README 快速使用手册补充）
+
+- 按用户诉求增强 `apps/admin-lite/README.md`，新增“快速使用手册（先跑起来）”与“配置入口速查”。
+- 明确 `apiBaseUrl`（`VITE_API_BASE_URL`）与 `baseUrl`（`import.meta.env.BASE_URL`）的区别，并给出具体配置位置：
+  - 后端网关：`apps/admin-lite/.env.development.local`
+  - 路由基路径：`apps/admin-lite/vite.config.ts`
+  - 平台配置：`apps/admin-lite/src/config/platform-config.ts`
+- 修正文案：`apps/admin-lite/.env.example` 中平台配置路径由 `apps/admin/src/config/platform-config.ts` 改为 `apps/admin-lite/src/config/platform-config.ts`。
+
+## 2026-03-31（historyMode + 统一前缀配置收口）
+
+- 在 `packages/core/src/config/platform-config.ts` 新增 `historyMode` 契约（`history | hash`），preset 默认补齐 `history`，并在 parse 阶段强校验枚举值。
+- 在 `packages/core/src/index.ts` 导出 `PlatformHistoryMode`，`apps/admin`、`apps/admin-lite`、`apps/portal` 的 `src/config/env.ts` 同步透传 `historyMode`。
+- 在 `apps/admin/src/bootstrap/index.ts`、`apps/admin-lite/src/bootstrap/index.ts`、`apps/portal/src/router/index.ts` 接入 `createWebHistory/createWebHashHistory` 动态选择，统一基于 `baseUrl`。
+- 新增 `scripts/vite/app-base.ts`（`normalizeAppBase`），并在 `apps/admin/vite.config.ts`、`apps/admin-lite/vite.config.ts`、`apps/portal/vite.config.ts` 统一接入 `VITE_APP_BASE`，收敛静态资源与路由前缀。
+- `apps/admin/.env.example`、`apps/admin-lite/.env.example` 补充 `VITE_APP_BASE` 示例，`README.md`、`apps/docs/docs/guide/env.md`、`apps/docs/docs/guide/menu-route-spec.md`、`apps/docs/docs/guide/architecture-runtime-deep-dive.md`、`apps/admin-lite/README.md` 同步文档口径。
+- 按用户说明，`apps/zfw-system-sfss` 已从工作区删除，本轮验证与收口不再依赖该子应用。
+
 ## 2026-03-31（tokenKey 多子项目污染修复）
 
 - 定位问题：`tokenKey='token'`/`idTokenKey='idToken'` 在多子项目并行本地启动时会共享同一 localStorage key，导致登录态互相覆盖。

@@ -11,6 +11,7 @@ const platformConfig: RuntimeConfig = parseRuntimeConfig({
   preset: 'remote-single',
   backend: 'basic',
   authMode: 'token',
+  historyMode: 'history',
   menuMode: 'remote',
   authorizationType: 'ADMIN',
   appsource: 'frame',

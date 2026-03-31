@@ -1,6 +1,7 @@
 {
   "preset": "static-single",
   "backend": "basic",
+  "historyMode": "history",
   "appsource": "frame",
   "appcode": "portal",
   "storageNamespace": "one-base-template-portal",

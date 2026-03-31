@@ -2,11 +2,13 @@ import { getPlatformConfig } from '@/config/platform-config';
 import type {
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
+  PlatformHistoryMode,
   PlatformMenuMode
 } from '@one-base-template/core';
 
 export type BackendKind = PlatformBackendKind;
 export type AuthMode = PlatformAuthMode;
+export type HistoryMode = PlatformHistoryMode;
 export type MenuMode = PlatformMenuMode;
 
 export interface BuildEnv {
@@ -21,6 +23,7 @@ export interface AppEnv {
   apiBaseUrl?: string;
   backend: BackendKind;
   authMode: AuthMode;
+  historyMode: HistoryMode;
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
@@ -97,6 +100,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     apiBaseUrl: buildEnv.apiBaseUrl,
     backend: runtime.backend,
     authMode: runtime.authMode,
+    historyMode: runtime.historyMode,
     tokenKey: runtime.tokenKey,
     idTokenKey: runtime.idTokenKey,
     menuMode: runtime.menuMode,

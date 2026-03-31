@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import {
   installRouteDynamicImportRecovery,
   resolveAppRedirectTarget,
@@ -27,6 +27,10 @@ import { createAppAdapter } from './adapter';
 import { installCore } from './core';
 import { installAppShellPlugins } from './plugins';
 import { createStartupProfiler } from './startup-profiler';
+
+function createRouterHistory(historyMode: 'history' | 'hash', baseUrl: string) {
+  return historyMode === 'hash' ? createWebHashHistory(baseUrl) : createWebHistory(baseUrl);
+}
 
 export async function bootstrapAdminLiteApp() {
   const profiler = createStartupProfiler();
@@ -72,7 +76,7 @@ export async function bootstrapAdminLiteApp() {
       'create-router',
       () => {
         const nextRouter = createRouter({
-          history: createWebHistory(resolvedAppEnv.baseUrl),
+          history: createRouterHistory(resolvedAppEnv.historyMode, resolvedAppEnv.baseUrl),
           routes: routeAssemblyResult.routes,
           strict: true
         });

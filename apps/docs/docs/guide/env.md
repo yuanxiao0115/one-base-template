@@ -11,6 +11,7 @@
 | 名称                | 值                                                          | 解释                                                                               |
 | ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `VITE_API_BASE_URL` | `https://gateway-basic-30746.p.onecode.cmict.cloud`（示例） | Vite dev server 的 `/api`、`/cmict` 代理目标；生产构建时也可作为 http baseURL 来源 |
+| `VITE_APP_BASE`     | `/`（示例）                                                 | 统一前缀配置：同时作用于 Vite `base` 与 router `baseUrl`，避免静态资源路径错位     |
 
 ## 2) 代码静态平台配置（`platform-config.ts`）
 
@@ -20,6 +21,7 @@
 
 - `backend`: `default | basic`
 - `authMode`: `cookie | token | mixed`
+- `historyMode`: `history | hash`（默认 `history`）
 - `menuMode`: `remote | static`
 - `enabledModules`: `"*"` 或 `string[]`（模块白名单）
 - `defaultSystemCode` / `systemHomeMap`: 多系统默认与首页映射

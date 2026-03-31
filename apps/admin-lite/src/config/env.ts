@@ -3,6 +3,7 @@ import type {
   EnabledModulesSetting,
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
+  PlatformHistoryMode,
   PlatformMenuMode
 } from '@one-base-template/core';
 
@@ -17,6 +18,7 @@ import type {
 
 export type BackendKind = PlatformBackendKind;
 export type AuthMode = PlatformAuthMode;
+export type HistoryMode = PlatformHistoryMode;
 export type MenuMode = PlatformMenuMode;
 
 export interface BuildEnv {
@@ -31,6 +33,7 @@ export interface AppEnv {
   apiBaseUrl?: string;
   backend: BackendKind;
   authMode: AuthMode;
+  historyMode: HistoryMode;
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
@@ -105,6 +108,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
 
   const { backend } = platformConfig;
   const { authMode } = platformConfig;
+  const { historyMode } = platformConfig;
   const { tokenKey } = platformConfig;
   const { idTokenKey } = platformConfig;
   const { menuMode } = platformConfig;
@@ -133,6 +137,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     apiBaseUrl: buildEnv.apiBaseUrl,
     backend,
     authMode,
+    historyMode,
     tokenKey,
     idTokenKey,
     menuMode,

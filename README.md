@@ -148,6 +148,7 @@ pnpm build
 
 - `backend`: `default | basic`
 - `authMode`: `cookie | token | mixed`
+- `historyMode`: `history | hash`（默认 `history`）
 - `menuMode`: `remote | static`
 - `enabledModules`: `"*"` 或 `string[]`（模块白名单）
 - `defaultSystemCode` / `systemHomeMap`: 多系统默认与首页映射
@@ -155,6 +156,8 @@ pnpm build
 - `VITE_API_BASE_URL=https://your-backend.example.com`
   - 开发环境：存在时会启用 Vite 代理 `/api`、`/cmict` 到 `VITE_API_BASE_URL`
   - 生产环境：如需跨域直连，可作为 Axios `baseURL`（默认仍推荐同源 `/api`）
+- `VITE_APP_BASE=/admin/`
+  - 统一前缀配置：同时作用于 Vite `base` 与 router `baseUrl`，避免静态资源与路由前缀不一致
 
 ## 本地缓存（参考老项目）
 

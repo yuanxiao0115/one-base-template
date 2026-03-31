@@ -76,6 +76,7 @@
       "required": [
         "backend",
         "authMode",
+        "historyMode",
         "tokenKey",
         "idTokenKey",
         "menuMode",
@@ -102,6 +103,10 @@
     "authMode": {
       "type": "string",
       "enum": ["cookie", "token", "mixed"]
+    },
+    "historyMode": {
+      "type": "string",
+      "enum": ["history", "hash"]
     },
     "tokenKey": {
       "type": "string",

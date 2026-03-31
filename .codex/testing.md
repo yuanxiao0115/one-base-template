@@ -2,6 +2,38 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-03-31（admin-lite README 快速使用手册补充）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin-lite lint`
+- 结果：
+  - `apps/admin-lite`：`lint` 通过（0 warning / 0 error）。
+
+## 2026-03-31（historyMode + 统一前缀配置）
+
+- GREEN / 回归：
+  - `pnpm -C packages/core test:run src/config/platform-config.test.ts`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C apps/admin test:run:file -- tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/admin test:run:file -- tests/config/env.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/config/env.unit.test.ts`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin-lite build`
+  - `pnpm -C apps/portal typecheck`
+  - `pnpm -C apps/portal build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/core`：`platform-config` 定向测试通过（11/11），`typecheck` 通过。
+  - `apps/admin`：`platform-config` 与 `env` 定向测试通过（2/2、3/3），`typecheck` 与 `build` 通过。
+  - `apps/admin-lite`：`platform-config` 与 `env` 定向测试通过（2/2、3/3），`typecheck` 与 `build` 通过。
+  - `apps/portal`：`typecheck` 与 `build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+  - 说明：`apps/zfw-system-sfss` 已被删除，本轮验证不包含该应用。
+
 ## 2026-03-31（tokenKey 多子项目污染修复）
 
 - GREEN / 回归：

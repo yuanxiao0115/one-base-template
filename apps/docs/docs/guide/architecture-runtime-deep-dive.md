@@ -69,7 +69,7 @@
 
 ## 启动收敛补充（2026-03）
 
-- `bootstrap/index.ts` 内联 `createWebHistory(appEnv.baseUrl)`，避免 `BASE_URL` 来源分散
+- `bootstrap/index.ts` 按 `historyMode` 选择 `createWebHistory/createWebHashHistory`，统一消费 `appEnv.baseUrl`，避免路由前缀与静态资源前缀分散
 - `apps/admin` 不再依赖 `public/platform-config.json` 运行时文件，平台配置改为 `src/config/platform-config.ts` 代码静态维护。
 - `apps/portal` 仍保留 runtime config loader 能力（并发复用、超时、重试、按需快照兜底）；`apps/admin-lite` 已收敛到代码静态配置。
 - `router/registry.ts` 改为两阶段装配：

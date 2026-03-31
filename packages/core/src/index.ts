@@ -9,6 +9,7 @@ export {
   type RuntimeConfig,
   type BackendKind,
   type AuthMode,
+  type RouterHistoryMode as PlatformHistoryMode,
   type MenuMode as PlatformMenuMode,
   type MenuRoutePreset,
   type EnabledModulesSetting

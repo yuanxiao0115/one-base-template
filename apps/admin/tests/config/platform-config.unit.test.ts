@@ -6,6 +6,7 @@ describe('config/platform-config', () => {
     const config = getPlatformConfig();
 
     expect(config.backend).toBe('basic');
+    expect(config.historyMode).toBe('history');
     expect(config.menuMode).toBe('remote');
     expect(config.enabledModules).toContain('home');
     expect(config.enabledModules).toContain('DocumentFormManagement');

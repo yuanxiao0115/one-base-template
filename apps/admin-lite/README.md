@@ -26,12 +26,14 @@ cp apps/admin-lite/.env.example apps/admin-lite/.env.development.local
 
 ```bash
 VITE_API_BASE_URL=https://your-gateway.example.com
+VITE_APP_BASE=/admin-lite/
 ```
 
 说明：
 
 - 这个值是 **apiBaseUrl**，用于 Vite 开发代理 `/api`、`/cmict`，也是生产环境可选的 HTTP `baseURL` 来源。
-- 代码里的 **baseUrl**（`import.meta.env.BASE_URL`）是前端路由基路径，默认 `/`。如需改为子路径部署，请在 `apps/admin-lite/vite.config.ts` 中设置 `base`。
+- `VITE_APP_BASE` 是统一前缀配置（会同时作用于 Vite 静态资源路径和 router base），默认 `/`。
+- 代码里的 **baseUrl**（`import.meta.env.BASE_URL`）由 `VITE_APP_BASE` 自动推导，不再建议手工分散配置。
 
 ### 3) 启动与验证
 
@@ -46,8 +48,9 @@ pnpm -C apps/admin-lite lint
 | 目标                       | 配置文件                                        | 关键字段                                                                | 作用                                                        |
 | -------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------- |
 | 后端网关地址（apiBaseUrl） | `apps/admin-lite/.env.development.local`        | `VITE_API_BASE_URL`                                                     | 开发态代理 `/api`、`/cmict`；生产态可作为请求 `baseURL`     |
-| 前端路由基路径（baseUrl）  | `apps/admin-lite/vite.config.ts`                | `base`（默认未配= `/`）                                                 | 控制 `import.meta.env.BASE_URL` 与路由前缀                  |
+| 统一前缀（资源 + 路由）    | `apps/admin-lite/.env.development.local`        | `VITE_APP_BASE`                                                         | 同时控制 Vite 静态资源前缀与 router base，避免路径不一致    |
 | 平台业务配置               | `apps/admin-lite/src/config/platform-config.ts` | `backend`、`authMode`、`menuMode`、`enabledModules`、`storageNamespace` | 统一定义鉴权模式、菜单模式、模块开关、存储命名空间          |
+| 路由模式                   | `apps/admin-lite/src/config/platform-config.ts` | `historyMode`（`history` \| `hash`）                                    | 控制 `createWebHistory/createWebHashHistory`                |
 | token key                  | `apps/admin-lite/src/config/platform-config.ts` | `tokenKey`、`idTokenKey`（可选）                                        | preset 场景默认按 `storageNamespace` 自动生成，通常无需手写 |
 | UI 开关                    | `apps/admin-lite/src/config/ui.ts`              | `appTopBarFeatureConfig`、`appLoginUiConfig`                            | 控制顶栏能力、登录文案、缓存开关等                          |
 | 布局参数                   | `apps/admin-lite/src/config/layout.ts`          | `appLayoutMode`、`appTopbarHeight`、`appSidebarWidth`                   | 控制布局模式与尺寸                                          |

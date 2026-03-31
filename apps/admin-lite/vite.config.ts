@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, loadEnv } from 'vite-plus';
 import { adminLiteBuildConfig, adminLiteFmtConfig, createAdminLitePlugins } from './build';
+import { normalizeAppBase } from '../../scripts/vite/app-base';
 
 const INTERNAL_WORKSPACE_PACKAGES = [
   '@one-base-template/core',
@@ -13,8 +14,10 @@ const INTERNAL_WORKSPACE_PACKAGES = [
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiBaseUrl = env.VITE_API_BASE_URL;
+  const appBase = normalizeAppBase(env.VITE_APP_BASE);
 
   return {
+    base: appBase,
     plugins: createAdminLitePlugins(),
     resolve: {
       alias: {

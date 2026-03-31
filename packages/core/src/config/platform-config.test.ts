@@ -11,6 +11,7 @@ describe('parseRuntimeConfig preset 收敛', () => {
     expect(config.menuMode).toBe('static');
     expect(config.backend).toBe('default');
     expect(config.authMode).toBe('token');
+    expect(config.historyMode).toBe('history');
     expect(config.tokenKey).toBe('one-base-template-token');
     expect(config.idTokenKey).toBe('one-base-template-id-token');
     expect(config.defaultSystemCode).toBe('default');
@@ -27,6 +28,7 @@ describe('parseRuntimeConfig preset 收敛', () => {
     expect(config.preset).toBe('remote-single');
     expect(config.menuMode).toBe('remote');
     expect(config.backend).toBe('default');
+    expect(config.historyMode).toBe('history');
     expect(config.tokenKey).toBe('one-base-template-token');
     expect(config.idTokenKey).toBe('one-base-template-id-token');
     expect(config.defaultSystemCode).toBe('default');
@@ -113,6 +115,7 @@ describe('parseRuntimeConfig 基础契约', () => {
       parseRuntimeConfig({
         backend: 'basic',
         authMode: 'token',
+        historyMode: 'history',
         tokenKey: 'token',
         idTokenKey: 'idToken',
         menuMode: 'remote',
@@ -132,6 +135,7 @@ describe('parseRuntimeConfig 基础契约', () => {
     const config = parseRuntimeConfig({
       backend: 'default',
       authMode: 'token',
+      historyMode: 'history',
       tokenKey: 'token',
       idTokenKey: 'idToken',
       menuMode: 'remote',
@@ -145,5 +149,25 @@ describe('parseRuntimeConfig 基础契约', () => {
     });
 
     expect(config.enabledModules).toEqual(['PortalManagement', 'LogManagement']);
+  });
+
+  it('应支持显式配置 hash 路由模式', () => {
+    const config = parseRuntimeConfig({
+      backend: 'default',
+      authMode: 'token',
+      historyMode: 'hash',
+      tokenKey: 'token',
+      idTokenKey: 'idToken',
+      menuMode: 'remote',
+      enabledModules: '*',
+      authorizationType: 'ADMIN',
+      appsource: 'frame',
+      appcode: 'demo-admin',
+      systemHomeMap: {
+        default: '/home/index'
+      }
+    });
+
+    expect(config.historyMode).toBe('hash');
   });
 });
