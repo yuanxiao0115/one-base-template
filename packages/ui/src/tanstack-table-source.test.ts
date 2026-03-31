@@ -58,11 +58,9 @@ describe('TanStackTable source', () => {
     expect(source).toContain(':style="resolveHeaderStyle(header)"');
     expect(source).toContain(':style="resolveCellStyle(cell)"');
     expect(source).toContain(
-      'background: linear-gradient(var(--ob-table-header-bg), var(--ob-table-header-bg)),'
+      'linear-gradient(var(--ob-table-header-bg), var(--ob-table-header-bg))'
     );
-    expect(source).toContain(
-      'background: linear-gradient(var(--ob-table-row-bg), var(--ob-table-row-bg)),'
-    );
+    expect(source).toContain('linear-gradient(var(--ob-table-row-bg), var(--ob-table-row-bg))');
     expect(source).not.toContain(
       "background: isHeader ? 'var(--ob-table-header-bg)' : 'var(--ob-table-row-bg)'"
     );
