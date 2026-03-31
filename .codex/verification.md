@@ -6,7 +6,7 @@
 
 - 日期：2026-03-31
 - 文件：`.codex/verification/2026-03-31.md`
-- 补充：最新条目为“TanStack Table 并行封装（packages/ui）”。
+- 补充：最新条目为“Log 模块灰度：登录日志页切 TanStack”。
 
 ## 历史归档
 

@@ -9135,3 +9135,20 @@
   - `apps/admin`：`typecheck/build` 通过。
   - `check:admin:bundle`：全部预算检查 PASS。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（Log 模块灰度：登录日志页切 TanStack）
+
+- RED：
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts`
+  - 结果：失败（页面仍为 `ObVxeTable`，不包含 `ObTanStackTable`）。
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 登录日志页源码门禁测试通过（1/1）。
+  - `apps/admin`：`typecheck` 与 `build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

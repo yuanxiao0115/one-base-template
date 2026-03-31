@@ -236,6 +236,7 @@ const table = useTable({
 
 - 页面 1：`/system/log/login-log`（分页表格）
   - 路由名：`SystemLoginLogManagement`
+  - 2026-03-31 灰度：`apps/admin` 版本已切换为 `ObTanStackTable`，保留原有分页与操作列交互
   - 代码位置：
     - `apps/admin/src/modules/LogManagement/login-log/list.vue`
     - `apps/admin/src/modules/LogManagement/login-log/columns.tsx`

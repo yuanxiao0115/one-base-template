@@ -10635,3 +10635,12 @@
   - `tanstack-table-source.test.ts` 补充 fixed/custom sort/tree/slot 的源码门禁断言。
 - 复审结果：再次代码审查后“无阻塞项”，仅保留非阻塞提醒：`sortBy` 函数形态暂未消费、运行态挂载测试仍可继续补强。
 - 新增兼容矩阵工件：`.codex/context-table-tanstack-compat.md`，沉淀 props/事件/expose/树表/排序/fixed/slot 对齐结论与非阻塞项。
+
+## 2026-03-31（Log 模块灰度：登录日志页切 TanStack）
+
+- 按“先挑简单页面”策略，在 `apps/admin` 先灰度 `LogManagement/login-log`，将 `ObVxeTable` 替换为 `ObTanStackTable`：
+  - `apps/admin/src/modules/LogManagement/login-log/list.vue`
+- 新增源码门禁测试，锁定登录日志页保持 TanStack 替换后的模板契约：
+  - `apps/admin/src/modules/LogManagement/login-log/list.source.test.ts`
+- 文档同步：
+  - `apps/docs/docs/guide/table-vxe-migration.md` 补充“登录日志页已灰度 TanStack”说明。

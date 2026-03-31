@@ -39,7 +39,7 @@ const {
       @reset-form="onResetSearch"
     >
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTanStackTable
           :ref="refs.tableRef"
           :loading
           :size
@@ -60,7 +60,7 @@ const {
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTanStackTable>
       </template>
 
       <template #drawer>
