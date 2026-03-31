@@ -11,6 +11,48 @@
 - `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制。
 - 强业务扩展默认不启用，需要时以可开关模块回接。
 
+## 快速使用手册（先跑起来）
+
+### 1) 安装依赖 + 准备本地环境文件
+
+```bash
+pnpm install
+cp apps/admin-lite/.env.example apps/admin-lite/.env.development.local
+```
+
+### 2) 配置后端地址（你问的 baseUrl 重点）
+
+在 `apps/admin-lite/.env.development.local` 中配置：
+
+```bash
+VITE_API_BASE_URL=https://your-gateway.example.com
+```
+
+说明：
+
+- 这个值是 **apiBaseUrl**，用于 Vite 开发代理 `/api`、`/cmict`，也是生产环境可选的 HTTP `baseURL` 来源。
+- 代码里的 **baseUrl**（`import.meta.env.BASE_URL`）是前端路由基路径，默认 `/`。如需改为子路径部署，请在 `apps/admin-lite/vite.config.ts` 中设置 `base`。
+
+### 3) 启动与验证
+
+```bash
+pnpm -C apps/admin-lite dev
+pnpm -C apps/admin-lite typecheck
+pnpm -C apps/admin-lite lint
+```
+
+## 配置入口速查
+
+| 目标                       | 配置文件                                        | 关键字段                                                                | 作用                                                        |
+| -------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 后端网关地址（apiBaseUrl） | `apps/admin-lite/.env.development.local`        | `VITE_API_BASE_URL`                                                     | 开发态代理 `/api`、`/cmict`；生产态可作为请求 `baseURL`     |
+| 前端路由基路径（baseUrl）  | `apps/admin-lite/vite.config.ts`                | `base`（默认未配= `/`）                                                 | 控制 `import.meta.env.BASE_URL` 与路由前缀                  |
+| 平台业务配置               | `apps/admin-lite/src/config/platform-config.ts` | `backend`、`authMode`、`menuMode`、`enabledModules`、`storageNamespace` | 统一定义鉴权模式、菜单模式、模块开关、存储命名空间          |
+| token key                  | `apps/admin-lite/src/config/platform-config.ts` | `tokenKey`、`idTokenKey`（可选）                                        | preset 场景默认按 `storageNamespace` 自动生成，通常无需手写 |
+| UI 开关                    | `apps/admin-lite/src/config/ui.ts`              | `appTopBarFeatureConfig`、`appLoginUiConfig`                            | 控制顶栏能力、登录文案、缓存开关等                          |
+| 布局参数                   | `apps/admin-lite/src/config/layout.ts`          | `appLayoutMode`、`appTopbarHeight`、`appSidebarWidth`                   | 控制布局模式与尺寸                                          |
+| SSO 策略                   | `apps/admin-lite/src/config/sso.ts`             | `appSsoOptions`                                                         | 配置 `/sso` 参数策略与交换方式                              |
+
 ## 1. 当前定位
 
 `admin-lite` 承担两件事：
