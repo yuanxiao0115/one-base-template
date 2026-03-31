@@ -10819,3 +10819,20 @@
     - `placeholder/icon` 同步设置 `flex-basis`，避免压缩导致同级文本错位。
   - `packages/ui/src/tanstack-table-source.test.ts`
     - 新增 `icon-size`、`flex-basis` 等源码门禁断言。
+
+## 2026-03-31（TanStack 空态图片与文案样式）
+
+- 按用户提供资源替换空数据态：
+  - 新增资源：`packages/ui/src/components/table/assets/table-empty-state.webp`（来源：用户提供 `组 163957@4x.webp`）。
+  - `packages/ui/src/components/table/TanStackTable.vue` 空态改为“图片 + 文案”结构。
+  - 默认文案改为：`暂未生产任何数据`。
+- 文案样式按用户口径落地：
+  - `font-family: PingFang SC`
+  - `font-size: 14px`
+  - `font-weight: 400`
+  - `line-height: 20px`
+  - `text-align: center`
+  - `letter-spacing: 0`
+- 门禁与文档同步：
+  - `packages/ui/src/tanstack-table-source.test.ts` 增加空态图片与文案断言；
+  - `apps/docs/docs/guide/table-vxe-migration.md` 补充 TanStack 空态视觉说明。

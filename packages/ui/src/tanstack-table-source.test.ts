@@ -50,6 +50,9 @@ describe('TanStackTable source', () => {
     expect(source).toContain(
       '<div v-if="showFirstLoadSkeleton" class="ob-tanstack-table__skeleton">'
     );
+    expect(source).toContain("import emptyStateImage from './assets/table-empty-state.webp';");
+    expect(source).toContain('暂未生产任何数据');
+    expect(source).toContain('ob-tanstack-table__empty-image');
   });
 
   it('应补齐固定列吸附样式能力，避免左右 fixed 在横向滚动时失效', () => {

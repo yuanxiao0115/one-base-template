@@ -13,6 +13,7 @@ import {
 import zhCnLocale from 'element-plus/es/locale/lang/zh-cn';
 import { FlexRender, type Cell, type Column, type Header, type Row } from '@tanstack/vue-table';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
+import emptyStateImage from './assets/table-empty-state.webp';
 import { useTanStackTableEngine } from './internal/tanstack-engine';
 import { useTanStackPagerProps } from './internal/tanstack-pagination';
 import type {
@@ -975,7 +976,17 @@ defineExpose({
                   :colspan="Math.max(visibleLeafColumns.length, 1)"
                   class="ob-tanstack-table__empty"
                 >
-                  暂无数据
+                  <div class="ob-tanstack-table__empty-state">
+                    <div class="ob-tanstack-table__empty-figure">
+                      <img
+                        :src="emptyStateImage"
+                        alt=""
+                        aria-hidden="true"
+                        class="ob-tanstack-table__empty-image"
+                      />
+                    </div>
+                    <p class="ob-tanstack-table__empty-text">暂未生产任何数据</p>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -1287,9 +1298,42 @@ defineExpose({
 }
 
 .ob-tanstack-table__empty {
-  min-height: 120px;
+  padding: 0;
+}
+
+.ob-tanstack-table__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: 24px 0;
+}
+
+.ob-tanstack-table__empty-figure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(284px, calc(100vw - 96px));
+  height: 220px;
+  border: 1px dashed var(--el-border-color);
+}
+
+.ob-tanstack-table__empty-image {
+  width: min(248px, 100%);
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.ob-tanstack-table__empty-text {
+  margin: 16px 0 0;
+  font-family: 'PingFang SC', 'PingFangSC', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
   color: var(--one-text-color-secondary);
   text-align: center;
+  letter-spacing: 0;
 }
 
 .ob-tanstack-table__skeleton {
