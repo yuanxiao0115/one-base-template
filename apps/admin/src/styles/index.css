@@ -1,4 +1,7 @@
-@import 'tailwindcss';
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+/* 保持历史口径：不引入 preflight，避免覆盖 Element Plus 与业务基础样式。 */
+@import 'tailwindcss/utilities.css' layer(utilities);
 
 /* Tailwind v4 的自动内容扫描在 monorepo/workspace 场景下可能漏掉 packages/ui 里的 class。
  * 这里显式声明额外的扫描源，避免布局类（如 flex-col、w-64 等）未生成导致页面结构错乱。 */

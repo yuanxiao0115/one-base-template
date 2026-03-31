@@ -2,9 +2,6 @@ import type { Config } from 'tailwindcss';
 
 export default {
   darkMode: 'class',
-  corePlugins: {
-    preflight: false
-  },
   content: ['./index.html', './src/**/*.{vue,ts,tsx}', '../../packages/ui/src/**/*.{vue,ts,tsx}'],
   theme: {
     extend: {
