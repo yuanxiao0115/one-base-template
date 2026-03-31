@@ -11,7 +11,7 @@ import {
   type CSSProperties
 } from 'vue';
 import { FlexRender, type Cell, type Column, type Header, type Row } from '@tanstack/vue-table';
-import { VxePager } from 'vxe-pc-ui';
+import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 import { useTanStackTableEngine } from './internal/tanstack-engine';
 import { useTanStackPagerProps } from './internal/tanstack-pagination';
 import type {
@@ -29,12 +29,7 @@ defineOptions({
 
 type RowRecord = Record<string, unknown>;
 type VxeEventParams = Record<string, unknown>;
-
-interface PageChangeParams {
-  type?: 'current' | 'size' | string;
-  pageSize?: number;
-  currentPage?: number;
-}
+type VirtualRow = VirtualItem;
 
 interface ObTanStackTableProps {
   data?: RowRecord[];
@@ -57,6 +52,7 @@ interface ObTanStackTableProps {
   adaptiveConfig?: AdaptiveConfig;
   treeConfig?: Record<string, unknown>;
   virtualConfig?: VxeVirtualConfig;
+  reserveSelection?: boolean;
 }
 
 const props = withDefaults(defineProps<ObTanStackTableProps>(), {
@@ -83,7 +79,8 @@ const props = withDefaults(defineProps<ObTanStackTableProps>(), {
     timeout: 16
   }),
   treeConfig: undefined,
-  virtualConfig: undefined
+  virtualConfig: undefined,
+  reserveSelection: false
 });
 
 const emit = defineEmits<{
@@ -96,7 +93,9 @@ const attrs = useAttrs();
 const slots = useSlots();
 
 const wrapperRef = ref<HTMLDivElement>();
+const tableScrollRef = ref<HTMLElement | null>(null);
 const adaptiveHeight = ref<number>();
+const draggingColumnId = ref<string | null>(null);
 let resizeObserver: ResizeObserver | null = null;
 
 const wrapperClass = computed(() => ['ob-tanstack-table', attrs.class]);
@@ -131,7 +130,8 @@ const passthroughAttrs = computed(() => {
     'adaptive',
     'adaptiveConfig',
     'treeConfig',
-    'virtualConfig'
+    'virtualConfig',
+    'reserveSelection'
   ]);
 
   return Object.fromEntries(Object.entries(attrs).filter(([key]) => !blockedKeys.has(key)));
@@ -162,7 +162,8 @@ const engine = useTanStackTableEngine({
     alignWhole: props.alignWhole,
     headerAlign: props.headerAlign,
     showOverflowTooltip: props.showOverflowTooltip,
-    treeConfig: props.treeConfig
+    treeConfig: props.treeConfig,
+    reserveSelection: props.reserveSelection
   })),
   attrs: computed(() => attrs as Record<string, unknown>),
   slots,
@@ -178,6 +179,78 @@ type TanStackRow = Row<RowRecord>;
 const headerGroups = computed(() => engine.headerGroups.value);
 const tableRows = computed(() => engine.rows.value);
 const visibleLeafColumns = computed(() => engine.visibleLeafColumns.value);
+
+const virtualEnabled = computed(() => {
+  if (!props.virtualConfig) {
+    return false;
+  }
+  return props.virtualConfig.enabled ?? Boolean(props.virtualConfig.y);
+});
+
+const virtualRowHeight = computed(() => {
+  const rowHeight = Number(
+    (props.virtualConfig?.y as Record<string, unknown> | undefined)?.rowHeight
+  );
+  if (!Number.isFinite(rowHeight) || rowHeight <= 0) {
+    return 44;
+  }
+  return Math.floor(rowHeight);
+});
+
+const virtualOverscan = computed(() => {
+  const overscan = Number(
+    (props.virtualConfig?.y as Record<string, unknown> | undefined)?.overscan
+  );
+  if (!Number.isFinite(overscan) || overscan < 0) {
+    return 8;
+  }
+  return Math.floor(overscan);
+});
+
+const rowVirtualizer = useVirtualizer<HTMLElement, HTMLTableRowElement>(
+  computed(() => ({
+    count: tableRows.value.length,
+    getScrollElement: () => tableScrollRef.value,
+    estimateSize: () => virtualRowHeight.value,
+    overscan: virtualOverscan.value,
+    enabled: virtualEnabled.value
+  }))
+);
+
+const virtualRows = computed<VirtualRow[]>(() => {
+  if (!virtualEnabled.value) {
+    return [];
+  }
+  return rowVirtualizer.value.getVirtualItems();
+});
+
+const virtualRowsWithData = computed(() => {
+  return virtualRows.value
+    .map((virtualRow) => {
+      const row = tableRows.value[virtualRow.index];
+      if (!row) {
+        return null;
+      }
+      return {
+        virtualRow,
+        row
+      };
+    })
+    .filter((entry): entry is { virtualRow: VirtualRow; row: TanStackRow } => Boolean(entry));
+});
+
+const virtualPaddingTop = computed(() => {
+  const firstVirtualRow = virtualRows.value[0];
+  return firstVirtualRow ? firstVirtualRow.start : 0;
+});
+
+const virtualPaddingBottom = computed(() => {
+  const lastVirtualRow = virtualRows.value[virtualRows.value.length - 1];
+  if (!lastVirtualRow) {
+    return 0;
+  }
+  return Math.max(rowVirtualizer.value.getTotalSize() - lastVirtualRow.end, 0);
+});
 
 function resolveFixedDirection(fixed?: boolean | string | null) {
   if (fixed === true || fixed === 'left') {
@@ -203,6 +276,10 @@ function parseColumnSize(value?: string | number) {
 }
 
 function resolveColumnPixelWidth(column: TanStackColumn) {
+  const dynamicSize = column.getSize();
+  if (Number.isFinite(dynamicSize)) {
+    return dynamicSize;
+  }
   const meta = engine.getColumnMeta(column);
   return parseColumnSize(meta.width) ?? parseColumnSize(meta.minWidth) ?? 120;
 }
@@ -287,13 +364,12 @@ const resolvedTableHeight = computed<string>(() => {
   return '100%';
 });
 
-function handlePageChange(params: PageChangeParams) {
-  const eventType = params.type;
-  if (eventType === 'size') {
-    emit('page-size-change', Number(params.pageSize ?? 10));
-    return;
-  }
-  emit('page-current-change', Number(params.currentPage ?? 1));
+function handleCurrentPageChange(page: number) {
+  emit('page-current-change', Number(page || 1));
+}
+
+function handlePageSizeChange(pageSize: number) {
+  emit('page-size-change', Number(pageSize || 10));
 }
 
 function updateAdaptiveHeight() {
@@ -401,11 +477,110 @@ async function clearSelection() {
   engine.clearSelection();
 }
 
+function getSelectedRowKeys() {
+  return engine.getSelectedRowKeys();
+}
+
+function setSelectedRowKeys(rowKeys: Array<string | number>) {
+  engine.setSelectedRowKeys(rowKeys);
+}
+
+function setColumnVisibility(nextVisibility: Record<string, boolean>) {
+  engine.setColumnVisibility(nextVisibility);
+}
+
+function toggleColumnVisibility(columnId: string, visible?: boolean) {
+  engine.toggleColumnVisibility(columnId, visible);
+}
+
+function getColumnVisibility() {
+  return engine.getColumnVisibility();
+}
+
+function setColumnOrder(columnOrder: string[]) {
+  engine.setColumnOrder(columnOrder);
+}
+
+function getColumnOrder() {
+  return engine.getColumnOrder();
+}
+
+function setColumnSizing(columnSizing: Record<string, number>) {
+  engine.setColumnSizing(columnSizing);
+}
+
+function resetColumnSizing() {
+  engine.resetColumnSizing();
+}
+
+function getColumnSizing() {
+  return engine.getColumnSizing();
+}
+
 function getTableRef() {
   return {
     clearSelection,
-    getCheckboxRecords: () => engine.getSelectedRows()
+    getCheckboxRecords: () => engine.getSelectedRows(),
+    getSelectedRowKeys,
+    setSelectedRowKeys,
+    setColumnVisibility,
+    toggleColumnVisibility,
+    getColumnVisibility,
+    setColumnOrder,
+    getColumnOrder,
+    setColumnSizing,
+    resetColumnSizing,
+    getColumnSizing
   };
+}
+
+function canDragHeader(header: TanStackHeader) {
+  if (header.isPlaceholder) {
+    return false;
+  }
+  const meta = engine.getColumnMeta(header.column);
+  if (resolveFixedDirection(meta.fixed)) {
+    return false;
+  }
+  const columnType = meta.originalColumn?.type;
+  if (columnType === 'selection' || columnType === 'index' || columnType === 'expand') {
+    return false;
+  }
+  return header.column.getCanHide();
+}
+
+function handleHeaderDragStart(header: TanStackHeader, event: DragEvent) {
+  if (!canDragHeader(header)) {
+    return;
+  }
+  draggingColumnId.value = header.column.id;
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', header.column.id);
+  }
+}
+
+function handleHeaderDragOver(header: TanStackHeader, event: DragEvent) {
+  if (!canDragHeader(header) || !draggingColumnId.value) {
+    return;
+  }
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move';
+  }
+}
+
+function handleHeaderDrop(header: TanStackHeader, event: DragEvent) {
+  if (!canDragHeader(header) || !draggingColumnId.value) {
+    return;
+  }
+  event.preventDefault();
+  engine.reorderColumn(draggingColumnId.value, header.column.id);
+  draggingColumnId.value = null;
+}
+
+function handleHeaderDragEnd() {
+  draggingColumnId.value = null;
 }
 
 function bindAdaptiveObserver() {
@@ -489,15 +664,14 @@ function resolveFixedStyle(columnId: string, fixed?: boolean | string | null, is
   return {
     position: 'sticky',
     ...(fixedDirection === 'left' ? { left: `${offset}px` } : { right: `${offset}px` }),
-    zIndex: isHeader ? 6 : 3,
-    background: isHeader ? 'var(--ob-table-header-bg)' : 'var(--ob-table-row-bg)'
+    zIndex: isHeader ? 6 : 3
   } satisfies CSSProperties;
 }
 
 function resolveHeaderStyle(header: TanStackHeader) {
   const meta = engine.getColumnMeta(header.column);
   return {
-    ...engine.getColumnStyle(meta),
+    ...engine.getColumnStyle(header.column, meta),
     ...resolveFixedStyle(header.column.id, meta.fixed, true)
   } satisfies CSSProperties;
 }
@@ -505,7 +679,7 @@ function resolveHeaderStyle(header: TanStackHeader) {
 function resolveCellStyle(cell: TanStackCell) {
   const meta = engine.getColumnMeta(cell.column);
   return {
-    ...engine.getColumnStyle(meta),
+    ...engine.getColumnStyle(cell.column, meta),
     ...resolveFixedStyle(cell.column.id, meta.fixed)
   } satisfies CSSProperties;
 }
@@ -559,6 +733,9 @@ watch(
     if (props.adaptive) {
       setAdaptive();
     }
+    if (virtualEnabled.value) {
+      rowVirtualizer.value.measure();
+    }
   }
 );
 
@@ -586,7 +763,17 @@ onBeforeUnmount(() => {
 defineExpose({
   getTableRef,
   setAdaptive,
-  clearSelection
+  clearSelection,
+  getSelectedRowKeys,
+  setSelectedRowKeys,
+  setColumnVisibility,
+  toggleColumnVisibility,
+  getColumnVisibility,
+  setColumnOrder,
+  getColumnOrder,
+  setColumnSizing,
+  resetColumnSizing,
+  getColumnSizing
 });
 </script>
 
@@ -629,7 +816,7 @@ defineExpose({
         class="ob-tanstack-table__table-shell"
         :style="{ height: resolvedTableHeight }"
       >
-        <div class="ob-tanstack-table__table-scroll" v-bind="passthroughAttrs">
+        <div ref="tableScrollRef" class="ob-tanstack-table__table-scroll" v-bind="passthroughAttrs">
           <table class="ob-tanstack-table__table">
             <thead class="ob-tanstack-table__thead">
               <tr
@@ -642,7 +829,12 @@ defineExpose({
                   :key="header.id"
                   :class="resolveHeaderClass(header)"
                   :style="resolveHeaderStyle(header)"
+                  :draggable="canDragHeader(header)"
                   scope="col"
+                  @dragstart="handleHeaderDragStart(header, $event)"
+                  @dragover="handleHeaderDragOver(header, $event)"
+                  @drop="handleHeaderDrop(header, $event)"
+                  @dragend="handleHeaderDragEnd"
                 >
                   <div
                     class="ob-tanstack-table__cell ob-tanstack-table__cell--header"
@@ -661,13 +853,83 @@ defineExpose({
                         {{ resolveHeaderSortLabel(header) }}
                       </span>
                     </template>
+                    <div
+                      v-if="header.column.getCanResize()"
+                      class="ob-tanstack-table__column-resizer"
+                      :class="{ 'is-resizing': header.column.getIsResizing() }"
+                      @click.stop
+                      @mousedown.stop.prevent="header.getResizeHandler()($event)"
+                      @touchstart.stop.prevent="header.getResizeHandler()($event)"
+                    />
                   </div>
                 </th>
               </tr>
             </thead>
 
             <tbody class="ob-tanstack-table__tbody">
-              <template v-if="tableRows.length > 0">
+              <template v-if="tableRows.length > 0 && virtualRows.length > 0">
+                <tr
+                  v-if="virtualPaddingTop > 0"
+                  class="ob-tanstack-table__tr ob-tanstack-table__tr--virtual-gap"
+                >
+                  <td
+                    :colspan="Math.max(visibleLeafColumns.length, 1)"
+                    :style="{ height: `${virtualPaddingTop}px` }"
+                  />
+                </tr>
+
+                <template v-for="entry in virtualRowsWithData" :key="entry.virtualRow.key">
+                  <tr
+                    class="ob-tanstack-table__tr"
+                    :class="{
+                      'is-striped': stripe && entry.virtualRow.index % 2 === 1
+                    }"
+                  >
+                    <td
+                      v-for="cell in entry.row.getVisibleCells()"
+                      :key="cell.id"
+                      :class="resolveCellClass(cell)"
+                      :style="resolveCellStyle(cell)"
+                    >
+                      <div class="ob-tanstack-table__cell" :title="engine.getCellTitle(cell)">
+                        <FlexRender
+                          :render="cell.column.columnDef.cell"
+                          :props="cell.getContext()"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr
+                    v-if="entry.row.getIsExpanded() && hasExpandedContent(entry.row)"
+                    class="ob-tanstack-table__tr ob-tanstack-table__tr--expanded"
+                  >
+                    <td
+                      :colspan="visibleLeafColumns.length"
+                      class="ob-tanstack-table__expanded-cell"
+                    >
+                      <div class="ob-tanstack-table__expanded-content">
+                        <FlexRender
+                          :render="() => resolveExpandedContent(entry.row)"
+                          :props="{ row: entry.row }"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+
+                <tr
+                  v-if="virtualPaddingBottom > 0"
+                  class="ob-tanstack-table__tr ob-tanstack-table__tr--virtual-gap"
+                >
+                  <td
+                    :colspan="Math.max(visibleLeafColumns.length, 1)"
+                    :style="{ height: `${virtualPaddingBottom}px` }"
+                  />
+                </tr>
+              </template>
+
+              <template v-else-if="tableRows.length > 0">
                 <template v-for="(row, rowIndex) in tableRows" :key="row.id">
                   <tr
                     class="ob-tanstack-table__tr"
@@ -721,7 +983,18 @@ defineExpose({
     </div>
 
     <div v-if="pagerProps" class="ob-tanstack-table__pager">
-      <VxePager v-bind="pagerProps" @page-change="handlePageChange" />
+      <el-pagination
+        :total="pagerProps.total"
+        :current-page="pagerProps.currentPage"
+        :page-size="pagerProps.pageSize"
+        :page-sizes="pagerProps.pageSizes"
+        :background="pagerProps.background"
+        :layout="pagerProps.layout"
+        :size="pagerProps.size"
+        :hide-on-single-page="false"
+        @current-change="handleCurrentPageChange"
+        @size-change="handlePageSizeChange"
+      />
     </div>
   </div>
 </template>
@@ -773,7 +1046,8 @@ defineExpose({
 .ob-tanstack-table__td {
   position: relative;
   padding: 0;
-  background: var(--ob-table-row-bg);
+  background:
+    linear-gradient(var(--ob-table-row-bg), var(--ob-table-row-bg)), var(--ob-table-surface-bg);
   border-bottom: 1px solid var(--ob-table-border-color);
 }
 
@@ -781,7 +1055,9 @@ defineExpose({
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--ob-table-header-bg);
+  background:
+    linear-gradient(var(--ob-table-header-bg), var(--ob-table-header-bg)),
+    var(--ob-table-surface-bg);
 }
 
 .ob-tanstack-table__tr:last-child .ob-tanstack-table__td {
@@ -797,12 +1073,48 @@ defineExpose({
 }
 
 .ob-tanstack-table__cell--header {
+  position: relative;
   font-weight: var(--ob-table-header-font-weight);
   color: var(--ob-table-header-color);
 }
 
 .ob-tanstack-table__cell--header.is-clickable {
   cursor: pointer;
+}
+
+.ob-tanstack-table__th[draggable='true'] .ob-tanstack-table__cell--header {
+  cursor: grab;
+}
+
+.ob-tanstack-table__th[draggable='true']:active .ob-tanstack-table__cell--header {
+  cursor: grabbing;
+}
+
+.ob-tanstack-table__column-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.ob-tanstack-table__column-resizer::before {
+  position: absolute;
+  top: 50%;
+  right: 3px;
+  width: 2px;
+  height: 60%;
+  background: transparent;
+  content: '';
+  transform: translateY(-50%);
+}
+
+.ob-tanstack-table__column-resizer:hover::before,
+.ob-tanstack-table__column-resizer.is-resizing::before {
+  background: var(--el-color-primary);
 }
 
 .ob-tanstack-table__sort-indicator {
@@ -828,20 +1140,27 @@ defineExpose({
 }
 
 .ob-tanstack-table__tr.is-striped .ob-tanstack-table__td {
-  background: var(--ob-table-row-striped-bg);
+  background:
+    linear-gradient(var(--ob-table-row-striped-bg), var(--ob-table-row-striped-bg)),
+    var(--ob-table-surface-bg);
 }
 
 .ob-tanstack-table__th.is-fixed,
 .ob-tanstack-table__td.is-fixed {
-  background: var(--ob-table-row-bg);
+  background:
+    linear-gradient(var(--ob-table-row-bg), var(--ob-table-row-bg)), var(--ob-table-surface-bg);
 }
 
 .ob-tanstack-table__th.is-fixed {
-  background: var(--ob-table-header-bg);
+  background:
+    linear-gradient(var(--ob-table-header-bg), var(--ob-table-header-bg)),
+    var(--ob-table-surface-bg);
 }
 
 .ob-tanstack-table__tr.is-striped .ob-tanstack-table__td.is-fixed {
-  background: var(--ob-table-row-striped-bg);
+  background:
+    linear-gradient(var(--ob-table-row-striped-bg), var(--ob-table-row-striped-bg)),
+    var(--ob-table-surface-bg);
 }
 
 .ob-tanstack-table__th.is-fixed-left-edge::after,
@@ -918,6 +1237,12 @@ defineExpose({
   background: var(--ob-table-column-hover-bg);
 }
 
+.ob-tanstack-table__tr--virtual-gap td {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
 .ob-tanstack-table__empty {
   min-height: 120px;
   color: var(--one-text-color-secondary);
@@ -978,14 +1303,15 @@ defineExpose({
   border-top: 1px solid var(--ob-table-pager-border-color);
 }
 
-.ob-tanstack-table__pager :deep(.vxe-pager) {
+.ob-tanstack-table__pager :deep(.el-pagination) {
   position: relative;
+  display: flex;
   justify-content: flex-end;
   min-height: var(--ob-table-pager-min-height);
   padding-left: var(--ob-table-pager-content-padding-left);
 }
 
-.ob-tanstack-table__pager :deep(.vxe-pager--total) {
+.ob-tanstack-table__pager :deep(.el-pagination__total) {
   position: absolute;
   top: 50%;
   left: var(--ob-table-pager-total-left);

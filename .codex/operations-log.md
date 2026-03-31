@@ -10665,3 +10665,42 @@
 - 按用户反馈排查侧栏底部菜单折叠按钮（`packages/ui/src/layouts/modes/SideLayout.vue`）样式异常。
 - 结论：按钮使用原生 `<button>`，组件样式只定义了尺寸/颜色/圆角，未显式重置 `border/background/padding/appearance`，容易受浏览器默认样式或外部全局规则影响。
 - 修复：在 `ob-side-layout__collapse-btn` 增补显式样式重置（`padding: 0`、`border: 0`、`background: transparent`、`cursor: pointer`、`appearance: none`、`line-height: 1`），确保在不同全局样式环境下视觉稳定。
+
+## 2026-03-31（TanStack 分页切换：移除 VxePager，改用 Element Pagination）
+
+- 根据用户要求，`ObTanStackTable` 不再复用 `VxePager`，切换为 `el-pagination`。
+- 代码改动：
+  - `packages/ui/src/components/table/TanStackTable.vue`
+    - 删除 `vxe-pc-ui` 的 `VxePager` 依赖；
+    - 分页事件改为 `@current-change/@size-change`；
+    - 分页样式选择器从 `.vxe-pager` 改为 `.el-pagination`。
+  - `packages/ui/src/components/table/internal/tanstack-pagination.ts`
+    - 输出结构改为 Element 分页所需字段（`layout` 字符串、`total/currentPage/pageSize/pageSizes/background/size`）。
+  - `packages/ui/src/tanstack-table-source.test.ts`
+    - 源码门禁改为断言 `el-pagination`，并断言不再出现 `VxePager`。
+  - `apps/docs/docs/guide/table-vxe-migration.md`
+    - 文档同步：TanStack 分页描述由 `VxePager` 调整为 `el-pagination`。
+
+## 2026-03-31（ObTanStackTable 滚动透底修复）
+
+- 复现线索：登录日志页切换到 `ObTanStackTable` 后，纵向/横向滚动时粘性表头与 fixed 列会透出底层内容。
+- 根因定位：`TanStackTable.vue` 的 sticky 单元格直接使用 `--ob-table-header-bg` / `--ob-table-row-bg`，而头部 token 默认是半透明色，叠加在滚动内容上会出现“透底”。
+- 修复动作：
+  - `resolveFixedStyle` 去掉内联 `background`，避免覆盖样式层的行态背景；
+  - 表头/单元格/斑马纹/fixed 背景改为“前景色 + `--ob-table-surface-bg` 底色”叠层写法，避免滚动露底；
+  - `packages/ui/src/tanstack-table-source.test.ts` 新增源码断言，锁定叠层背景与无内联透明背景回归；
+  - `apps/docs/docs/guide/table-vxe-migration.md` 同步补充滚动稳定性说明。
+
+## 2026-03-31（ObTanStackTable 能力补齐：2/3/4/5/9）
+
+- 按用户选择补齐 ObTanStackTable 五项常用能力：
+  - 2）列显隐：新增 `setColumnVisibility/toggleColumnVisibility/getColumnVisibility`。
+  - 3）列宽调整：接入 TanStack 列宽 state 与表头 resize 手柄。
+  - 4）列顺序拖拽：表头拖拽换序 + `setColumnOrder/getColumnOrder`。
+  - 5）虚拟滚动：接入 `@tanstack/vue-virtual`，支持 `virtualConfig`（rowHeight/overscan）。
+  - 9）跨页选择：新增 `reserveSelection` 与 `getSelectedRowKeys/setSelectedRowKeys`。
+- 关键文件：
+  - `packages/ui/src/components/table/TanStackTable.vue`
+  - `packages/ui/src/components/table/internal/tanstack-engine.ts`
+  - `packages/ui/src/tanstack-table-source.test.ts`
+- 文档同步：`apps/docs/docs/guide/table-vxe-migration.md` 新增 2/3/4/5/9 能力说明、使用约束与示例。

@@ -1,45 +1,42 @@
 import { computed, type ComputedRef } from 'vue';
 import type { TablePagination } from '../types';
 
-type PagerLayoutName = 'Total' | 'Sizes' | 'PrevPage' | 'Number' | 'NextPage' | 'FullJump';
+interface TanStackPagerProps {
+  total: number;
+  currentPage: number;
+  pageSize: number;
+  pageSizes: number[];
+  background: boolean;
+  layout: string;
+  size?: 'small';
+}
 
-function resolvePagerLayouts(layout?: string): PagerLayoutName[] {
+function resolvePagerLayout(layout?: string): string {
+  const defaultLayout = ['total', 'sizes', 'prev', 'pager', 'next', 'jumper'];
   if (!layout) {
-    return ['Total', 'Sizes', 'PrevPage', 'Number', 'NextPage', 'FullJump'];
+    return defaultLayout.join(', ');
   }
 
-  const layoutMap: Record<string, PagerLayoutName> = {
-    total: 'Total',
-    sizes: 'Sizes',
-    prev: 'PrevPage',
-    pager: 'Number',
-    next: 'NextPage',
-    jumper: 'FullJump'
-  };
-
-  const layouts = layout
+  const layoutSet = new Set(defaultLayout);
+  const resolvedLayout = layout
     .split(',')
     .map((item) => item.trim())
-    .map((item) => layoutMap[item])
-    .filter((item): item is PagerLayoutName => Boolean(item));
+    .filter((item) => layoutSet.has(item));
 
-  return layouts.length > 0
-    ? layouts
-    : ['Total', 'Sizes', 'PrevPage', 'Number', 'NextPage', 'FullJump'];
+  return resolvedLayout.length > 0 ? resolvedLayout.join(', ') : defaultLayout.join(', ');
 }
 
 export function useTanStackPagerProps(options: {
   pagination: ComputedRef<TablePagination | null>;
   paginationSmall: ComputedRef<boolean>;
 }) {
-  return computed<Record<string, unknown> | null>(() => {
+  return computed<TanStackPagerProps | null>(() => {
     const pagination = options.pagination.value;
     if (!pagination) {
       return null;
     }
 
     return {
-      autoHidden: false,
       total: Number(pagination.total ?? 0),
       currentPage: Number(pagination.currentPage ?? 1),
       pageSize: Number(pagination.pageSize ?? 10),
@@ -48,7 +45,7 @@ export function useTanStackPagerProps(options: {
           ? pagination.pageSizes
           : [10, 20, 50, 100],
       background: pagination.background ?? true,
-      layouts: resolvePagerLayouts(pagination.layout),
+      layout: resolvePagerLayout(pagination.layout),
       size: options.paginationSmall.value ? 'small' : undefined
     };
   });

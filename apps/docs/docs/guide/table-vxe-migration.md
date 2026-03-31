@@ -42,9 +42,23 @@
 `ObTanStackTable` 的目标不是立即替换所有 VXE 页面，而是先提供“**同契约、可灰度**”的备选实现：
 
 - **交互契约**：已对齐 `selection-change`、`page-size-change`、`page-current-change`、`sort-change`，并保留 `getTableRef()`、`setAdaptive()`、`clearSelection()`。
-- **分页体验**：继续复用 `VxePager`，分页布局、总数位置、小尺寸行为与现有页面一致。
+- **分页体验**：改为 `Element Plus` 的 `el-pagination`，分页布局、总数位置、小尺寸行为与现有页面一致。
 - **主题策略**：`packages/ui/src/styles/table-theme.css` 为共享表格 token 层，`ObVxeTable` 与 `ObTanStackTable` 同时消费，避免两套视觉体系分叉。
+- **滚动稳定性（2026-03-31）**：TanStack 粘性表头与 fixed 列改为“前景色 + `surface` 底色”叠层背景，避免纵向/横向滚动时出现透底。
 - **树形能力**：支持 `treeConfig`（含 `lazy/loadMethod/childrenField/hasChildField`）与 `treeNode` 列标记，满足组织管理类页面迁移需求。
+
+本轮已补齐的常用能力（用户点选 2/3/4/5/9）：
+
+- **2）列显隐**：支持 `setColumnVisibility` / `toggleColumnVisibility` / `getColumnVisibility`。
+- **3）列宽调整**：支持表头右侧拖拽列宽；`selection/index/expand` 列默认不参与 resize。
+- **4）列顺序拖拽**：支持拖拽表头调整列顺序；并暴露 `setColumnOrder` / `getColumnOrder`。
+- **5）虚拟滚动**：支持 `virtualConfig`（`enabled`、`y.rowHeight`、`y.overscan`）按需开启大数据量渲染优化。
+- **9）跨页选择**：新增 `reserveSelection`，并提供 `getSelectedRowKeys` / `setSelectedRowKeys`。
+
+建议约束：
+
+- 启用跨页选择时，`row-key` 必须稳定且全局唯一（推荐后端主键）。
+- 虚拟滚动建议先在“固定行高”列表页灰度，避免动态高度场景下滚动抖动。
 
 推荐接入顺序：
 
@@ -60,8 +74,21 @@
   :columns="columns"
   :pagination="pagination"
   :loading="loading"
+  :reserve-selection="true"
+  :virtual-config="{ enabled: true, y: { rowHeight: 44, overscan: 8 } }"
   row-key="id"
 />
+```
+
+可选的编程式控制（与 VXE 迁移期兼容）：
+
+```ts
+const tableRef = ref<{ getTableRef: () => Record<string, unknown> } | null>(null);
+
+const table = tableRef.value?.getTableRef();
+table?.toggleColumnVisibility?.('userName', false);
+table?.setColumnOrder?.(['userName', 'phone', 'status']);
+table?.setSelectedRowKeys?.(['1001', '1002']);
 ```
 
 ## 首期迁移策略

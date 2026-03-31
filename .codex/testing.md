@@ -9173,3 +9173,47 @@
 - `pnpm -C packages/tag lint`
 - `pnpm -C packages/tag typecheck`
 - 结果补充：`packages/tag` lint/typecheck 通过（0 warning / 0 error）。
+
+## 2026-03-31（TanStack 分页切换：VxePager -> Element Pagination）
+
+- RED：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - 结果：失败（源码仍包含 `VxePager`，不含 `el-pagination`）。
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+
+- 结果：
+  - `packages/ui/src/tanstack-table-source.test.ts` 通过（6/6）。
+  - `packages/ui`：`typecheck` / `lint` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（ObTanStackTable 滚动透底修复）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `tanstack-table-source.test.ts` 通过（`6/6`）。
+  - `packages/ui`：`typecheck`、`lint` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（ObTanStackTable 能力补齐：2/3/4/5/9）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`10/10`）。
+  - `packages/ui`：`typecheck` 与 `lint` 通过（`0 warning / 0 error`）。
+  - `apps/docs`：`lint` 通过（`0 warning / 0 error`），`build` 成功。

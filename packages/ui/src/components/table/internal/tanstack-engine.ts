@@ -1,6 +1,8 @@
 import { computed, h, ref, watch, type ComputedRef, type Slots, type VNodeChild } from 'vue';
 import {
   type Cell,
+  type ColumnOrderState,
+  type ColumnSizingState,
   getCoreRowModel,
   getExpandedRowModel,
   getSortedRowModel,
@@ -15,7 +17,8 @@ import {
   type RowData,
   type RowSelectionState,
   type SortingState,
-  type Table as TanStackTableInstance
+  type Table as TanStackTableInstance,
+  type VisibilityState
 } from '@tanstack/vue-table';
 import type { TableAlign, TableColumn, TableColumnList, TableColumnRendererParams } from '../types';
 
@@ -28,6 +31,7 @@ interface TableRuntimeProps extends Record<string, unknown> {
   headerAlign?: TableAlign;
   showOverflowTooltip: boolean;
   treeConfig?: Record<string, unknown>;
+  reserveSelection?: boolean;
 }
 
 interface TableColumnMeta {
@@ -80,11 +84,55 @@ function resolveColumnField(prop: TableColumn['prop'], index: number): string | 
   return typeof prop === 'string' && prop.length > 0 ? prop : undefined;
 }
 
+function resolveColumnId(column: TableColumn, index: number, parentPath = '') {
+  const field = resolveColumnField(column.prop, index);
+  return field || `${parentPath}${column.type || 'column'}-${index}`;
+}
+
 function resolveColumnHidden(column: TableColumn): boolean {
   if (typeof column.hide === 'function') {
     return Boolean(column.hide(column));
   }
   return Boolean(column.hide);
+}
+
+function resolveColumnSize(value?: string | number): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+}
+
+function collectLeafColumnIds(columns: TableColumnList, parentPath = ''): string[] {
+  const leafIds: string[] = [];
+  columns.forEach((column, index) => {
+    const columnId = resolveColumnId(column, index, parentPath);
+    if (Array.isArray(column.children) && column.children.length > 0) {
+      leafIds.push(...collectLeafColumnIds(column.children, `${columnId}-`));
+      return;
+    }
+    leafIds.push(columnId);
+  });
+  return leafIds;
+}
+
+function collectColumnVisibility(
+  columns: TableColumnList,
+  parentPath = ''
+): Record<string, boolean> {
+  const visibility: Record<string, boolean> = {};
+  columns.forEach((column, index) => {
+    const columnId = resolveColumnId(column, index, parentPath);
+    visibility[columnId] = !resolveColumnHidden(column);
+    if (Array.isArray(column.children) && column.children.length > 0) {
+      Object.assign(visibility, collectColumnVisibility(column.children, `${columnId}-`));
+    }
+  });
+  return visibility;
 }
 
 function resolveTreeChildrenField(treeConfig?: Record<string, unknown>) {
@@ -266,9 +314,14 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
   const sorting = ref<SortingState>([]);
   const rowSelection = ref<RowSelectionState>({});
   const expanded = ref<ExpandedState>({});
+  const columnVisibility = ref<VisibilityState>({});
+  const columnOrder = ref<ColumnOrderState>([]);
+  const columnSizing = ref<ColumnSizingState>({});
   const attrs = options.attrs;
   const resolvedProps = options.props;
   const lazyLoadingKeys = ref<Record<string, boolean>>({});
+  const reservedSelectionRows = ref<Record<string, RowRecord>>({});
+  const reserveSelection = computed(() => resolvedProps.value.reserveSelection === true);
 
   const childrenField = computed(() => resolveTreeChildrenField(resolvedProps.value.treeConfig));
   const hasChildField = computed(() => resolveTreeHasChildField(resolvedProps.value.treeConfig));
@@ -277,13 +330,48 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
   const internalData = ref<RowRecord[]>(cloneRows(options.data.value, childrenField.value));
 
   watch(
+    options.columns,
+    (columns) => {
+      const defaultVisibility = collectColumnVisibility(columns);
+      const mergedVisibility: VisibilityState = {};
+      Object.entries(defaultVisibility).forEach(([columnId, visible]) => {
+        const prev = columnVisibility.value[columnId];
+        mergedVisibility[columnId] = typeof prev === 'boolean' ? prev : visible;
+      });
+      columnVisibility.value = mergedVisibility;
+
+      const leafColumnIds = collectLeafColumnIds(columns);
+      const nextOrder = columnOrder.value.filter((columnId) => leafColumnIds.includes(columnId));
+      const missingOrder = leafColumnIds.filter((columnId) => !nextOrder.includes(columnId));
+      columnOrder.value = [...nextOrder, ...missingOrder];
+    },
+    { immediate: true, deep: true }
+  );
+
+  watch(
     [options.data, childrenField, reserveExpanded, () => resolvedProps.value.rowKey],
     ([rows, nextChildrenField, shouldReserve, nextRowKey]) => {
       internalData.value = cloneRows(rows, nextChildrenField);
       expanded.value = shouldReserve
         ? filterExpandedState(expanded.value, internalData.value, nextChildrenField, nextRowKey)
         : {};
-      rowSelection.value = {};
+
+      if (!reserveSelection.value) {
+        rowSelection.value = {};
+        reservedSelectionRows.value = {};
+        return;
+      }
+
+      const availableRowKeys = new Set<string>();
+      collectRowKeys(internalData.value, nextChildrenField, nextRowKey, availableRowKeys);
+
+      const nextSelection: RowSelectionState = {};
+      Object.keys(reservedSelectionRows.value).forEach((rowKey) => {
+        if (availableRowKeys.has(rowKey)) {
+          nextSelection[rowKey] = true;
+        }
+      });
+      rowSelection.value = nextSelection;
     },
     { deep: true }
   );
@@ -293,8 +381,7 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
 
     const travel = (columns: TableColumnList, parentPath = '') => {
       columns.forEach((column, index) => {
-        const field = resolveColumnField(column.prop, index);
-        const columnId = field || `${parentPath}${column.type || 'column'}-${index}`;
+        const columnId = resolveColumnId(column, index, parentPath);
         map.set(columnId, column);
         if (Array.isArray(column.children) && column.children.length > 0) {
           travel(column.children, `${columnId}-`);
@@ -394,147 +481,162 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
   }
 
   function buildColumns(columns: TableColumnList, parentPath = ''): ColumnDef<RowRecord>[] {
-    return columns
-      .filter((column) => !resolveColumnHidden(column))
-      .map((column, index) => {
-        const field = resolveColumnField(column.prop, index);
-        const columnId = field || `${parentPath}${column.type || 'column'}-${index}`;
-        const { showOverflow, isOperationColumn } = resolveColumnOverflow(
-          column,
-          index,
-          resolvedProps.value
-        );
-        const meta: TableColumnMeta = {
-          align: column.align ?? resolvedProps.value.alignWhole,
-          headerAlign:
-            column.headerAlign ?? resolvedProps.value.headerAlign ?? resolvedProps.value.alignWhole,
-          fixed: column.fixed,
-          width: column.width,
-          minWidth: column.minWidth,
-          className: column.className,
-          showOverflow,
-          originalColumn: column,
-          isOperationColumn,
-          isTreeNode: Boolean(column.treeNode),
-          isCustomSort: column.sortable === 'custom'
-        };
+    return columns.map((column, index) => {
+      const field = resolveColumnField(column.prop, index);
+      const columnId = resolveColumnId(column, index, parentPath);
+      const { showOverflow, isOperationColumn } = resolveColumnOverflow(
+        column,
+        index,
+        resolvedProps.value
+      );
+      const meta: TableColumnMeta = {
+        align: column.align ?? resolvedProps.value.alignWhole,
+        headerAlign:
+          column.headerAlign ?? resolvedProps.value.headerAlign ?? resolvedProps.value.alignWhole,
+        fixed: column.fixed,
+        width: column.width,
+        minWidth: column.minWidth,
+        className: column.className,
+        showOverflow,
+        originalColumn: column,
+        isOperationColumn,
+        isTreeNode: Boolean(column.treeNode),
+        isCustomSort: column.sortable === 'custom'
+      };
 
-        if (Array.isArray(column.children) && column.children.length > 0) {
-          return {
-            id: columnId,
-            header: () => column.label || '',
-            meta,
-            columns: buildColumns(column.children, `${columnId}-`)
-          };
-        }
+      const initialSize = resolveColumnSize(column.width);
+      const minSize = resolveColumnSize(column.minWidth);
 
-        if (column.type === 'selection') {
-          return {
-            id: columnId,
-            header: ({ table }) =>
-              createCheckboxNode({
-                checked: table.getIsAllRowsSelected(),
-                indeterminate: table.getIsSomeRowsSelected(),
-                onChange: (checked) => table.toggleAllRowsSelected(checked)
-              }),
-            cell: ({ row }) =>
-              createCheckboxNode({
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                onChange: (checked) => row.toggleSelected(checked)
-              }),
-            enableSorting: false,
-            enableHiding: false,
-            meta
-          };
-        }
-
-        if (column.type === 'index') {
-          return {
-            id: columnId,
-            header: () => column.label || '#',
-            cell: ({ row }) => {
-              if (typeof column.index === 'function') {
-                return column.index(row.index);
-              }
-              if (typeof column.index === 'number') {
-                return row.index + column.index;
-              }
-              return row.index + 1;
-            },
-            enableSorting: false,
-            meta
-          };
-        }
-
-        if (column.type === 'expand') {
-          return {
-            id: columnId,
-            header: () => column.label || '',
-            cell: ({ row }) =>
-              h(
-                'button',
-                {
-                  class: 'ob-tanstack-table__expand-toggle',
-                  type: 'button',
-                  onClick: () => row.toggleExpanded()
-                },
-                row.getIsExpanded() ? '-' : '+'
-              ),
-            enableSorting: false,
-            meta
-          };
-        }
-
+      if (Array.isArray(column.children) && column.children.length > 0) {
         return {
           id: columnId,
-          accessorFn: (row) => getRowValue(row, field),
-          header: (context: HeaderContext<RowRecord, unknown>) => {
-            if (column.headerSlot && options.slots[column.headerSlot]) {
-              return options.slots[column.headerSlot]?.(context) as VNodeChild;
-            }
+          header: () => column.label || '',
+          meta,
+          size: initialSize,
+          minSize,
+          columns: buildColumns(column.children, `${columnId}-`)
+        };
+      }
 
-            if (column.headerRenderer) {
-              return column.headerRenderer({
-                column,
-                props: resolvedProps.value,
-                attrs: attrs.value
-              });
-            }
-
-            return column.label || '';
-          },
-          cell: (context: CellContext<RowRecord, unknown>) => {
-            let content: VNodeChild;
-            const slotParams: TableColumnRendererParams = {
-              row: context.row.original,
-              column,
-              $index: context.row.index,
-              index: context.row.index,
-              size: typeof attrs.value.size === 'string' ? attrs.value.size : undefined,
-              props: resolvedProps.value,
-              attrs: attrs.value
-            };
-
-            if (column.slot && options.slots[column.slot]) {
-              content = options.slots[column.slot]?.(slotParams) as VNodeChild;
-            } else if (column.cellRenderer) {
-              content = column.cellRenderer(slotParams);
-            } else {
-              content = createDefaultCellValue(context.row.original, column, index);
-            }
-
-            return renderTreeCell({
-              cellContext: context,
-              column,
-              defaultNode: content
-            });
-          },
-          enableSorting: Boolean(column.sortable),
-          sortingFn: meta.isCustomSort ? () => 0 : undefined,
+      if (column.type === 'selection') {
+        return {
+          id: columnId,
+          header: ({ table }) =>
+            createCheckboxNode({
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: (checked) => table.toggleAllRowsSelected(checked)
+            }),
+          cell: ({ row }) =>
+            createCheckboxNode({
+              checked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              onChange: (checked) => row.toggleSelected(checked)
+            }),
+          enableSorting: false,
+          enableHiding: false,
+          enableResizing: false,
+          size: initialSize,
+          minSize,
           meta
         };
-      });
+      }
+
+      if (column.type === 'index') {
+        return {
+          id: columnId,
+          header: () => column.label || '#',
+          cell: ({ row }) => {
+            if (typeof column.index === 'function') {
+              return column.index(row.index);
+            }
+            if (typeof column.index === 'number') {
+              return row.index + column.index;
+            }
+            return row.index + 1;
+          },
+          enableSorting: false,
+          enableResizing: false,
+          size: initialSize,
+          minSize,
+          meta
+        };
+      }
+
+      if (column.type === 'expand') {
+        return {
+          id: columnId,
+          header: () => column.label || '',
+          cell: ({ row }) =>
+            h(
+              'button',
+              {
+                class: 'ob-tanstack-table__expand-toggle',
+                type: 'button',
+                onClick: () => row.toggleExpanded()
+              },
+              row.getIsExpanded() ? '-' : '+'
+            ),
+          enableSorting: false,
+          enableResizing: false,
+          size: initialSize,
+          minSize,
+          meta
+        };
+      }
+
+      return {
+        id: columnId,
+        accessorFn: (row) => getRowValue(row, field),
+        header: (context: HeaderContext<RowRecord, unknown>) => {
+          if (column.headerSlot && options.slots[column.headerSlot]) {
+            return options.slots[column.headerSlot]?.(context) as VNodeChild;
+          }
+
+          if (column.headerRenderer) {
+            return column.headerRenderer({
+              column,
+              props: resolvedProps.value,
+              attrs: attrs.value
+            });
+          }
+
+          return column.label || '';
+        },
+        cell: (context: CellContext<RowRecord, unknown>) => {
+          let content: VNodeChild;
+          const slotParams: TableColumnRendererParams = {
+            row: context.row.original,
+            column,
+            $index: context.row.index,
+            index: context.row.index,
+            size: typeof attrs.value.size === 'string' ? attrs.value.size : undefined,
+            props: resolvedProps.value,
+            attrs: attrs.value
+          };
+
+          if (column.slot && options.slots[column.slot]) {
+            content = options.slots[column.slot]?.(slotParams) as VNodeChild;
+          } else if (column.cellRenderer) {
+            content = column.cellRenderer(slotParams);
+          } else {
+            content = createDefaultCellValue(context.row.original, column, index);
+          }
+
+          return renderTreeCell({
+            cellContext: context,
+            column,
+            defaultNode: content
+          });
+        },
+        enableSorting: Boolean(column.sortable),
+        enableResizing: true,
+        sortingFn: meta.isCustomSort ? () => 0 : undefined,
+        size: initialSize,
+        minSize,
+        meta
+      };
+    });
   }
 
   const tableColumns = computed<ColumnDef<RowRecord>[]>(() => buildColumns(options.columns.value));
@@ -549,6 +651,18 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
 
   const onExpandedChange: OnChangeFn<ExpandedState> = (updaterOrValue) => {
     applyUpdater(updaterOrValue, expanded);
+  };
+
+  const onColumnVisibilityChange: OnChangeFn<VisibilityState> = (updaterOrValue) => {
+    applyUpdater(updaterOrValue, columnVisibility);
+  };
+
+  const onColumnOrderChange: OnChangeFn<ColumnOrderState> = (updaterOrValue) => {
+    applyUpdater(updaterOrValue, columnOrder);
+  };
+
+  const onColumnSizingChange: OnChangeFn<ColumnSizingState> = (updaterOrValue) => {
+    applyUpdater(updaterOrValue, columnSizing);
   };
 
   const tableRef = useVueTable<RowRecord>({
@@ -567,6 +681,15 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
       },
       get expanded() {
         return expanded.value;
+      },
+      get columnVisibility() {
+        return columnVisibility.value;
+      },
+      get columnOrder() {
+        return columnOrder.value;
+      },
+      get columnSizing() {
+        return columnSizing.value;
       }
     },
     getRowId: (row: RowRecord, index: number) =>
@@ -587,9 +710,14 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
       return hasChildren || hasRemoteChildren || hasExpandColumn;
     },
     enableRowSelection: true,
+    enableColumnResizing: true,
+    columnResizeMode: 'onChange',
     onSortingChange,
     onRowSelectionChange,
     onExpandedChange,
+    onColumnVisibilityChange,
+    onColumnOrderChange,
+    onColumnSizingChange,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getExpandedRowModel: getExpandedRowModel()
@@ -598,9 +726,23 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
   watch(
     rowSelection,
     () => {
-      options.emitSelectionChange(
-        tableRef.getSelectedRowModel().flatRows.map((row) => row.original)
-      );
+      const currentPageRows = tableRef.getRowModel().rows;
+      const selectedRows = tableRef.getSelectedRowModel().flatRows;
+
+      if (!reserveSelection.value) {
+        options.emitSelectionChange(selectedRows.map((row) => row.original));
+        return;
+      }
+
+      const nextReservedRows = { ...reservedSelectionRows.value };
+      currentPageRows.forEach((row) => {
+        delete nextReservedRows[row.id];
+      });
+      selectedRows.forEach((row) => {
+        nextReservedRows[row.id] = row.original;
+      });
+      reservedSelectionRows.value = nextReservedRows;
+      options.emitSelectionChange(Object.values(nextReservedRows));
     },
     { deep: true }
   );
@@ -635,11 +777,120 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
 
   function clearSelection() {
     rowSelection.value = {};
+    reservedSelectionRows.value = {};
     options.emitSelectionChange([]);
   }
 
   function getSelectedRows() {
+    if (reserveSelection.value) {
+      return Object.values(reservedSelectionRows.value);
+    }
     return tableRef.getSelectedRowModel().flatRows.map((row) => row.original);
+  }
+
+  function getSelectedRowKeys() {
+    if (reserveSelection.value) {
+      return Object.keys(reservedSelectionRows.value);
+    }
+    return Object.keys(rowSelection.value).filter((key) => Boolean(rowSelection.value[key]));
+  }
+
+  function setSelectedRowKeys(rowKeys: Array<string | number>) {
+    const nextRowKeys = Array.from(new Set(rowKeys.map((rowKey) => String(rowKey))));
+    const nextSelection: RowSelectionState = {};
+    const nextReservedRows = reserveSelection.value ? { ...reservedSelectionRows.value } : {};
+    const rowMap = new Map(
+      tableRef.getCoreRowModel().flatRows.map((row) => [row.id, row.original])
+    );
+
+    if (reserveSelection.value) {
+      Object.keys(nextReservedRows).forEach((rowKey) => {
+        if (!nextRowKeys.includes(rowKey)) {
+          delete nextReservedRows[rowKey];
+        }
+      });
+    }
+
+    nextRowKeys.forEach((rowKey) => {
+      const currentRow = rowMap.get(rowKey);
+      if (currentRow) {
+        nextSelection[rowKey] = true;
+        if (reserveSelection.value) {
+          nextReservedRows[rowKey] = currentRow;
+        }
+      }
+    });
+
+    rowSelection.value = nextSelection;
+
+    if (reserveSelection.value) {
+      reservedSelectionRows.value = nextReservedRows;
+      options.emitSelectionChange(Object.values(nextReservedRows));
+      return;
+    }
+
+    options.emitSelectionChange(tableRef.getSelectedRowModel().flatRows.map((row) => row.original));
+  }
+
+  function setColumnVisibility(nextVisibility: Record<string, boolean>) {
+    columnVisibility.value = {
+      ...columnVisibility.value,
+      ...nextVisibility
+    };
+  }
+
+  function toggleColumnVisibility(columnId: string, visible?: boolean) {
+    const currentVisible = columnVisibility.value[columnId] ?? true;
+    setColumnVisibility({
+      [columnId]: typeof visible === 'boolean' ? visible : !currentVisible
+    });
+  }
+
+  function getColumnVisibility() {
+    return { ...columnVisibility.value };
+  }
+
+  function setColumnOrder(nextOrder: string[]) {
+    const leafColumnIds = collectLeafColumnIds(options.columns.value);
+    const normalizedOrder = nextOrder.filter((columnId) => leafColumnIds.includes(columnId));
+    const missingOrder = leafColumnIds.filter((columnId) => !normalizedOrder.includes(columnId));
+    columnOrder.value = [...normalizedOrder, ...missingOrder];
+  }
+
+  function reorderColumn(sourceId: string, targetId: string) {
+    if (sourceId === targetId) {
+      return;
+    }
+
+    const nextOrder = [...columnOrder.value];
+    const sourceIndex = nextOrder.indexOf(sourceId);
+    const targetIndex = nextOrder.indexOf(targetId);
+    if (sourceIndex < 0 || targetIndex < 0) {
+      return;
+    }
+
+    nextOrder.splice(sourceIndex, 1);
+    nextOrder.splice(targetIndex, 0, sourceId);
+    columnOrder.value = nextOrder;
+  }
+
+  function getColumnOrder() {
+    return [...columnOrder.value];
+  }
+
+  function setColumnSizing(nextSizing: ColumnSizingState) {
+    columnSizing.value = {
+      ...columnSizing.value,
+      ...nextSizing
+    };
+  }
+
+  function resetColumnSizing() {
+    columnSizing.value = {};
+  }
+
+  function getColumnSizing() {
+    return { ...columnSizing.value };
   }
 
   function getExpandedContent(row: Row<RowRecord>) {
@@ -687,10 +938,14 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
     }) as TableColumnMeta;
   }
 
-  function getColumnStyle(meta: TableColumnMeta) {
+  function getColumnStyle(column: Column<RowRecord, unknown>, meta: TableColumnMeta) {
+    const dynamicSize = column.getSize();
     return {
-      width:
-        typeof meta.width === 'number' ? `${meta.width}px` : (meta.width as string | undefined),
+      width: Number.isFinite(dynamicSize)
+        ? `${dynamicSize}px`
+        : typeof meta.width === 'number'
+          ? `${meta.width}px`
+          : (meta.width as string | undefined),
       minWidth:
         typeof meta.minWidth === 'number'
           ? `${meta.minWidth}px`
@@ -714,14 +969,28 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
     visibleLeafColumns,
     clearSelection,
     getSelectedRows,
+    getSelectedRowKeys,
+    setSelectedRowKeys,
     getExpandedContent,
     hasExpandedContent,
+    setColumnVisibility,
+    toggleColumnVisibility,
+    getColumnVisibility,
+    setColumnOrder,
+    reorderColumn,
+    getColumnOrder,
+    setColumnSizing,
+    resetColumnSizing,
+    getColumnSizing,
     getColumnMeta,
     getColumnStyle,
     getCellTitle,
     createSortOrder,
     rowSelection,
-    sorting
+    sorting,
+    columnVisibility,
+    columnOrder,
+    columnSizing
   };
 }
 
