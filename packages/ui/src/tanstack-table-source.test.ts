@@ -73,8 +73,11 @@ describe('TanStackTable source', () => {
     expect(source).toContain(
       '.ob-tanstack-table__th.is-tree-node .ob-tanstack-table__cell--header'
     );
-    expect(source).toContain('--ob-table-tree-toggle-size: 16px;');
+    expect(source).toContain('--ob-table-tree-toggle-icon-size: 16px;');
+    expect(source).toContain('--ob-table-tree-toggle-size: var(--ob-table-tree-toggle-icon-size);');
     expect(source).toContain('--ob-table-tree-toggle-gap: 8px;');
+    expect(source).toContain('width: var(--ob-table-tree-toggle-icon-size);');
+    expect(source).toContain('flex: 0 0 var(--ob-table-tree-toggle-icon-size);');
     expect(source).toContain('font-size: 14px;');
     expect(source).toContain('font-weight: 400;');
     expect(source).toContain('font-weight: var(--ob-table-header-font-weight);');

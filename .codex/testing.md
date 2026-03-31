@@ -9328,3 +9328,12 @@
   - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
 - 结果：
   - `packages/ui`：源码门禁测试通过（`12/12`），`typecheck/lint` 通过。
+
+## 2026-03-31（树表 icon/content 间距与占位宽度精确对齐）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`12/12`），`typecheck/lint` 通过。

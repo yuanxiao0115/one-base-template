@@ -10806,3 +10806,16 @@
     - 树节点占位宽度继续复用 `--ob-table-tree-toggle-size`，保证无子节点与有子节点文本起点一致。
   - `packages/ui/src/tanstack-table-source.test.ts`
     - 更新树表样式门禁断言（`size=16px`、`gap=8px`）。
+
+## 2026-03-31（树表 icon/content 间距与占位宽度精确对齐）
+
+- 按用户精确要求补充样式约束：
+  - `ob-tanstack-table__tree-toggle-icon` 与 `ob-tanstack-table__tree-content` 固定 `8px` 间距；
+  - `ob-tanstack-table__tree-placeholder` 宽度与图标宽度严格一致，并同样保留 `8px` 间距；
+  - icon 悬停保持可点击光标。
+- 关键实现：
+  - `packages/ui/src/components/table/TanStackTable.vue`
+    - 新增 `--ob-table-tree-toggle-icon-size`，并让 `placeholder/icon` 统一引用该变量；
+    - `placeholder/icon` 同步设置 `flex-basis`，避免压缩导致同级文本错位。
+  - `packages/ui/src/tanstack-table-source.test.ts`
+    - 新增 `icon-size`、`flex-basis` 等源码门禁断言。

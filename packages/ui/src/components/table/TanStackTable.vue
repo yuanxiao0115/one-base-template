@@ -1011,7 +1011,8 @@ defineExpose({
   height: 100%;
   min-height: 0;
   background: var(--ob-table-bg);
-  --ob-table-tree-toggle-size: 16px;
+  --ob-table-tree-toggle-icon-size: 16px;
+  --ob-table-tree-toggle-size: var(--ob-table-tree-toggle-icon-size);
   --ob-table-tree-toggle-gap: 8px;
   --ob-table-tree-toggle-hover-bg: var(--one-fill-color-light, var(--el-fill-color-light));
   --ob-table-tree-toggle-focus-outline: var(--one-color-primary, var(--el-color-primary));
@@ -1229,14 +1230,16 @@ defineExpose({
 
 .ob-tanstack-table__tree-placeholder {
   display: inline-block;
-  width: var(--ob-table-tree-toggle-size);
+  width: var(--ob-table-tree-toggle-icon-size);
+  flex: 0 0 var(--ob-table-tree-toggle-icon-size);
   margin-right: var(--ob-table-tree-toggle-gap);
 }
 
 .ob-tanstack-table__tree-toggle-icon {
   margin-right: var(--ob-table-tree-toggle-gap);
-  width: 16px;
-  height: 16px;
+  width: var(--ob-table-tree-toggle-icon-size);
+  height: var(--ob-table-tree-toggle-icon-size);
+  flex: 0 0 var(--ob-table-tree-toggle-icon-size);
   display: block;
   border-radius: 4px;
   transition:
