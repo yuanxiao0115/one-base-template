@@ -10,6 +10,7 @@ export interface TableColumnRendererParams {
   column: TableColumn;
   $index: number;
   index: number;
+  size?: string;
   props: Record<string, unknown>;
   attrs: Record<string, unknown>;
 }
@@ -28,6 +29,7 @@ export interface TableColumn {
   align?: TableAlign;
   headerAlign?: TableAlign;
   className?: string;
+  treeNode?: boolean;
   children?: TableColumn[];
   slot?: string;
   headerSlot?: string;

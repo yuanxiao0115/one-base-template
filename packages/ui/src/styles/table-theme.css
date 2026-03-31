@@ -1,0 +1,55 @@
+/* 表格共享主题 token：VXE 与后续 TanStack 封装统一消费这层变量。 */
+:root {
+  --ob-table-bg: var(--el-bg-color);
+  --ob-table-surface-bg: var(--el-bg-color-overlay);
+  --ob-table-header-bg: var(--one-table-header-bg);
+  --ob-table-header-color: var(--el-text-color-primary);
+  --ob-table-header-font-weight: 600;
+  --ob-table-border-color: var(--one-table-header-border-bottom-color);
+
+  --ob-table-row-bg: var(--el-bg-color-overlay);
+  --ob-table-row-hover-bg: var(--el-bg-color-overlay);
+  --ob-table-row-striped-bg: var(--el-bg-color-overlay);
+  --ob-table-row-current-bg: var(--el-bg-color-overlay);
+  --ob-table-row-height-default: 56px;
+  --ob-table-row-height-medium: 56px;
+  --ob-table-row-height-small: 56px;
+  --ob-table-row-height-mini: 56px;
+
+  --ob-table-column-hover-bg: var(--one-color-primary-light-1);
+  --ob-table-column-current-bg: var(--one-color-primary-light-1);
+  --ob-table-column-hover-current-bg: var(--one-color-primary-light-2);
+  --ob-table-drag-over-bg: var(--one-fill-color-light);
+
+  --ob-table-fixed-shadow-color: var(--one-mask-color-extra-light);
+  --ob-table-fixed-left-shadow: 10px 0 14px -10px var(--ob-table-fixed-shadow-color);
+  --ob-table-fixed-right-shadow: -10px 0 14px -10px var(--ob-table-fixed-shadow-color);
+
+  --ob-table-pager-bg: var(--ob-table-surface-bg);
+  --ob-table-pager-border-color: var(--ob-table-border-color);
+  --ob-table-pager-text-color: var(--el-text-color-regular);
+  --ob-table-pager-min-height: 32px;
+  --ob-table-pager-padding-top: 8px;
+  --ob-table-pager-total-left: 4px;
+  --ob-table-pager-content-padding-left: 120px;
+
+  --ob-table-skeleton-bg: var(--ob-table-surface-bg);
+  --ob-table-skeleton-padding-inline: 12px;
+  --ob-table-skeleton-padding-bottom: 12px;
+  --ob-table-skeleton-grid-gap: 12px;
+  --ob-table-skeleton-block-gap: 8px;
+  --ob-table-skeleton-row-gap: 10px;
+  --ob-table-skeleton-row-min-height: 34px;
+  --ob-table-skeleton-cell-height: 14px;
+  --ob-table-skeleton-head-cell-height: 12px;
+  --ob-table-skeleton-head-cell-width: 70%;
+
+  --ob-table-scrollbar-size: 10px;
+  --ob-table-scrollbar-hit-size: 14px;
+  --ob-table-scrollbar-gap: 2px;
+  --ob-table-scrollbar-radius: 999px;
+  --ob-table-scrollbar-track-color: transparent;
+  --ob-table-scrollbar-thumb-color: var(--one-fill-color-dark);
+  --ob-table-scrollbar-thumb-hover-color: var(--one-text-color-placeholder);
+  --ob-table-scrollbar-thumb-active-color: var(--one-text-color-secondary);
+}

@@ -25,14 +25,44 @@
 > 滚动条策略：纵向滚动条使用窄轨道样式（默认 `8~10px` 视觉宽度），避免粗滚动条破坏整体视觉。
 >
 > 树形策略：`ObVxeTable` 支持 `treeConfig` 透传，可直接迁移组织管理类「树表 + 懒加载」页面。
+>
+> **并存策略补充（2026-03-31）**：`packages/ui` 已新增 `ObTanStackTable`（导出名 `TanStackTable`），与 `ObVxeTable` 并存，便于分页面灰度验证性能与交互一致性。
 
 ## 组件与 Hook 对应关系
 
-| 能力         | 新实现                                  | 兼容目标                                       |
-| ------------ | --------------------------------------- | ---------------------------------------------- |
-| 表格头工具条 | `ObTableBox` / `TableBox`（导出名）     | 保留旧 ObTableBox 的快捷搜索、抽屉筛选、已选条 |
-| 表格主体     | `ObVxeTable` / `VxeTable`               | 对齐 pure-table 常用 props/events/expose       |
-| 表格数据管理 | `useTable`（`@one-base-template/core`） | 旧 API 不破坏 + 新 API 增量能力                |
+| 能力             | 新实现                                  | 兼容目标                                       |
+| ---------------- | --------------------------------------- | ---------------------------------------------- |
+| 表格头工具条     | `ObTableBox` / `TableBox`（导出名）     | 保留旧 ObTableBox 的快捷搜索、抽屉筛选、已选条 |
+| 表格主体         | `ObVxeTable` / `VxeTable`               | 对齐 pure-table 常用 props/events/expose       |
+| 表格主体（灰度） | `ObTanStackTable` / `TanStackTable`     | 与 `ObVxeTable` 保持同一契约，按需灰度替换     |
+| 表格数据管理     | `useTable`（`@one-base-template/core`） | 旧 API 不破坏 + 新 API 增量能力                |
+
+## TanStack 封装现状与接入建议
+
+`ObTanStackTable` 的目标不是立即替换所有 VXE 页面，而是先提供“**同契约、可灰度**”的备选实现：
+
+- **交互契约**：已对齐 `selection-change`、`page-size-change`、`page-current-change`、`sort-change`，并保留 `getTableRef()`、`setAdaptive()`、`clearSelection()`。
+- **分页体验**：继续复用 `VxePager`，分页布局、总数位置、小尺寸行为与现有页面一致。
+- **主题策略**：`packages/ui/src/styles/table-theme.css` 为共享表格 token 层，`ObVxeTable` 与 `ObTanStackTable` 同时消费，避免两套视觉体系分叉。
+- **树形能力**：支持 `treeConfig`（含 `lazy/loadMethod/childrenField/hasChildField`）与 `treeNode` 列标记，满足组织管理类页面迁移需求。
+
+推荐接入顺序：
+
+1. 先在单个列表页把 `ObVxeTable` 替换为 `ObTanStackTable`，其余参数保持不变；
+2. 对照关键交互（排序、多选、分页、树展开）做页面回归；
+3. 若页面稳定，再按模块批量推广。
+
+最小替换示例：
+
+```vue
+<ObTanStackTable
+  :data="dataList"
+  :columns="columns"
+  :pagination="pagination"
+  :loading="loading"
+  row-key="id"
+/>
+```
 
 ## 首期迁移策略
 

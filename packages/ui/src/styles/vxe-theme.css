@@ -1,3 +1,5 @@
+@import './table-theme.css';
+
 /* 参考 VXE 主题机制：https://vxetable.cn/#/start/theme */
 /* 通过覆盖 --vxe-ui-* 变量接入项目主题 token，避免在组件内重复维护色值。 */
 :root,
@@ -51,7 +53,7 @@
   --vxe-ui-base-active-background-color: var(--one-color-primary-light-1);
   --vxe-ui-base-hover-background-color: var(--el-fill-color-light);
 
-  --vxe-ui-layout-background-color: var(--el-bg-color-overlay);
+  --vxe-ui-layout-background-color: var(--ob-table-surface-bg);
 
   --vxe-ui-input-border-color: var(--el-border-color);
   --vxe-ui-input-placeholder-color: var(--one-text-color-placeholder);
@@ -59,40 +61,38 @@
 
   /* --vxe-ui-loading-background-color: var(--el-mask-color); */
 
-  --vxe-ui-table-header-background-color: var(--one-table-header-bg);
-  --vxe-ui-table-column-to-row-background-color: var(--one-table-header-bg);
-  --vxe-ui-table-column-hover-background-color: var(--one-color-primary-light-1);
-  --vxe-ui-table-column-current-background-color: var(--one-color-primary-light-1);
-  --vxe-ui-table-column-hover-current-background-color: var(--one-color-primary-light-2);
-  --vxe-ui-table-border-color: var(--one-table-header-border-bottom-color);
-  --vxe-ui-table-row-hover-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-striped-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-hover-striped-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-radio-checked-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-hover-radio-checked-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-checkbox-checked-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-hover-checkbox-checked-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-current-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-row-hover-current-background-color: var(--el-bg-color-overlay);
-  --vxe-ui-table-fixed-scrolling-box-shadow-color: var(--one-mask-color-extra-light);
-  --vxe-ui-table-drag-over-background-color: var(--one-fill-color-light);
+  --vxe-ui-table-header-background-color: var(--ob-table-header-bg);
+  --vxe-ui-table-column-to-row-background-color: var(--ob-table-header-bg);
+  --vxe-ui-table-column-hover-background-color: var(--ob-table-column-hover-bg);
+  --vxe-ui-table-column-current-background-color: var(--ob-table-column-current-bg);
+  --vxe-ui-table-column-hover-current-background-color: var(--ob-table-column-hover-current-bg);
+  --vxe-ui-table-border-color: var(--ob-table-border-color);
+  --vxe-ui-table-row-hover-background-color: var(--ob-table-row-hover-bg);
+  --vxe-ui-table-row-striped-background-color: var(--ob-table-row-striped-bg);
+  --vxe-ui-table-row-hover-striped-background-color: var(--ob-table-row-hover-bg);
+  --vxe-ui-table-row-radio-checked-background-color: var(--ob-table-row-current-bg);
+  --vxe-ui-table-row-hover-radio-checked-background-color: var(--ob-table-row-hover-bg);
+  --vxe-ui-table-row-checkbox-checked-background-color: var(--ob-table-row-current-bg);
+  --vxe-ui-table-row-hover-checkbox-checked-background-color: var(--ob-table-row-hover-bg);
+  --vxe-ui-table-row-current-background-color: var(--ob-table-row-current-bg);
+  --vxe-ui-table-row-hover-current-background-color: var(--ob-table-row-hover-bg);
+  --vxe-ui-table-fixed-scrolling-box-shadow-color: var(--ob-table-fixed-shadow-color);
+  --vxe-ui-table-drag-over-background-color: var(--ob-table-drag-over-bg);
 
-  --vxe-ui-table-row-height-default: 56px;
-  --vxe-ui-table-row-height-medium: 56px;
-  --vxe-ui-table-row-height-small: 56px;
-  --vxe-ui-table-row-height-mini: 56px;
+  --vxe-ui-table-row-height-default: var(--ob-table-row-height-default);
+  --vxe-ui-table-row-height-medium: var(--ob-table-row-height-medium);
+  --vxe-ui-table-row-height-small: var(--ob-table-row-height-small);
+  --vxe-ui-table-row-height-mini: var(--ob-table-row-height-mini);
 
-  --vxe-ui-table-fixed-left-scrolling-box-shadow: 10px 0 14px -10px
-    var(--vxe-ui-table-fixed-scrolling-box-shadow-color);
-  --vxe-ui-table-fixed-right-scrolling-box-shadow: -10px 0 14px -10px
-    var(--vxe-ui-table-fixed-scrolling-box-shadow-color);
+  --vxe-ui-table-fixed-left-scrolling-box-shadow: var(--ob-table-fixed-left-shadow);
+  --vxe-ui-table-fixed-right-scrolling-box-shadow: var(--ob-table-fixed-right-shadow);
 
-  --ob-vxe-scrollbar-size: 10px;
-  --ob-vxe-scrollbar-hit-size: 14px;
-  --ob-vxe-scrollbar-gap: 2px;
-  --ob-vxe-scrollbar-radius: 999px;
-  --ob-vxe-scrollbar-track-color: transparent;
-  --ob-vxe-scrollbar-thumb-color: var(--one-fill-color-dark);
-  --ob-vxe-scrollbar-thumb-hover-color: var(--one-text-color-placeholder);
-  --ob-vxe-scrollbar-thumb-active-color: var(--one-text-color-secondary);
+  --ob-vxe-scrollbar-size: var(--ob-table-scrollbar-size);
+  --ob-vxe-scrollbar-hit-size: var(--ob-table-scrollbar-hit-size);
+  --ob-vxe-scrollbar-gap: var(--ob-table-scrollbar-gap);
+  --ob-vxe-scrollbar-radius: var(--ob-table-scrollbar-radius);
+  --ob-vxe-scrollbar-track-color: var(--ob-table-scrollbar-track-color);
+  --ob-vxe-scrollbar-thumb-color: var(--ob-table-scrollbar-thumb-color);
+  --ob-vxe-scrollbar-thumb-hover-color: var(--ob-table-scrollbar-thumb-hover-color);
+  --ob-vxe-scrollbar-thumb-active-color: var(--ob-table-scrollbar-thumb-active-color);
 }

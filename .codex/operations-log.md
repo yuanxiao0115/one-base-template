@@ -10611,3 +10611,27 @@
 - `apps/template/vite.config.ts` 改为使用 `createTemplatePlugins()`，不再停留在仅 `vue()` 的最小插件链。
 - `apps/template/tests/architecture/vite-plugin-parity-source.unit.test.ts` 新增源码门禁，锁定 template 必须保持与 admin 一致的 Element Plus 解析链路。
 - `apps/template/AGENTS.md` 与 `apps/docs/docs/guide/template-static-app.md` 补充启动骨架红线，明确 `createTemplatePlugins()` 为必选项。
+
+## 2026-03-31（TanStack Table 并行封装与接线）
+
+- 在 `packages/ui` 新增 `ObTanStackTable` 组件主实现：
+  - `packages/ui/src/components/table/TanStackTable.vue`
+  - `packages/ui/src/components/table/internal/tanstack-engine.ts`
+  - `packages/ui/src/components/table/internal/tanstack-pagination.ts`
+- 对齐 `ObVxeTable` 兼容契约：保留 `selection-change / page-size-change / page-current-change / sort-change`，并暴露 `getTableRef / setAdaptive / clearSelection`。
+- 树形能力接入 `treeConfig` 与 `treeNode`，支持懒加载 `loadMethod`。
+- 主题层收口：新增 `packages/ui/src/styles/table-theme.css`，并让 `vxe-theme.css` 与 `VxeTable.vue` 统一消费 `--ob-table-*` token。
+- 插件与导出接线完成：
+  - `packages/ui/src/index.ts` 新增 `TanStackTable` 导出
+  - `packages/ui/src/plugin.ts` 新增 `TanStackTable` 全局注册
+- 依赖补齐：`packages/ui/package.json` 增加 `@tanstack/vue-table` 与 `@tanstack/vue-virtual`，并更新 `pnpm-lock.yaml`。
+- 测试口径沿用源码断言：`packages/ui/src/tanstack-table-source.test.ts`、`packages/ui/src/index.test.ts`、`packages/ui/src/plugin.test.ts`。
+- 文档同步：`apps/docs/docs/guide/table-vxe-migration.md` 新增 TanStack 并存策略与灰度接入说明。
+- 二次修复（针对评审阻塞项）：
+  - `TanStackTable.vue` 新增 fixed 列偏移计算与 sticky 样式（含左右边缘阴影 class），并在模板层改为 `resolveHeaderStyle/resolveCellStyle`。
+  - `tanstack-engine.ts` 补齐 `sortable: 'custom'` 行为（仅触发排序事件不本地重排）与 `sortBy/prop` 字段映射。
+  - `tanstack-engine.ts` 补齐树表 `trigger='cell'` 与 `reserve` 展开态保留逻辑。
+  - `tanstack-engine.ts` 为 slot/cellRenderer/expandRenderer 补充 `size` 参数，兼容现有 operation slot 使用习惯。
+  - `tanstack-table-source.test.ts` 补充 fixed/custom sort/tree/slot 的源码门禁断言。
+- 复审结果：再次代码审查后“无阻塞项”，仅保留非阻塞提醒：`sortBy` 函数形态暂未消费、运行态挂载测试仍可继续补强。
+- 新增兼容矩阵工件：`.codex/context-table-tanstack-compat.md`，沉淀 props/事件/expose/树表/排序/fixed/slot 对齐结论与非阻塞项。

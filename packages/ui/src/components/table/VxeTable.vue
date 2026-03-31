@@ -802,7 +802,7 @@ defineExpose({
   width: 100%;
   height: 100%;
   min-height: 0;
-  background: var(--el-bg-color);
+  background: var(--ob-table-bg);
 }
 
 .ob-vxe-table__main {
@@ -817,23 +817,23 @@ defineExpose({
   flex: 1;
   width: 100%;
   min-height: 0;
-  padding: 0 12px 12px;
+  padding: 0 var(--ob-table-skeleton-padding-inline) var(--ob-table-skeleton-padding-bottom);
   overflow: hidden;
-  background: var(--vxe-ui-layout-background-color);
+  background: var(--ob-table-skeleton-bg);
 }
 
 .ob-vxe-table__skeleton :deep(.el-skeleton) {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--ob-table-skeleton-block-gap);
   width: 100%;
 }
 
 .ob-vxe-table__skeleton-head,
 .ob-vxe-table__skeleton-row {
   display: grid;
-  gap: 12px;
+  gap: var(--ob-table-skeleton-grid-gap);
   align-items: center;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 }
@@ -846,28 +846,28 @@ defineExpose({
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--ob-table-skeleton-row-gap);
 }
 
 .ob-vxe-table__skeleton-row {
-  min-height: 34px;
+  min-height: var(--ob-table-skeleton-row-min-height);
 }
 
 .ob-vxe-table__skeleton-cell {
   width: 100%;
-  height: 14px;
+  height: var(--ob-table-skeleton-cell-height);
 }
 
 .ob-vxe-table__skeleton-cell--head {
-  width: 70%;
-  height: 12px;
+  width: var(--ob-table-skeleton-head-cell-width);
+  height: var(--ob-table-skeleton-head-cell-height);
 }
 
 .ob-vxe-table__pager {
   flex-shrink: 0;
-  padding-top: 8px;
-  background: var(--vxe-ui-layout-background-color);
-  border-top: 1px solid var(--vxe-ui-table-border-color);
+  padding-top: var(--ob-table-pager-padding-top);
+  background: var(--ob-table-pager-bg);
+  border-top: 1px solid var(--ob-table-pager-border-color);
 }
 
 .ob-vxe-table :deep(.vxe-grid) {
@@ -948,13 +948,13 @@ defineExpose({
 }
 
 .ob-vxe-table :deep(.vxe-header--column) {
-  background: var(--vxe-ui-table-header-background-color);
-  color: var(--el-text-color-primary);
-  font-weight: 600;
+  background: var(--ob-table-header-bg);
+  color: var(--ob-table-header-color);
+  font-weight: var(--ob-table-header-font-weight);
 }
 
 .ob-vxe-table :deep(.vxe-header--column .vxe-cell) {
-  font-weight: 600;
+  font-weight: var(--ob-table-header-font-weight);
 }
 
 .ob-vxe-table :deep(.vxe-table--render-default .vxe-table--border-line) {
@@ -968,8 +968,8 @@ defineExpose({
 }
 
 .ob-vxe-table :deep(.vxe-body--column) {
-  background: var(--vxe-ui-layout-background-color);
-  border-bottom: 1px solid var(--vxe-ui-table-border-color);
+  background: var(--ob-table-row-bg);
+  border-bottom: 1px solid var(--ob-table-border-color);
 }
 
 .ob-vxe-table :deep(.vxe-body--row:last-child .vxe-body--column) {
@@ -1101,16 +1101,16 @@ defineExpose({
 .ob-vxe-table__pager :deep(.vxe-pager) {
   position: relative;
   justify-content: flex-end;
-  min-height: 32px;
-  padding-left: 120px;
+  min-height: var(--ob-table-pager-min-height);
+  padding-left: var(--ob-table-pager-content-padding-left);
 }
 
 .ob-vxe-table__pager :deep(.vxe-pager--total) {
   position: absolute;
-  left: 4px;
+  left: var(--ob-table-pager-total-left);
   top: 50%;
   margin: 0;
   transform: translateY(-50%);
-  color: var(--el-text-color-regular);
+  color: var(--ob-table-pager-text-color);
 }
 </style>

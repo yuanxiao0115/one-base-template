@@ -9098,3 +9098,40 @@
   - `apps/template build` 通过。
   - `pnpm -C apps/docs lint` 通过（`0 warnings / 0 errors`）。
   - `pnpm -C apps/docs build` 通过。
+
+## 2026-03-31（TanStack Table 并行封装）
+
+- RED（先失败）：
+  - `pnpm -C packages/ui typecheck`
+  - 结果：
+    - `TanStackTable.vue` 与 `tanstack-engine.ts` 出现 `ComputedRef` 访问、`Row['getVisibleCells']` 类型索引、`TableRuntimeProps -> Record<string, unknown>` 转换等类型错误。
+
+- GREEN / 回归：
+  - `pnpm install`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm exec vp test run packages/ui/src/tanstack-table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm check:admin:bundle`
+- 结果：
+  - `packages/ui`：`lint` 0 warning / 0 error，`typecheck` 通过。
+  - `packages/ui`：3 个源码断言测试文件共 `7` 条测试通过。
+  - `apps/admin`：`typecheck` 与 `build` 通过。
+  - `check:admin:bundle`：`iconify-ri`、`wangeditor`、`vxe`、`element-plus`、启动依赖映射等预算检查全部通过。
+- GREEN / 二次回归（阻塞项修复后）：
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm exec vp test run packages/ui/src/tanstack-table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm check:admin:bundle`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：`lint/typecheck/build` 通过。
+  - `packages/ui`：源码门禁测试通过（`3 files / 10 tests`）。
+  - `apps/admin`：`typecheck/build` 通过。
+  - `check:admin:bundle`：全部预算检查 PASS。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

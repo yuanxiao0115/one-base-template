@@ -6,7 +6,7 @@
 
 - 日期：2026-03-31
 - 文件：`.codex/verification/2026-03-31.md`
-- 补充：最新条目为“historyMode + 统一前缀配置（防静态资源路径错位）”。
+- 补充：最新条目为“TanStack Table 并行封装（packages/ui）”。
 
 ## 历史归档
 
