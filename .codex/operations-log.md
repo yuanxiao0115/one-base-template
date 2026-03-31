@@ -10659,3 +10659,9 @@
   - `packages/ui/src/styles/table-theme.css` 与 `packages/ui/src/styles/vxe-theme.css` 使用 `:root`/`[data-vxe-ui-theme]` 覆盖主题变量；
   - `vxe-pc-ui` 样式存在 `html[data-vxe-lock-scroll] body{...}` 锁滚动规则。
 - 修复动作：在 `apps/admin/src/styles/index.css` 与 `apps/admin-lite/src/styles/index.css` 增加 `body`（及 `html/#app` 组）`margin: 0;`，消除 8px 默认外边距。
+
+## 2026-03-31（菜单折叠按钮样式受污染排查与加固）
+
+- 按用户反馈排查侧栏底部菜单折叠按钮（`packages/ui/src/layouts/modes/SideLayout.vue`）样式异常。
+- 结论：按钮使用原生 `<button>`，组件样式只定义了尺寸/颜色/圆角，未显式重置 `border/background/padding/appearance`，容易受浏览器默认样式或外部全局规则影响。
+- 修复：在 `ob-side-layout__collapse-btn` 增补显式样式重置（`padding: 0`、`border: 0`、`background: transparent`、`cursor: pointer`、`appearance: none`、`line-height: 1`），确保在不同全局样式环境下视觉稳定。

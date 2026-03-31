@@ -79,8 +79,14 @@ const collapseLabel = computed(() => (layoutStore.siderCollapsed ? '展开菜单
   justify-content: center;
   width: 40px;
   height: 40px;
+  padding: 0;
+  border: 0;
   border-radius: 8px;
+  background: transparent;
   color: var(--one-text-color-secondary, #666666);
+  line-height: 1;
+  cursor: pointer;
+  appearance: none;
   transition:
     color 180ms ease,
     background-color 180ms ease,

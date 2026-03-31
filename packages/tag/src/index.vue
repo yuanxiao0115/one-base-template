@@ -362,7 +362,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   padding: var(--tag-container-padding);
-  width: 100%;
+  // width: 100%;
   height: var(--tag-container-height);
   font-size: var(--tag-font-size);
   color: var(--tag-text-color);

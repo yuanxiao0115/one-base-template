@@ -9161,3 +9161,15 @@
 - 结果：
   - `apps/admin`：lint 通过（0 error，保留 1 条既有 warning：`OrgManagerDialog.vue` `max-lines`）。
   - `apps/admin-lite`：lint 通过（0 warning / 0 error）。
+
+## 2026-03-31（菜单折叠按钮样式加固）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui typecheck`
+- 结果：
+  - `packages/ui`：`lint` 0 warning / 0 error。
+  - `packages/ui`：`typecheck` 通过。
+- `pnpm -C packages/tag lint`
+- `pnpm -C packages/tag typecheck`
+- 结果补充：`packages/tag` lint/typecheck 通过（0 warning / 0 error）。
