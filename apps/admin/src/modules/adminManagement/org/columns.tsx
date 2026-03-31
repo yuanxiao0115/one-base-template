@@ -7,12 +7,14 @@ export const orgColumns: TableColumnList = [
     minWidth: 220,
     treeNode: true,
     slot: 'orgName',
-    showOverflowTooltip: true
+    showOverflowTooltip: true,
+    ellipsis: true
   },
   {
     label: '组织简称',
     prop: 'briefName',
     minWidth: 180,
+    ellipsis: true,
     showOverflowTooltip: true
   },
   {
