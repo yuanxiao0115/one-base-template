@@ -1,10 +1,37 @@
 import type { PaginationConfig } from '@one-base-template/core';
-import type { VNodeChild } from 'vue';
+import type { CSSProperties, VNodeChild } from 'vue';
+import type {
+  PureTableColumnFilterPlacement,
+  PureTableColumnFixed,
+  PureTableColumnSortable,
+  PureTableColumnType,
+  PureTableColumnsContract
+} from './puretable-fork/table-column-contract';
 
 export type TableAlign = 'left' | 'center' | 'right';
-export type TableColumnType = 'selection' | 'index' | 'expand';
-export type TableSortable = boolean | 'custom';
-export type TableFixed = boolean | 'left' | 'right';
+export type TableColumnType = PureTableColumnType;
+export type TableSortable = PureTableColumnSortable;
+export type TableFixed = PureTableColumnFixed;
+export type TableColumnFilterPlacement = PureTableColumnFilterPlacement;
+export type TableDefaultLocale = 'zhCn' | 'zhTw' | 'en';
+export type TablePaginationAlign = 'left' | 'center' | 'right';
+export type TablePaginationSize = 'default' | 'small' | 'large';
+
+export interface TableLocaleObject {
+  name: string;
+  el: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export type TableLocaleInput = TableDefaultLocale | TableLocaleObject;
+
+export interface TableLoadingConfig {
+  text?: string;
+  spinner?: string;
+  svg?: string;
+  viewBox?: string;
+  background?: string;
+}
 
 export interface TableColumnRendererParams {
   row: Record<string, unknown>;
@@ -16,38 +43,57 @@ export interface TableColumnRendererParams {
   attrs: Record<string, unknown>;
 }
 
-export interface TableColumn {
-  label?: string;
-  prop?: string | ((index: number) => string);
-  type?: TableColumnType;
-  index?: number | ((index: number) => number);
-  width?: string | number;
-  minWidth?: string | number;
-  fixed?: TableFixed;
-  sortable?: TableSortable;
-  sortBy?: string | string[] | ((row: Record<string, unknown>, index: number) => string);
+export interface TableColumnHeaderRendererParams {
+  column: TableColumn;
+  props: Record<string, unknown>;
+  attrs: Record<string, unknown>;
+}
+
+export interface TableFormatterParams {
+  row: Record<string, unknown>;
+  column: TableColumn;
+  cellValue: unknown;
+  index: number;
+}
+
+export type TableFormatter =
+  | PureTableColumnsContract['formatter']
+  | ((params: TableFormatterParams) => VNodeChild);
+
+export interface TableColumn extends Omit<
+  PureTableColumnsContract,
+  'cellRenderer' | 'headerRenderer' | 'children' | 'hide' | 'formatter'
+> {
   ellipsis?: boolean;
   showOverflowTooltip?: boolean;
   showEmptyValue?: boolean;
   emptyValueText?: string;
-  align?: TableAlign;
-  headerAlign?: TableAlign;
-  className?: string;
   treeNode?: boolean;
   children?: TableColumn[];
-  slot?: string;
-  headerSlot?: string;
   hide?: boolean | ((column: TableColumn) => boolean);
   cellRenderer?: (params: TableColumnRendererParams) => VNodeChild;
-  headerRenderer?: (
-    params: Omit<TableColumnRendererParams, 'row' | '$index' | 'index'>
-  ) => VNodeChild;
+  headerRenderer?: (params: TableColumnHeaderRendererParams) => VNodeChild;
+  formatter?: TableFormatter;
   [key: string]: unknown;
 }
 
 export type TableColumnList = TableColumn[];
 
-export type TablePagination = PaginationConfig;
+export interface TablePagination extends PaginationConfig {
+  size?: TablePaginationSize;
+  align?: TablePaginationAlign;
+  class?: string;
+  style?: CSSProperties;
+  defaultPageSize?: number;
+  defaultCurrentPage?: number;
+  pageCount?: number;
+  pagerCount?: number;
+  popperClass?: string;
+  prevText?: string;
+  nextText?: string;
+  disabled?: boolean;
+  hideOnSinglePage?: boolean;
+}
 
 export interface AdaptiveConfig {
   offsetBottom?: number;

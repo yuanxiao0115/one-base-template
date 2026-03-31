@@ -2,6 +2,14 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-03-31（pure-admin-table 影子镜像 + ObTable 能力回灌）
+
+- 新增只读镜像同步脚本 `scripts/sync-pure-admin-table-mirror.mjs`，并在根 `package.json` 增加命令 `pnpm mirror:pure-table`（仅对照，不作为运行时依赖）。
+- 本地执行 `pnpm mirror:pure-table`，在 `.codex/mirrors/pure-admin-table-upstream` 初始化上游镜像，并固定到 `v3.3.0`（commit `8f93cb25a3482a2132c32631fb21fb8ad2ec7b04`）。
+- `packages/ui/src/components/table/types.ts` 增加 `filterIconSlot`、`expandSlot` 与表头渲染参数类型，收口 ObTable 列定义契约。
+- `packages/ui/src/components/table/Table.vue` 增加 `filter-icon` 插槽桥接与 `type='expand'` 的 `expandSlot` 优先渲染能力，保持现有 `slot/cellRenderer` 兼容。
+- `apps/docs/docs/guide/table-vxe-migration.md` 补充“只读镜像（影子 Fork）”实施口径，并同步 `ObTable`/`ObVxeTable` 列插槽能力边界说明。
+
 ## 2026-03-31（Element Table 收口：回收 TanStack 链路）
 
 - 按用户指定边界收口表格方案：保留提交 `dea7b24c4bf39e85f1c53b946784038693f4a796` 与 `9c359a5e13c2b4dd4e7729c3e132654aadff7875`，其余 TanStack 表格链路改为删除/替换，不做整段 `git reset --hard`。
@@ -187,6 +195,7 @@
 # operations-log
 
 - 2026-03-31 16:58: `ObTable` 第二轮收口：仅调整自定义壳组件与共享 token，不改无关原生 `el-table` 细节；保留并避开用户已有脏文件 `apps/admin-lite/src/bootstrap/startup.ts`、`apps/admin/src/bootstrap/startup.ts`、`apps/admin/src/types/auto-imports.d.ts`、`apps/admin/src/types/components.d.ts`。
+- 2026-03-31 17:06: admin 日志模块继续推广 `ObTable`：`LogManagement/sys-log` 已从 `ObVxeTable` 切到 `ObTable`，`login-log` 保持 `ObTable`，并补充源码测试与文档说明。
 - 2026-02-11 14:29:08 降级：mcp**augment-context-engine**codebase-retrieval 无法索引当前目录（安全限制），改用 rg/ls 本地检索。
 
 ## 2026-03-28（公文表单设计器 v3：Sheet-first 收口）
@@ -10897,3 +10906,64 @@
   - 视觉层：`packages/ui/src/components/table/TanStackTable.vue` 表头单元格统一 `nowrap + ellipsis`，并接入 `:title=\"engine.getHeaderTitle(header)\"`。
 - `packages/ui/src/tanstack-table-source.test.ts` 新增“表头省略 + title”与 `minWidth` 基础宽度断言。
 - `apps/docs/docs/guide/table-vxe-migration.md` 同步补充 `minWidth` 生效口径。
+- 2026-03-31 17:19: 针对 ObTable 头部样式不生效，按 Element Plus Table 官方入口改为 `headerRowStyle/headerCellStyle/cellStyle` 注入，避免仅靠 scoped CSS 覆盖。
+
+## 2026-03-31（角色管理权限弹窗改用 ObCrudContainer）
+
+- `apps/admin/src/modules/adminManagement/role/components/RolePermissionDialog.vue`
+  - 将容器从 `el-dialog` 收口为 `ObCrudContainer`（`container=dialog`、`mode=edit`、`dialog-width=760`）。
+  - 保留现有加载与保存逻辑，确认动作统一通过 `@confirm="save"` 触发。
+  - 权限树补充 `empty-text="暂无权限数据"`，避免展示英文 `No Data`。
+  - 权限树滚动区高度改为 `height: min(60vh, calc(100vh - 260px))`，确保内容超出时出现滚动条。
+- `apps/admin/src/modules/adminManagement/role/components/RolePermissionDialog.unit.test.ts`
+  - 对齐容器改造，测试桩改为 `ObCrudContainer`，保留标题断言与旧请求回写防护回归。
+
+## 2026-03-31（ObTable 树配置收口到 Element 语义）
+
+- `packages/ui/src/components/table/Table.vue` 删除树配置兼容字段解析（`childrenField/hasChildField/loadMethod/expandAll`），统一按 Element 语义读取 `children/hasChildren/load/defaultExpandAll`。
+- `Table.vue` 的 `load` 调用链调整为 Element 约定签名：`load(row, treeNode, resolve)`；当 `load` 直接返回数组时自动兜底 `resolve`，避免双重回写。
+- 组织管理树配置改为 Element 字段：`children/hasChildren/load`，并将 `useOrgTreeQuery` 的懒加载函数改为 Element 签名。
+- 菜单管理树配置改为 Element 字段：`defaultExpandAll + children`。
+- 同步源码门禁：
+  - `packages/ui/src/table-source.test.ts`
+  - `apps/admin/src/modules/adminManagement/org/list.source.test.ts`
+  - `apps/admin/src/modules/adminManagement/menu/list.source.test.ts`
+- 文档同步：`apps/docs/docs/guide/table-vxe-migration.md` 已更新为 Element 树配置口径。
+
+## 2026-03-31（puretable 直接 fork 路线：ObTable 首批顶层能力对齐）
+
+- `packages/ui/src/components/table/puretable-fork/table-column-contract.ts` 修正 `TableColumnCtx` 泛型约束，并保持作为 puretable v3.3.0 列契约 fork 基线。
+- `packages/ui/src/components/table/types.ts`：
+  - 增加 `TableLoadingConfig`、`TableLocaleInput`、`TableLocaleObject`、`TableFormatter`；
+  - `TableColumn` 改为基于 fork 契约扩展并保留本仓 formatter 兼容签名，避免 admin 现有列定义报错。
+- `packages/ui/src/components/table/Table.vue`：
+  - 新增 pure 顶层 props：`loadingConfig`、`rowHoverBgColor`、`tableKey`、`locale`；
+  - 支持 `append/empty` 插槽兼容；
+  - 新增 expose：`getTableDoms()`、`setHeaderSticky()`；
+  - `v-loading` 扩展属性透传到表格实例，行 hover 背景支持自定义；
+  - 分页 `locale` 改为按 `zhCn/zhTw/en/自定义对象` 动态解析。
+- `packages/ui/src/table-source.test.ts`：
+  - 修复对 `types.ts` 字面字符串的脆弱断言，改为“fork 契约 + 运行时代码”双断言；
+  - 新增 pure 顶层 props/expose/插槽桥接断言。
+- `packages/ui/src/index.ts` 补充导出 `TableLoadingConfig`、`TableLocaleInput`、`TableLocaleObject`、`TableDefaultLocale`。
+- `apps/docs/docs/guide/table-vxe-migration.md` 同步“fork 基线”口径、已对齐能力与待对齐项。
+
+## 2026-04-01（puretable fork 第二批：tableKey/adaptive/pagination 收口）
+
+- `packages/ui/src/components/table/Table.vue` 完成 `tableKey` 注册表语义修复：
+  - 新增 `resolvedTableKey`（默认按组件 `uid` 自动生成，可被 `props.tableKey` 覆盖）；
+  - `getTableRef()` 优先从 `tableRefRegistry` 按 key 取实例，避免同页多表冲突；
+  - 组件卸载时清理 registry，避免残留引用。
+- `Table.vue` 的 `adaptive` 高度语义改为“视口优先 + 容器兜底”：
+  - 新增 `updateAdaptiveHeight()`，核心改用 `window.innerHeight - top - offsetBottom`；
+  - 同时接入 `ResizeObserver + window.resize`，并在 `unbindAdaptiveObserver()` 清理监听与定时器。
+- `Table.vue` 的 DOM 访问链路增强：
+  - `getTableDoms()` 改为优先取 `tableRef.$el`，并用多 selector fallback 获取 wrapper/header/body；
+  - `setHeaderSticky()` 对普通表头与 fixed 表头批量设置 sticky。
+- `packages/ui/src/components/table/internal/table-helpers.ts` 新增：
+  - `resolveAdaptiveHeight()`（自适应高度计算）
+  - `queryFirstElement()`（多选择器兜底查询）
+- 分页语义收口：`currentPage/pageSize` 受控时屏蔽 `defaultCurrentPage/defaultPageSize`，`total>0` 时屏蔽 `pageCount`。
+- `packages/ui/src/table-source.test.ts` 补充门禁断言，覆盖 table registry、自适应视口语义、window resize 监听、分页受控/默认值冲突规避。
+- `apps/docs/docs/guide/table-vxe-migration.md` 同步更新“已对齐能力 / 待对齐项 / 默认 tableKey 规则”。
+- 通过 monitor 子代理复核：最新结论“无阻断问题，仅保留 1 个 P2（Element Plus 内部 DOM 结构耦合，升级时需重点回归）”。

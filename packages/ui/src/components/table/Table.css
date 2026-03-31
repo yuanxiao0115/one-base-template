@@ -1,0 +1,244 @@
+.ob-table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: var(--ob-table-bg);
+}
+
+.ob-table__main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.ob-table__skeleton {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  padding: 0 var(--ob-table-skeleton-padding-inline) var(--ob-table-skeleton-padding-bottom);
+  overflow: hidden;
+  background: var(--ob-table-skeleton-bg);
+}
+
+.ob-table__skeleton :deep(.el-skeleton) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ob-table-skeleton-block-gap);
+  width: 100%;
+}
+
+.ob-table__skeleton-head,
+.ob-table__skeleton-row {
+  display: grid;
+  gap: var(--ob-table-skeleton-grid-gap);
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.ob-table__skeleton-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ob-table-skeleton-row-gap);
+}
+
+.ob-table__skeleton-row {
+  min-height: var(--ob-table-skeleton-row-min-height);
+}
+
+.ob-table__skeleton-cell {
+  width: 100%;
+  height: var(--ob-table-skeleton-cell-height);
+}
+
+.ob-table__skeleton-cell--head {
+  width: var(--ob-table-skeleton-head-cell-width);
+  height: var(--ob-table-skeleton-head-cell-height);
+}
+
+.ob-table__table-shell {
+  width: 100%;
+  min-height: 0;
+  background: var(--ob-table-surface-bg);
+}
+
+.ob-table__table-shell.is-empty {
+  overflow-x: hidden;
+}
+
+.ob-table__table {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  font-size: var(--ob-table-font-size);
+}
+
+.ob-table__cell-text {
+  display: inline-block;
+  width: 100%;
+  min-width: 0;
+}
+
+.ob-table__cell-text.is-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ob-table__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 48px 0;
+}
+
+.ob-table__empty-image {
+  width: 180px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.ob-table__empty-text {
+  margin: 0;
+  font-family:
+    PingFang SC,
+    sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #666;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.ob-table__pager {
+  flex-shrink: 0;
+  padding-top: var(--ob-table-pager-padding-top);
+  background: var(--ob-table-pager-bg);
+  border-top: 1px solid var(--ob-table-pager-border-color);
+}
+
+.ob-table :deep(.el-table) {
+  --el-table-border-color: var(--ob-table-border-color);
+  --el-table-header-bg-color: var(--ob-table-header-bg);
+  --el-table-row-hover-bg-color: var(--ob-table-row-hover-bg);
+  --el-table-current-row-bg-color: var(--ob-table-row-current-bg);
+  --el-fill-color-lighter: var(--ob-table-header-bg);
+  color: var(--ob-table-body-color);
+}
+
+.ob-table :deep(.el-table__inner-wrapper::before) {
+  display: none;
+}
+
+.ob-table :deep(.el-table__header-wrapper th.el-table__cell) {
+  height: var(--ob-table-row-height-default);
+  padding: 0;
+  background: var(--ob-table-header-bg);
+  color: var(--ob-table-header-color);
+  font-size: var(--ob-table-font-size);
+  font-weight: var(--ob-table-header-font-weight);
+  border-bottom: 1px solid var(--ob-table-border-color);
+}
+
+.ob-table :deep(.el-table__header-wrapper .cell) {
+  line-height: 20px;
+  font-weight: var(--ob-table-header-font-weight);
+}
+
+.ob-table :deep(.el-table__body-wrapper td.el-table__cell) {
+  height: var(--ob-table-row-height-default);
+  padding: 0;
+  font-size: var(--ob-table-font-size);
+  font-weight: var(--ob-table-body-font-weight);
+  color: var(--ob-table-body-color);
+  background: var(--ob-table-row-bg);
+  border-bottom: 1px solid var(--ob-table-border-color);
+}
+
+.ob-table :deep(.el-table__body tr:last-child td.el-table__cell) {
+  border-bottom: none;
+}
+
+.ob-table :deep(.el-table__body-wrapper .cell) {
+  line-height: 20px;
+  font-weight: var(--ob-table-body-font-weight);
+}
+
+.ob-table :deep(.el-table__fixed),
+.ob-table :deep(.el-table__fixed-right) {
+  box-shadow: none;
+}
+
+.ob-table :deep(.el-table__fixed::before),
+.ob-table :deep(.el-table__fixed-right::before) {
+  display: none;
+}
+
+.ob-table :deep(.el-table__fixed .el-table__fixed-header-wrapper),
+.ob-table :deep(.el-table__fixed-right .el-table__fixed-header-wrapper),
+.ob-table :deep(.el-table__fixed .el-table__fixed-body-wrapper),
+.ob-table :deep(.el-table__fixed-right .el-table__fixed-body-wrapper) {
+  background: var(--ob-table-surface-bg);
+}
+
+.ob-table :deep(.el-table__body-wrapper::-webkit-scrollbar),
+.ob-table :deep(.el-scrollbar__bar.is-horizontal),
+.ob-table :deep(.el-scrollbar__bar.is-vertical) {
+  width: var(--ob-table-scrollbar-size);
+  height: var(--ob-table-scrollbar-size);
+}
+
+.ob-table :deep(.el-scrollbar__thumb) {
+  background: var(--ob-table-scrollbar-thumb-color);
+  border-radius: var(--ob-table-scrollbar-radius);
+}
+
+.ob-table :deep(.el-scrollbar__thumb:hover) {
+  background: var(--ob-table-scrollbar-thumb-hover-color);
+}
+
+.ob-table__pager :deep(.el-pagination) {
+  position: relative;
+  justify-content: flex-end;
+  min-height: var(--ob-table-pager-min-height);
+  padding-left: var(--ob-table-pager-content-padding-left);
+}
+
+.ob-table__pager.is-align-left :deep(.el-pagination) {
+  justify-content: flex-start;
+  padding-left: 0;
+}
+
+.ob-table__pager.is-align-center :deep(.el-pagination) {
+  justify-content: center;
+  padding-left: 0;
+}
+
+.ob-table__pager.is-align-left :deep(.el-pagination__total),
+.ob-table__pager.is-align-center :deep(.el-pagination__total) {
+  position: static;
+  margin-right: var(--ob-table-pager-total-left);
+  transform: none;
+}
+
+.ob-table__pager.is-align-right :deep(.el-pagination__total),
+.ob-table__pager:not(.is-align-left):not(.is-align-center) :deep(.el-pagination__total) {
+  position: absolute;
+  left: var(--ob-table-pager-total-left);
+  top: 50%;
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+.ob-table__pager :deep(.el-pagination__total) {
+  color: var(--ob-table-pager-text-color);
+}

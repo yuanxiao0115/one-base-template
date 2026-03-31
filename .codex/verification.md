@@ -4,9 +4,9 @@
 
 ## 最新记录
 
-- 日期：2026-03-31
-- 文件：`.codex/verification/2026-03-31.md`
-- 补充：最新条目为“ObTable 命名与样式收口：分页 total 偏移、14px/600/500 字体基线与滚动条视觉已统一”。
+- 日期：2026-04-01
+- 文件：`.codex/verification/2026-04-01.md`
+- 补充：最新条目为“puretable fork 第二批（`tableKey` registry + adaptive 视口语义 + 分页 default/controlled 收口）并完成 ui/admin/docs 回归验证”。
 
 ## 历史归档
 

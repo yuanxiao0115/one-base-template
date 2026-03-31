@@ -36,21 +36,56 @@
 
 `ObTable` 的目标是提供“**同契约、低心智、样式统一**”的默认表格底座：
 
-- **交互契约**：已对齐 `selection-change`、`page-size-change`、`page-current-change`、`sort-change`，并保留 `getTableRef()`、`setAdaptive()`、`clearSelection()`。
-- **分页体验**：使用 `Element Plus` 的 `el-pagination`，并固定使用 `zh-cn` locale，分页文案统一中文展示。
+- **交互契约**：已对齐 `selection-change`、`page-size-change`、`page-current-change`、`sort-change`，并保留 `getTableRef()`、`getTableDoms()`、`setAdaptive()`、`setHeaderSticky()`、`clearSelection()`。
+- **分页体验**：使用 `Element Plus` 的 `el-pagination`，支持 `align/size/class/style/pageCount/pagerCount/disabled/hideOnSinglePage/prevText/nextText/popperClass` 等 pure 常用分页语义。
 - **主题策略**：`packages/ui/src/styles/table-theme.css` 为共享表格 token 层，`ObTable` 与 `ObVxeTable` 同时消费，避免视觉体系分叉。
-- **树形能力**：支持 `treeConfig`（含 `expandAll/lazy/loadMethod/childrenField/hasChildField`），满足菜单管理、组织管理类页面迁移需求。
+- **树形能力**：支持 `treeConfig`（Element 语义：`defaultExpandAll/lazy/load/children/hasChildren`），满足菜单管理、组织管理类页面迁移需求。
 - **列宽契约**：支持消费列定义中的 `width/minWidth`，避免配置失效。
+- **列插槽能力**：支持 `slot/headerSlot/filterIconSlot/expandSlot` 与 `cellRenderer/headerRenderer`，兼容旧 puretable 的常用列编排方式。
 - **列内容可读性**：支持 `showOverflowTooltip/ellipsis` 控制超长省略；鼠标悬浮自动展示 tooltip（操作列默认关闭）。
 - **空态视觉**：无数据时统一展示组件级空态图片 + 文案“暂未生产任何数据”，树表/普通表同时生效，且空态内容保持居中。
 - **空值兜底**：默认空值展示 `---`，可通过 `showEmptyValue` 关闭，或通过 `emptyValueText` 自定义占位文案；空态文案可通过 `emptyText` 自定义。
 
-推荐接入顺序：
+已对齐的 pure 顶层能力（首批）：
+
+- `loadingConfig`（`text/spinner/svg/viewBox/background`）
+- `rowHoverBgColor`
+- `tableKey`
+- `locale`（`zhCn/zhTw/en` 或自定义语言对象）
+- `pagination` 关键语义（`align/size/class/style/pageCount/pagerCount/disabled/hideOnSinglePage/defaultPageSize/defaultCurrentPage`）
+- `append` / `empty` 插槽
+- `getTableDoms()` / `setHeaderSticky()` expose
+- `getTableRef()` 已补齐 `tableKey` 注册表语义（同页多表按 key 定位实例）
+- `adaptive` 已补齐“视口贴底优先 + 容器高度兜底”语义，并同时监听 `ResizeObserver + window.resize`
+- `Table.vue` 已拆分样式与辅助函数（`Table.css` + `internal/table-helpers.ts`），降低单文件复杂度
+
+仍待逐步对齐（后续批次）：
+
+- 纯 puretable 的少量边角分页视觉细节（例如 `align` 与“总数绝对定位”组合下的像素级差异）
+- `expandSlot` 链路的深度场景（嵌套列 + 复杂渲染函数组合）仍需继续做回归补样
+
+## Fork 基线（puretable）
+
+当前方案已从“只做能力回灌”升级为“**fork puretable 契约 + 渐进改造运行时**”：
+
+1. 运行时 fork 基线位于 `packages/ui/src/components/table/puretable-fork`，当前先落地列契约（来源：`pure-admin-table@v3.3.0`）。
+2. `ObTable` 的 `TableColumn` 已改为扩展 fork 契约（`types.ts`），避免后续逐项迁移时遗漏字段。
+3. 上游镜像仍保留在 `.codex/mirrors/pure-admin-table-upstream`，仅用于同步对照，不参与应用打包。
+
+镜像同步命令：
+
+```bash
+pnpm mirror:pure-table
+pnpm mirror:pure-table v3.3.0
+pnpm mirror:pure-table 8f93cb2
+```
+
+推荐接入顺序保持不变：
 
 1. 普通列表与树表优先使用 `ObTable`；
 2. 仅当页面明确依赖 VXE 专属能力时再使用 `ObVxeTable`；
 3. 对照关键交互（排序、多选、分页、树展开）做页面回归；
-4. 若页面稳定，再按模块批量推广。
+4. 每轮只迁移 1-2 个 pure 能力并补齐测试，避免大爆炸改造。
 
 最小替换示例：
 
@@ -82,11 +117,13 @@ table?.clearSelection?.();
 3. 继续保留 `ObTableBox` 包裹布局
 4. 页面内直接调用 `@one-base-template/core` 的 `useTable`（不再经过 admin 本地 wrapper）
 
+当前 `apps/admin` 已完成 `LogManagement/login-log` 与 `LogManagement/sys-log` 到 `ObTable` 的切换，可作为日志类列表页接入基线。
+
 ## ObTable 默认配置（建议先用默认）
 
 为了减少迁移页模板样板代码，`ObTable` 已内置常用默认值：
 
-- `tableLayout='auto'`
+- `tableLayout='fixed'`
 - `showOverflowTooltip=true`
 - `showEmptyValue=true`
 - `emptyValueText='---'`
@@ -94,6 +131,9 @@ table?.clearSelection?.();
 - `stripe=false`
 - `border=false`
 - `rowKey='id'`
+- `tableKey` 默认自动生成（同页多表建议显式传唯一 key）
+- `locale='zhCn'`
+- `rowHoverBgColor=''`
 - 分页器固定为 `Element Plus el-pagination`，且文案中文化
 - 当传入 `size='small'` 且未手动指定 `paginationSmall` 时，分页自动切小尺寸
 
@@ -107,10 +147,10 @@ table?.clearSelection?.();
 - 根节点查询 `parentId` 优先取登录用户 `companyId`（无值回退 `0`）
 - 关键字搜索同样透传 `parentId`，保证“按所属公司范围”搜索，避免跨树污染结果
 - `treeConfig.lazy=true`
-- `treeConfig.hasChildField='hasChildren'`
-- `treeConfig.childrenField='children'`
-- `treeConfig.loadMethod`（异步加载下级节点）
-- 若 `/children` 接口未返回 `hasChildren`，在模块 API 统一补 `hasChildren: true`；`loadMethod` 返回空数组时回写 `row.hasChildren = false`
+- `treeConfig.hasChildren='hasChildren'`
+- `treeConfig.children='children'`
+- `treeConfig.load`（异步加载下级节点，函数签名遵循 Element：`(row, treeNode, resolve)`）
+- 若 `/children` 接口未返回 `hasChildren`，在模块 API 统一补 `hasChildren: true`；`load` 返回空数组时回写 `row.hasChildren = false`
 
 与两套表格底座的关键差异：
 
@@ -148,26 +188,28 @@ table?.clearSelection?.();
 示例（简化）：
 
 ```vue
-<ObVxeTable
+<ObTable
   :data="dataList"
   :columns="columns"
   :pagination="false"
   row-key="id"
   :tree-config="{
     lazy: true,
-    hasChildField: 'hasChildren',
-    childrenField: 'children',
-    loadMethod: loadTreeChildren
+    hasChildren: 'hasChildren',
+    children: 'children',
+    load: loadTreeChildren
   }"
 />
 ```
 
 ## 列定义兼容
 
-`ObVxeTable` 可直接识别旧列结构：
+`ObTable` 与 `ObVxeTable` 都可直接识别旧列结构：
 
 - `slot`：单元格具名插槽（如 `action`）
 - `headerSlot`：表头插槽
+- `filterIconSlot`：筛选图标插槽（映射到 Element `filter-icon`）
+- `expandSlot`：展开行插槽（`type: 'expand'` 时优先使用）
 - `cellRenderer`：函数式渲染
 - `children`：多级表头
 - `hide`：列隐藏（支持布尔值与函数）
@@ -194,7 +236,7 @@ export const columns: TableColumnList = [
 
 ## 事件与暴露方法兼容
 
-`ObVxeTable` 已桥接以下旧事件：
+`ObTable` 与 `ObVxeTable` 已桥接以下旧事件：
 
 - `selection-change`
 - `page-size-change`
@@ -204,7 +246,9 @@ export const columns: TableColumnList = [
 并暴露：
 
 - `getTableRef()`
+- `getTableDoms()`
 - `setAdaptive()`
+- `setHeaderSticky()`
 - `clearSelection()`
 
 用于兼容旧 `useTable` 中 `tableRef.value?.setAdaptive?.()` / `getTableRef().clearSelection()`。

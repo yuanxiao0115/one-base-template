@@ -2,6 +2,28 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-03-31（pure-admin-table 能力回灌：filterIconSlot / expandSlot）
+
+- RED（先失败）：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts`
+- 结果：
+  - 新增源码断言后，`packages/ui/src/table-source.test.ts` 在“筛选图标与展开插槽契约”用例失败，确认当前实现缺少 `filterIconSlot` / `expandSlot` 能力与类型定义。
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/LogManagement/sys-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：3 个测试文件共 11 条断言通过；`typecheck`、`lint`、`build` 全通过。
+  - `apps/admin`：6 个源码测试文件共 8 条断言通过；`typecheck` 与 `build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
 ## 2026-03-31（ObTable 命名与样式收口）
 
 - RED（先失败）：
@@ -26,6 +48,23 @@
   - `apps/admin`：5 个页面源码测试通过；`typecheck` 与 `build` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
   - 过程中修复 1 个真实类型问题：`ObTable.pagination` 已直接对齐 `@one-base-template/core` 的 `PaginationConfig`，消除页面层 `PaginationConfig -> TablePagination` 不兼容报错。
+
+## 2026-03-31（操作日志切换 ObTable）
+
+- RED（先失败）：
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/sys-log/list.source.test.ts`
+- 结果：
+  - 新增的 `sys-log` 源码测试初次失败，明确暴露页面仍使用 `<ObVxeTable>`。
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/LogManagement/sys-log/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：登录日志与操作日志源码测试 `2/2` 通过；`typecheck` 与 `build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
 
 ## 2026-03-31（admin-lite README 快速使用手册补充）
 
@@ -9464,3 +9503,73 @@
   - `apps/admin`：5 个页面源码门禁测试通过（`5/5`），`typecheck` 与 `build` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
   - `pnpm-lock.yaml` 已更新，`rg "@tanstack"` 仅剩设计/计划文档中的历史说明，不再残留运行时代码与锁文件依赖。
+
+## 2026-03-31（ObTable 头部样式生效修复）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C apps/admin typecheck`
+- 结果：
+  - `packages/ui`：源码测试 `6/6` 通过，`typecheck` 通过。
+  - `apps/admin`：`typecheck` 通过。
+
+## 2026-03-31（角色管理权限弹窗 ObCrudContainer 收口）
+
+- GREEN / 回归：
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin test:run:file -- src/modules/adminManagement/role/components/RolePermissionDialog.unit.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin typecheck`
+- 结果：
+  - `apps/admin`：`RolePermissionDialog.unit.test.ts` 通过（`1/1`）。
+  - `apps/admin`：`vue-tsc --noEmit` 通过。
+
+## 2026-03-31（ObTable 树配置收口到 Element 语义）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts`
+  - `pnpm -C apps/admin test:run:file -- src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：源码测试通过（`1` 文件 `6` 断言）；`typecheck` 通过。
+  - `apps/admin`：组织管理/菜单管理源码测试通过（`2` 文件 `4` 断言）；`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-03-31（puretable fork 首批顶层能力对齐）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts`
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/LogManagement/sys-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁测试（`12/12`）通过，`typecheck/lint/build` 通过。
+  - `apps/admin`：6 个源码门禁测试文件（`8` 条）通过，`typecheck/build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-01（puretable fork 第二批：tableKey/adaptive/pagination 收口）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/LogManagement/sys-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：3 个源码门禁文件 `12/12` 通过；`typecheck/lint/build` 通过。
+  - `apps/admin`：6 个源码门禁文件 `8/8` 通过；`typecheck/build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+- 额外复核：
+  - monitor 子代理二次走查结论：无 P0/P1；保留 1 个 P2（`getTableDoms/setHeaderSticky` 对 Element Plus 内部 DOM 仍有结构耦合）。

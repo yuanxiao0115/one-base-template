@@ -2,6 +2,7 @@
 import {
   computed,
   defineComponent,
+  getCurrentInstance,
   h,
   nextTick,
   onBeforeUnmount,
@@ -15,7 +16,9 @@ import {
   type Slots,
   type VNodeChild
 } from 'vue';
+import enLocale from 'element-plus/es/locale/lang/en';
 import zhCnLocale from 'element-plus/es/locale/lang/zh-cn';
+import zhTwLocale from 'element-plus/es/locale/lang/zh-tw';
 import type { TableInstance } from 'element-plus';
 import { ElTableColumn, ElTooltip } from 'element-plus';
 import emptyStateImage from './assets/table-empty-state.webp';
@@ -23,10 +26,33 @@ import type {
   AdaptiveConfig,
   TableAlign,
   TableColumn,
+  TableColumnHeaderRendererParams,
   TableColumnList,
   TableColumnRendererParams,
+  TableLoadingConfig,
+  TableLocaleInput,
+  TableLocaleObject,
+  TablePaginationAlign,
   TablePagination
 } from './types';
+import {
+  isOperationColumn,
+  normalizeTreeRows,
+  queryFirstElement,
+  resolveAdaptiveHeight,
+  resolveCellDisplayValue,
+  resolveColumnEmptyValueText,
+  resolveColumnField,
+  resolveColumnHidden,
+  resolveColumnMinWidth,
+  resolveColumnShowEmptyValue,
+  resolveColumnShowOverflow,
+  resolveColumnWidth,
+  resolvePagerLayout,
+  resolveTreeChildrenField,
+  resolveTreeHasChildField,
+  resolveTreeLoadMethod
+} from './internal/table-helpers';
 
 defineOptions({
   name: 'Table',
@@ -39,6 +65,13 @@ type VxeEventParams = Record<string, unknown>;
 
 type ElementTableSize = '' | 'default' | 'small' | 'large' | undefined;
 
+type TableCompatInstance = TableInstance & {
+  clearSelection?: () => void;
+  tableKey?: string | number;
+};
+
+const tableRefRegistry = new Map<string, TableCompatInstance>();
+
 interface PageChangeParams {
   pageSize?: number;
   currentPage?: number;
@@ -48,6 +81,7 @@ interface ObElementTableProps {
   data?: RowRecord[];
   columns?: TableColumnList;
   loading?: boolean;
+  loadingConfig?: TableLoadingConfig;
   enableFirstLoadSkeleton?: boolean;
   skeletonRows?: number;
   skeletonDelayMs?: number;
@@ -55,6 +89,7 @@ interface ObElementTableProps {
   pagination?: TablePagination | false | null;
   paginationSmall?: boolean;
   rowKey?: string;
+  tableKey?: string | number;
   tableLayout?: 'fixed' | 'auto';
   showOverflowTooltip?: boolean;
   showEmptyValue?: boolean;
@@ -68,6 +103,8 @@ interface ObElementTableProps {
   adaptiveConfig?: AdaptiveConfig;
   treeConfig?: Record<string, unknown>;
   reserveSelection?: boolean;
+  rowHoverBgColor?: string;
+  locale?: TableLocaleInput;
 }
 
 interface ElementTableRuntimeProps {
@@ -82,12 +119,24 @@ interface ElementTableRuntimeProps {
 
 interface ElementPagerProps {
   total: number;
-  currentPage: number;
-  pageSize: number;
+  currentPage?: number;
+  pageSize?: number;
   pageSizes: number[];
   background: boolean;
   layout: string;
-  size?: ElementTableSize;
+  size?: 'default' | 'small' | 'large';
+  align: TablePaginationAlign;
+  className?: string;
+  style?: CSSProperties;
+  defaultPageSize?: number;
+  defaultCurrentPage?: number;
+  pageCount?: number;
+  pagerCount?: number;
+  popperClass?: string;
+  prevText?: string;
+  nextText?: string;
+  disabled?: boolean;
+  hideOnSinglePage?: boolean;
 }
 
 interface ElementTableBindingProps {
@@ -106,18 +155,18 @@ interface ElementTableBindingProps {
   load?: (row: RowRecord, treeNode: unknown, resolve: (rows: RowRecord[]) => void) => void;
   indent: number;
   emptyText: string;
+  headerRowStyle?: TableStyleValue;
+  headerCellStyle?: TableStyleValue;
+  cellStyle?: TableStyleValue;
   [key: string]: unknown;
 }
 
-interface TreeLoadMethodParams {
-  row: RowRecord;
-  treeNode?: unknown;
-  resolve?: (rows: RowRecord[]) => void;
+interface TableDomRefs {
+  tableRoot: HTMLElement | null;
+  tableWrapper: HTMLElement | null;
+  tableHeaderRef: HTMLElement | null;
+  tableBodyRef: HTMLElement | null;
 }
-
-type TreeLoadMethod = (
-  params: TreeLoadMethodParams
-) => Promise<RowRecord[] | void> | RowRecord[] | void;
 
 interface ColumnBridgeScope {
   row: RowRecord;
@@ -126,10 +175,15 @@ interface ColumnBridgeScope {
   store?: Record<string, unknown>;
 }
 
+type TableStyleFnParams = Record<string, unknown>;
+type TableStyleFn = (params: TableStyleFnParams) => CSSProperties;
+type TableStyleValue = CSSProperties | TableStyleFn;
+
 const props = withDefaults(defineProps<ObElementTableProps>(), {
   data: () => [],
   columns: () => [],
   loading: false,
+  loadingConfig: () => ({}),
   enableFirstLoadSkeleton: true,
   skeletonRows: 8,
   skeletonDelayMs: 120,
@@ -137,7 +191,7 @@ const props = withDefaults(defineProps<ObElementTableProps>(), {
   pagination: null,
   paginationSmall: undefined,
   rowKey: 'id',
-  tableLayout: 'auto',
+  tableLayout: 'fixed',
   showOverflowTooltip: true,
   showEmptyValue: true,
   emptyValueText: '---',
@@ -153,7 +207,9 @@ const props = withDefaults(defineProps<ObElementTableProps>(), {
     timeout: 16
   }),
   treeConfig: undefined,
-  reserveSelection: false
+  reserveSelection: false,
+  rowHoverBgColor: '',
+  locale: 'zhCn'
 });
 
 const emit = defineEmits<{
@@ -169,10 +225,9 @@ const wrapperRef = ref<HTMLDivElement>();
 const tableRef = ref<TableInstance | null>(null);
 const adaptiveHeight = ref<number>();
 let resizeObserver: ResizeObserver | null = null;
-
-type TableCompatInstance = TableInstance & {
-  clearSelection?: () => void;
-};
+let adaptiveWindowResizeHandler: (() => void) | null = null;
+let adaptiveResizeTimer: ReturnType<typeof setTimeout> | null = null;
+const registeredTableKey = ref<string | null>(null);
 
 function resolveTableSize(attrsRecord: Record<string, unknown>): ElementTableSize {
   const size = attrsRecord.size;
@@ -182,102 +237,20 @@ function resolveTableSize(attrsRecord: Record<string, unknown>): ElementTableSiz
   return undefined;
 }
 
-function resolveColumnField(prop: TableColumn['prop'], index: number): string | undefined {
-  if (typeof prop === 'function') {
-    const result = prop(index);
-    return typeof result === 'string' && result.length > 0 ? result : undefined;
+function resolveLocale(locale: TableLocaleInput): TableLocaleObject {
+  if (locale === 'en') {
+    return enLocale as unknown as TableLocaleObject;
   }
-  return typeof prop === 'string' && prop.length > 0 ? prop : undefined;
-}
-
-function resolveColumnHidden(column: TableColumn): boolean {
-  if (typeof column.hide === 'function') {
-    return Boolean(column.hide(column));
+  if (locale === 'zhTw') {
+    return zhTwLocale as unknown as TableLocaleObject;
   }
-  return Boolean(column.hide);
-}
-
-function isOperationColumn(column: TableColumn, index: number): boolean {
-  const field = resolveColumnField(column.prop, index) || '';
-  const slotName = column.slot || '';
-  const label = column.label || '';
-  const candidateSet = new Set(['operation', 'action', 'actions']);
-
-  if (candidateSet.has(field)) {
-    return true;
+  if (locale === 'zhCn') {
+    return zhCnLocale as unknown as TableLocaleObject;
   }
-  if (candidateSet.has(slotName)) {
-    return true;
+  if (locale && typeof locale === 'object') {
+    return locale;
   }
-  return label.includes('操作');
-}
-
-function resolveColumnShowOverflow(
-  column: TableColumn,
-  props: Pick<ObElementTableProps, 'showOverflowTooltip'>
-): boolean {
-  return Boolean(column.showOverflowTooltip ?? column.ellipsis ?? props.showOverflowTooltip);
-}
-
-function resolveColumnShowEmptyValue(
-  column: TableColumn,
-  props: Pick<ObElementTableProps, 'showEmptyValue'>
-): boolean {
-  return Boolean(column.showEmptyValue ?? props.showEmptyValue);
-}
-
-function resolveColumnEmptyValueText(
-  column: TableColumn,
-  props: Pick<ObElementTableProps, 'emptyValueText'>
-): string {
-  return column.emptyValueText ?? props.emptyValueText ?? '---';
-}
-
-function resolveCellDisplayValue(
-  value: unknown,
-  showEmptyValue: boolean,
-  emptyValueText: string
-): string | number | VNodeChild {
-  const isEmptyString = typeof value === 'string' && value.trim().length === 0;
-  if (value == null || isEmptyString) {
-    if (!showEmptyValue) {
-      return '';
-    }
-    return emptyValueText;
-  }
-  return value as string | number | VNodeChild;
-}
-
-function resolveTreeChildrenField(treeConfig?: Record<string, unknown>) {
-  const childrenField = treeConfig?.childrenField;
-  return typeof childrenField === 'string' && childrenField.length > 0 ? childrenField : 'children';
-}
-
-function resolveTreeHasChildField(treeConfig?: Record<string, unknown>) {
-  const hasChildField = treeConfig?.hasChildField;
-  return typeof hasChildField === 'string' && hasChildField.length > 0
-    ? hasChildField
-    : 'hasChildren';
-}
-
-function resolveTreeLoadMethod(treeConfig?: Record<string, unknown>): TreeLoadMethod | null {
-  const loadMethod = treeConfig?.loadMethod;
-  return typeof loadMethod === 'function' ? (loadMethod as TreeLoadMethod) : null;
-}
-
-function resolvePagerLayout(layout?: string): string {
-  const defaultLayout = ['total', 'sizes', 'prev', 'pager', 'next', 'jumper'];
-  if (!layout) {
-    return defaultLayout.join(', ');
-  }
-
-  const layoutSet = new Set(defaultLayout);
-  const resolvedLayout = layout
-    .split(',')
-    .map((item) => item.trim())
-    .filter((item) => layoutSet.has(item));
-
-  return resolvedLayout.length > 0 ? resolvedLayout.join(', ') : defaultLayout.join(', ');
+  return zhCnLocale as unknown as TableLocaleObject;
 }
 
 const normalizedData = computed<RowRecord[]>(() => (Array.isArray(props.data) ? props.data : []));
@@ -288,9 +261,12 @@ const normalizedColumns = computed<TableColumnList>(() =>
 const wrapperClass = computed(() => ['ob-table', attrs.class]);
 const wrapperStyle = computed<CSSProperties>(() => {
   const style = (attrs.style || {}) as CSSProperties;
+  const hoverBgColor =
+    typeof props.rowHoverBgColor === 'string' ? props.rowHoverBgColor.trim() : '';
   return {
     ...style,
-    '--ob-table-layout': props.tableLayout
+    '--ob-table-layout': props.tableLayout,
+    ...(hoverBgColor ? { '--ob-table-row-hover-bg': hoverBgColor } : {})
   } as CSSProperties;
 });
 
@@ -301,6 +277,7 @@ const passthroughAttrs = computed(() => {
     'data',
     'columns',
     'loading',
+    'loadingConfig',
     'enableFirstLoadSkeleton',
     'skeletonRows',
     'skeletonDelayMs',
@@ -308,6 +285,7 @@ const passthroughAttrs = computed(() => {
     'pagination',
     'paginationSmall',
     'rowKey',
+    'tableKey',
     'tableLayout',
     'showOverflowTooltip',
     'showEmptyValue',
@@ -320,13 +298,19 @@ const passthroughAttrs = computed(() => {
     'adaptive',
     'adaptiveConfig',
     'treeConfig',
-    'reserveSelection'
+    'reserveSelection',
+    'rowHoverBgColor',
+    'locale'
   ]);
 
   return Object.fromEntries(Object.entries(attrs).filter(([key]) => !blockedKeys.has(key)));
 });
 
 const attrsRecord = computed(() => attrs as Record<string, unknown>);
+const componentInstance = getCurrentInstance();
+const fallbackTableKey = `ob-table-${componentInstance?.uid ?? Math.random().toString(36).slice(2)}`;
+const resolvedTableKey = computed(() => props.tableKey ?? fallbackTableKey);
+const tableRegistryKey = computed(() => String(resolvedTableKey.value));
 
 const runtimeTableProps = computed<ElementTableRuntimeProps>(() => ({
   alignWhole: props.alignWhole,
@@ -349,17 +333,64 @@ const normalizedPagination = computed<TablePagination | null>(() => {
   return props.pagination;
 });
 
+function resolvePaginationAlign(align?: string): TablePaginationAlign {
+  if (align === 'left' || align === 'center' || align === 'right') {
+    return align;
+  }
+  return 'right';
+}
+
+function resolvePaginationSize(pagination: TablePagination): ElementPagerProps['size'] {
+  if (props.paginationSmall === true) {
+    return 'small';
+  }
+  if (props.paginationSmall === false) {
+    return undefined;
+  }
+  if (pagination.size === 'default' || pagination.size === 'small' || pagination.size === 'large') {
+    return pagination.size;
+  }
+  if (pagination.small === true) {
+    return 'small';
+  }
+  const size = attrs.size;
+  if (size === 'small' || size === 'default' || size === 'large') {
+    return size;
+  }
+  return undefined;
+}
+
 const pagerProps = computed<ElementPagerProps | null>(() => {
   if (!normalizedPagination.value) {
     return null;
   }
 
-  const pagerSmall = props.paginationSmall ?? attrs.size === 'small';
+  const rawCurrentPage = Number(normalizedPagination.value.currentPage);
+  const rawPageSize = Number(normalizedPagination.value.pageSize);
+  const hasControlledCurrentPage = Number.isFinite(rawCurrentPage) && rawCurrentPage > 0;
+  const hasControlledPageSize = Number.isFinite(rawPageSize) && rawPageSize > 0;
+  const currentPage = hasControlledCurrentPage ? rawCurrentPage : undefined;
+  const pageSize = hasControlledPageSize ? rawPageSize : undefined;
+  const total = Number(normalizedPagination.value.total ?? 0);
+  const align = resolvePaginationAlign(normalizedPagination.value.align);
+  const customStyle =
+    normalizedPagination.value.style && typeof normalizedPagination.value.style === 'object'
+      ? normalizedPagination.value.style
+      : undefined;
+  const mergedStyle: CSSProperties = {
+    ...customStyle,
+    ...(align !== 'right' && !customStyle?.justifyContent
+      ? {
+          justifyContent:
+            align === 'left' ? 'flex-start' : align === 'center' ? 'center' : 'flex-end'
+        }
+      : {})
+  };
 
   return {
-    total: Number(normalizedPagination.value.total ?? 0),
-    currentPage: Number(normalizedPagination.value.currentPage ?? 1),
-    pageSize: Number(normalizedPagination.value.pageSize ?? 10),
+    total,
+    currentPage,
+    pageSize,
     pageSizes:
       Array.isArray(normalizedPagination.value.pageSizes) &&
       normalizedPagination.value.pageSizes.length > 0
@@ -367,9 +398,40 @@ const pagerProps = computed<ElementPagerProps | null>(() => {
         : [10, 20, 50, 100],
     background: normalizedPagination.value.background ?? true,
     layout: resolvePagerLayout(normalizedPagination.value.layout),
-    size: pagerSmall ? 'small' : undefined
+    size: resolvePaginationSize(normalizedPagination.value),
+    align,
+    className:
+      typeof normalizedPagination.value.class === 'string'
+        ? normalizedPagination.value.class
+        : undefined,
+    style: mergedStyle,
+    defaultPageSize: hasControlledPageSize ? undefined : normalizedPagination.value.defaultPageSize,
+    defaultCurrentPage: hasControlledCurrentPage
+      ? undefined
+      : normalizedPagination.value.defaultCurrentPage,
+    pageCount: total > 0 ? undefined : normalizedPagination.value.pageCount,
+    pagerCount: normalizedPagination.value.pagerCount,
+    popperClass: normalizedPagination.value.popperClass,
+    prevText: normalizedPagination.value.prevText,
+    nextText: normalizedPagination.value.nextText,
+    disabled: normalizedPagination.value.disabled,
+    hideOnSinglePage: normalizedPagination.value.hideOnSinglePage
   };
 });
+
+const pagerWrapperClass = computed(() =>
+  pagerProps.value ? ['ob-table__pager', `is-align-${pagerProps.value.align}`] : ['ob-table__pager']
+);
+
+const resolvedLocale = computed(() => resolveLocale(props.locale) as unknown as typeof zhCnLocale);
+
+const loadingDirectiveProps = computed<Record<string, string | undefined>>(() => ({
+  'element-loading-text': props.loadingConfig?.text,
+  'element-loading-spinner': props.loadingConfig?.spinner,
+  'element-loading-svg': props.loadingConfig?.svg,
+  'element-loading-svg-view-box': props.loadingConfig?.viewBox,
+  'element-loading-background': props.loadingConfig?.background
+}));
 
 const resolvedEmptyText = computed(() => {
   const content = props.emptyText?.trim();
@@ -424,12 +486,55 @@ const treeProps = computed(() => ({
   children: childrenField.value,
   hasChildren: hasChildField.value
 }));
-const defaultExpandAll = computed(() => props.treeConfig?.expandAll === true);
+const defaultExpandAll = computed(() => props.treeConfig?.defaultExpandAll === true);
 const indent = computed(() => Number(props.treeConfig?.indent ?? 16));
 
+const normalizedTreeData = computed<RowRecord[]>(() => {
+  if (!props.treeConfig) {
+    return normalizedData.value;
+  }
+
+  return normalizeTreeRows(normalizedData.value, {
+    childrenField: childrenField.value,
+    hasChildField: hasChildField.value,
+    lazy: isLazyTree.value
+  });
+});
+
+const defaultHeaderRowStyle = computed<CSSProperties>(() => ({
+  height: `${varAsNumber('--ob-table-row-height-default', 56)}px`
+}));
+
+const defaultHeaderCellStyle = computed<CSSProperties>(() => ({
+  height: `${varAsNumber('--ob-table-row-height-default', 56)}px`,
+  fontSize: `${varAsNumber('--ob-table-font-size', 14)}px`,
+  fontWeight: varAsNumber('--ob-table-header-font-weight', 600),
+  color: 'var(--ob-table-header-color)',
+  background: 'var(--ob-table-header-bg)'
+}));
+
+const defaultBodyCellStyle = computed<CSSProperties>(() => ({
+  fontSize: `${varAsNumber('--ob-table-font-size', 14)}px`,
+  fontWeight: varAsNumber('--ob-table-body-font-weight', 500),
+  color: 'var(--ob-table-body-color)'
+}));
+
+const resolvedHeaderRowStyle = computed<TableStyleValue>(() =>
+  resolveTableStyleValue(attrsRecord.value.headerRowStyle, defaultHeaderRowStyle.value)
+);
+
+const resolvedHeaderCellStyle = computed<TableStyleValue>(() =>
+  resolveTableStyleValue(attrsRecord.value.headerCellStyle, defaultHeaderCellStyle.value)
+);
+
+const resolvedCellStyle = computed<TableStyleValue>(() =>
+  resolveTableStyleValue(attrsRecord.value.cellStyle, defaultBodyCellStyle.value)
+);
+
 const elementTableProps = computed<ElementTableBindingProps>(() => ({
+  ...loadingDirectiveProps.value,
   ...passthroughAttrs.value,
-  data: normalizedData.value,
+  data: normalizedTreeData.value,
   stripe: props.stripe,
   border: props.border,
   rowKey: props.rowKey,
@@ -440,8 +545,41 @@ const elementTableProps = computed<ElementTableBindingProps>(() => ({
   lazy: isLazyTree.value,
   load: isLazyTree.value ? handleTreeLoad : undefined,
   indent: indent.value,
-  emptyText: resolvedEmptyText.value
+  emptyText: resolvedEmptyText.value,
+  headerRowStyle: resolvedHeaderRowStyle.value,
+  headerCellStyle: resolvedHeaderCellStyle.value,
+  cellStyle: resolvedCellStyle.value
 }));
+
+function resolveTableStyleValue(styleValue: unknown, defaultStyle: CSSProperties): TableStyleValue {
+  if (typeof styleValue === 'function') {
+    const customStyle = styleValue as TableStyleFn;
+    return (params: TableStyleFnParams) => ({
+      ...defaultStyle,
+      ...customStyle(params)
+    });
+  }
+
+  if (styleValue && typeof styleValue === 'object' && !Array.isArray(styleValue)) {
+    return {
+      ...defaultStyle,
+      ...(styleValue as CSSProperties)
+    };
+  }
+
+  return defaultStyle;
+}
+
+function varAsNumber(token: string, fallback: number): number {
+  if (typeof window === 'undefined') {
+    return fallback;
+  }
+
+  const rootStyle = window.getComputedStyle(document.documentElement);
+  const raw = rootStyle.getPropertyValue(token).trim();
+  const resolved = Number(raw.replace(/px$/, ''));
+  return Number.isFinite(resolved) && resolved > 0 ? resolved : fallback;
+}
 
 function getRowValue(row: RowRecord, field?: string) {
   if (!field) {
@@ -509,10 +647,10 @@ function renderDefaultCellContent(
 ) {
   const field = resolveColumnField(column.prop, columnIndex);
   const value = getRowValue(row, field);
-  const showEmptyValue = resolveColumnShowEmptyValue(column, props);
-  const emptyValueText = resolveColumnEmptyValueText(column, props);
+  const showEmptyValue = resolveColumnShowEmptyValue(column, props.showEmptyValue);
+  const emptyValueText = resolveColumnEmptyValueText(column, props.emptyValueText);
   const displayValue = resolveCellDisplayValue(value, showEmptyValue, emptyValueText);
-  const showOverflowTooltip = resolveColumnShowOverflow(column, props);
+  const showOverflowTooltip = resolveColumnShowOverflow(column, props.showOverflowTooltip);
   return renderValueWithOverflow(
     displayValue,
     showOverflowTooltip,
@@ -530,11 +668,12 @@ function renderColumnHeader(column: TableColumn) {
   }
 
   if (column.headerRenderer) {
-    return column.headerRenderer({
+    const params: TableColumnHeaderRendererParams = {
       column,
       props: props as Record<string, unknown>,
       attrs: attrsRecord.value
-    });
+    };
+    return column.headerRenderer(params);
   }
 
   return column.label || '';
@@ -586,16 +725,39 @@ const ElementTableColumnBridge = defineComponent({
     }
   },
   setup(bridgeProps) {
+    function createBridgeSlotPayload(
+      scope: ColumnBridgeScope | Record<string, unknown>,
+      column: TableColumn
+    ) {
+      const scopeRecord = scope as Record<string, unknown>;
+      return {
+        ...scopeRecord,
+        index: Number(scopeRecord.$index ?? 0),
+        size: bridgeProps.tableProps.size,
+        props: props as Record<string, unknown>,
+        attrs: attrsRecord.value,
+        column: scopeRecord.column ?? column
+      };
+    }
+
     function renderColumnCell(scope: ColumnBridgeScope) {
       const column = bridgeProps.column;
+      const type = resolveColumnType(column.type);
       const row = (scope.row || {}) as RowRecord;
       const rowIndex = Number(scope.$index ?? 0);
+      const expandSlot = column.expandSlot;
+      const cellSlot = column.slot;
 
-      if (column.slot && bridgeProps.tableSlots[column.slot]) {
-        return bridgeProps.tableSlots[column.slot]?.({
-          ...scope,
-          size: bridgeProps.tableProps.size
-        }) as unknown as VNodeChild;
+      if (type === 'expand' && expandSlot && bridgeProps.tableSlots[expandSlot]) {
+        return bridgeProps.tableSlots[expandSlot]?.(
+          createBridgeSlotPayload(scope, column)
+        ) as unknown as VNodeChild;
+      }
+
+      if (cellSlot && bridgeProps.tableSlots[cellSlot]) {
+        return bridgeProps.tableSlots[cellSlot]?.(
+          createBridgeSlotPayload(scope, column)
+        ) as unknown as VNodeChild;
       }
 
       if (column.cellRenderer) {
@@ -618,8 +780,8 @@ const ElementTableColumnBridge = defineComponent({
       mappedColumn.type = type;
       mappedColumn.prop = field;
       mappedColumn.label = column.label;
-      mappedColumn.width = column.width;
-      mappedColumn.minWidth = column.minWidth;
+      mappedColumn.width = resolveColumnWidth(column);
+      mappedColumn.minWidth = resolveColumnMinWidth(column);
       mappedColumn.fixed = column.fixed;
       mappedColumn.sortable = column.sortable;
       mappedColumn.align = column.align ?? bridgeProps.tableProps.alignWhole;
@@ -632,6 +794,8 @@ const ElementTableColumnBridge = defineComponent({
 
       mappedColumn.slot = undefined;
       mappedColumn.headerSlot = undefined;
+      mappedColumn.filterIconSlot = undefined;
+      mappedColumn.expandSlot = undefined;
       mappedColumn.cellRenderer = undefined;
       mappedColumn.headerRenderer = undefined;
       mappedColumn.hide = undefined;
@@ -653,6 +817,14 @@ const ElementTableColumnBridge = defineComponent({
 
       if (column.headerSlot || column.headerRenderer) {
         componentSlots.header = () => renderColumnHeader(column);
+      }
+
+      const filterIconSlot = column.filterIconSlot;
+      if (filterIconSlot && bridgeProps.tableSlots[filterIconSlot]) {
+        componentSlots['filter-icon'] = (scope?: ColumnBridgeScope) =>
+          bridgeProps.tableSlots[filterIconSlot]?.(
+            createBridgeSlotPayload(scope || {}, column)
+          ) as unknown as VNodeChild;
       }
 
       if (childColumns.length > 0) {
@@ -708,51 +880,220 @@ function handleTreeLoad(row: RowRecord, treeNode: unknown, resolve: (rows: RowRe
     return;
   }
 
-  Promise.resolve(loadMethod({ row, treeNode, resolve }))
+  let resolved = false;
+  const safeResolve = (rows: RowRecord[]) => {
+    if (resolved) {
+      return;
+    }
+    resolved = true;
+    resolve(Array.isArray(rows) ? rows : []);
+  };
+
+  Promise.resolve(loadMethod(row, treeNode, safeResolve))
     .then((rows) => {
-      resolve(Array.isArray(rows) ? rows : []);
+      if (Array.isArray(rows)) {
+        safeResolve(rows);
+      }
     })
     .catch(() => {
-      resolve([]);
+      safeResolve([]);
     });
+}
+
+function syncTableRegistry() {
+  const activeTable = tableRef.value as TableCompatInstance | null;
+  const currentKey = tableRegistryKey.value;
+
+  if (registeredTableKey.value && registeredTableKey.value !== currentKey) {
+    tableRefRegistry.delete(registeredTableKey.value);
+    registeredTableKey.value = null;
+  }
+
+  if (!activeTable) {
+    if (registeredTableKey.value) {
+      tableRefRegistry.delete(registeredTableKey.value);
+      registeredTableKey.value = null;
+    }
+    return;
+  }
+
+  activeTable.tableKey = resolvedTableKey.value;
+  tableRefRegistry.set(currentKey, activeTable);
+  registeredTableKey.value = currentKey;
+}
+
+function clearAdaptiveResizeTimer() {
+  if (!adaptiveResizeTimer) {
+    return;
+  }
+  clearTimeout(adaptiveResizeTimer);
+  adaptiveResizeTimer = null;
 }
 
 function unbindAdaptiveObserver() {
   resizeObserver?.disconnect();
   resizeObserver = null;
+
+  if (adaptiveWindowResizeHandler) {
+    window.removeEventListener('resize', adaptiveWindowResizeHandler);
+    adaptiveWindowResizeHandler = null;
+  }
+
+  clearAdaptiveResizeTimer();
+}
+
+function resolveTableRootElement(): HTMLElement | null {
+  const table = tableRef.value as (TableCompatInstance & { $el?: unknown }) | null;
+  if (table?.$el instanceof HTMLElement) {
+    return table.$el;
+  }
+  return queryFirstElement(wrapperRef.value, ['.ob-table__table', '.el-table']);
+}
+
+function getTableDoms(): TableDomRefs {
+  const tableRoot = resolveTableRootElement();
+  if (!tableRoot) {
+    return {
+      tableRoot: null,
+      tableWrapper: null,
+      tableHeaderRef: null,
+      tableBodyRef: null
+    };
+  }
+
+  const tableWrapper = queryFirstElement(tableRoot, [
+    '.el-table__inner-wrapper',
+    '.el-table__body-wrapper',
+    '.el-table__main-wrapper'
+  ]);
+  const tableHeaderRef = queryFirstElement(tableRoot, [
+    '.el-table__header-wrapper',
+    '.el-table__fixed-header-wrapper'
+  ]);
+  const tableBodyRef = queryFirstElement(tableRoot, [
+    '.el-table__body-wrapper',
+    '.el-table__fixed-body-wrapper',
+    '.el-scrollbar__wrap'
+  ]);
+
+  return {
+    tableRoot,
+    tableWrapper,
+    tableHeaderRef,
+    tableBodyRef
+  };
+}
+
+function applyRowHoverBgColor() {
+  const { tableWrapper } = getTableDoms();
+  if (!tableWrapper) {
+    return;
+  }
+  const color = props.rowHoverBgColor?.trim();
+  if (!color) {
+    tableWrapper.style.removeProperty('--el-table-row-hover-bg-color');
+    return;
+  }
+  tableWrapper.style.setProperty('--el-table-row-hover-bg-color', color, 'important');
+}
+
+async function setHeaderSticky(zIndex = props.adaptiveConfig?.zIndex ?? 3) {
+  await nextTick();
+  const { tableRoot, tableHeaderRef } = getTableDoms();
+  const stickyHeaders = new Set<HTMLElement>();
+  if (tableHeaderRef) {
+    stickyHeaders.add(tableHeaderRef);
+  }
+  tableRoot
+    ?.querySelectorAll('.el-table__header-wrapper, .el-table__fixed-header-wrapper')
+    .forEach((headerNode) => {
+      if (headerNode instanceof HTMLElement) {
+        stickyHeaders.add(headerNode);
+      }
+    });
+
+  if (stickyHeaders.size === 0) {
+    return;
+  }
+
+  stickyHeaders.forEach((headerRef) => {
+    headerRef.style.position = 'sticky';
+    headerRef.style.top = '0';
+    headerRef.style.zIndex = String(zIndex);
+  });
+}
+
+function updateAdaptiveHeight() {
+  if (typeof window === 'undefined') {
+    adaptiveHeight.value = undefined;
+    return;
+  }
+
+  const { tableWrapper } = getTableDoms();
+  const heightAnchor = tableWrapper ?? wrapperRef.value;
+  if (!heightAnchor) {
+    adaptiveHeight.value = undefined;
+    return;
+  }
+
+  const paginationHeight = normalizedPagination.value ? 52 : 0;
+  const offsetBottom = props.adaptiveConfig?.offsetBottom ?? 110;
+  adaptiveHeight.value = resolveAdaptiveHeight({
+    viewportHeight: window.innerHeight,
+    elementTop: heightAnchor.getBoundingClientRect().top,
+    offsetBottom,
+    paginationHeight,
+    containerHeight: wrapperRef.value?.clientHeight,
+    minHeight: 120
+  });
+
+  void nextTick(() => {
+    tableRef.value?.doLayout();
+  });
+}
+
+function scheduleAdaptiveResize() {
+  clearAdaptiveResizeTimer();
+  const timeout = props.adaptiveConfig?.timeout ?? 16;
+  adaptiveResizeTimer = setTimeout(() => {
+    adaptiveResizeTimer = null;
+    updateAdaptiveHeight();
+  }, timeout);
 }
 
 function bindAdaptiveObserver() {
-  if (!props.adaptive || typeof ResizeObserver === 'undefined') {
+  if (!props.adaptive) {
     return;
   }
+  unbindAdaptiveObserver();
 
   const target = wrapperRef.value;
   if (!target) {
     return;
   }
 
-  const resize = () => {
-    const paginationHeight = normalizedPagination.value ? 52 : 0;
-    const fallbackOffset = props.adaptiveConfig?.offsetBottom ?? 110;
-    const nextHeight = target.clientHeight - paginationHeight - 1;
-    adaptiveHeight.value = nextHeight > 120 ? nextHeight : target.clientHeight - fallbackOffset;
-    void nextTick(() => {
-      tableRef.value?.doLayout();
-    });
+  adaptiveWindowResizeHandler = () => {
+    scheduleAdaptiveResize();
   };
+  window.addEventListener('resize', adaptiveWindowResizeHandler);
 
-  resizeObserver = new ResizeObserver(() => {
-    const timeout = props.adaptiveConfig?.timeout ?? 16;
-    window.setTimeout(resize, timeout);
-  });
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => {
+      scheduleAdaptiveResize();
+    });
+    resizeObserver.observe(target);
+  }
 
-  resizeObserver.observe(target);
-  resize();
+  scheduleAdaptiveResize();
+
+  if (props.adaptiveConfig?.fixHeader !== false) {
+    void setHeaderSticky(props.adaptiveConfig?.zIndex ?? 3);
+  }
 }
 
 function setAdaptive() {
   if (!props.adaptive) {
+    unbindAdaptiveObserver();
     void nextTick(() => {
       tableRef.value?.doLayout();
     });
@@ -762,18 +1103,17 @@ function setAdaptive() {
 }
 
 async function clearSelection() {
-  tableRef.value?.clearSelection();
+  getTableRef()?.clearSelection?.();
   await nextTick();
 }
 
 function getTableRef() {
-  const table = tableRef.value as TableCompatInstance | null;
+  const table =
+    tableRefRegistry.get(tableRegistryKey.value) ?? (tableRef.value as TableCompatInstance | null);
   if (!table) {
     return null;
   }
-  table.clearSelection = () => {
-    tableRef.value?.clearSelection();
-  };
+  table.tableKey = resolvedTableKey.value;
   return table;
 }
 
@@ -840,12 +1180,37 @@ function scheduleHideFirstLoadSkeleton() {
   }, remaining);
 }
 
+watch(tableRef, () => {
+  syncTableRegistry();
+});
+
+watch(
+  tableRegistryKey,
+  (nextKey, previousKey) => {
+    if (previousKey && previousKey !== nextKey) {
+      tableRefRegistry.delete(previousKey);
+      if (registeredTableKey.value === previousKey) {
+        registeredTableKey.value = null;
+      }
+    }
+    syncTableRegistry();
+  },
+  { immediate: true }
+);
+
 watch(
   () => props.columns,
   () => {
     setAdaptive();
   },
   { deep: true }
+);
+
+watch(
+  () => props.adaptive,
+  () => {
+    setAdaptive();
+  }
 );
 
 watch(
@@ -870,19 +1235,39 @@ watch(
   { immediate: true }
 );
 
+watch(
+  () => props.rowHoverBgColor,
+  () => {
+    void nextTick(() => {
+      applyRowHoverBgColor();
+    });
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
-  bindAdaptiveObserver();
+  syncTableRegistry();
+  setAdaptive();
+  void nextTick(() => {
+    applyRowHoverBgColor();
+  });
 });
 
 onBeforeUnmount(() => {
   clearSkeletonTimers();
   unbindAdaptiveObserver();
+  if (registeredTableKey.value) {
+    tableRefRegistry.delete(registeredTableKey.value);
+    registeredTableKey.value = null;
+  }
   hideFirstLoadSkeleton();
 });
 
 defineExpose({
   getTableRef,
+  getTableDoms,
   setAdaptive,
+  setHeaderSticky,
   clearSelection
 });
 </script>
@@ -927,6 +1312,7 @@ defineExpose({
       >
         <el-table
           ref="tableRef"
+          :key="resolvedTableKey"
           v-loading="loading"
           class="ob-table__table"
           v-bind="elementTableProps"
@@ -934,10 +1320,16 @@ defineExpose({
           @sort-change="handleSortChange"
         >
           <template #empty>
-            <div class="ob-table__empty">
-              <img class="ob-table__empty-image" :src="emptyStateImage" alt="暂无数据" />
-              <p class="ob-table__empty-text">{{ resolvedEmptyText }}</p>
-            </div>
+            <slot name="empty">
+              <div class="ob-table__empty">
+                <img class="ob-table__empty-image" :src="emptyStateImage" alt="暂无数据" />
+                <p class="ob-table__empty-text">{{ resolvedEmptyText }}</p>
+              </div>
+            </slot>
+          </template>
+
+          <template #append>
+            <slot name="append" />
           </template>
 
           <ElementTableColumnBridge
@@ -952,17 +1344,27 @@ defineExpose({
       </div>
     </div>
 
-    <div v-if="pagerProps" class="ob-table__pager">
-      <el-config-provider :locale="zhCnLocale">
+    <div v-if="pagerProps" :class="pagerWrapperClass">
+      <el-config-provider :locale="resolvedLocale">
         <el-pagination
+          :class="pagerProps.className"
+          :style="pagerProps.style"
           :total="pagerProps.total"
           :current-page="pagerProps.currentPage"
           :page-size="pagerProps.pageSize"
+          :default-page-size="pagerProps.defaultPageSize"
+          :default-current-page="pagerProps.defaultCurrentPage"
           :page-sizes="pagerProps.pageSizes"
+          :page-count="pagerProps.pageCount"
+          :pager-count="pagerProps.pagerCount"
+          :popper-class="pagerProps.popperClass"
+          :prev-text="pagerProps.prevText"
+          :next-text="pagerProps.nextText"
+          :disabled="pagerProps.disabled"
           :background="pagerProps.background"
           :layout="pagerProps.layout"
           :size="pagerProps.size"
-          :hide-on-single-page="false"
+          :hide-on-single-page="pagerProps.hideOnSinglePage ?? false"
           @current-change="handleCurrentPageChange"
           @size-change="handlePageSizeChange"
         />
@@ -970,229 +1372,4 @@ defineExpose({
     </div>
   </div>
 </template>
-
-<style scoped>
-.ob-table {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  background: var(--ob-table-bg);
-}
-
-.ob-table__main {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-}
-
-.ob-table__skeleton {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  width: 100%;
-  min-height: 0;
-  padding: 0 var(--ob-table-skeleton-padding-inline) var(--ob-table-skeleton-padding-bottom);
-  overflow: hidden;
-  background: var(--ob-table-skeleton-bg);
-}
-
-.ob-table__skeleton :deep(.el-skeleton) {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--ob-table-skeleton-block-gap);
-  width: 100%;
-}
-
-.ob-table__skeleton-head,
-.ob-table__skeleton-row {
-  display: grid;
-  gap: var(--ob-table-skeleton-grid-gap);
-  align-items: center;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-}
-
-.ob-table__skeleton-body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--ob-table-skeleton-row-gap);
-}
-
-.ob-table__skeleton-row {
-  min-height: var(--ob-table-skeleton-row-min-height);
-}
-
-.ob-table__skeleton-cell {
-  width: 100%;
-  height: var(--ob-table-skeleton-cell-height);
-}
-
-.ob-table__skeleton-cell--head {
-  width: var(--ob-table-skeleton-head-cell-width);
-  height: var(--ob-table-skeleton-head-cell-height);
-}
-
-.ob-table__table-shell {
-  width: 100%;
-  min-height: 0;
-  background: var(--ob-table-surface-bg);
-}
-
-.ob-table__table-shell.is-empty {
-  overflow-x: hidden;
-}
-
-.ob-table__table {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  font-size: var(--ob-table-font-size);
-}
-
-.ob-table__cell-text {
-  display: inline-block;
-  width: 100%;
-  min-width: 0;
-}
-
-.ob-table__cell-text.is-ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ob-table__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-  padding: 48px 0;
-}
-
-.ob-table__empty-image {
-  width: 180px;
-  max-width: 100%;
-  object-fit: contain;
-}
-
-.ob-table__empty-text {
-  margin: 0;
-  font-family:
-    PingFang SC,
-    sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  color: var(--el-text-color-regular);
-  letter-spacing: 0;
-  text-align: center;
-}
-
-.ob-table__pager {
-  flex-shrink: 0;
-  padding-top: var(--ob-table-pager-padding-top);
-  background: var(--ob-table-pager-bg);
-  border-top: 1px solid var(--ob-table-pager-border-color);
-}
-
-.ob-table :deep(.el-table) {
-  --el-table-border-color: var(--ob-table-border-color);
-  --el-table-header-bg-color: var(--ob-table-header-bg);
-  --el-table-row-hover-bg-color: var(--ob-table-row-hover-bg);
-  --el-table-current-row-bg-color: var(--ob-table-row-current-bg);
-  --el-fill-color-lighter: var(--ob-table-header-bg);
-  color: var(--ob-table-body-color);
-}
-
-.ob-table :deep(.el-table__inner-wrapper::before) {
-  display: none;
-}
-
-.ob-table :deep(.el-table__header-wrapper th.el-table__cell) {
-  height: var(--ob-table-row-height-default);
-  padding: 0;
-  background: var(--ob-table-header-bg);
-  color: var(--ob-table-header-color);
-  font-size: var(--ob-table-font-size);
-  font-weight: var(--ob-table-header-font-weight);
-  border-bottom: 1px solid var(--ob-table-border-color);
-}
-
-.ob-table :deep(.el-table__header-wrapper .cell) {
-  line-height: 20px;
-  font-weight: var(--ob-table-header-font-weight);
-}
-
-.ob-table :deep(.el-table__body-wrapper td.el-table__cell) {
-  height: var(--ob-table-row-height-default);
-  padding: 0;
-  font-size: var(--ob-table-font-size);
-  font-weight: var(--ob-table-body-font-weight);
-  color: var(--ob-table-body-color);
-  background: var(--ob-table-row-bg);
-  border-bottom: 1px solid var(--ob-table-border-color);
-}
-
-.ob-table :deep(.el-table__body tr:last-child td.el-table__cell) {
-  border-bottom: none;
-}
-
-.ob-table :deep(.el-table__body-wrapper .cell) {
-  line-height: 20px;
-  font-weight: var(--ob-table-body-font-weight);
-}
-
-.ob-table :deep(.el-table__fixed),
-.ob-table :deep(.el-table__fixed-right) {
-  box-shadow: none;
-}
-
-.ob-table :deep(.el-table__fixed::before),
-.ob-table :deep(.el-table__fixed-right::before) {
-  display: none;
-}
-
-.ob-table :deep(.el-table__fixed .el-table__fixed-header-wrapper),
-.ob-table :deep(.el-table__fixed-right .el-table__fixed-header-wrapper),
-.ob-table :deep(.el-table__fixed .el-table__fixed-body-wrapper),
-.ob-table :deep(.el-table__fixed-right .el-table__fixed-body-wrapper) {
-  background: var(--ob-table-surface-bg);
-}
-
-.ob-table :deep(.el-table__body-wrapper::-webkit-scrollbar),
-.ob-table :deep(.el-scrollbar__bar.is-horizontal),
-.ob-table :deep(.el-scrollbar__bar.is-vertical) {
-  width: var(--ob-table-scrollbar-size);
-  height: var(--ob-table-scrollbar-size);
-}
-
-.ob-table :deep(.el-scrollbar__thumb) {
-  background: var(--ob-table-scrollbar-thumb-color);
-  border-radius: var(--ob-table-scrollbar-radius);
-}
-
-.ob-table :deep(.el-scrollbar__thumb:hover) {
-  background: var(--ob-table-scrollbar-thumb-hover-color);
-}
-
-.ob-table__pager :deep(.el-pagination) {
-  position: relative;
-  justify-content: flex-end;
-  min-height: var(--ob-table-pager-min-height);
-  padding-left: var(--ob-table-pager-content-padding-left);
-}
-
-.ob-table__pager :deep(.el-pagination__total) {
-  position: absolute;
-  left: var(--ob-table-pager-total-left);
-  top: 50%;
-  margin: 0;
-  transform: translateY(-50%);
-  color: var(--ob-table-pager-text-color);
-}
-</style>
+<style scoped src="./Table.css"></style>
