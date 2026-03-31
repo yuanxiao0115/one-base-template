@@ -9152,3 +9152,12 @@
   - 登录日志页源码门禁测试通过（1/1）。
   - `apps/admin`：`typecheck` 与 `build` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（样式污染排查：body 8px margin）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin-lite lint`
+- 结果：
+  - `apps/admin`：lint 通过（0 error，保留 1 条既有 warning：`OrgManagerDialog.vue` `max-lines`）。
+  - `apps/admin-lite`：lint 通过（0 warning / 0 error）。

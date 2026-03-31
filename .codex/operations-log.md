@@ -10644,3 +10644,18 @@
   - `apps/admin/src/modules/LogManagement/login-log/list.source.test.ts`
 - 文档同步：
   - `apps/docs/docs/guide/table-vxe-migration.md` 补充“登录日志页已灰度 TanStack”说明。
+
+## 2026-03-31（样式污染排查：body 8px margin）
+
+- 按用户反馈排查“表格封装导致外界样式污染”问题，重点检查 `packages/ui` 表格相关入口与样式：
+  - `packages/ui/src/index.ts`
+  - `packages/ui/src/styles/table-theme.css`
+  - `packages/ui/src/styles/vxe-theme.css`
+  - `packages/ui/src/components/table/VxeTable.vue`
+  - `packages/ui/src/components/table/TanStackTable.vue`
+- 结论：`packages/ui` 本轮新增样式未直接写入 `body margin`；`body 8px` 为浏览器 UA 默认边距未被重置导致。
+- 识别到的全局影响点：
+  - `packages/ui/src/index.ts` 全局引入 `vxe-pc-ui/lib/style.css` 与 `vxe-table/lib/style.css`（第三方样式）；
+  - `packages/ui/src/styles/table-theme.css` 与 `packages/ui/src/styles/vxe-theme.css` 使用 `:root`/`[data-vxe-ui-theme]` 覆盖主题变量；
+  - `vxe-pc-ui` 样式存在 `html[data-vxe-lock-scroll] body{...}` 锁滚动规则。
+- 修复动作：在 `apps/admin/src/styles/index.css` 与 `apps/admin-lite/src/styles/index.css` 增加 `body`（及 `html/#app` 组）`margin: 0;`，消除 8px 默认外边距。
