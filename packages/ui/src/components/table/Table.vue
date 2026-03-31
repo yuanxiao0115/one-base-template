@@ -646,10 +646,47 @@ function renderDefaultCellContent(
   columnIndex: number
 ) {
   const field = resolveColumnField(column.prop, columnIndex);
-  const value = getRowValue(row, field);
+  const rawValue = getRowValue(row, field);
+  const formatter = column.formatter;
+  const hasFormatter = typeof formatter === 'function';
+  let formattedValue = rawValue;
+
+  if (hasFormatter) {
+    const formatterColumn = {
+      ...column,
+      property: field,
+      label: column.label,
+      type: column.type
+    } as Record<string, unknown>;
+    const formatterParams = {
+      row,
+      column,
+      cellValue: rawValue,
+      index: rowIndex
+    };
+
+    try {
+      formattedValue =
+        formatter.length <= 1
+          ? (formatter as (params: typeof formatterParams) => VNodeChild)(formatterParams)
+          : (
+              formatter as (
+                row: RowRecord,
+                column: Record<string, unknown>,
+                cellValue: unknown,
+                index: number
+              ) => VNodeChild
+            )(row, formatterColumn, rawValue, rowIndex);
+    } catch {
+      formattedValue = rawValue;
+    }
+  }
+
   const showEmptyValue = resolveColumnShowEmptyValue(column, props.showEmptyValue);
   const emptyValueText = resolveColumnEmptyValueText(column, props.emptyValueText);
-  const displayValue = resolveCellDisplayValue(value, showEmptyValue, emptyValueText);
+  const displayValue: VNodeChild = hasFormatter
+    ? (formattedValue as VNodeChild)
+    : resolveCellDisplayValue(formattedValue, showEmptyValue, emptyValueText);
   const showOverflowTooltip = resolveColumnShowOverflow(column, props.showOverflowTooltip);
   return renderValueWithOverflow(
     displayValue,
@@ -748,10 +785,30 @@ const ElementTableColumnBridge = defineComponent({
       const expandSlot = column.expandSlot;
       const cellSlot = column.slot;
 
-      if (type === 'expand' && expandSlot && bridgeProps.tableSlots[expandSlot]) {
-        return bridgeProps.tableSlots[expandSlot]?.(
-          createBridgeSlotPayload(scope, column)
-        ) as unknown as VNodeChild;
+      if (type === 'expand') {
+        if (expandSlot && bridgeProps.tableSlots[expandSlot]) {
+          return bridgeProps.tableSlots[expandSlot]?.(
+            createBridgeSlotPayload(scope, column)
+          ) as unknown as VNodeChild;
+        }
+
+        if (bridgeProps.tableSlots.expand) {
+          return bridgeProps.tableSlots.expand?.(
+            createBridgeSlotPayload(scope, column)
+          ) as unknown as VNodeChild;
+        }
+
+        if (column.cellRenderer) {
+          return column.cellRenderer(createRendererParams(column, row, rowIndex));
+        }
+
+        if (cellSlot && bridgeProps.tableSlots[cellSlot]) {
+          return bridgeProps.tableSlots[cellSlot]?.(
+            createBridgeSlotPayload(scope, column)
+          ) as unknown as VNodeChild;
+        }
+
+        return null;
       }
 
       if (cellSlot && bridgeProps.tableSlots[cellSlot]) {
@@ -839,6 +896,10 @@ const ElementTableColumnBridge = defineComponent({
             })
           );
       } else if (type === 'expand' || column.slot || column.cellRenderer || field) {
+        if (type === 'expand') {
+          componentSlots.expand = (scope?: ColumnBridgeScope) =>
+            renderColumnCell((scope || { row: {}, $index: 0 }) as ColumnBridgeScope);
+        }
         componentSlots.default = (scope?: ColumnBridgeScope) =>
           renderColumnCell((scope || { row: {}, $index: 0 }) as ColumnBridgeScope);
       }
@@ -886,7 +947,12 @@ function handleTreeLoad(row: RowRecord, treeNode: unknown, resolve: (rows: RowRe
       return;
     }
     resolved = true;
-    resolve(Array.isArray(rows) ? rows : []);
+    const normalizedRows = normalizeTreeRows(Array.isArray(rows) ? rows : [], {
+      childrenField: childrenField.value,
+      hasChildField: hasChildField.value,
+      lazy: isLazyTree.value
+    });
+    resolve(normalizedRows);
   };
 
   Promise.resolve(loadMethod(row, treeNode, safeResolve))

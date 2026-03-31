@@ -10967,3 +10967,16 @@
 - `packages/ui/src/table-source.test.ts` 补充门禁断言，覆盖 table registry、自适应视口语义、window resize 监听、分页受控/默认值冲突规避。
 - `apps/docs/docs/guide/table-vxe-migration.md` 同步更新“已对齐能力 / 待对齐项 / 默认 tableKey 规则”。
 - 通过 monitor 子代理复核：最新结论“无阻断问题，仅保留 1 个 P2（Element Plus 内部 DOM 结构耦合，升级时需重点回归）”。
+
+## 2026-04-01（multi-role 走查 + expandSlot 补强 + 风险落盘）
+
+- `packages/ui/src/components/table/Table.vue`：补强 `expandSlot` 语义，`type='expand'` 场景新增 `slots.expand` 兜底并显式注入 `componentSlots.expand`；无可用插槽/renderer 时返回 `null`，避免错误走普通字段渲染链。
+- `Table.vue`：补齐 `formatter` 渲染链，支持 pure 4 参签名与本仓 params 签名两种调用方式；并保留 `slot/cellRenderer` 优先级。
+- `Table.vue`：懒加载树 `load` 返回值改为统一走 `normalizeTreeRows`，确保与首屏树数据归一化规则一致。
+- `packages/ui/src/components/table/internal/table-helpers.ts`：`resolveCellDisplayValue` 增加 boolean/bigint 文本化处理，避免默认渲染出现布尔值空白。
+- `packages/ui/src/table-source.test.ts`：补充 `expandSlot`、`formatter`、lazy tree normalize、boolean 显示相关源码门禁断言。
+- `apps/docs/docs/guide/table-vxe-migration.md`：新增“风险清单（长期维护）”与“列拖拽排序支持现状”章节，显式落盘升级回归风险与能力边界。
+- 多角色走查已完成（reviewer + a11y_perf_reviewer + explorer）：
+  - 健壮性：识别 `formatter` 与 lazy tree 归一化风险，并已修复。
+  - 性能：识别 tooltip 批量实例与 adaptive 观察器重绑热点，当前作为下一批优化项。
+  - 能力边界：确认 `ObTable` 不支持列拖拽排序，`ObVxeTable` 仅存在透传扩展入口。

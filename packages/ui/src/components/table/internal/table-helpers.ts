@@ -77,6 +77,12 @@ export function resolveCellDisplayValue(
     }
     return emptyValueText;
   }
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false';
+  }
+  if (typeof value === 'bigint') {
+    return value.toString();
+  }
   return value as string | number | VNodeChild;
 }
 

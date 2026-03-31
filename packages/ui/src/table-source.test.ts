@@ -64,6 +64,13 @@ describe('Table source', () => {
     expect(helperSource).toContain('columnRecord.minwidth');
     expect(helperSource).toContain("columnRecord['min-width']");
     expect(source).toContain('resolveColumnMinWidth(column)');
+    expect(source).toContain('const formatter = column.formatter;');
+    expect(source).toContain("const hasFormatter = typeof formatter === 'function';");
+    expect(source).toContain('formatter.length <= 1');
+    expect(source).toContain(
+      'const normalizedRows = normalizeTreeRows(Array.isArray(rows) ? rows : [], {'
+    );
+    expect(helperSource).toContain("if (typeof value === 'boolean') {");
   });
 
   it('应兼容 puretable 的筛选图标与展开插槽契约', () => {
@@ -72,9 +79,10 @@ describe('Table source', () => {
     expect(contractSource).toContain('filterIconSlot?: string;');
     expect(contractSource).toContain('expandSlot?: string;');
     expect(source).toContain("componentSlots['filter-icon']");
-    expect(source).toContain(
-      "if (type === 'expand' && expandSlot && bridgeProps.tableSlots[expandSlot])"
-    );
+    expect(source).toContain("if (type === 'expand')");
+    expect(source).toContain('if (bridgeProps.tableSlots.expand)');
+    expect(source).toContain('componentSlots.expand = (scope?: ColumnBridgeScope) =>');
+    expect(source).toContain('return null;');
     expect(source).toContain('mappedColumn.filterIconSlot = undefined;');
     expect(source).toContain('mappedColumn.expandSlot = undefined;');
   });

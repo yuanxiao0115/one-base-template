@@ -64,6 +64,13 @@
 - 纯 puretable 的少量边角分页视觉细节（例如 `align` 与“总数绝对定位”组合下的像素级差异）
 - `expandSlot` 链路的深度场景（嵌套列 + 复杂渲染函数组合）仍需继续做回归补样
 
+## 风险清单（长期维护）
+
+- `getTableDoms()` / `setHeaderSticky()` 仍依赖 Element Plus 内部 DOM class；升级 Element Plus 版本时，需重点回归 `adaptive + fixHeader + fixed columns` 组合场景。
+- `showOverflowTooltip` 默认开启时，表格会为大量字符串单元格创建 tooltip 组件；大数据量页面建议优先关闭或按列按需开启。
+- 树表会经过 `normalizeTreeRows` 归一化，返回行对象是新引用（结构相同但非原引用）；业务若依赖 row 引用身份，请显式避免引用比较。
+- 当前统一壳组件未提供“列拖拽排序”的统一契约与持久化能力（见下方“列拖拽排序支持现状”）。
+
 ## Fork 基线（puretable）
 
 当前方案已从“只做能力回灌”升级为“**fork puretable 契约 + 渐进改造运行时**”：
@@ -252,6 +259,12 @@ export const columns: TableColumnList = [
 - `clearSelection()`
 
 用于兼容旧 `useTable` 中 `tableRef.value?.setAdaptive?.()` / `getTableRef().clearSelection()`。
+
+## 列拖拽排序支持现状
+
+- `ObTable`：当前**不支持**开箱即用的“拖拽表头调整列顺序”。
+- `ObVxeTable`：当前仅有透传扩展入口（`passthroughAttrs -> VxeGrid`），但未在壳组件层提供统一 `columnDrag` 开关、顺序变更事件或持久化约定。
+- 结论：统一表格模块暂未形成“标准列拖拽排序能力”；若业务急需，可先做页面级 PoC（维护响应式 `columns` 并在拖拽后重排），后续再收敛为组件层标准契约。
 
 ## useTable：分区配置
 

@@ -9573,3 +9573,20 @@
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
 - 额外复核：
   - monitor 子代理二次走查结论：无 P0/P1；保留 1 个 P2（`getTableDoms/setHeaderSticky` 对 Element Plus 内部 DOM 仍有结构耦合）。
+
+## 2026-04-01（expandSlot/formatter/lazy-tree 收口 + 多角色走查）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts`
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/LogManagement/sys-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`12/12`）；`typecheck/lint/build` 通过。
+  - `apps/admin`：6 个源码测试文件通过（`8/8`）；`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
