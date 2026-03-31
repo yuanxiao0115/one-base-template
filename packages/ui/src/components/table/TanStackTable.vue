@@ -1013,16 +1013,8 @@ defineExpose({
   background: var(--ob-table-bg);
   --ob-table-tree-toggle-size: 22px;
   --ob-table-tree-toggle-gap: 10px;
-  --ob-table-tree-toggle-radius: 4px;
-  --ob-table-tree-toggle-border-color: var(--el-border-color);
-  --ob-table-tree-toggle-bg: var(--el-bg-color-overlay);
-  --ob-table-tree-toggle-text-color: var(--el-text-color-secondary);
-  --ob-table-tree-toggle-hover-border-color: var(--one-color-primary, var(--el-color-primary));
-  --ob-table-tree-toggle-hover-bg: var(
-    --one-color-primary-light-1,
-    var(--el-color-primary-light-9)
-  );
-  --ob-table-tree-toggle-hover-text-color: var(--one-color-primary, var(--el-color-primary));
+  --ob-table-tree-toggle-hover-bg: var(--one-fill-color-light, var(--el-fill-color-light));
+  --ob-table-tree-toggle-focus-outline: var(--one-color-primary, var(--el-color-primary));
 }
 
 .ob-tanstack-table__main {
@@ -1224,9 +1216,10 @@ defineExpose({
   width: var(--ob-table-tree-toggle-size);
   height: var(--ob-table-tree-toggle-size);
   margin-right: 8px;
-  color: var(--ob-table-tree-toggle-text-color);
   background: transparent;
   border: 0;
+  border-radius: 4px;
+  transition: background-color 180ms ease;
 }
 
 .ob-tanstack-table__tree-cell {
@@ -1243,23 +1236,14 @@ defineExpose({
 
 .ob-tanstack-table__tree-toggle {
   margin-right: var(--ob-table-tree-toggle-gap);
-  background: var(--ob-table-tree-toggle-bg);
-  border: 1px solid var(--ob-table-tree-toggle-border-color);
-  border-radius: var(--ob-table-tree-toggle-radius);
-  transition:
-    border-color 180ms ease,
-    background-color 180ms ease,
-    color 180ms ease;
 }
 
 .ob-tanstack-table__tree-toggle:hover:not(:disabled) {
-  color: var(--ob-table-tree-toggle-hover-text-color);
   background: var(--ob-table-tree-toggle-hover-bg);
-  border-color: var(--ob-table-tree-toggle-hover-border-color);
 }
 
 .ob-tanstack-table__tree-toggle:focus-visible {
-  outline: 2px solid var(--ob-table-tree-toggle-hover-border-color);
+  outline: 2px solid var(--ob-table-tree-toggle-focus-outline);
   outline-offset: 1px;
 }
 
@@ -1269,35 +1253,17 @@ defineExpose({
 }
 
 .ob-tanstack-table__tree-toggle-icon {
-  font-size: 14px;
-  line-height: 1;
-  transition: transform 180ms ease;
-}
-
-.ob-tanstack-table__tree-toggle.is-expanded .ob-tanstack-table__tree-toggle-icon {
-  transform: rotate(90deg);
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .ob-tanstack-table__tree-toggle.is-loading .ob-tanstack-table__tree-toggle-icon {
-  animation: ob-tanstack-table-tree-toggle-spin 0.9s linear infinite;
-}
-
-.ob-tanstack-table__tree-toggle.is-loading.is-expanded .ob-tanstack-table__tree-toggle-icon {
-  transform: rotate(0deg);
+  opacity: 0.7;
 }
 
 .ob-tanstack-table__tree-content {
   min-width: 0;
-}
-
-@keyframes ob-tanstack-table-tree-toggle-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .is-overflow .ob-tanstack-table__cell {

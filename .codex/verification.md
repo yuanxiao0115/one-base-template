@@ -6,7 +6,7 @@
 
 - 日期：2026-03-31
 - 文件：`.codex/verification/2026-03-31.md`
-- 补充：最新条目为“TanStack 列宽 width/minWidth 生效修复”。
+- 补充：最新条目为“树表展开按钮替换为设计稿 SVG”。
 
 ## 历史归档
 

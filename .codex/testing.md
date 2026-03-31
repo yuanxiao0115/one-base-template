@@ -9293,3 +9293,17 @@
   - `packages/ui`：源码门禁测试通过（`12/12`），`typecheck/lint` 通过。
   - `apps/admin`：菜单管理源码门禁测试通过（`1/1`）。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（树表展开按钮替换为设计稿 SVG）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin test:run:file -- src/modules/adminManagement/menu/list.source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`12/12`），`typecheck/lint` 通过。
+  - `apps/admin`：菜单管理源码门禁测试通过（`1/1`）。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

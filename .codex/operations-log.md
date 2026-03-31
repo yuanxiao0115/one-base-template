@@ -10764,5 +10764,21 @@
     - 仅配置 `minWidth` 时不再被默认宽度覆盖。
   - `packages/ui/src/tanstack-table-source.test.ts`
     - 新增 `width/minWidth` 生效链路源码门禁断言。
-  - `apps/docs/docs/guide/table-vxe-migration.md`
-    - 补充 TanStack 列宽契约说明。
+- `apps/docs/docs/guide/table-vxe-migration.md`
+  - 补充 TanStack 列宽契约说明。
+
+## 2026-03-31（树表展开按钮替换为设计稿 SVG）
+
+- 用户提供两个本地 SVG（未展开/已展开）后，已替换 TanStack 树表展开按钮图标来源：
+  - 新增资源：
+    - `packages/ui/src/components/table/assets/tree-toggle-collapsed.svg`（未展开，`+`）
+    - `packages/ui/src/components/table/assets/tree-toggle-expanded.svg`（已展开，`-`）
+- `packages/ui/src/components/table/internal/tanstack-engine.ts`：
+  - 移除树展开按钮对 Iconify 的依赖；
+  - 改为 `new URL(..., import.meta.url).href` 加载本地 SVG，并按 `isExpanded` 切换。
+- `packages/ui/src/components/table/TanStackTable.vue`：
+  - 调整 tree toggle 样式，去掉图标旋转/加载旋转，改为图片型图标尺寸与 hover/focus 态。
+- `packages/ui/src/tanstack-table-source.test.ts`：
+  - 更新树表门禁断言为本地 SVG 资源与 `img` 渲染结构。
+- 文档同步：
+  - `apps/docs/docs/guide/table-vxe-migration.md` 将“Iconify 展开按钮”说明更新为“设计稿 SVG 展开按钮”。

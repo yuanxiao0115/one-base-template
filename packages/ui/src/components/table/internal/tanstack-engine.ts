@@ -1,5 +1,4 @@
 import { computed, h, ref, watch, type ComputedRef, type Slots, type VNodeChild } from 'vue';
-import { Icon } from '@iconify/vue/dist/offline';
 import {
   type Cell,
   type ColumnOrderState,
@@ -21,13 +20,13 @@ import {
   type Table as TanStackTableInstance,
   type VisibilityState
 } from '@tanstack/vue-table';
-import { ensureMenuIconifyCollectionsRegistered } from '../../../iconify/menu-iconify';
 import type { TableAlign, TableColumn, TableColumnList, TableColumnRendererParams } from '../types';
 
 type RowRecord = Record<string, unknown>;
 type VxeEventParams = Record<string, unknown>;
-const TREE_TOGGLE_ICON = 'ri:arrow-right-s-line';
-const TREE_TOGGLE_LOADING_ICON = 'ri:loader-4-line';
+const treeToggleCollapsedIcon = new URL('../assets/tree-toggle-collapsed.svg', import.meta.url)
+  .href;
+const treeToggleExpandedIcon = new URL('../assets/tree-toggle-expanded.svg', import.meta.url).href;
 
 interface TableRuntimeProps extends Record<string, unknown> {
   rowKey: string;
@@ -357,8 +356,6 @@ function createSortOrder(
 }
 
 export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
-  void ensureMenuIconifyCollectionsRegistered('ri');
-
   const sorting = ref<SortingState>([]);
   const rowSelection = ref<RowSelectionState>({});
   const expanded = ref<ExpandedState>({});
@@ -547,11 +544,10 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
                 }
               },
               [
-                h(Icon, {
-                  icon: isLoading ? TREE_TOGGLE_LOADING_ICON : TREE_TOGGLE_ICON,
+                h('img', {
+                  src: isExpanded ? treeToggleExpandedIcon : treeToggleCollapsedIcon,
                   class: 'ob-tanstack-table__tree-toggle-icon',
-                  width: '1em',
-                  height: '1em',
+                  alt: '',
                   'aria-hidden': 'true'
                 })
               ]
