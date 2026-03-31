@@ -51,6 +51,10 @@ describe('TanStackTable source', () => {
       '<div v-if="showFirstLoadSkeleton" class="ob-tanstack-table__skeleton">'
     );
     expect(source).toContain("import emptyStateImage from './assets/table-empty-state.webp';");
+    expect(source).toContain(':class="{ \'is-empty\': tableRows.length === 0 }"');
+    expect(source).toContain('ob-tanstack-table__empty-overlay');
+    expect(source).toContain('.ob-tanstack-table__table-scroll.is-empty');
+    expect(source).not.toContain('ob-tanstack-table__tr--empty');
     expect(source).toContain('暂未生产任何数据');
     expect(source).toContain('ob-tanstack-table__empty-image');
   });

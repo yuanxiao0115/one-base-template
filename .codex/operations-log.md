@@ -10836,3 +10836,10 @@
 - 门禁与文档同步：
   - `packages/ui/src/tanstack-table-source.test.ts` 增加空态图片与文案断言；
   - `apps/docs/docs/guide/table-vxe-migration.md` 补充 TanStack 空态视觉说明。
+
+## 2026-03-31（TanStack 空态 overlay 去横向滚动）
+
+- `TanStackTable.vue` 空态渲染从 `tbody` 空行切换为 `table-scroll` 绝对定位 overlay，避免空态内容跟随横向滚动。
+- 空态时为滚动容器附加 `is-empty`，仅关闭横向滚动（`overflow-x: hidden`），保留纵向滚动语义。
+- 空态图容器改为按组件宽度自适应（不再依赖 `100vw`），并保持居中展示，覆盖树形与普通表格场景。
+- 同步更新 `tanstack-table-source.test.ts` 与迁移文档 `apps/docs/docs/guide/table-vxe-migration.md`。

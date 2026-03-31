@@ -819,7 +819,12 @@ defineExpose({
         class="ob-tanstack-table__table-shell"
         :style="{ height: resolvedTableHeight }"
       >
-        <div ref="tableScrollRef" class="ob-tanstack-table__table-scroll" v-bind="passthroughAttrs">
+        <div
+          ref="tableScrollRef"
+          class="ob-tanstack-table__table-scroll"
+          :class="{ 'is-empty': tableRows.length === 0 }"
+          v-bind="passthroughAttrs"
+        >
           <table class="ob-tanstack-table__table">
             <thead class="ob-tanstack-table__thead">
               <tr
@@ -970,27 +975,22 @@ defineExpose({
                   </tr>
                 </template>
               </template>
-
-              <tr v-else class="ob-tanstack-table__tr ob-tanstack-table__tr--empty">
-                <td
-                  :colspan="Math.max(visibleLeafColumns.length, 1)"
-                  class="ob-tanstack-table__empty"
-                >
-                  <div class="ob-tanstack-table__empty-state">
-                    <div class="ob-tanstack-table__empty-figure">
-                      <img
-                        :src="emptyStateImage"
-                        alt=""
-                        aria-hidden="true"
-                        class="ob-tanstack-table__empty-image"
-                      />
-                    </div>
-                    <p class="ob-tanstack-table__empty-text">暂未生产任何数据</p>
-                  </div>
-                </td>
-              </tr>
             </tbody>
           </table>
+
+          <div v-if="tableRows.length === 0" class="ob-tanstack-table__empty-overlay">
+            <div class="ob-tanstack-table__empty-state">
+              <div class="ob-tanstack-table__empty-figure">
+                <img
+                  :src="emptyStateImage"
+                  alt=""
+                  aria-hidden="true"
+                  class="ob-tanstack-table__empty-image"
+                />
+              </div>
+              <p class="ob-tanstack-table__empty-text">暂未生产任何数据</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1049,10 +1049,15 @@ defineExpose({
 }
 
 .ob-tanstack-table__table-scroll {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: auto;
   background: var(--ob-table-surface-bg);
+}
+
+.ob-tanstack-table__table-scroll.is-empty {
+  overflow-x: hidden;
 }
 
 .ob-tanstack-table__table {
@@ -1301,20 +1306,33 @@ defineExpose({
   padding: 0;
 }
 
+.ob-tanstack-table__empty-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--ob-table-row-height-default) + 12px) 0 24px;
+  pointer-events: none;
+}
+
 .ob-tanstack-table__empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 320px;
-  padding: 24px 0;
+  width: 100%;
+  min-height: 280px;
+  box-sizing: border-box;
+  padding: 0 24px;
 }
 
 .ob-tanstack-table__empty-figure {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: min(284px, calc(100vw - 96px));
+  width: min(284px, calc(100% - 48px));
+  max-width: 100%;
   height: 220px;
   border: 1px dashed var(--el-border-color);
 }
