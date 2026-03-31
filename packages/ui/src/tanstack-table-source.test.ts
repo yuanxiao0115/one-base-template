@@ -16,6 +16,8 @@ describe('TanStackTable source', () => {
     expect(source).toContain('FlexRender');
     expect(source).toContain("from '@tanstack/vue-table';");
     expect(source).toContain('const engine = useTanStackTableEngine({');
+    expect(source).toContain("import zhCnLocale from 'element-plus/es/locale/lang/zh-cn';");
+    expect(source).toContain('<el-config-provider :locale="zhCnLocale">');
     expect(source).toContain('<el-pagination');
     expect(source).toContain('@current-change="handleCurrentPageChange"');
     expect(source).toContain('@size-change="handlePageSizeChange"');

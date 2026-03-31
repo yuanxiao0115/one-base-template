@@ -10,6 +10,7 @@ import {
   watch,
   type CSSProperties
 } from 'vue';
+import zhCnLocale from 'element-plus/es/locale/lang/zh-cn';
 import { FlexRender, type Cell, type Column, type Header, type Row } from '@tanstack/vue-table';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 import { useTanStackTableEngine } from './internal/tanstack-engine';
@@ -983,18 +984,20 @@ defineExpose({
     </div>
 
     <div v-if="pagerProps" class="ob-tanstack-table__pager">
-      <el-pagination
-        :total="pagerProps.total"
-        :current-page="pagerProps.currentPage"
-        :page-size="pagerProps.pageSize"
-        :page-sizes="pagerProps.pageSizes"
-        :background="pagerProps.background"
-        :layout="pagerProps.layout"
-        :size="pagerProps.size"
-        :hide-on-single-page="false"
-        @current-change="handleCurrentPageChange"
-        @size-change="handlePageSizeChange"
-      />
+      <el-config-provider :locale="zhCnLocale">
+        <el-pagination
+          :total="pagerProps.total"
+          :current-page="pagerProps.currentPage"
+          :page-size="pagerProps.pageSize"
+          :page-sizes="pagerProps.pageSizes"
+          :background="pagerProps.background"
+          :layout="pagerProps.layout"
+          :size="pagerProps.size"
+          :hide-on-single-page="false"
+          @current-change="handleCurrentPageChange"
+          @size-change="handlePageSizeChange"
+        />
+      </el-config-provider>
     </div>
   </div>
 </template>

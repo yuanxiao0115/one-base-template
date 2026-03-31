@@ -10714,3 +10714,10 @@
   - `apps/admin/src/modules/adminManagement/role/list.source.test.ts`
   - `apps/admin/src/modules/adminManagement/role-assign/list.source.test.ts`
 - 文档同步：`apps/docs/docs/guide/table-vxe-migration.md` 新增角色管理/角色分配灰度落地记录。
+
+## 2026-03-31（ObTanStackTable 分页中文化）
+
+- `packages/ui/src/components/table/TanStackTable.vue` 的分页区新增 `el-config-provider`，并固定 `zh-cn` locale。
+- 目标：确保 `ObTanStackTable` 分页器在未配置全局 locale 时仍显示中文文案。
+- `packages/ui/src/tanstack-table-source.test.ts` 补充中文 locale 源码门禁。
+- `apps/docs/docs/guide/table-vxe-migration.md` 同步分页中文口径。
