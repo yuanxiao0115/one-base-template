@@ -45,7 +45,7 @@
 - **分页体验**：改为 `Element Plus` 的 `el-pagination`，并在组件内固定使用 `zh-cn` locale，分页文案统一中文展示。
 - **主题策略**：`packages/ui/src/styles/table-theme.css` 为共享表格 token 层，`ObVxeTable` 与 `ObTanStackTable` 同时消费，避免两套视觉体系分叉。
 - **滚动稳定性（2026-03-31）**：TanStack 粘性表头与 fixed 列改为“前景色 + `surface` 底色”叠层背景，避免纵向/横向滚动时出现透底。
-- **树形能力**：支持 `treeConfig`（含 `lazy/loadMethod/childrenField/hasChildField`）与 `treeNode` 列标记，满足组织管理类页面迁移需求。
+- **树形能力**：支持 `treeConfig`（含 `expandAll/lazy/loadMethod/childrenField/hasChildField/trigger/reserve`）与 `treeNode` 列标记，满足菜单管理、组织管理类页面迁移需求。
 
 本轮已补齐的常用能力（用户点选 2/3/4/5/9）：
 
@@ -276,6 +276,7 @@ const table = useTable({
     - `apps/admin/src/modules/adminManagement/org/api.ts`
 - 页面 3：`/system/permission`（权限管理）
   - 路由名：`SystemMenuManagement`
+  - 2026-03-31 灰度：`apps/admin` 版本已切换为 `ObTanStackTable`，保留树形 `treeConfig` 与操作列交互
   - 代码位置：
     - `apps/admin/src/modules/adminManagement/menu/list.vue`
     - `apps/admin/src/modules/adminManagement/menu/columns.ts`

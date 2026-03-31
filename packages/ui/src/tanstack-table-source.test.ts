@@ -82,7 +82,16 @@ describe('TanStackTable source', () => {
     expect(engineSource).toContain(
       'function shouldReserveExpanded(treeConfig?: Record<string, unknown>) {'
     );
-    expect(engineSource).toContain('filterExpandedState(expanded.value, internalData.value');
+    expect(engineSource).toContain(
+      'function shouldExpandAll(treeConfig?: Record<string, unknown>) {'
+    );
+    expect(engineSource).toContain('function createExpandedState(');
+    expect(engineSource).toContain(
+      'const expandAll = computed(() => shouldExpandAll(resolvedProps.value.treeConfig));'
+    );
+    expect(engineSource).toContain('if (shouldExpand) {');
+    expect(engineSource).toContain('filterExpandedState(');
+    expect(engineSource).toContain('expanded.value,');
     expect(engineSource).toContain(
       "size: typeof attrs.value.size === 'string' ? attrs.value.size : undefined"
     );

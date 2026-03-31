@@ -10721,3 +10721,15 @@
 - 目标：确保 `ObTanStackTable` 分页器在未配置全局 locale 时仍显示中文文案。
 - `packages/ui/src/tanstack-table-source.test.ts` 补充中文 locale 源码门禁。
 - `apps/docs/docs/guide/table-vxe-migration.md` 同步分页中文口径。
+
+## 2026-03-31（菜单管理树形表格：TanStack 适配）
+
+- `apps/admin/src/modules/adminManagement/menu/list.vue` 从 `ObVxeTable` 切换为 `ObTanStackTable`，保留 `tree-config`、icon 插槽与操作列交互。
+- `packages/ui/src/components/table/internal/tanstack-engine.ts` 补齐 `treeConfig.expandAll` 能力：
+  - 新增 `shouldExpandAll()`；
+  - 新增 `createExpandedState()`；
+  - 在数据变更时优先按 `expandAll` 计算展开态，满足菜单管理树表“默认展开”诉求。
+- 新增源码门禁：
+  - `apps/admin/src/modules/adminManagement/menu/list.source.test.ts`
+  - `packages/ui/src/tanstack-table-source.test.ts`（树表 expandAll 断言）
+- 文档同步：`apps/docs/docs/guide/table-vxe-migration.md` 补充菜单管理灰度落地与树形能力口径。

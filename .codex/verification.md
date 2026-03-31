@@ -6,7 +6,7 @@
 
 - 日期：2026-03-31
 - 文件：`.codex/verification/2026-03-31.md`
-- 补充：最新条目为“ObTanStackTable 分页中文化”。
+- 补充：最新条目为“菜单管理树形表格（TanStack）”。
 
 ## 历史归档
 

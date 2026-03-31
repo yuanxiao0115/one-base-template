@@ -155,6 +155,10 @@ function shouldReserveExpanded(treeConfig?: Record<string, unknown>) {
   return treeConfig?.reserve === true;
 }
 
+function shouldExpandAll(treeConfig?: Record<string, unknown>) {
+  return treeConfig?.expandAll === true;
+}
+
 type TreeLoadMethod = (params: { row: RowRecord }) => Promise<unknown[]> | unknown[];
 
 function resolveTreeLoadMethod(treeConfig?: Record<string, unknown>): TreeLoadMethod | null {
@@ -199,6 +203,34 @@ function filterExpandedState(
       nextState[key] = true;
     }
   });
+  return nextState;
+}
+
+function createExpandedState(
+  rows: RowRecord[],
+  childrenField: string,
+  hasChildField: string,
+  rowKey: string
+): ExpandedState {
+  const nextState: Record<string, boolean> = {};
+
+  const travel = (items: RowRecord[]) => {
+    items.forEach((row, index) => {
+      const children = row[childrenField];
+      const hasChildren = Array.isArray(children) && children.length > 0;
+      const hasRemoteChildren = Boolean(row[hasChildField]);
+
+      if (hasChildren || hasRemoteChildren) {
+        nextState[getRowKey(row, index, rowKey)] = true;
+      }
+
+      if (hasChildren) {
+        travel(children as RowRecord[]);
+      }
+    });
+  };
+
+  travel(rows);
   return nextState;
 }
 
@@ -326,6 +358,7 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
   const childrenField = computed(() => resolveTreeChildrenField(resolvedProps.value.treeConfig));
   const hasChildField = computed(() => resolveTreeHasChildField(resolvedProps.value.treeConfig));
   const reserveExpanded = computed(() => shouldReserveExpanded(resolvedProps.value.treeConfig));
+  const expandAll = computed(() => shouldExpandAll(resolvedProps.value.treeConfig));
 
   const internalData = ref<RowRecord[]>(cloneRows(options.data.value, childrenField.value));
 
@@ -349,12 +382,33 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
   );
 
   watch(
-    [options.data, childrenField, reserveExpanded, () => resolvedProps.value.rowKey],
-    ([rows, nextChildrenField, shouldReserve, nextRowKey]) => {
+    [
+      options.data,
+      childrenField,
+      hasChildField,
+      reserveExpanded,
+      expandAll,
+      () => resolvedProps.value.rowKey
+    ],
+    ([rows, nextChildrenField, nextHasChildField, shouldReserve, shouldExpand, nextRowKey]) => {
       internalData.value = cloneRows(rows, nextChildrenField);
-      expanded.value = shouldReserve
-        ? filterExpandedState(expanded.value, internalData.value, nextChildrenField, nextRowKey)
-        : {};
+      if (shouldExpand) {
+        expanded.value = createExpandedState(
+          internalData.value,
+          nextChildrenField,
+          nextHasChildField,
+          nextRowKey
+        );
+      } else if (shouldReserve) {
+        expanded.value = filterExpandedState(
+          expanded.value,
+          internalData.value,
+          nextChildrenField,
+          nextRowKey
+        );
+      } else {
+        expanded.value = {};
+      }
 
       if (!reserveSelection.value) {
         rowSelection.value = {};

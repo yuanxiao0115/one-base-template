@@ -36,7 +36,7 @@ const options = reactive(pageState.options);
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTanStackTable
           :ref="refs.tableRef"
           :size
           :loading="table.loading"
@@ -85,7 +85,7 @@ const options = reactive(pageState.options);
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTanStackTable>
       </template>
 
       <template #drawer>
