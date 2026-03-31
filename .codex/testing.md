@@ -9365,3 +9365,18 @@
   - `packages/ui`：源码门禁测试通过（`12/12`），`typecheck/lint` 通过。
   - `apps/admin`：`build` 通过（空态图片资源打包成功）。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（TanStack 性能优化：树数据同步 + 布局收口）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin build`
+  - `pnpm check:admin:bundle`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`14/14`），`typecheck/lint` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+  - `apps/admin`：`build` 成功；`check:admin:bundle` 全部 PASS。

@@ -101,13 +101,6 @@ const draggingColumnId = ref<string | null>(null);
 let resizeObserver: ResizeObserver | null = null;
 
 const wrapperClass = computed(() => ['ob-tanstack-table', attrs.class]);
-const wrapperStyle = computed<CSSProperties>(() => {
-  const style = (attrs.style || {}) as CSSProperties;
-  return {
-    ...style,
-    '--ob-tanstack-table-layout': props.tableLayout
-  } as CSSProperties;
-});
 
 const passthroughAttrs = computed(() => {
   const blockedKeys = new Set([
@@ -187,6 +180,43 @@ const virtualEnabled = computed(() => {
     return false;
   }
   return props.virtualConfig.enabled ?? Boolean(props.virtualConfig.y);
+});
+
+function hasConfiguredColumnSize(column: TanStackColumn) {
+  const meta = engine.getColumnMeta(column);
+  const width = meta.width;
+  const minWidth = meta.minWidth;
+  return (
+    (width != null && String(width).trim().length > 0) ||
+    (minWidth != null && String(minWidth).trim().length > 0)
+  );
+}
+
+const resolvedTableLayout = computed<'fixed' | 'auto'>(() => {
+  if (props.tableLayout === 'fixed') {
+    return 'fixed';
+  }
+
+  if (virtualEnabled.value) {
+    return 'fixed';
+  }
+
+  if (Object.keys(engine.columnSizing.value).length > 0) {
+    return 'fixed';
+  }
+
+  const hasExplicitSizing = visibleLeafColumns.value.some((column) =>
+    hasConfiguredColumnSize(column)
+  );
+  return hasExplicitSizing ? 'fixed' : 'auto';
+});
+
+const wrapperStyle = computed<CSSProperties>(() => {
+  const style = (attrs.style || {}) as CSSProperties;
+  return {
+    ...style,
+    '--ob-tanstack-table-layout': resolvedTableLayout.value
+  } as CSSProperties;
 });
 
 const virtualRowHeight = computed(() => {

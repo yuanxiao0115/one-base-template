@@ -158,6 +158,29 @@ describe('TanStackTable source', () => {
     expect(engineSource).toContain('maxWidth: resolvedWidth');
   });
 
+  it('应根据虚拟滚动与列宽配置自动收口 tableLayout，减少布局抖动', () => {
+    expect(source).toContain("const resolvedTableLayout = computed<'fixed' | 'auto'>(() => {");
+    expect(source).toContain('if (virtualEnabled.value) {');
+    expect(source).toContain('if (Object.keys(engine.columnSizing.value).length > 0) {');
+    expect(source).toContain(
+      'const hasExplicitSizing = visibleLeafColumns.value.some((column) => hasConfiguredColumnSize(column));'
+    );
+    expect(source).toContain("'--ob-tanstack-table-layout': resolvedTableLayout.value");
+  });
+
+  it('树数据同步应避免非 lazy 场景深拷贝与深度监听，降低大树更新成本', () => {
+    expect(engineSource).toContain(
+      'function shouldCloneDataForTree(treeConfig?: Record<string, unknown>) {'
+    );
+    expect(engineSource).toContain(
+      'const shouldCloneData = computed(() => shouldCloneDataForTree(resolvedProps.value.treeConfig));'
+    );
+    expect(engineSource).toContain(
+      'shouldCloneData.value ? cloneRows(rows, nextChildrenField) : rows'
+    );
+    expect(engineSource).toContain('{ deep: false }');
+  });
+
   it('应支持表头拖拽换序与列宽拖拽手柄交互', () => {
     expect(source).toContain(':draggable="canDragHeader(header)"');
     expect(source).toContain('@dragstart="handleHeaderDragStart(header, $event)"');

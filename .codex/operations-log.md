@@ -10843,3 +10843,11 @@
 - 空态时为滚动容器附加 `is-empty`，仅关闭横向滚动（`overflow-x: hidden`），保留纵向滚动语义。
 - 空态图容器改为按组件宽度自适应（不再依赖 `100vw`），并保持居中展示，覆盖树形与普通表格场景。
 - 同步更新 `tanstack-table-source.test.ts` 与迁移文档 `apps/docs/docs/guide/table-vxe-migration.md`。
+
+## 2026-03-31（TanStack 性能优化：树数据同步 + 布局收口）
+
+- `internal/tanstack-engine.ts`：新增树数据同步策略，仅在 `treeConfig.lazy + loadMethod` 场景执行 `cloneRows` 深拷贝；非 lazy 场景改为浅同步并将数据 watch 从 `deep: true` 调整为 `deep: false`，减少大树数据更新开销。
+- `internal/tanstack-engine.ts`：优化 expanded 与 reserveSelection 同步，避免空选择态下重复构建 selection map。
+- `TanStackTable.vue`：新增 `resolvedTableLayout`，在“虚拟滚动/手动列宽/显式列宽”场景自动切 `fixed`，降低列宽变化时浏览器自动布局抖动。
+- `tanstack-table-source.test.ts`：补充 2 条源码门禁（tableLayout 自动收口、树数据同步策略）。
+- 用户确认保留 `packages/ui/src/components/table/assets/table-empty-state.webp` 本地差异并一并提交。

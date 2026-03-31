@@ -178,6 +178,14 @@ function resolveTreeLoadMethod(treeConfig?: Record<string, unknown>): TreeLoadMe
   return typeof loadMethod === 'function' ? (loadMethod as TreeLoadMethod) : null;
 }
 
+function shouldCloneDataForTree(treeConfig?: Record<string, unknown>) {
+  return treeConfig?.lazy === true && Boolean(resolveTreeLoadMethod(treeConfig));
+}
+
+function isExpandedStateEmpty(state: ExpandedState) {
+  return state !== true && (!state || Object.keys(state).length === 0);
+}
+
 function collectRowKeys(
   rows: RowRecord[],
   childrenField: string,
@@ -371,8 +379,11 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
   const hasChildField = computed(() => resolveTreeHasChildField(resolvedProps.value.treeConfig));
   const reserveExpanded = computed(() => shouldReserveExpanded(resolvedProps.value.treeConfig));
   const expandAll = computed(() => shouldExpandAll(resolvedProps.value.treeConfig));
+  const shouldCloneData = computed(() => shouldCloneDataForTree(resolvedProps.value.treeConfig));
 
-  const internalData = ref<RowRecord[]>(cloneRows(options.data.value, childrenField.value));
+  const internalData = ref<RowRecord[]>(
+    shouldCloneData.value ? cloneRows(options.data.value, childrenField.value) : options.data.value
+  );
 
   watch(
     options.columns,
@@ -403,7 +414,7 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
       () => resolvedProps.value.rowKey
     ],
     ([rows, nextChildrenField, nextHasChildField, shouldReserve, shouldExpand, nextRowKey]) => {
-      internalData.value = cloneRows(rows, nextChildrenField);
+      internalData.value = shouldCloneData.value ? cloneRows(rows, nextChildrenField) : rows;
       if (shouldExpand) {
         expanded.value = createExpandedState(
           internalData.value,
@@ -418,7 +429,7 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
           nextChildrenField,
           nextRowKey
         );
-      } else {
+      } else if (!isExpandedStateEmpty(expanded.value)) {
         expanded.value = {};
       }
 
@@ -428,18 +439,26 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
         return;
       }
 
+      const reservedRowKeys = Object.keys(reservedSelectionRows.value);
+      if (reservedRowKeys.length === 0) {
+        if (Object.keys(rowSelection.value).length > 0) {
+          rowSelection.value = {};
+        }
+        return;
+      }
+
       const availableRowKeys = new Set<string>();
       collectRowKeys(internalData.value, nextChildrenField, nextRowKey, availableRowKeys);
 
       const nextSelection: RowSelectionState = {};
-      Object.keys(reservedSelectionRows.value).forEach((rowKey) => {
+      reservedRowKeys.forEach((rowKey) => {
         if (availableRowKeys.has(rowKey)) {
           nextSelection[rowKey] = true;
         }
       });
       rowSelection.value = nextSelection;
     },
-    { deep: true }
+    { deep: false }
   );
 
   const columnSourceMap = computed(() => {
