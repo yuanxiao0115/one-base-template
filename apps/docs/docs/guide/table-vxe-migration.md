@@ -274,6 +274,7 @@ const table = useTable({
     - `apps/admin/src/modules/LogManagement/login-log/api.ts`
 - 页面 2：`/system/org`（树形组织管理）
   - 路由名：`SystemOrgManagement`
+  - 2026-03-31 灰度：`apps/admin` 版本已切换为 `ObTanStackTable`，保留树形 `treeConfig` 与操作列交互
   - 代码位置：
     - `apps/admin/src/modules/adminManagement/org/list.vue`
     - `apps/admin/src/modules/adminManagement/org/columns.tsx`

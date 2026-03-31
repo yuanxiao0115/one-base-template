@@ -6,7 +6,7 @@
 
 - 日期：2026-03-31
 - 文件：`.codex/verification/2026-03-31.md`
-- 补充：最新条目为“TanStack 性能优化（树数据同步 + 布局收口）”。
+- 补充：最新条目为“adminManagement/org 灰度：组织管理页切 TanStack”。
 
 ## 历史归档
 

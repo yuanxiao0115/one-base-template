@@ -9380,3 +9380,14 @@
   - `packages/ui`：源码门禁测试通过（`14/14`），`typecheck/lint` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
   - `apps/admin`：`build` 成功；`check:admin:bundle` 全部 PASS。
+
+## 2026-03-31（组织管理页切换 ObTanStackTable）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：4 个源码门禁测试通过（`4/4`），`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

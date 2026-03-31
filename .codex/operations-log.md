@@ -10851,3 +10851,9 @@
 - `TanStackTable.vue`：新增 `resolvedTableLayout`，在“虚拟滚动/手动列宽/显式列宽”场景自动切 `fixed`，降低列宽变化时浏览器自动布局抖动。
 - `tanstack-table-source.test.ts`：补充 2 条源码门禁（tableLayout 自动收口、树数据同步策略）。
 - 用户确认保留 `packages/ui/src/components/table/assets/table-empty-state.webp` 本地差异并一并提交。
+
+## 2026-03-31（组织管理页表格替换为 ObTanStackTable）
+
+- `apps/admin/src/modules/adminManagement/org/list.vue`：将组织管理页主表从 `ObVxeTable` 替换为 `ObTanStackTable`，保留树形配置、无分页模式与操作列交互。
+- `apps/admin/src/modules/adminManagement/org/list.source.test.ts`：新增源码门禁，锁定“组织管理必须使用 `ObTanStackTable`”且保留 `tree-config` 与 `operation` 插槽。
+- `apps/docs/docs/guide/table-vxe-migration.md`：补充 `/system/org` 页面灰度切换记录（`2026-03-31`）。
