@@ -89,10 +89,10 @@ describe('TanStackTable source', () => {
 
   it('应补齐树表 trigger/reserve 与 slot size 兼容参数', () => {
     expect(engineSource).toContain(
-      "const treeToggleCollapsedIcon = new URL('../assets/tree-toggle-collapsed.svg', import.meta.url).href;"
+      "import treeToggleCollapsedIcon from '../assets/tree-toggle-collapsed.svg';"
     );
     expect(engineSource).toContain(
-      "const treeToggleExpandedIcon = new URL('../assets/tree-toggle-expanded.svg', import.meta.url).href;"
+      "import treeToggleExpandedIcon from '../assets/tree-toggle-expanded.svg';"
     );
     expect(engineSource).toContain(
       'src: isExpanded ? treeToggleExpandedIcon : treeToggleCollapsedIcon'

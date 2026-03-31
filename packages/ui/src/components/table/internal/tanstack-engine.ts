@@ -21,12 +21,11 @@ import {
   type VisibilityState
 } from '@tanstack/vue-table';
 import type { TableAlign, TableColumn, TableColumnList, TableColumnRendererParams } from '../types';
+import treeToggleCollapsedIcon from '../assets/tree-toggle-collapsed.svg';
+import treeToggleExpandedIcon from '../assets/tree-toggle-expanded.svg';
 
 type RowRecord = Record<string, unknown>;
 type VxeEventParams = Record<string, unknown>;
-const treeToggleCollapsedIcon = new URL('../assets/tree-toggle-collapsed.svg', import.meta.url)
-  .href;
-const treeToggleExpandedIcon = new URL('../assets/tree-toggle-expanded.svg', import.meta.url).href;
 
 interface TableRuntimeProps extends Record<string, unknown> {
   rowKey: string;

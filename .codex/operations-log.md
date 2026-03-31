@@ -10782,3 +10782,13 @@
   - 更新树表门禁断言为本地 SVG 资源与 `img` 渲染结构。
 - 文档同步：
   - `apps/docs/docs/guide/table-vxe-migration.md` 将“Iconify 展开按钮”说明更新为“设计稿 SVG 展开按钮”。
+
+## 2026-03-31（修复 tree toggle SVG 路径解析）
+
+- 修复 `vite:import-analysis` 无法解析树表 SVG 资源的问题。
+- `packages/ui/src/components/table/internal/tanstack-engine.ts`：
+  - 由 `new URL(..., import.meta.url)` 改为静态 `import '*.svg'` 方式，避免在 admin 侧联调时出现绝对路径解析失败。
+- `packages/ui/src/env.d.ts`：
+  - 补充 `declare module '*.svg'`，消除 TypeScript 模块声明缺失。
+- `packages/ui/src/tanstack-table-source.test.ts`：
+  - 更新树表源码门禁断言，匹配新的 SVG 引入方式。
