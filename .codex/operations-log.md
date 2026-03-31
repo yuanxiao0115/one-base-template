@@ -10704,3 +10704,13 @@
   - `packages/ui/src/components/table/internal/tanstack-engine.ts`
   - `packages/ui/src/tanstack-table-source.test.ts`
 - 文档同步：`apps/docs/docs/guide/table-vxe-migration.md` 新增 2/3/4/5/9 能力说明、使用约束与示例。
+
+## 2026-03-31（admin 角色域灰度：角色管理 + 角色分配切 TanStack）
+
+- `apps/admin` 角色域两页已从 `ObVxeTable` 切换为 `ObTanStackTable`：
+  - `apps/admin/src/modules/adminManagement/role/list.vue`
+  - `apps/admin/src/modules/adminManagement/role-assign/list.vue`
+- 新增源码门禁测试，锁定两页表格组件替换结果：
+  - `apps/admin/src/modules/adminManagement/role/list.source.test.ts`
+  - `apps/admin/src/modules/adminManagement/role-assign/list.source.test.ts`
+- 文档同步：`apps/docs/docs/guide/table-vxe-migration.md` 新增角色管理/角色分配灰度落地记录。

@@ -91,7 +91,7 @@ function onRoleMenuSelect(roleId: string) {
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTanStackTable
           :ref="refs.tableRef"
           :loading="table.loading"
           :size
@@ -110,7 +110,7 @@ function onRoleMenuSelect(roleId: string) {
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTanStackTable>
       </template>
     </ObTableBox>
   </ObPageContainer>

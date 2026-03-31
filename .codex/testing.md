@@ -9217,3 +9217,20 @@
   - `packages/ui`：源码门禁测试通过（`10/10`）。
   - `packages/ui`：`typecheck` 与 `lint` 通过（`0 warning / 0 error`）。
   - `apps/docs`：`lint` 通过（`0 warning / 0 error`），`build` 成功。
+
+## 2026-03-31（admin 角色域灰度：角色管理 + 角色分配切 TanStack）
+
+- RED：
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin test:run:file -- src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - 结果：失败（页面源码仍为 `ObVxeTable`，不含 `ObTanStackTable`）。
+
+- GREEN / 回归：
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin build`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `apps/admin` 三个源码门禁测试通过（`3/3`）。
+  - `apps/admin`：`typecheck` 与 `build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

@@ -280,6 +280,20 @@ const table = useTable({
     - `apps/admin/src/modules/adminManagement/menu/list.vue`
     - `apps/admin/src/modules/adminManagement/menu/columns.ts`
     - `apps/admin/src/modules/adminManagement/menu/api.ts`
+- 页面 4：`/system/role/management`（角色管理）
+  - 路由名：`SystemRoleManagement`
+  - 2026-03-31 灰度：`apps/admin` 版本已切换为 `ObTanStackTable`
+  - 代码位置：
+    - `apps/admin/src/modules/adminManagement/role/list.vue`
+    - `apps/admin/src/modules/adminManagement/role/columns.tsx`
+    - `apps/admin/src/modules/adminManagement/role/api.ts`
+- 页面 5：`/system/role/assign`（角色分配）
+  - 路由名：`SystemRoleAssign`
+  - 2026-03-31 灰度：`apps/admin` 版本已切换为 `ObTanStackTable`
+  - 代码位置：
+    - `apps/admin/src/modules/adminManagement/role-assign/list.vue`
+    - `apps/admin/src/modules/adminManagement/role-assign/columns.tsx`
+    - `apps/admin/src/modules/adminManagement/role-assign/api.ts`
 
 ## 常见迁移问题
 
