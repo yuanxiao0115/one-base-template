@@ -2,6 +2,31 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-03-31（ObTable 命名与样式收口）
+
+- RED（先失败）：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts`
+- 结果：
+  - `packages/ui/src/table-source.test.ts` 初次失败，明确暴露两类问题：
+    - `Table.vue` 仍保留 `name: 'ElementTable'` 与 `ob-element-table` 包装类名；
+    - 分页 total 偏移与滚动条样式 token 未对齐本轮视觉要求。
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：`table-source/index/plugin` 三个测试文件共 `9` 条断言通过；`typecheck`、`lint`、`build` 均通过。
+  - `apps/admin`：5 个页面源码测试通过；`typecheck` 与 `build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+  - 过程中修复 1 个真实类型问题：`ObTable.pagination` 已直接对齐 `@one-base-template/core` 的 `PaginationConfig`，消除页面层 `PaginationConfig -> TablePagination` 不兼容报错。
+
 ## 2026-03-31（admin-lite README 快速使用手册补充）
 
 - GREEN / 回归：

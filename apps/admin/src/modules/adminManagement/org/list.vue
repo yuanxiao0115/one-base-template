@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { Table as ObTable } from '@one-base-template/ui';
 import { Plus } from '@element-plus/icons-vue';
 import OrgSearchForm from './components/OrgSearchForm.vue';
 import OrgEditForm from './components/OrgEditForm.vue';
@@ -39,7 +40,7 @@ const dialogs = reactive(pageState.dialogs);
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObElementTable
+        <ObTable
           :ref="refs.tableRef"
           :loading="table.loading"
           :size
@@ -101,7 +102,7 @@ const dialogs = reactive(pageState.dialogs);
               </ObActionButtons>
             </div>
           </template>
-        </ObElementTable>
+        </ObTable>
       </template>
 
       <template #drawer>

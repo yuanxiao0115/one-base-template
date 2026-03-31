@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { Table as ObTable } from '@one-base-template/ui';
 import { Plus } from '@element-plus/icons-vue';
 import MenuPermissionEditForm from './components/MenuPermissionEditForm.vue';
 import MenuPermissionSearchForm from './components/MenuPermissionSearchForm.vue';
@@ -36,7 +37,7 @@ const options = reactive(pageState.options);
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObElementTable
+        <ObTable
           :ref="refs.tableRef"
           :size
           :loading="table.loading"
@@ -85,7 +86,7 @@ const options = reactive(pageState.options);
               >
             </ObActionButtons>
           </template>
-        </ObElementTable>
+        </ObTable>
       </template>
 
       <template #drawer>

@@ -29,7 +29,7 @@ import type {
 } from './types';
 
 defineOptions({
-  name: 'ElementTable',
+  name: 'Table',
   inheritAttrs: false
 });
 
@@ -285,12 +285,12 @@ const normalizedColumns = computed<TableColumnList>(() =>
   Array.isArray(props.columns) ? props.columns : []
 );
 
-const wrapperClass = computed(() => ['ob-element-table', attrs.class]);
+const wrapperClass = computed(() => ['ob-table', attrs.class]);
 const wrapperStyle = computed<CSSProperties>(() => {
   const style = (attrs.style || {}) as CSSProperties;
   return {
     ...style,
-    '--ob-element-table-layout': props.tableLayout
+    '--ob-table-layout': props.tableLayout
   } as CSSProperties;
 });
 
@@ -479,10 +479,7 @@ function renderValueWithOverflow(
   const content = h(
     'span',
     {
-      class: [
-        'ob-element-table__cell-text',
-        showOverflowTooltip && !isOperation ? 'is-ellipsis' : ''
-      ]
+      class: ['ob-table__cell-text', showOverflowTooltip && !isOperation ? 'is-ellipsis' : '']
     },
     text
   );
@@ -892,30 +889,30 @@ defineExpose({
 
 <template>
   <div ref="wrapperRef" :class="wrapperClass" :style="wrapperStyle">
-    <div class="ob-element-table__main">
-      <div v-if="showFirstLoadSkeleton" class="ob-element-table__skeleton">
+    <div class="ob-table__main">
+      <div v-if="showFirstLoadSkeleton" class="ob-table__skeleton">
         <el-skeleton animated>
           <template #template>
-            <div class="ob-element-table__skeleton-head">
+            <div class="ob-table__skeleton-head">
               <el-skeleton-item
                 v-for="index in skeletonCellCount"
                 :key="`head-${index}`"
                 variant="text"
-                class="ob-element-table__skeleton-cell ob-element-table__skeleton-cell--head"
+                class="ob-table__skeleton-cell ob-table__skeleton-cell--head"
               />
             </div>
 
-            <div class="ob-element-table__skeleton-body">
+            <div class="ob-table__skeleton-body">
               <div
                 v-for="rowIndex in resolvedSkeletonRows"
                 :key="`row-${rowIndex}`"
-                class="ob-element-table__skeleton-row"
+                class="ob-table__skeleton-row"
               >
                 <el-skeleton-item
                   v-for="cellIndex in skeletonCellCount"
                   :key="`cell-${rowIndex}-${cellIndex}`"
                   variant="text"
-                  class="ob-element-table__skeleton-cell"
+                  class="ob-table__skeleton-cell"
                 />
               </div>
             </div>
@@ -925,21 +922,21 @@ defineExpose({
 
       <div
         v-else
-        class="ob-element-table__table-shell"
+        class="ob-table__table-shell"
         :class="{ 'is-empty': normalizedData.length === 0 }"
       >
         <el-table
           ref="tableRef"
           v-loading="loading"
-          class="ob-element-table__table"
+          class="ob-table__table"
           v-bind="elementTableProps"
           @selection-change="collectSelection"
           @sort-change="handleSortChange"
         >
           <template #empty>
-            <div class="ob-element-table__empty">
-              <img class="ob-element-table__empty-image" :src="emptyStateImage" alt="暂无数据" />
-              <p class="ob-element-table__empty-text">{{ resolvedEmptyText }}</p>
+            <div class="ob-table__empty">
+              <img class="ob-table__empty-image" :src="emptyStateImage" alt="暂无数据" />
+              <p class="ob-table__empty-text">{{ resolvedEmptyText }}</p>
             </div>
           </template>
 
@@ -955,7 +952,7 @@ defineExpose({
       </div>
     </div>
 
-    <div v-if="pagerProps" class="ob-element-table__pager">
+    <div v-if="pagerProps" class="ob-table__pager">
       <el-config-provider :locale="zhCnLocale">
         <el-pagination
           :total="pagerProps.total"
@@ -975,7 +972,7 @@ defineExpose({
 </template>
 
 <style scoped>
-.ob-element-table {
+.ob-table {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -984,13 +981,13 @@ defineExpose({
   background: var(--ob-table-bg);
 }
 
-.ob-element-table__main {
+.ob-table__main {
   display: flex;
   flex: 1;
   min-height: 0;
 }
 
-.ob-element-table__skeleton {
+.ob-table__skeleton {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -1001,7 +998,7 @@ defineExpose({
   background: var(--ob-table-skeleton-bg);
 }
 
-.ob-element-table__skeleton :deep(.el-skeleton) {
+.ob-table__skeleton :deep(.el-skeleton) {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -1009,65 +1006,65 @@ defineExpose({
   width: 100%;
 }
 
-.ob-element-table__skeleton-head,
-.ob-element-table__skeleton-row {
+.ob-table__skeleton-head,
+.ob-table__skeleton-row {
   display: grid;
   gap: var(--ob-table-skeleton-grid-gap);
   align-items: center;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 }
 
-.ob-element-table__skeleton-body {
+.ob-table__skeleton-body {
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: var(--ob-table-skeleton-row-gap);
 }
 
-.ob-element-table__skeleton-row {
+.ob-table__skeleton-row {
   min-height: var(--ob-table-skeleton-row-min-height);
 }
 
-.ob-element-table__skeleton-cell {
+.ob-table__skeleton-cell {
   width: 100%;
   height: var(--ob-table-skeleton-cell-height);
 }
 
-.ob-element-table__skeleton-cell--head {
+.ob-table__skeleton-cell--head {
   width: var(--ob-table-skeleton-head-cell-width);
   height: var(--ob-table-skeleton-head-cell-height);
 }
 
-.ob-element-table__table-shell {
+.ob-table__table-shell {
   width: 100%;
   min-height: 0;
   background: var(--ob-table-surface-bg);
 }
 
-.ob-element-table__table-shell.is-empty {
+.ob-table__table-shell.is-empty {
   overflow-x: hidden;
 }
 
-.ob-element-table__table {
+.ob-table__table {
   width: 100%;
   height: 100%;
   min-height: 0;
   font-size: var(--ob-table-font-size);
 }
 
-.ob-element-table__cell-text {
+.ob-table__cell-text {
   display: inline-block;
   width: 100%;
   min-width: 0;
 }
 
-.ob-element-table__cell-text.is-ellipsis {
+.ob-table__cell-text.is-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.ob-element-table__empty {
+.ob-table__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1077,13 +1074,13 @@ defineExpose({
   padding: 48px 0;
 }
 
-.ob-element-table__empty-image {
+.ob-table__empty-image {
   width: 180px;
   max-width: 100%;
   object-fit: contain;
 }
 
-.ob-element-table__empty-text {
+.ob-table__empty-text {
   margin: 0;
   font-family:
     PingFang SC,
@@ -1096,14 +1093,14 @@ defineExpose({
   text-align: center;
 }
 
-.ob-element-table__pager {
+.ob-table__pager {
   flex-shrink: 0;
   padding-top: var(--ob-table-pager-padding-top);
   background: var(--ob-table-pager-bg);
   border-top: 1px solid var(--ob-table-pager-border-color);
 }
 
-.ob-element-table :deep(.el-table) {
+.ob-table :deep(.el-table) {
   --el-table-border-color: var(--ob-table-border-color);
   --el-table-header-bg-color: var(--ob-table-header-bg);
   --el-table-row-hover-bg-color: var(--ob-table-row-hover-bg);
@@ -1112,11 +1109,11 @@ defineExpose({
   color: var(--ob-table-body-color);
 }
 
-.ob-element-table :deep(.el-table__inner-wrapper::before) {
+.ob-table :deep(.el-table__inner-wrapper::before) {
   display: none;
 }
 
-.ob-element-table :deep(.el-table__header-wrapper th.el-table__cell) {
+.ob-table :deep(.el-table__header-wrapper th.el-table__cell) {
   height: var(--ob-table-row-height-default);
   padding: 0;
   background: var(--ob-table-header-bg);
@@ -1126,12 +1123,12 @@ defineExpose({
   border-bottom: 1px solid var(--ob-table-border-color);
 }
 
-.ob-element-table :deep(.el-table__header-wrapper .cell) {
+.ob-table :deep(.el-table__header-wrapper .cell) {
   line-height: 20px;
   font-weight: var(--ob-table-header-font-weight);
 }
 
-.ob-element-table :deep(.el-table__body-wrapper td.el-table__cell) {
+.ob-table :deep(.el-table__body-wrapper td.el-table__cell) {
   height: var(--ob-table-row-height-default);
   padding: 0;
   font-size: var(--ob-table-font-size);
@@ -1141,56 +1138,61 @@ defineExpose({
   border-bottom: 1px solid var(--ob-table-border-color);
 }
 
-.ob-element-table :deep(.el-table__body tr:last-child td.el-table__cell) {
+.ob-table :deep(.el-table__body tr:last-child td.el-table__cell) {
   border-bottom: none;
 }
 
-.ob-element-table :deep(.el-table__body-wrapper .cell) {
+.ob-table :deep(.el-table__body-wrapper .cell) {
   line-height: 20px;
   font-weight: var(--ob-table-body-font-weight);
 }
 
-.ob-element-table :deep(.el-table__fixed),
-.ob-element-table :deep(.el-table__fixed-right) {
+.ob-table :deep(.el-table__fixed),
+.ob-table :deep(.el-table__fixed-right) {
   box-shadow: none;
 }
 
-.ob-element-table :deep(.el-table__fixed::before),
-.ob-element-table :deep(.el-table__fixed-right::before) {
+.ob-table :deep(.el-table__fixed::before),
+.ob-table :deep(.el-table__fixed-right::before) {
   display: none;
 }
 
-.ob-element-table :deep(.el-table__fixed .el-table__fixed-header-wrapper),
-.ob-element-table :deep(.el-table__fixed-right .el-table__fixed-header-wrapper),
-.ob-element-table :deep(.el-table__fixed .el-table__fixed-body-wrapper),
-.ob-element-table :deep(.el-table__fixed-right .el-table__fixed-body-wrapper) {
+.ob-table :deep(.el-table__fixed .el-table__fixed-header-wrapper),
+.ob-table :deep(.el-table__fixed-right .el-table__fixed-header-wrapper),
+.ob-table :deep(.el-table__fixed .el-table__fixed-body-wrapper),
+.ob-table :deep(.el-table__fixed-right .el-table__fixed-body-wrapper) {
   background: var(--ob-table-surface-bg);
 }
 
-.ob-element-table :deep(.el-table__body-wrapper::-webkit-scrollbar),
-.ob-element-table :deep(.el-scrollbar__bar.is-horizontal),
-.ob-element-table :deep(.el-scrollbar__bar.is-vertical) {
+.ob-table :deep(.el-table__body-wrapper::-webkit-scrollbar),
+.ob-table :deep(.el-scrollbar__bar.is-horizontal),
+.ob-table :deep(.el-scrollbar__bar.is-vertical) {
   width: var(--ob-table-scrollbar-size);
   height: var(--ob-table-scrollbar-size);
 }
 
-.ob-element-table :deep(.el-scrollbar__thumb) {
+.ob-table :deep(.el-scrollbar__thumb) {
   background: var(--ob-table-scrollbar-thumb-color);
+  border-radius: var(--ob-table-scrollbar-radius);
 }
 
-.ob-element-table :deep(.el-scrollbar__thumb:hover) {
+.ob-table :deep(.el-scrollbar__thumb:hover) {
   background: var(--ob-table-scrollbar-thumb-hover-color);
 }
 
-.ob-element-table__pager :deep(.el-pagination) {
+.ob-table__pager :deep(.el-pagination) {
+  position: relative;
   justify-content: flex-end;
   min-height: var(--ob-table-pager-min-height);
   padding-left: var(--ob-table-pager-content-padding-left);
 }
 
-.ob-element-table__pager :deep(.el-pagination__total) {
+.ob-table__pager :deep(.el-pagination__total) {
   position: absolute;
   left: var(--ob-table-pager-total-left);
+  top: 50%;
+  margin: 0;
+  transform: translateY(-50%);
   color: var(--ob-table-pager-text-color);
 }
 </style>

@@ -2,12 +2,12 @@
 :root {
   --ob-table-bg: var(--el-bg-color);
   --ob-table-surface-bg: var(--el-bg-color-overlay);
-  --ob-table-header-bg: var(--one-table-header-bg);
-  --ob-table-header-color: var(--el-text-color-primary);
+  --ob-table-header-bg: #f8f8f8;
+  --ob-table-header-color: #333;
   --ob-table-font-size: 14px;
   --ob-table-header-font-weight: 600;
-  --ob-table-body-font-weight: 400;
-  --ob-table-body-color: var(--el-text-color-primary);
+  --ob-table-body-font-weight: 500;
+  --ob-table-body-color: #333;
   --ob-table-border-color: var(--one-table-header-border-bottom-color);
 
   --ob-table-row-bg: var(--el-bg-color-overlay);
@@ -33,8 +33,8 @@
   --ob-table-pager-text-color: var(--el-text-color-regular);
   --ob-table-pager-min-height: 32px;
   --ob-table-pager-padding-top: 8px;
-  --ob-table-pager-total-left: 4px;
-  --ob-table-pager-content-padding-left: 120px;
+  --ob-table-pager-total-left: 12px;
+  --ob-table-pager-content-padding-left: 128px;
 
   --ob-table-skeleton-bg: var(--ob-table-surface-bg);
   --ob-table-skeleton-padding-inline: 12px;
@@ -47,12 +47,12 @@
   --ob-table-skeleton-head-cell-height: 12px;
   --ob-table-skeleton-head-cell-width: 70%;
 
-  --ob-table-scrollbar-size: 10px;
-  --ob-table-scrollbar-hit-size: 14px;
+  --ob-table-scrollbar-size: 8px;
+  --ob-table-scrollbar-hit-size: 12px;
   --ob-table-scrollbar-gap: 2px;
-  --ob-table-scrollbar-radius: 999px;
+  --ob-table-scrollbar-radius: 6px;
   --ob-table-scrollbar-track-color: transparent;
-  --ob-table-scrollbar-thumb-color: var(--one-fill-color-dark);
-  --ob-table-scrollbar-thumb-hover-color: var(--one-text-color-placeholder);
-  --ob-table-scrollbar-thumb-active-color: var(--one-text-color-secondary);
+  --ob-table-scrollbar-thumb-color: #dcdee0;
+  --ob-table-scrollbar-thumb-hover-color: #dcdee0;
+  --ob-table-scrollbar-thumb-active-color: #dcdee0;
 }

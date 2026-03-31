@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:executing-plans to implement this plan. Steps use checkbox (`- [x]`) syntax for tracking.
 
-**Goal:** 删除 TanStack 表格链路，并在 `packages/ui` 新增 `ObElementTable`，让当前 5 个灰度页面切换到基于 Element Plus 的统一表格封装。
+**Goal:** 删除 TanStack 表格链路，并在 `packages/ui` 新增 `ObTable`，让当前 5 个灰度页面切换到基于 Element Plus 的统一表格封装。
 
-**Architecture:** 先用源码测试锁定“导出/页面接线/TanStack 移除”边界，再实现 `ObElementTable` 最小兼容层与共享样式，最后回切 admin 页面、更新文档和验证记录。全程不触碰与本轮需求无关的脏文件。
+**Architecture:** 先用源码测试锁定“导出/页面接线/TanStack 移除”边界，再实现 `ObTable` 最小兼容层与共享样式，最后回切 admin 页面、更新文档和验证记录。全程不触碰与本轮需求无关的脏文件。
 
 **Tech Stack:** Vue 3 `<script setup>`、TypeScript、Element Plus、Vite Plus Test、VitePress、pnpm workspaces
 
@@ -19,19 +19,19 @@
 - Modify: `packages/ui/src/index.test.ts`
 - Modify: `packages/ui/src/plugin.test.ts`
 - Delete: `packages/ui/src/tanstack-table-source.test.ts`
-- Create: `packages/ui/src/element-table-source.test.ts`
+- Create: `packages/ui/src/table-source.test.ts`
 - Modify: `apps/admin/src/modules/LogManagement/login-log/list.source.test.ts`
 - Modify: `apps/admin/src/modules/adminManagement/menu/list.source.test.ts`
 - Modify: `apps/admin/src/modules/adminManagement/role/list.source.test.ts`
 - Modify: `apps/admin/src/modules/adminManagement/role-assign/list.source.test.ts`
 - Modify: `apps/admin/src/modules/adminManagement/org/list.source.test.ts`
 
-- [x] **Step 1: 把 UI 入口测试改成断言 `ElementTable` 导出与注册**
-- [x] **Step 2: 新增 `element-table-source.test.ts`，锁定 `el-table + el-pagination + treeConfig + ellipsis/empty` 关键源码契约**
-- [x] **Step 3: 把 5 个页面源码测试改成断言 `<ObElementTable>`**
+- [x] **Step 1: 把 UI 入口测试改成断言 `Table` 导出与注册**
+- [x] **Step 2: 新增 `table-source.test.ts`，锁定 `el-table + el-pagination + treeConfig + ellipsis/empty` 关键源码契约**
+- [x] **Step 3: 把 5 个页面源码测试改成断言 `<ObTable>`**
 - [x] **Step 4: 运行定向测试，确认当前实现 RED**
 
-## Chunk 2: 删除 TanStack 资产并落地 `ObElementTable`
+## Chunk 2: 删除 TanStack 资产并落地 `ObTable`
 
 ### Task 2: 清掉 TanStack 依赖、导出和实现文件
 
@@ -53,17 +53,17 @@
 - [x] **Step 2: 删除 TanStack 组件、内部实现、源码测试与无用资产**
 - [x] **Step 3: 更新 lockfile，确保仓库不再残留 TanStack 依赖引用**
 
-### Task 3: 实现 `ObElementTable` 最小兼容层
+### Task 3: 实现 `ObTable` 最小兼容层
 
 **Files:**
 
-- Create: `packages/ui/src/components/table/ElementTable.vue`
+- Create: `packages/ui/src/components/table/Table.vue`
 - Modify: `packages/ui/src/components/table/types.ts`
 - Modify: `packages/ui/src/components/table/VxeTable.vue`
 - Modify: `packages/ui/src/styles/table-theme.css`
 - Modify: `packages/ui/src/styles/vxe-theme.css`
 
-- [x] **Step 1: 复用 `ObVxeTable` 契约，定义 `ObElementTable` props/emits/expose**
+- [x] **Step 1: 复用 `ObVxeTable` 契约，定义 `ObTable` props/emits/expose**
 - [x] **Step 2: 实现列递归渲染，兼容 `slot/headerSlot/cellRenderer/headerRenderer/children/hide`**
 - [x] **Step 3: 实现分页、排序、多选、空值占位、空态图片、中文分页、树表与懒加载桥接**
 - [x] **Step 4: 对齐共享样式 token，确保与 `ObVxeTable` 视觉一致**
@@ -71,7 +71,7 @@
 
 ## Chunk 3: admin 页面切换与规则文档更新
 
-### Task 4: 将 5 个灰度页面切换到 `ObElementTable`
+### Task 4: 将 5 个灰度页面切换到 `ObTable`
 
 **Files:**
 
@@ -82,7 +82,7 @@
 - Modify: `apps/admin/src/modules/adminManagement/org/list.vue`
 - Modify: `apps/admin/src/modules/adminManagement/org/columns.tsx`
 
-- [x] **Step 1: 按 TanStack 前页面结构回收模板，只把表格主体切到 `ObElementTable`**
+- [x] **Step 1: 按 TanStack 前页面结构回收模板，只把表格主体切到 `ObTable`**
 - [x] **Step 2: 保留组织管理当前 `ellipsis/showOverflowTooltip/treeNode` 等业务配置**
 - [x] **Step 3: 跑 5 个页面源码测试，确认页面接线正确**
 
@@ -97,8 +97,8 @@
 - Modify: `docs/plans/2026-03-31-element-table-wrapper-design.md`
 - Modify: `docs/plans/2026-03-31-element-table-wrapper-plan.md`
 
-- [x] **Step 1: 把“只允许 `ObVxeTable`”收口为“统一使用 `ObVxeTable` 或 `ObElementTable`，禁止直接 `<el-table>`”**
-- [x] **Step 2: 文档移除 TanStack 现行方案，补充 `ObElementTable` 接入说明**
+- [x] **Step 1: 把“只允许 `ObVxeTable`”收口为“统一使用 `ObVxeTable` 或 `ObTable`，禁止直接 `<el-table>`”**
+- [x] **Step 2: 文档移除 TanStack 现行方案，补充 `ObTable` 接入说明**
 
 ## Chunk 4: 验证、记录与提交
 
@@ -115,7 +115,7 @@
 - [x] **Step 2: 运行以下验证命令并记录结果**
   - `pnpm -C packages/ui typecheck`
   - `pnpm -C packages/ui lint`
-  - `pnpm exec vp test run packages/ui/src/element-table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
   - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts`
   - `pnpm -C apps/admin typecheck`
   - `pnpm -C apps/admin build`

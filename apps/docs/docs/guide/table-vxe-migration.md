@@ -2,7 +2,7 @@
 
 本模板当前提供两套统一表格壳组件：
 
-- `ObElementTable`：基于 `Element Plus el-table + el-pagination`，适合绝大多数常规列表与树表页面
+- `ObTable`：基于 `Element Plus el-table + el-pagination`，适合绝大多数常规列表与树表页面
 - `ObVxeTable`：保留给需要 VXE 专属能力的场景
 
 迁移目标保持不变：
@@ -17,28 +17,28 @@
 >
 > 当数据超出可视区时，滚动区域在表格主体（body）内，分页器不跟随内容滚动。
 >
-> 表格视觉基线（默认内置）：颜色统一走主题 token；字号 `14px`、表头字重 `600`、内容字重 `400`、行高 `56px`。
+> 表格视觉基线（默认内置）：字号 `14px`、表头字重 `600`、内容字重 `500`、行高 `56px`；表头背景 `#f8f8f8`、表头/内容文字颜色 `#333`；滚动条颜色 `#DCDEE0`、宽 `8px`、圆角 `6px`。
 >
 > 共享表格 token 统一维护在 `packages/ui/src/styles/table-theme.css`；VXE 专属变量继续维护在 `packages/ui/src/styles/vxe-theme.css`。
 >
-> `ObElementTable` 内置中文分页、空态图片、空值占位、超长省略 tooltip、普通树表与懒加载树表桥接；`ObVxeTable` 继续保留 VXE 专属能力。
+> `ObTable` 内置中文分页、空态图片、空值占位、超长省略 tooltip、普通树表与懒加载树表桥接；`ObVxeTable` 继续保留 VXE 专属能力。
 
 ## 组件与 Hook 对应关系
 
 | 能力             | 新实现                                  | 兼容目标                                       |
 | ---------------- | --------------------------------------- | ---------------------------------------------- |
 | 表格头工具条     | `ObTableBox` / `TableBox`（导出名）     | 保留旧 ObTableBox 的快捷搜索、抽屉筛选、已选条 |
-| 表格主体（默认） | `ObElementTable` / `ElementTable`       | 对齐常规列表/树表页常用 props/events/expose    |
+| 表格主体（默认） | `ObTable` / `Table`                     | 对齐常规列表/树表页常用 props/events/expose    |
 | 表格主体（扩展） | `ObVxeTable` / `VxeTable`               | 对齐 VXE 专属交互与大批量历史迁移              |
 | 表格数据管理     | `useTable`（`@one-base-template/core`） | 旧 API 不破坏 + 新 API 增量能力                |
 
-## ObElementTable 现状与接入建议
+## ObTable 现状与接入建议
 
-`ObElementTable` 的目标是提供“**同契约、低心智、样式统一**”的默认表格底座：
+`ObTable` 的目标是提供“**同契约、低心智、样式统一**”的默认表格底座：
 
 - **交互契约**：已对齐 `selection-change`、`page-size-change`、`page-current-change`、`sort-change`，并保留 `getTableRef()`、`setAdaptive()`、`clearSelection()`。
 - **分页体验**：使用 `Element Plus` 的 `el-pagination`，并固定使用 `zh-cn` locale，分页文案统一中文展示。
-- **主题策略**：`packages/ui/src/styles/table-theme.css` 为共享表格 token 层，`ObElementTable` 与 `ObVxeTable` 同时消费，避免视觉体系分叉。
+- **主题策略**：`packages/ui/src/styles/table-theme.css` 为共享表格 token 层，`ObTable` 与 `ObVxeTable` 同时消费，避免视觉体系分叉。
 - **树形能力**：支持 `treeConfig`（含 `expandAll/lazy/loadMethod/childrenField/hasChildField`），满足菜单管理、组织管理类页面迁移需求。
 - **列宽契约**：支持消费列定义中的 `width/minWidth`，避免配置失效。
 - **列内容可读性**：支持 `showOverflowTooltip/ellipsis` 控制超长省略；鼠标悬浮自动展示 tooltip（操作列默认关闭）。
@@ -47,7 +47,7 @@
 
 推荐接入顺序：
 
-1. 普通列表与树表优先使用 `ObElementTable`；
+1. 普通列表与树表优先使用 `ObTable`；
 2. 仅当页面明确依赖 VXE 专属能力时再使用 `ObVxeTable`；
 3. 对照关键交互（排序、多选、分页、树展开）做页面回归；
 4. 若页面稳定，再按模块批量推广。
@@ -55,7 +55,7 @@
 最小替换示例：
 
 ```vue
-<ObElementTable
+<ObTable
   :data="dataList"
   :columns="columns"
   :pagination="pagination"
@@ -77,14 +77,14 @@ table?.clearSelection?.();
 
 推荐默认采用：
 
-1. `pure-table` -> `ObElementTable`
+1. `pure-table` -> `ObTable`
 2. 页面外层统一使用 `ObPageContainer` 承载滚动与高度（`padding="0"`）
 3. 继续保留 `ObTableBox` 包裹布局
 4. 页面内直接调用 `@one-base-template/core` 的 `useTable`（不再经过 admin 本地 wrapper）
 
-## ObElementTable 默认配置（建议先用默认）
+## ObTable 默认配置（建议先用默认）
 
-为了减少迁移页模板样板代码，`ObElementTable` 已内置常用默认值：
+为了减少迁移页模板样板代码，`ObTable` 已内置常用默认值：
 
 - `tableLayout='auto'`
 - `showOverflowTooltip=true`
@@ -114,7 +114,7 @@ table?.clearSelection?.();
 
 与两套表格底座的关键差异：
 
-- `ObElementTable`：`lazy + load + tree-props` 后，默认首列即可显示树图标
+- `ObTable`：`lazy + load + tree-props` 后，默认首列即可显示树图标
 - `ObVxeTable`：除 `treeConfig` 外，还要在列上显式声明 `treeNode: true`
 - 建议在 API 层做一次转换（如 `toOrgRows`），把 `id/parentId/hasChildren/children` 统一成树表标准字段
 
@@ -247,35 +247,35 @@ const table = useTable({
 
 - 页面 1：`/system/log/login-log`（分页表格）
   - 路由名：`SystemLoginLogManagement`
-  - 2026-03-31：`apps/admin` 版本已切换为 `ObElementTable`，保留原有分页与操作列交互
+  - 2026-03-31：`apps/admin` 版本已切换为 `ObTable`，保留原有分页与操作列交互
   - 代码位置：
     - `apps/admin/src/modules/LogManagement/login-log/list.vue`
     - `apps/admin/src/modules/LogManagement/login-log/columns.tsx`
     - `apps/admin/src/modules/LogManagement/login-log/api.ts`
 - 页面 2：`/system/org`（树形组织管理）
   - 路由名：`SystemOrgManagement`
-  - 2026-03-31：`apps/admin` 版本已切换为 `ObElementTable`，保留树形 `treeConfig` 与操作列交互
+  - 2026-03-31：`apps/admin` 版本已切换为 `ObTable`，保留树形 `treeConfig` 与操作列交互
   - 代码位置：
     - `apps/admin/src/modules/adminManagement/org/list.vue`
     - `apps/admin/src/modules/adminManagement/org/columns.tsx`
     - `apps/admin/src/modules/adminManagement/org/api.ts`
 - 页面 3：`/system/permission`（权限管理）
   - 路由名：`SystemMenuManagement`
-  - 2026-03-31：`apps/admin` 版本已切换为 `ObElementTable`，保留树形 `treeConfig` 与操作列交互
+  - 2026-03-31：`apps/admin` 版本已切换为 `ObTable`，保留树形 `treeConfig` 与操作列交互
   - 代码位置：
     - `apps/admin/src/modules/adminManagement/menu/list.vue`
     - `apps/admin/src/modules/adminManagement/menu/columns.ts`
     - `apps/admin/src/modules/adminManagement/menu/api.ts`
 - 页面 4：`/system/role/management`（角色管理）
   - 路由名：`SystemRoleManagement`
-  - 2026-03-31：`apps/admin` 版本已切换为 `ObElementTable`
+  - 2026-03-31：`apps/admin` 版本已切换为 `ObTable`
   - 代码位置：
     - `apps/admin/src/modules/adminManagement/role/list.vue`
     - `apps/admin/src/modules/adminManagement/role/columns.tsx`
     - `apps/admin/src/modules/adminManagement/role/api.ts`
 - 页面 5：`/system/role/assign`（角色分配）
   - 路由名：`SystemRoleAssign`
-  - 2026-03-31：`apps/admin` 版本已切换为 `ObElementTable`
+  - 2026-03-31：`apps/admin` 版本已切换为 `ObTable`
   - 代码位置：
     - `apps/admin/src/modules/adminManagement/role-assign/list.vue`
     - `apps/admin/src/modules/adminManagement/role-assign/columns.tsx`

@@ -10,10 +10,8 @@ describe('ui root entry source', () => {
     expect(source).toContain("export { default as ObCard } from './components/card/ObCard.vue';");
   });
 
-  it('导出 ElementTable，供业务在 VXE 与 Element 封装间切换', () => {
-    expect(source).toContain(
-      "export { default as ElementTable } from './components/table/ElementTable.vue';"
-    );
+  it('导出 Table，供业务统一使用 ObTable', () => {
+    expect(source).toContain("export { default as Table } from './components/table/Table.vue';");
     expect(source).not.toContain('TanStackTable');
   });
 });

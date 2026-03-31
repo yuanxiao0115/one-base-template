@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vite-plus/test';
 import listSource from './list.vue?raw';
 
 describe('LogManagement/login-log list source', () => {
-  it('登录日志页应切换为 ObElementTable，保留分页与操作列插槽', () => {
-    expect(listSource).toContain('<ObElementTable');
+  it('登录日志页应切换为 ObTable，保留分页与操作列插槽', () => {
+    expect(listSource).toContain('<ObTable');
     expect(listSource).not.toContain('<ObTanStackTable');
     expect(listSource).toContain('@page-size-change="handleSizeChange"');
     expect(listSource).toContain('@page-current-change="handleCurrentChange"');

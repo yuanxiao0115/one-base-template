@@ -20,7 +20,7 @@ export { default as ActionButtons } from './components/table/ActionButtons.vue';
 export { default as TableBox } from './components/table/TableBox.vue';
 export { default as CardTable } from './components/table/CardTable.vue';
 export { default as VxeTable } from './components/table/VxeTable.vue';
-export { default as ElementTable } from './components/table/ElementTable.vue';
+export { default as Table } from './components/table/Table.vue';
 export { default as ImportUpload } from './components/upload/ImportUpload.vue';
 export { LoginBox, LoginBoxV2 } from './lite-auth';
 export {

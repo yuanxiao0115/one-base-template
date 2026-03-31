@@ -67,7 +67,7 @@
 - `@one-base-template/ui` 组件在 admin 页面默认走全局注册（`Ob*` 前缀）；仅在明确说明原因时才允许局部 import。
 - `ObPageContainer` 外层禁止再包无业务意义占位 `div`，优先使用片段根节点保持结构扁平。
 - admin 下 CRUD 编排页文件名统一使用 `list.vue`（不再使用 `page.vue`），对应路由懒加载路径必须保持一致。
-- 门户模板列表页（`apps/admin/src/modules/PortalManagement/templatePage/list.vue`）必须对齐 admin 列表基线：禁止直接使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 或 `ObElementTable`，以及 `@one-base-template/ui`。
+- 门户模板列表页（`apps/admin/src/modules/PortalManagement/templatePage/list.vue`）必须对齐 admin 列表基线：禁止直接使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 或 `ObTable`，以及 `@one-base-template/ui`。
 - PortalManagement 权限选人左树严格对齐老项目：固定调用 `GET /cmict/admin/org/detail/children-and-user`，不做多接口兼容兜底；根节点请求使用当前登录用户 `companyId`（缺失时才回退 `parentId=\"0\"`）。
 - 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定为：`/portal/setting`、`/portal/design`、`/portal/page/edit`、`/portal/preview`，禁止继续为该模块配置路由 alias（含路由 `alias` 属性与 `compat.routeAliases`）。
 - `PortalManagement` 的设计能力统一收敛到 `designPage` 目录，**页面入口直接放在 `designPage/*.vue`，不再新增 `designPage/pages` 冗余层级**；若后续恢复组件目录，仍需按页面边界分组（如 `portal-template`、`preview-render`），禁止在 `components` 根目录平铺堆叠组件。
@@ -94,7 +94,7 @@
 ## Agent 执行红线（公共组件优先）
 
 - 该节为 admin 场景的强制红线；后续 CRUD 迁移与重构默认按此执行，除非用户明确授权例外。
-- CRUD 列表编排页必须采用 `ObPageContainer + ObTableBox + ObVxeTable/ObElementTable`；禁止页面层直接使用 `el-table`。
+- CRUD 列表编排页必须采用 `ObPageContainer + ObTableBox + ObVxeTable/ObTable`；禁止页面层直接使用 `el-table`。
 - CRUD 新增/编辑/查看容器必须使用 `ObCrudContainer`；禁止在 CRUD 场景回退 `el-dialog`/`el-drawer` 直连编排。
 - 模块业务代码（`apps/admin/src/modules/**`）的消息提示统一使用 `@one-base-template/ui`；禁止直接使用 `ElMessage`。
 - 模块业务代码（`apps/admin/src/modules/**`）的二次确认统一使用 `obConfirm`/`tryConfirmWarn`；禁止直接使用 `ElMessageBox`。
@@ -105,11 +105,11 @@
 
 ## 表格迁移（业务页侧）
 
-- 登录日志等迁移页结构保持：`ObPageContainer + ObTableBox + ObVxeTable/ObElementTable`。
+- 登录日志等迁移页结构保持：`ObPageContainer + ObTableBox + ObVxeTable/ObTable`。
 - 业务页优先使用表格壳组件默认配置，仅先传核心参数：`data/columns/pagination/loading`，其他配置按需追加。
 - 默认采用“容器自适应撑满 + 分页器置底”方案，避免业务页再传固定高度（特殊场景可覆盖）。
 - 分页布局必须满足“分页器固定底部 + 表格主体独立滚动”，禁止把 Table 与 Pager 放在同一滚动容器。
-- 使用 `ObTableBox + ObVxeTable/ObElementTable` 的页面应优先包裹 `ObPageContainer`（建议 `overflow="hidden"`），避免双滚动与分页漂移。
+- 使用 `ObTableBox + ObVxeTable/ObTable` 的页面应优先包裹 `ObPageContainer`（建议 `overflow="hidden"`），避免双滚动与分页漂移。
 - 登录日志迁移视觉需对齐老项目：`TableBox`“搜索框 + 筛选图标按钮”，统一表格壳组件保持“浅灰表头 + 分页左总数右操作”。
 - 表格对齐统一：表头左对齐；数值列右对齐；操作列右对齐；常规文本列左对齐。
 - `TableBox` 样式规范：搜索输入框宽 `360px`、高 `32px`、右间距 `8px`、无圆角无阴影；筛选按钮同高度扁平；工具条顶部间距固定 `8px`，去掉标题分割线。

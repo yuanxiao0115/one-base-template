@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Table as ObTable } from '@one-base-template/ui';
 import LoginLogSearchForm from './components/LoginLogSearchForm.vue';
 import LoginLogDetail from './components/LoginLogDetail.vue';
 import { useLoginLogPageState } from './composables/useLoginLogPageState';
@@ -39,7 +40,7 @@ const {
       @reset-form="onResetSearch"
     >
       <template #default="{ size, dynamicColumns }">
-        <ObElementTable
+        <ObTable
           :ref="refs.tableRef"
           :loading
           :size
@@ -60,7 +61,7 @@ const {
               >
             </ObActionButtons>
           </template>
-        </ObElementTable>
+        </ObTable>
       </template>
 
       <template #drawer>

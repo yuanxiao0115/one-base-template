@@ -1,3 +1,4 @@
+import type { PaginationConfig } from '@one-base-template/core';
 import type { VNodeChild } from 'vue';
 
 export type TableAlign = 'left' | 'center' | 'right';
@@ -46,16 +47,7 @@ export interface TableColumn {
 
 export type TableColumnList = TableColumn[];
 
-export interface TablePagination {
-  total: number;
-  pageSize: number;
-  currentPage: number;
-  background?: boolean;
-  pageSizes?: number[];
-  layout?: string;
-  small?: boolean;
-  [key: string]: unknown;
-}
+export type TablePagination = PaginationConfig;
 
 export interface AdaptiveConfig {
   offsetBottom?: number;

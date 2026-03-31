@@ -186,6 +186,7 @@
 
 # operations-log
 
+- 2026-03-31 16:58: `ObTable` 第二轮收口：仅调整自定义壳组件与共享 token，不改无关原生 `el-table` 细节；保留并避开用户已有脏文件 `apps/admin-lite/src/bootstrap/startup.ts`、`apps/admin/src/bootstrap/startup.ts`、`apps/admin/src/types/auto-imports.d.ts`、`apps/admin/src/types/components.d.ts`。
 - 2026-02-11 14:29:08 降级：mcp**augment-context-engine**codebase-retrieval 无法索引当前目录（安全限制），改用 rg/ls 本地检索。
 
 ## 2026-03-28（公文表单设计器 v3：Sheet-first 收口）

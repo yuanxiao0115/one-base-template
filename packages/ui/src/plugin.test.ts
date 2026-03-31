@@ -12,9 +12,9 @@ describe('registerOneUiComponents source', () => {
     expect(source).not.toContain('LoginBoxV2');
   });
 
-  it('注册 ElementTable，保持 Ob* 组件命名规则一致', () => {
-    expect(source).toContain("import ElementTable from './components/table/ElementTable.vue';");
-    expect(source).toContain('ElementTable,');
+  it('注册 Table，保持 Ob* 组件命名规则一致', () => {
+    expect(source).toContain("import Table from './components/table/Table.vue';");
+    expect(source).toContain('Table,');
     expect(source).not.toContain('TanStackTable');
   });
 });
