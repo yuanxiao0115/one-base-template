@@ -893,6 +893,7 @@ defineExpose({
                   <div
                     class="ob-tanstack-table__cell ob-tanstack-table__cell--header"
                     :class="{ 'is-clickable': header.column.getCanSort() }"
+                    :title="engine.getHeaderTitle(header)"
                     @click="handleHeaderSort(header, $event)"
                   >
                     <template v-if="!header.isPlaceholder">
@@ -1148,6 +1149,10 @@ defineExpose({
 
 .ob-tanstack-table__cell--header {
   position: relative;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 14px;
   font-weight: var(--ob-table-header-font-weight);
   color: var(--ob-table-header-color);

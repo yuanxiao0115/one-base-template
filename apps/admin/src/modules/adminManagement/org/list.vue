@@ -48,13 +48,18 @@ const dialogs = reactive(pageState.dialogs);
           :pagination="false"
           :tree-config="table.treeConfig"
           row-key="id"
+          :show-empty-value="true"
+          empty-value-text="---"
+          empty-text="暂未生产任何数据"
         >
           <template #orgName="{ row }">
             <div class="org-management-page__name-cell">
               <el-tag size="small" type="info">{{
                 row.orgType === 1 ? '单位' : row.orgType === 0 ? '部门' : '--'
               }}</el-tag>
-              <span>{{ row.orgName }}</span>
+              <span class="org-management-page__name-text" :title="row.orgName || '---'">
+                {{ row.orgName || '---' }}
+              </span>
               <el-tag v-if="row.isExternal" size="small" type="warning">外部</el-tag>
             </div>
           </template>
@@ -150,7 +155,20 @@ const dialogs = reactive(pageState.dialogs);
 .org-management-page__name-cell {
   display: inline-flex;
   align-items: center;
+  width: 100%;
+  min-width: 0;
   gap: 6px;
+}
+
+.org-management-page__name-cell :deep(.el-tag) {
+  flex-shrink: 0;
+}
+
+.org-management-page__name-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .org-management-page__actions {

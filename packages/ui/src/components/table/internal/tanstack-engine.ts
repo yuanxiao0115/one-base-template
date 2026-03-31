@@ -12,6 +12,7 @@ import {
   type ColumnDef,
   type ExpandedState,
   type HeaderContext,
+  type Header,
   type OnChangeFn,
   type Row,
   type RowData,
@@ -1062,6 +1063,12 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
     const resolvedMinWidth = resolveColumnSizeStyle(meta.minWidth);
 
     if (!hasConfiguredWidth && !hasManualSizing) {
+      if (resolvedMinWidth) {
+        return {
+          width: resolvedMinWidth,
+          minWidth: resolvedMinWidth
+        };
+      }
       return {
         minWidth: resolvedMinWidth
       };
@@ -1075,6 +1082,18 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
       minWidth: resolvedMinWidth ?? resolvedWidth,
       maxWidth: resolvedWidth
     };
+  }
+
+  function getHeaderTitle(header: Header<RowRecord, unknown>) {
+    const meta = getColumnMeta(header.column);
+    if (!meta.showOverflow || meta.isOperationColumn) {
+      return undefined;
+    }
+    const label = meta.originalColumn.label;
+    if (typeof label !== 'string') {
+      return undefined;
+    }
+    return label;
   }
 
   function getCellTitle(cell: Cell<RowRecord, unknown>) {
@@ -1110,6 +1129,7 @@ export function useTanStackTableEngine(options: UseTanStackTableEngineOptions) {
     getColumnSizing,
     getColumnMeta,
     getColumnStyle,
+    getHeaderTitle,
     getCellTitle,
     createSortOrder,
     rowSelection,

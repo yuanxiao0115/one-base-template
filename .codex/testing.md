@@ -9405,3 +9405,18 @@
   - `packages/ui`：源码门禁测试通过（`16/16`），`typecheck/lint` 通过。
   - `apps/admin`：`typecheck` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-03-31（组织管理页配置未生效修复）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run /Users/haoqiuzhi/code/one-base-template/packages/ui/src/tanstack-table-source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/packages/ui lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin test:run:file -- src/modules/adminManagement/org/list.source.test.ts`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/admin typecheck`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs lint`
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template/apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁测试通过（`17/17`），`typecheck/lint` 通过。
+  - `apps/admin`：组织管理源码门禁通过（`1/1`），`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

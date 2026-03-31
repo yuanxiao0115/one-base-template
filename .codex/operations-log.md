@@ -10871,3 +10871,12 @@
 - `packages/ui/src/components/table/types.ts`：补充 `ellipsis/showEmptyValue/emptyValueText` 列级类型字段。
 - `packages/ui/src/tanstack-table-source.test.ts`：新增源码门禁断言，覆盖空值占位、空态文案配置与超长省略能力。
 - `apps/docs/docs/guide/table-vxe-migration.md`：同步新增配置能力说明。
+
+## 2026-03-31（组织管理页配置未生效修复）
+
+- 用户反馈 `/system/org` 已配置但“省略/tooltip”未达到预期，按页面与组件两层收口：
+  - 页面层：`apps/admin/src/modules/adminManagement/org/list.vue` 的 `orgName` 插槽改为“标签不收缩 + 文本单行省略 + title”，并修正 `ObTanStackTable` 新增配置的模板排版。
+  - 组件层：`packages/ui/src/components/table/internal/tanstack-engine.ts` 在无显式 `width` 时让 `minWidth` 同时作为基础宽度生效，避免窄列场景配置被稀释；新增 `getHeaderTitle` 供表头 tooltip。
+  - 视觉层：`packages/ui/src/components/table/TanStackTable.vue` 表头单元格统一 `nowrap + ellipsis`，并接入 `:title=\"engine.getHeaderTitle(header)\"`。
+- `packages/ui/src/tanstack-table-source.test.ts` 新增“表头省略 + title”与 `minWidth` 基础宽度断言。
+- `apps/docs/docs/guide/table-vxe-migration.md` 同步补充 `minWidth` 生效口径。

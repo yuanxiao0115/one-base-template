@@ -174,8 +174,17 @@ describe('TanStackTable source', () => {
       'const hasManualSizing = Object.prototype.hasOwnProperty.call(columnSizing.value, column.id);'
     );
     expect(engineSource).toContain('if (!hasConfiguredWidth && !hasManualSizing) {');
+    expect(engineSource).toContain('width: resolvedMinWidth,');
     expect(engineSource).toContain('minWidth: resolvedMinWidth');
     expect(engineSource).toContain('maxWidth: resolvedWidth');
+  });
+
+  it('表头应保持单行省略并支持 hover title，避免窄列场景换行', () => {
+    expect(source).toContain(':title="engine.getHeaderTitle(header)"');
+    expect(source).toContain('.ob-tanstack-table__cell--header {');
+    expect(source).toContain('text-overflow: ellipsis;');
+    expect(source).toContain('white-space: nowrap;');
+    expect(engineSource).toContain('function getHeaderTitle(header: Header<RowRecord, unknown>) {');
   });
 
   it('超长文本应支持省略与 tooltip，并兼容 ellipsis 列配置别名', () => {
