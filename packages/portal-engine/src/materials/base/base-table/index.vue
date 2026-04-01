@@ -31,13 +31,21 @@
               <span v-if="shouldShowDot(scope.row, column)" class="base-table__dot" />
 
               <button
-                v-if="isColumnLinkEnabled(column)"
+                v-if="isColumnLinkEnabled(column) && !column.showTag"
                 class="base-table__link"
                 type="button"
                 @click="handleCellLinkClick(scope.row, column)"
               >
                 {{ formatCellValue(scope.row, column.fieldKey) }}
               </button>
+
+              <span
+                v-else-if="column.showTag"
+                class="base-table__tag"
+                :style="resolveTagStyle(scope.row, column)"
+              >
+                {{ formatCellValue(scope.row, column.fieldKey) }}
+              </span>
 
               <span v-else>{{ formatCellValue(scope.row, column.fieldKey) }}</span>
             </div>
@@ -46,19 +54,24 @@
       </el-table>
 
       <div v-if="showPagination" class="base-table__pagination" :style="paginationStyleObj">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="currentPageSize"
-          layout="total, sizes, prev, pager, next"
-          :page-sizes="pageSizes"
-          :total="total"
-        />
+        <el-config-provider :locale="zhCnLocale">
+          <el-pagination
+            v-model:current-page="currentPage"
+            v-model:page-size="currentPageSize"
+            layout="total, sizes, prev, pager, next"
+            prev-text="上一页"
+            next-text="下一页"
+            :page-sizes="pageSizes"
+            :total="total"
+          />
+        </el-config-provider>
       </div>
     </div>
   </UnifiedContainerDisplay>
 </template>
 
 <script setup lang="ts">
+import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import { computed, onBeforeUnmount, ref, watch, type CSSProperties } from 'vue';
 import { useRouter } from 'vue-router';
 import { UnifiedContainerDisplay } from '../../common/unified-container';
@@ -93,6 +106,11 @@ interface TableColumnModel {
   linkParamKey: string;
   linkValueKey: string;
   openType: LinkOpenType;
+  showTag: boolean;
+  tagBgColor: string;
+  tagTextColor: string;
+  tagBgColorFieldKey: string;
+  tagTextColorFieldKey: string;
   showDot: boolean;
   dotFieldKey: string;
   dotTruthyValue: string;
@@ -136,9 +154,11 @@ interface BaseTableSchema {
       headerBgColor?: string;
       headerTextColor?: string;
       headerFontSize?: number;
+      headerHeight?: number;
       headerRadius?: number;
       rowTextColor?: string;
       rowFontSize?: number;
+      rowHeight?: number;
       rowHoverBgColor?: string;
       dividerColor?: string;
       linkColor?: string;
@@ -169,6 +189,7 @@ const apiRows = ref<TableRow[]>([]);
 const apiTotal = ref(0);
 const currentPage = ref(1);
 const currentPageSize = ref(10);
+const zhCnLocale = zhCn;
 
 let reloadTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -193,6 +214,11 @@ const normalizedColumns = computed<TableColumnModel[]>(() => {
     linkParamKey: String(item.linkParamKey || 'id'),
     linkValueKey: String(item.linkValueKey || item.fieldKey || 'id'),
     openType: item.openType === 'newTab' || item.openType === 'current' ? item.openType : 'router',
+    showTag: item.showTag === true,
+    tagBgColor: String(item.tagBgColor || '#dbeafe'),
+    tagTextColor: String(item.tagTextColor || '#1d4ed8'),
+    tagBgColorFieldKey: String(item.tagBgColorFieldKey || ''),
+    tagTextColorFieldKey: String(item.tagTextColorFieldKey || ''),
     showDot: item.showDot === true,
     dotFieldKey: String(item.dotFieldKey || ''),
     dotTruthyValue: String(item.dotTruthyValue || '')
@@ -263,9 +289,11 @@ const tableCssVars = computed<CSSProperties>(
       '--base-table-header-bg': tableStyleConfig.value.headerBgColor || '#f8fafc',
       '--base-table-header-color': tableStyleConfig.value.headerTextColor || '#334155',
       '--base-table-header-font-size': `${Math.max(12, toPositiveNumber(tableStyleConfig.value.headerFontSize, 14))}px`,
+      '--base-table-header-height': `${Math.max(24, toPositiveNumber(tableStyleConfig.value.headerHeight, 56))}px`,
       '--base-table-header-radius': `${toNonNegativeNumber(tableStyleConfig.value.headerRadius, 8)}px`,
       '--base-table-row-color': tableStyleConfig.value.rowTextColor || '#334155',
       '--base-table-row-font-size': `${Math.max(12, toPositiveNumber(tableStyleConfig.value.rowFontSize, 14))}px`,
+      '--base-table-row-height': `${Math.max(24, toPositiveNumber(tableStyleConfig.value.rowHeight, 56))}px`,
       '--base-table-row-hover-bg': tableStyleConfig.value.rowHoverBgColor || '#f8fafc',
       '--base-table-divider-color': tableStyleConfig.value.dividerColor || '#e2e8f0',
       '--base-table-link-color': tableStyleConfig.value.linkColor || '#2563eb',
@@ -284,6 +312,8 @@ function headerCellStyle() {
     background: 'var(--base-table-header-bg)',
     color: 'var(--base-table-header-color)',
     fontSize: 'var(--base-table-header-font-size)',
+    height: 'var(--base-table-header-height)',
+    lineHeight: 'var(--base-table-header-height)',
     fontWeight: 600
   };
 }
@@ -292,7 +322,28 @@ function bodyCellStyle() {
   return {
     color: 'var(--base-table-row-color)',
     fontSize: 'var(--base-table-row-font-size)',
+    height: 'var(--base-table-row-height)',
+    lineHeight: 'var(--base-table-row-height)',
     borderColor: showRowDivider.value ? 'var(--base-table-divider-color)' : 'transparent'
+  };
+}
+
+function resolveTagStyle(row: TableRow, column: TableColumnModel): CSSProperties {
+  const defaultTagBgColor = '#dbeafe';
+  const defaultTagTextColor = '#1d4ed8';
+  const bgColorFieldKey = String(column.tagBgColorFieldKey || '').trim();
+  const textColorFieldKey = String(column.tagTextColorFieldKey || '').trim();
+  const bgColorByField = bgColorFieldKey ? resolveValueByPath(row, bgColorFieldKey) : '';
+  const textColorByField = textColorFieldKey ? resolveValueByPath(row, textColorFieldKey) : '';
+  return {
+    backgroundColor:
+      typeof bgColorByField === 'string' && bgColorByField.trim()
+        ? bgColorByField
+        : column.tagBgColor || defaultTagBgColor,
+    color:
+      typeof textColorByField === 'string' && textColorByField.trim()
+        ? textColorByField
+        : column.tagTextColor || defaultTagTextColor
   };
 }
 
@@ -664,6 +715,10 @@ defineOptions({
   border-bottom-color: transparent;
 }
 
+.base-table__table.without-row-divider :deep(.el-table__inner-wrapper::before) {
+  display: none;
+}
+
 .base-table__cell {
   display: flex;
   align-items: center;
@@ -687,6 +742,17 @@ defineOptions({
   text-decoration: underline;
   cursor: pointer;
   font: inherit;
+}
+
+.base-table__tag {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
 }
 
 .base-table__pagination {

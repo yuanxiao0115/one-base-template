@@ -9976,3 +9976,31 @@
   - `packages/portal-engine`：`typecheck` 通过。
   - `packages/portal-engine`：测试通过（`32 files / 124 tests`）。
   - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-01（base-table 表头/行高配置 + 隐藏 inner-wrapper 底线）
+
+- RED：
+  - `pnpm -C packages/portal-engine run test:run -- src/materials/base/base-table/source.test.ts`
+  - 结果：失败（`2 failed`），缺少 `headerHeight/rowHeight` 配置与 `inner-wrapper::before` 隐藏规则。
+- GREEN / 回归：
+  - `pnpm -C packages/portal-engine run test:run -- src/materials/base/base-table/source.test.ts`
+  - `pnpm -C packages/portal-engine typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/portal-engine`：源码测试通过（`33 files / 126 tests`），`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-01（base-table 中文分页 + tag 列展示）
+
+- RED：
+  - `pnpm -C packages/portal-engine run test:run -- src/materials/base/base-table/source.test.ts`
+  - 结果：失败（`1 failed`），缺少中文分页与 tag 列配置/渲染实现。
+- GREEN / 回归：
+  - `pnpm -C packages/portal-engine run test:run -- src/materials/base/base-table/source.test.ts`
+  - `pnpm -C packages/portal-engine typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/portal-engine`：源码测试通过（`33 files / 127 tests`），`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。

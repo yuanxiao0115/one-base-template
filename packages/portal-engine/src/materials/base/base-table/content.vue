@@ -312,6 +312,38 @@
               </el-form-item>
             </template>
 
+            <el-form-item label="标签样式展示">
+              <el-switch v-model="column.showTag" />
+            </el-form-item>
+
+            <template v-if="column.showTag">
+              <el-form-item label="标签背景色">
+                <ObColorField v-model="column.tagBgColor" show-alpha />
+              </el-form-item>
+
+              <el-form-item label="标签文字色">
+                <ObColorField v-model="column.tagTextColor" show-alpha />
+              </el-form-item>
+
+              <el-form-item label="标签背景色字段 key">
+                <el-input
+                  v-model.trim="column.tagBgColorFieldKey"
+                  maxlength="120"
+                  show-word-limit
+                  placeholder="可选，留空使用上方背景色"
+                />
+              </el-form-item>
+
+              <el-form-item label="标签文字色字段 key">
+                <el-input
+                  v-model.trim="column.tagTextColorFieldKey"
+                  maxlength="120"
+                  show-word-limit
+                  placeholder="可选，留空使用上方文字色"
+                />
+              </el-form-item>
+            </template>
+
             <el-form-item label="列级圆点">
               <el-switch v-model="column.showDot" />
             </el-form-item>
@@ -347,7 +379,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Delete, Plus } from '@element-plus/icons-vue';
-import { ObCard } from '@one-base-template/ui';
+import { ObCard, ObColorField } from '@one-base-template/ui';
 import { useSchemaConfig } from '../../../composables/useSchemaConfig';
 import {
   UnifiedContainerContentConfig,
@@ -373,6 +405,11 @@ interface TableColumnModel {
   linkParamKey: string;
   linkValueKey: string;
   openType: LinkOpenType;
+  showTag: boolean;
+  tagBgColor: string;
+  tagTextColor: string;
+  tagBgColorFieldKey: string;
+  tagTextColorFieldKey: string;
   showDot: boolean;
   dotFieldKey: string;
   dotTruthyValue: string;
@@ -486,6 +523,11 @@ function createColumn(seed: number): TableColumnModel {
     linkParamKey: 'id',
     linkValueKey: 'id',
     openType: 'router',
+    showTag: false,
+    tagBgColor: '#dbeafe',
+    tagTextColor: '#1d4ed8',
+    tagBgColorFieldKey: '',
+    tagTextColorFieldKey: '',
     showDot: false,
     dotFieldKey: '',
     dotTruthyValue: ''
@@ -508,6 +550,11 @@ function normalizeColumn(item: Partial<TableColumnModel>, index: number): TableC
     linkParamKey: String(item.linkParamKey || 'id'),
     linkValueKey: String(item.linkValueKey || item.fieldKey || 'id'),
     openType,
+    showTag: item.showTag === true,
+    tagBgColor: String(item.tagBgColor || '#dbeafe'),
+    tagTextColor: String(item.tagTextColor || '#1d4ed8'),
+    tagBgColorFieldKey: String(item.tagBgColorFieldKey || ''),
+    tagTextColorFieldKey: String(item.tagTextColorFieldKey || ''),
     showDot: item.showDot === true,
     dotFieldKey: String(item.dotFieldKey || ''),
     dotTruthyValue: String(item.dotTruthyValue || '')

@@ -11336,3 +11336,23 @@
   - 保留 `cms` 分类 id 不变，仅将分类名称从 `CMS专区` 改为 `党建风格cms组件`。
   - `cms` 分类下物料条目保持不变（`related-links`、`image-text-list`、`image-text-column`、`document-card-list`、`carousel-text-list`）。
 - 同步文档：更新 `apps/docs/docs/guide/portal/material-extension.md` 的内置分类说明。
+
+## 2026-04-01（base-table 样式扩展：表头/行高 + 隐藏 inner-wrapper 底线）
+
+- 修改 `packages/portal-engine/src/materials/base/base-table/style.vue`：新增样式配置项 `headerHeight` 与 `rowHeight`，默认值均为 `56`。
+- 修改 `packages/portal-engine/src/materials/base/base-table/index.vue`：
+  - 新增 CSS 变量 `--base-table-header-height`、`--base-table-row-height` 并用于 `headerCellStyle/bodyCellStyle`。
+  - 当 `showRowDivider=false`（`without-row-divider`）时，新增规则隐藏 `:deep(.el-table__inner-wrapper::before)`。
+- 修改 `packages/portal-engine/src/materials/base/base-table/config.json`：补齐 `style.table.headerHeight/rowHeight` 默认值 `56`。
+- 新增源码门禁测试：`packages/portal-engine/src/materials/base/base-table/source.test.ts`（覆盖配置项与伪元素隐藏行为）。
+- 文档同步：`apps/docs/docs/guide/portal/material-extension.md` 增补 `base-table` 新增高度配置说明。
+
+## 2026-04-01（base-table 中文分页 + tag 标签列）
+
+- `packages/portal-engine/src/materials/base/base-table/index.vue`：
+  - 分页器包裹 `el-config-provider` 并固定 `zh-cn` locale；`prev-text/next-text` 改为中文。
+  - 单元格渲染新增 `showTag` 分支，支持胶囊标签展示。
+- `packages/portal-engine/src/materials/base/base-table/content.vue`：新增列配置项 `showTag/tagBgColor/tagTextColor/tagBgColorFieldKey/tagTextColorFieldKey`。
+- `packages/portal-engine/src/materials/base/base-table/config.json`：示例列补齐 tag 配置默认字段。
+- `packages/portal-engine/src/materials/base/base-table/source.test.ts`：新增中文分页与 tag 配置源码门禁断言。
+- `apps/docs/docs/guide/portal/material-extension.md`：同步 base-table 新能力说明。

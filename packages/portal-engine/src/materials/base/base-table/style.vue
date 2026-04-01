@@ -21,6 +21,15 @@
           />
         </el-form-item>
 
+        <el-form-item label="表头高度(px)">
+          <el-input-number
+            v-model="sectionData.table.headerHeight"
+            :min="24"
+            :max="120"
+            controls-position="right"
+          />
+        </el-form-item>
+
         <el-form-item label="表头圆角(px)">
           <el-input-number
             v-model="sectionData.table.headerRadius"
@@ -41,6 +50,15 @@
             v-model="sectionData.table.rowFontSize"
             :min="12"
             :max="30"
+            controls-position="right"
+          />
+        </el-form-item>
+
+        <el-form-item label="行高(px)">
+          <el-input-number
+            v-model="sectionData.table.rowHeight"
+            :min="24"
+            :max="120"
             controls-position="right"
           />
         </el-form-item>
@@ -115,9 +133,11 @@ interface BaseTableStyleData {
     headerBgColor: string;
     headerTextColor: string;
     headerFontSize: number;
+    headerHeight: number;
     headerRadius: number;
     rowTextColor: string;
     rowFontSize: number;
+    rowHeight: number;
     rowHoverBgColor: string;
     dividerColor: string;
     linkColor: string;
@@ -132,9 +152,11 @@ const BASE_TABLE_STYLE_DEFAULTS: BaseTableStyleData['table'] = {
   headerBgColor: '#f8fafc',
   headerTextColor: '#334155',
   headerFontSize: 14,
+  headerHeight: 56,
   headerRadius: 8,
   rowTextColor: '#334155',
   rowFontSize: 14,
+  rowHeight: 56,
   rowHoverBgColor: '#f8fafc',
   dividerColor: '#e2e8f0',
   linkColor: '#2563eb',
@@ -175,6 +197,10 @@ sectionData.table = {
     Number(sectionData.table?.headerFontSize) > 0
       ? Number(sectionData.table.headerFontSize)
       : BASE_TABLE_STYLE_DEFAULTS.headerFontSize,
+  headerHeight:
+    Number(sectionData.table?.headerHeight) > 0
+      ? Number(sectionData.table.headerHeight)
+      : BASE_TABLE_STYLE_DEFAULTS.headerHeight,
   headerRadius: Number.isFinite(Number(sectionData.table?.headerRadius))
     ? Number(sectionData.table.headerRadius)
     : BASE_TABLE_STYLE_DEFAULTS.headerRadius,
@@ -183,6 +209,10 @@ sectionData.table = {
     Number(sectionData.table?.rowFontSize) > 0
       ? Number(sectionData.table.rowFontSize)
       : BASE_TABLE_STYLE_DEFAULTS.rowFontSize,
+  rowHeight:
+    Number(sectionData.table?.rowHeight) > 0
+      ? Number(sectionData.table.rowHeight)
+      : BASE_TABLE_STYLE_DEFAULTS.rowHeight,
   rowHoverBgColor: sectionData.table?.rowHoverBgColor || BASE_TABLE_STYLE_DEFAULTS.rowHoverBgColor,
   dividerColor: sectionData.table?.dividerColor || BASE_TABLE_STYLE_DEFAULTS.dividerColor,
   linkColor: sectionData.table?.linkColor || BASE_TABLE_STYLE_DEFAULTS.linkColor,

@@ -25,6 +25,7 @@
 - 默认值统一收敛在 `defaults.ts`，并复用于 `material.ts` 初始配置与 `content/style/index` 的 merge 兜底。
 - `content.vue` / `style.vue` 建议通过 `useSchemaConfig({ sections: { xxx: { defaultValue } } })` 声明默认值；引擎会自动做“默认值 + schema”合并，减少每个物料手写初始化 merge。
 - 内置参考（已迁移到该模式）：`base-text`、`base-notice`、`base-search-box`、`base-table`、`base-file-list`、`base-card-list`、`base-stat`、`base-timeline`、`image-link-list`。
+- `base-table` 样式配置新增 `headerHeight` 与 `rowHeight`，默认值均为 `56`（单位 `px`），用于控制表头与行高；分页器文案固定中文（上一页/下一页），列配置支持 `tag` 标签展示（含背景/文字色）。
 - 当前最小示例物料：
   - 组件文件：`apps/admin/src/modules/PortalManagement/materials/simple-hello-card/index.vue`
   - 内容设置：`apps/admin/src/modules/PortalManagement/materials/simple-hello-card/content.vue`
