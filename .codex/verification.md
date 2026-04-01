@@ -6,7 +6,7 @@
 
 - 日期：2026-04-01
 - 文件：`.codex/verification/2026-04-01.md`
-- 补充：最新条目为“puretable fork 第二批（`tableKey` registry + adaptive 视口语义 + 分页 default/controlled 收口）并完成 ui/admin/docs 回归验证”。
+- 补充：最新条目为“ObTable 行拖拽 + 布局拆分 + 关系说明补齐（`rowDrag`、`use-table-layout`、ui/admin/docs 全链路回归）”。
 
 ## 历史归档
 

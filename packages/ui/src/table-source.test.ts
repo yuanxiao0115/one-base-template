@@ -9,6 +9,10 @@ describe('Table source', () => {
     new URL('./components/table/internal/table-helpers.ts', import.meta.url),
     'utf8'
   );
+  const layoutSource = readFileSync(
+    new URL('./components/table/internal/use-table-layout.ts', import.meta.url),
+    'utf8'
+  );
   const contractSource = readFileSync(
     new URL('./components/table/table-contract/column-contract.ts', import.meta.url),
     'utf8'
@@ -33,9 +37,14 @@ describe('Table source', () => {
     expect(source).toContain('showEmptyValue?: boolean;');
     expect(source).toContain('emptyValueText?: string;');
     expect(source).toContain('emptyText?: string;');
+    expect(source).toContain('rowDrag?: boolean;');
+    expect(source).toContain('rowDragConfig?: TableRowDragConfig;');
+    expect(source).toContain('tooltipRenderThreshold?: number;');
     expect(source).toContain('showEmptyValue: true');
     expect(source).toContain("emptyValueText: '---'");
     expect(source).toContain("emptyText: '暂未生产任何数据'");
+    expect(source).toContain('rowDrag: false');
+    expect(source).toContain('tooltipRenderThreshold: 200');
     expect(source).toContain('treeConfig?: Record<string, unknown>;');
     expect(source).toContain('pagination?: TablePagination | false | null;');
     expect(source).toContain("tableLayout: 'fixed'");
@@ -102,10 +111,15 @@ describe('Table source', () => {
     expect(source).toContain(
       'const resolvedTableKey = computed(() => props.tableKey ?? fallbackTableKey);'
     );
-    expect(source).toContain('function getTableDoms()');
-    expect(source).toContain('function setHeaderSticky');
+    expect(source).toContain('useTableLayout({');
     expect(source).toContain('getTableDoms,');
     expect(source).toContain('setHeaderSticky,');
+    expect(source).toContain('useTableRowDragSort({');
+    expect(source).toContain("emit('row-drag-sort', payload)");
+    expect(source).toContain('void initRowDragSortable();');
+    expect(source).toContain('scheduleAdaptiveResize();');
+    expect(typesSource).toContain('interface TableRowDragConfig');
+    expect(typesSource).toContain('interface TableRowDragSortPayload');
     expect(source).toContain("'element-loading-text': props.loadingConfig?.text");
     expect(source).toContain("'element-loading-svg-view-box': props.loadingConfig?.viewBox");
     expect(source).toContain(':key="resolvedTableKey"');
@@ -119,10 +133,14 @@ describe('Table source', () => {
     expect(source).toContain('function syncTableRegistry()');
     expect(source).toContain('tableRegistryKey,');
     expect(source).toContain('watch(tableRef, () => {');
-    expect(source).toContain("window.addEventListener('resize', adaptiveWindowResizeHandler);");
-    expect(source).toContain("window.removeEventListener('resize', adaptiveWindowResizeHandler);");
-    expect(source).toContain('resolveAdaptiveHeight({');
-    expect(source).toContain('viewportHeight: window.innerHeight');
+    expect(layoutSource).toContain(
+      "window.addEventListener('resize', adaptiveWindowResizeHandler);"
+    );
+    expect(layoutSource).toContain(
+      "window.removeEventListener('resize', adaptiveWindowResizeHandler);"
+    );
+    expect(layoutSource).toContain('resolveAdaptiveHeight({');
+    expect(layoutSource).toContain('viewportHeight: window.innerHeight');
     expect(helperSource).toContain('export function resolveAdaptiveHeight');
     expect(helperSource).toContain('export function queryFirstElement');
     expect(source).toContain('function resolvePaginationAlign');
@@ -152,6 +170,8 @@ describe('Table source', () => {
     expect(tableStyleSource).toContain('top: 50%');
     expect(tableStyleSource).toContain('transform: translateY(-50%)');
     expect(tableStyleSource).toContain('border-radius: var(--ob-table-scrollbar-radius)');
+    expect(tableStyleSource).toContain('.ob-table.is-row-drag');
+    expect(tableStyleSource).toContain('.ob-table__drag-ghost');
     expect(tableStyleSource).toContain('.ob-table__pager.is-align-left');
     expect(tableStyleSource).toContain('.ob-table__pager.is-align-center');
     expect(themeSource).toContain('--ob-table-pager-total-left: 12px;');

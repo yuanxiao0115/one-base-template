@@ -10980,3 +10980,35 @@
   - 健壮性：识别 `formatter` 与 lazy tree 归一化风险，并已修复。
   - 性能：识别 tooltip 批量实例与 adaptive 观察器重绑热点，当前作为下一批优化项。
   - 能力边界：确认 `ObTable` 不支持列拖拽排序，`ObVxeTable` 仅存在透传扩展入口。
+
+## 2026-04-01（移除 pure 命名，统一表格契约命名体系）
+
+- 将 `packages/ui/src/components/table/puretable-fork/table-column-contract.ts` 迁移为 `packages/ui/src/components/table/table-contract/column-contract.ts`。
+- 契约导出统一改为 `ObTable*` 命名（如 `ObTableColumnsContract`、`ObTableColumnType`），删除 `Pure*` 前缀。
+- `packages/ui/src/components/table/types.ts` 改为引用新路径与新命名；`packages/ui/src/table-source.test.ts` 同步更新源码门禁路径与断言。
+- `apps/docs/docs/guide/table-vxe-migration.md` 改为中性命名描述，移除 `puretable-fork` 路径与 `pure` 命名表述。
+
+## 2026-04-01（ObTable 行拖拽 + 布局拆分 + 自适应性能收口）
+
+- `packages/ui/src/components/table/Table.vue`
+  - 接入 `rowDrag/rowDragConfig/tooltipRenderThreshold` 顶层能力与 `row-drag-sort` 事件，默认关闭，树表场景自动禁用行拖拽。
+  - 行拖拽初始化改为组件挂载与数据变化双触发，避免首次渲染时 `tbody` 未就绪导致拖拽未生效。
+  - 自适应链路调整为“数据变化仅触发 `scheduleAdaptiveResize`”，不再每次重绑 `window.resize/ResizeObserver`。
+  - 空态区域补充 `aria-busy`，空态图片改为 `alt="" + aria-hidden`，避免读屏重复播报。
+- `packages/ui/src/components/table/internal/use-table-layout.ts`（新增）
+  - 抽离 `getTableDoms/resolveTableBodyTbody/setHeaderSticky/setAdaptive` 与 observer 生命周期管理。
+  - 观察器改为长驻复用模式：仅在目标容器变化时重绑，减少 resize 热路径开销。
+- `packages/ui/src/components/table/internal/use-table-row-drag-sort.ts`
+  - 行拖拽 watcher 改为 `immediate`，保证首屏满足条件时即可初始化 Sortable。
+- `packages/ui/src/components/table/types.ts`
+  - 收口并对外声明 `TableRowDragConfig` 与 `TableRowDragSortPayload`。
+- `packages/ui/src/index.ts`
+  - 增加 `TableRowDragConfig`、`TableRowDragSortPayload` 导出。
+- `packages/ui/src/components/table/Table.css`
+  - 补充行拖拽态样式（`is-row-drag`、`ob-table__drag-ghost`、`ob-table__dragging`）。
+- `packages/ui/src/table-source.test.ts`
+  - 增补 `rowDrag`/`row-drag-sort`/`use-table-layout`/样式门禁断言，并将 resize 监听断言迁移到 `use-table-layout.ts`。
+- `apps/docs/docs/guide/table-vxe-migration.md`
+  - 补充“ObTable 与 el-table 的关系与版本”说明。
+  - 风险清单补充 `expandSlot` 深度组合场景回归提示。
+  - 更新“列拖拽排序支持现状”：明确已支持行拖拽、列拖拽仍未标准化。

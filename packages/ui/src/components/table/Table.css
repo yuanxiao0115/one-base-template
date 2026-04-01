@@ -90,6 +90,22 @@
   white-space: nowrap;
 }
 
+.ob-table.is-row-drag :deep(.el-table__body-wrapper tbody tr) {
+  cursor: grab;
+}
+
+.ob-table.is-row-drag :deep(.el-table__body-wrapper tbody tr:active) {
+  cursor: grabbing;
+}
+
+.ob-table :deep(.ob-table__drag-ghost > td.el-table__cell) {
+  background: var(--ob-table-row-hover-bg);
+}
+
+.ob-table :deep(.ob-table__dragging > td.el-table__cell) {
+  opacity: 0.88;
+}
+
 .ob-table__empty {
   display: flex;
   flex-direction: column;

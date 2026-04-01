@@ -9590,3 +9590,37 @@
   - `packages/ui`：源码门禁测试通过（`12/12`）；`typecheck/lint/build` 通过。
   - `apps/admin`：6 个源码测试文件通过（`8/8`）；`typecheck` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-01（移除 pure 命名，统一表格契约命名体系）
+
+- RED：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts`
+- 结果：
+  - 失败，断言 `ObTableColumnsContract` 未命中，确认旧命名仍残留于 `packages/ui/src/components/table/types.ts`。
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：3 个源码门禁文件 `12/12` 通过。
+  - `packages/ui`：`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-01（ObTable 行拖拽 + 布局拆分 + 文档同步）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/LogManagement/sys-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：3 个源码门禁文件 `12/12` 通过；`typecheck/lint/build` 通过。
+  - `apps/admin`：6 个源码门禁文件 `8/8` 通过；`typecheck/build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

@@ -102,6 +102,21 @@ export interface AdaptiveConfig {
   zIndex?: number;
 }
 
+export interface TableRowDragConfig {
+  handle?: string;
+  animation?: number;
+  ghostClass?: string;
+  chosenClass?: string;
+  dragClass?: string;
+}
+
+export interface TableRowDragSortPayload {
+  oldIndex: number;
+  newIndex: number;
+  row?: Record<string, unknown>;
+  rows: Record<string, unknown>[];
+}
+
 export interface VxeVirtualConfig {
   enabled?: boolean;
   y?: Record<string, unknown>;

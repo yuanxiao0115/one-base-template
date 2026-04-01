@@ -33,13 +33,13 @@ import type {
   TableLocaleInput,
   TableLocaleObject,
   TablePaginationAlign,
-  TablePagination
+  TablePagination,
+  TableRowDragConfig,
+  TableRowDragSortPayload
 } from './types';
 import {
   isOperationColumn,
   normalizeTreeRows,
-  queryFirstElement,
-  resolveAdaptiveHeight,
   resolveCellDisplayValue,
   resolveColumnEmptyValueText,
   resolveColumnField,
@@ -53,6 +53,9 @@ import {
   resolveTreeHasChildField,
   resolveTreeLoadMethod
 } from './internal/table-helpers';
+import { useTableSkeleton } from './internal/use-table-skeleton';
+import { useTableRowDragSort } from './internal/use-table-row-drag-sort';
+import { useTableLayout } from './internal/use-table-layout';
 
 defineOptions({
   name: 'Table',
@@ -105,6 +108,9 @@ interface ObElementTableProps {
   reserveSelection?: boolean;
   rowHoverBgColor?: string;
   locale?: TableLocaleInput;
+  rowDrag?: boolean;
+  rowDragConfig?: TableRowDragConfig;
+  tooltipRenderThreshold?: number;
 }
 
 interface ElementTableRuntimeProps {
@@ -161,13 +167,6 @@ interface ElementTableBindingProps {
   [key: string]: unknown;
 }
 
-interface TableDomRefs {
-  tableRoot: HTMLElement | null;
-  tableWrapper: HTMLElement | null;
-  tableHeaderRef: HTMLElement | null;
-  tableBodyRef: HTMLElement | null;
-}
-
 interface ColumnBridgeScope {
   row: RowRecord;
   column?: Record<string, unknown>;
@@ -209,13 +208,17 @@ const props = withDefaults(defineProps<ObElementTableProps>(), {
   treeConfig: undefined,
   reserveSelection: false,
   rowHoverBgColor: '',
-  locale: 'zhCn'
+  locale: 'zhCn',
+  rowDrag: false,
+  rowDragConfig: () => ({}),
+  tooltipRenderThreshold: 200
 });
 
 const emit = defineEmits<{
   (e: 'selection-change', selection: RowRecord[]): void;
   (e: 'page-current-change' | 'page-size-change', page: number): void;
   (e: 'sort-change', payload: VxeEventParams): void;
+  (e: 'row-drag-sort', payload: TableRowDragSortPayload): void;
 }>();
 
 const attrs = useAttrs();
@@ -223,10 +226,6 @@ const slots = useSlots();
 
 const wrapperRef = ref<HTMLDivElement>();
 const tableRef = ref<TableInstance | null>(null);
-const adaptiveHeight = ref<number>();
-let resizeObserver: ResizeObserver | null = null;
-let adaptiveWindowResizeHandler: (() => void) | null = null;
-let adaptiveResizeTimer: ReturnType<typeof setTimeout> | null = null;
 const registeredTableKey = ref<string | null>(null);
 
 function resolveTableSize(attrsRecord: Record<string, unknown>): ElementTableSize {
@@ -258,7 +257,11 @@ const normalizedColumns = computed<TableColumnList>(() =>
   Array.isArray(props.columns) ? props.columns : []
 );
 
-const wrapperClass = computed(() => ['ob-table', attrs.class]);
+const wrapperClass = computed(() => [
+  'ob-table',
+  { 'is-row-drag': rowDragEnabled.value },
+  attrs.class
+]);
 const wrapperStyle = computed<CSSProperties>(() => {
   const style = (attrs.style || {}) as CSSProperties;
   const hoverBgColor =
@@ -300,7 +303,10 @@ const passthroughAttrs = computed(() => {
     'treeConfig',
     'reserveSelection',
     'rowHoverBgColor',
-    'locale'
+    'locale',
+    'rowDrag',
+    'rowDragConfig',
+    'tooltipRenderThreshold'
   ]);
 
   return Object.fromEntries(Object.entries(attrs).filter(([key]) => !blockedKeys.has(key)));
@@ -437,28 +443,31 @@ const resolvedEmptyText = computed(() => {
   const content = props.emptyText?.trim();
   return content && content.length > 0 ? content : '暂未生产任何数据';
 });
-
-const resolvedSkeletonRows = computed(() => {
-  const rows = Number(props.skeletonRows || 0);
-  if (!Number.isFinite(rows) || rows <= 0) {
-    return 8;
-  }
-  return Math.max(1, Math.floor(rows));
+const { showFirstLoadSkeleton, resolvedSkeletonRows, skeletonCellCount } = useTableSkeleton({
+  enabled: computed(() => props.enableFirstLoadSkeleton),
+  loading: computed(() => props.loading),
+  dataLength: computed(() => normalizedData.value.length),
+  columns: normalizedColumns,
+  skeletonRows: computed(() => props.skeletonRows),
+  skeletonDelayMs: computed(() => props.skeletonDelayMs),
+  skeletonMinDurationMs: computed(() => props.skeletonMinDurationMs)
 });
-
-const skeletonCellCount = computed(() => {
-  const count = Array.isArray(props.columns) ? props.columns.length : 0;
-  return Math.min(Math.max(count || 4, 3), 8);
+const {
+  adaptiveHeight,
+  getTableDoms,
+  resolveTableBodyTbody,
+  applyRowHoverBgColor,
+  setHeaderSticky,
+  scheduleAdaptiveResize,
+  setAdaptive,
+  disposeLayout
+} = useTableLayout({
+  wrapperRef,
+  tableRef,
+  adaptiveEnabled: computed(() => props.adaptive),
+  adaptiveConfig: computed(() => props.adaptiveConfig),
+  hasPagination: computed(() => Boolean(normalizedPagination.value))
 });
-
-const shouldUseFirstLoadSkeleton = computed(
-  () => props.enableFirstLoadSkeleton && props.loading && normalizedData.value.length === 0
-);
-
-const showFirstLoadSkeleton = ref(false);
-const skeletonShownAt = ref(0);
-let skeletonDelayTimer: ReturnType<typeof setTimeout> | null = null;
-let skeletonHideTimer: ReturnType<typeof setTimeout> | null = null;
 
 const gridHeight = computed<number | undefined>(() => {
   if (!props.adaptive) {
@@ -499,6 +508,22 @@ const normalizedTreeData = computed<RowRecord[]>(() => {
     hasChildField: hasChildField.value,
     lazy: isLazyTree.value
   });
+});
+
+const rowDragEnabled = computed(
+  () =>
+    props.rowDrag === true &&
+    !props.loading &&
+    !props.treeConfig &&
+    normalizedTreeData.value.length > 0
+);
+
+const enableRichCellTooltip = computed(() => {
+  const threshold = Number(props.tooltipRenderThreshold ?? 0);
+  if (!Number.isFinite(threshold) || threshold <= 0) {
+    return true;
+  }
+  return normalizedTreeData.value.length <= threshold;
 });
 
 const defaultHeaderRowStyle = computed<CSSProperties>(() => ({
@@ -607,22 +632,28 @@ function createRendererParams(
 function renderValueWithOverflow(
   displayValue: VNodeChild,
   showOverflowTooltip: boolean,
-  isOperation: boolean
+  isOperation: boolean,
+  useRichTooltip: boolean
 ) {
   if (typeof displayValue !== 'string' && typeof displayValue !== 'number') {
     return displayValue;
   }
 
   const text = String(displayValue);
+  const shouldUseTitle = showOverflowTooltip && !isOperation && !useRichTooltip;
   const content = h(
     'span',
     {
-      class: ['ob-table__cell-text', showOverflowTooltip && !isOperation ? 'is-ellipsis' : '']
+      class: ['ob-table__cell-text', showOverflowTooltip && !isOperation ? 'is-ellipsis' : ''],
+      title: shouldUseTitle && text.length > 0 ? text : undefined
     },
     text
   );
 
   if (!showOverflowTooltip || isOperation || text.length === 0) {
+    return content;
+  }
+  if (!useRichTooltip) {
     return content;
   }
 
@@ -691,7 +722,8 @@ function renderDefaultCellContent(
   return renderValueWithOverflow(
     displayValue,
     showOverflowTooltip,
-    isOperationColumn(column, columnIndex)
+    isOperationColumn(column, columnIndex),
+    enableRichCellTooltip.value
   );
 }
 
@@ -988,185 +1020,15 @@ function syncTableRegistry() {
   registeredTableKey.value = currentKey;
 }
 
-function clearAdaptiveResizeTimer() {
-  if (!adaptiveResizeTimer) {
-    return;
+const { initSortable: initRowDragSortable } = useTableRowDragSort({
+  enabled: rowDragEnabled,
+  data: normalizedTreeData,
+  config: computed(() => props.rowDragConfig),
+  resolveTbody: resolveTableBodyTbody,
+  onSortEnd: (payload) => {
+    emit('row-drag-sort', payload);
   }
-  clearTimeout(adaptiveResizeTimer);
-  adaptiveResizeTimer = null;
-}
-
-function unbindAdaptiveObserver() {
-  resizeObserver?.disconnect();
-  resizeObserver = null;
-
-  if (adaptiveWindowResizeHandler) {
-    window.removeEventListener('resize', adaptiveWindowResizeHandler);
-    adaptiveWindowResizeHandler = null;
-  }
-
-  clearAdaptiveResizeTimer();
-}
-
-function resolveTableRootElement(): HTMLElement | null {
-  const table = tableRef.value as (TableCompatInstance & { $el?: unknown }) | null;
-  if (table?.$el instanceof HTMLElement) {
-    return table.$el;
-  }
-  return queryFirstElement(wrapperRef.value, ['.ob-table__table', '.el-table']);
-}
-
-function getTableDoms(): TableDomRefs {
-  const tableRoot = resolveTableRootElement();
-  if (!tableRoot) {
-    return {
-      tableRoot: null,
-      tableWrapper: null,
-      tableHeaderRef: null,
-      tableBodyRef: null
-    };
-  }
-
-  const tableWrapper = queryFirstElement(tableRoot, [
-    '.el-table__inner-wrapper',
-    '.el-table__body-wrapper',
-    '.el-table__main-wrapper'
-  ]);
-  const tableHeaderRef = queryFirstElement(tableRoot, [
-    '.el-table__header-wrapper',
-    '.el-table__fixed-header-wrapper'
-  ]);
-  const tableBodyRef = queryFirstElement(tableRoot, [
-    '.el-table__body-wrapper',
-    '.el-table__fixed-body-wrapper',
-    '.el-scrollbar__wrap'
-  ]);
-
-  return {
-    tableRoot,
-    tableWrapper,
-    tableHeaderRef,
-    tableBodyRef
-  };
-}
-
-function applyRowHoverBgColor() {
-  const { tableWrapper } = getTableDoms();
-  if (!tableWrapper) {
-    return;
-  }
-  const color = props.rowHoverBgColor?.trim();
-  if (!color) {
-    tableWrapper.style.removeProperty('--el-table-row-hover-bg-color');
-    return;
-  }
-  tableWrapper.style.setProperty('--el-table-row-hover-bg-color', color, 'important');
-}
-
-async function setHeaderSticky(zIndex = props.adaptiveConfig?.zIndex ?? 3) {
-  await nextTick();
-  const { tableRoot, tableHeaderRef } = getTableDoms();
-  const stickyHeaders = new Set<HTMLElement>();
-  if (tableHeaderRef) {
-    stickyHeaders.add(tableHeaderRef);
-  }
-  tableRoot
-    ?.querySelectorAll('.el-table__header-wrapper, .el-table__fixed-header-wrapper')
-    .forEach((headerNode) => {
-      if (headerNode instanceof HTMLElement) {
-        stickyHeaders.add(headerNode);
-      }
-    });
-
-  if (stickyHeaders.size === 0) {
-    return;
-  }
-
-  stickyHeaders.forEach((headerRef) => {
-    headerRef.style.position = 'sticky';
-    headerRef.style.top = '0';
-    headerRef.style.zIndex = String(zIndex);
-  });
-}
-
-function updateAdaptiveHeight() {
-  if (typeof window === 'undefined') {
-    adaptiveHeight.value = undefined;
-    return;
-  }
-
-  const { tableWrapper } = getTableDoms();
-  const heightAnchor = tableWrapper ?? wrapperRef.value;
-  if (!heightAnchor) {
-    adaptiveHeight.value = undefined;
-    return;
-  }
-
-  const paginationHeight = normalizedPagination.value ? 52 : 0;
-  const offsetBottom = props.adaptiveConfig?.offsetBottom ?? 110;
-  adaptiveHeight.value = resolveAdaptiveHeight({
-    viewportHeight: window.innerHeight,
-    elementTop: heightAnchor.getBoundingClientRect().top,
-    offsetBottom,
-    paginationHeight,
-    containerHeight: wrapperRef.value?.clientHeight,
-    minHeight: 120
-  });
-
-  void nextTick(() => {
-    tableRef.value?.doLayout();
-  });
-}
-
-function scheduleAdaptiveResize() {
-  clearAdaptiveResizeTimer();
-  const timeout = props.adaptiveConfig?.timeout ?? 16;
-  adaptiveResizeTimer = setTimeout(() => {
-    adaptiveResizeTimer = null;
-    updateAdaptiveHeight();
-  }, timeout);
-}
-
-function bindAdaptiveObserver() {
-  if (!props.adaptive) {
-    return;
-  }
-  unbindAdaptiveObserver();
-
-  const target = wrapperRef.value;
-  if (!target) {
-    return;
-  }
-
-  adaptiveWindowResizeHandler = () => {
-    scheduleAdaptiveResize();
-  };
-  window.addEventListener('resize', adaptiveWindowResizeHandler);
-
-  if (typeof ResizeObserver !== 'undefined') {
-    resizeObserver = new ResizeObserver(() => {
-      scheduleAdaptiveResize();
-    });
-    resizeObserver.observe(target);
-  }
-
-  scheduleAdaptiveResize();
-
-  if (props.adaptiveConfig?.fixHeader !== false) {
-    void setHeaderSticky(props.adaptiveConfig?.zIndex ?? 3);
-  }
-}
-
-function setAdaptive() {
-  if (!props.adaptive) {
-    unbindAdaptiveObserver();
-    void nextTick(() => {
-      tableRef.value?.doLayout();
-    });
-    return;
-  }
-  bindAdaptiveObserver();
-}
+});
 
 async function clearSelection() {
   getTableRef()?.clearSelection?.();
@@ -1183,71 +1045,9 @@ function getTableRef() {
   return table;
 }
 
-function showSkeletonNow() {
-  if (showFirstLoadSkeleton.value) {
-    return;
-  }
-  skeletonShownAt.value = Date.now();
-  showFirstLoadSkeleton.value = true;
-}
-
-function hideFirstLoadSkeleton() {
-  showFirstLoadSkeleton.value = false;
-  skeletonShownAt.value = 0;
-}
-
-function clearSkeletonTimers() {
-  if (skeletonDelayTimer) {
-    clearTimeout(skeletonDelayTimer);
-    skeletonDelayTimer = null;
-  }
-  if (skeletonHideTimer) {
-    clearTimeout(skeletonHideTimer);
-    skeletonHideTimer = null;
-  }
-}
-
-function scheduleShowFirstLoadSkeleton() {
-  if (showFirstLoadSkeleton.value || skeletonDelayTimer) {
-    return;
-  }
-  clearTimeout(skeletonHideTimer as ReturnType<typeof setTimeout>);
-  skeletonHideTimer = null;
-  skeletonDelayTimer = setTimeout(() => {
-    skeletonDelayTimer = null;
-    if (shouldUseFirstLoadSkeleton.value) {
-      showSkeletonNow();
-    }
-  }, props.skeletonDelayMs);
-}
-
-function scheduleHideFirstLoadSkeleton() {
-  if (skeletonDelayTimer) {
-    clearTimeout(skeletonDelayTimer);
-    skeletonDelayTimer = null;
-  }
-  if (!showFirstLoadSkeleton.value) {
-    return;
-  }
-
-  const elapsed = Date.now() - skeletonShownAt.value;
-  const remaining = Math.max(props.skeletonMinDurationMs - elapsed, 0);
-  if (remaining <= 0) {
-    hideFirstLoadSkeleton();
-    return;
-  }
-
-  if (skeletonHideTimer) {
-    clearTimeout(skeletonHideTimer);
-  }
-  skeletonHideTimer = setTimeout(() => {
-    skeletonHideTimer = null;
-    hideFirstLoadSkeleton();
-  }, remaining);
-}
-
 watch(tableRef, () => {
   syncTableRegistry();
+  void initRowDragSortable();
 });
 
 watch(
@@ -1267,7 +1067,11 @@ watch(
 watch(
   () => props.columns,
   () => {
-    setAdaptive();
+    void nextTick(() => {
+      tableRef.value?.doLayout();
+      scheduleAdaptiveResize();
+      void initRowDragSortable();
+    });
   },
   { deep: true }
 );
@@ -1280,32 +1084,35 @@ watch(
 );
 
 watch(
+  () => props.adaptiveConfig,
+  () => {
+    if (!props.adaptive) {
+      return;
+    }
+    scheduleAdaptiveResize();
+    if (props.adaptiveConfig?.fixHeader !== false) {
+      void setHeaderSticky(props.adaptiveConfig?.zIndex ?? 3);
+    }
+  },
+  { deep: true }
+);
+
+watch(
   () => [normalizedData.value.length, normalizedPagination.value?.total ?? 0],
   () => {
     void nextTick(() => {
       tableRef.value?.doLayout();
-      setAdaptive();
+      scheduleAdaptiveResize();
+      void initRowDragSortable();
     });
   }
 );
 
 watch(
-  shouldUseFirstLoadSkeleton,
-  (enabled) => {
-    if (enabled) {
-      scheduleShowFirstLoadSkeleton();
-      return;
-    }
-    scheduleHideFirstLoadSkeleton();
-  },
-  { immediate: true }
-);
-
-watch(
   () => props.rowHoverBgColor,
-  () => {
+  (color) => {
     void nextTick(() => {
-      applyRowHoverBgColor();
+      applyRowHoverBgColor(color);
     });
   },
   { immediate: true }
@@ -1315,18 +1122,17 @@ onMounted(() => {
   syncTableRegistry();
   setAdaptive();
   void nextTick(() => {
-    applyRowHoverBgColor();
+    applyRowHoverBgColor(props.rowHoverBgColor);
+    void initRowDragSortable();
   });
 });
 
 onBeforeUnmount(() => {
-  clearSkeletonTimers();
-  unbindAdaptiveObserver();
+  disposeLayout();
   if (registeredTableKey.value) {
     tableRefRegistry.delete(registeredTableKey.value);
     registeredTableKey.value = null;
   }
-  hideFirstLoadSkeleton();
 });
 
 defineExpose({
@@ -1374,6 +1180,7 @@ defineExpose({
       <div
         v-else
         class="ob-table__table-shell"
+        :aria-busy="loading ? 'true' : 'false'"
         :class="{ 'is-empty': normalizedData.length === 0 }"
       >
         <el-table
@@ -1388,7 +1195,12 @@ defineExpose({
           <template #empty>
             <slot name="empty">
               <div class="ob-table__empty">
-                <img class="ob-table__empty-image" :src="emptyStateImage" alt="暂无数据" />
+                <img
+                  class="ob-table__empty-image"
+                  :src="emptyStateImage"
+                  alt=""
+                  aria-hidden="true"
+                />
                 <p class="ob-table__empty-text">{{ resolvedEmptyText }}</p>
               </div>
             </slot>

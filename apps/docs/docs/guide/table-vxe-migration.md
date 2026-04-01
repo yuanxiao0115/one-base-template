@@ -37,7 +37,7 @@
 `ObTable` 的目标是提供“**同契约、低心智、样式统一**”的默认表格底座：
 
 - **交互契约**：已对齐 `selection-change`、`page-size-change`、`page-current-change`、`sort-change`，并保留 `getTableRef()`、`getTableDoms()`、`setAdaptive()`、`setHeaderSticky()`、`clearSelection()`。
-- **分页体验**：使用 `Element Plus` 的 `el-pagination`，支持 `align/size/class/style/pageCount/pagerCount/disabled/hideOnSinglePage/prevText/nextText/popperClass` 等 pure 常用分页语义。
+- **分页体验**：使用 `Element Plus` 的 `el-pagination`，支持 `align/size/class/style/pageCount/pagerCount/disabled/hideOnSinglePage/prevText/nextText/popperClass` 等历史分页语义。
 - **主题策略**：`packages/ui/src/styles/table-theme.css` 为共享表格 token 层，`ObTable` 与 `ObVxeTable` 同时消费，避免视觉体系分叉。
 - **树形能力**：支持 `treeConfig`（Element 语义：`defaultExpandAll/lazy/load/children/hasChildren`），满足菜单管理、组织管理类页面迁移需求。
 - **列宽契约**：支持消费列定义中的 `width/minWidth`，避免配置失效。
@@ -45,6 +45,7 @@
 - **列内容可读性**：支持 `showOverflowTooltip/ellipsis` 控制超长省略；鼠标悬浮自动展示 tooltip（操作列默认关闭）。
 - **空态视觉**：无数据时统一展示组件级空态图片 + 文案“暂未生产任何数据”，树表/普通表同时生效，且空态内容保持居中。
 - **空值兜底**：默认空值展示 `---`，可通过 `showEmptyValue` 关闭，或通过 `emptyValueText` 自定义占位文案；空态文案可通过 `emptyText` 自定义。
+- **行拖拽排序**：支持通过 `rowDrag`/`rowDragConfig` 启用行拖拽，并通过 `row-drag-sort` 事件回传重排后的数据快照（默认关闭，树表场景自动禁用）。
 
 已对齐的表格顶层能力（首批）：
 
@@ -57,7 +58,14 @@
 - `getTableDoms()` / `setHeaderSticky()` expose
 - `getTableRef()` 已补齐 `tableKey` 注册表语义（同页多表按 key 定位实例）
 - `adaptive` 已补齐“视口贴底优先 + 容器高度兜底”语义，并同时监听 `ResizeObserver + window.resize`
-- `Table.vue` 已拆分样式与辅助函数（`Table.css` + `internal/table-helpers.ts`），降低单文件复杂度
+- `Table.vue` 已拆分样式与辅助函数（`Table.css` + `internal/table-helpers.ts` + `internal/use-table-layout.ts` + `internal/use-table-skeleton.ts` + `internal/use-table-row-drag-sort.ts`），降低单文件复杂度
+
+## ObTable 与 el-table 的关系与版本
+
+- `ObTable` 是 `el-table + el-pagination` 的统一壳组件，负责契约对齐、样式基线和迁移兼容；底层渲染与交互核心仍来自 Element Plus。
+- `packages/ui` 不内置 Element Plus 运行时副本，依赖通过 `peerDependencies` 声明（`element-plus`、`vue`、`pinia`、`vue-router`）。
+- `apps/admin`、`apps/admin-lite` 在应用层安装同一套依赖版本，打包时由 workspace 统一解析为一份运行时版本，不会再额外打出“第二份 Element Plus”。
+- 升级 Element Plus 版本时，优先回归 `adaptive + fixHeader + fixed columns + rowDrag` 组合场景，避免内部 DOM 结构变化带来的兼容回归。
 
 仍待逐步对齐（后续批次）：
 
@@ -69,7 +77,8 @@
 - `getTableDoms()` / `setHeaderSticky()` 仍依赖 Element Plus 内部 DOM class；升级 Element Plus 版本时，需重点回归 `adaptive + fixHeader + fixed columns` 组合场景。
 - `showOverflowTooltip` 默认开启时，表格会为大量字符串单元格创建 tooltip 组件；大数据量页面建议优先关闭或按列按需开启。
 - 树表会经过 `normalizeTreeRows` 归一化，返回行对象是新引用（结构相同但非原引用）；业务若依赖 row 引用身份，请显式避免引用比较。
-- 当前统一壳组件未提供“列拖拽排序”的统一契约与持久化能力（见下方“列拖拽排序支持现状”）。
+- `expandSlot` 当前已补齐“列级插槽优先 + `slots.expand` 兜底”链路，但“多层表头 + expand + 自定义 formatter 组合”仍建议持续做回归样例。
+- 当前统一壳组件仍未提供“列拖拽排序”的统一契约与持久化能力（见下方“列拖拽排序支持现状”）。
 
 ## 表格契约基线
 
@@ -262,7 +271,7 @@ export const columns: TableColumnList = [
 
 ## 列拖拽排序支持现状
 
-- `ObTable`：当前**不支持**开箱即用的“拖拽表头调整列顺序”。
+- `ObTable`：已支持**行拖拽排序**（`rowDrag`、`rowDragConfig`、`row-drag-sort`），当前**不支持**开箱即用的“拖拽表头调整列顺序”。
 - `ObVxeTable`：当前仅有透传扩展入口（`passthroughAttrs -> VxeGrid`），但未在壳组件层提供统一 `columnDrag` 开关、顺序变更事件或持久化约定。
 - 结论：统一表格模块暂未形成“标准列拖拽排序能力”；若业务急需，可先做页面级 PoC（维护响应式 `columns` 并在拖拽后重排），后续再收敛为组件层标准契约。
 

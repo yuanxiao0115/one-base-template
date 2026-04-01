@@ -45,6 +45,8 @@ export type {
   TablePaginationAlign,
   TablePaginationSize,
   TablePagination,
+  TableRowDragConfig,
+  TableRowDragSortPayload,
   TableSortable,
   VxeVirtualConfig
 } from './components/table/types';
