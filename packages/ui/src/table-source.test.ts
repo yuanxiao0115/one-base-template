@@ -135,13 +135,21 @@ describe('Table source', () => {
     expect(typesSource).toContain('interface TableRowDragSortPayload');
     expect(source).toContain("'element-loading-text': props.loadingConfig?.text");
     expect(source).toContain("'element-loading-svg-view-box': props.loadingConfig?.viewBox");
+    expect(source).toContain(
+      'const tableLoading = computed(() => props.loading && !showFirstLoadSkeleton.value);'
+    );
+    expect(source).toContain(
+      'const regionBusy = computed(() => tableLoading.value || showFirstLoadSkeleton.value);'
+    );
     expect(source).toContain(':key="resolvedTableKey"');
     expect(source).toContain('role="region"');
+    expect(source).toContain(":aria-busy=\"regionBusy ? 'true' : 'false'\"");
     expect(source).toContain('aria-live="polite"');
     expect(source).toContain('ob-table__sr-status');
     expect(source).toContain('<slot name="empty">');
     expect(source).toContain('<slot name="append" />');
     expect(source).toContain('<el-config-provider :locale="resolvedLocale">');
+    expect(source).toContain('v-loading="tableLoading"');
     expect(source).toContain('const tableRefRegistry = new Map<string, TableCompatInstance>();');
     expect(source).toContain('const duplicatedTableKeyWarnedSet = new Set<string>();');
     expect(source).toContain('tableRefRegistry.get(tableRegistryKey.value)');

@@ -498,6 +498,8 @@ const { showFirstLoadSkeleton, resolvedSkeletonRows, skeletonCellCount } = useTa
   skeletonDelayMs: computed(() => props.skeletonDelayMs),
   skeletonMinDurationMs: computed(() => props.skeletonMinDurationMs)
 });
+const tableLoading = computed(() => props.loading && !showFirstLoadSkeleton.value);
+const regionBusy = computed(() => tableLoading.value || showFirstLoadSkeleton.value);
 const {
   adaptiveHeight,
   getTableDoms,
@@ -926,7 +928,7 @@ defineExpose({
     :class="wrapperClass"
     :style="wrapperStyle"
     role="region"
-    :aria-busy="loading ? 'true' : 'false'"
+    :aria-busy="regionBusy ? 'true' : 'false'"
   >
     <span class="ob-table__sr-status" role="status" aria-live="polite">
       {{ liveStatusText }}
@@ -970,7 +972,7 @@ defineExpose({
         <el-table
           ref="tableRef"
           :key="resolvedTableKey"
-          v-loading="loading"
+          v-loading="tableLoading"
           class="ob-table__table"
           v-bind="elementTableProps"
           @selection-change="collectSelection"

@@ -11,11 +11,15 @@ interface UseTableSkeletonOptions {
   skeletonMinDurationMs: ComputedRef<number>;
 }
 
+const FIRST_LOAD_PREHEAT_MAX_WAIT_MS = 800;
+
 export function useTableSkeleton(options: UseTableSkeletonOptions) {
   const showFirstLoadSkeleton = ref(false);
   const skeletonShownAt = ref(0);
-  let skeletonDelayTimer: ReturnType<typeof setTimeout> | null = null;
+  const hasFirstLoadStarted = ref(false);
+  const hasFirstLoadCompleted = ref(false);
   let skeletonHideTimer: ReturnType<typeof setTimeout> | null = null;
+  let firstLoadBailoutTimer: ReturnType<typeof setTimeout> | null = null;
 
   const resolvedSkeletonRows = computed(() => {
     const rows = Number(options.skeletonRows.value || 0);
@@ -30,9 +34,18 @@ export function useTableSkeleton(options: UseTableSkeletonOptions) {
     return Math.min(Math.max(count || 4, 3), 8);
   });
 
-  const shouldUseFirstLoadSkeleton = computed(
-    () => options.enabled.value && options.loading.value && options.dataLength.value === 0
-  );
+  const shouldKeepFirstLoadPending = computed(() => {
+    if (!options.enabled.value) {
+      return false;
+    }
+    if (hasFirstLoadCompleted.value) {
+      return false;
+    }
+    if (options.dataLength.value > 0) {
+      return false;
+    }
+    return true;
+  });
 
   function showSkeletonNow() {
     if (showFirstLoadSkeleton.value) {
@@ -48,39 +61,47 @@ export function useTableSkeleton(options: UseTableSkeletonOptions) {
   }
 
   function clearSkeletonTimers() {
-    if (skeletonDelayTimer) {
-      clearTimeout(skeletonDelayTimer);
-      skeletonDelayTimer = null;
-    }
     if (skeletonHideTimer) {
       clearTimeout(skeletonHideTimer);
       skeletonHideTimer = null;
     }
+    if (firstLoadBailoutTimer) {
+      clearTimeout(firstLoadBailoutTimer);
+      firstLoadBailoutTimer = null;
+    }
   }
 
-  function scheduleShowFirstLoadSkeleton() {
-    if (showFirstLoadSkeleton.value || skeletonDelayTimer) {
+  function scheduleFirstLoadBailout() {
+    if (firstLoadBailoutTimer) {
+      clearTimeout(firstLoadBailoutTimer);
+    }
+
+    const dynamicWait = options.skeletonDelayMs.value + options.skeletonMinDurationMs.value;
+    const maxWait = Math.max(FIRST_LOAD_PREHEAT_MAX_WAIT_MS, dynamicWait);
+
+    firstLoadBailoutTimer = setTimeout(() => {
+      firstLoadBailoutTimer = null;
+      if (
+        !hasFirstLoadCompleted.value &&
+        !options.loading.value &&
+        options.dataLength.value === 0
+      ) {
+        completeFirstLoad();
+      }
+    }, maxWait);
+  }
+
+  function startFirstLoad() {
+    if (hasFirstLoadStarted.value) {
       return;
     }
 
-    if (skeletonHideTimer) {
-      clearTimeout(skeletonHideTimer);
-      skeletonHideTimer = null;
-    }
-
-    skeletonDelayTimer = setTimeout(() => {
-      skeletonDelayTimer = null;
-      if (shouldUseFirstLoadSkeleton.value) {
-        showSkeletonNow();
-      }
-    }, options.skeletonDelayMs.value);
+    hasFirstLoadStarted.value = true;
+    showSkeletonNow();
+    scheduleFirstLoadBailout();
   }
 
   function scheduleHideFirstLoadSkeleton() {
-    if (skeletonDelayTimer) {
-      clearTimeout(skeletonDelayTimer);
-      skeletonDelayTimer = null;
-    }
     if (!showFirstLoadSkeleton.value) {
       return;
     }
@@ -101,14 +122,56 @@ export function useTableSkeleton(options: UseTableSkeletonOptions) {
     }, remaining);
   }
 
+  function completeFirstLoad() {
+    if (hasFirstLoadCompleted.value) {
+      return;
+    }
+
+    if (firstLoadBailoutTimer) {
+      clearTimeout(firstLoadBailoutTimer);
+      firstLoadBailoutTimer = null;
+    }
+
+    hasFirstLoadCompleted.value = true;
+    scheduleHideFirstLoadSkeleton();
+  }
+
   watch(
-    shouldUseFirstLoadSkeleton,
-    (enabled) => {
-      if (enabled) {
-        scheduleShowFirstLoadSkeleton();
+    shouldKeepFirstLoadPending,
+    (pending) => {
+      if (!pending) {
+        completeFirstLoad();
         return;
       }
-      scheduleHideFirstLoadSkeleton();
+
+      if (!hasFirstLoadStarted.value) {
+        startFirstLoad();
+      }
+    },
+    { immediate: true }
+  );
+
+  watch(
+    () => options.loading.value,
+    (loading) => {
+      if (!shouldKeepFirstLoadPending.value) {
+        return;
+      }
+
+      if (loading) {
+        if (!hasFirstLoadStarted.value) {
+          startFirstLoad();
+        }
+        if (firstLoadBailoutTimer) {
+          clearTimeout(firstLoadBailoutTimer);
+          firstLoadBailoutTimer = null;
+        }
+        return;
+      }
+
+      if (hasFirstLoadStarted.value) {
+        completeFirstLoad();
+      }
     },
     { immediate: true }
   );
@@ -122,6 +185,6 @@ export function useTableSkeleton(options: UseTableSkeletonOptions) {
     showFirstLoadSkeleton,
     resolvedSkeletonRows,
     skeletonCellCount,
-    shouldUseFirstLoadSkeleton
+    shouldKeepFirstLoadPending
   };
 }
