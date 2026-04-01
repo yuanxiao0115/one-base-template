@@ -11034,3 +11034,13 @@
   - 为 UI 包补充 `sortablejs` 依赖声明，避免 rowDrag 仅依赖应用层“间接安装”导致契约不清。
 - `apps/docs/docs/guide/table-vxe-migration.md`
   - 补充 `sortablejs` 异步加载说明与 `Alt + ↑ / ↓` 键盘辅助说明。
+
+## 2026-04-01（tooltip 默认策略降级为轻量模式）
+
+- `packages/ui/src/components/table/Table.vue`
+  - `tooltipRenderThreshold` 默认值从 `200` 调整为 `0`。
+  - 当阈值 `<= 0` 时关闭富 `ElTooltip`，保留省略文本 `title` 提示，降低中等数据量页面的 tooltip 实例开销。
+- `packages/ui/src/table-source.test.ts`
+  - 同步更新默认阈值断言为 `0`。
+- `apps/docs/docs/guide/table-vxe-migration.md`
+  - 同步更新文档：默认轻量提示、按阈值启用富 tooltip 的说明与建议。

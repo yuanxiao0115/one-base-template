@@ -42,7 +42,7 @@
 - **树形能力**：支持 `treeConfig`（Element 语义：`defaultExpandAll/lazy/load/children/hasChildren`），满足菜单管理、组织管理类页面迁移需求。
 - **列宽契约**：支持消费列定义中的 `width/minWidth`，避免配置失效。
 - **列插槽能力**：支持 `slot/headerSlot/filterIconSlot/expandSlot` 与 `cellRenderer/headerRenderer`，兼容历史列定义的常用列编排方式。
-- **列内容可读性**：支持 `showOverflowTooltip/ellipsis` 控制超长省略；鼠标悬浮自动展示 tooltip（操作列默认关闭）。
+- **列内容可读性**：支持 `showOverflowTooltip/ellipsis` 控制超长省略；默认走轻量 `title` 提示，`tooltipRenderThreshold > 0` 时可启用富 tooltip（操作列默认关闭）。
 - **空态视觉**：无数据时统一展示组件级空态图片 + 文案“暂未生产任何数据”，树表/普通表同时生效，且空态内容保持居中。
 - **空值兜底**：默认空值展示 `---`，可通过 `showEmptyValue` 关闭，或通过 `emptyValueText` 自定义占位文案；空态文案可通过 `emptyText` 自定义。
 - **行拖拽排序**：支持通过 `rowDrag`/`rowDragConfig` 启用行拖拽，并通过 `row-drag-sort` 事件回传重排后的数据快照（默认关闭，树表场景自动禁用）。
@@ -76,7 +76,7 @@
 ## 风险清单（长期维护）
 
 - `getTableDoms()` / `setHeaderSticky()` 仍依赖 Element Plus 内部 DOM class；升级 Element Plus 版本时，需重点回归 `adaptive + fixHeader + fixed columns` 组合场景。
-- `showOverflowTooltip` 默认开启时，表格会为大量字符串单元格创建 tooltip 组件；大数据量页面建议优先关闭或按列按需开启。
+- 当 `tooltipRenderThreshold > 0` 时，`showOverflowTooltip` 会在阈值范围内启用富 tooltip；大数据量页面建议保持 `tooltipRenderThreshold=0` 或按列按需开启。
 - 树表会经过 `normalizeTreeRows` 归一化，返回行对象是新引用（结构相同但非原引用）；业务若依赖 row 引用身份，请显式避免引用比较。
 - `expandSlot` 当前已补齐“列级插槽优先 + `slots.expand` 兜底”链路，但“多层表头 + expand + 自定义 formatter 组合”仍建议持续做回归样例。
 - 当前统一壳组件仍未提供“列拖拽排序”的统一契约与持久化能力（见下方“列拖拽排序支持现状”）。
@@ -142,6 +142,7 @@ table?.clearSelection?.();
 
 - `tableLayout='fixed'`
 - `showOverflowTooltip=true`
+- `tooltipRenderThreshold=0`（默认仅使用轻量 `title` 提示；设置为正数可启用富 tooltip）
 - `showEmptyValue=true`
 - `emptyValueText='---'`
 - `emptyText='暂未生产任何数据'`

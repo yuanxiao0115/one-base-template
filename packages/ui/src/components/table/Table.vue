@@ -211,7 +211,7 @@ const props = withDefaults(defineProps<ObElementTableProps>(), {
   locale: 'zhCn',
   rowDrag: false,
   rowDragConfig: () => ({}),
-  tooltipRenderThreshold: 200
+  tooltipRenderThreshold: 0
 });
 
 const emit = defineEmits<{
@@ -530,7 +530,7 @@ const rowDragEnabled = computed(
 const enableRichCellTooltip = computed(() => {
   const threshold = Number(props.tooltipRenderThreshold ?? 0);
   if (!Number.isFinite(threshold) || threshold <= 0) {
-    return true;
+    return false;
   }
   return normalizedTreeData.value.length <= threshold;
 });

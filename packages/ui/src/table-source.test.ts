@@ -48,7 +48,7 @@ describe('Table source', () => {
     expect(source).toContain("emptyValueText: '---'");
     expect(source).toContain("emptyText: '暂未生产任何数据'");
     expect(source).toContain('rowDrag: false');
-    expect(source).toContain('tooltipRenderThreshold: 200');
+    expect(source).toContain('tooltipRenderThreshold: 0');
     expect(source).toContain('treeConfig?: Record<string, unknown>;');
     expect(source).toContain('pagination?: TablePagination | false | null;');
     expect(source).toContain("tableLayout: 'fixed'");
