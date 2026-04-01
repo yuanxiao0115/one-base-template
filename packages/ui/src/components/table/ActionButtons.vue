@@ -255,6 +255,12 @@ function handleOverflowCommand(command: string) {
   margin-left: 0;
 }
 
+.ob-action-buttons :deep(.el-button.is-link) {
+  font-weight: 400;
+  line-height: 20px;
+  text-shadow: none;
+}
+
 .ob-action-buttons__more {
   display: inline-flex;
   align-items: center;
