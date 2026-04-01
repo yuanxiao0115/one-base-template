@@ -6,7 +6,7 @@
 
 - 日期：2026-04-01
 - 文件：`.codex/verification/2026-04-01.md`
-- 补充：最新条目为“adminManagement 全模块 Table 统一为 ObTable（含 skill/agent 更新）”。
+- 补充：最新条目为“admin 全模块 ObVxeTable 替换为 ObTable”。
 
 ## 历史归档
 

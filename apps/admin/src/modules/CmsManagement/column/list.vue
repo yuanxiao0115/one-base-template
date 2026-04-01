@@ -216,7 +216,7 @@ async function onConfirmCrud() {
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           ref="tableRef"
           :size
           :loading="tableLoading"
@@ -251,7 +251,7 @@ async function onConfirmCrud() {
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>

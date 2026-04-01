@@ -77,7 +77,7 @@ const {
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :size
           :loading
           :data="rows"
@@ -118,7 +118,7 @@ const {
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>

@@ -193,5 +193,5 @@ When the page has a left organization tree:
 2. Render tree with `ObTree`.
 3. Keep leaf label tooltip conditional on real overflow only.
 4. In tree table columns, set `treeNode: true` on the tree display column.
-5. For `adminManagement`, keep the table side on `ObTable`; non-`adminManagement` legacy pages can continue following the existing `ObVxeTable` reference.
+5. For admin modules, keep the table side on `ObTable`; do not introduce `ObVxeTable` in new or migrated pages.
 6. If API response has data but table is empty, prioritize checking response-adapter mapping path before DOM/layout diagnosis.

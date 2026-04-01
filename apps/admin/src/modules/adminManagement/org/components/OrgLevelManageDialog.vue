@@ -270,7 +270,7 @@ watch(
   margin-bottom: 12px;
 }
 
-.org-level-dialog :deep(.ob-vxe-table) {
+.org-level-dialog :deep(.ob-table) {
   background: #fff;
 }
 

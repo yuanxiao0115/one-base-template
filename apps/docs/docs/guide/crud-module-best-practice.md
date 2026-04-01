@@ -8,7 +8,7 @@ outline: [2, 3]
 
 - **业务页只做编排**，不堆积数据转换和弹层状态机
 - **目录清晰且可迁移**，便于后续批量复制到组织、用户、字典等模块
-- **统一交互与视觉**，`adminManagement` 默认保持 `ObTableBox + ObTable + ObCrudContainer` 一致体验
+- **统一交互与视觉**，admin 模块默认保持 `ObTableBox + ObTable + ObCrudContainer` 一致体验
 
 参考实现：
 
@@ -290,7 +290,7 @@ pnpm -C apps/docs build
 - **组织内拖拽排序**：仅在已选组织时启用拖拽，失败后强制重新查询回滚，避免“前端排序成功、后端失败”导致的数据错位。
 - **导入能力组件化**：将上传校验（数量/大小/类型）沉淀到 `ObImportUpload`，页面只负责模板下载和上传成功后的刷新动作。
 - **高级筛选抽屉宽度约束**：抽屉内容区默认限制 `width/max-width: 100%` 并关闭横向滚动；底部“重置/确定”按钮统一右对齐，避免布局漂移。
-- **左树右表标准布局**：优先使用 `PageContainer` 的 `#left` 插槽承载树，树组件统一使用 `ObTree`（仅叶子节点溢出时 tooltip）；`adminManagement` 的树表页统一按 `ObTable` 口径实现。
+- **左树右表标准布局**：优先使用 `PageContainer` 的 `#left` 插槽承载树，树组件统一使用 `ObTree`（仅叶子节点溢出时 tooltip）；admin 树表页统一按 `ObTable` 口径实现。
 
 参考实现（本仓库）：
 

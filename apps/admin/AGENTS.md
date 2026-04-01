@@ -67,7 +67,7 @@
 - `@one-base-template/ui` 组件在 admin 页面默认走全局注册（`Ob*` 前缀）；仅在明确说明原因时才允许局部 import。
 - `ObPageContainer` 外层禁止再包无业务意义占位 `div`，优先使用片段根节点保持结构扁平。
 - admin 下 CRUD 编排页文件名统一使用 `list.vue`（不再使用 `page.vue`），对应路由懒加载路径必须保持一致。
-- 门户模板列表页（`apps/admin/src/modules/PortalManagement/templatePage/list.vue`）必须对齐 admin 列表基线：禁止直接使用 `el-table` 与 `ElMessage`，统一使用 `ObVxeTable` 或 `ObTable`，以及 `@one-base-template/ui`。
+- 门户模板列表页（`apps/admin/src/modules/PortalManagement/templatePage/list.vue`）必须对齐 admin 列表基线：禁止直接使用 `el-table` 与 `ElMessage`，统一使用 `ObTable` 与 `@one-base-template/ui`。
 - PortalManagement 权限选人左树严格对齐老项目：固定调用 `GET /cmict/admin/org/detail/children-and-user`，不做多接口兼容兜底；根节点请求使用当前登录用户 `companyId`（缺失时才回退 `parentId=\"0\"`）。
 - 门户管理模块标识固定为 `PortalManagement`；管理侧路由路径固定为：`/portal/setting`、`/portal/design`、`/portal/page/edit`、`/portal/preview`，禁止继续为该模块配置路由 alias（含路由 `alias` 属性与 `compat.routeAliases`）。
 - `PortalManagement` 的设计能力统一收敛到 `designPage` 目录，**页面入口直接放在 `designPage/*.vue`，不再新增 `designPage/pages` 冗余层级**；若后续恢复组件目录，仍需按页面边界分组（如 `portal-template`、`preview-render`），禁止在 `components` 根目录平铺堆叠组件。
@@ -129,7 +129,7 @@
 - `adminManagement` 的接口分层默认采用 `api.ts + types.ts`：`api.ts` 仅维护接口路径与请求参数透传；`types.ts` 保持“够用即可”，禁止过度细粒度类型设计；后端字段已对齐场景下，禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`。
 - adminManagement 编排层已按 composable 分层后，禁止再新增汇总式 `actions.ts`；复杂逻辑按语义归入 `useXxxState/useXxxActions/useXxxQuery` 等 composable，页面仅保留编排解构。
 - adminManagement 的页面级 composable 只负责编排：单个 composable 同时出现 `table + editor + dialog + remote options/sidebar/data-source` 中 `3` 类及以上职责时，必须继续拆分，禁止形成 God composable。
-- `adminManagement` 默认且强制使用 `ObTable`，本目录内禁止再新增 `ObVxeTable` 编排。
+- admin 模块页面默认且强制使用 `ObTable`，`apps/admin/src/modules/**` 内禁止新增 `ObVxeTable` 编排。
 - 禁止为适配下游 API 创建 `safeDataList`、`safeSelectedList` 这类影子状态；列表、选中态、弹窗表单态只能保留一个真实数据源，其余统一通过 `computed` / `readonly` 派生。
 - `defineExpose` 只允许暴露最小通用句柄（如 `validate`、`resetFields`、`clearValidate`）；禁止继续暴露业务动作、加载方法、回填方法（如 `loadOptions`、`loadRootNodes`、`setSelectedUsers`）。
 - 父层禁止通过 `nextTick + ref + defineExpose` 链式驱动子组件内部初始化；弹窗回填、远程选项预加载、已选值同步优先改为 `props` 驱动或由子组件自持状态处理。

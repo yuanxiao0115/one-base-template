@@ -17,7 +17,7 @@
 - [ ] 字段映射是否收敛到 `form.ts` 或语义明确的 composable
 - [ ] 是否存在无意义 helper / mapper / wrapper 中转层
 - [ ] 命名是否短、清楚、通用
-- [ ] `adminManagement` 列表页是否已切到 `ObTable`，是否仍残留 `<ObVxeTable>`
+- [ ] `apps/admin/src/modules/**` 列表页是否已切到 `ObTable`，是否仍残留 `<ObVxeTable>`
 
 ### 性能
 

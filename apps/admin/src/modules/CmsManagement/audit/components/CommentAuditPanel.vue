@@ -282,7 +282,7 @@ async function batchDeleteComments() {
     </template>
 
     <template #default="{ size, dynamicColumns }">
-      <ObVxeTable
+      <ObTable
         :ref="tableRef"
         :loading
         :size
@@ -329,7 +329,7 @@ async function batchDeleteComments() {
             </el-button>
           </ObActionButtons>
         </template>
-      </ObVxeTable>
+      </ObTable>
     </template>
 
     <template #drawer>

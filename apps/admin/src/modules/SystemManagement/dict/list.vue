@@ -89,7 +89,7 @@ const {
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :loading
           :size
@@ -117,7 +117,7 @@ const {
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer> <DictSearchForm :ref="refs.searchRef" v-model="searchForm" /> </template>
@@ -175,7 +175,7 @@ const {
         </template>
 
         <template #default="{ size, dynamicColumns }">
-          <ObVxeTable
+          <ObTable
             :ref="refs.itemTableRef"
             :loading="itemLoading"
             :size
@@ -214,7 +214,7 @@ const {
                 >
               </ObActionButtons>
             </template>
-          </ObVxeTable>
+          </ObTable>
         </template>
 
         <template #drawer>

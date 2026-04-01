@@ -158,7 +158,7 @@ async function handleReviewSubmit(payload: { reviewStatus: 1 | 2; reviewOpinion:
     @reset-form="onResetSearch"
   >
     <template #default="{ size, dynamicColumns }">
-      <ObVxeTable
+      <ObTable
         :ref="tableRef"
         :loading
         :size
@@ -188,7 +188,7 @@ async function handleReviewSubmit(payload: { reviewStatus: 1 | 2; reviewOpinion:
             </el-button>
           </ObActionButtons>
         </template>
-      </ObVxeTable>
+      </ObTable>
     </template>
 
     <template #drawer>

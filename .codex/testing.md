@@ -9755,3 +9755,19 @@
   - `apps/admin`：`9 files / 12 tests` 全通过。
   - `apps/admin`：`lint:arch/typecheck/lint/build` 通过；`lint` 0 error（2 条历史 `max-lines` warning，非本次新增）。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-01（admin 全模块 ObVxeTable -> ObTable 收口）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- $(rg --files apps/admin/src/modules | rg 'source\\.test\\.ts$' | sed 's#apps/admin/##')`
+  - `pnpm -C apps/admin lint:arch`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：`20 files / 23 tests` 通过（含 Cms/System/Portal/adminManagement 的 source 门禁）。
+  - `apps/admin`：`lint:arch/typecheck/lint/build` 通过。
+  - `apps/admin lint`：0 error（2 条历史 `max-lines` warning，非本次新增）。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

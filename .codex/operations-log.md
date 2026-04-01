@@ -11142,3 +11142,33 @@
   - 已统一补充“`adminManagement` 禁止新增 `ObVxeTable`，统一 `ObTable`”口径。
 - 代码扫描结果：
   - `rg -n "<ObVxeTable|ObVxeTable" apps/admin/src/modules/adminManagement` 仅剩 source test 中的反向断言，业务源码无残留。
+
+## 2026-04-01（admin 全模块 ObVxeTable -> ObTable 收口）
+
+- 代码替换范围（`apps/admin/src/modules/**`）：
+  - `CmsManagement/audit/components/ArticleAuditPanel.vue`
+  - `CmsManagement/audit/components/CommentAuditPanel.vue`
+  - `CmsManagement/column/list.vue`
+  - `CmsManagement/content/list.vue`
+  - `SystemManagement/dict/list.vue`（主表 + 字典项子表）
+  - `PortalManagement/templatePage/list.vue`
+- 兼容残留清理：
+  - `adminManagement/org/components/OrgLevelManageDialog.vue` 样式选择器从 `.ob-vxe-table` 收敛到 `.ob-table`。
+  - `adminManagement/user/composables/useUserDragSort.ts` 拖拽 tbody 定位移除 `.vxe-table--*`，统一定位 `.el-table__body-wrapper tbody`。
+- 新增源码门禁测试（防回退）：
+  - `CmsManagement/column/list.source.test.ts`
+  - `CmsManagement/content/list.source.test.ts`
+  - `CmsManagement/audit/components/ArticleAuditPanel.source.test.ts`
+  - `CmsManagement/audit/components/CommentAuditPanel.source.test.ts`
+  - `SystemManagement/dict/list.source.test.ts`
+  - `PortalManagement/templatePage/list.source.test.ts`
+  - `adminManagement/user/composables/useUserDragSort.source.test.ts`
+- 规则同步：
+  - `apps/admin/AGENTS.md`、`apps/docs/docs/guide/admin-agent-redlines.md`、`apps/docs/docs/guide/crud-module-best-practice.md`
+  - `.codex/skills/admin-management-standardizer/references/checklists.md`
+  - `.codex/skills/crud-module-best-practice/SKILL.md`
+  - `.codex/skills/crud-module-best-practice/references/position-crud-blueprint.md`
+  - 口径统一为：admin 模块列表编排统一 `ObTable`，禁止新增 `ObVxeTable`。
+- 代码扫描：
+  - `rg -n "ObVxeTable|ob-vxe-table|vxe-table--" apps/admin --glob '!**/dist/**'`
+  - 结果仅剩 `AGENTS` 的禁用规则文案与 source test 的反向断言，业务源码无残留。
