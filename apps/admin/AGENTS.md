@@ -36,6 +36,7 @@
 - 默认权限模型：菜单树出现过的 path 集合即 `allowedPaths`，不在集合统一拦截到 `403`。
 - admin 路由访问模型统一使用 `meta.access`：`open` 表示匿名可访问，`auth` 表示仅要求登录，未声明时默认按 `menu` 处理。
 - admin 首页固定走本地静态路由 `/home/index`，使用 `meta.access='auth'` 放行登录后访问；大屏、独立页这类“不走菜单但要登录”的页面也沿用同一模型。
+- keepAlive 约束：页面持久化统一由路由 `meta.keepAlive=true` 控制，并依赖 `route.name` 作为缓存键；路由名必须唯一且稳定，禁止动态改名。
 
 ### SSO 与鉴权
 

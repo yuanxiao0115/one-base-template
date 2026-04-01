@@ -9838,3 +9838,16 @@
   - `pnpm -C packages/ui lint`
 - 结果：
   - `packages/ui`：`typecheck` 通过；`lint` 0 warning / 0 error。
+
+## 2026-04-01（admin 路由级 keepAlive 稳定命中修复）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/keep-alive-view-source.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：`1 file / 2 tests` 通过。
+  - `packages/ui`：`typecheck` 通过；`lint` 0 warning / 0 error。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。

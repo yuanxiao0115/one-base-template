@@ -196,6 +196,8 @@ admin 当前顶栏在 `apps/admin/src/components/top/AdminTopBar.vue`，基于 `
   - 点击切换、关闭当前、关闭左/右/其他/全部
   - 滚轮横向滚动标签区
   - KeepAlive include 按 `meta.keepAlive + route.name` 推导
+  - `KeepAliveView` 会基于 `route.name` 包一层同名组件，避免“页面组件 `defineOptions.name` 与路由名不一致”时 include 失效
+  - 路由名需要保持唯一且稳定（不要在运行期动态改名），否则会影响缓存命中与复用
   - 标签状态写入 `sessionStorage`，默认 key 为 `storageNamespace + ':ob_tags'`
 - 隐藏规则：
   - `meta.hiddenTab=true` 或 `meta.noTag=true` 不进入标签栏

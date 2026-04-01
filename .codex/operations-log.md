@@ -11235,3 +11235,15 @@
 - 抽屉形态固定 `container='drawer'`，宽度固定 `drawer-size=400`，并保持无底部按钮（`show-footer=false`）。
 - 为保持原交互，显式透传 `close-on-click-modal=true`。
 - 移除组件内自定义 header/关闭按钮，统一使用 `CrudContainer` 头部结构，内容区继续承载 `ThemeSwitcher`。
+
+## 2026-04-01（admin 路由级 keepAlive 稳定命中修复）
+
+- 问题定位：`KeepAliveView` 的 include 依赖 `tag.name(route.name)`，但 Vue `keep-alive include` 实际按“组件 name”匹配；当业务页 `defineOptions({ name })` 与 `route.name` 不一致时，会出现路由标记了 `meta.keepAlive=true` 但缓存不命中的问题。
+- 修复：
+  - `packages/ui/src/components/view/KeepAliveView.vue`
+    - 新增 `isKeepAliveRoute(route)`：仅 `meta.keepAlive=true` 进入缓存分支。
+    - 新增 `resolveKeepAliveComponent(route, component)`：基于 `route.name` 动态创建并缓存同名 wrapper 组件，确保 include 与缓存组件名一致。
+  - 新增源码门禁测试：`packages/ui/src/keep-alive-view-source.test.ts`。
+- 规则与文档同步：
+  - `apps/admin/AGENTS.md`：补充 keepAlive 路由名约束（`route.name` 唯一且稳定）。
+  - `apps/docs/docs/guide/layout-menu.md`：补充 KeepAlive route.name 包装机制说明，避免后续误判为页面组件名必须强绑定路由名。
