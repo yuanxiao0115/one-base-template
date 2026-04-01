@@ -57,7 +57,7 @@ const BASE_STATIC_TOKENS: OneTokenMap = {
   '--one-fill-color-darker': '#E6E8EB',
   '--one-fill-color-blank': '#FFFFFF',
 
-  '--one-bg-color': 'var(--one-bg-color-4)',
+  '--one-bg-color': 'var(-one-bg-color-overlay)',
   '--one-bg-color-page': '#F2F3F5',
   '--one-bg-color-overlay': '#FFFFFF',
   '--one-bg-color-1': 'var(--one-color-gray-200)',
