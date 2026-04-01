@@ -143,12 +143,21 @@ describe('Table source', () => {
     expect(source).toContain('<slot name="append" />');
     expect(source).toContain('<el-config-provider :locale="resolvedLocale">');
     expect(source).toContain('const tableRefRegistry = new Map<string, TableCompatInstance>();');
+    expect(source).toContain('const duplicatedTableKeyWarnedSet = new Set<string>();');
     expect(source).toContain('tableRefRegistry.get(tableRegistryKey.value)');
     expect(source).toContain('tableRefRegistry.set(currentKey, activeTable);');
     expect(source).toContain('tableRefRegistry.delete(registeredTableKey.value);');
+    expect(source).toContain('duplicatedTableKeyWarnedSet.delete(registeredTableKey.value);');
     expect(source).toContain('function syncTableRegistry()');
+    expect(source).toContain('检测到重复 tableKey');
     expect(source).toContain('tableRegistryKey,');
+    expect(source).toContain('const columnsLayoutSignature = computed(() =>');
+    expect(source).toContain(
+      'function resolveColumnLayoutSignature(column: TableColumn, index: number): string {'
+    );
     expect(source).toContain('watch(tableRef, () => {');
+    expect(source).toContain('watch(\n  columnsLayoutSignature,');
+    expect(source).not.toContain('() => props.columns,');
     expect(layoutSource).toContain(
       "window.addEventListener('resize', adaptiveWindowResizeHandler);"
     );
@@ -162,6 +171,7 @@ describe('Table source', () => {
     expect(layoutSource).toContain('viewportHeight: window.innerHeight');
     expect(helperSource).toContain('export function resolveAdaptiveHeight');
     expect(helperSource).toContain('export function queryFirstElement');
+    expect(helperSource).toContain('return hasChanged ? nextRows : rows;');
     expect(source).toContain('function resolvePaginationAlign');
     expect(source).toContain('function resolvePaginationSize');
     expect(source).toContain(

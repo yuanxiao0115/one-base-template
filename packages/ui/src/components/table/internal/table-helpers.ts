@@ -126,11 +126,12 @@ export function normalizeTreeRows(
   rows: RowRecord[],
   options: TreeDataNormalizeOptions
 ): RowRecord[] {
-  return rows.map((row) => {
-    const nextRow: RowRecord = { ...row };
-    const childrenValue = nextRow[options.childrenField];
-    const hasChildFieldValue = nextRow[options.hasChildField];
-    const fallbackHasChildValue = nextRow.hasChild ?? nextRow.hasChildren;
+  let hasChanged = false;
+  const nextRows = rows.map((row) => {
+    const rowRecord = row as RowRecord;
+    const childrenValue = rowRecord[options.childrenField];
+    const hasChildFieldValue = rowRecord[options.hasChildField];
+    const fallbackHasChildValue = rowRecord.hasChild ?? rowRecord.hasChildren;
 
     let hasChildrenFlag = resolveTreeHasChildrenFlag(hasChildFieldValue);
     if (typeof hasChildrenFlag === 'undefined') {
@@ -140,20 +141,45 @@ export function normalizeTreeRows(
       hasChildrenFlag = childrenValue.length > 0;
     }
 
-    if (typeof hasChildrenFlag !== 'undefined') {
+    let nextRow = rowRecord;
+    let rowChanged = false;
+    const ensureRowMutable = () => {
+      if (!rowChanged) {
+        nextRow = { ...rowRecord };
+        rowChanged = true;
+      }
+    };
+
+    if (
+      typeof hasChildrenFlag !== 'undefined' &&
+      rowRecord[options.hasChildField] !== hasChildrenFlag
+    ) {
+      ensureRowMutable();
       nextRow[options.hasChildField] = hasChildrenFlag;
     }
 
     if (Array.isArray(childrenValue)) {
       if (options.lazy && hasChildrenFlag && childrenValue.length === 0) {
-        delete nextRow[options.childrenField];
+        if (Object.prototype.hasOwnProperty.call(rowRecord, options.childrenField)) {
+          ensureRowMutable();
+          delete nextRow[options.childrenField];
+        }
       } else {
-        nextRow[options.childrenField] = normalizeTreeRows(childrenValue as RowRecord[], options);
+        const normalizedChildren = normalizeTreeRows(childrenValue as RowRecord[], options);
+        if (normalizedChildren !== childrenValue) {
+          ensureRowMutable();
+          nextRow[options.childrenField] = normalizedChildren;
+        }
       }
     }
 
+    if (rowChanged) {
+      hasChanged = true;
+    }
     return nextRow;
   });
+
+  return hasChanged ? nextRows : rows;
 }
 
 export function resolvePagerLayout(layout?: string): string {

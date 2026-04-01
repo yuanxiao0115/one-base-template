@@ -2,6 +2,20 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/components/table/internal/table-helpers.test.ts packages/ui/src/table-source.test.ts packages/ui/src/components/table/internal/use-table-layout.test.ts packages/ui/src/components/table/internal/use-table-row-drag-sort.test.ts`
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts packages/ui/src/components/table/internal/table-helpers.test.ts packages/ui/src/components/table/internal/use-table-layout.test.ts packages/ui/src/components/table/internal/use-table-row-drag-sort.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：6 个测试文件 `18/18` 通过；`typecheck/lint/build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-04-01（ObTable 性能优化：调度合并 + sticky 回收）
 
 - RED（先失败）：

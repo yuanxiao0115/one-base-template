@@ -2,6 +2,16 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
+
+- `packages/ui/src/components/table/Table.vue` 将列变更监听从 `deep watch props.columns` 收敛为轻量签名监听（`columnsLayoutSignature`），降低深层遍历开销。
+- `Table.vue` 在 `syncTableRegistry` 增加重复 `tableKey` 告警，帮助同页多表在开发阶段快速发现 key 冲突。
+- `packages/ui/src/components/table/internal/table-helpers.ts` 优化 `normalizeTreeRows`：优先复用未变化节点/数组引用，仅在字段修正时创建新引用，减少无效对象重建。
+- 新增/更新验证文件：
+  - `packages/ui/src/components/table/internal/table-helpers.test.ts`
+  - `packages/ui/src/table-source.test.ts`
+  - `apps/docs/docs/guide/table-vxe-migration.md`
+
 ## 2026-04-01（ObTable 性能优化：调度合并 + sticky 回收）
 
 - 按用户“仅关注性能与优化项”的要求，定位 `packages/ui/src/components/table/Table.vue` 重复 `watch -> doLayout/initSortable` 触发链路并收敛为调度函数。

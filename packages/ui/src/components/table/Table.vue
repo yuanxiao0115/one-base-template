@@ -62,6 +62,7 @@ type TableCompatInstance = TableInstance & {
 };
 
 const tableRefRegistry = new Map<string, TableCompatInstance>();
+const duplicatedTableKeyWarnedSet = new Set<string>();
 
 interface PageChangeParams {
   pageSize?: number;
@@ -301,6 +302,71 @@ const runtimeTableProps = computed<TableColumnBridgeRuntimeProps>(() => ({
 
 const visibleColumns = computed(() =>
   normalizedColumns.value.filter((column) => !resolveColumnHidden(column))
+);
+
+function resolveColumnWatchToken(value: unknown): string {
+  if (value == null) {
+    return '';
+  }
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  if (typeof value === 'function') {
+    return `fn:${value.name || 'anonymous'}`;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => resolveColumnWatchToken(item)).join(',');
+  }
+  if (typeof value === 'object') {
+    return `obj:${Object.keys(value as Record<string, unknown>)
+      .sort()
+      .join(',')}`;
+  }
+  return '';
+}
+
+function resolveColumnLayoutSignature(column: TableColumn, index: number): string {
+  const columnRecord = column as Record<string, unknown>;
+  const signatureParts = [
+    column.type,
+    resolveColumnWatchToken(column.prop),
+    column.label,
+    resolveColumnWatchToken(column.width),
+    resolveColumnWatchToken(column.minWidth),
+    resolveColumnWatchToken(columnRecord.minwidth),
+    resolveColumnWatchToken(columnRecord['min-width']),
+    resolveColumnWatchToken(column.fixed),
+    resolveColumnWatchToken(column.sortable),
+    resolveColumnWatchToken(column.align),
+    resolveColumnWatchToken(column.headerAlign),
+    resolveColumnWatchToken(column.slot),
+    resolveColumnWatchToken(column.headerSlot),
+    resolveColumnWatchToken(column.filterIconSlot),
+    resolveColumnWatchToken(column.expandSlot),
+    resolveColumnWatchToken(column.hide),
+    resolveColumnWatchToken(column.ellipsis),
+    resolveColumnWatchToken(column.showOverflowTooltip),
+    resolveColumnWatchToken(column.showEmptyValue),
+    resolveColumnWatchToken(column.emptyValueText),
+    resolveColumnWatchToken(column.treeNode),
+    resolveColumnWatchToken(column.className),
+    resolveColumnWatchToken(column.reserveSelection),
+    resolveColumnWatchToken(column.cellRenderer),
+    resolveColumnWatchToken(column.headerRenderer),
+    resolveColumnWatchToken(column.formatter)
+  ];
+  if (!Array.isArray(column.children) || column.children.length === 0) {
+    return `${index}:${signatureParts.join('|')}`;
+  }
+  return `${index}:${signatureParts.join('|')}:[${column.children
+    .map((child, childIndex) => resolveColumnLayoutSignature(child, childIndex))
+    .join(';')}]`;
+}
+
+const columnsLayoutSignature = computed(() =>
+  normalizedColumns.value
+    .map((column, index) => resolveColumnLayoutSignature(column, index))
+    .join('||')
 );
 
 const normalizedPagination = computed<TablePagination | null>(() => {
@@ -663,9 +729,22 @@ function syncTableRegistry() {
   if (!activeTable) {
     if (registeredTableKey.value) {
       tableRefRegistry.delete(registeredTableKey.value);
+      duplicatedTableKeyWarnedSet.delete(registeredTableKey.value);
       registeredTableKey.value = null;
     }
     return;
+  }
+
+  const existingTable = tableRefRegistry.get(currentKey);
+  if (
+    existingTable &&
+    existingTable !== activeTable &&
+    !duplicatedTableKeyWarnedSet.has(currentKey)
+  ) {
+    duplicatedTableKeyWarnedSet.add(currentKey);
+    console.warn(
+      `[ObTable] 检测到重复 tableKey: "${currentKey}"，请确保同页多表使用唯一 tableKey。`
+    );
   }
 
   activeTable.tableKey = resolvedTableKey.value;
@@ -752,6 +831,7 @@ watch(
   (nextKey, previousKey) => {
     if (previousKey && previousKey !== nextKey) {
       tableRefRegistry.delete(previousKey);
+      duplicatedTableKeyWarnedSet.delete(previousKey);
       if (registeredTableKey.value === previousKey) {
         registeredTableKey.value = null;
       }
@@ -762,11 +842,11 @@ watch(
 );
 
 watch(
-  () => props.columns,
+  columnsLayoutSignature,
   () => {
     scheduleTableLayoutUpdate({ adaptive: true, rowDrag: true });
   },
-  { deep: true, flush: 'post' }
+  { flush: 'post' }
 );
 
 watch(
@@ -826,6 +906,7 @@ onBeforeUnmount(() => {
   disposeLayout();
   if (registeredTableKey.value) {
     tableRefRegistry.delete(registeredTableKey.value);
+    duplicatedTableKeyWarnedSet.delete(registeredTableKey.value);
     registeredTableKey.value = null;
   }
 });

@@ -52,6 +52,7 @@
 - `loadingConfig`（`text/spinner/svg/viewBox/background`）
 - `rowHoverBgColor`
 - `tableKey`
+- 开发态检测重复 `tableKey` 并输出告警（同页多表应使用唯一 key）
 - `locale`（`zhCn/zhTw/en` 或自定义语言对象）
 - `pagination` 关键语义（`align/size/class/style/pageCount/pagerCount/disabled/hideOnSinglePage/defaultPageSize/defaultCurrentPage`）
 - `append` / `empty` 插槽
@@ -78,7 +79,7 @@
 
 - `getTableDoms()` / `setHeaderSticky()` 仍依赖 Element Plus 内部 DOM class；升级 Element Plus 版本时，需重点回归 `adaptive + fixHeader + fixed columns` 组合场景。
 - 当 `tooltipRenderThreshold > 0` 时，`showOverflowTooltip` 会在阈值范围内启用富 tooltip；大数据量页面建议保持 `tooltipRenderThreshold=0` 或按列按需开启。
-- 树表会经过 `normalizeTreeRows` 归一化，返回行对象是新引用（结构相同但非原引用）；业务若依赖 row 引用身份，请显式避免引用比较。
+- 树表会经过 `normalizeTreeRows` 归一化，并优先复用未变化节点引用；仅在字段修正时返回新引用。业务若依赖 row 引用身份，需避免“引用变化即语义变化”的假设。
 - `expandSlot` 当前已补齐“列级插槽优先 + `slots.expand` 兜底”链路，但“多层表头 + expand + 自定义 formatter 组合”仍建议持续做回归样例。
 - 当前版本已明确**不纳入列拖拽排序能力**（优先保证行拖拽与树表稳定性），避免引入额外交互与持久化复杂度。
 
