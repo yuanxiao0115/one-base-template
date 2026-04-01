@@ -13,7 +13,7 @@
 
 > 默认采用“容器自适应撑满”布局：在 `ObPageContainer + ObTableBox` 结构下，表格区域自动填充 `one-table-bar__content`，分页器固定显示在底部。
 >
-> `ObTableBox` 默认采用“搜索框 + 筛选图标按钮”样式；统一表格壳组件默认视觉向旧 puretable 页靠拢（浅灰表头、底部分页左总数右分页）。
+> `ObTableBox` 默认采用“搜索框 + 筛选图标按钮”样式；统一表格壳组件默认视觉向历史表格页靠拢（浅灰表头、底部分页左总数右分页）。
 >
 > 当数据超出可视区时，滚动区域在表格主体（body）内，分页器不跟随内容滚动。
 >
@@ -41,12 +41,12 @@
 - **主题策略**：`packages/ui/src/styles/table-theme.css` 为共享表格 token 层，`ObTable` 与 `ObVxeTable` 同时消费，避免视觉体系分叉。
 - **树形能力**：支持 `treeConfig`（Element 语义：`defaultExpandAll/lazy/load/children/hasChildren`），满足菜单管理、组织管理类页面迁移需求。
 - **列宽契约**：支持消费列定义中的 `width/minWidth`，避免配置失效。
-- **列插槽能力**：支持 `slot/headerSlot/filterIconSlot/expandSlot` 与 `cellRenderer/headerRenderer`，兼容旧 puretable 的常用列编排方式。
+- **列插槽能力**：支持 `slot/headerSlot/filterIconSlot/expandSlot` 与 `cellRenderer/headerRenderer`，兼容历史列定义的常用列编排方式。
 - **列内容可读性**：支持 `showOverflowTooltip/ellipsis` 控制超长省略；鼠标悬浮自动展示 tooltip（操作列默认关闭）。
 - **空态视觉**：无数据时统一展示组件级空态图片 + 文案“暂未生产任何数据”，树表/普通表同时生效，且空态内容保持居中。
 - **空值兜底**：默认空值展示 `---`，可通过 `showEmptyValue` 关闭，或通过 `emptyValueText` 自定义占位文案；空态文案可通过 `emptyText` 自定义。
 
-已对齐的 pure 顶层能力（首批）：
+已对齐的表格顶层能力（首批）：
 
 - `loadingConfig`（`text/spinner/svg/viewBox/background`）
 - `rowHoverBgColor`
@@ -61,7 +61,7 @@
 
 仍待逐步对齐（后续批次）：
 
-- 纯 puretable 的少量边角分页视觉细节（例如 `align` 与“总数绝对定位”组合下的像素级差异）
+- 历史表格实现的少量边角分页视觉细节（例如 `align` 与“总数绝对定位”组合下的像素级差异）
 - `expandSlot` 链路的深度场景（嵌套列 + 复杂渲染函数组合）仍需继续做回归补样
 
 ## 风险清单（长期维护）
@@ -71,11 +71,11 @@
 - 树表会经过 `normalizeTreeRows` 归一化，返回行对象是新引用（结构相同但非原引用）；业务若依赖 row 引用身份，请显式避免引用比较。
 - 当前统一壳组件未提供“列拖拽排序”的统一契约与持久化能力（见下方“列拖拽排序支持现状”）。
 
-## Fork 基线（puretable）
+## 表格契约基线
 
-当前方案已从“只做能力回灌”升级为“**fork puretable 契约 + 渐进改造运行时**”：
+当前方案已从“只做能力回灌”升级为“**fork 上游表格契约 + 渐进改造运行时**”：
 
-1. 运行时 fork 基线位于 `packages/ui/src/components/table/puretable-fork`，当前先落地列契约（来源：`pure-admin-table@v3.3.0`）。
+1. 运行时契约基线位于 `packages/ui/src/components/table/table-contract`，当前先落地列契约（来源：`pure-admin-table@v3.3.0`）。
 2. `ObTable` 的 `TableColumn` 已改为扩展 fork 契约（`types.ts`），避免后续逐项迁移时遗漏字段。
 3. 上游镜像仍保留在 `.codex/mirrors/pure-admin-table-upstream`，仅用于同步对照，不参与应用打包。
 
@@ -92,7 +92,7 @@ pnpm mirror:pure-table 8f93cb2
 1. 普通列表与树表优先使用 `ObTable`；
 2. 仅当页面明确依赖 VXE 专属能力时再使用 `ObVxeTable`；
 3. 对照关键交互（排序、多选、分页、树展开）做页面回归；
-4. 每轮只迁移 1-2 个 pure 能力并补齐测试，避免大爆炸改造。
+4. 每轮只迁移 1-2 个历史表格能力并补齐测试，避免大爆炸改造。
 
 最小替换示例：
 

@@ -1,18 +1,18 @@
 import type { PaginationConfig } from '@one-base-template/core';
 import type { CSSProperties, VNodeChild } from 'vue';
 import type {
-  PureTableColumnFilterPlacement,
-  PureTableColumnFixed,
-  PureTableColumnSortable,
-  PureTableColumnType,
-  PureTableColumnsContract
-} from './puretable-fork/table-column-contract';
+  ObTableColumnFilterPlacement,
+  ObTableColumnFixed,
+  ObTableColumnSortable,
+  ObTableColumnType,
+  ObTableColumnsContract
+} from './table-contract/column-contract';
 
 export type TableAlign = 'left' | 'center' | 'right';
-export type TableColumnType = PureTableColumnType;
-export type TableSortable = PureTableColumnSortable;
-export type TableFixed = PureTableColumnFixed;
-export type TableColumnFilterPlacement = PureTableColumnFilterPlacement;
+export type TableColumnType = ObTableColumnType;
+export type TableSortable = ObTableColumnSortable;
+export type TableFixed = ObTableColumnFixed;
+export type TableColumnFilterPlacement = ObTableColumnFilterPlacement;
 export type TableDefaultLocale = 'zhCn' | 'zhTw' | 'en';
 export type TablePaginationAlign = 'left' | 'center' | 'right';
 export type TablePaginationSize = 'default' | 'small' | 'large';
@@ -57,11 +57,11 @@ export interface TableFormatterParams {
 }
 
 export type TableFormatter =
-  | PureTableColumnsContract['formatter']
+  | ObTableColumnsContract['formatter']
   | ((params: TableFormatterParams) => VNodeChild);
 
 export interface TableColumn extends Omit<
-  PureTableColumnsContract,
+  ObTableColumnsContract,
   'cellRenderer' | 'headerRenderer' | 'children' | 'hide' | 'formatter'
 > {
   ellipsis?: boolean;

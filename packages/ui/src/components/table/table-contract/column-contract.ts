@@ -6,11 +6,11 @@ import type { VNodeChild } from 'vue';
  * Source: pure-admin-table@8f93cb2 (v3.3.0)
  */
 
-export type PureTableColumnSortOrders = 'ascending' | 'descending' | null;
-export type PureTableColumnType = 'selection' | 'index' | 'expand';
-export type PureTableColumnSortable = false | true | 'custom';
-export type PureTableColumnFixed = true | 'left' | 'right';
-export type PureTableColumnFilterPlacement =
+export type ObTableColumnSortOrders = 'ascending' | 'descending' | null;
+export type ObTableColumnType = 'selection' | 'index' | 'expand';
+export type ObTableColumnSortable = false | true | 'custom';
+export type ObTableColumnFixed = true | 'left' | 'right';
+export type ObTableColumnFilterPlacement =
   | 'top-start'
   | 'top-end'
   | 'top'
@@ -24,44 +24,44 @@ export type PureTableColumnFilterPlacement =
   | 'right-end'
   | 'right';
 
-export type PureTableFilterMethod = (
+export type ObTableFilterMethod = (
   value: unknown,
   row: Record<string, unknown>,
   column: TableColumnCtx<Record<string, unknown>>
 ) => void;
 
-export interface PureTableColumnScope {
+export interface ObTableColumnScope {
   row?: Record<string, unknown>;
-  column: PureTableColumnsContract;
+  column: ObTableColumnsContract;
   $index: number;
 }
 
-export interface PureTableColumnRendererScope extends PureTableColumnScope {
+export interface ObTableColumnRendererScope extends ObTableColumnScope {
   index: number;
   props: Record<string, unknown>;
   attrs: Record<string, unknown>;
 }
 
 /**
- * 与 pure-admin-table 对齐的原始 TableColumn 字段。
+ * 与上游列契约对齐的原始 TableColumn 字段。
  */
-export interface PureTableColumnContract {
+export interface ObTableColumnContract {
   label?: string;
   prop?: string | ((index: number) => string);
-  type?: PureTableColumnType;
+  type?: ObTableColumnType;
   index?: number | ((index: number) => number);
   columnKey?: string;
   width?: string | number;
   minWidth?: string | number;
-  fixed?: PureTableColumnFixed;
+  fixed?: ObTableColumnFixed;
   renderHeader?: (data: {
     column: TableColumnCtx<Record<string, unknown>>;
     $index: number;
   }) => VNodeChild;
-  sortable?: PureTableColumnSortable;
+  sortable?: ObTableColumnSortable;
   sortMethod?: (a: unknown, b: unknown) => number;
   sortBy?: string | ((row: Record<string, unknown>, index: number) => string) | string[];
-  sortOrders?: Array<PureTableColumnSortOrders>;
+  sortOrders?: Array<ObTableColumnSortOrders>;
   resizable?: boolean;
   formatter?: (
     row: Record<string, unknown>,
@@ -77,10 +77,10 @@ export interface PureTableColumnContract {
   selectable?: (row: Record<string, unknown>, index: number) => boolean;
   reserveSelection?: boolean;
   filters?: Array<{ text: string; value: string }>;
-  filterPlacement?: PureTableColumnFilterPlacement;
+  filterPlacement?: ObTableColumnFilterPlacement;
   filterClassName?: string;
   filterMultiple?: boolean;
-  filterMethod?: PureTableFilterMethod;
+  filterMethod?: ObTableFilterMethod;
   filteredValue?: Array<unknown>;
   tooltipFormatter?: (data: {
     row: Record<string, unknown>;
@@ -90,15 +90,15 @@ export interface PureTableColumnContract {
 }
 
 /**
- * 与 pure-admin-table 对齐的扩展列字段。
+ * 与上游列契约对齐的扩展列字段。
  */
-export interface PureTableColumnsContract extends PureTableColumnContract {
+export interface ObTableColumnsContract extends ObTableColumnContract {
   hide?: boolean | CallableFunction;
   slot?: string;
   headerSlot?: string;
   filterIconSlot?: string;
   expandSlot?: string;
-  children?: Array<PureTableColumnsContract>;
-  cellRenderer?: (data: PureTableColumnRendererScope) => VNodeChild;
-  headerRenderer?: (data: PureTableColumnRendererScope) => VNodeChild;
+  children?: Array<ObTableColumnsContract>;
+  cellRenderer?: (data: ObTableColumnRendererScope) => VNodeChild;
+  headerRenderer?: (data: ObTableColumnRendererScope) => VNodeChild;
 }

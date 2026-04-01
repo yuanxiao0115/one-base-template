@@ -10,7 +10,7 @@ describe('Table source', () => {
     'utf8'
   );
   const contractSource = readFileSync(
-    new URL('./components/table/puretable-fork/table-column-contract.ts', import.meta.url),
+    new URL('./components/table/table-contract/column-contract.ts', import.meta.url),
     'utf8'
   );
   const tableStyleSource = readFileSync(
@@ -23,7 +23,9 @@ describe('Table source', () => {
     expect(source).toContain("name: 'Table'");
     expect(source).toContain('<el-table');
     expect(source).toContain('<el-pagination');
-    expect(source).toContain("['ob-table', attrs.class]");
+    expect(source).toContain('const wrapperClass = computed(() => [');
+    expect(source).toContain("{ 'is-row-drag': rowDragEnabled.value },");
+    expect(source).toContain('attrs.class');
     expect(source).not.toContain('ob-element-table');
   });
 
@@ -73,9 +75,9 @@ describe('Table source', () => {
     expect(helperSource).toContain("if (typeof value === 'boolean') {");
   });
 
-  it('应兼容 puretable 的筛选图标与展开插槽契约', () => {
+  it('应兼容统一表格的筛选图标与展开插槽契约', () => {
     expect(typesSource).toContain('extends Omit<');
-    expect(typesSource).toContain('PureTableColumnsContract');
+    expect(typesSource).toContain('ObTableColumnsContract');
     expect(contractSource).toContain('filterIconSlot?: string;');
     expect(contractSource).toContain('expandSlot?: string;');
     expect(source).toContain("componentSlots['filter-icon']");
@@ -87,7 +89,7 @@ describe('Table source', () => {
     expect(source).toContain('mappedColumn.expandSlot = undefined;');
   });
 
-  it('应保留 puretable 的核心顶层 props 与 expose 能力', () => {
+  it('应保留统一表格的核心顶层 props 与 expose 能力', () => {
     expect(source).toContain('loadingConfig?: TableLoadingConfig;');
     expect(source).toContain('rowHoverBgColor?: string;');
     expect(source).toContain('tableKey?: string | number;');
