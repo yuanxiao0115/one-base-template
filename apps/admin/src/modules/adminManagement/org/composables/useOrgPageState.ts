@@ -35,6 +35,17 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
+function normalizeTreeRows(rows: OrgRecord[]): OrgRecord[] {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return [];
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    hasChildren: typeof row.hasChildren === 'boolean' ? row.hasChildren : true
+  }));
+}
+
 export function useOrgPageState() {
   const authStore = useAuthStore();
 
@@ -94,7 +105,15 @@ export function useOrgPageState() {
           });
         }
 
-        return orgApi.getOrgTree({ parentId });
+        const response = await orgApi.getOrgTree({ parentId });
+        if (response.code !== 200) {
+          return response;
+        }
+
+        return {
+          ...response,
+          data: normalizeTreeRows(Array.isArray(response.data) ? response.data : [])
+        };
       },
       params: searchForm,
       pagination: false,

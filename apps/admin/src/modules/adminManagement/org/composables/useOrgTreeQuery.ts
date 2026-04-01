@@ -39,6 +39,17 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
+function normalizeTreeRows(rows: OrgRecord[]): OrgRecord[] {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return [];
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    hasChildren: typeof row.hasChildren === 'boolean' ? row.hasChildren : true
+  }));
+}
+
 export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
   const { inSearchMode, searchForm, searchRef, tableRef, onSearch, resetForm } = options;
 
@@ -112,7 +123,7 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
         throw new Error(response.message || '加载下级组织失败');
       }
 
-      const rows = Array.isArray(response.data) ? response.data : [];
+      const rows = normalizeTreeRows(Array.isArray(response.data) ? response.data : []);
       if (!rows.length) {
         row.hasChildren = false;
       }

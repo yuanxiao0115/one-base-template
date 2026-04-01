@@ -11190,3 +11190,21 @@
   - `packages/ui/src/card-table-source.test.ts`（锁定 CardTable 不再依赖 VxePager/vxe 变量）。
 - 结果：
   - `apps/admin build` 产物已无 `vxe` js/css 产物；`check-admin-build-size` 输出 `vxe chunk: 未匹配到对应 chunk，跳过。`。
+
+## 2026-04-01（adminManagement 多角色走查整改 + 测试目录迁移）
+
+- 按“代码规范优先”的走查结论完成整改：
+  - `org/api.ts` 去除树数据归一化，恢复 `api.ts` 只做请求透传。
+  - 组织树 `hasChildren` 补值逻辑下沉到 `useOrgPageState.ts` 与 `useOrgTreeQuery.ts`。
+  - `OrgLevelManageDialog.vue` 模板事件从直接 `levelCrud.openCreate/openEdit` 改为局部 handler（`openCreate/openEdit`）。
+- adminManagement 测试文件迁移：
+  - 将 `apps/admin/src/modules/adminManagement/**` 下 `*.unit.test.ts/*.source.test.ts` 全量迁移到 `apps/admin/tests/modules/adminManagement/**`。
+  - 同步把测试内相对路径 import/vi.mock 改成 `@/modules/adminManagement/...` alias。
+- source test 门禁补强：
+  - `menu/list.source.test.ts`、`org/list.source.test.ts` 增加 `treeNode: true` 断言，锁定树表展开红线。
+  - `org/api.source.test.ts` 改为断言“api 层不做 normalize”。
+  - `OrgLevelManageDialog.source.test.ts` 改为断言 handler 触发，不再固化 `crud.open*` 模板直调。
+- 规则落盘（按用户新偏好）：
+  - `apps/admin/AGENTS.md`：新增“模块测试必须位于 `apps/admin/tests/modules/**`”；补“业务层类型够用即可，不强制复杂显式泛型”；补“可读性优先，composable 职责超 3 类必须拆分”。
+  - `apps/docs/docs/guide/admin-agent-redlines.md` 同步相同口径。
+- 按用户确认，本次提交包含 `apps/admin/src/types/components.d.ts`（自动生成文件仅格式变化 `export {}` -> `export {}` 无语义变更）。

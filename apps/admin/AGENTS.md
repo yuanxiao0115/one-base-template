@@ -20,6 +20,7 @@
 - `apps/admin/src/types`：跨模块通用类型定义（如 `types/api.ts` 的 `ApiResponse` / `ApiPageData`）。
 - `apps/admin/src/services/auth`：登录/SSO/验证码场景服务（`auth-*.ts`、`auth-scenario-provider.ts`）。
 - `apps/admin/tests`：应用层测试统一维护目录（启动链路、路由装配、配置与认证场景测试优先放这里）。
+- `apps/admin/src/modules/**` 禁止再放测试文件（`*.unit.test.ts` / `*.source.test.ts`）；模块测试统一落在 `apps/admin/tests/modules/**`，按 `modules/<module>/<feature>` 镜像目录组织。
 - 架构源码约束测试统一放在 `apps/admin/tests/architecture`，用于锁定“下沉到 core 后不回流”的边界。
 - admin 反馈能力（`message` / `obConfirm` / `registerMessageUtils`）统一来自 `@one-base-template/ui`，禁止在应用层重复实现同类能力。
 - 模块私有逻辑（仅单模块使用的 `mapper/normalize/helper`）禁止上提到应用级公共目录，保持在 `modules/<module>/**` 就近维护。
@@ -122,6 +123,7 @@
 - `api.ts` / `api/client.ts` 禁止 `const http = obHttp()` 与 `getHttp` 包装函数；HTTP 请求必须直接写为 `obHttp().get/post/...`，避免无意义中间层。
 - 跨模块重复的通用协议类型（如 `ApiResponse<T>`、`ApiPageData<T>`）统一维护在 `apps/admin/src/types/api.ts`；模块内 `types.ts` 仅做直接复用（`export type { ApiResponse }` 或直接引用 `ApiPageData<T>`），不要再新增 `BizResponse`/`ApiResponseAlias` 这类中间别名，业务实体类型继续就地维护，避免“全局大而全类型池”。
 - `types.ts` 的实体类型默认只保留页面真实使用字段：仅主键与关键交互字段设为必填，其余字段优先可选，避免完整镜像后端 DTO 导致维护成本上升。
+- 业务层类型标注遵循“够用即可”：局部变量/局部 `ref` 在语义清晰时允许依赖 TypeScript 推导，不强制补显式泛型；仅在跨文件公共契约、函数入参/返回值边界、复杂联合类型处补显式类型。
 - 对于日志、审计等“弱结构 + 字段经常变动”的列表实体，优先使用“`id` + 少量关键字段 + 索引签名”的宽松定义（如 `[key: string]: string | number | null | undefined`），避免维护超长字段清单。
 - `LogManagement` 目录结构与其他模块保持一致：`login-log/api.ts + login-log/types.ts`、`sys-log/api.ts + sys-log/types.ts`，禁止回退到集中式 `LogManagement/api/*.ts`。
 - `adminManagement`（职位/用户/组织/角色/菜单/租户）默认直连真实后端，禁止在 `apps/admin/vite.config.ts` 新增对应 mock 分支；仅用户明确要求 mock 时例外。
@@ -176,6 +178,7 @@
 - `ObActionButtons` 在 adminManagement 页面作为全局组件使用，默认不再手动 import。
 - 页面状态分组语义固定：`editor` 仅承载 CRUD 编辑态（`visible/mode/title/submitting/form/uniqueCheck`）；选项/字典/树数据统一放在 `options`。
 - 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 这类场景对象；禁止平铺暴露超过一个屏宽的零散 action/ref。
+- 代码可读性优先：一个 composable 同时承担超过 `3` 类职责（如 `table + editor + selection + remote options + import`）时必须拆分；函数命名优先“动词 + 名词”，避免 `do/handleData/processItem` 这类语义弱命名。
 - 像用户这种包含“组织 + 岗位”嵌套结构的 `form.ts`，只允许保留数组关系和真实协议边界转换；字段契约已明确的字符串/数字/布尔值，禁止继续包 `trimText`、`toNaturalNumber`、`String/Number/Boolean` 兜底。
 
 ## 菜单管理与图标选择

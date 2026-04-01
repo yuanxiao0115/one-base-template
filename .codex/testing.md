@@ -9793,3 +9793,18 @@
   - `check-admin-build-size`：`vxe chunk` 未匹配（即已移除），其余预算项 PASS。
   - `apps/admin-lite`：`typecheck/lint:arch` 通过（legacy `vxe` 插件入口兼容验证）。
   - `apps/admin lint`：0 error（2 条历史 `max-lines` warning，非本次新增）。
+
+## 2026-04-01（adminManagement 多角色走查整改 + 测试目录迁移）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- $(rg --files apps/admin/tests/modules/adminManagement | rg '(source|unit)\.test\.ts$' | sed 's#apps/admin/##')`
+  - `pnpm -C apps/admin lint:arch`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：`29 files / 61 tests` 全通过。
+  - `apps/admin`：`lint:arch/typecheck` 通过。
+  - `apps/admin lint`：0 error（3 条 `max-lines` warning，均为历史长文件告警）。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

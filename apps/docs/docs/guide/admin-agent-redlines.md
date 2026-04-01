@@ -26,6 +26,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - `api.ts` 禁止从 `./types` 做类型中转导出（`export type {...} from './types'`）；业务文件需要类型时直接从 `types.ts` 导入。
 - `api.ts` / `api/client.ts` 禁止 `const http = obHttp()` 与 `getHttp` 包装；统一直接调用 `obHttp().get/post/...`。
 - 导入上传优先使用 `ObImportUpload`；业务型 `el-upload` 仅允许在表单/领域组件内部使用，禁止在 `list.vue` 直接编排上传控件。
+- `apps/admin/src/modules/**` 禁止放测试文件（`*.unit.test.ts` / `*.source.test.ts`）；模块测试统一放在 `apps/admin/tests/modules/**`，目录按模块镜像组织。
 
 ## 门禁脚本（可执行）
 
@@ -63,6 +64,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 ## UserManagement 可读性基线（2026-03-20）
 
 - 页面级 composable 只做编排：当一个 composable 同时承担 `table + editor + dialog + remote options/sidebar/data-source` 中 `3` 类及以上职责时，必须继续拆分，禁止形成 God composable。
+- 业务代码类型标注遵循“够用即可”：局部变量和局部 `ref` 在语义清晰时优先类型推导，不强制写冗长泛型；跨文件公共契约、函数边界和复杂联合类型再补显式类型。
 - 列表、选中态、弹窗表单态只能保留一个真实数据源；禁止继续新增 `safeDataList`、`safeSelectedList` 这类影子状态。
 - `defineExpose` 仅用于暴露最小通用句柄（如 `validate`、`resetFields`、`clearValidate`）；禁止暴露业务动作、加载方法、回填方法。
 - 父层禁止依赖 `nextTick + ref + defineExpose` 链式驱动子组件内部初始化；弹窗回填、远程选项预加载、已选值同步优先改为 `props` 驱动或交由子组件内部处理。
@@ -72,6 +74,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - 当页面级场景对象内部仍包含 `ref/computed` 字段时，页面 `<script setup>` 必须先用 `reactive(...)` 投影成模板友好视图，再交给模板消费；禁止让模板直接承担嵌套 `Ref` 解包心智负担。
 - 列表模板渲染可选枚举 / 布尔字段时，必须显式处理 `undefined/null` 并给出 `--`；禁止用 truthy / `Number()` 三元表达式把缺失值静默渲染成正常业务值。
 - 页面 `<script setup>` 默认只解构 `table`、`editor`、`dialogs`、`sidebar`、`options` 等场景对象；禁止平铺暴露过多零散 action/ref。
+- 命名与结构优先可读：函数命名保持“动词 + 名词”，同层避免 `do/handleData/processItem` 这类语义弱命名；一个 composable 承载职责超过 `3` 类时必须拆分。
 - 低层远程搜索表单壳若不直接承担全局消息提示，则必须由调用方 composable 明确接管错误反馈；禁止既移除子组件提示、又不在上层补齐反馈，导致静默失败。
 - 遵循根 `AGENTS.md` 的全仓规则：当表单 / DTO 字段契约已经明确时，禁止继续堆 `String(...)`、`Number(...)`、`value == null ? '' : ...` 这类过度防御性映射；admin 模块默认按当前契约直白赋值，只在真实协议边界做一次必要转换。
 
