@@ -9964,3 +9964,15 @@
 - 结果：
   - `apps/admin`：`2 files / 4 tests` 通过，`typecheck` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-01（PortalManagement 物料分类重划分 + CMS 分类改名）
+
+- GREEN / 回归：
+  - `pnpm -C packages/portal-engine typecheck`
+  - `pnpm -C packages/portal-engine run test:run -- src/materials/registerMaterialExtensions.test.ts`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/portal-engine`：`typecheck` 通过。
+  - `packages/portal-engine`：测试通过（`32 files / 124 tests`）。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。

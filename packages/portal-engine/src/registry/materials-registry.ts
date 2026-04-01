@@ -71,9 +71,9 @@ const MATERIAL_ICON_MAP = {
  * 物料注册表（前端维护）
  *
  * 约束：
- * - 当前内置分类：基础组件（basic） + CMS专区（cms）
+ * - 当前内置分类：基础/容器/列表/链接/业务 + 党建风格cms组件（cms）
  */
-const basicComponents = createComponentGroup(
+const allBasicComponents = createComponentGroup(
   [
     {
       id: 'basic-placeholder-block',
@@ -249,6 +249,53 @@ const basicComponents = createComponentGroup(
   ],
   baseConfig
 );
+
+const BASIC_COMPONENT_IDS = [
+  'basic-placeholder-block',
+  'basic-transparent-placeholder',
+  'basic-base-image',
+  'basic-base-carousel',
+  'basic-base-text'
+] as const;
+
+const CONTAINER_COMPONENT_IDS = [
+  'basic-base-iframe-container',
+  'basic-base-tab-container',
+  'basic-base-simple-container'
+] as const;
+
+const LIST_COMPONENT_IDS = [
+  'basic-base-table',
+  'basic-base-card-list',
+  'basic-base-file-list',
+  'basic-base-timeline'
+] as const;
+
+const LINK_COMPONENT_IDS = [
+  'basic-app-entrance',
+  'basic-image-link-list',
+  'basic-base-button-group'
+] as const;
+
+const BUSINESS_COMPONENT_IDS = [
+  'basic-base-search-box',
+  'basic-base-notice',
+  'basic-base-form',
+  'basic-base-stat'
+] as const;
+
+function pickMaterialGroup(materialIds: readonly string[]): PortalMaterialItem[] {
+  const materialIdSet = new Set(materialIds);
+  return allBasicComponents
+    .filter((material) => materialIdSet.has(material.id))
+    .map((material) => cloneMaterialItem(material));
+}
+
+const basicComponents = pickMaterialGroup(BASIC_COMPONENT_IDS);
+const containerComponents = pickMaterialGroup(CONTAINER_COMPONENT_IDS);
+const listComponents = pickMaterialGroup(LIST_COMPONENT_IDS);
+const linkComponents = pickMaterialGroup(LINK_COMPONENT_IDS);
+const businessComponents = pickMaterialGroup(BUSINESS_COMPONENT_IDS);
 
 const cmsComponents = createComponentGroup(
   [
@@ -447,10 +494,38 @@ const defaultCategories: PortalMaterialCategory[] = [
     cmptList: basicComponents
   },
   {
+    id: 'container',
+    name: '容器组件',
+    cmptTypeName: '容器组件',
+    title: '容器组件',
+    cmptList: containerComponents
+  },
+  {
+    id: 'list',
+    name: '列表组件',
+    cmptTypeName: '列表组件',
+    title: '列表组件',
+    cmptList: listComponents
+  },
+  {
+    id: 'link',
+    name: '链接组件',
+    cmptTypeName: '链接组件',
+    title: '链接组件',
+    cmptList: linkComponents
+  },
+  {
+    id: 'business',
+    name: '业务组件',
+    cmptTypeName: '业务组件',
+    title: '业务组件',
+    cmptList: businessComponents
+  },
+  {
     id: 'cms',
-    name: 'CMS专区',
-    cmptTypeName: 'CMS专区',
-    title: 'CMS专区',
+    name: '党建风格cms组件',
+    cmptTypeName: '党建风格cms组件',
+    title: '党建风格cms组件',
     cmptList: cmsComponents
   }
 ];

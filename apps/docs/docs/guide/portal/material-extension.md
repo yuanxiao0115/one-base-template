@@ -44,7 +44,7 @@
 
 ## 内置配置可见性
 
-- 内置基础/CMS 物料清单入口：`packages/portal-engine/src/registry/materials-registry.ts`
+- 内置物料分类（基础/容器/列表/链接/业务/党建风格cms组件）清单入口：`packages/portal-engine/src/registry/materials-registry.ts`
 - 每个内置物料默认配置：`packages/portal-engine/src/materials/**/config.json`
 - admin 自定义物料默认配置：`apps/admin/src/modules/PortalManagement/materials/*/defaults.ts`
 - 推荐对外文档口径：按“物料名 -> content 字段 -> style 字段 -> 默认值”列出，便于业务同学快速对照。

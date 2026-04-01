@@ -11328,3 +11328,11 @@
 - `apps/admin/src/modules/adminManagement/menu/list.vue`：移除已废弃的 `#icon` 插槽与对应样式。
 - `apps/admin/tests/modules/adminManagement/menu/list.source.test.ts`：补充列精简门禁断言。
 - `apps/docs/docs/guide/layout-menu.md`：同步菜单列表列精简说明。
+
+## 2026-04-01（PortalManagement 物料分类重划分 + CMS 分类改名）
+
+- 调整 `packages/portal-engine/src/registry/materials-registry.ts`：
+  - 将原 `basic` 分类拆分为 `基础组件 / 容器组件 / 列表组件 / 链接组件 / 业务组件` 五类。
+  - 保留 `cms` 分类 id 不变，仅将分类名称从 `CMS专区` 改为 `党建风格cms组件`。
+  - `cms` 分类下物料条目保持不变（`related-links`、`image-text-list`、`image-text-column`、`document-card-list`、`carousel-text-list`）。
+- 同步文档：更新 `apps/docs/docs/guide/portal/material-extension.md` 的内置分类说明。
