@@ -15,6 +15,7 @@
     "dev:all": "vp run -r dev",
     "new:app": "node ./scripts/new-app.mjs",
     "new:module": "node ./scripts/new-module.mjs",
+    "mirror:pure-table": "node ./scripts/sync-pure-admin-table-mirror.mjs",
     "build": "vp run -r build",
     "typecheck": "vp run -r typecheck",
     "lint": "vp run -r lint",

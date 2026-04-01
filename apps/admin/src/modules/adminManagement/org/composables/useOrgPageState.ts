@@ -186,11 +186,14 @@ export function useOrgPageState() {
 
           return response;
         },
-        onSuccess: async ({ mode }) => {
+        onSuccess: async ({ mode, payload, row }) => {
           message.success(mode === 'create' ? '新增组织成功' : '更新组织成功');
-          clearTreeCache();
+          await refreshAfterSave({ payload, row });
         }
       }
+    },
+    behavior: {
+      refreshAfterSave: 'none'
     }
   });
 
@@ -212,6 +215,7 @@ export function useOrgPageState() {
   const {
     clearTreeCache,
     loadTreeChildren,
+    refreshTreeNode,
     refreshTable,
     markDeletingRow,
     clearDeletingRow,
@@ -224,6 +228,7 @@ export function useOrgPageState() {
     inSearchMode,
     searchForm,
     searchRef,
+    tableRef,
     onSearch,
     resetForm
   });
@@ -235,13 +240,37 @@ export function useOrgPageState() {
 
     return {
       lazy: true,
-      trigger: 'cell',
-      reserve: true,
-      hasChildField: 'hasChildren',
-      childrenField: 'children',
-      loadMethod: loadTreeChildren
+      children: 'children',
+      hasChildren: 'hasChildren',
+      load: loadTreeChildren
     };
   });
+
+  async function refreshAfterSave(context: { payload: OrgSavePayload; row: OrgRecord | null }) {
+    clearTreeCache();
+
+    if (inSearchMode.value) {
+      await onSearch(false);
+      return;
+    }
+
+    const rootId = rootParentId.value;
+    const nextParentId = String(context.payload.parentId || rootId);
+    const previousParentId = context.row?.parentId ? String(context.row.parentId) : '';
+
+    let refreshed = false;
+    if (previousParentId && previousParentId !== rootId && previousParentId !== nextParentId) {
+      refreshed = (await refreshTreeNode(previousParentId)) || refreshed;
+    }
+
+    if (nextParentId && nextParentId !== rootId) {
+      refreshed = (await refreshTreeNode(nextParentId)) || refreshed;
+    }
+
+    if (!refreshed) {
+      await onSearch(false);
+    }
+  }
 
   async function openCreateRoot() {
     createParentId.value = rootParentId.value;

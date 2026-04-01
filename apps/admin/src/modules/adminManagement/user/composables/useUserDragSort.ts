@@ -42,7 +42,8 @@ export function useUserDragSort(options: UseUserDragSortOptions) {
 
     return (
       tableEl.querySelector('.vxe-table--body-wrapper tbody') ||
-      tableEl.querySelector('.vxe-table--main-body tbody')
+      tableEl.querySelector('.vxe-table--main-body tbody') ||
+      tableEl.querySelector('.el-table__body-wrapper tbody')
     );
   }
 

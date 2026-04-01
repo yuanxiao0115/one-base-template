@@ -1,3 +1,4 @@
+import { DYNAMIC_IMPORT_RELOAD_KEY, isDynamicImportLoadError } from '@one-base-template/core';
 import type { bootstrapAdminApp } from './index';
 import { renderBootstrapError } from './error-view';
 import './admin-styles';
@@ -6,6 +7,16 @@ export type StartAdminAppBeforeMountContext = Awaited<ReturnType<typeof bootstra
 
 export interface StartAdminAppOptions {
   beforeMount?: (context: StartAdminAppBeforeMountContext) => Promise<void> | void;
+}
+
+function isWaitingForDynamicImportRecovery(error: unknown) {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  if (!isDynamicImportLoadError(error)) {
+    return false;
+  }
+  return Boolean(window.sessionStorage.getItem(DYNAMIC_IMPORT_RELOAD_KEY));
 }
 
 export async function startAdminApp(options: StartAdminAppOptions = {}) {
@@ -23,6 +34,9 @@ export async function startAdminApp(options: StartAdminAppOptions = {}) {
 
     context.app.mount('#app');
   } catch (error) {
+    if (isWaitingForDynamicImportRecovery(error)) {
+      return;
+    }
     renderBootstrapError(error);
   }
 }

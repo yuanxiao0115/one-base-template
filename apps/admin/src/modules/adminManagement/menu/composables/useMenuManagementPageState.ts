@@ -43,9 +43,8 @@ export function useMenuManagementPageState() {
     }
 
     return {
-      transform: false,
-      expandAll: true,
-      childrenField: 'children'
+      defaultExpandAll: true,
+      children: 'children'
     };
   });
 

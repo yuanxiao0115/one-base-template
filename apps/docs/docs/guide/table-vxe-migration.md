@@ -171,6 +171,8 @@ table?.clearSelection?.();
 - `treeConfig.children='children'`
 - `treeConfig.load`（异步加载下级节点，函数签名遵循 Element：`(row, treeNode, resolve)`）
 - 若 `/children` 接口未返回 `hasChildren`，在模块 API 统一补 `hasChildren: true`；`load` 返回空数组时回写 `row.hasChildren = false`
+- 搜索/重置/保存后若需要失效懒加载缓存，除清理业务缓存外，还要同步清理 `getTableRef().store.states.lazyTreeNodeMap.value`，避免旧节点缓存导致展开不刷新
+- 推荐在模块层维护“节点 `resolve` 回调缓存”，在新增/编辑下级组织后优先按父节点增量刷新；找不到已展开父节点时再回退整表 `onSearch(false)`
 
 与两套表格底座的关键差异：
 
