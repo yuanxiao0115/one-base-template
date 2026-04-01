@@ -588,7 +588,7 @@ const defaultHeaderCellStyle = computed<CSSProperties>(() => ({
 
 const defaultBodyCellStyle = computed<CSSProperties>(() => ({
   fontSize: `${varAsNumber('--ob-table-font-size', 14)}px`,
-  fontWeight: varAsNumber('--ob-table-body-font-weight', 500),
+  fontWeight: varAsNumber('--ob-table-body-font-weight', 400),
   color: 'var(--ob-table-body-color)'
 }));
 
