@@ -11051,3 +11051,13 @@
 - 已同步文档：`apps/docs/docs/guide/table-vxe-migration.md`
   - 风险清单改为“当前版本不纳入列拖拽排序能力”。
   - 章节改名为“拖拽能力决策（2026-04-01）”，明确仅保留行拖拽排序。
+
+## 2026-04-01（ObTable 行拖拽/自适应行为级测试补齐）
+
+- 新增行为级测试：
+  - `packages/ui/src/components/table/internal/use-table-row-drag-sort.test.ts`
+    - 覆盖同 `tbody + config` 下重复初始化不重复创建实例。
+    - 覆盖键盘辅助交互 `Alt + ArrowUp/ArrowDown` 触发 `row-drag-sort` 语义。
+  - `packages/ui/src/components/table/internal/use-table-layout.test.ts`
+    - 覆盖高度不变场景下 `forceLayout` 仍触发 `doLayout`，验证宽度重排修复点。
+- 该批次未改业务逻辑，仅补测试护栏，防止后续回归。
