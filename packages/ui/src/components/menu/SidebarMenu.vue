@@ -41,10 +41,15 @@ const openeds = computed(() => findOpenPaths(menuItems.value, activePath.value))
 function onSelect(index: string) {
   const item = findMenuByPath(menuItems.value, index);
   if (item?.external) {
-    window.open(item.path, '_blank', 'noopener,noreferrer');
+    window.open(resolveExternalTarget(item), '_blank', 'noopener,noreferrer');
     return;
   }
   router.push(index);
+}
+
+function resolveExternalTarget(item: AppMenuItem): string {
+  const redirect = typeof item.redirect === 'string' ? item.redirect.trim() : '';
+  return redirect || item.path;
 }
 
 function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefined {

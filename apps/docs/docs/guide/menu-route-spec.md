@@ -233,6 +233,9 @@
     "external": { "type": "boolean" },
     "keepAlive": { "type": "boolean" },
     "order": { "type": "number" },
+    "openMode": { "type": "number", "enum": [0, 1] },
+    "redirect": { "type": "string" },
+    "remark": { "type": "string" },
     "children": {
       "type": "array",
       "items": {
@@ -242,6 +245,12 @@
   }
 }
 ```
+
+### 6.1 `openMode + redirect` 运行语义
+
+- `openMode=0`（内部）：按路由进入页面；当路由命中宿主页（如 `/ext/*`、`/micro/*`）时，`redirect` 作为内嵌入口地址。
+- `openMode=1`（外部）：菜单点击改为浏览器新窗口打开，优先打开 `redirect`，若未配置则回退打开 `path`。
+- `remark`：可选扩展字段，推荐用于承载 microapp 宿主 JSON（例如 `{"appName":"oa-sub","disableSandbox":false}`）。
 
 ## 7. 模块路由清单 Schema（module.ts）
 

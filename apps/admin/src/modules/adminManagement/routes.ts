@@ -73,5 +73,23 @@ export default [
       title: '租户管理员管理',
       keepAlive: true
     })
+  },
+  {
+    path: '/ext/:slug(.*)*',
+    name: 'SystemExternalFrameHost',
+    component: async () => import('./menu/pages/ExternalFramePage.vue'),
+    meta: defineRouteMeta({
+      title: '内嵌外链',
+      hideInMenu: true
+    })
+  },
+  {
+    path: '/micro/:slug(.*)*',
+    name: 'SystemMicroAppHost',
+    component: async () => import('./menu/pages/MicroAppHostPage.vue'),
+    meta: defineRouteMeta({
+      title: 'Micro 应用',
+      hideInMenu: true
+    })
   }
 ] satisfies RouteRecordRaw[];

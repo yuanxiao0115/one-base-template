@@ -50,6 +50,9 @@ interface BasicMenuNode {
   hidden?: number;
   resourceType?: number;
   routeCache?: number;
+  openMode?: number;
+  redirect?: string;
+  remark?: string;
   children?: BasicMenuNode[];
   [k: string]: unknown;
 }
@@ -108,6 +111,9 @@ function mapMenuItems(nodes: BasicMenuNode[]): AppMenuItem[] {
         title: isNonEmptyString(v.resourceName) ? v.resourceName : '未命名菜单',
         icon: isNonEmptyString(v.icon) ? v.icon : undefined,
         keepAlive: v.routeCache === 1,
+        openMode: v.openMode === 0 || v.openMode === 1 ? v.openMode : undefined,
+        redirect: isNonEmptyString(v.redirect) ? v.redirect : undefined,
+        remark: isNonEmptyString(v.remark) ? v.remark : undefined,
         children
       };
     });

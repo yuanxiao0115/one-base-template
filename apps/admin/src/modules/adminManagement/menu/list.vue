@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import { Table as ObTable } from '@one-base-template/ui';
-import { Plus } from '@element-plus/icons-vue';
+import { Delete, Edit, Plus } from '@element-plus/icons-vue';
 import MenuPermissionEditForm from './components/MenuPermissionEditForm.vue';
 import MenuPermissionSearchForm from './components/MenuPermissionSearchForm.vue';
 import SystemPermissionEditForm from './components/SystemPermissionEditForm.vue';
@@ -60,9 +60,32 @@ const options = reactive(pageState.options);
               class="system-menu-management-page__system-menu-item"
             >
               <span class="system-menu-management-page__system-name">{{ item.name }}</span>
-              <span class="system-menu-management-page__system-count">{{
-                item.childrenCount
-              }}</span>
+              <span class="system-menu-management-page__system-actions">
+                <span class="system-menu-management-page__system-action-icons">
+                  <span
+                    class="system-menu-management-page__icon-button"
+                    role="button"
+                    tabindex="0"
+                    aria-label="编辑系统"
+                    @click.stop="actions.openEdit(item.row)"
+                    @keydown.enter.stop="actions.openEdit(item.row)"
+                    @keydown.space.prevent.stop="actions.openEdit(item.row)"
+                  >
+                    <el-icon :size="16"><Edit /></el-icon>
+                  </span>
+                  <span
+                    class="system-menu-management-page__icon-button system-menu-management-page__icon-button--danger"
+                    role="button"
+                    tabindex="0"
+                    aria-label="删除系统"
+                    @click.stop="actions.remove(item.row)"
+                    @keydown.enter.stop="actions.remove(item.row)"
+                    @keydown.space.prevent.stop="actions.remove(item.row)"
+                  >
+                    <el-icon :size="16"><Delete /></el-icon>
+                  </span>
+                </span>
+              </span>
             </el-menu-item>
           </el-menu>
         </el-scrollbar>
@@ -99,15 +122,6 @@ const options = reactive(pageState.options);
           row-key="id"
           :tree-config="table.tableTreeConfig"
         >
-          <template #icon="{ row }">
-            <div class="system-menu-management-page__icon-cell">
-              <ObMenuIcon :icon="row.icon" class="system-menu-management-page__icon-preview" />
-              <span class="system-menu-management-page__icon-text" :title="row.icon || '--'">
-                {{ row.icon || '--' }}
-              </span>
-            </div>
-          </template>
-
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
               <el-button
@@ -185,28 +199,6 @@ const options = reactive(pageState.options);
 </template>
 
 <style scoped>
-.system-menu-management-page__icon-cell {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-width: 0;
-}
-
-.system-menu-management-page__icon-preview {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-.system-menu-management-page__icon-text {
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .system-menu-management-page__system-panel {
   display: flex;
   flex-direction: column;
@@ -256,6 +248,7 @@ const options = reactive(pageState.options);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-right: 10px !important;
 }
 
 .system-menu-management-page__system-name {
@@ -264,9 +257,55 @@ const options = reactive(pageState.options);
   white-space: nowrap;
 }
 
-.system-menu-management-page__system-count {
+.system-menu-management-page__system-actions {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.system-menu-management-page__system-action-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.system-menu-management-page__icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  min-height: 16px;
+  padding: 0;
   color: var(--el-text-color-secondary);
-  font-size: 12px;
-  margin-left: 8px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition:
+    color 0.16s ease,
+    background-color 0.16s ease;
+}
+
+.system-menu-management-page__icon-button:hover {
+  color: var(--el-color-primary);
+  background: var(--el-fill-color-light);
+}
+
+.system-menu-management-page__icon-button:active {
+  background: var(--el-fill-color);
+}
+
+.system-menu-management-page__icon-button:focus-visible {
+  outline: 1px solid var(--el-color-primary);
+  outline-offset: 1px;
+}
+
+.system-menu-management-page__icon-button--danger {
+  color: var(--el-color-danger);
+}
+
+.system-menu-management-page__icon-button--danger:hover {
+  color: var(--el-color-danger);
+  background: var(--el-color-danger-light-9);
 }
 </style>

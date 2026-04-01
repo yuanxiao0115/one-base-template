@@ -177,7 +177,8 @@ function normalizeMenuTree(items: AppMenuItem[]): AppMenuItem[] {
   const walk = (list: AppMenuItem[]): AppMenuItem[] => {
     return list
       .map((item) => {
-        const external = item.external ?? isHttpUrl(item.path);
+        // openMode=1 时强制按外部链接处理；否则沿用显式 external 或基于 path 自动识别。
+        const external = item.openMode === 1 ? true : (item.external ?? isHttpUrl(item.path));
         const children = item.children ? walk(item.children) : undefined;
         return { ...item, external, children };
       })

@@ -47,6 +47,22 @@ export interface AppMenuItem {
   external?: boolean;
   keepAlive?: boolean;
   order?: number;
+  /**
+   * 打开方式：0=内部（路由页内展示），1=外部（新标签页）。
+   * 由后端菜单字段透传，供前端运行时决定跳转策略。
+   */
+  openMode?: number;
+  /**
+   * 跳转地址/外链地址：
+   * - openMode=1 时优先作为新标签页打开目标。
+   * - openMode=0 且 path 命中宿主路由时可用于 iframe/microapp 内嵌地址。
+   */
+  redirect?: string;
+  /**
+   * 备注扩展字段：
+   * - 可用于承载 microapp 宿主的扩展 JSON（如 appName/sandbox 等）。
+   */
+  remark?: string;
 }
 
 /**

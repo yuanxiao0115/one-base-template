@@ -39,6 +39,19 @@
   - `apps/admin`：`lint` 为 `0 error`，存在既有 `4` 条 `max-lines` warning（包含 `menu`、`org`、`user` 模块）。
   - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
 
+## 2026-04-01（菜单管理补充：系统列表编辑/删除 icon + 紧凑尺寸）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/modules/adminManagement/menu/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：菜单源码测试 `3/3` 通过；`typecheck` 通过。
+  - `apps/admin`：`lint` 为 `0 error`，存在既有 `4` 条 `max-lines` warning。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
 - GREEN / 回归：
@@ -9888,3 +9901,49 @@
   - `packages/ui`：`1 file / 2 tests` 通过。
   - `packages/ui`：`typecheck` 通过；`lint` 0 warning / 0 error。
   - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-01（菜单内嵌闭环：ext/micro 宿主路由 + openMode/redirect 生效 + 表单提示）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/modules/adminManagement/menu/list.source.test.ts tests/modules/adminManagement/menu/embedded-host-routes.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C packages/adapters typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/core lint`
+  - `pnpm -C packages/adapters lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：定向源码测试 `2 files / 4 tests` 通过，`typecheck` 通过。
+  - `packages/ui/core/adapters`：`typecheck` 通过；`lint` 0 warning / 0 error。
+  - `apps/admin lint`：0 error（4 条历史 `max-lines` warning，均为既有长文件告警）。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+- 追加验证：
+  - `pnpm -C apps/admin build`
+- 追加结果：
+  - `apps/admin`：`build` 通过（含新增 `ExternalFramePage`、`MicroAppHostPage` 打包产物）。
+
+## 2026-04-01（菜单表单提示改为问号 tooltip）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/modules/adminManagement/menu/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：`1 file / 3 tests` 通过，`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-01（菜单列表列数精简）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/modules/adminManagement/menu/list.source.test.ts tests/modules/adminManagement/menu/embedded-host-routes.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：`2 files / 4 tests` 通过，`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

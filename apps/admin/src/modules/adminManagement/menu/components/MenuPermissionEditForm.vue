@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { CrudFormLike } from '@one-base-template/ui';
+import { QuestionFilled } from '@element-plus/icons-vue';
 import type { PermissionTypeOption } from '../types';
 import type { MenuPermissionForm, ParentOption } from '../form';
 import MenuIconInput from './MenuIconInput.vue';
@@ -31,10 +32,6 @@ const availableResourceTypeOptions = computed(() => {
 });
 
 const resourceTypeDisabled = computed(() => props.disabled || isRootParent.value);
-
-const showComponentField = computed(
-  () => model.value.resourceType === MENU_RESOURCE_TYPE && model.value.openMode === 0
-);
 
 // 父级切换时，强制收敛权限类型规则：顶级只能是系统，子级不能是系统。
 watch(
@@ -137,12 +134,22 @@ defineExpose<CrudFormLike>({
       <el-input v-model.trim="model.permissionCode" placeholder="例如：system:permission:list" />
     </el-form-item>
 
-    <el-form-item label="访问路径" prop="url">
-      <el-input v-model.trim="model.url" placeholder="例如：/system/permission" />
-    </el-form-item>
-
-    <el-form-item v-if="showComponentField" label="组件路径" prop="component">
-      <el-input v-model.trim="model.component" placeholder="例如：system/permission/index" />
+    <el-form-item prop="url">
+      <template #label>
+        <span class="menu-permission-form__label-with-tip">
+          <span>访问路径</span>
+          <el-tooltip
+            content="普通菜单填站内路由（如 /system/user）；内嵌外链填 /ext/*，微应用填 /micro/*。"
+            placement="top"
+          >
+            <el-icon class="menu-permission-form__label-tip-icon"><QuestionFilled /></el-icon>
+          </el-tooltip>
+        </span>
+      </template>
+      <el-input
+        v-model.trim="model.url"
+        placeholder="例如：/system/permission 或 /ext/report-monthly"
+      />
     </el-form-item>
 
     <el-form-item label="图标" prop="icon">
@@ -153,8 +160,19 @@ defineExpose<CrudFormLike>({
       />
     </el-form-item>
 
-    <el-form-item label="跳转地址" prop="redirect">
-      <el-input v-model.trim="model.redirect" placeholder="可选" />
+    <el-form-item prop="redirect">
+      <template #label>
+        <span class="menu-permission-form__label-with-tip">
+          <span>跳转地址</span>
+          <el-tooltip
+            content="内嵌场景填写真实 http(s) 地址，作为外链或微应用入口。外部打开时优先使用此地址。"
+            placement="top"
+          >
+            <el-icon class="menu-permission-form__label-tip-icon"><QuestionFilled /></el-icon>
+          </el-tooltip>
+        </span>
+      </template>
+      <el-input v-model.trim="model.redirect" placeholder="例如：https://example.com/report" />
     </el-form-item>
 
     <el-form-item label="排序" prop="sort">
@@ -168,17 +186,21 @@ defineExpose<CrudFormLike>({
       </el-select>
     </el-form-item>
 
-    <el-form-item label="缓存路由" prop="routeCache">
-      <el-select v-model="model.routeCache" class="w-full">
-        <el-option label="否" :value="0" />
-        <el-option label="是" :value="1" />
-      </el-select>
-    </el-form-item>
-
-    <el-form-item label="打开方式" prop="openMode">
+    <el-form-item prop="openMode">
+      <template #label>
+        <span class="menu-permission-form__label-with-tip">
+          <span>打开方式</span>
+          <el-tooltip
+            content="内部：当前页路由内展示（含内嵌）；外部：浏览器新窗口打开，优先用跳转地址。"
+            placement="top"
+          >
+            <el-icon class="menu-permission-form__label-tip-icon"><QuestionFilled /></el-icon>
+          </el-tooltip>
+        </span>
+      </template>
       <el-select v-model="model.openMode" class="w-full">
-        <el-option label="内部" :value="0" />
-        <el-option label="外部" :value="1" />
+        <el-option label="内部（当前页）" :value="0" />
+        <el-option label="外部（浏览器新窗口）" :value="1" />
       </el-select>
     </el-form-item>
 
@@ -198,3 +220,17 @@ defineExpose<CrudFormLike>({
     </el-form-item>
   </el-form>
 </template>
+
+<style scoped>
+.menu-permission-form__label-with-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-permission-form__label-tip-icon {
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
+  cursor: help;
+}
+</style>

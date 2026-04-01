@@ -26,6 +26,12 @@
 - `useMenuManagementPageState.ts` 新增 `isSystemForm/drawerSize/drawerColumns`，按当前编辑场景驱动表单与抽屉规格。
 - 新增/更新源码门禁：`apps/admin/tests/modules/adminManagement/menu/list.source.test.ts`。
 
+## 2026-04-01（菜单管理补充：系统列表编辑/删除 icon + 紧凑尺寸）
+
+- `list.vue` 左侧系统列表项新增编辑、删除两个 icon，直接复用 `actions.openEdit(item.row)`、`actions.remove(item.row)`，并通过 `@click.stop` 与系统切换点击解耦。
+- `useMenuManagementPageState.ts` 的 `SystemOption` 新增 `row` 字段，左侧列表可直接拿到系统节点原始记录。
+- icon 视觉收敛为紧凑规格：`16x16`，图标组间距 `8px`。
+
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
 - `packages/ui/src/components/table/Table.vue` 将列变更监听从 `deep watch props.columns` 收敛为轻量签名监听（`columnsLayoutSignature`），降低深层遍历开销。
@@ -11271,3 +11277,38 @@
 - 规则与文档同步：
   - `apps/admin/AGENTS.md`：补充 keepAlive 路由名约束（`route.name` 唯一且稳定）。
   - `apps/docs/docs/guide/layout-menu.md`：补充 KeepAlive route.name 包装机制说明，避免后续误判为页面组件名必须强绑定路由名。
+
+## 2026-04-01（菜单内嵌闭环：ext/micro 宿主路由 + openMode/redirect 生效 + 表单提示）
+
+- 一次性新增通用宿主路由（layout 子路由）：
+  - `/ext/:slug(.*)*` -> `apps/admin/src/modules/adminManagement/menu/pages/ExternalFramePage.vue`
+  - `/micro/:slug(.*)*` -> `apps/admin/src/modules/adminManagement/menu/pages/MicroAppHostPage.vue`
+- 运行时菜单点击行为收口：
+  - `packages/core/src/stores/menu.ts`：`openMode=1` 强制识别为外部菜单（`external=true`）。
+  - `packages/ui/src/components/menu/SidebarMenu.vue`、`TopMenu.vue`：外部菜单点击优先打开 `item.redirect`，缺省回退 `item.path`。
+  - `packages/adapters/src/basicAdapter.ts`：`my-tree` 映射新增 `openMode/redirect/remark` 透传。
+  - `packages/core/src/adapter/types.ts`：`AppMenuItem` 新增 `openMode/redirect/remark` 字段契约。
+- 菜单配置交互提示：
+  - `MenuPermissionEditForm.vue` 新增“内嵌配置提示”告警区与路径命中提示（`/ext/*`、`/micro/*`）；
+  - 打开方式文案更新为“内部（当前页）/外部（新标签）”。
+- 文档与门禁同步：
+  - 新增 `apps/admin/tests/modules/adminManagement/menu/embedded-host-routes.source.test.ts`。
+  - 更新 `apps/admin/tests/modules/adminManagement/menu/list.source.test.ts`。
+  - 更新 `apps/docs/docs/guide/layout-menu.md`、`apps/docs/docs/guide/menu-route-spec.md`。
+
+## 2026-04-01（菜单表单提示样式收口：问号 tooltip + 文案改为浏览器新窗口）
+
+- `MenuPermissionEditForm.vue`：移除大块 `el-alert` 提示与字段下方提示文案，改为在 `访问路径/跳转地址/打开方式` label 右侧增加问号图标（`QuestionFilled`）+ `el-tooltip` 说明。
+- `打开方式` 选项文案更新：`外部（浏览器新窗口）`（替代“新标签”）。
+- 同步更新测试：`apps/admin/tests/modules/adminManagement/menu/list.source.test.ts`。
+- 同步更新文档口径：
+  - `apps/docs/docs/guide/layout-menu.md`
+  - `apps/docs/docs/guide/menu-route-spec.md`
+
+## 2026-04-01（菜单列表列数精简）
+
+- `apps/admin/src/modules/adminManagement/menu/columns.ts`：菜单列表列收敛为 `权限名称/排序/权限类型/访问路径/状态/操作`。
+- 删除低频展示列：`图标/缓存路由/打开方式/跳转地址/组件/备注`。
+- `apps/admin/src/modules/adminManagement/menu/list.vue`：移除已废弃的 `#icon` 插槽与对应样式。
+- `apps/admin/tests/modules/adminManagement/menu/list.source.test.ts`：补充列精简门禁断言。
+- `apps/docs/docs/guide/layout-menu.md`：同步菜单列表列精简说明。
