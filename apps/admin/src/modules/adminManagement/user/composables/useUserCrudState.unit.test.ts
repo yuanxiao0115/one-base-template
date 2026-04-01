@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils';
-import { defineComponent, h, reactive } from 'vue';
+import { defineComponent, h, reactive, type Ref } from 'vue';
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const coreMocks = vi.hoisted(() => ({
@@ -143,11 +143,11 @@ describe('UserManagement/user/useUserCrudState', () => {
     const { crudState, unmount } = mountUseUserCrudState();
 
     expect(crudState.table.dataList).toBe(coreMocks.dataList);
-    expect(statusActionMocks.useUserStatusActions).toHaveBeenCalledWith(
-      expect.objectContaining({
-        selectedList: coreMocks.selectedList
-      })
-    );
+    const statusActionArgs = statusActionMocks.useUserStatusActions.mock.calls.at(-1)?.[0] as {
+      selectedList: { value: Array<{ id: string }> };
+    };
+    expect(statusActionArgs.selectedList).not.toBe(coreMocks.selectedList);
+    expect(statusActionArgs.selectedList.value).toEqual([]);
     expect(dragSortMocks.useUserDragSort).toHaveBeenCalledWith(
       expect.objectContaining({
         dataList: coreMocks.dataList
@@ -228,6 +228,35 @@ describe('UserManagement/user/useUserCrudState', () => {
     createElement.mockRestore();
     appendChild.mockRestore();
     removeChild.mockRestore();
+    unmount();
+  });
+
+  it('跨页勾选应累积并在回到原页取消后同步清除', async () => {
+    const { crudState, unmount } = mountUseUserCrudState();
+    const dataListRef = coreMocks.dataList as Ref<Array<{ id: string }>>;
+
+    const statusActionArgs = statusActionMocks.useUserStatusActions.mock.calls.at(-1)?.[0] as {
+      selectedList: { value: Array<{ id: string }> };
+    };
+
+    dataListRef.value = [{ id: 'user-1' }];
+    await flushPromises();
+    crudState.actions.handleSelectionChange([{ id: 'user-1' } as never]);
+    expect(statusActionArgs.selectedList.value.map((item) => item.id)).toEqual(['user-1']);
+
+    dataListRef.value = [{ id: 'user-3' }];
+    await flushPromises();
+    crudState.actions.handleSelectionChange([{ id: 'user-3' } as never]);
+    expect(statusActionArgs.selectedList.value.map((item) => item.id).sort()).toEqual([
+      'user-1',
+      'user-3'
+    ]);
+
+    dataListRef.value = [{ id: 'user-1' }];
+    await flushPromises();
+    crudState.actions.handleSelectionChange([]);
+    expect(statusActionArgs.selectedList.value.map((item) => item.id)).toEqual(['user-3']);
+
     unmount();
   });
 });

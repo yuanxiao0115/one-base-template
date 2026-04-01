@@ -11,9 +11,33 @@ import type {
   OrgSavePayload
 } from './types';
 
+function normalizeOrgTreeRows(rows: OrgRecord[]): OrgRecord[] {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return [];
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    // 老项目 children 接口默认补 hasChildren，确保树表展示展开入口。
+    hasChildren: typeof row.hasChildren === 'boolean' ? row.hasChildren : true
+  }));
+}
+
 export const orgApi = {
-  getOrgTree: async (params: { parentId?: string }) =>
-    obHttp().get<ApiResponse<OrgRecord[]>>('/cmict/admin/org/children', { params }),
+  getOrgTree: async (params: { parentId?: string }) => {
+    const response = await obHttp().get<ApiResponse<OrgRecord[]>>('/cmict/admin/org/children', {
+      params
+    });
+
+    if (response.code !== 200) {
+      return response;
+    }
+
+    return {
+      ...response,
+      data: normalizeOrgTreeRows(Array.isArray(response.data) ? response.data : [])
+    };
+  },
 
   searchOrgList: async (params: { parentId?: string; orgName?: string }) =>
     obHttp().get<ApiResponse<OrgRecord[]>>('/cmict/admin/org/search', { params }),

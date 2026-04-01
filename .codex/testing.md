@@ -9720,3 +9720,14 @@
 - 结果：
   - `packages/ui`：`5 files / 15 tests` 通过。
   - `packages/ui`：`typecheck/lint/build` 通过。
+
+## 2026-04-01（adminManagement：user 跨页勾选 + org 懒加载树展开修复）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- src/modules/adminManagement/user/composables/useUserCrudState.unit.test.ts src/modules/adminManagement/user/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/org/api.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin build`
+- 结果：
+  - `apps/admin`：4 个定向测试文件 `9/9` 通过。
+  - `apps/admin`：`typecheck` 通过；`lint` 无 error（存在 2 条历史 max-lines warning，非本次新增）；`build` 通过。

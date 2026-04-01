@@ -11094,3 +11094,21 @@
   - 文件规模由 `1268` 行降到 `910` 行，主文件聚焦布局/分页/树表/拖拽编排。
 - 更新 `packages/ui/src/table-source.test.ts`
   - 新增对 `use-table-column-bridge.ts` 的源码门禁读取与断言，确保拆分后关键契约持续受测。
+
+## 2026-04-01（adminManagement：user 跨页勾选 + org 懒加载树展开修复）
+
+- `apps/admin/src/modules/adminManagement/user/composables/useUserCrudState.ts`
+  - 新增跨页勾选缓存（`id -> row`）与翻页回显链路：当前页选择只覆盖当前页 id，翻页后按缓存自动回放勾选。
+  - 查询关键词、组织树切换、重置筛选、导入刷新时统一清空跨页缓存，避免旧筛选条件脏选中残留。
+  - 状态操作（批量启停）改为消费跨页选中集合，不再仅限当前页 `selectedList`。
+- `apps/admin/src/modules/adminManagement/user/columns.tsx`
+  - 选择列补 `reserveSelection: true`，与跨页回放策略协同。
+- `apps/admin/src/modules/adminManagement/user/composables/useUserStatusActions.ts`
+  - `selectedList` 入参放宽为只读 `Ref`，兼容 computed 选中态。
+- `apps/admin/src/modules/adminManagement/org/api.ts`
+  - `getOrgTree` 对齐老项目：后端未返回 `hasChildren` 时默认回退为 `true`，保证懒加载树表展示展开入口。
+- 新增/更新测试：
+  - `apps/admin/src/modules/adminManagement/user/composables/useUserCrudState.unit.test.ts`
+  - `apps/admin/src/modules/adminManagement/org/api.source.test.ts`
+- 文档同步：
+  - `apps/docs/docs/guide/crud-module-best-practice.md`（新增 user 跨页勾选与 org 懒加载回退说明）

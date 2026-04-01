@@ -254,6 +254,17 @@ pnpm -C apps/docs build
 - **能力分层弹窗**：主编辑用 `ObCrudContainer`；组织管理员与等级管理拆成独立组件，页面只保留编排逻辑。
 - **删除确认统一链路**：组织等级管理等子弹窗删除操作，优先使用 `useTable.remove.deleteConfirm`，避免手写 `obConfirm + 删除 API` 分散实现。
 - **通讯录弹窗请求守卫**：像组织管理员这类同时存在“初始化、进入节点、面包屑跳转、搜索”的弹窗，所有会回写当前节点/面包屑/已选态的异步链路都要补 `latest request guard`，关闭时统一失效会话。
+- **懒加载树展开兜底**：`api.ts#getOrgTree` 需要补齐 `hasChildren` 回退（后端未返回时默认 `true`），保证 `ObTable` 树表展示展开入口；子节点空数组时再由懒加载链路回写 `hasChildren=false`。
+
+## 11. 用户管理跨页勾选（adminManagement/user）
+
+- 跨页勾选状态属于“页面级业务编排状态”，应优先放在 `useUserCrudState` 这类模块 composable 管理，不要放进 `ObTable` 通用壳组件。
+- `ObTable` 负责“当前页勾选事件 + 行 key 能力”（例如 `reserveSelection`）；业务页负责“跨页缓存、筛选/树切换时清空、翻页后回显”。
+- 推荐实现基线：
+  1. 维护 `id -> row` 的跨页选中缓存；
+  2. 当前页 `selection-change` 只覆盖当前页 id；
+  3. 翻页后按缓存回放勾选；
+  4. 查询条件变化（关键字/组织树切换/导入刷新）时显式清空跨页缓存。
 
 参考实现（本仓库）：
 
