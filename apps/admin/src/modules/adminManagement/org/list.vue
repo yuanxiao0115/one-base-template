@@ -154,9 +154,10 @@ const dialogs = reactive(pageState.dialogs);
 
 <style scoped>
 .org-management-page__name-cell {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  width: 100%;
+  flex: 1;
+  width: auto;
   min-width: 0;
   gap: 6px;
 }
@@ -176,5 +177,41 @@ const dialogs = reactive(pageState.dialogs);
   display: inline-flex;
   align-items: center;
   gap: 2px;
+}
+
+:deep(.org-management-page__tree-cell .cell) {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  gap: 6px;
+}
+
+:deep(.org-management-page__tree-cell .el-table__indent),
+:deep(.org-management-page__tree-cell .el-table__placeholder) {
+  flex-shrink: 0;
+}
+
+:deep(.org-management-page__tree-cell .el-table__expand-icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 0;
+  border-radius: 4px;
+  color: var(--el-text-color-secondary);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+:deep(.org-management-page__tree-cell .el-table__expand-icon:hover) {
+  color: var(--one-color-primary);
+  background: var(--el-fill-color-light);
+}
+
+:deep(.org-management-page__tree-cell .el-table__expand-icon--expanded) {
+  color: var(--one-color-primary);
+  background: var(--one-color-primary-light-100);
 }
 </style>

@@ -9731,3 +9731,12 @@
 - 结果：
   - `apps/admin`：4 个定向测试文件 `9/9` 通过。
   - `apps/admin`：`typecheck` 通过；`lint` 无 error（存在 2 条历史 max-lines warning，非本次新增）；`build` 通过。
+
+## 2026-04-01（组织管理树展开按钮并排样式优化）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- src/modules/adminManagement/org/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+- 结果：
+  - `apps/admin`：组织管理定向源码测试 `3/3` 通过。
+  - `apps/admin`：`typecheck` 通过。

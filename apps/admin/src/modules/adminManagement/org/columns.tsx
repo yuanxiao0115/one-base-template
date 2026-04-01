@@ -5,6 +5,7 @@ export const orgColumns: TableColumnList = [
     label: '组织全称',
     prop: 'orgName',
     minWidth: 220,
+    className: 'org-management-page__tree-cell',
     treeNode: true,
     slot: 'orgName',
     showOverflowTooltip: true,

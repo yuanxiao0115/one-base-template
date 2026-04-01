@@ -11112,3 +11112,11 @@
   - `apps/admin/src/modules/adminManagement/org/api.source.test.ts`
 - 文档同步：
   - `apps/docs/docs/guide/crud-module-best-practice.md`（新增 user 跨页勾选与 org 懒加载回退说明）
+
+## 2026-04-01（组织管理树展开按钮并排样式优化）
+
+- `apps/admin/src/modules/adminManagement/org/columns.tsx`
+  - 组织全称列新增 `className: 'org-management-page__tree-cell'`，用于定向树单元格样式。
+- `apps/admin/src/modules/adminManagement/org/list.vue`
+  - 树单元格改为 `flex` 并排布局，确保“展开按钮 + 标签 + 组织名称”同一行展示。
+  - 调整展开按钮尺寸、圆角、hover/展开态颜色，降低视觉突兀感。
