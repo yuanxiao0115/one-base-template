@@ -138,6 +138,19 @@ describe('Portal 页面设置V2', () => {
     expect(runtime.bannerHeight).toBe(180);
   });
 
+  it('应允许 Banner 与内容区间距为负值', () => {
+    const settings = normalizePortalPageSettingsV2({
+      version: '2.0',
+      banner: {
+        enabled: true,
+        contentSpacing: -36
+      }
+    });
+
+    expect(settings.banner.enabled).toBe(true);
+    expect(settings.banner.contentSpacing).toBe(-36);
+  });
+
   it('应校验页面标题、角色模式与内容必填规则，且 Banner 图片为空不阻断保存', () => {
     const issues = validatePortalPageSettingsV2(
       {

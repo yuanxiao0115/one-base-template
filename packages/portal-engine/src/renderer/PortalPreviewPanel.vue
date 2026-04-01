@@ -346,17 +346,27 @@ const contentContainerStyle = computed<CSSProperties>(() => {
 });
 
 const contentMainStyle = computed<CSSProperties>(() => {
-  if (normalizedPageSettings.value.layoutContainer.widthMode === 'full-width') {
-    return {};
-  }
-  return {
-    display: 'flex',
-    justifyContent:
-      normalizedPageSettings.value.layoutContainer.contentAlign === 'left'
-        ? 'flex-start'
-        : 'center',
+  const style: CSSProperties = {
     minHeight: 0
   };
+
+  if (showBanner.value) {
+    const bannerSpacing = Number(normalizedPageSettings.value.banner.contentSpacing) || 0;
+    style.marginTop = `${bannerSpacing}px`;
+    if (bannerSpacing < 0) {
+      style.position = 'relative';
+      style.zIndex = 1;
+    }
+  }
+
+  if (normalizedPageSettings.value.layoutContainer.widthMode === 'full-width') {
+    return style;
+  }
+
+  style.display = 'flex';
+  style.justifyContent =
+    normalizedPageSettings.value.layoutContainer.contentAlign === 'left' ? 'flex-start' : 'center';
+  return style;
 });
 
 const bannerStyle = computed<CSSProperties>(() => {
@@ -939,7 +949,7 @@ defineExpose({
 .content-frame {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   min-height: 100%;
 }
 

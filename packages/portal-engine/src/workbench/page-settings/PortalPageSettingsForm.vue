@@ -333,6 +333,14 @@ const mobileSpacing = computed({
                 controls-position="right"
               />
             </el-form-item>
+            <el-form-item label="内容区与 Banner 间距（px，可负数）">
+              <el-input-number
+                v-model="model.banner.contentSpacing"
+                :min="-400"
+                :max="600"
+                controls-position="right"
+              />
+            </el-form-item>
             <el-form-item label="是否全宽">
               <el-switch
                 v-model="model.banner.fullWidth"

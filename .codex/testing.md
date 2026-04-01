@@ -2,6 +2,23 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-01（Portal 页面设置：Banner 与内容区间距支持负值）
+
+- RED（先失败）：
+  - `pnpm -C packages/portal-engine test:run src/schema/page-settings.test.ts src/renderer/PortalPreviewPanel.test.ts`
+- 结果：
+  - `src/schema/page-settings.test.ts` 新增断言失败：`settings.banner.contentSpacing` 为 `undefined`，说明协议尚未支持该字段。
+  - `src/renderer/PortalPreviewPanel.test.ts` 新增断言失败：`.content-main` 不含 `margin-top: -24px`，说明渲染层仍是固定间距。
+
+- GREEN / 回归：
+  - `pnpm -C packages/portal-engine test:run src/schema/page-settings.test.ts src/renderer/PortalPreviewPanel.test.ts`
+  - `pnpm -C packages/portal-engine typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/portal-engine`：2 个测试文件 `10/10` 通过；`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-04-01（菜单管理改造闭环：系统分栏 + 树形上级 + 类型约束）
 
 - GREEN / 回归：

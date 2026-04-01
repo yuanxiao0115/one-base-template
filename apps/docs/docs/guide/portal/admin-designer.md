@@ -121,6 +121,12 @@
 2. **先收敛注入入口，再扩展页面能力**。
 3. **能下沉 `portal-engine` 的逻辑，不留在 `apps/admin`**。
 
+## 页面设置补充（Banner 间距）
+
+- 页面设置中开启 Banner 后，支持配置“内容区与 Banner 间距（px）”。
+- 该值允许负数：当配置为负值时，内容区会向上覆盖 Banner 区域，可实现叠压视觉效果。
+- 字段位于页面设置协议 `settings.banner.contentSpacing`，默认值为 `12`。
+
 ## 提交前验证
 
 ```bash

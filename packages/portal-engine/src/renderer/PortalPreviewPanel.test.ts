@@ -273,4 +273,26 @@ describe('PortalPreviewPanel', () => {
 
     wrapper.unmount();
   });
+
+  it('Banner 开启且内容间距为负值时，内容区应向上覆盖 Banner', async () => {
+    const { wrapper } = createWrapper();
+    await flushAsync();
+
+    const nextSettings = createDefaultPortalPageSettingsV2();
+    nextSettings.banner.enabled = true;
+    nextSettings.banner.contentSpacing = -24;
+
+    dispatchMessage(PORTAL_PREVIEW_MESSAGE_PAGE_RUNTIME, {
+      templateId: 'tpl-1',
+      tabId: 'tab-1',
+      settings: nextSettings,
+      component: []
+    });
+    await flushAsync();
+
+    const contentMain = wrapper.find('.content-main');
+    expect(contentMain.attributes('style')).toContain('margin-top: -24px;');
+
+    wrapper.unmount();
+  });
 });

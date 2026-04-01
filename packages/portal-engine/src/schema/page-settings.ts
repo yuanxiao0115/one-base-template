@@ -80,6 +80,7 @@ export interface PortalPageBannerSettings {
   enabled: boolean;
   image: string;
   height: number;
+  contentSpacing: number;
   fullWidth: boolean;
   linkUrl: string;
   overlayColor: string;
@@ -529,6 +530,7 @@ export function createDefaultPortalPageSettingsV2(): PortalPageSettingsV2 {
       enabled: false,
       image: '',
       height: 260,
+      contentSpacing: 12,
       fullWidth: true,
       linkUrl: '',
       overlayColor: '#000000',
@@ -634,6 +636,12 @@ export function normalizePortalPageSettingsV2(input: unknown): PortalPageSetting
         enabled: normalizeBoolean(raw.banner?.enabled, defaults.banner.enabled),
         image: normalizeString(raw.banner?.image),
         height: normalizePositiveInteger(raw.banner?.height, defaults.banner.height),
+        contentSpacing: normalizeNumber(
+          raw.banner?.contentSpacing,
+          defaults.banner.contentSpacing,
+          -400,
+          600
+        ),
         fullWidth: normalizeBoolean(raw.banner?.fullWidth, defaults.banner.fullWidth),
         linkUrl: normalizeString(raw.banner?.linkUrl),
         overlayColor: normalizeString(raw.banner?.overlayColor, defaults.banner.overlayColor),
@@ -717,6 +725,12 @@ export function normalizePortalPageSettingsV2(input: unknown): PortalPageSetting
       enabled: normalizeBoolean(raw.bannerData?.enabled, defaults.banner.enabled),
       image: normalizeString(raw.bannerData?.image),
       height: normalizePositiveInteger(raw.bannerData?.height, defaults.banner.height),
+      contentSpacing: normalizeNumber(
+        raw.bannerData?.contentSpacing,
+        defaults.banner.contentSpacing,
+        -400,
+        600
+      ),
       fullWidth: normalizeBoolean(raw.bannerData?.fullWidth, defaults.banner.fullWidth),
       linkUrl: normalizeString(raw.bannerData?.linkUrl)
     },

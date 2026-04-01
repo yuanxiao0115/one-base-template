@@ -2,6 +2,22 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-01（Portal 页面设置：Banner 与内容区间距支持负值）
+
+- `packages/portal-engine/src/schema/page-settings.ts`
+  - `PortalPageBannerSettings` 新增 `contentSpacing` 字段，默认值 `12`，归一化范围 `[-400, 600]`。
+  - 兼容链路同步：V2 `banner.contentSpacing` 与 legacy `bannerData.contentSpacing` 均可解析。
+- `packages/portal-engine/src/workbench/page-settings/PortalPageSettingsForm.vue`
+  - Banner 配置新增“内容区与 Banner 间距（px，可负数）”输入项，支持负值。
+- `packages/portal-engine/src/renderer/PortalPreviewPanel.vue`
+  - 取消 `content-frame` 固定 `gap: 12px`。
+  - 内容区改为基于 `banner.contentSpacing` 计算 `margin-top`；当值为负数时启用相对定位层级，使内容区可上压 Banner。
+- 测试补强：
+  - `packages/portal-engine/src/schema/page-settings.test.ts` 新增“Banner 间距允许负值”断言。
+  - `packages/portal-engine/src/renderer/PortalPreviewPanel.test.ts` 新增“负间距触发内容区上压 Banner”断言。
+- 文档同步：
+  - `apps/docs/docs/guide/portal/admin-designer.md` 新增 Banner 间距说明（字段：`settings.banner.contentSpacing`）。
+
 ## 2026-04-01（菜单管理改造闭环：系统分栏 + 树形上级 + 顶级系统约束）
 
 - 完成 `apps/admin/src/modules/adminManagement/menu` 目录改造收口：
