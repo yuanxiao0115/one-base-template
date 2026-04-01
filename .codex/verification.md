@@ -6,7 +6,7 @@
 
 - 日期：2026-04-01
 - 文件：`.codex/verification/2026-04-01.md`
-- 补充：最新条目为“ObTable 性能第二批（列签名监听 + 树归一化引用复用 + tableKey 告警）”。
+- 补充：最新条目为“adminManagement 全模块 Table 统一为 ObTable（含 skill/agent 更新）”。
 
 ## 历史归档
 

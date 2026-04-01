@@ -17,7 +17,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 
 ## 强制红线
 
-- CRUD 列表编排页必须使用 `ObPageContainer + ObTableBox + ObVxeTable/ObTable`，禁止页面层直接使用 `el-table`。
+- `adminManagement` 的 CRUD 列表编排页必须使用 `ObPageContainer + ObTableBox + ObTable`，禁止页面层直接使用 `el-table`；其他模块仍按现有 `ObVxeTable/ObTable` 口径保留。
 - CRUD 新增/编辑/查看容器必须使用 `ObCrudContainer`，禁止在 CRUD 场景直接使用 `el-dialog` 或 `el-drawer` 编排。
 - 业务消息提示统一使用 `@one-base-template/ui`，禁止在模块业务代码中直接使用 `ElMessage`。
 - 业务确认交互统一使用 `@one-base-template/ui` 的 `obConfirm`/`tryConfirmWarn`，禁止直接使用 `ElMessageBox`。
@@ -45,7 +45,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 
 ## 开发自检清单
 
-1. 列表是否采用 `ObPageContainer + ObTableBox + ObVxeTable/ObTable`？
+1. `adminManagement` 列表是否采用 `ObPageContainer + ObTableBox + ObTable`？
 2. 新增/编辑弹层是否采用 `ObCrudContainer`？
 3. 消息与确认是否走统一入口（`message`、`obConfirm`）？
 4. 上传是否满足“导入走 `ObImportUpload`，业务上传不出现在 `list.vue`”？

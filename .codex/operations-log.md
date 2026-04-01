@@ -11120,3 +11120,25 @@
 - `apps/admin/src/modules/adminManagement/org/list.vue`
   - 树单元格改为 `flex` 并排布局，确保“展开按钮 + 标签 + 组织名称”同一行展示。
   - 调整展开按钮尺寸、圆角、hover/展开态颜色，降低视觉突兀感。
+
+## 2026-04-01（adminManagement 全模块 Table 统一为 ObTable + skill/agent 同步）
+
+- adminManagement 业务代码层：
+  - `apps/admin/src/modules/adminManagement/position/list.vue`
+  - `apps/admin/src/modules/adminManagement/tenant-info/list.vue`
+  - `apps/admin/src/modules/adminManagement/tenant-manager/list.vue`
+  - `apps/admin/src/modules/adminManagement/org/components/OrgLevelManageDialog.vue`
+  - 以上页面/弹窗已从 `ObVxeTable` 收敛为 `ObTable`。
+- adminManagement 源码门禁补齐：
+  - 新增 `position/tenant-info/tenant-manager/org-level-dialog` 四个 `*.source.test.ts`。
+  - 与既有 `user/org/role/role-assign/menu` 门禁一起组成 adminManagement 全量表格基线校验。
+- 规则与文档同步：
+  - `apps/admin/AGENTS.md`：明确 `adminManagement` 默认且强制使用 `ObTable`。
+  - `apps/docs/docs/guide/admin-agent-redlines.md`
+  - `apps/docs/docs/guide/crud-module-best-practice.md`
+  - `.codex/skills/admin-management-standardizer/references/checklists.md`
+  - `.codex/skills/crud-module-best-practice/SKILL.md`
+  - `.codex/skills/crud-module-best-practice/references/position-crud-blueprint.md`
+  - 已统一补充“`adminManagement` 禁止新增 `ObVxeTable`，统一 `ObTable`”口径。
+- 代码扫描结果：
+  - `rg -n "<ObVxeTable|ObVxeTable" apps/admin/src/modules/adminManagement` 仅剩 source test 中的反向断言，业务源码无残留。

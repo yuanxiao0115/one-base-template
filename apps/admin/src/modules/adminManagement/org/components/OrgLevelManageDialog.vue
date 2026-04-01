@@ -185,7 +185,7 @@ watch(
         <el-button type="primary" :icon="Plus" @click="levelCrud.openCreate()">新增等级</el-button>
       </div>
 
-      <ObVxeTable
+      <ObTable
         ref="tableRef"
         :loading
         :data="dataList"
@@ -199,7 +199,7 @@ watch(
             <el-button link type="danger" :size @click="handleDelete(row)">删除</el-button>
           </ObActionButtons>
         </template>
-      </ObVxeTable>
+      </ObTable>
     </div>
 
     <template #footer>

@@ -34,7 +34,7 @@ const editor = reactive(pageState.editor);
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :size
           :loading="table.loading"
@@ -57,7 +57,7 @@ const editor = reactive(pageState.editor);
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>

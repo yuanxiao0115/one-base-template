@@ -76,7 +76,7 @@ Recommended signatures:
 - Compose:
   - `PageContainer`
   - `OneTableBar`
-  - `ObVxeTable`
+  - `ObTable`
   - `ObCrudContainer`
 - Handle:
   - `useTable` setup
@@ -193,4 +193,5 @@ When the page has a left organization tree:
 2. Render tree with `ObTree`.
 3. Keep leaf label tooltip conditional on real overflow only.
 4. In tree table columns, set `treeNode: true` on the tree display column.
-5. If API response has data but table is empty, prioritize checking response-adapter mapping path before DOM/layout diagnosis.
+5. For `adminManagement`, keep the table side on `ObTable`; non-`adminManagement` legacy pages can continue following the existing `ObVxeTable` reference.
+6. If API response has data but table is empty, prioritize checking response-adapter mapping path before DOM/layout diagnosis.

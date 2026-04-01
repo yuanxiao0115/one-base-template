@@ -94,7 +94,7 @@
 ## Agent 执行红线（公共组件优先）
 
 - 该节为 admin 场景的强制红线；后续 CRUD 迁移与重构默认按此执行，除非用户明确授权例外。
-- CRUD 列表编排页必须采用 `ObPageContainer + ObTableBox + ObVxeTable/ObTable`；禁止页面层直接使用 `el-table`。
+- `adminManagement` 的 CRUD 列表编排页必须采用 `ObPageContainer + ObTableBox + ObTable`；禁止页面层直接使用 `el-table`。
 - CRUD 新增/编辑/查看容器必须使用 `ObCrudContainer`；禁止在 CRUD 场景回退 `el-dialog`/`el-drawer` 直连编排。
 - 模块业务代码（`apps/admin/src/modules/**`）的消息提示统一使用 `@one-base-template/ui`；禁止直接使用 `ElMessage`。
 - 模块业务代码（`apps/admin/src/modules/**`）的二次确认统一使用 `obConfirm`/`tryConfirmWarn`；禁止直接使用 `ElMessageBox`。
@@ -105,11 +105,11 @@
 
 ## 表格迁移（业务页侧）
 
-- 登录日志等迁移页结构保持：`ObPageContainer + ObTableBox + ObVxeTable/ObTable`。
+- `adminManagement` 迁移页结构保持：`ObPageContainer + ObTableBox + ObTable`。
 - 业务页优先使用表格壳组件默认配置，仅先传核心参数：`data/columns/pagination/loading`，其他配置按需追加。
 - 默认采用“容器自适应撑满 + 分页器置底”方案，避免业务页再传固定高度（特殊场景可覆盖）。
 - 分页布局必须满足“分页器固定底部 + 表格主体独立滚动”，禁止把 Table 与 Pager 放在同一滚动容器。
-- 使用 `ObTableBox + ObVxeTable/ObTable` 的页面应优先包裹 `ObPageContainer`（建议 `overflow="hidden"`），避免双滚动与分页漂移。
+- 使用 `ObTableBox + ObTable` 的页面应优先包裹 `ObPageContainer`（建议 `overflow="hidden"`），避免双滚动与分页漂移。
 - 登录日志迁移视觉需对齐老项目：`TableBox`“搜索框 + 筛选图标按钮”，统一表格壳组件保持“浅灰表头 + 分页左总数右操作”。
 - 表格对齐统一：表头左对齐；数值列右对齐；操作列右对齐；常规文本列左对齐。
 - `TableBox` 样式规范：搜索输入框宽 `360px`、高 `32px`、右间距 `8px`、无圆角无阴影；筛选按钮同高度扁平；工具条顶部间距固定 `8px`，去掉标题分割线。
@@ -129,6 +129,7 @@
 - `adminManagement` 的接口分层默认采用 `api.ts + types.ts`：`api.ts` 仅维护接口路径与请求参数透传；`types.ts` 保持“够用即可”，禁止过度细粒度类型设计；后端字段已对齐场景下，禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`。
 - adminManagement 编排层已按 composable 分层后，禁止再新增汇总式 `actions.ts`；复杂逻辑按语义归入 `useXxxState/useXxxActions/useXxxQuery` 等 composable，页面仅保留编排解构。
 - adminManagement 的页面级 composable 只负责编排：单个 composable 同时出现 `table + editor + dialog + remote options/sidebar/data-source` 中 `3` 类及以上职责时，必须继续拆分，禁止形成 God composable。
+- `adminManagement` 默认且强制使用 `ObTable`，本目录内禁止再新增 `ObVxeTable` 编排。
 - 禁止为适配下游 API 创建 `safeDataList`、`safeSelectedList` 这类影子状态；列表、选中态、弹窗表单态只能保留一个真实数据源，其余统一通过 `computed` / `readonly` 派生。
 - `defineExpose` 只允许暴露最小通用句柄（如 `validate`、`resetFields`、`clearValidate`）；禁止继续暴露业务动作、加载方法、回填方法（如 `loadOptions`、`loadRootNodes`、`setSelectedUsers`）。
 - 父层禁止通过 `nextTick + ref + defineExpose` 链式驱动子组件内部初始化；弹窗回填、远程选项预加载、已选值同步优先改为 `props` 驱动或由子组件自持状态处理。
@@ -154,7 +155,7 @@
 - 角色分配页左侧角色区优先使用 `ObPageContainer` 的 `#left` + `el-menu`；搜索框与角色选中项保持扁平化无圆角。
 - 用户管理左侧组织树统一使用 `ObTree`：仅叶子节点文本溢出时显示 tooltip。
 - 组织管理树形迁移必须对齐老项目 `parentId` 逻辑：根查询/搜索透传 `companyId`（无值回退 `0`），禁止写死 `parentId='0'`。
-- 树形表从 Element 迁移到 `ObVxeTable` 时，必须显式给树展示列配置 `treeNode: true`；仅配置 `treeConfig` 不足以显示展开图标。
+- `adminManagement` 树形表从 Element 迁移到 `ObTable` 时，必须显式给树展示列配置 `treeNode: true`；仅配置 `treeConfig` 不足以显示展开图标。
 
 ## CRUD 与交互约定
 

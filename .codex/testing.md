@@ -9740,3 +9740,18 @@
 - 结果：
   - `apps/admin`：组织管理定向源码测试 `3/3` 通过。
   - `apps/admin`：`typecheck` 通过。
+
+## 2026-04-01（adminManagement 全模块 ObTable 化 + skill/agent 规则同步）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- src/modules/adminManagement/user/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/position/list.source.test.ts src/modules/adminManagement/tenant-info/list.source.test.ts src/modules/adminManagement/tenant-manager/list.source.test.ts src/modules/adminManagement/org/components/OrgLevelManageDialog.source.test.ts`
+  - `pnpm -C apps/admin lint:arch`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：`9 files / 12 tests` 全通过。
+  - `apps/admin`：`lint:arch/typecheck/lint/build` 通过；`lint` 0 error（2 条历史 `max-lines` warning，非本次新增）。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

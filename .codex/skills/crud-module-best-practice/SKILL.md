@@ -108,11 +108,11 @@ Default project baseline:
 
 ### 5) Use unified UI composition
 
-Default composition:
+Default composition for `adminManagement` modules:
 
 - `PageContainer`
 - `OneTableBar`
-- `ObVxeTable`
+- `ObTable`
 - `ObCrudContainer`
 - `ObActionButtons` for operation column when applicable
 
@@ -167,7 +167,7 @@ For pages with left tree + right table:
 - Use `ObTree` for tree rendering
 - Leaf labels should only show tooltip when text overflows
 
-For tree tables (`ObVxeTable` + `useTable`) also enforce:
+For `adminManagement` tree tables (`ObTable` + `useTable`) also enforce:
 
 - tree display column must set `treeNode: true`
 - verify `searchApi` + response adapter path can parse `code=200,data=[]` correctly
