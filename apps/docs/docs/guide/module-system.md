@@ -484,7 +484,8 @@ apps/admin/src/modules/adminManagement/
 关键点：
 
 - 路由集中：`adminManagement/routes.ts` 声明 `/system/permission`（菜单管理），`SystemManagement/routes.ts` 仅保留 `/system/dict`（字典管理）
-- 菜单管理：沿用 `ObPageContainer + ObTableBox + ObVxeTable + ObCrudContainer`，支持树模式与筛选模式切换
+- 菜单管理：沿用 `ObPageContainer + ObTableBox + ObTable + ObCrudContainer`，支持“左系统列表 + 右侧权限树”与筛选列表模式切换
+- 菜单管理表单：上级权限使用树形选择；顶级权限类型只允许“系统”；组件路径按权限类型与打开方式条件显示
 - 菜单管理图标：支持手动输入（兼容 class/url/minio id）+ 可视化选择（CP=产品 Iconfont、DJ=党建 Iconfont、OM=OM Iconfont、OD=公文 Iconfont、EP=Element Plus、RI=Remix Icon）
   - 编辑表单入口采用“输入框右侧插槽 + 图标按钮”简约触发器（不展示“选择图标”文字按钮），控件高度统一 `30px`
   - iconfont 选择值统一保存为完整 class（例如 `dj-icons dj-icon-icon-1`）

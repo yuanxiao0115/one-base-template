@@ -132,6 +132,13 @@ defineOptions({ name: 'UserListPage' });
 
 菜单权限迁移页支持“树模式 + 条件筛选列表模式”切换，样板页参考：`/system/permission`。
 
+菜单管理页（`/system/permission`）当前交互基线：
+
+- 左侧展示系统列表（`resourceType=1`），右侧仅展示当前系统下的权限树，避免整棵权限树过大导致操作困难。
+- 编辑表单中的“上级权限”改为树形选择（`el-tree-select`）。
+- `parentId=0` 时权限类型固定为“系统”；非顶级节点禁止选择“系统”类型。
+- “组件路径”仅在“菜单类型 + 内部打开”场景展示，其余场景隐藏，减少无效输入。
+
 完整迁移清单与映射关系请查看：[VXE 表格迁移](/guide/table-vxe-migration)。
 
 ## 多系统菜单（permissionCode）

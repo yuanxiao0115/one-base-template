@@ -2,6 +2,20 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-01（菜单管理改造闭环：系统分栏 + 树形上级 + 类型约束）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/modules/adminManagement/menu/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：菜单源码门禁测试 `3/3` 通过；`typecheck` 通过；`build` 通过。
+  - `apps/admin`：`lint` 为 `0 error`，但有 `4` 条 `max-lines` warning（其中包含 `menu/composables/useMenuManagementPageState.ts` 行数超限告警）。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
 - GREEN / 回归：

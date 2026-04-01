@@ -2,6 +2,16 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-01（菜单管理改造闭环：系统分栏 + 树形上级 + 顶级系统约束）
+
+- 完成 `apps/admin/src/modules/adminManagement/menu` 目录改造收口：
+  - 表单层 `MenuPermissionEditForm.vue`：上级权限切换为 `el-tree-select`，并按 `parentId` 约束资源类型（顶级仅系统，子级禁止系统），`组件路径` 字段改为按 `resourceType=菜单 && openMode=内部` 条件显示。
+  - 状态层 `useMenuManagementPageState.ts`：增加系统维度状态（`permissionTree/activeSystemId/systemList`），把整棵权限树切片为“当前系统下子树”供右侧表格展示。
+  - 页面层 `list.vue`：改为 `ObPageContainer#left` 系统列表 + 右侧 `ObTable` 树表双栏布局，新增“新增系统 / 添加权限（当前系统）”操作入口。
+  - 类型与测试：`form.ts` 的 `ParentOption` 支持 `children`，同步更新 `apps/admin/tests/modules/adminManagement/menu/list.source.test.ts`。
+- 修复阻塞编译问题：移除 `MenuPermissionEditForm.vue` 中 `el-tree-select :props` 的非法 `value` 映射键，消除 `TreeOptionProps` 类型报错。
+- 文档同步：更新 `apps/docs/docs/guide/layout-menu.md`、`apps/docs/docs/guide/module-system.md`，补充菜单管理新交互基线。
+
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
 - `packages/ui/src/components/table/Table.vue` 将列变更监听从 `deep watch props.columns` 收敛为轻量签名监听（`columnsLayoutSignature`），降低深层遍历开销。

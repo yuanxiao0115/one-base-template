@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { CrudFormLike } from '@one-base-template/ui';
 import type { PermissionTypeOption } from '../types';
@@ -15,6 +15,60 @@ const props = defineProps<{
 
 const model = defineModel<MenuPermissionForm>({ required: true });
 const formRef = ref<FormInstance>();
+
+const ROOT_PARENT_ID = '0';
+const SYSTEM_RESOURCE_TYPE = 1;
+const MENU_RESOURCE_TYPE = 2;
+
+const isRootParent = computed(() => model.value.parentId === ROOT_PARENT_ID);
+
+const availableResourceTypeOptions = computed(() => {
+  if (isRootParent.value) {
+    return props.resourceTypeOptions.filter((item) => Number(item.key) === SYSTEM_RESOURCE_TYPE);
+  }
+
+  return props.resourceTypeOptions.filter((item) => Number(item.key) !== SYSTEM_RESOURCE_TYPE);
+});
+
+const resourceTypeDisabled = computed(() => props.disabled || isRootParent.value);
+
+const showComponentField = computed(
+  () => model.value.resourceType === MENU_RESOURCE_TYPE && model.value.openMode === 0
+);
+
+// 父级切换时，强制收敛权限类型规则：顶级只能是系统，子级不能是系统。
+watch(
+  () => model.value.parentId,
+  (parentId) => {
+    if (parentId === ROOT_PARENT_ID) {
+      model.value.resourceType = SYSTEM_RESOURCE_TYPE;
+      return;
+    }
+
+    if (model.value.resourceType === SYSTEM_RESOURCE_TYPE) {
+      const fallbackType = availableResourceTypeOptions.value[0];
+      model.value.resourceType = fallbackType ? Number(fallbackType.key) : MENU_RESOURCE_TYPE;
+    }
+  },
+  { immediate: true }
+);
+
+// 资源类型候选变化时，自动修正非法值，避免表单保留不可选状态。
+watch(
+  availableResourceTypeOptions,
+  (options) => {
+    if (options.length === 0) {
+      return;
+    }
+
+    const currentType = Number(model.value.resourceType);
+    const typeInOptions = options.some((item) => Number(item.key) === currentType);
+    if (!typeInOptions) {
+      model.value.resourceType = Number(options[0]?.key || MENU_RESOURCE_TYPE);
+    }
+  },
+  { immediate: true }
+);
 
 defineExpose<CrudFormLike>({
   validate: (...args) => {
@@ -38,21 +92,31 @@ defineExpose<CrudFormLike>({
     :disabled="props.disabled"
   >
     <el-form-item label="上级权限" prop="parentId">
-      <el-select v-model="model.parentId" class="w-full" placeholder="请选择上级权限">
-        <el-option
-          v-for="item in props.parentOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-          :disabled="item.disabled"
-        />
-      </el-select>
+      <el-tree-select
+        v-model="model.parentId"
+        class="w-full"
+        node-key="value"
+        default-expand-all
+        check-strictly
+        :data="props.parentOptions"
+        :props="{
+          label: 'label',
+          children: 'children',
+          disabled: 'disabled'
+        }"
+        placeholder="请选择上级权限"
+      />
     </el-form-item>
 
     <el-form-item label="权限类型" prop="resourceType">
-      <el-select v-model="model.resourceType" class="w-full" placeholder="请选择权限类型">
+      <el-select
+        v-model="model.resourceType"
+        class="w-full"
+        placeholder="请选择权限类型"
+        :disabled="resourceTypeDisabled"
+      >
         <el-option
-          v-for="item in props.resourceTypeOptions"
+          v-for="item in availableResourceTypeOptions"
           :key="item.key"
           :label="item.value"
           :value="Number(item.key)"
@@ -77,7 +141,7 @@ defineExpose<CrudFormLike>({
       <el-input v-model.trim="model.url" placeholder="例如：/system/permission" />
     </el-form-item>
 
-    <el-form-item label="组件路径" prop="component">
+    <el-form-item v-if="showComponentField" label="组件路径" prop="component">
       <el-input v-model.trim="model.component" placeholder="例如：system/permission/index" />
     </el-form-item>
 
