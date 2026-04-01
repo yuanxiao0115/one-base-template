@@ -443,6 +443,15 @@ const resolvedEmptyText = computed(() => {
   const content = props.emptyText?.trim();
   return content && content.length > 0 ? content : '暂未生产任何数据';
 });
+const liveStatusText = computed(() => {
+  if (props.loading) {
+    return '表格加载中';
+  }
+  if (normalizedData.value.length === 0) {
+    return resolvedEmptyText.value;
+  }
+  return '';
+});
 const { showFirstLoadSkeleton, resolvedSkeletonRows, skeletonCellCount } = useTableSkeleton({
   enabled: computed(() => props.enableFirstLoadSkeleton),
   loading: computed(() => props.loading),
@@ -1103,7 +1112,6 @@ watch(
     void nextTick(() => {
       tableRef.value?.doLayout();
       scheduleAdaptiveResize();
-      void initRowDragSortable();
     });
   }
 );
@@ -1123,7 +1131,6 @@ onMounted(() => {
   setAdaptive();
   void nextTick(() => {
     applyRowHoverBgColor(props.rowHoverBgColor);
-    void initRowDragSortable();
   });
 });
 
@@ -1145,7 +1152,16 @@ defineExpose({
 </script>
 
 <template>
-  <div ref="wrapperRef" :class="wrapperClass" :style="wrapperStyle">
+  <div
+    ref="wrapperRef"
+    :class="wrapperClass"
+    :style="wrapperStyle"
+    role="region"
+    :aria-busy="loading ? 'true' : 'false'"
+  >
+    <span class="ob-table__sr-status" role="status" aria-live="polite">
+      {{ liveStatusText }}
+    </span>
     <div class="ob-table__main">
       <div v-if="showFirstLoadSkeleton" class="ob-table__skeleton">
         <el-skeleton animated>
@@ -1180,7 +1196,6 @@ defineExpose({
       <div
         v-else
         class="ob-table__table-shell"
-        :aria-busy="loading ? 'true' : 'false'"
         :class="{ 'is-empty': normalizedData.length === 0 }"
       >
         <el-table

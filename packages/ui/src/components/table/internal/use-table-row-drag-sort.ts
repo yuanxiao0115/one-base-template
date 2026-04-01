@@ -38,6 +38,15 @@ function moveArrayItem<T>(list: T[], fromIndex: number, toIndex: number): T[] {
 
 let cachedSortableCtor: SortableCtor | null = null;
 let loadingSortableCtor: Promise<SortableCtor | null> | null = null;
+let warnedSortableUnavailable = false;
+
+function warnSortableUnavailable() {
+  if (warnedSortableUnavailable) {
+    return;
+  }
+  warnedSortableUnavailable = true;
+  console.warn('[ObTable] rowDrag 初始化失败：请确认已安装 sortablejs 依赖。');
+}
 
 async function ensureSortableCtor() {
   if (cachedSortableCtor) {
@@ -50,12 +59,16 @@ async function ensureSortableCtor() {
     .then((module) => {
       const ctor = (module.default || module) as Partial<SortableCtor>;
       if (typeof ctor?.create !== 'function') {
+        warnSortableUnavailable();
         return null;
       }
       cachedSortableCtor = ctor as SortableCtor;
       return cachedSortableCtor;
     })
-    .catch(() => null)
+    .catch(() => {
+      warnSortableUnavailable();
+      return null;
+    })
     .finally(() => {
       loadingSortableCtor = null;
     });
@@ -64,11 +77,104 @@ async function ensureSortableCtor() {
 
 export function useTableRowDragSort(options: UseTableRowDragSortOptions) {
   let sortableInstance: SortableLike | null = null;
+  let activeTbody: HTMLElement | null = null;
+  let keyboardCleanup: (() => void) | null = null;
+  let lastConfigSignature = '';
   let initToken = 0;
+
+  function applyKeyboardFocusableRows(tbody: HTMLElement) {
+    tbody.querySelectorAll('tr').forEach((row) => {
+      row.setAttribute('tabindex', '0');
+      row.setAttribute('aria-label', '可拖拽行，按 Alt+方向键调整顺序');
+    });
+  }
+
+  function clearKeyboardFocusableRows(tbody: HTMLElement | null) {
+    if (!tbody) {
+      return;
+    }
+    tbody.querySelectorAll('tr').forEach((row) => {
+      row.removeAttribute('tabindex');
+      row.removeAttribute('aria-label');
+    });
+  }
+
+  function bindKeyboardSort(tbody: HTMLElement) {
+    applyKeyboardFocusableRows(tbody);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!event.altKey) {
+        return;
+      }
+      if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') {
+        return;
+      }
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        event.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      if (target?.isContentEditable) {
+        return;
+      }
+      const rowElement = target?.closest('tr');
+      if (!(rowElement instanceof HTMLElement)) {
+        return;
+      }
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const oldIndex = rows.indexOf(rowElement);
+      if (oldIndex < 0) {
+        return;
+      }
+      const delta = event.key === 'ArrowUp' ? -1 : 1;
+      const newIndex = oldIndex + delta;
+      if (newIndex < 0 || newIndex >= rows.length) {
+        return;
+      }
+      const sourceRows = options.data.value;
+      if (oldIndex >= sourceRows.length || newIndex >= sourceRows.length) {
+        return;
+      }
+      event.preventDefault();
+      const nextRows = moveArrayItem(sourceRows, oldIndex, newIndex);
+      options.onSortEnd({
+        oldIndex,
+        newIndex,
+        row: nextRows[newIndex],
+        rows: nextRows
+      });
+      void nextTick(() => {
+        const latestRows = Array.from(tbody.querySelectorAll('tr'));
+        (latestRows[newIndex] as HTMLElement | undefined)?.focus?.();
+      });
+    };
+    tbody.addEventListener('keydown', onKeyDown);
+    return () => {
+      tbody.removeEventListener('keydown', onKeyDown);
+      clearKeyboardFocusableRows(tbody);
+    };
+  }
+
+  function resolveConfigSignature(config: TableRowDragConfig | undefined) {
+    return [
+      config?.handle ?? '',
+      String(config?.animation ?? 180),
+      config?.ghostClass ?? 'ob-table__drag-ghost',
+      config?.chosenClass ?? 'ob-table__drag-chosen',
+      config?.dragClass ?? 'ob-table__dragging'
+    ].join('|');
+  }
 
   function destroySortable() {
     sortableInstance?.destroy();
     sortableInstance = null;
+    keyboardCleanup?.();
+    keyboardCleanup = null;
+    clearKeyboardFocusableRows(activeTbody);
+    activeTbody = null;
+    lastConfigSignature = '';
   }
 
   function buildSortableOptions(): Record<string, unknown> {
@@ -130,16 +236,44 @@ export function useTableRowDragSort(options: UseTableRowDragSortOptions) {
       return;
     }
 
+    const nextConfigSignature = resolveConfigSignature(options.config.value);
+    if (sortableInstance && activeTbody === tbody && lastConfigSignature === nextConfigSignature) {
+      applyKeyboardFocusableRows(tbody);
+      return;
+    }
+
     destroySortable();
     sortableInstance = SortableCtor.create(tbody, buildSortableOptions());
+    keyboardCleanup = bindKeyboardSort(tbody);
+    activeTbody = tbody;
+    lastConfigSignature = nextConfigSignature;
   }
 
   watch(
-    [options.enabled, options.data, options.config],
+    () => options.enabled.value,
     () => {
       void initSortable();
     },
     { immediate: true }
+  );
+
+  watch(
+    () => options.data.value.length,
+    () => {
+      void initSortable();
+    }
+  );
+
+  watch(options.data, () => {
+    void initSortable();
+  });
+
+  watch(
+    options.config,
+    () => {
+      void initSortable();
+    },
+    { deep: true }
   );
 
   onBeforeUnmount(() => {

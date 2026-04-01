@@ -126,7 +126,7 @@ export function useTableLayout(options: UseTableLayoutOptions) {
     });
   }
 
-  function updateAdaptiveHeight() {
+  function updateAdaptiveHeight(forceLayout = false) {
     if (typeof window === 'undefined') {
       adaptiveHeight.value = undefined;
       return;
@@ -151,7 +151,7 @@ export function useTableLayout(options: UseTableLayoutOptions) {
     });
     const shouldRelayout = adaptiveHeight.value !== nextHeight;
     adaptiveHeight.value = nextHeight;
-    if (!shouldRelayout) {
+    if (!shouldRelayout && !forceLayout) {
       return;
     }
     void nextTick(() => {
@@ -159,12 +159,12 @@ export function useTableLayout(options: UseTableLayoutOptions) {
     });
   }
 
-  function scheduleAdaptiveResize() {
+  function scheduleAdaptiveResize(forceLayout = false) {
     clearAdaptiveResizeTimer();
     const timeout = options.adaptiveConfig.value?.timeout ?? 16;
     adaptiveResizeTimer = setTimeout(() => {
       adaptiveResizeTimer = null;
-      updateAdaptiveHeight();
+      updateAdaptiveHeight(forceLayout);
     }, timeout);
   }
 
@@ -180,7 +180,7 @@ export function useTableLayout(options: UseTableLayoutOptions) {
 
     if (!adaptiveWindowResizeHandler) {
       adaptiveWindowResizeHandler = () => {
-        scheduleAdaptiveResize();
+        scheduleAdaptiveResize(true);
       };
       window.addEventListener('resize', adaptiveWindowResizeHandler);
     }
@@ -188,7 +188,7 @@ export function useTableLayout(options: UseTableLayoutOptions) {
     if (typeof ResizeObserver !== 'undefined') {
       if (!resizeObserver) {
         resizeObserver = new ResizeObserver(() => {
-          scheduleAdaptiveResize();
+          scheduleAdaptiveResize(true);
         });
       }
       if (observedTarget !== target) {

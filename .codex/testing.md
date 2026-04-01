@@ -9624,3 +9624,22 @@
   - `packages/ui`：3 个源码门禁文件 `12/12` 通过；`typecheck/lint/build` 通过。
   - `apps/admin`：6 个源码门禁文件 `8/8` 通过；`typecheck/build` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-01（走查问题修复回归）
+
+- GREEN / 回归：
+  - `pnpm install --lockfile-only`
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin test:run:file -- src/modules/LogManagement/login-log/list.source.test.ts src/modules/LogManagement/sys-log/list.source.test.ts src/modules/adminManagement/menu/list.source.test.ts src/modules/adminManagement/org/list.source.test.ts src/modules/adminManagement/role/list.source.test.ts src/modules/adminManagement/role-assign/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：源码门禁 `13/13` 通过；`typecheck/lint/build` 通过。
+  - `apps/admin`：6 个源码门禁文件 `8/8` 通过；`typecheck/build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+  - 锁文件：`pnpm-lock.yaml` 已与 `packages/ui/package.json` 对齐更新。

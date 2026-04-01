@@ -33,6 +33,7 @@
     "@one-base-template/core": "workspace:*",
     "@one-base-template/tag": "workspace:*",
     "gm-crypto": "^0.1.12",
+    "sortablejs": "^1.15.7",
     "vxe-pc-ui": "4.12.36",
     "vxe-table": "4.17.48"
   },

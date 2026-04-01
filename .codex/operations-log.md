@@ -11012,3 +11012,25 @@
   - 补充“ObTable 与 el-table 的关系与版本”说明。
   - 风险清单补充 `expandSlot` 深度组合场景回归提示。
   - 更新“列拖拽排序支持现状”：明确已支持行拖拽、列拖拽仍未标准化。
+
+## 2026-04-01（走查问题修复：拖拽重复初始化 + 宽度重排 + 依赖契约）
+
+- `packages/ui/src/components/table/internal/use-table-layout.ts`
+  - `scheduleAdaptiveResize` 新增 `forceLayout` 参数。
+  - `window.resize` / `ResizeObserver` 触发时改为强制 `doLayout()`，避免“宽度变化但高度不变”导致 fixed 列错位。
+  - 其余数据变化场景继续沿用高度变更短路，减少无效重排。
+- `packages/ui/src/components/table/internal/use-table-row-drag-sort.ts`
+  - 新增 `sortablejs` 缺失告警（仅首次警告）。
+  - 新增实例签名缓存（`tbody + dragConfig`），避免重复 `destroy/create`。
+  - 监听拆分为 `enabled`、`data.length`、`data`、`config(deep)`，并增加键盘辅助交互（`Alt + ↑ / ↓`）。
+  - 行元素自动补 `tabindex` 与提示语，拖拽禁用时自动清理。
+- `packages/ui/src/components/table/Table.vue`
+  - 收敛手动 `initRowDragSortable()` 调用点：保留 `tableRef/columns` 关键链路，移除 `onMounted` 与数据长度 watcher 的重复调用。
+  - 无障碍增强：根容器新增 `role="region" + aria-busy`，补充 `aria-live` 状态播报文本。
+- `packages/ui/src/components/table/Table.css`
+  - 新增 `.ob-table__sr-status` 屏幕阅读器可读隐藏样式。
+  - `ob-table` 增加 `position: relative` 以承载可访问性状态节点。
+- `packages/ui/package.json` + `pnpm-lock.yaml`
+  - 为 UI 包补充 `sortablejs` 依赖声明，避免 rowDrag 仅依赖应用层“间接安装”导致契约不清。
+- `apps/docs/docs/guide/table-vxe-migration.md`
+  - 补充 `sortablejs` 异步加载说明与 `Alt + ↑ / ↓` 键盘辅助说明。

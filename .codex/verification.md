@@ -6,7 +6,7 @@
 
 - 日期：2026-04-01
 - 文件：`.codex/verification/2026-04-01.md`
-- 补充：最新条目为“ObTable 行拖拽 + 布局拆分 + 关系说明补齐（`rowDrag`、`use-table-layout`、ui/admin/docs 全链路回归）”。
+- 补充：最新条目为“走查问题修复（重复初始化 / 宽度重排 / 依赖契约）并完成 ui/admin/docs 全链路回归”。
 
 ## 历史归档
 

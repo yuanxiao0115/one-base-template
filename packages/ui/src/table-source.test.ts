@@ -13,6 +13,10 @@ describe('Table source', () => {
     new URL('./components/table/internal/use-table-layout.ts', import.meta.url),
     'utf8'
   );
+  const rowDragSource = readFileSync(
+    new URL('./components/table/internal/use-table-row-drag-sort.ts', import.meta.url),
+    'utf8'
+  );
   const contractSource = readFileSync(
     new URL('./components/table/table-contract/column-contract.ts', import.meta.url),
     'utf8'
@@ -103,6 +107,7 @@ describe('Table source', () => {
     expect(source).toContain('rowHoverBgColor?: string;');
     expect(source).toContain('tableKey?: string | number;');
     expect(source).toContain('locale?: TableLocaleInput;');
+    expect(source).toContain('const liveStatusText = computed(() => {');
     expect(source).toContain("rowHoverBgColor: '',");
     expect(source).toContain("locale: 'zhCn'");
     expect(source).toContain(
@@ -123,6 +128,9 @@ describe('Table source', () => {
     expect(source).toContain("'element-loading-text': props.loadingConfig?.text");
     expect(source).toContain("'element-loading-svg-view-box': props.loadingConfig?.viewBox");
     expect(source).toContain(':key="resolvedTableKey"');
+    expect(source).toContain('role="region"');
+    expect(source).toContain('aria-live="polite"');
+    expect(source).toContain('ob-table__sr-status');
     expect(source).toContain('<slot name="empty">');
     expect(source).toContain('<slot name="append" />');
     expect(source).toContain('<el-config-provider :locale="resolvedLocale">');
@@ -170,6 +178,7 @@ describe('Table source', () => {
     expect(tableStyleSource).toContain('top: 50%');
     expect(tableStyleSource).toContain('transform: translateY(-50%)');
     expect(tableStyleSource).toContain('border-radius: var(--ob-table-scrollbar-radius)');
+    expect(tableStyleSource).toContain('.ob-table__sr-status');
     expect(tableStyleSource).toContain('.ob-table.is-row-drag');
     expect(tableStyleSource).toContain('.ob-table__drag-ghost');
     expect(tableStyleSource).toContain('.ob-table__pager.is-align-left');
@@ -191,5 +200,13 @@ describe('Table source', () => {
     expect(source).toContain('cellStyle: resolvedCellStyle.value');
     expect(source).toContain('resolveTableStyleValue(attrsRecord.value.headerCellStyle');
     expect(source).toContain('resolveTableStyleValue(attrsRecord.value.cellStyle');
+  });
+
+  it('应支持行拖拽键盘辅助与依赖缺失告警', () => {
+    expect(rowDragSource).toContain('warnSortableUnavailable');
+    expect(rowDragSource).toContain('event.altKey');
+    expect(rowDragSource).toContain("event.key !== 'ArrowUp' && event.key !== 'ArrowDown'");
+    expect(rowDragSource).toContain("row.setAttribute('tabindex', '0')");
+    expect(rowDragSource).toContain('aria-label');
   });
 });

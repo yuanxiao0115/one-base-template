@@ -65,6 +65,7 @@
 - `ObTable` 是 `el-table + el-pagination` 的统一壳组件，负责契约对齐、样式基线和迁移兼容；底层渲染与交互核心仍来自 Element Plus。
 - `packages/ui` 不内置 Element Plus 运行时副本，依赖通过 `peerDependencies` 声明（`element-plus`、`vue`、`pinia`、`vue-router`）。
 - `apps/admin`、`apps/admin-lite` 在应用层安装同一套依赖版本，打包时由 workspace 统一解析为一份运行时版本，不会再额外打出“第二份 Element Plus”。
+- `rowDrag` 运行时通过动态导入 `sortablejs` 生效；首次进入可拖拽页面时会额外加载异步 chunk，这是预期行为。
 - 升级 Element Plus 版本时，优先回归 `adaptive + fixHeader + fixed columns + rowDrag` 组合场景，避免内部 DOM 结构变化带来的兼容回归。
 
 仍待逐步对齐（后续批次）：
@@ -272,6 +273,7 @@ export const columns: TableColumnList = [
 ## 列拖拽排序支持现状
 
 - `ObTable`：已支持**行拖拽排序**（`rowDrag`、`rowDragConfig`、`row-drag-sort`），当前**不支持**开箱即用的“拖拽表头调整列顺序”。
+- `ObTable` 行拖拽支持键盘辅助交互：聚焦行后可用 `Alt + ↑ / ↓` 调整顺序，事件仍统一回传 `row-drag-sort`。
 - `ObVxeTable`：当前仅有透传扩展入口（`passthroughAttrs -> VxeGrid`），但未在壳组件层提供统一 `columnDrag` 开关、顺序变更事件或持久化约定。
 - 结论：统一表格模块暂未形成“标准列拖拽排序能力”；若业务急需，可先做页面级 PoC（维护响应式 `columns` 并在拖拽后重排），后续再收敛为组件层标准契约。
 
