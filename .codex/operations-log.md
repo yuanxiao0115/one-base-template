@@ -11208,3 +11208,12 @@
   - `apps/admin/AGENTS.md`：新增“模块测试必须位于 `apps/admin/tests/modules/**`”；补“业务层类型够用即可，不强制复杂显式泛型”；补“可读性优先，composable 职责超 3 类必须拆分”。
   - `apps/docs/docs/guide/admin-agent-redlines.md` 同步相同口径。
 - 按用户确认，本次提交包含 `apps/admin/src/types/components.d.ts`（自动生成文件仅格式变化 `export {}` -> `export {}` 无语义变更）。
+
+## 2026-04-01（ObTable 入口补齐 table 主题样式导入）
+
+- 问题定位：`apps/admin` 已切换 `@one-base-template/ui/obtable` 子入口后，`packages/ui/src/obtable.ts` 未导入 `styles/table-theme.css`，导致 `ObTable` 使用的 `--ob-table-*` 变量缺失；表头背景、分割线等样式退化。
+- 修复：
+  - `packages/ui/src/obtable.ts` 增加 `import './styles/iconfont.css'` 与 `import './styles/table-theme.css'`。
+  - `packages/ui/src/index.ts` 同步增加 `import './styles/table-theme.css'`，保证根入口与子入口行为一致。
+  - `packages/ui/src/index.test.ts` 增加 obtable 入口样式导入断言，防止回归。
+- 说明：`apps/admin/src/types/auto-imports.d.ts`、`apps/admin/src/types/components.d.ts` 为本地构建触发的自动生成格式变更。

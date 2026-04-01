@@ -1,3 +1,6 @@
+import './styles/iconfont.css';
+import './styles/table-theme.css';
+
 export {
   OneUiObTablePlugin,
   registerOneObTableUiComponents,

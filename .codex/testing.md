@@ -9808,3 +9808,14 @@
   - `apps/admin`：`lint:arch/typecheck` 通过。
   - `apps/admin lint`：0 error（3 条 `max-lines` warning，均为历史长文件告警）。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-01（ObTable 入口样式导入修复）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/index.test.ts packages/ui/src/table-source.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C apps/admin build`
+- 结果：
+  - `packages/ui`：`3 files / 14 tests` 通过；`typecheck/lint` 通过。
+  - `apps/admin build`：通过（产物生成成功）。

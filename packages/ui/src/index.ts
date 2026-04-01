@@ -1,4 +1,5 @@
 import './styles/iconfont.css';
+import './styles/table-theme.css';
 
 export { default as AdminLayout } from './layouts/AdminLayout.vue';
 export { default as SidebarMenu } from './components/menu/SidebarMenu.vue';
