@@ -6,7 +6,7 @@
 
 - 日期：2026-04-01
 - 文件：`.codex/verification/2026-04-01.md`
-- 补充：最新条目为“tooltip 默认轻量化（`tooltipRenderThreshold=0`）并完成 ui/docs 回归验证”。
+- 补充：最新条目为“范围确认：当前阶段不做列拖拽排序（仅保留行拖拽）”。
 
 ## 历史归档
 

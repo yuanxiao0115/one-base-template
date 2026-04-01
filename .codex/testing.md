@@ -9656,3 +9656,11 @@
 - 结果：
   - `packages/ui`：源码门禁 `13/13` 通过；`typecheck/lint/build` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-01（文档范围收口：不做列拖拽）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。

@@ -79,7 +79,7 @@
 - 当 `tooltipRenderThreshold > 0` 时，`showOverflowTooltip` 会在阈值范围内启用富 tooltip；大数据量页面建议保持 `tooltipRenderThreshold=0` 或按列按需开启。
 - 树表会经过 `normalizeTreeRows` 归一化，返回行对象是新引用（结构相同但非原引用）；业务若依赖 row 引用身份，请显式避免引用比较。
 - `expandSlot` 当前已补齐“列级插槽优先 + `slots.expand` 兜底”链路，但“多层表头 + expand + 自定义 formatter 组合”仍建议持续做回归样例。
-- 当前统一壳组件仍未提供“列拖拽排序”的统一契约与持久化能力（见下方“列拖拽排序支持现状”）。
+- 当前版本已明确**不纳入列拖拽排序能力**（优先保证行拖拽与树表稳定性），避免引入额外交互与持久化复杂度。
 
 ## 表格契约基线
 
@@ -271,12 +271,12 @@ export const columns: TableColumnList = [
 
 用于兼容旧 `useTable` 中 `tableRef.value?.setAdaptive?.()` / `getTableRef().clearSelection()`。
 
-## 列拖拽排序支持现状
+## 拖拽能力决策（2026-04-01）
 
 - `ObTable`：已支持**行拖拽排序**（`rowDrag`、`rowDragConfig`、`row-drag-sort`），当前**不支持**开箱即用的“拖拽表头调整列顺序”。
 - `ObTable` 行拖拽支持键盘辅助交互：聚焦行后可用 `Alt + ↑ / ↓` 调整顺序，事件仍统一回传 `row-drag-sort`。
 - `ObVxeTable`：当前仅有透传扩展入口（`passthroughAttrs -> VxeGrid`），但未在壳组件层提供统一 `columnDrag` 开关、顺序变更事件或持久化约定。
-- 结论：统一表格模块暂未形成“标准列拖拽排序能力”；若业务急需，可先做页面级 PoC（维护响应式 `columns` 并在拖拽后重排），后续再收敛为组件层标准契约。
+- 结论：当前阶段不规划列拖拽排序能力，后续如确有强需求，再单独立项评估。
 
 ## useTable：分区配置
 
