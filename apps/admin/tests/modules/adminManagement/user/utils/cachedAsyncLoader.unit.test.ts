@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
-import { createCachedAsyncLoader } from '@/modules/adminManagement/shared/cachedAsyncLoader';
+import { createCachedAsyncLoader } from '@/modules/adminManagement/user/utils/cachedAsyncLoader';
 
-describe('UserManagement/shared/cachedAsyncLoader', () => {
+describe('adminManagement/user/utils/cachedAsyncLoader', () => {
   it('应缓存首次加载结果', async () => {
     const fetcher = vi.fn(async () => ({ ok: true }));
     const loader = createCachedAsyncLoader(fetcher);

@@ -11217,3 +11217,21 @@
   - `packages/ui/src/index.ts` 同步增加 `import './styles/table-theme.css'`，保证根入口与子入口行为一致。
   - `packages/ui/src/index.test.ts` 增加 obtable 入口样式导入断言，防止回归。
 - 说明：`apps/admin/src/types/auto-imports.d.ts`、`apps/admin/src/types/components.d.ts` 为本地构建触发的自动生成格式变更。
+
+## 2026-04-01（adminManagement shared 分层收敛：cachedAsyncLoader 下沉到 user 模块）
+
+- 按“单子模块优先就近维护”的分层规则，将 `cachedAsyncLoader` 从 `apps/admin/src/modules/adminManagement/shared` 下沉到 `apps/admin/src/modules/adminManagement/user/utils/cachedAsyncLoader.ts`。
+- `useUserRemoteOptions.ts` 引用路径同步改为 `../utils/cachedAsyncLoader`。
+- 对应测试镜像目录同步调整：
+  - 删除 `apps/admin/tests/modules/adminManagement/shared/cachedAsyncLoader.unit.test.ts`
+  - 新增 `apps/admin/tests/modules/adminManagement/user/utils/cachedAsyncLoader.unit.test.ts`
+- 规则落盘：
+  - `apps/admin/AGENTS.md` 新增 adminManagement 工具分层约束（模块内 `utils` / 域内 `shared` / 应用级 `src/utils`）。
+  - `apps/docs/docs/guide/admin-agent-redlines.md` 同步可读版红线说明。
+
+## 2026-04-01（PersonalizationDrawer 收口到 CrudContainer 抽屉）
+
+- `packages/ui/src/components/theme/PersonalizationDrawer.vue` 从 `el-drawer` 直连改为复用 `CrudContainer`。
+- 抽屉形态固定 `container='drawer'`，宽度固定 `drawer-size=400`，并保持无底部按钮（`show-footer=false`）。
+- 为保持原交互，显式透传 `close-on-click-modal=true`。
+- 移除组件内自定义 header/关闭按钮，统一使用 `CrudContainer` 头部结构，内容区继续承载 `ThemeSwitcher`。

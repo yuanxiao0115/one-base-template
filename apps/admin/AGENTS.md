@@ -130,6 +130,7 @@
 - `adminManagement` 目录采用 feature-first（一个功能一个文件夹）；所有路由集中在模块根目录 `routes.ts`。
 - 新增/迁移 `adminManagement` 页面时，必须同次提交更新 `apps/admin/src/modules/adminManagement/routes.ts`。
 - `adminManagement` 的接口分层默认采用 `api.ts + types.ts`：`api.ts` 仅维护接口路径与请求参数透传；`types.ts` 保持“够用即可”，禁止过度细粒度类型设计；后端字段已对齐场景下，禁止新增 `normalizers.ts` / `mapper.ts` / `compat.ts`。
+- `adminManagement` 内部工具分层固定为：单子模块使用的工具放 `modules/adminManagement/<feature>/utils`；同域多子模块复用再放 `modules/adminManagement/shared`；只有跨一级业务模块（如 `adminManagement` 与 `PortalManagement`）复用且无领域语义时，才允许上提 `apps/admin/src/utils`。
 - adminManagement 编排层已按 composable 分层后，禁止再新增汇总式 `actions.ts`；复杂逻辑按语义归入 `useXxxState/useXxxActions/useXxxQuery` 等 composable，页面仅保留编排解构。
 - adminManagement 的页面级 composable 只负责编排：单个 composable 同时出现 `table + editor + dialog + remote options/sidebar/data-source` 中 `3` 类及以上职责时，必须继续拆分，禁止形成 God composable。
 - admin 模块页面默认且强制使用 `ObTable`，`apps/admin/src/modules/**` 内禁止新增 `ObVxeTable` 编排。

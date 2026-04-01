@@ -27,6 +27,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - `api.ts` / `api/client.ts` 禁止 `const http = obHttp()` 与 `getHttp` 包装；统一直接调用 `obHttp().get/post/...`。
 - 导入上传优先使用 `ObImportUpload`；业务型 `el-upload` 仅允许在表单/领域组件内部使用，禁止在 `list.vue` 直接编排上传控件。
 - `apps/admin/src/modules/**` 禁止放测试文件（`*.unit.test.ts` / `*.source.test.ts`）；模块测试统一放在 `apps/admin/tests/modules/**`，目录按模块镜像组织。
+- `adminManagement` 工具分层固定为：单子模块使用放 `modules/adminManagement/<feature>/utils`；同域多子模块复用放 `modules/adminManagement/shared`；跨一级业务模块复用且无领域语义才上提 `apps/admin/src/utils`。
 
 ## 门禁脚本（可执行）
 

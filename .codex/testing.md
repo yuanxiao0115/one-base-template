@@ -9819,3 +9819,22 @@
 - 结果：
   - `packages/ui`：`3 files / 14 tests` 通过；`typecheck/lint` 通过。
   - `apps/admin build`：通过（产物生成成功）。
+
+## 2026-04-01（adminManagement shared 分层收敛：cachedAsyncLoader 下沉）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/modules/adminManagement/user/utils/cachedAsyncLoader.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：`1 file / 3 tests` 通过；`typecheck` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-01（PersonalizationDrawer 改造为 CrudContainer 抽屉）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+- 结果：
+  - `packages/ui`：`typecheck` 通过；`lint` 0 warning / 0 error。
