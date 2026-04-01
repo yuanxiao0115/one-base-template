@@ -27,6 +27,8 @@ describe('adminManagement/menu list source', () => {
     expect(pageStateSource).toContain('selectSystem');
     expect(pageStateSource).toContain('openCreateUnderActiveSystem');
     expect(pageStateSource).toContain('getSystemScopedTreeRows()');
+    expect(pageStateSource).toContain('ensurePermissionTreeLoaded');
+    expect(pageStateSource).toContain('const treeRows = await ensurePermissionTreeLoaded();');
     expect(pageStateSource).not.toContain('childrenField');
     expect(pageStateSource).not.toContain('transform: false');
   });

@@ -16,6 +16,15 @@
   - `apps/admin`：`lint` 为 `0 error`，但有 `4` 条 `max-lines` warning（其中包含 `menu/composables/useMenuManagementPageState.ts` 行数超限告警）。
   - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
 
+## 2026-04-01（菜单管理补充：全量树复用）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/modules/adminManagement/menu/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+- 结果：
+  - 菜单源码测试 `3/3` 通过。
+  - `typecheck` 通过。
+
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
 - GREEN / 回归：

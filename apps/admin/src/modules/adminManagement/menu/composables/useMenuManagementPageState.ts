@@ -169,6 +169,21 @@ export function useMenuManagementPageState() {
     return Array.isArray(activeSystem.children) ? activeSystem.children : [];
   }
 
+  async function ensurePermissionTreeLoaded() {
+    if (permissionTree.value.length > 0) {
+      return permissionTree.value;
+    }
+
+    const response = await menuPermissionApi.getPermissionTree();
+    if (response.code !== 200) {
+      throw new Error(response.message || '获取权限树失败');
+    }
+
+    const treeRows = getTreeRows(response.data);
+    syncPermissionTree(treeRows);
+    return treeRows;
+  }
+
   const tableOpt = reactive({
     query: {
       api: async () => {
@@ -292,12 +307,7 @@ export function useMenuManagementPageState() {
   const crudForm = crud.form;
 
   async function loadParentOptions(disabledId?: string) {
-    const response = await menuPermissionApi.getPermissionTree();
-    if (response.code !== 200) {
-      throw new Error(response.message || '获取权限树失败');
-    }
-
-    const treeRows = getTreeRows(response.data);
+    const treeRows = await ensurePermissionTreeLoaded();
     const disabledIds = new Set<string>();
     if (disabledId) {
       markDescendants(treeRows, disabledId, disabledIds);

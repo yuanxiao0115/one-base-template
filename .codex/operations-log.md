@@ -12,6 +12,11 @@
 - 修复阻塞编译问题：移除 `MenuPermissionEditForm.vue` 中 `el-tree-select :props` 的非法 `value` 映射键，消除 `TreeOptionProps` 类型报错。
 - 文档同步：更新 `apps/docs/docs/guide/layout-menu.md`、`apps/docs/docs/guide/module-system.md`，补充菜单管理新交互基线。
 
+## 2026-04-01（菜单管理补充：复用全量权限树，避免重复加载）
+
+- `apps/admin/src/modules/adminManagement/menu/composables/useMenuManagementPageState.ts` 新增 `ensurePermissionTreeLoaded()`。
+- `loadParentOptions()` 改为优先复用内存中的 `permissionTree`，仅在首次未加载时调用 `/permission/tree`，避免弹窗每次打开都重复请求整棵树。
+
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
 - `packages/ui/src/components/table/Table.vue` 将列变更监听从 `deep watch props.columns` 收敛为轻量签名监听（`columnsLayoutSignature`），降低深层遍历开销。
