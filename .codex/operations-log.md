@@ -11172,3 +11172,21 @@
 - 代码扫描：
   - `rg -n "ObVxeTable|ob-vxe-table|vxe-table--" apps/admin --glob '!**/dist/**'`
   - 结果仅剩 `AGENTS` 的禁用规则文案与 source test 的反向断言，业务源码无残留。
+
+## 2026-04-01（admin 构建去除 vxe 运行时 chunk）
+
+- 根因定位：
+  - `@one-base-template/ui` 根入口 `index.ts` 聚合导出了 legacy `plugin.ts`（静态 import `VxeTable`）与 `VxeTable` 组件，导致 admin 即使业务页不用 `ObVxeTable` 也会把 `vxe` 运行时打包进来。
+- 收口方案：
+  - 新增无 vxe 的 admin 插件入口：`packages/ui/src/plugin-obtable.ts` + `packages/ui/src/obtable.ts`。
+  - admin 启动层改为 `@one-base-template/ui/obtable`（`OneUiObTablePlugin`）：`apps/admin/src/bootstrap/plugins.ts`。
+  - `CardTable` 分页从 `VxePager` 迁移到 `el-pagination`：`packages/ui/src/components/table/CardTable.vue`。
+  - `VxeTable` 样式改为组件内按需引入：`packages/ui/src/components/table/VxeTable.vue`。
+  - UI 根入口改为默认 ObTable 插件，并移除 `VxeTable` 顶层导出：`packages/ui/src/index.ts`。
+  - 新增 legacy vxe 子入口：`packages/ui/src/vxe.ts`；`admin-lite` 启动改到 `@one-base-template/ui/vxe` 以保留旧能力：`apps/admin-lite/src/bootstrap/plugins.ts`。
+  - 子路径导出补齐：`packages/ui/package.json` 增加 `./obtable`、`./vxe`。
+- 门禁补充：
+  - `apps/admin/tests/architecture/obtable-plugin-source.unit.test.ts`（锁定 admin 使用 obtable 插件入口）。
+  - `packages/ui/src/card-table-source.test.ts`（锁定 CardTable 不再依赖 VxePager/vxe 变量）。
+- 结果：
+  - `apps/admin build` 产物已无 `vxe` js/css 产物；`check-admin-build-size` 输出 `vxe chunk: 未匹配到对应 chunk，跳过。`。

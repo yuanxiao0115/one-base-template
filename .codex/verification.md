@@ -6,7 +6,7 @@
 
 - 日期：2026-04-01
 - 文件：`.codex/verification/2026-04-01.md`
-- 补充：最新条目为“admin 全模块 ObVxeTable 替换为 ObTable”。
+- 补充：最新条目为“admin 构建去除 vxe 运行时 chunk”。
 
 ## 历史归档
 

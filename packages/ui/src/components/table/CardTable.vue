@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, useAttrs, useSlots, type StyleValue } from 'vue';
-import { VxePager } from 'vxe-pc-ui';
 import type { TablePagination } from './types';
+import { resolvePagerLayout } from './internal/table-helpers';
 
 defineOptions({
   name: 'CardTable',
@@ -9,12 +9,6 @@ defineOptions({
 });
 
 type RowRecord = Record<string, unknown>;
-
-interface PageChangeParams {
-  type?: 'current' | 'size' | string;
-  pageSize?: number;
-  currentPage?: number;
-}
 
 interface CardTableProps {
   data?: RowRecord[];
@@ -72,39 +66,6 @@ const normalizedPagination = computed<TablePagination | null>(() => {
   return props.pagination;
 });
 
-// 复用 ObVxeTable 的分页布局映射，保证视觉与交互口径一致。
-function resolvePagerLayouts(
-  layout?: string
-): Array<'Total' | 'Sizes' | 'PrevPage' | 'Number' | 'NextPage' | 'FullJump'> {
-  if (!layout) {
-    return ['Total', 'Sizes', 'PrevPage', 'Number', 'NextPage', 'FullJump'];
-  }
-
-  const layoutMap: Record<
-    string,
-    'Total' | 'Sizes' | 'PrevPage' | 'Number' | 'NextPage' | 'FullJump'
-  > = {
-    total: 'Total',
-    sizes: 'Sizes',
-    prev: 'PrevPage',
-    pager: 'Number',
-    next: 'NextPage',
-    jumper: 'FullJump'
-  };
-
-  const layouts = layout
-    .split(',')
-    .map((item) => item.trim())
-    .map((item) => layoutMap[item])
-    .filter((item): item is 'Total' | 'Sizes' | 'PrevPage' | 'Number' | 'NextPage' | 'FullJump' =>
-      Boolean(item)
-    );
-
-  return layouts.length > 0
-    ? layouts
-    : ['Total', 'Sizes', 'PrevPage', 'Number', 'NextPage', 'FullJump'];
-}
-
 const pagerProps = computed<Record<string, unknown> | null>(() => {
   if (!normalizedPagination.value) {
     return null;
@@ -114,7 +75,6 @@ const pagerProps = computed<Record<string, unknown> | null>(() => {
     props.paginationSmall ?? normalizedPagination.value.small ?? attrs.size === 'small';
 
   return {
-    autoHidden: false,
     total: Number(normalizedPagination.value.total ?? 0),
     currentPage: Number(normalizedPagination.value.currentPage ?? 1),
     pageSize: Number(normalizedPagination.value.pageSize ?? 10),
@@ -126,17 +86,19 @@ const pagerProps = computed<Record<string, unknown> | null>(() => {
           ? normalizedPagination.value.pageSizes
           : [10, 20, 50, 100],
     background: normalizedPagination.value.background ?? true,
-    layouts: resolvePagerLayouts(normalizedPagination.value.layout),
-    size: pagerSmall ? 'small' : undefined
+    layout: resolvePagerLayout(normalizedPagination.value.layout),
+    small: pagerSmall,
+    hideOnSinglePage: normalizedPagination.value.hideOnSinglePage ?? false,
+    disabled: normalizedPagination.value.disabled ?? false
   };
 });
 
-function handlePageChange(params: PageChangeParams) {
-  if (params.type === 'size') {
-    emit('page-size-change', Number(params.pageSize ?? 10));
-    return;
-  }
-  emit('page-current-change', Number(params.currentPage ?? 1));
+function handlePageSizeChange(size: number) {
+  emit('page-size-change', Number(size || 10));
+}
+
+function handlePageCurrentChange(page: number) {
+  emit('page-current-change', Number(page || 1));
 }
 
 function resolveRowKey(row: RowRecord, index: number) {
@@ -169,7 +131,11 @@ function resolveRowKey(row: RowRecord, index: number) {
     </div>
 
     <div v-if="pagerProps" class="ob-card-table__pager">
-      <VxePager v-bind="pagerProps" @page-change="handlePageChange" />
+      <el-pagination
+        v-bind="pagerProps"
+        @size-change="handlePageSizeChange"
+        @current-change="handlePageCurrentChange"
+      />
     </div>
   </div>
 </template>
@@ -227,18 +193,18 @@ function resolveRowKey(row: RowRecord, index: number) {
 .ob-card-table__pager {
   flex-shrink: 0;
   padding-top: 8px;
-  background: var(--vxe-ui-layout-background-color);
-  border-top: 1px solid var(--vxe-ui-table-border-color);
+  background: var(--ob-table-pager-bg);
+  border-top: 1px solid var(--ob-table-pager-border-color);
 }
 
-.ob-card-table__pager :deep(.vxe-pager) {
+.ob-card-table__pager :deep(.el-pagination) {
   position: relative;
   justify-content: flex-end;
   min-height: 32px;
   padding-left: 120px;
 }
 
-.ob-card-table__pager :deep(.vxe-pager--total) {
+.ob-card-table__pager :deep(.el-pagination__total) {
   position: absolute;
   left: 4px;
   top: 50%;

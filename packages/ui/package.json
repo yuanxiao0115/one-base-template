@@ -8,6 +8,14 @@
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./obtable": {
+      "types": "./src/obtable.ts",
+      "default": "./src/obtable.ts"
+    },
+    "./vxe": {
+      "types": "./src/vxe.ts",
+      "default": "./src/vxe.ts"
+    },
     "./lite": {
       "types": "./src/lite.ts",
       "default": "./src/lite.ts"

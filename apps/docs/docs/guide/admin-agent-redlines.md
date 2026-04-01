@@ -21,6 +21,7 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 - CRUD 新增/编辑/查看容器必须使用 `ObCrudContainer`，禁止在 CRUD 场景直接使用 `el-dialog` 或 `el-drawer` 编排。
 - 业务消息提示统一使用 `@one-base-template/ui`，禁止在模块业务代码中直接使用 `ElMessage`。
 - 业务确认交互统一使用 `@one-base-template/ui` 的 `obConfirm`/`tryConfirmWarn`，禁止直接使用 `ElMessageBox`。
+- admin 启动层插件统一使用 `@one-base-template/ui/obtable`（`OneUiObTablePlugin`），禁止回退到全量 `OneUiPlugin` 以免把 `vxe` 运行时重新打入 admin 包体。
 - CRUD 目录范式固定为 `list.vue + api.ts + types.ts + routes.ts`，禁止回退到 `page.vue` 与散乱接口分层。
 - `api.ts` 禁止从 `./types` 做类型中转导出（`export type {...} from './types'`）；业务文件需要类型时直接从 `types.ts` 导入。
 - `api.ts` / `api/client.ts` 禁止 `const http = obHttp()` 与 `getHttp` 包装；统一直接调用 `obHttp().get/post/...`。

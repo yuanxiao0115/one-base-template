@@ -11,6 +11,9 @@ import {
   type CSSProperties,
   type VNodeChild
 } from 'vue';
+import 'vxe-pc-ui/lib/style.css';
+import 'vxe-table/lib/style.css';
+import '../../styles/vxe-theme.css';
 import { VxePager } from 'vxe-pc-ui';
 import { VxeGrid } from 'vxe-table';
 import type { VxeGridDefines, VxeGridInstance } from 'vxe-table';

@@ -18,6 +18,7 @@
 - [ ] 是否存在无意义 helper / mapper / wrapper 中转层
 - [ ] 命名是否短、清楚、通用
 - [ ] `apps/admin/src/modules/**` 列表页是否已切到 `ObTable`，是否仍残留 `<ObVxeTable>`
+- [ ] `apps/admin/src/bootstrap/plugins.ts` 是否使用 `@one-base-template/ui/obtable`，避免重新引入 `vxe` chunk
 
 ### 性能
 

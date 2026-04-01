@@ -116,6 +116,10 @@ Default composition for admin modules:
 - `ObCrudContainer`
 - `ObActionButtons` for operation column when applicable
 
+Bootstrap note:
+
+- Admin app shell should install `@one-base-template/ui/obtable` (`OneUiObTablePlugin`) to avoid pulling legacy `vxe` runtime into admin bundles.
+
 ### 6) Enforce submission and delete behavior
 
 Use this sequence:

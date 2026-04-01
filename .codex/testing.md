@@ -9771,3 +9771,25 @@
   - `apps/admin`：`lint:arch/typecheck/lint/build` 通过。
   - `apps/admin lint`：0 error（2 条历史 `max-lines` warning，非本次新增）。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-01（admin 构建去除 vxe 运行时 chunk）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/card-table-source.test.ts packages/ui/src/vxe-table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C apps/admin test:run:file -- tests/architecture/obtable-plugin-source.unit.test.ts $(rg --files apps/admin/src/modules | rg 'source\\.test\\.ts$' | sed 's#apps/admin/##')`
+  - `pnpm -C apps/admin lint:arch`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin build`
+  - `node scripts/check-admin-build-size.mjs`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin-lite lint:arch`
+- 结果：
+  - `packages/ui`：`5 files / 16 tests` 通过，`typecheck/lint` 通过。
+  - `apps/admin`：`21 files / 24 tests` 通过，`lint:arch/typecheck/lint/build` 通过。
+  - `apps/admin build`：`assets/vxe-*` 不再生成。
+  - `check-admin-build-size`：`vxe chunk` 未匹配（即已移除），其余预算项 PASS。
+  - `apps/admin-lite`：`typecheck/lint:arch` 通过（legacy `vxe` 插件入口兼容验证）。
+  - `apps/admin lint`：0 error（2 条历史 `max-lines` warning，非本次新增）。

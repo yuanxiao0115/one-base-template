@@ -1,6 +1,3 @@
-import 'vxe-pc-ui/lib/style.css';
-import 'vxe-table/lib/style.css';
-import './styles/vxe-theme.css';
 import './styles/iconfont.css';
 
 export { default as AdminLayout } from './layouts/AdminLayout.vue';
@@ -19,7 +16,6 @@ export { default as Tree } from './components/tree/Tree.vue';
 export { default as ActionButtons } from './components/table/ActionButtons.vue';
 export { default as TableBox } from './components/table/TableBox.vue';
 export { default as CardTable } from './components/table/CardTable.vue';
-export { default as VxeTable } from './components/table/VxeTable.vue';
 export { default as Table } from './components/table/Table.vue';
 export { default as ImportUpload } from './components/upload/ImportUpload.vue';
 export { LoginBox, LoginBoxV2 } from './lite-auth';
@@ -83,9 +79,15 @@ export {
   type UseEntityEditorReturn
 } from './hooks/useEntityEditor';
 export {
-  OneUiPlugin,
-  registerOneUiComponents,
-  type OneUiPluginOptions,
-  type OneUiComponentName
-} from './plugin';
-export { default } from './plugin';
+  OneUiObTablePlugin,
+  registerOneObTableUiComponents,
+  type OneObTableUiPluginOptions,
+  type OneObTableUiComponentName
+} from './plugin-obtable';
+export {
+  OneUiObTablePlugin as OneUiPlugin,
+  registerOneObTableUiComponents as registerOneUiComponents,
+  type OneObTableUiPluginOptions as OneUiPluginOptions,
+  type OneObTableUiComponentName as OneUiComponentName
+} from './plugin-obtable';
+export { default } from './plugin-obtable';

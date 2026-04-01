@@ -68,6 +68,10 @@ modules/<FeatureName>/<EntityName>/
 
 `ObPageContainer` + `ObTableBox` + `ObTable` + `ObCrudContainer`
 
+启动层要求：
+
+- admin 启动插件统一使用 `@one-base-template/ui/obtable`（`OneUiObTablePlugin`），避免把 `vxe` 运行时打进 admin 包体。
+
 Hook 来源建议：
 
 - `useTable / useCrudPage`：从 `@one-base-template/core` 使用（唯一实现源）

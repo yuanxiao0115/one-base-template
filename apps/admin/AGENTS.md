@@ -65,6 +65,7 @@
 
 - `PageContainer` 与 `TableBox` 在 `apps/admin` 页面中统一使用全局前缀标签：`ObPageContainer` / `ObTableBox`。
 - `@one-base-template/ui` 组件在 admin 页面默认走全局注册（`Ob*` 前缀）；仅在明确说明原因时才允许局部 import。
+- admin 启动插件必须使用 `@one-base-template/ui/obtable`（`OneUiObTablePlugin`），禁止回退到 `@one-base-template/ui` 的全量插件，避免重新引入 `vxe` 运行时 chunk。
 - `ObPageContainer` 外层禁止再包无业务意义占位 `div`，优先使用片段根节点保持结构扁平。
 - admin 下 CRUD 编排页文件名统一使用 `list.vue`（不再使用 `page.vue`），对应路由懒加载路径必须保持一致。
 - 门户模板列表页（`apps/admin/src/modules/PortalManagement/templatePage/list.vue`）必须对齐 admin 列表基线：禁止直接使用 `el-table` 与 `ElMessage`，统一使用 `ObTable` 与 `@one-base-template/ui`。
