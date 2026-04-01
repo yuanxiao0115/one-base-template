@@ -8,10 +8,13 @@
   - `pnpm -C packages/portal-engine typecheck`
   - `pnpm -C packages/portal-engine lint`
   - `pnpm -C packages/portal-engine test:run src/materials/useRendererMaterials.test.ts src/registry/materials-registry.aliases.test.ts`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
 - 结果：
   - `packages/portal-engine`：`typecheck` 通过。
   - `packages/portal-engine`：`lint` 0 warning / 0 error。
   - `packages/portal-engine`：2 个测试文件 `5/5` 通过（含 `pb-*` 别名链路回归）。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
 
 ## 2026-04-01（Portal 老组件迁移：pb 系列 9 个组件）
 
