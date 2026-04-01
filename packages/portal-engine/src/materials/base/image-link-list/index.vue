@@ -1,40 +1,20 @@
 <template>
   <UnifiedContainerDisplay :content="containerContentConfig" :style="containerStyleConfig">
-    <div class="image-link-list" :style="wrapperStyleObj">
-      <button
-        v-for="item in displayItems"
-        :key="item.id"
-        class="image-link-list__card"
-        type="button"
-        :style="cardStyleObj"
-        @click="handleItemClick(item)"
+    <div class="image-links" :style="containerStyleObj">
+      <div v-if="links.length === 0" class="empty-links">暂无图片链接</div>
+      <div
+        v-for="(link, index) in links"
+        :key="link.id || index"
+        class="cms-image-link-item"
+        :style="itemStyleObj"
+        @click="handleLinkClick(link)"
       >
-        <div class="image-link-list__media" :style="imageWrapStyleObj">
-          <img
-            v-if="item.imageSrc"
-            class="image-link-list__image"
-            :src="item.imageSrc"
-            :alt="item.title"
-          />
-          <div v-else class="image-link-list__image image-link-list__image--placeholder">
-            未配置图片
-          </div>
-          <span v-if="item.tag" class="image-link-list__tag" :style="tagStyleObj">{{
-            item.tag
-          }}</span>
-        </div>
-
-        <div class="image-link-list__body">
-          <h4 class="image-link-list__title" :style="titleStyleObj">{{ item.title }}</h4>
-          <p
-            v-if="showDescription"
-            class="image-link-list__description"
-            :style="descriptionStyleObj"
-          >
-            {{ item.description }}
-          </p>
-        </div>
-      </button>
+        <img
+          :src="getImageUrl(link.image)"
+          :alt="link.title || '图片链接'"
+          class="image-link-img"
+        />
+      </div>
     </div>
   </UnifiedContainerDisplay>
 </template>
@@ -50,8 +30,7 @@ import type {
 import {
   normalizeImageSource,
   resolveValueByPath,
-  toNonNegativeNumber,
-  toPositiveNumber
+  toNonNegativeNumber
 } from '../common/material-utils';
 import {
   mergePortalLinkConfig,
@@ -117,14 +96,12 @@ const containerStyleConfig = computed(() => props.schema?.style?.container);
 const listContent = computed(() => props.schema?.content?.list || {});
 const listStyle = computed(() => props.schema?.style?.list || {});
 
-const displayItems = computed(() => {
+const links = computed(() => {
   const rawItems = Array.isArray(listContent.value.items) ? listContent.value.items : [];
   return rawItems.map((item, index) => ({
     id: String(item.id || `image-link-${index + 1}`),
-    title: String(item.title || `图文项${index + 1}`),
-    description: String(item.description || ''),
-    imageSrc: normalizeImageSource(item.image),
-    tag: String(item.tag || ''),
+    title: String(item.title || ''),
+    image: String(item.image || ''),
     link: mergePortalLinkConfig(
       item.link || {
         path: item.linkPath,
@@ -136,48 +113,41 @@ const displayItems = computed(() => {
   }));
 });
 
-const columnCount = computed(() =>
-  Math.min(4, Math.max(1, Number(listContent.value.columnCount) || 3))
+const columnsPerRow = computed(() =>
+  Math.min(4, Math.max(1, Number(listContent.value.columnCount) || 4))
 );
-const showDescription = computed(() => listContent.value.showDescription !== false);
 
-const wrapperStyleObj = computed<CSSProperties>(() => ({
-  display: 'grid',
-  gridTemplateColumns: `repeat(${columnCount.value}, minmax(0, 1fr))`,
-  rowGap: `${toNonNegativeNumber(listStyle.value.rowGap, 12)}px`,
-  columnGap: `${toNonNegativeNumber(listStyle.value.columnGap, 12)}px`
+const containerStyleObj = computed<CSSProperties>(() => ({
+  gridTemplateColumns: `repeat(${columnsPerRow.value}, minmax(0, 1fr))`,
+  rowGap: `${toNonNegativeNumber(listStyle.value.rowGap, 16)}px`,
+  columnGap: `${toNonNegativeNumber(listStyle.value.columnGap, 16)}px`
 }));
 
-const cardStyleObj = computed<CSSProperties>(() => ({
-  border: `1px solid ${listStyle.value.cardBorderColor || '#e2e8f0'}`,
-  borderRadius: `${toNonNegativeNumber(listStyle.value.cardRadius, 10)}px`,
-  background: listStyle.value.cardBgColor || '#ffffff',
-  overflow: 'hidden'
+const itemStyleObj = computed<CSSProperties>(() => ({
+  borderRadius: `${toNonNegativeNumber(listStyle.value.cardRadius, 0)}px`,
+  backgroundColor: listStyle.value.cardBgColor || 'transparent'
 }));
 
-const imageWrapStyleObj = computed<CSSProperties>(() => ({
-  height: `${Math.max(60, toPositiveNumber(listStyle.value.imageHeight, 140))}px`
-}));
+const defaultImageUrl =
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmMGYyZjUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgZmlsbD0iI2FhYWFhYSI+5pqC5peg5Zu+54mHPC90ZXh0Pjwvc3ZnPg==';
 
-const titleStyleObj = computed<CSSProperties>(() => ({
-  color: listStyle.value.titleColor || '#0f172a',
-  fontSize: `${Math.max(12, toPositiveNumber(listStyle.value.titleFontSize, 15))}px`
-}));
+function getImageUrl(image?: string): string {
+  const normalized = normalizeImageSource(image);
+  return normalized || defaultImageUrl;
+}
 
-const descriptionStyleObj = computed<CSSProperties>(() => ({
-  color: listStyle.value.descriptionColor || '#64748b',
-  fontSize: `${Math.max(12, toPositiveNumber(listStyle.value.descriptionFontSize, 12))}px`
-}));
-
-const tagStyleObj = computed<CSSProperties>(() => ({
-  background: listStyle.value.tagBgColor || '#e0f2fe',
-  color: listStyle.value.tagTextColor || '#0369a1'
-}));
-
-function handleItemClick(item: (typeof displayItems.value)[number]) {
+function resolveLink(item: (typeof links.value)[number]): string {
   const valueKey = String(item.link?.valueKey || 'id');
   const paramValue = resolveValueByPath(item, valueKey);
-  const link = resolvePortalLink(item.link, paramValue);
+  return resolvePortalLink(item.link, paramValue);
+}
+
+function handleLinkClick(item: (typeof links.value)[number]) {
+  const link = resolveLink(item);
+  if (!link) {
+    return;
+  }
+
   openPortalLink({
     link,
     openType: item.link?.openType,
@@ -191,79 +161,30 @@ defineOptions({
 </script>
 
 <style scoped>
-.image-link-list {
+.image-links {
+  display: grid;
   width: 100%;
+  align-items: start;
 }
 
-.image-link-list__card {
-  display: flex;
-  width: 100%;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  padding: 0;
-  flex-direction: column;
-  transition: transform 0.2s ease;
-}
-
-.image-link-list__card:hover {
-  transform: translateY(-1px);
-}
-
-.image-link-list__media {
-  position: relative;
+.cms-image-link-item {
+  display: block;
   width: 100%;
   overflow: hidden;
+  cursor: pointer;
 }
 
-.image-link-list__image {
+.image-link-img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
 }
 
-.image-link-list__image--placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8fafc;
-  color: #94a3b8;
-  font-size: 12px;
-}
-
-.image-link-list__tag {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.image-link-list__body {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px;
-}
-
-.image-link-list__title {
-  margin: 0;
-  font-weight: 600;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-.image-link-list__description {
-  margin: 0;
-  line-height: 1.55;
-  word-break: break-word;
-}
-
-@media (max-width: 768px) {
-  .image-link-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
+.empty-links {
+  padding: 20px 0;
+  grid-column: 1 / -1;
+  font-size: 14px;
+  text-align: center;
+  color: #909399;
 }
 </style>

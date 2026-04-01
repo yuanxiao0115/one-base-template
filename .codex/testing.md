@@ -2,6 +2,45 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-02（Portal 老组件样式复刻收口：9 组件迁移二阶段）
+
+- GREEN / 回归：
+  - `pnpm -C packages/portal-engine typecheck`
+  - `pnpm -C packages/portal-engine lint`
+  - `pnpm -C packages/portal-engine test:run src/materials/useRendererMaterials.test.ts src/registry/materials-registry.aliases.test.ts`
+- 结果：
+  - `packages/portal-engine`：`typecheck` 通过。
+  - `packages/portal-engine`：`lint` 0 warning / 0 error。
+  - `packages/portal-engine`：2 个测试文件 `5/5` 通过（含 `pb-*` 别名链路回归）。
+
+## 2026-04-01（Portal 老组件迁移：pb 系列 9 个组件）
+
+- RED（先失败）：
+  - `pnpm -C packages/portal-engine typecheck`
+- 结果：
+  - `src/materials/cms/publicity-education/content.vue:284`、`src/materials/cms/publicity-education/index.vue:235` 触发 `Object is possibly 'undefined'`。
+  - 原因：`tabs[0].id` 在空数组场景下未做可选访问保护。
+
+- GREEN / 回归：
+  - `pnpm -C packages/portal-engine typecheck`
+  - `pnpm -C packages/portal-engine test:run src/materials/useRendererMaterials.test.ts src/registry/materials-registry.aliases.test.ts`
+  - `pnpm -C packages/portal-engine lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/portal-engine`：`typecheck` 通过。
+  - `packages/portal-engine`：2 个测试文件 `5/5` 通过（含 `pb-*` 组件名别名与类型别名断言）。
+  - `packages/portal-engine`：`lint` 0 warning / 0 error。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-01（Portal 业务跳转与页面落位规则落盘）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-04-01（Portal 页面设置：Banner 与内容区间距支持负值）
 
 - RED（先失败）：

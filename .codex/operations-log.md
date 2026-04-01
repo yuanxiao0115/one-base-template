@@ -2,6 +2,58 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-02（Portal 老组件样式复刻收口：9 组件迁移二阶段）
+
+- 目标收口：保持新项目配置协议与统一容器链路不变，渲染层按老项目视觉复刻。
+- 重点渲染改造（差异大）：
+  - `packages/portal-engine/src/materials/cms/publicity-education/index.vue`
+  - `packages/portal-engine/src/materials/cms/mail-list/index.vue`
+  - `packages/portal-engine/src/materials/cms/dept-upload-files/index.vue`
+  - `packages/portal-engine/src/materials/base/app-entrance/index.vue`
+  - `packages/portal-engine/src/materials/base/image-link-list/index.vue`
+- 默认样式回调到老视觉基线（仅保留新 schema 结构）：
+  - `packages/portal-engine/src/materials/cms/publicity-education/{style.vue,config.json}`
+  - `packages/portal-engine/src/materials/cms/mail-list/{style.vue,config.json}`
+  - `packages/portal-engine/src/materials/cms/dept-upload-files/{style.vue,config.json}`
+  - `packages/portal-engine/src/materials/base/app-entrance/{style.vue,content.vue,config.json}`
+  - `packages/portal-engine/src/materials/base/image-link-list/{style.vue,content.vue,config.json}`
+- 资源补齐：
+  - 新增 `packages/portal-engine/src/materials/base/app-entrance/icon-add.svg`（从老项目同步）。
+- 其余迁移组件细节对齐：
+  - `packages/portal-engine/src/materials/cms/image-text-column/index.vue`：恢复 `showDot` 真实绑定；
+  - `packages/portal-engine/src/materials/cms/carousel-text-list/index.vue`：轮播图图片源兼容 `coverUrl/carouselUrl`。
+- 文档同步：
+  - `apps/docs/docs/guide/portal/material-extension.md` 新增“样式收口（2026-04-02）”说明。
+
+## 2026-04-01（Portal 老组件迁移：pb 系列 9 个组件）
+
+- 在 `packages/portal-engine/src/materials/cms` 新增 3 个物料：
+  - `publicity-education`
+  - `mail-list`
+  - `dept-upload-files`
+- 这 3 个组件均按当前规范落地：
+  - 内容/样式配置复用 `common/unified-container/**`
+  - 列表数据复用 `base/common/portal-data-source.ts`
+  - 跳转复用 `base/common/portal-link.ts`，无业务路由硬编码
+- 注册表扩展：
+  - `packages/portal-engine/src/registry/materials-registry.ts` 新增 `cms-publicity-education`、`cms-mail-list`、`cms-dept-upload-files`。
+  - 补充 `pb-* -> basic/cms-*` 类型别名（`createPortalMaterialTypeAliases()`）。
+- 兼容补齐：
+  - 在 `packages/portal-engine/src/materials/static-fallbacks/index|content|style-fallbacks.ts` 增加 `pb-*` 组件名别名，覆盖本轮 9 个迁移组件。
+- 测试补充：
+  - 新增 `packages/portal-engine/src/registry/materials-registry.aliases.test.ts`。
+  - `packages/portal-engine/src/materials/useRendererMaterials.test.ts` 新增 `pb-*` 组件别名断言。
+- 文档同步：
+  - `apps/docs/docs/guide/portal/material-extension.md` 增加“老项目组件迁移（2026-04）”章节，记录迁移清单与兼容策略。
+
+## 2026-04-01（Portal 业务跳转与页面落位规则落盘）
+
+- 新增引擎执行红线：`packages/portal-engine/AGENTS.md`
+  - 业务物料禁止写死业务路由，组件仅声明 `target/action`。
+  - 通讯录/应用中心等业务页面必须放在 `apps/*/src/modules/**/pages`，`portal-engine` 不承载业务页面实现。
+- 文档同步：`apps/docs/docs/guide/portal/material-extension.md`
+  - 新增“业务跳转与页面落位（新增约定）”章节，明确组件层、应用映射层、页面落位层三层职责。
+
 ## 2026-04-01（Portal 页面设置：Banner 与内容区间距支持负值）
 
 - `packages/portal-engine/src/schema/page-settings.ts`

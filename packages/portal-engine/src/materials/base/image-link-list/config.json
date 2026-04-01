@@ -6,8 +6,8 @@
     "name": "image-link-list-content",
     "container": {
       "showTitle": true,
-      "title": "图文链接列表",
-      "subtitle": "图片+标题组合导航",
+      "title": "图片链接",
+      "subtitle": "",
       "icon": "ri:gallery-line",
       "showExternalLink": false,
       "externalLinkText": "更多",
@@ -15,8 +15,8 @@
       "openExternalInNewTab": true
     },
     "list": {
-      "columnCount": 3,
-      "showDescription": true,
+      "columnCount": 4,
+      "showDescription": false,
       "items": [
         {
           "id": "img-1",
@@ -80,9 +80,9 @@
       "linkFontSize": 13
     },
     "list": {
-      "cardBgColor": "#ffffff",
-      "cardBorderColor": "#e2e8f0",
-      "cardRadius": 10,
+      "cardBgColor": "transparent",
+      "cardBorderColor": "transparent",
+      "cardRadius": 0,
       "imageHeight": 140,
       "titleColor": "#0f172a",
       "descriptionColor": "#64748b",
@@ -90,8 +90,8 @@
       "tagTextColor": "#0369a1",
       "titleFontSize": 15,
       "descriptionFontSize": 12,
-      "rowGap": 12,
-      "columnGap": 12
+      "rowGap": 16,
+      "columnGap": 16
     }
   }
 }

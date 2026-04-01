@@ -201,7 +201,7 @@ function normalizeItem(item: Partial<EntranceItemModel>, index: number): Entranc
 sectionData.container = mergeUnifiedContainerContentConfig(sectionData.container);
 sectionData.entrance = {
   columnCount: Math.min(6, Math.max(1, Number(sectionData.entrance?.columnCount) || 4)),
-  showDescription: sectionData.entrance?.showDescription !== false,
+  showDescription: sectionData.entrance?.showDescription === true,
   items: Array.isArray(sectionData.entrance?.items)
     ? sectionData.entrance.items.map((item, index) => normalizeItem(item, index))
     : [createItem(1), createItem(2)]

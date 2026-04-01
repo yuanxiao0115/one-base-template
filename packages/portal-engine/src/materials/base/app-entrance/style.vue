@@ -170,37 +170,37 @@ const { sectionData } = useSchemaConfig<AppEntranceStyleData>({
 
 sectionData.container = mergeUnifiedContainerStyleConfig(sectionData.container);
 sectionData.entrance = {
-  cardBgColor: sectionData.entrance?.cardBgColor || '#f8fafc',
-  cardHoverBgColor: sectionData.entrance?.cardHoverBgColor || '#f1f5f9',
-  cardBorderColor: sectionData.entrance?.cardBorderColor || '#e2e8f0',
+  cardBgColor: sectionData.entrance?.cardBgColor || 'transparent',
+  cardHoverBgColor: sectionData.entrance?.cardHoverBgColor || 'transparent',
+  cardBorderColor: sectionData.entrance?.cardBorderColor || 'transparent',
   cardRadius: Number.isFinite(Number(sectionData.entrance?.cardRadius))
     ? Number(sectionData.entrance.cardRadius)
     : 10,
   cardPadding: Number.isFinite(Number(sectionData.entrance?.cardPadding))
     ? Number(sectionData.entrance.cardPadding)
     : 12,
-  iconColor: sectionData.entrance?.iconColor || '#2563eb',
-  titleColor: sectionData.entrance?.titleColor || '#0f172a',
-  descriptionColor: sectionData.entrance?.descriptionColor || '#64748b',
+  iconColor: sectionData.entrance?.iconColor || '#606266',
+  titleColor: sectionData.entrance?.titleColor || '#303133',
+  descriptionColor: sectionData.entrance?.descriptionColor || '#86909c',
   badgeBgColor: sectionData.entrance?.badgeBgColor || '#dbeafe',
   badgeTextColor: sectionData.entrance?.badgeTextColor || '#1d4ed8',
   titleFontSize:
     Number(sectionData.entrance?.titleFontSize) > 0
       ? Number(sectionData.entrance.titleFontSize)
-      : 15,
+      : 14,
   descriptionFontSize:
     Number(sectionData.entrance?.descriptionFontSize) > 0
       ? Number(sectionData.entrance.descriptionFontSize)
       : 12,
   iconSize: Number(sectionData.entrance?.iconSize) > 0 ? Number(sectionData.entrance.iconSize) : 20,
   imageHeight:
-    Number(sectionData.entrance?.imageHeight) > 0 ? Number(sectionData.entrance.imageHeight) : 64,
+    Number(sectionData.entrance?.imageHeight) > 0 ? Number(sectionData.entrance.imageHeight) : 60,
   rowGap: Number.isFinite(Number(sectionData.entrance?.rowGap))
     ? Number(sectionData.entrance.rowGap)
-    : 12,
+    : 16,
   columnGap: Number.isFinite(Number(sectionData.entrance?.columnGap))
     ? Number(sectionData.entrance.columnGap)
-    : 12
+    : 50
 };
 
 defineOptions({

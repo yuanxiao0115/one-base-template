@@ -12,6 +12,13 @@ import BaseStatStyle from '../base/base-stat/style.vue';
 import BaseTabContainerStyle from '../base/base-tab-container/style.vue';
 import BaseTimelineStyle from '../base/base-timeline/style.vue';
 import ImageLinkListStyle from '../base/image-link-list/style.vue';
+import CarouselTextListStyle from '../cms/carousel-text-list/style.vue';
+import DeptUploadFilesStyle from '../cms/dept-upload-files/style.vue';
+import DocumentCardListStyle from '../cms/document-card-list/style.vue';
+import ImageTextColumnStyle from '../cms/image-text-column/style.vue';
+import ImageTextListStyle from '../cms/image-text-list/style.vue';
+import MailListStyle from '../cms/mail-list/style.vue';
+import PublicityEducationStyle from '../cms/publicity-education/style.vue';
 import TransparentPlaceholderStyle from '../base/transparent-placeholder/style.vue';
 
 export const STATIC_STYLE_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
@@ -38,14 +45,56 @@ export const STATIC_STYLE_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
   {
     name: 'app-entrance-style',
     section: 'style',
-    aliases: ['base-app-entrance-style'],
+    aliases: ['base-app-entrance-style', 'pb-app-entrance-style'],
     component: AppEntranceStyle
   },
   {
     name: 'image-link-list-style',
     section: 'style',
-    aliases: ['base-image-link-list-style'],
+    aliases: ['base-image-link-list-style', 'pb-image-link-list-style'],
     component: ImageLinkListStyle
+  },
+  {
+    name: 'cms-image-text-list-style',
+    section: 'style',
+    aliases: ['pb-image-text-list-style'],
+    component: ImageTextListStyle
+  },
+  {
+    name: 'cms-image-text-column-style',
+    section: 'style',
+    aliases: ['pb-image-text-column-style'],
+    component: ImageTextColumnStyle
+  },
+  {
+    name: 'cms-document-card-list-style',
+    section: 'style',
+    aliases: ['pb-document-card-list-style'],
+    component: DocumentCardListStyle
+  },
+  {
+    name: 'cms-carousel-text-list-style',
+    section: 'style',
+    aliases: ['pb-carousel-text-list-style'],
+    component: CarouselTextListStyle
+  },
+  {
+    name: 'cms-publicity-education-style',
+    section: 'style',
+    aliases: ['pb-publicity-education-style'],
+    component: PublicityEducationStyle
+  },
+  {
+    name: 'cms-mail-list-style',
+    section: 'style',
+    aliases: ['pb-mail-list-style'],
+    component: MailListStyle
+  },
+  {
+    name: 'cms-dept-upload-files-style',
+    section: 'style',
+    aliases: ['pb-dept-upload-files-style'],
+    component: DeptUploadFilesStyle
   },
   {
     name: 'base-button-group-style',

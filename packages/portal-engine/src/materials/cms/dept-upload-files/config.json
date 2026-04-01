@@ -1,0 +1,91 @@
+{
+  "index": {
+    "name": "cms-dept-upload-files-index"
+  },
+  "content": {
+    "name": "cms-dept-upload-files-content",
+    "container": {
+      "showTitle": true,
+      "title": "部门上传文件",
+      "subtitle": "展示部门共享文件",
+      "icon": "ri:file-list-3-line",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "dataSource": {
+      "mode": "static",
+      "staticRowsJson": "[{\"id\":\"1\",\"fileName\":\"2026年工作要点.pdf\",\"updateDate\":\"2026/03/08\",\"downloadUrl\":\"\"},{\"id\":\"2\",\"fileName\":\"项目清单.xlsx\",\"updateDate\":\"2026/03/05\",\"downloadUrl\":\"\"}]",
+      "method": "GET",
+      "apiUrl": "",
+      "headersJson": "{}",
+      "queryJson": "{}",
+      "bodyJson": "{}",
+      "listPath": "data.records",
+      "totalPath": "data.total",
+      "successPath": "code",
+      "successValue": "200",
+      "pageParamKey": "currentPage",
+      "pageSizeParamKey": "pageSize"
+    },
+    "file": {
+      "maxDisplayCount": 5,
+      "showRowDot": true,
+      "showRowDivider": false,
+      "idKey": "id",
+      "nameKey": "fileName",
+      "dateKey": "updateDate",
+      "downloadUrlKey": "downloadUrl",
+      "link": {
+        "path": "",
+        "paramKey": "id",
+        "valueKey": "id",
+        "openType": "router"
+      }
+    }
+  },
+  "style": {
+    "name": "cms-dept-upload-files-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "file": {
+      "dotColor": "#ff7d00",
+      "rowHoverBgColor": "#f5f7fa",
+      "dividerColor": "#ebeef5",
+      "nameColor": "#606266",
+      "dateColor": "#606266",
+      "nameFontSize": 14,
+      "dateFontSize": 14,
+      "rowPaddingY": 12
+    }
+  }
+}

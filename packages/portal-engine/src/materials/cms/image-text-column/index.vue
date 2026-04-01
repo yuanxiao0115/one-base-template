@@ -24,7 +24,7 @@
             clickable
             @click="() => handleItemClick(item)"
           >
-            <ListTitle class="item-title" :text="item.articleTitle" :show-dot />
+            <ListTitle class="item-title" :text="item.articleTitle" :show-dot="showDot" />
             <ListDate
               v-if="item.publishTime"
               class="item-date"

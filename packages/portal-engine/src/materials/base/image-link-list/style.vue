@@ -118,9 +118,9 @@ interface ImageLinkListStyleData {
 }
 
 const IMAGE_LINK_LIST_STYLE_DEFAULTS: ImageLinkListStyleData['list'] = {
-  cardBgColor: '#ffffff',
-  cardBorderColor: '#e2e8f0',
-  cardRadius: 10,
+  cardBgColor: 'transparent',
+  cardBorderColor: 'transparent',
+  cardRadius: 0,
   imageHeight: 140,
   titleColor: '#0f172a',
   descriptionColor: '#64748b',
@@ -128,8 +128,8 @@ const IMAGE_LINK_LIST_STYLE_DEFAULTS: ImageLinkListStyleData['list'] = {
   tagTextColor: '#0369a1',
   titleFontSize: 15,
   descriptionFontSize: 12,
-  rowGap: 12,
-  columnGap: 12
+  rowGap: 16,
+  columnGap: 16
 };
 
 const props = defineProps({

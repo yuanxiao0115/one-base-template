@@ -28,4 +28,18 @@ describe('portal material loaders', () => {
     expect(materialsMap['base-notice-content']).toBeDefined();
     expect(materialsMap['base-notice-style']).toBeDefined();
   });
+
+  it('兼容老项目 pb-* 物料命名', () => {
+    const { materialsMap } = useEditorMaterials();
+
+    expect(materialsMap['pb-app-entrance-index']).toBeDefined();
+    expect(materialsMap['pb-image-link-list-index']).toBeDefined();
+    expect(materialsMap['pb-image-text-list-index']).toBeDefined();
+    expect(materialsMap['pb-image-text-column-index']).toBeDefined();
+    expect(materialsMap['pb-document-card-list-index']).toBeDefined();
+    expect(materialsMap['pb-carousel-text-list-index']).toBeDefined();
+    expect(materialsMap['pb-publicity-education-index']).toBeDefined();
+    expect(materialsMap['pb-mail-list-index']).toBeDefined();
+    expect(materialsMap['pb-dept-upload-files-index']).toBeDefined();
+  });
 });

@@ -3,6 +3,9 @@ import imageTextListConfig from '../materials/cms/image-text-list/config.json';
 import documentCardListConfig from '../materials/cms/document-card-list/config.json';
 import imageTextColumnConfig from '../materials/cms/image-text-column/config.json';
 import carouselTextListConfig from '../materials/cms/carousel-text-list/config.json';
+import publicityEducationConfig from '../materials/cms/publicity-education/config.json';
+import mailListConfig from '../materials/cms/mail-list/config.json';
+import deptUploadFilesConfig from '../materials/cms/dept-upload-files/config.json';
 import placeholderBlockConfig from '../materials/base/placeholder-block/config.json';
 import baseImageConfig from '../materials/base/base-image/config.json';
 import baseCarouselConfig from '../materials/base/base-carousel/config.json';
@@ -64,7 +67,10 @@ const MATERIAL_ICON_MAP = {
   imageTextList: 'ri:article-line',
   imageTextColumn: 'ri:image-line',
   documentCardList: 'ri:file-line',
-  carouselTextList: 'ri:slideshow-line'
+  carouselTextList: 'ri:slideshow-line',
+  publicityEducation: 'ri:book-open-line',
+  mailList: 'ri:mail-line',
+  deptUploadFiles: 'ri:file-upload-line'
 } as const;
 
 /**
@@ -343,6 +349,33 @@ const cmsComponents = createComponentGroup(
       height: 50,
       icon: MATERIAL_ICON_MAP.carouselTextList,
       config: carouselTextListConfig
+    },
+    {
+      id: 'cms-publicity-education',
+      type: 'cms-publicity-education',
+      name: '宣传教育',
+      width: 12,
+      height: 50,
+      icon: MATERIAL_ICON_MAP.publicityEducation,
+      config: publicityEducationConfig
+    },
+    {
+      id: 'cms-mail-list',
+      type: 'cms-mail-list',
+      name: '我的邮件',
+      width: 12,
+      height: 50,
+      icon: MATERIAL_ICON_MAP.mailList,
+      config: mailListConfig
+    },
+    {
+      id: 'cms-dept-upload-files',
+      type: 'cms-dept-upload-files',
+      name: '部门上传文件',
+      width: 12,
+      height: 50,
+      icon: MATERIAL_ICON_MAP.deptUploadFiles,
+      config: deptUploadFilesConfig
     }
   ],
   baseConfig
@@ -559,7 +592,17 @@ export function getPortalMaterialRegistryController(
 }
 
 function createPortalMaterialTypeAliases() {
-  return {} as Record<string, string>;
+  return {
+    'pb-app-entrance': 'basic-app-entrance',
+    'pb-image-link-list': 'basic-image-link-list',
+    'pb-image-text-list': 'cms-image-text-list',
+    'pb-image-text-column': 'cms-image-text-column',
+    'pb-document-card-list': 'cms-document-card-list',
+    'pb-carousel-text-list': 'cms-carousel-text-list',
+    'pb-publicity-education': 'cms-publicity-education',
+    'pb-mail-list': 'cms-mail-list',
+    'pb-dept-upload-files': 'cms-dept-upload-files'
+  } as Record<string, string>;
 }
 
 export function getPortalMaterialTypeAliases(

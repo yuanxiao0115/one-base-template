@@ -50,12 +50,49 @@
 - admin 自定义物料默认配置：`apps/admin/src/modules/PortalManagement/materials/*/defaults.ts`
 - 推荐对外文档口径：按“物料名 -> content 字段 -> style 字段 -> 默认值”列出，便于业务同学快速对照。
 
+## 老项目组件迁移（2026-04）
+
+- 本轮已迁移并收敛到当前统一容器/公共配置体系的组件：
+  - `publicity-education`
+  - `mail-list`
+  - `dept-upload-files`
+  - `document-card-list`
+  - `app-entrance`
+  - `image-link-list`
+  - `image-text-list`
+  - `image-text-column`
+  - `carousel-text-list`
+- 新增目录：
+  - `packages/portal-engine/src/materials/cms/publicity-education`
+  - `packages/portal-engine/src/materials/cms/mail-list`
+  - `packages/portal-engine/src/materials/cms/dept-upload-files`
+- 老数据兼容策略（`pb-*`）：
+  - 类型别名：`packages/portal-engine/src/registry/materials-registry.ts` 的 `createPortalMaterialTypeAliases()`
+  - 组件名别名：`packages/portal-engine/src/materials/static-fallbacks/*.ts`
+  - 示例：`pb-publicity-education-index` → `cms-publicity-education-index`，`pb-app-entrance-index` → `app-entrance-index`
+- 样式收口（2026-04-02）：
+  - 渲染层按老项目视觉复刻，配置层继续使用新项目协议（统一容器 + 公共字段）：
+    - 重点复刻：`publicity-education`、`mail-list`、`dept-upload-files`、`app-entrance`、`image-link-list`
+    - 细节对齐：`image-text-column`（恢复 `showDot` 绑定）、`carousel-text-list`（轮播图 `coverUrl/carouselUrl` 双字段兼容）
+  - 迁移口径：**配置组件可以按新项目标准演进，但前台渲染样式以老项目效果为基准**。
+
 ## 关键约束
 
 - 组件 `defineOptions({ name })` 必须与 schema 中 `cmptConfig.*.name` 对齐。
 - 历史命名差异必须显式写入 `static-fallbacks/*.ts`。
 - 避免在页面文件里临时注册物料；统一走 extension 声明。
 - `setupPortalEngineForAdmin()` 对 extension 注册做了签名幂等保护；重复 setup 不会重复注册同一扩展。
+
+## 业务跳转与页面落位（新增约定）
+
+- 业务物料（如通讯录入口、应用中心入口）禁止在组件内写死业务路由；组件层只维护业务语义 `target/action`。
+- 具体跳转路径由应用层维护：
+  - `apps/admin` 维护 admin 场景的 `target -> route` 映射；
+  - `apps/portal` 维护前台场景的 `target -> route` 映射。
+- 被跳转的业务页面必须放在应用层页面目录，而不是 `portal-engine`：
+  - 前台页面：`apps/portal/src/modules/<domain>/pages/*.vue`
+  - 后台页面：`apps/admin/src/modules/<domain>/pages/*.vue`
+- `portal-engine` 只提供动作协议、执行入口与扩展机制，不承载通讯录/应用中心这类业务页面实现。
 
 ## 回归命令
 

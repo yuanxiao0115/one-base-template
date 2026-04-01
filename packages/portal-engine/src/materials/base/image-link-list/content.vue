@@ -122,13 +122,13 @@ interface ImageLinkListContentData {
 }
 
 const IMAGE_LINK_LIST_CONTENT_CONTAINER_DEFAULTS = mergeUnifiedContainerContentConfig({
-  title: '图文链接列表',
-  subtitle: '图片+标题组合导航'
+  title: '图片链接',
+  subtitle: ''
 });
 
 const IMAGE_LINK_LIST_CONTENT_LIST_DEFAULTS = {
-  columnCount: 3,
-  showDescription: true
+  columnCount: 4,
+  showDescription: false
 };
 
 const props = defineProps({
@@ -187,7 +187,7 @@ sectionData.list = {
       Number(sectionData.list?.columnCount) || IMAGE_LINK_LIST_CONTENT_LIST_DEFAULTS.columnCount
     )
   ),
-  showDescription: sectionData.list?.showDescription !== false,
+  showDescription: sectionData.list?.showDescription === true,
   items: Array.isArray(sectionData.list?.items)
     ? sectionData.list.items.map((item, index) => normalizeItem(item, index))
     : [createItem(1), createItem(2)]

@@ -24,7 +24,7 @@
         <el-carousel-item v-for="item in carouselItems" :key="item.id">
           <div class="carousel-item">
             <el-image
-              :src="`/cmict/file/resource/show?id=${item.carouselUrl}`"
+              :src="`/cmict/file/resource/show?id=${item.coverUrl || item.carouselUrl}`"
               :fit="carouselStyle.imageFit"
               class="carousel-image"
             >
@@ -91,6 +91,7 @@ interface CarouselItem {
   id: string;
   carouselTitle: string;
   carouselUrl: string;
+  coverUrl?: string;
   linkUrl?: string;
   publishTime?: string;
 }

@@ -7,16 +7,18 @@
     "container": {
       "showTitle": true,
       "title": "应用入口",
-      "subtitle": "支持图标、描述与快捷跳转",
+      "subtitle": "",
       "icon": "",
       "showExternalLink": false,
       "externalLinkText": "更多",
       "externalLinkUrl": "",
       "openExternalInNewTab": true
     },
+    "addText": "添加应用",
+    "appCenterUrl": "/application/center",
     "entrance": {
       "columnCount": 4,
-      "showDescription": true,
+      "showDescription": false,
       "items": [
         {
           "id": "entry-1",
@@ -82,22 +84,22 @@
       "linkFontSize": 13
     },
     "entrance": {
-      "cardBgColor": "#f8fafc",
-      "cardHoverBgColor": "#f1f5f9",
-      "cardBorderColor": "#e2e8f0",
-      "cardRadius": 10,
+      "cardBgColor": "transparent",
+      "cardHoverBgColor": "transparent",
+      "cardBorderColor": "transparent",
+      "cardRadius": 8,
       "cardPadding": 12,
-      "iconColor": "#2563eb",
-      "titleColor": "#0f172a",
-      "descriptionColor": "#64748b",
+      "iconColor": "#606266",
+      "titleColor": "#303133",
+      "descriptionColor": "#86909c",
       "badgeBgColor": "#dbeafe",
       "badgeTextColor": "#1d4ed8",
-      "titleFontSize": 15,
+      "titleFontSize": 14,
       "descriptionFontSize": 12,
       "iconSize": 20,
-      "imageHeight": 64,
-      "rowGap": 12,
-      "columnGap": 12
+      "imageHeight": 60,
+      "rowGap": 16,
+      "columnGap": 50
     }
   }
 }

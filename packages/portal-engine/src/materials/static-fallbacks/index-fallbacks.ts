@@ -12,6 +12,13 @@ import BaseStatIndex from '../base/base-stat/index.vue';
 import BaseTabContainerIndex from '../base/base-tab-container/index.vue';
 import BaseTimelineIndex from '../base/base-timeline/index.vue';
 import ImageLinkListIndex from '../base/image-link-list/index.vue';
+import CarouselTextListIndex from '../cms/carousel-text-list/index.vue';
+import DeptUploadFilesIndex from '../cms/dept-upload-files/index.vue';
+import DocumentCardListIndex from '../cms/document-card-list/index.vue';
+import ImageTextColumnIndex from '../cms/image-text-column/index.vue';
+import ImageTextListIndex from '../cms/image-text-list/index.vue';
+import MailListIndex from '../cms/mail-list/index.vue';
+import PublicityEducationIndex from '../cms/publicity-education/index.vue';
 import TransparentPlaceholderIndex from '../base/transparent-placeholder/index.vue';
 
 export const STATIC_INDEX_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
@@ -38,14 +45,56 @@ export const STATIC_INDEX_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
   {
     name: 'app-entrance-index',
     section: 'index',
-    aliases: ['base-app-entrance-index'],
+    aliases: ['base-app-entrance-index', 'pb-app-entrance-index'],
     component: AppEntranceIndex
   },
   {
     name: 'image-link-list-index',
     section: 'index',
-    aliases: ['base-image-link-list-index'],
+    aliases: ['base-image-link-list-index', 'pb-image-link-list-index'],
     component: ImageLinkListIndex
+  },
+  {
+    name: 'cms-image-text-list-index',
+    section: 'index',
+    aliases: ['pb-image-text-list-index'],
+    component: ImageTextListIndex
+  },
+  {
+    name: 'cms-image-text-column-index',
+    section: 'index',
+    aliases: ['pb-image-text-column-index'],
+    component: ImageTextColumnIndex
+  },
+  {
+    name: 'cms-document-card-list-index',
+    section: 'index',
+    aliases: ['pb-document-card-list-index'],
+    component: DocumentCardListIndex
+  },
+  {
+    name: 'cms-carousel-text-list-index',
+    section: 'index',
+    aliases: ['pb-carousel-text-list-index'],
+    component: CarouselTextListIndex
+  },
+  {
+    name: 'cms-publicity-education-index',
+    section: 'index',
+    aliases: ['pb-publicity-education-index'],
+    component: PublicityEducationIndex
+  },
+  {
+    name: 'cms-mail-list-index',
+    section: 'index',
+    aliases: ['pb-mail-list-index'],
+    component: MailListIndex
+  },
+  {
+    name: 'cms-dept-upload-files-index',
+    section: 'index',
+    aliases: ['pb-dept-upload-files-index'],
+    component: DeptUploadFilesIndex
   },
   {
     name: 'base-button-group-index',

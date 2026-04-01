@@ -12,6 +12,13 @@ import BaseStatContent from '../base/base-stat/content.vue';
 import BaseTabContainerContent from '../base/base-tab-container/content.vue';
 import BaseTimelineContent from '../base/base-timeline/content.vue';
 import ImageLinkListContent from '../base/image-link-list/content.vue';
+import CarouselTextListContent from '../cms/carousel-text-list/content.vue';
+import DeptUploadFilesContent from '../cms/dept-upload-files/content.vue';
+import DocumentCardListContent from '../cms/document-card-list/content.vue';
+import ImageTextColumnContent from '../cms/image-text-column/content.vue';
+import ImageTextListContent from '../cms/image-text-list/content.vue';
+import MailListContent from '../cms/mail-list/content.vue';
+import PublicityEducationContent from '../cms/publicity-education/content.vue';
 import TransparentPlaceholderContent from '../base/transparent-placeholder/content.vue';
 
 export const STATIC_CONTENT_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
@@ -38,14 +45,56 @@ export const STATIC_CONTENT_MATERIAL_FALLBACKS: StaticMaterialFallback[] = [
   {
     name: 'app-entrance-content',
     section: 'content',
-    aliases: ['base-app-entrance-content'],
+    aliases: ['base-app-entrance-content', 'pb-app-entrance-content'],
     component: AppEntranceContent
   },
   {
     name: 'image-link-list-content',
     section: 'content',
-    aliases: ['base-image-link-list-content'],
+    aliases: ['base-image-link-list-content', 'pb-image-link-list-content'],
     component: ImageLinkListContent
+  },
+  {
+    name: 'cms-image-text-list-content',
+    section: 'content',
+    aliases: ['pb-image-text-list-content'],
+    component: ImageTextListContent
+  },
+  {
+    name: 'cms-image-text-column-content',
+    section: 'content',
+    aliases: ['pb-image-text-column-content'],
+    component: ImageTextColumnContent
+  },
+  {
+    name: 'cms-document-card-list-content',
+    section: 'content',
+    aliases: ['pb-document-card-list-content'],
+    component: DocumentCardListContent
+  },
+  {
+    name: 'cms-carousel-text-list-content',
+    section: 'content',
+    aliases: ['pb-carousel-text-list-content'],
+    component: CarouselTextListContent
+  },
+  {
+    name: 'cms-publicity-education-content',
+    section: 'content',
+    aliases: ['pb-publicity-education-content'],
+    component: PublicityEducationContent
+  },
+  {
+    name: 'cms-mail-list-content',
+    section: 'content',
+    aliases: ['pb-mail-list-content'],
+    component: MailListContent
+  },
+  {
+    name: 'cms-dept-upload-files-content',
+    section: 'content',
+    aliases: ['pb-dept-upload-files-content'],
+    component: DeptUploadFilesContent
   },
   {
     name: 'base-button-group-content',

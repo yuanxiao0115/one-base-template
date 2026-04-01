@@ -1,0 +1,103 @@
+{
+  "index": {
+    "name": "cms-publicity-education-index"
+  },
+  "content": {
+    "name": "cms-publicity-education-content",
+    "container": {
+      "showTitle": true,
+      "title": "宣传教育",
+      "subtitle": "按栏目展示图文与资讯",
+      "icon": "ri:book-open-line",
+      "showExternalLink": false,
+      "externalLinkText": "更多",
+      "externalLinkUrl": "",
+      "openExternalInNewTab": true
+    },
+    "publicity": {
+      "tabs": [
+        {
+          "id": "tab-1",
+          "name": "政治理论",
+          "categoryId": ""
+        },
+        {
+          "id": "tab-2",
+          "name": "法制宣传",
+          "categoryId": ""
+        },
+        {
+          "id": "tab-3",
+          "name": "反诈与防范",
+          "categoryId": ""
+        }
+      ],
+      "activeTabId": "tab-1",
+      "carouselMaxItems": 5,
+      "listMaxItems": 5,
+      "autoplay": true,
+      "interval": 3000,
+      "indicator": false,
+      "arrow": "hover",
+      "showRowDot": true,
+      "showRowDivider": true
+    }
+  },
+  "style": {
+    "name": "cms-publicity-education-style",
+    "container": {
+      "backgroundColor": "#ffffff",
+      "borderColor": "#e5e7eb",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "borderRadius": 12,
+      "paddingTop": 16,
+      "paddingRight": 16,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "marginTop": 0,
+      "marginRight": 0,
+      "marginBottom": 0,
+      "marginLeft": 0,
+      "boxShadow": "none",
+      "headerBackgroundColor": "transparent",
+      "headerDividerColor": "rgba(15, 23, 42, 0.08)",
+      "headerPaddingTop": 0,
+      "headerPaddingRight": 0,
+      "headerPaddingBottom": 10,
+      "headerPaddingLeft": 0,
+      "contentTopGap": 12,
+      "titleColor": "#0f172a",
+      "titleFontSize": 18,
+      "subtitleColor": "#64748b",
+      "subtitleFontSize": 13,
+      "iconColor": "#2563eb",
+      "linkColor": "#2563eb",
+      "linkFontSize": 13
+    },
+    "publicity": {
+      "tabTextColor": "#606266",
+      "tabActiveTextColor": "#409eff",
+      "tabBgColor": "transparent",
+      "tabActiveBgColor": "transparent",
+      "tabActiveBorderColor": "#409eff",
+      "tabFontSize": 14,
+      "tabGap": 8,
+      "tabPaddingY": 10,
+      "tabPaddingX": 8,
+      "carouselHeight": 220,
+      "carouselBorderRadius": 4,
+      "carouselTitleColor": "#ffffff",
+      "carouselTitleBgColor": "linear-gradient(180deg, rgb(0 0 0 / 0%) 0%, rgb(0 0 0 / 72%) 100%)",
+      "carouselTitleFontSize": 14,
+      "dotColor": "#7a7d83",
+      "listTitleColor": "#303133",
+      "listTimeColor": "#909399",
+      "listTitleFontSize": 15,
+      "listTimeFontSize": 14,
+      "listDividerColor": "#ebeef5",
+      "listHoverBgColor": "#f7f8fa",
+      "listRowPaddingY": 12
+    }
+  }
+}
