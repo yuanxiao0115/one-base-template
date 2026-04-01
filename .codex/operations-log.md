@@ -16,6 +16,7 @@
 
 - `apps/admin/src/modules/adminManagement/menu/composables/useMenuManagementPageState.ts` 新增 `ensurePermissionTreeLoaded()`。
 - `loadParentOptions()` 改为优先复用内存中的 `permissionTree`，仅在首次未加载时调用 `/permission/tree`，避免弹窗每次打开都重复请求整棵树。
+- 左侧系统切换 `selectSystem()` 改为直接基于内存树切片 `dataList`，不再触发 `onSearch` 重拉整棵树。
 
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 

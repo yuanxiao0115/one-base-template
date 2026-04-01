@@ -353,7 +353,7 @@ export function useMenuManagementPageState() {
 
     activeSystemId.value = systemId;
     if (inTreeMode.value) {
-      void onSearch();
+      dataList.value = getSystemScopedTreeRows();
     }
   }
 

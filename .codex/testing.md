@@ -24,6 +24,7 @@
 - 结果：
   - 菜单源码测试 `3/3` 通过。
   - `typecheck` 通过。
+  - 断言新增“切系统走本地切片（`dataList.value = getSystemScopedTreeRows()`）”通过。
 
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
