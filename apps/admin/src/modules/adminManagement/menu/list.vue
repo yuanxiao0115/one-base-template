@@ -4,6 +4,7 @@ import { Table as ObTable } from '@one-base-template/ui';
 import { Plus } from '@element-plus/icons-vue';
 import MenuPermissionEditForm from './components/MenuPermissionEditForm.vue';
 import MenuPermissionSearchForm from './components/MenuPermissionSearchForm.vue';
+import SystemPermissionEditForm from './components/SystemPermissionEditForm.vue';
 import { useMenuManagementPageState } from './composables/useMenuManagementPageState';
 
 defineOptions({
@@ -24,8 +25,18 @@ const options = reactive(pageState.options);
     <template #left>
       <div class="system-menu-management-page__system-panel">
         <div class="system-menu-management-page__system-header">
-          <span class="system-menu-management-page__system-title">系统列表</span>
-          <el-tag size="small" type="info">{{ table.systemList.length }}</el-tag>
+          <div class="system-menu-management-page__system-header-left">
+            <span class="system-menu-management-page__system-title">系统列表</span>
+            <el-tag size="small" type="info">{{ table.systemList.length }}</el-tag>
+          </div>
+          <el-button
+            type="primary"
+            text
+            :icon="Plus"
+            class="system-menu-management-page__system-add-button"
+            @click="actions.openRootCreateDialog"
+            >新增系统</el-button
+          >
         </div>
 
         <el-scrollbar class="system-menu-management-page__system-scrollbar">
@@ -74,9 +85,6 @@ const options = reactive(pageState.options);
           :disabled="table.inTreeMode && !table.activeSystemId"
           @click="actions.openCreateUnderActiveSystem"
           >添加权限</el-button
-        >
-        <el-button type="primary" :icon="Plus" @click="actions.openRootCreateDialog"
-          >新增系统</el-button
         >
       </template>
 
@@ -151,13 +159,21 @@ const options = reactive(pageState.options);
     :loading="editor.crudSubmitting"
     :show-cancel-button="!editor.crudReadonly"
     confirm-text="保存"
-    :drawer-size="760"
-    :drawer-columns="2"
+    :drawer-size="editor.drawerSize"
+    :drawer-columns="editor.drawerColumns"
     @confirm="actions.onConfirmCrud"
     @cancel="editor.crud.close"
     @close="editor.crud.close"
   >
+    <SystemPermissionEditForm
+      v-if="editor.isSystemForm"
+      :ref="refs.editFormRef"
+      v-model="editor.crudForm"
+      :rules="editor.menuPermissionFormRules"
+      :disabled="editor.crudReadonly"
+    />
     <MenuPermissionEditForm
+      v-else
       :ref="refs.editFormRef"
       v-model="editor.crudForm"
       :rules="editor.menuPermissionFormRules"
@@ -206,6 +222,16 @@ const options = reactive(pageState.options);
   height: 52px;
   padding: 0 12px;
   border-bottom: 1px solid var(--el-border-color-lighter);
+}
+
+.system-menu-management-page__system-header-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.system-menu-management-page__system-add-button {
+  padding: 0;
 }
 
 .system-menu-management-page__system-title {

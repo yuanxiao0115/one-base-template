@@ -18,6 +18,14 @@
 - `loadParentOptions()` 改为优先复用内存中的 `permissionTree`，仅在首次未加载时调用 `/permission/tree`，避免弹窗每次打开都重复请求整棵树。
 - 左侧系统切换 `selectSystem()` 改为直接基于内存树切片 `dataList`，不再触发 `onSearch` 重拉整棵树。
 
+## 2026-04-01（菜单管理补充：系统/权限拆分表单 + 左侧新增系统入口）
+
+- 新增 `apps/admin/src/modules/adminManagement/menu/components/SystemPermissionEditForm.vue`，作为系统场景独立表单。
+- `list.vue` 调整为“左侧系统头部右上角 `+ 新增系统`”入口，移除右侧按钮区原“新增系统”按钮。
+- `list.vue` 的 `ObCrudContainer` 改为动态抽屉配置：系统表单 `400px` + 单列，权限表单保持原多字段布局。
+- `useMenuManagementPageState.ts` 新增 `isSystemForm/drawerSize/drawerColumns`，按当前编辑场景驱动表单与抽屉规格。
+- 新增/更新源码门禁：`apps/admin/tests/modules/adminManagement/menu/list.source.test.ts`。
+
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
 - `packages/ui/src/components/table/Table.vue` 将列变更监听从 `deep watch props.columns` 收敛为轻量签名监听（`columnsLayoutSignature`），降低深层遍历开销。

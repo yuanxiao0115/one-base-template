@@ -26,6 +26,19 @@
   - `typecheck` 通过。
   - 断言新增“切系统走本地切片（`dataList.value = getSystemScopedTreeRows()`）”通过。
 
+## 2026-04-01（菜单管理补充：系统表单拆分与抽屉规格）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/modules/adminManagement/menu/list.source.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin`：菜单源码测试 `3/3` 通过；`typecheck` 通过。
+  - `apps/admin`：`lint` 为 `0 error`，存在既有 `4` 条 `max-lines` warning（包含 `menu`、`org`、`user` 模块）。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-04-01（ObTable 性能第二批：列签名监听 + 树归一化引用复用 + tableKey 告警）
 
 - GREEN / 回归：

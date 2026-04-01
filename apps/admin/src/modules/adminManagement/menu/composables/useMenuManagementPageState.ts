@@ -305,6 +305,14 @@ export function useMenuManagementPageState() {
   const crudReadonly = crud.readonly;
   const crudSubmitting = crud.submitting;
   const crudForm = crud.form;
+  const isSystemForm = computed(() => {
+    if (crudMode.value === 'create') {
+      return createParentId.value === ROOT_PARENT_ID;
+    }
+    return Number(crudForm.value.resourceType) === SYSTEM_RESOURCE_TYPE;
+  });
+  const drawerSize = computed(() => (isSystemForm.value ? 400 : 760));
+  const drawerColumns = computed(() => (isSystemForm.value ? 1 : 2));
 
   async function loadParentOptions(disabledId?: string) {
     const treeRows = await ensurePermissionTreeLoaded();
@@ -461,6 +469,9 @@ export function useMenuManagementPageState() {
       crudReadonly,
       crudSubmitting,
       crudForm,
+      isSystemForm,
+      drawerSize,
+      drawerColumns,
       menuPermissionFormRules
     },
     actions: {
