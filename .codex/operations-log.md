@@ -2,6 +2,17 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-01（ObTable 性能优化：调度合并 + sticky 回收）
+
+- 按用户“仅关注性能与优化项”的要求，定位 `packages/ui/src/components/table/Table.vue` 重复 `watch -> doLayout/initSortable` 触发链路并收敛为调度函数。
+- `Table.vue` 新增 `scheduleRowDragInit` 与 `scheduleTableLayoutUpdate`，减少同 tick 的重复 `doLayout` 与行拖拽初始化调用。
+- `use-table-row-drag-sort.ts` 新增 `scheduleInitSortable`，把 `enabled/data/config` 多路 watch 合并成单次异步初始化任务。
+- `use-table-layout.ts` 增加 sticky 样式回收能力：`adaptive.fixHeader` 关闭或 `adaptive` 解绑时，主动移除 `position/top/z-index` 行内样式。
+- 同步更新测试与文档：
+  - `packages/ui/src/components/table/internal/use-table-layout.test.ts`
+  - `packages/ui/src/table-source.test.ts`
+  - `apps/docs/docs/guide/table-vxe-migration.md`
+
 ## 2026-03-31（pure-admin-table 影子镜像 + ObTable 能力回灌）
 
 - 新增只读镜像同步脚本 `scripts/sync-pure-admin-table-mirror.mjs`，并在根 `package.json` 增加命令 `pnpm mirror:pure-table`（仅对照，不作为运行时依赖）。

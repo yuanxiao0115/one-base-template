@@ -2,6 +2,26 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-01（ObTable 性能优化：调度合并 + sticky 回收）
+
+- RED（先失败）：
+  - `pnpm exec vp test run packages/ui/src/components/table/internal/use-table-layout.test.ts packages/ui/src/table-source.test.ts`
+- 结果：
+  - `use-table-layout.test.ts` 新增“关闭 adaptive 后应移除 sticky”断言失败（真实暴露样式未回收问题）。
+  - `table-source.test.ts` 新增调度函数断言失败（实现尚未收敛初始化链路）。
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/components/table/internal/use-table-layout.test.ts packages/ui/src/table-source.test.ts packages/ui/src/components/table/internal/use-table-row-drag-sort.test.ts`
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts packages/ui/src/components/table/internal/use-table-layout.test.ts packages/ui/src/components/table/internal/use-table-row-drag-sort.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：5 个测试文件 `16/16` 通过；`typecheck/lint/build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-03-31（pure-admin-table 能力回灌：filterIconSlot / expandSlot）
 
 - RED（先失败）：

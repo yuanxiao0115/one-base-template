@@ -244,43 +244,43 @@ const wrapperStyle = computed<CSSProperties>(() => {
   } as CSSProperties;
 });
 
-const passthroughAttrs = computed(() => {
-  const blockedKeys = new Set([
-    'class',
-    'style',
-    'data',
-    'columns',
-    'loading',
-    'loadingConfig',
-    'enableFirstLoadSkeleton',
-    'skeletonRows',
-    'skeletonDelayMs',
-    'skeletonMinDurationMs',
-    'pagination',
-    'paginationSmall',
-    'rowKey',
-    'tableKey',
-    'tableLayout',
-    'showOverflowTooltip',
-    'showEmptyValue',
-    'emptyValueText',
-    'emptyText',
-    'alignWhole',
-    'headerAlign',
-    'stripe',
-    'border',
-    'adaptive',
-    'adaptiveConfig',
-    'treeConfig',
-    'reserveSelection',
-    'rowHoverBgColor',
-    'locale',
-    'rowDrag',
-    'rowDragConfig',
-    'tooltipRenderThreshold'
-  ]);
+const blockedAttrKeys = new Set([
+  'class',
+  'style',
+  'data',
+  'columns',
+  'loading',
+  'loadingConfig',
+  'enableFirstLoadSkeleton',
+  'skeletonRows',
+  'skeletonDelayMs',
+  'skeletonMinDurationMs',
+  'pagination',
+  'paginationSmall',
+  'rowKey',
+  'tableKey',
+  'tableLayout',
+  'showOverflowTooltip',
+  'showEmptyValue',
+  'emptyValueText',
+  'emptyText',
+  'alignWhole',
+  'headerAlign',
+  'stripe',
+  'border',
+  'adaptive',
+  'adaptiveConfig',
+  'treeConfig',
+  'reserveSelection',
+  'rowHoverBgColor',
+  'locale',
+  'rowDrag',
+  'rowDragConfig',
+  'tooltipRenderThreshold'
+]);
 
-  return Object.fromEntries(Object.entries(attrs).filter(([key]) => !blockedKeys.has(key)));
+const passthroughAttrs = computed(() => {
+  return Object.fromEntries(Object.entries(attrs).filter(([key]) => !blockedAttrKeys.has(key)));
 });
 
 const attrsRecord = computed(() => attrs as Record<string, unknown>);
@@ -683,6 +683,50 @@ const { initSortable: initRowDragSortable } = useTableRowDragSort({
   }
 });
 
+let rowDragInitScheduled = false;
+let tableLayoutUpdateScheduled = false;
+let layoutNeedsAdaptiveResize = false;
+let layoutNeedsRowDragInit = false;
+
+function scheduleRowDragInit() {
+  if (rowDragInitScheduled) {
+    return;
+  }
+  rowDragInitScheduled = true;
+  void Promise.resolve().then(() => {
+    rowDragInitScheduled = false;
+    void initRowDragSortable();
+  });
+}
+
+function scheduleTableLayoutUpdate(options?: { adaptive?: boolean; rowDrag?: boolean }) {
+  if (options?.adaptive) {
+    layoutNeedsAdaptiveResize = true;
+  }
+  if (options?.rowDrag) {
+    layoutNeedsRowDragInit = true;
+  }
+
+  if (tableLayoutUpdateScheduled) {
+    return;
+  }
+  tableLayoutUpdateScheduled = true;
+  void nextTick(() => {
+    tableLayoutUpdateScheduled = false;
+    tableRef.value?.doLayout();
+
+    if (layoutNeedsAdaptiveResize && props.adaptive) {
+      scheduleAdaptiveResize();
+    }
+    if (layoutNeedsRowDragInit) {
+      scheduleRowDragInit();
+    }
+
+    layoutNeedsAdaptiveResize = false;
+    layoutNeedsRowDragInit = false;
+  });
+}
+
 async function clearSelection() {
   getTableRef()?.clearSelection?.();
   await nextTick();
@@ -700,7 +744,7 @@ function getTableRef() {
 
 watch(tableRef, () => {
   syncTableRegistry();
-  void initRowDragSortable();
+  scheduleRowDragInit();
 });
 
 watch(
@@ -720,13 +764,9 @@ watch(
 watch(
   () => props.columns,
   () => {
-    void nextTick(() => {
-      tableRef.value?.doLayout();
-      scheduleAdaptiveResize();
-      void initRowDragSortable();
-    });
+    scheduleTableLayoutUpdate({ adaptive: true, rowDrag: true });
   },
-  { deep: true }
+  { deep: true, flush: 'post' }
 );
 
 watch(
@@ -743,9 +783,10 @@ watch(
       return;
     }
     scheduleAdaptiveResize();
-    if (props.adaptiveConfig?.fixHeader !== false) {
-      void setHeaderSticky(props.adaptiveConfig?.zIndex ?? 3);
-    }
+    void setHeaderSticky(
+      props.adaptiveConfig?.zIndex ?? 3,
+      props.adaptiveConfig?.fixHeader !== false
+    );
   },
   { deep: true }
 );
@@ -753,11 +794,9 @@ watch(
 watch(
   () => [normalizedData.value.length, normalizedPagination.value?.total ?? 0],
   () => {
-    void nextTick(() => {
-      tableRef.value?.doLayout();
-      scheduleAdaptiveResize();
-    });
-  }
+    scheduleTableLayoutUpdate({ adaptive: true });
+  },
+  { flush: 'post' }
 );
 
 watch(
@@ -773,12 +812,17 @@ watch(
 onMounted(() => {
   syncTableRegistry();
   setAdaptive();
+  scheduleRowDragInit();
   void nextTick(() => {
     applyRowHoverBgColor(props.rowHoverBgColor);
   });
 });
 
 onBeforeUnmount(() => {
+  rowDragInitScheduled = false;
+  tableLayoutUpdateScheduled = false;
+  layoutNeedsAdaptiveResize = false;
+  layoutNeedsRowDragInit = false;
   disposeLayout();
   if (registeredTableKey.value) {
     tableRefRegistry.delete(registeredTableKey.value);

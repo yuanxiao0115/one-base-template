@@ -125,7 +125,10 @@ describe('Table source', () => {
     expect(source).toContain('setHeaderSticky,');
     expect(source).toContain('useTableRowDragSort({');
     expect(source).toContain("emit('row-drag-sort', payload)");
-    expect(source).toContain('void initRowDragSortable();');
+    expect(source).toContain('function scheduleRowDragInit() {');
+    expect(source).toContain('scheduleRowDragInit();');
+    expect(source).toContain('function scheduleTableLayoutUpdate(options?: {');
+    expect(source).toContain('scheduleTableLayoutUpdate({ adaptive: true, rowDrag: true });');
     expect(source).toContain('scheduleAdaptiveResize();');
     expect(source).toContain('createElementTableColumnBridge({');
     expect(typesSource).toContain('interface TableRowDragConfig');
@@ -152,6 +155,9 @@ describe('Table source', () => {
     expect(layoutSource).toContain(
       "window.removeEventListener('resize', adaptiveWindowResizeHandler);"
     );
+    expect(layoutSource).toContain('function clearHeaderSticky() {');
+    expect(layoutSource).toContain("headerRef.style.removeProperty('position');");
+    expect(layoutSource).toContain('clearHeaderSticky();');
     expect(layoutSource).toContain('resolveAdaptiveHeight({');
     expect(layoutSource).toContain('viewportHeight: window.innerHeight');
     expect(helperSource).toContain('export function resolveAdaptiveHeight');

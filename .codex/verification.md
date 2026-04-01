@@ -6,7 +6,7 @@
 
 - 日期：2026-04-01
 - 文件：`.codex/verification/2026-04-01.md`
-- 补充：最新条目为“ObTable 列桥接拆分（Table.vue 减负）”。
+- 补充：最新条目为“ObTable 性能优化（watch 调度合并 + fixHeader 回收）”。
 
 ## 历史归档
 

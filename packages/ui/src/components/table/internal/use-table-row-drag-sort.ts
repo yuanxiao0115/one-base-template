@@ -81,6 +81,7 @@ export function useTableRowDragSort(options: UseTableRowDragSortOptions) {
   let keyboardCleanup: (() => void) | null = null;
   let lastConfigSignature = '';
   let initToken = 0;
+  let initTask: Promise<void> | null = null;
 
   function applyKeyboardFocusableRows(tbody: HTMLElement) {
     tbody.querySelectorAll('tr').forEach((row) => {
@@ -249,10 +250,21 @@ export function useTableRowDragSort(options: UseTableRowDragSortOptions) {
     lastConfigSignature = nextConfigSignature;
   }
 
+  function scheduleInitSortable() {
+    if (initTask) {
+      return;
+    }
+    initTask = Promise.resolve()
+      .then(() => initSortable())
+      .finally(() => {
+        initTask = null;
+      });
+  }
+
   watch(
     () => options.enabled.value,
     () => {
-      void initSortable();
+      scheduleInitSortable();
     },
     { immediate: true }
   );
@@ -260,23 +272,25 @@ export function useTableRowDragSort(options: UseTableRowDragSortOptions) {
   watch(
     () => options.data.value.length,
     () => {
-      void initSortable();
+      scheduleInitSortable();
     }
   );
 
   watch(options.data, () => {
-    void initSortable();
+    scheduleInitSortable();
   });
 
   watch(
     options.config,
     () => {
-      void initSortable();
+      scheduleInitSortable();
     },
     { deep: true }
   );
 
   onBeforeUnmount(() => {
+    initToken += 1;
+    initTask = null;
     destroySortable();
   });
 

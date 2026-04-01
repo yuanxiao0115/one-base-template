@@ -100,8 +100,7 @@ export function useTableLayout(options: UseTableLayoutOptions) {
     tableWrapper.style.setProperty('--el-table-row-hover-bg-color', nextColor, 'important');
   }
 
-  async function setHeaderSticky(zIndex = options.adaptiveConfig.value?.zIndex ?? 3) {
-    await nextTick();
+  function resolveStickyHeaders() {
     const { tableRoot, tableHeaderRef } = getTableDoms();
     const stickyHeaders = new Set<HTMLElement>();
     if (tableHeaderRef) {
@@ -114,16 +113,34 @@ export function useTableLayout(options: UseTableLayoutOptions) {
           stickyHeaders.add(headerNode);
         }
       });
+    return stickyHeaders;
+  }
 
+  async function setHeaderSticky(
+    zIndex = options.adaptiveConfig.value?.zIndex ?? 3,
+    enabled = true
+  ) {
+    await nextTick();
+    const stickyHeaders = resolveStickyHeaders();
     if (stickyHeaders.size === 0) {
       return;
     }
 
     stickyHeaders.forEach((headerRef) => {
+      if (!enabled) {
+        headerRef.style.removeProperty('position');
+        headerRef.style.removeProperty('top');
+        headerRef.style.removeProperty('z-index');
+        return;
+      }
       headerRef.style.position = 'sticky';
       headerRef.style.top = '0';
       headerRef.style.zIndex = String(zIndex);
     });
+  }
+
+  function clearHeaderSticky() {
+    void setHeaderSticky(options.adaptiveConfig.value?.zIndex ?? 3, false);
   }
 
   function updateAdaptiveHeight(forceLayout = false) {
@@ -204,7 +221,9 @@ export function useTableLayout(options: UseTableLayoutOptions) {
 
     if (options.adaptiveConfig.value?.fixHeader !== false) {
       void setHeaderSticky(options.adaptiveConfig.value?.zIndex ?? 3);
+      return;
     }
+    clearHeaderSticky();
   }
 
   function unbindAdaptiveObserver() {
@@ -221,6 +240,7 @@ export function useTableLayout(options: UseTableLayoutOptions) {
     adaptiveWindowResizeHandler = null;
 
     clearAdaptiveResizeTimer();
+    clearHeaderSticky();
   }
 
   function setAdaptive() {

@@ -58,6 +58,7 @@
 - `getTableDoms()` / `setHeaderSticky()` expose
 - `getTableRef()` 已补齐 `tableKey` 注册表语义（同页多表按 key 定位实例）
 - `adaptive` 已补齐“视口贴底优先 + 容器高度兜底”语义，并同时监听 `ResizeObserver + window.resize`
+- `adaptive.fixHeader` 从 `true -> false` 切换时会主动回收表头 sticky 行内样式，避免关闭吸顶后残留定位样式
 - `Table.vue` 已拆分样式与辅助函数（`Table.css` + `internal/table-helpers.ts` + `internal/use-table-layout.ts` + `internal/use-table-skeleton.ts` + `internal/use-table-row-drag-sort.ts`），降低单文件复杂度
 
 ## ObTable 与 el-table 的关系与版本
