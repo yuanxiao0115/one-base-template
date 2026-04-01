@@ -9675,3 +9675,14 @@
 - 结果：
   - `packages/ui`：`5 files / 15 tests` 通过。
   - `packages/ui`：`typecheck/lint/build` 通过。
+
+## 2026-04-01（ObTable 列桥接拆分回归）
+
+- GREEN / 回归：
+  - `pnpm exec vp test run packages/ui/src/table-source.test.ts packages/ui/src/components/table/internal/use-table-row-drag-sort.test.ts packages/ui/src/components/table/internal/use-table-layout.test.ts packages/ui/src/index.test.ts packages/ui/src/plugin.test.ts`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui build`
+- 结果：
+  - `packages/ui`：`5 files / 15 tests` 通过。
+  - `packages/ui`：`typecheck/lint/build` 通过。

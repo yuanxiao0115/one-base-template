@@ -11061,3 +11061,15 @@
   - `packages/ui/src/components/table/internal/use-table-layout.test.ts`
     - 覆盖高度不变场景下 `forceLayout` 仍触发 `doLayout`，验证宽度重排修复点。
 - 该批次未改业务逻辑，仅补测试护栏，防止后续回归。
+
+## 2026-04-01（ObTable 列桥接拆分，降低 Table.vue 复杂度）
+
+- 新增 `packages/ui/src/components/table/internal/use-table-column-bridge.ts`
+  - 抽离列桥接组件与渲染链路：`slot/headerSlot/filterIconSlot/expandSlot`、`cellRenderer/headerRenderer`、`formatter`、递归子列映射。
+  - 保留现有契约行为：`selection/index/expand` 类型映射、`reserveSelection`、空值占位、tooltip 轻量/富提示切换。
+- 调整 `packages/ui/src/components/table/Table.vue`
+  - 通过 `createElementTableColumnBridge(...)` 接入列桥接模块，移除内联 300+ 行列渲染实现。
+  - 模板层收敛 `<ElementTableColumnBridge>` 入参，不再显式透传 `table-props/table-slots`。
+  - 文件规模由 `1268` 行降到 `910` 行，主文件聚焦布局/分页/树表/拖拽编排。
+- 更新 `packages/ui/src/table-source.test.ts`
+  - 新增对 `use-table-column-bridge.ts` 的源码门禁读取与断言，确保拆分后关键契约持续受测。

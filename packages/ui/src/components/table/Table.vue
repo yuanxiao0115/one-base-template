@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import {
   computed,
-  defineComponent,
   getCurrentInstance,
-  h,
   nextTick,
   onBeforeUnmount,
   onMounted,
@@ -11,24 +9,18 @@ import {
   useAttrs,
   useSlots,
   watch,
-  type CSSProperties,
-  type PropType,
-  type Slots,
-  type VNodeChild
+  type CSSProperties
 } from 'vue';
 import enLocale from 'element-plus/es/locale/lang/en';
 import zhCnLocale from 'element-plus/es/locale/lang/zh-cn';
 import zhTwLocale from 'element-plus/es/locale/lang/zh-tw';
 import type { TableInstance } from 'element-plus';
-import { ElTableColumn, ElTooltip } from 'element-plus';
 import emptyStateImage from './assets/table-empty-state.webp';
 import type {
   AdaptiveConfig,
   TableAlign,
   TableColumn,
-  TableColumnHeaderRendererParams,
   TableColumnList,
-  TableColumnRendererParams,
   TableLoadingConfig,
   TableLocaleInput,
   TableLocaleObject,
@@ -38,21 +30,17 @@ import type {
   TableRowDragSortPayload
 } from './types';
 import {
-  isOperationColumn,
   normalizeTreeRows,
-  resolveCellDisplayValue,
-  resolveColumnEmptyValueText,
-  resolveColumnField,
   resolveColumnHidden,
-  resolveColumnMinWidth,
-  resolveColumnShowEmptyValue,
-  resolveColumnShowOverflow,
-  resolveColumnWidth,
   resolvePagerLayout,
   resolveTreeChildrenField,
   resolveTreeHasChildField,
   resolveTreeLoadMethod
 } from './internal/table-helpers';
+import {
+  createElementTableColumnBridge,
+  type TableColumnBridgeRuntimeProps
+} from './internal/use-table-column-bridge';
 import { useTableSkeleton } from './internal/use-table-skeleton';
 import { useTableRowDragSort } from './internal/use-table-row-drag-sort';
 import { useTableLayout } from './internal/use-table-layout';
@@ -113,16 +101,6 @@ interface ObElementTableProps {
   tooltipRenderThreshold?: number;
 }
 
-interface ElementTableRuntimeProps {
-  alignWhole: TableAlign;
-  headerAlign?: TableAlign;
-  showOverflowTooltip: boolean;
-  showEmptyValue: boolean;
-  emptyValueText: string;
-  size?: ElementTableSize;
-  reserveSelection: boolean;
-}
-
 interface ElementPagerProps {
   total: number;
   currentPage?: number;
@@ -165,13 +143,6 @@ interface ElementTableBindingProps {
   headerCellStyle?: TableStyleValue;
   cellStyle?: TableStyleValue;
   [key: string]: unknown;
-}
-
-interface ColumnBridgeScope {
-  row: RowRecord;
-  column?: Record<string, unknown>;
-  $index: number;
-  store?: Record<string, unknown>;
 }
 
 type TableStyleFnParams = Record<string, unknown>;
@@ -318,7 +289,7 @@ const fallbackTableKey = `ob-table-${componentInstance?.uid ?? Math.random().toS
 const resolvedTableKey = computed(() => props.tableKey ?? fallbackTableKey);
 const tableRegistryKey = computed(() => String(resolvedTableKey.value));
 
-const runtimeTableProps = computed<ElementTableRuntimeProps>(() => ({
+const runtimeTableProps = computed<TableColumnBridgeRuntimeProps>(() => ({
   alignWhole: props.alignWhole,
   headerAlign: props.headerAlign,
   showOverflowTooltip: props.showOverflowTooltip,
@@ -615,339 +586,12 @@ function varAsNumber(token: string, fallback: number): number {
   return Number.isFinite(resolved) && resolved > 0 ? resolved : fallback;
 }
 
-function getRowValue(row: RowRecord, field?: string) {
-  if (!field) {
-    return '';
-  }
-  return row[field];
-}
-
-function createRendererParams(
-  column: TableColumn,
-  row: RowRecord,
-  rowIndex: number
-): TableColumnRendererParams {
-  return {
-    row,
-    column,
-    $index: rowIndex,
-    index: rowIndex,
-    size: runtimeTableProps.value.size,
-    props: props as Record<string, unknown>,
-    attrs: attrsRecord.value
-  };
-}
-
-function renderValueWithOverflow(
-  displayValue: VNodeChild,
-  showOverflowTooltip: boolean,
-  isOperation: boolean,
-  useRichTooltip: boolean
-) {
-  if (typeof displayValue !== 'string' && typeof displayValue !== 'number') {
-    return displayValue;
-  }
-
-  const text = String(displayValue);
-  const shouldUseTitle = showOverflowTooltip && !isOperation && !useRichTooltip;
-  const content = h(
-    'span',
-    {
-      class: ['ob-table__cell-text', showOverflowTooltip && !isOperation ? 'is-ellipsis' : ''],
-      title: shouldUseTitle && text.length > 0 ? text : undefined
-    },
-    text
-  );
-
-  if (!showOverflowTooltip || isOperation || text.length === 0) {
-    return content;
-  }
-  if (!useRichTooltip) {
-    return content;
-  }
-
-  return h(
-    ElTooltip,
-    {
-      content: text,
-      placement: 'top',
-      showAfter: 300
-    },
-    {
-      default: () => content
-    }
-  );
-}
-
-function renderDefaultCellContent(
-  column: TableColumn,
-  row: RowRecord,
-  rowIndex: number,
-  columnIndex: number
-) {
-  const field = resolveColumnField(column.prop, columnIndex);
-  const rawValue = getRowValue(row, field);
-  const formatter = column.formatter;
-  const hasFormatter = typeof formatter === 'function';
-  let formattedValue = rawValue;
-
-  if (hasFormatter) {
-    const formatterColumn = {
-      ...column,
-      property: field,
-      label: column.label,
-      type: column.type
-    } as Record<string, unknown>;
-    const formatterParams = {
-      row,
-      column,
-      cellValue: rawValue,
-      index: rowIndex
-    };
-
-    try {
-      formattedValue =
-        formatter.length <= 1
-          ? (formatter as (params: typeof formatterParams) => VNodeChild)(formatterParams)
-          : (
-              formatter as (
-                row: RowRecord,
-                column: Record<string, unknown>,
-                cellValue: unknown,
-                index: number
-              ) => VNodeChild
-            )(row, formatterColumn, rawValue, rowIndex);
-    } catch {
-      formattedValue = rawValue;
-    }
-  }
-
-  const showEmptyValue = resolveColumnShowEmptyValue(column, props.showEmptyValue);
-  const emptyValueText = resolveColumnEmptyValueText(column, props.emptyValueText);
-  const displayValue: VNodeChild = hasFormatter
-    ? (formattedValue as VNodeChild)
-    : resolveCellDisplayValue(formattedValue, showEmptyValue, emptyValueText);
-  const showOverflowTooltip = resolveColumnShowOverflow(column, props.showOverflowTooltip);
-  return renderValueWithOverflow(
-    displayValue,
-    showOverflowTooltip,
-    isOperationColumn(column, columnIndex),
-    enableRichCellTooltip.value
-  );
-}
-
-function renderColumnHeader(column: TableColumn) {
-  if (column.headerSlot && slots[column.headerSlot]) {
-    return slots[column.headerSlot]?.({
-      column,
-      props: props as Record<string, unknown>,
-      attrs: attrsRecord.value
-    }) as unknown as VNodeChild;
-  }
-
-  if (column.headerRenderer) {
-    const params: TableColumnHeaderRendererParams = {
-      column,
-      props: props as Record<string, unknown>,
-      attrs: attrsRecord.value
-    };
-    return column.headerRenderer(params);
-  }
-
-  return column.label || '';
-}
-
-function resolveColumnType(type?: TableColumn['type']) {
-  if (type === 'selection') {
-    return 'selection';
-  }
-  if (type === 'index') {
-    return 'index';
-  }
-  if (type === 'expand') {
-    return 'expand';
-  }
-  return undefined;
-}
-
-function createSeqMethod(column: TableColumn) {
-  return (index: number) => {
-    if (typeof column.index === 'function') {
-      return column.index(index);
-    }
-    if (typeof column.index === 'number') {
-      return index + column.index;
-    }
-    return index + 1;
-  };
-}
-
-const ElementTableColumnBridge = defineComponent({
-  name: 'ElementTableColumnBridge',
-  props: {
-    column: {
-      type: Object as PropType<TableColumn>,
-      required: true
-    },
-    columnIndex: {
-      type: Number,
-      required: true
-    },
-    tableProps: {
-      type: Object as PropType<ElementTableRuntimeProps>,
-      required: true
-    },
-    tableSlots: {
-      type: Object as PropType<Slots>,
-      required: true
-    }
-  },
-  setup(bridgeProps) {
-    function createBridgeSlotPayload(
-      scope: ColumnBridgeScope | Record<string, unknown>,
-      column: TableColumn
-    ) {
-      const scopeRecord = scope as Record<string, unknown>;
-      return {
-        ...scopeRecord,
-        index: Number(scopeRecord.$index ?? 0),
-        size: bridgeProps.tableProps.size,
-        props: props as Record<string, unknown>,
-        attrs: attrsRecord.value,
-        column: scopeRecord.column ?? column
-      };
-    }
-
-    function renderColumnCell(scope: ColumnBridgeScope) {
-      const column = bridgeProps.column;
-      const type = resolveColumnType(column.type);
-      const row = (scope.row || {}) as RowRecord;
-      const rowIndex = Number(scope.$index ?? 0);
-      const expandSlot = column.expandSlot;
-      const cellSlot = column.slot;
-
-      if (type === 'expand') {
-        if (expandSlot && bridgeProps.tableSlots[expandSlot]) {
-          return bridgeProps.tableSlots[expandSlot]?.(
-            createBridgeSlotPayload(scope, column)
-          ) as unknown as VNodeChild;
-        }
-
-        if (bridgeProps.tableSlots.expand) {
-          return bridgeProps.tableSlots.expand?.(
-            createBridgeSlotPayload(scope, column)
-          ) as unknown as VNodeChild;
-        }
-
-        if (column.cellRenderer) {
-          return column.cellRenderer(createRendererParams(column, row, rowIndex));
-        }
-
-        if (cellSlot && bridgeProps.tableSlots[cellSlot]) {
-          return bridgeProps.tableSlots[cellSlot]?.(
-            createBridgeSlotPayload(scope, column)
-          ) as unknown as VNodeChild;
-        }
-
-        return null;
-      }
-
-      if (cellSlot && bridgeProps.tableSlots[cellSlot]) {
-        return bridgeProps.tableSlots[cellSlot]?.(
-          createBridgeSlotPayload(scope, column)
-        ) as unknown as VNodeChild;
-      }
-
-      if (column.cellRenderer) {
-        return column.cellRenderer(createRendererParams(column, row, rowIndex));
-      }
-
-      return renderDefaultCellContent(column, row, rowIndex, bridgeProps.columnIndex);
-    }
-
-    return () => {
-      const column = bridgeProps.column;
-      const columnIndex = bridgeProps.columnIndex;
-      const mappedColumn: Record<string, unknown> = { ...column };
-      const type = resolveColumnType(column.type);
-      const field = resolveColumnField(column.prop, columnIndex);
-      const childColumns = Array.isArray(column.children)
-        ? column.children.filter((child) => !resolveColumnHidden(child))
-        : [];
-
-      mappedColumn.type = type;
-      mappedColumn.prop = field;
-      mappedColumn.label = column.label;
-      mappedColumn.width = resolveColumnWidth(column);
-      mappedColumn.minWidth = resolveColumnMinWidth(column);
-      mappedColumn.fixed = column.fixed;
-      mappedColumn.sortable = column.sortable;
-      mappedColumn.align = column.align ?? bridgeProps.tableProps.alignWhole;
-      mappedColumn.headerAlign =
-        column.headerAlign ??
-        bridgeProps.tableProps.headerAlign ??
-        bridgeProps.tableProps.alignWhole;
-      mappedColumn.className = column.className;
-      mappedColumn.showOverflowTooltip = false;
-
-      mappedColumn.slot = undefined;
-      mappedColumn.headerSlot = undefined;
-      mappedColumn.filterIconSlot = undefined;
-      mappedColumn.expandSlot = undefined;
-      mappedColumn.cellRenderer = undefined;
-      mappedColumn.headerRenderer = undefined;
-      mappedColumn.hide = undefined;
-      mappedColumn.children = undefined;
-      mappedColumn.ellipsis = undefined;
-      mappedColumn.showEmptyValue = undefined;
-      mappedColumn.emptyValueText = undefined;
-      mappedColumn.treeNode = undefined;
-
-      if (type === 'selection') {
-        mappedColumn.reserveSelection = bridgeProps.tableProps.reserveSelection;
-      }
-
-      if (type === 'index') {
-        mappedColumn.index = createSeqMethod(column);
-      }
-
-      const componentSlots: Record<string, (scope?: ColumnBridgeScope) => VNodeChild> = {};
-
-      if (column.headerSlot || column.headerRenderer) {
-        componentSlots.header = () => renderColumnHeader(column);
-      }
-
-      const filterIconSlot = column.filterIconSlot;
-      if (filterIconSlot && bridgeProps.tableSlots[filterIconSlot]) {
-        componentSlots['filter-icon'] = (scope?: ColumnBridgeScope) =>
-          bridgeProps.tableSlots[filterIconSlot]?.(
-            createBridgeSlotPayload(scope || {}, column)
-          ) as unknown as VNodeChild;
-      }
-
-      if (childColumns.length > 0) {
-        componentSlots.default = () =>
-          childColumns.map((child, childIndex) =>
-            h(ElementTableColumnBridge, {
-              key: `${field || column.label || 'column'}-${childIndex}`,
-              column: child,
-              columnIndex: childIndex,
-              tableProps: bridgeProps.tableProps,
-              tableSlots: bridgeProps.tableSlots
-            })
-          );
-      } else if (type === 'expand' || column.slot || column.cellRenderer || field) {
-        if (type === 'expand') {
-          componentSlots.expand = (scope?: ColumnBridgeScope) =>
-            renderColumnCell((scope || { row: {}, $index: 0 }) as ColumnBridgeScope);
-        }
-        componentSlots.default = (scope?: ColumnBridgeScope) =>
-          renderColumnCell((scope || { row: {}, $index: 0 }) as ColumnBridgeScope);
-      }
-
-      return h(ElTableColumn, mappedColumn, componentSlots);
-    };
-  }
+const ElementTableColumnBridge = createElementTableColumnBridge({
+  getRuntimeProps: () => runtimeTableProps.value,
+  getComponentProps: () => props as Record<string, unknown>,
+  getComponentAttrs: () => attrsRecord.value,
+  getTableSlots: () => slots,
+  enableRichCellTooltip: () => enableRichCellTooltip.value
 });
 
 function collectSelection(selection: RowRecord[]) {
@@ -1230,8 +874,6 @@ defineExpose({
             :key="`${String(column.prop || column.label || 'column')}-${index}`"
             :column="column"
             :column-index="index"
-            :table-props="runtimeTableProps"
-            :table-slots="slots"
           />
         </el-table>
       </div>

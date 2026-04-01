@@ -17,6 +17,10 @@ describe('Table source', () => {
     new URL('./components/table/internal/use-table-row-drag-sort.ts', import.meta.url),
     'utf8'
   );
+  const columnBridgeSource = readFileSync(
+    new URL('./components/table/internal/use-table-column-bridge.ts', import.meta.url),
+    'utf8'
+  );
   const contractSource = readFileSync(
     new URL('./components/table/table-contract/column-contract.ts', import.meta.url),
     'utf8'
@@ -78,10 +82,10 @@ describe('Table source', () => {
     );
     expect(helperSource).toContain('columnRecord.minwidth');
     expect(helperSource).toContain("columnRecord['min-width']");
-    expect(source).toContain('resolveColumnMinWidth(column)');
-    expect(source).toContain('const formatter = column.formatter;');
-    expect(source).toContain("const hasFormatter = typeof formatter === 'function';");
-    expect(source).toContain('formatter.length <= 1');
+    expect(columnBridgeSource).toContain('resolveColumnMinWidth(column)');
+    expect(columnBridgeSource).toContain('const formatter = column.formatter;');
+    expect(columnBridgeSource).toContain("const hasFormatter = typeof formatter === 'function';");
+    expect(columnBridgeSource).toContain('formatter.length <= 1');
     expect(source).toContain(
       'const normalizedRows = normalizeTreeRows(Array.isArray(rows) ? rows : [], {'
     );
@@ -93,13 +97,13 @@ describe('Table source', () => {
     expect(typesSource).toContain('ObTableColumnsContract');
     expect(contractSource).toContain('filterIconSlot?: string;');
     expect(contractSource).toContain('expandSlot?: string;');
-    expect(source).toContain("componentSlots['filter-icon']");
-    expect(source).toContain("if (type === 'expand')");
-    expect(source).toContain('if (bridgeProps.tableSlots.expand)');
-    expect(source).toContain('componentSlots.expand = (scope?: ColumnBridgeScope) =>');
-    expect(source).toContain('return null;');
-    expect(source).toContain('mappedColumn.filterIconSlot = undefined;');
-    expect(source).toContain('mappedColumn.expandSlot = undefined;');
+    expect(columnBridgeSource).toContain("componentSlots['filter-icon']");
+    expect(columnBridgeSource).toContain("if (type === 'expand')");
+    expect(columnBridgeSource).toContain('if (tableSlots.expand)');
+    expect(columnBridgeSource).toContain('componentSlots.expand = (scope?: ColumnBridgeScope) =>');
+    expect(columnBridgeSource).toContain('return null;');
+    expect(columnBridgeSource).toContain('mappedColumn.filterIconSlot = undefined;');
+    expect(columnBridgeSource).toContain('mappedColumn.expandSlot = undefined;');
   });
 
   it('应保留统一表格的核心顶层 props 与 expose 能力', () => {
@@ -123,6 +127,7 @@ describe('Table source', () => {
     expect(source).toContain("emit('row-drag-sort', payload)");
     expect(source).toContain('void initRowDragSortable();');
     expect(source).toContain('scheduleAdaptiveResize();');
+    expect(source).toContain('createElementTableColumnBridge({');
     expect(typesSource).toContain('interface TableRowDragConfig');
     expect(typesSource).toContain('interface TableRowDragSortPayload');
     expect(source).toContain("'element-loading-text': props.loadingConfig?.text");
