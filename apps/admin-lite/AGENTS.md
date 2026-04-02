@@ -84,6 +84,7 @@
 - `lint:arch`：`node ../../scripts/check-admin-lite-arch.mjs`
 - `lint:fix`：`node ../../scripts/run-vp-task-from-root.mjs check --fix src`
 - `build`：`node ../../scripts/run-vp-build.mjs`
+- `bundle 预算`：`pnpm check:admin-lite:bundle`（在仓库根目录执行）
 - `lint:arch` 必须覆盖启动边界、模块边界、模板事件禁令、CRUD 红线与 API 红线。
 
 ## 本地验证命令
@@ -95,4 +96,5 @@ pnpm -C apps/admin-lite lint
 pnpm -C apps/admin-lite lint:arch
 pnpm -C apps/admin-lite test:run
 pnpm -C apps/admin-lite build
+pnpm check:admin-lite:bundle
 ```

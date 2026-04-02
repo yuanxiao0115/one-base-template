@@ -166,6 +166,7 @@ pnpm -C apps/admin-lite lint
 pnpm -C apps/admin-lite lint:arch
 pnpm -C apps/admin-lite test:run
 pnpm -C apps/admin-lite build
+pnpm check:admin-lite:bundle
 ```
 
 说明：

@@ -102,6 +102,9 @@ pre-commit（`vp staged`）当前按文件类型分流：
   - 检查对象（HTTP1.0 排队风险）：`startup dependency map js count` / `startup dependency map js gzip` / `tiny chunks` 数量
   - 默认上限：`1120 / 980 / 1080 / 720 / 920 KiB`（大 chunk）+ `22`（startup js 数）+ `820 KiB`（startup js gzip）+ `12`（tiny chunks）
   - CI 在 `pnpm build` 后自动执行，超限直接失败，避免大体积回归静默进入主分支
+- `admin-lite` 同步增加构建体积预算门禁脚本：`pnpm check:admin-lite:bundle`
+  - 检查口径与 `admin` 保持一致（大 chunk 上沿 + startup dependency map + tiny chunks）
+  - CI 在 `pnpm build` 后自动执行，避免基座项目出现“只在 admin 有体积门禁”的治理缺口
 
 ## 字典快速应用（list + map + 缓存）
 
@@ -287,6 +290,7 @@ pnpm verify
 - `pnpm lint`
 - `pnpm build`
 - `pnpm check:admin:bundle`
+- `pnpm check:admin-lite:bundle`
 
 - 环境自检（新成员首次拉仓后推荐）：
 
