@@ -34,12 +34,28 @@ describe('router/registry', () => {
   });
 
   it('应过滤重复与未知模块并触发 warn', async () => {
-    const enabled = await getEnabledModules(['home', 'home', 'unknown-module', 'PortalManagement']);
+    const enabled = await getEnabledModules([
+      'home',
+      'home',
+      'unknown-module',
+      'PortalManagement',
+      'DocumentFormManagement'
+    ]);
     const warnMessages = warn.mock.calls.map((call) => String(call[0]));
 
-    expect(enabled.map((item) => item.id)).toEqual(['home', 'PortalManagement']);
+    expect(enabled.map((item) => item.id)).toEqual([
+      'home',
+      'portal-management',
+      'document-form-management'
+    ]);
     expect(warnMessages).toEqual(
       expect.arrayContaining([
+        expect.stringContaining(
+          'enabledModules 使用历史模块 id：PortalManagement，已自动映射为 portal-management'
+        ),
+        expect.stringContaining(
+          'enabledModules 使用历史模块 id：DocumentFormManagement，已自动映射为 document-form-management'
+        ),
         expect.stringContaining('enabledModules 包含重复模块 id：home'),
         expect.stringContaining('enabledModules 包含未知模块 id：unknown-module')
       ])

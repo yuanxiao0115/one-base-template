@@ -7,6 +7,8 @@ const appRootDir = process.cwd();
 const ROUTE_FILES = [
   'src/modules/home/routes.ts',
   'src/modules/CmsManagement/routes.ts',
+  'src/modules/DocumentFormManagement/routes/layout.ts',
+  'src/modules/DocumentFormManagement/routes/standalone.ts',
   'src/modules/PortalManagement/routes/layout.ts',
   'src/modules/PortalManagement/routes/standalone.ts',
   'src/modules/LogManagement/routes.ts',

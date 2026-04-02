@@ -26,11 +26,12 @@ outline: false
 
 ## 最短开发闭环（可直接照做）
 
-1. 启动项目：`pnpm dev`
-2. 生成模块骨架：`pnpm new:module user-center --dry-run`
-3. 按 [模块系统与切割](/guide/module-system) 完成 `index.ts（含 moduleMeta） + routes.ts` 调整
-4. 在 `apps/admin/src/config/platform-config.ts` 中确认 `enabledModules`
-5. 提交前执行：`pnpm lint && pnpm typecheck && pnpm build`
+1. 起新后台（可选）：`pnpm new:app my-admin --preset standard`
+2. 启动项目：`pnpm dev`
+3. 生成模块骨架：`pnpm new:module user-center --dry-run`
+4. 按 [模块系统与切割](/guide/module-system) 完成 `index.ts（含 moduleMeta） + routes.ts` 调整
+5. 在 `apps/admin/src/config/platform-config.ts` 中确认 `enabledModules`
+6. 提交前执行：`pnpm lint && pnpm typecheck && pnpm build`
 
 ## 扩展能力
 

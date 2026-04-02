@@ -53,7 +53,7 @@ describe('router/assemble-routes', () => {
   });
 
   it('PortalManagement 模块应使用语义化设计路径并移除历史 alias 路由', async () => {
-    const { routes } = await buildAppRoutes(createRouteAssemblyOptions(['PortalManagement']));
+    const { routes } = await buildAppRoutes(createRouteAssemblyOptions(['portal-management']));
     const allRoutes = flattenRoutes(routes);
 
     const listRoute = allRoutes.find(
@@ -90,7 +90,7 @@ describe('router/assemble-routes', () => {
 
   it('应保留 access 语义并输出 diagnostics', async () => {
     const { routes, diagnostics } = await buildAppRoutes(
-      createRouteAssemblyOptions(['home', 'PortalManagement'])
+      createRouteAssemblyOptions(['home', 'portal-management'])
     );
     const allRoutes = flattenRoutes(routes);
     const homeRoute = allRoutes.find(

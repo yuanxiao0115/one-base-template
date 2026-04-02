@@ -123,6 +123,8 @@ pnpm -C apps/admin-lite lint
 
 ```bash
 pnpm new:app <app-id>
+pnpm new:app <app-id> --preset minimal
+pnpm new:app <app-id> --preset enterprise
 pnpm new:app <app-id> --with-crud-starter
 pnpm new:app <app-id> --dry-run
 ```
@@ -130,6 +132,10 @@ pnpm new:app <app-id> --dry-run
 脚手架行为：
 
 - 默认从 `apps/admin-lite` 复制。
+- 默认 preset 为 `standard`，可选：
+  - `minimal`：只保留 `home` 模块，顶栏能力最小化（关闭个人中心/改密/个性化）。
+  - `standard`：默认四模块（`home/admin-management/system-management/log-management`）。
+  - `enterprise`：在 `standard` 基础上开启 `tenantSwitcher`。
 - 自动替换应用名、样式入口、构建配置与存储命名空间。
 - `--with-crud-starter` 会附带一个本地可跑通的 CRUD 起步模块。
 

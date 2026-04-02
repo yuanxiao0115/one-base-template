@@ -3,7 +3,7 @@ import layoutRoutes from './routes/layout';
 import standaloneRoutes from './routes/standalone';
 
 export const moduleMeta = {
-  id: 'DocumentFormManagement',
+  id: 'document-form-management',
   version: '1',
   moduleTier: 'optional',
   enabledByDefault: false

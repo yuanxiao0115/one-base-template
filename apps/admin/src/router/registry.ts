@@ -24,9 +24,28 @@ const moduleDeclarationLoaders = import.meta.glob<AppModuleDeclarationModule>(
 const logger = createAppLogger('router/modules');
 let cachedAllModules: ModuleLoadEntry[] | null = null;
 const cachedModuleTasks = new Map<string, Promise<AppModuleManifest | null>>();
+const LEGACY_MODULE_ID_ALIASES = Object.freeze({
+  PortalManagement: 'portal-management',
+  DocumentFormManagement: 'document-form-management'
+});
 
 function warn(message: string) {
   logger.warn(message);
+}
+
+function buildEnabledModulesSetting(enabledModules: EnabledModulesSetting): EnabledModulesSetting {
+  if (enabledModules === '*') {
+    return enabledModules;
+  }
+
+  return enabledModules.map((id) => {
+    const alias = LEGACY_MODULE_ID_ALIASES[id as keyof typeof LEGACY_MODULE_ID_ALIASES];
+    if (!alias) {
+      return id;
+    }
+    warn(`enabledModules 使用历史模块 id：${id}，已自动映射为 ${alias}`);
+    return alias;
+  });
 }
 
 function getAllModules(): ModuleLoadEntry[] {
@@ -79,9 +98,10 @@ export async function getEnabledModules(
   enabledModules: EnabledModulesSetting
 ): Promise<AppModuleManifest[]> {
   const allModules = getAllModules();
+  const normalizedEnabledModules = buildEnabledModulesSetting(enabledModules);
   const pickedModules = pickEnabledModuleEntries({
     allModules,
-    enabledModules,
+    enabledModules: normalizedEnabledModules,
     onWarn: warn
   });
   const loaded = await Promise.all(pickedModules.map((entry) => loadModule(entry)));

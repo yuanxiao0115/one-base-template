@@ -3,7 +3,7 @@ import layoutRoutes from './routes/layout';
 import standaloneRoutes from './routes/standalone';
 
 export const moduleMeta = {
-  id: 'PortalManagement',
+  id: 'portal-management',
   version: '1',
   moduleTier: 'optional',
   enabledByDefault: false

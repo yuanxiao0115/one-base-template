@@ -7,7 +7,7 @@ import { cp } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { scaffoldApp } from '../new-app.mjs';
+import { parseArgs, scaffoldApp } from '../new-app.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const adminLiteSourceDir = path.join(repoRoot, 'apps/admin-lite');
@@ -57,6 +57,10 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
   );
   assert.match(platformConfig, /appcode: 'sample-app'/);
   assert.match(platformConfig, /storageNamespace: 'one-base-template-sample-app'/);
+  assert.match(
+    platformConfig,
+    /enabledModules: \['home', 'admin-management', 'log-management', 'system-management'\]/
+  );
 
   const viteConfig = await readFile(path.join(rootDir, 'apps/sample-app/vite.config.ts'), 'utf8');
   assert.match(viteConfig, /SampleAppBuildConfig/);
@@ -85,12 +89,55 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
   await assertExists(path.join(rootDir, 'apps/sample-app/src/types/components.d.ts'));
 });
 
+test('parseArgs 支持 preset 参数', () => {
+  const args = parseArgs([
+    'demo-app',
+    '--preset',
+    'enterprise',
+    '--with-crud-starter',
+    '--dry-run'
+  ]);
+
+  assert.equal(args.appId, 'demo-app');
+  assert.equal(args.preset, 'enterprise');
+  assert.equal(args.withCrudStarter, true);
+  assert.equal(args.dryRun, true);
+});
+
+test('scaffoldApp 支持 minimal preset 并收口顶栏能力', async () => {
+  const rootDir = await createWorkspaceFixture();
+
+  await scaffoldApp({
+    rootDir,
+    appId: 'sample-minimal-app',
+    preset: 'minimal',
+    dryRun: false,
+    withCrudStarter: false
+  });
+
+  const platformConfig = await readFile(
+    path.join(rootDir, 'apps/sample-minimal-app/src/config/platform-config.ts'),
+    'utf8'
+  );
+  assert.match(platformConfig, /enabledModules: \['home'\]/);
+
+  const uiConfig = await readFile(
+    path.join(rootDir, 'apps/sample-minimal-app/src/config/ui.ts'),
+    'utf8'
+  );
+  assert.match(uiConfig, /tenantSwitcher: false,/);
+  assert.match(uiConfig, /profileDialog: false,/);
+  assert.match(uiConfig, /changePassword: false,/);
+  assert.match(uiConfig, /personalization: false,/);
+});
+
 test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', async () => {
   const rootDir = await createWorkspaceFixture();
 
   await scaffoldApp({
     rootDir,
     appId: 'sample-crud-app',
+    preset: 'enterprise',
     dryRun: false,
     withCrudStarter: true
   });
@@ -103,6 +150,12 @@ test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', asyn
     platformConfig,
     /enabledModules: \['home', 'admin-management', 'log-management', 'system-management', 'starter-crud'\]/
   );
+
+  const uiConfig = await readFile(
+    path.join(rootDir, 'apps/sample-crud-app/src/config/ui.ts'),
+    'utf8'
+  );
+  assert.match(uiConfig, /tenantSwitcher: true,/);
 
   await assertExists(path.join(rootDir, 'apps/sample-crud-app/src/modules/starter-crud/list.vue'));
 

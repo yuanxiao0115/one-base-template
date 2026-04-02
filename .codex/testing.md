@@ -2,6 +2,37 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-02（admin/admin-lite 命名收口 + new:app preset + route meta 门禁）
+
+- RED（先失败）：
+  - `node --test scripts/__tests__/new-app.test.mjs scripts/__tests__/new-module.test.mjs`
+- 结果：
+  - `scripts/new-app.mjs` 的 preset 改造首版存在两个问题：
+    - `enabledModules` 正则替换使用“文本变化检测”判定命中，`standard` preset 与默认值相同导致误判失败；
+    - 顶栏 `personalization` 字段末尾无逗号，严格 `,` 匹配导致替换失败。
+- 修复：
+  - `replaceEnabledModulesInPlatformConfig` 改为“先 `pattern.test` 再替换”。
+  - 顶栏字段匹配放宽为 `,?`，兼容末项无逗号。
+
+- GREEN / 回归：
+  - `node --test scripts/__tests__/new-app.test.mjs scripts/__tests__/new-module.test.mjs`
+  - `pnpm -C apps/admin test:run:file -- tests/router/registry.unit.test.ts tests/router/assemble-routes.unit.test.ts tests/router/route-policy.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/router/route-policy.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/admin-lite lint:arch`
+  - `pnpm check:naming`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `pnpm check:admin:bundle`
+  - `pnpm check:admin-lite:bundle`
+- 结果：
+  - 脚手架测试：`7/7` 通过（`new-app` + `new-module`）。
+  - `apps/admin` 定向测试：`5 files / 13 tests` 通过。
+  - `apps/admin-lite` 定向测试：`3 files / 7 tests` 通过。
+  - `admin-lite lint:arch` 通过。
+  - 命名检查通过。
+  - `apps/docs` lint/build 通过。
+  - admin/admin-lite 构建体积预算检查通过（startup js count 与 gzip 均在预算内）。
+
 ## 2026-04-02（docs：版本治理 SOP 与业务版本矩阵）
 
 - GREEN / 回归：

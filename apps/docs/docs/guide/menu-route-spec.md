@@ -216,6 +216,24 @@
 
 对应源码门禁见：`apps/admin/tests/architecture/route-meta-helper-source.unit.test.ts`。
 
+### 5.2 Route Meta 常见坑（建议重点自检）
+
+1. `keepAlive=true` 但没有稳定 `route.name`  
+   影响：缓存键不稳定，页面缓存可能失效或串页。  
+   处理：所有 `keepAlive` 路由都显式声明唯一 `name`。
+
+2. `access='open'` 的路由未隐藏标签页  
+   影响：登录入口/回调页被加入标签栏，影响导航体验。  
+   处理：开放路由统一使用 `createOpenRouteMeta(...)`，默认带 `hiddenTab=true`。
+
+3. 开放路由配置了 `activePath`  
+   影响：匿名页被错误绑定到菜单高亮链路，易引发权限判断歧义。  
+   处理：`activePath` 仅用于 `menu/auth` 路由，不用于 `open` 路由。
+
+4. 模块路由散写 `meta: {}` 而非 helper  
+   影响：公共策略（例如 hiddenTab/access）容易漏配。  
+   处理：统一从 `@/router/meta` 导入 helper 生成 meta。
+
 ## 6. 菜单数据 Schema（AppMenuItem）
 
 ```json

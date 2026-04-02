@@ -57,6 +57,21 @@ pnpm -C apps/docs dev
 
 默认端口：`5174`
 
+## 10 分钟起新后台（admin-lite 脚手架）
+
+```bash
+pnpm new:app my-admin --preset standard
+pnpm -C apps/my-admin typecheck
+pnpm -C apps/my-admin lint
+pnpm -C apps/my-admin build
+```
+
+`--preset` 可选值：
+
+- `minimal`：只保留 `home` 模块，顶栏能力最小化。
+- `standard`：默认四模块（`home/admin-management/system-management/log-management`）。
+- `enterprise`：在 `standard` 基础上启用 `tenantSwitcher`。
+
 ## 常用验证命令
 
 仓库根目录：

@@ -90,9 +90,9 @@ pnpm new:module user-center --title 用户中心
 
 ### 命名现状说明（避免误解）
 
-- 当前仓库存在历史目录命名混用（如 `PortalManagement`、`adminManagement`）。
+- 当前仓库历史目录名仍有混用（如 `PortalManagement`、`adminManagement`），但**模块契约 id 已统一收敛到 kebab-case**。
 - 现行脚手架 `pnpm new:module <module-id>` 强制 `module-id` 为 kebab-case，并在 `apps/admin/src/modules/<module-id>/` 下生成标准结构。
-- 新增模块按 kebab-case 执行，历史模块可按业务节奏逐步收敛，不影响本次开发链路。
+- admin 已完成高频模块 id 收口示例：`portal-management`、`document-form-management`；旧配置中的 `PortalManagement`、`DocumentFormManagement` 目前由注册层做自动映射并给出告警，建议尽快改为新 id。
 
 ## 2) 路由组装规则
 
@@ -242,6 +242,7 @@ compat: {
 - `string[]`：白名单启用（如 `['home', 'admin-management', 'log-management']`）
 - 管理端生产环境建议使用 `string[]`，避免把 demo/portal 等非主链路模块默认带入。
 - 代码层兜底：即使配置缺失或为空数组，`optional` 模块也不会被默认启用。
+- 命名建议：`enabledModules` 内统一使用 kebab-case 模块 id（例如 `portal-management`），避免继续写历史 PascalCase id。
 
 示例（临时全开所有模块）：
 

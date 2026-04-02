@@ -4,6 +4,32 @@ import { cp } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 const APP_ID_REGEX = /^[a-z][a-z0-9-]*$/;
+const APP_PRESET_MODULES = Object.freeze({
+  minimal: ['home'],
+  standard: ['home', 'admin-management', 'log-management', 'system-management'],
+  enterprise: ['home', 'admin-management', 'log-management', 'system-management']
+});
+const APP_PRESET_TOPBAR_FEATURES = Object.freeze({
+  minimal: {
+    tenantSwitcher: false,
+    profileDialog: false,
+    changePassword: false,
+    personalization: false
+  },
+  standard: {
+    tenantSwitcher: false,
+    profileDialog: true,
+    changePassword: true,
+    personalization: true
+  },
+  enterprise: {
+    tenantSwitcher: true,
+    profileDialog: true,
+    changePassword: true,
+    personalization: true
+  }
+});
+const VALID_APP_PRESETS = new Set(Object.keys(APP_PRESET_MODULES));
 const TEXT_FILE_EXTENSIONS = new Set([
   '.ts',
   '.tsx',
@@ -33,14 +59,15 @@ function toRuntimeAppPascal(value) {
 }
 
 function createUsage() {
-  return '用法: pnpm new:app <app-id> [--with-crud-starter] [--dry-run]';
+  return '用法: pnpm new:app <app-id> [--preset minimal|standard|enterprise] [--with-crud-starter] [--dry-run]';
 }
 
 export function parseArgs(argv) {
   const args = {
     appId: '',
     dryRun: false,
-    withCrudStarter: false
+    withCrudStarter: false,
+    preset: 'standard'
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -58,6 +85,23 @@ export function parseArgs(argv) {
     }
     if (token === '--with-crud-starter' || token === '--withCrudStarter') {
       args.withCrudStarter = true;
+      continue;
+    }
+    if (token.startsWith('--preset=')) {
+      const value = token.slice('--preset='.length).trim();
+      if (!value) {
+        throw new Error('参数 --preset 不能为空。');
+      }
+      args.preset = value;
+      continue;
+    }
+    if (token === '--preset') {
+      const value = String(argv[index + 1] || '').trim();
+      if (!value) {
+        throw new Error('参数 --preset 缺少取值。');
+      }
+      args.preset = value;
+      index += 1;
       continue;
     }
     throw new Error(`未知参数: ${token}`);
@@ -226,6 +270,87 @@ async function updateGeneratedPackageJson(targetDir, appId, dryRun) {
   if (!dryRun) {
     await fs.writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
   }
+}
+
+function toSingleQuotedArrayLiteral(values) {
+  return `[${values.map((value) => `'${value}'`).join(', ')}]`;
+}
+
+function replaceEnabledModulesInPlatformConfig(source, modules) {
+  const pattern = /enabledModules:\s*\[[^\]]*\]/;
+  if (!pattern.test(source)) {
+    throw new Error('未找到 enabledModules 配置项，无法更新模块白名单。');
+  }
+
+  const next = source.replace(pattern, `enabledModules: ${toSingleQuotedArrayLiteral(modules)}`);
+
+  return next;
+}
+
+function replaceTopBarFeatureFlag(source, field, value) {
+  const pattern = new RegExp(`${field}:\\s*(true|false),?`);
+  if (!pattern.test(source)) {
+    throw new Error(`未找到顶栏配置字段：${field}`);
+  }
+
+  const next = source.replace(pattern, `${field}: ${value},`);
+  return next;
+}
+
+async function applyAppPreset(targetDir, preset, dryRun) {
+  const presetModules = APP_PRESET_MODULES[preset];
+  const presetTopBarFeatures = APP_PRESET_TOPBAR_FEATURES[preset];
+
+  if (!presetModules || !presetTopBarFeatures) {
+    throw new Error(`不支持的 preset: ${preset}`);
+  }
+
+  const platformConfigPath = path.join(targetDir, 'src/config/platform-config.ts');
+  const platformConfig = await fs.readFile(platformConfigPath, 'utf8');
+  const nextPlatformConfig = replaceEnabledModulesInPlatformConfig(platformConfig, presetModules);
+
+  const uiConfigPath = path.join(targetDir, 'src/config/ui.ts');
+  const uiConfig = await fs.readFile(uiConfigPath, 'utf8');
+  let nextUiConfig = uiConfig;
+  nextUiConfig = replaceTopBarFeatureFlag(
+    nextUiConfig,
+    'tenantSwitcher',
+    presetTopBarFeatures.tenantSwitcher
+  );
+  nextUiConfig = replaceTopBarFeatureFlag(
+    nextUiConfig,
+    'profileDialog',
+    presetTopBarFeatures.profileDialog
+  );
+  nextUiConfig = replaceTopBarFeatureFlag(
+    nextUiConfig,
+    'changePassword',
+    presetTopBarFeatures.changePassword
+  );
+  nextUiConfig = replaceTopBarFeatureFlag(
+    nextUiConfig,
+    'personalization',
+    presetTopBarFeatures.personalization
+  );
+
+  if (!dryRun && nextPlatformConfig !== platformConfig) {
+    await fs.writeFile(platformConfigPath, nextPlatformConfig, 'utf8');
+  }
+
+  if (!dryRun && nextUiConfig !== uiConfig) {
+    await fs.writeFile(uiConfigPath, nextUiConfig, 'utf8');
+  }
+}
+
+function parseEnabledModulesFromPlatformConfig(source) {
+  const matched = source.match(/enabledModules:\s*\[(?<items>[^\]]*)\]/);
+  const rawItems = matched?.groups?.items;
+  if (!rawItems) {
+    throw new Error('未找到 enabledModules 配置项，无法注入 starter-crud。');
+  }
+
+  const modules = [...rawItems.matchAll(/'([^']+)'/g)].map((item) => item[1]).filter(Boolean);
+  return modules;
 }
 
 function createStarterCrudFiles() {
@@ -1026,10 +1151,11 @@ async function enableCrudStarter(targetDir, dryRun) {
   const createdFiles = await writeFiles(targetDir, createStarterCrudFiles(), dryRun);
   const platformConfigPath = path.join(targetDir, 'src/config/platform-config.ts');
   const platformConfig = await fs.readFile(platformConfigPath, 'utf8');
-  const nextPlatformConfig = platformConfig.replace(
-    /enabledModules:\s*\[\s*'home',\s*'admin-management',\s*'log-management',\s*'system-management'\s*\]/,
-    "enabledModules: ['home', 'admin-management', 'log-management', 'system-management', 'starter-crud']"
-  );
+  const modules = parseEnabledModulesFromPlatformConfig(platformConfig);
+  if (!modules.includes('starter-crud')) {
+    modules.push('starter-crud');
+  }
+  const nextPlatformConfig = replaceEnabledModulesInPlatformConfig(platformConfig, modules);
 
   if (!dryRun && nextPlatformConfig !== platformConfig) {
     await fs.writeFile(platformConfigPath, nextPlatformConfig, 'utf8');
@@ -1039,13 +1165,18 @@ async function enableCrudStarter(targetDir, dryRun) {
 }
 
 export async function scaffoldApp(options) {
-  const { rootDir, appId, dryRun = false, withCrudStarter = false } = options;
+  const { rootDir, appId, dryRun = false, withCrudStarter = false, preset = 'standard' } = options;
 
   if (!appId) {
     throw new Error('缺少 app-id。');
   }
   if (!APP_ID_REGEX.test(appId)) {
     throw new Error(`应用名不合法: "${appId}"。仅支持小写字母、数字、短横线，且必须字母开头。`);
+  }
+  if (!VALID_APP_PRESETS.has(preset)) {
+    throw new Error(
+      `不支持的 preset: "${preset}"。可选值：${Array.from(VALID_APP_PRESETS).join(' / ')}`
+    );
   }
 
   const adminLiteDir = path.join(rootDir, 'apps/admin-lite');
@@ -1075,6 +1206,7 @@ export async function scaffoldApp(options) {
       created: false,
       dryRun: true,
       appId,
+      preset,
       targetDir,
       withCrudStarter,
       plannedFiles
@@ -1098,6 +1230,7 @@ export async function scaffoldApp(options) {
 
   await transformCopiedFiles(targetDir, context, false);
   await updateGeneratedPackageJson(targetDir, appId, false);
+  await applyAppPreset(targetDir, preset, false);
 
   let starterCrudFiles = [];
   if (withCrudStarter) {
@@ -1109,6 +1242,7 @@ export async function scaffoldApp(options) {
     created: !dryRun,
     dryRun,
     appId,
+    preset,
     targetDir,
     withCrudStarter,
     plannedFiles
@@ -1127,6 +1261,7 @@ async function main() {
   const result = await scaffoldApp({
     rootDir,
     appId: args.appId,
+    preset: args.preset,
     dryRun: args.dryRun,
     withCrudStarter: args.withCrudStarter
   });
@@ -1134,6 +1269,7 @@ async function main() {
   if (result.dryRun) {
     console.log('[dry-run] 计划生成新 app：');
     console.log(`- 目标目录: ${result.targetDir}`);
+    console.log(`- preset: ${result.preset}`);
     console.log(`- 附带 CRUD starter: ${result.withCrudStarter ? '是' : '否'}`);
     console.log(`- 样式入口: src/bootstrap/${result.appId}-styles.ts`);
     if (result.withCrudStarter) {
@@ -1143,6 +1279,7 @@ async function main() {
   }
 
   console.log(`新 app 已生成: ${result.targetDir}`);
+  console.log(`- preset: ${result.preset}`);
   console.log(`启动命令: vp run --filter ${result.appId} dev`);
   console.log(
     `验证命令: pnpm -C apps/${result.appId} typecheck && pnpm -C apps/${result.appId} build`

@@ -1,6 +1,8 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vite-plus/test';
+import { buildRouteFullPath, getRouteAccess } from '@one-base-template/core';
+import type { RouteRecordRaw, RouteMeta } from 'vue-router';
 import { getPlatformConfig } from '@/config/platform-config';
 import { buildAppRoutes } from '@/router/assemble-routes';
 import { routePaths } from '@/router/constants';
@@ -17,6 +19,31 @@ function resolvePolicyArtifactPath() {
   const artifactDir = path.join(repoRoot, '.codex', 'route-policy');
   mkdirSync(artifactDir, { recursive: true });
   return path.join(artifactDir, 'admin-lite-route-policy.json');
+}
+
+interface RouteMetaSnapshot {
+  name: string | symbol | null;
+  path: string;
+  meta: RouteMeta | undefined;
+}
+
+function flattenRoutesWithMeta(routes: RouteRecordRaw[], parentPath = '/'): RouteMetaSnapshot[] {
+  const output: RouteMetaSnapshot[] = [];
+
+  for (const route of routes) {
+    const fullPath = buildRouteFullPath(parentPath, route.path, '/');
+    output.push({
+      name: route.name ?? null,
+      path: fullPath,
+      meta: route.meta as RouteMeta | undefined
+    });
+
+    if (Array.isArray(route.children) && route.children.length > 0) {
+      output.push(...flattenRoutesWithMeta(route.children, fullPath));
+    }
+  }
+
+  return output;
 }
 
 describe('router/route-policy', () => {
@@ -74,5 +101,20 @@ describe('router/route-policy', () => {
     expect(report.authRoutes.some((item) => item.path === '/home/index')).toBe(true);
     expect(report.menuRoutes.some((item) => item.path === '/system/permission')).toBe(true);
     expect(report.menuRoutes.some((item) => item.path === '/ext/:slug(.*)*')).toBe(true);
+
+    const routeMetaSnapshots = flattenRoutesWithMeta(result.routes);
+
+    const keepAliveRoutes = routeMetaSnapshots.filter((item) => item.meta?.keepAlive === true);
+    for (const item of keepAliveRoutes) {
+      expect(typeof item.name === 'string' && item.name.length > 0).toBe(true);
+    }
+
+    const openRoutes = routeMetaSnapshots.filter(
+      (item) => getRouteAccess(item.meta, 'menu') === 'open'
+    );
+    for (const item of openRoutes) {
+      expect(item.meta?.hiddenTab).toBe(true);
+      expect(item.meta?.activePath).toBeUndefined();
+    }
   });
 });

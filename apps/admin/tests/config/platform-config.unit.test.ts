@@ -9,7 +9,7 @@ describe('config/platform-config', () => {
     expect(config.historyMode).toBe('history');
     expect(config.menuMode).toBe('remote');
     expect(config.enabledModules).toContain('home');
-    expect(config.enabledModules).toContain('DocumentFormManagement');
+    expect(config.enabledModules).toContain('document-form-management');
     expect(config.storageNamespace).toBe('one-base-template-admin');
     expect(config.tokenKey).toBe('one-base-template-admin-token');
     expect(config.idTokenKey).toBe('one-base-template-admin-id-token');

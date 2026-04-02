@@ -2,6 +2,30 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-02（admin/admin-lite 命名收口 + new:app preset + route meta 风险门禁）
+
+- 命名收口（模块 id）：
+  - `apps/admin/src/modules/PortalManagement/index.ts`：`moduleMeta.id` 改为 `portal-management`
+  - `apps/admin/src/modules/DocumentFormManagement/index.ts`：`moduleMeta.id` 改为 `document-form-management`
+  - `apps/admin/src/config/platform-config.ts`：`enabledModules` 切换到 kebab-case id
+  - `apps/admin/src/router/registry.ts`：新增历史 id 自动映射（`PortalManagement`、`DocumentFormManagement`）与 warn 提示
+- 脚手架增强（new:app）：
+  - `scripts/new-app.mjs` 新增 `--preset minimal|standard|enterprise`
+  - `preset` 会同步调整派生 app 的 `enabledModules` 与顶栏开关（`tenantSwitcher/profileDialog/changePassword/personalization`）
+  - `withCrudStarter` 从“固定数组替换”改为“基于当前模块列表追加 `starter-crud`”
+  - `scripts/__tests__/new-app.test.mjs` 新增 preset 参数解析与 preset 行为测试
+- 路由 meta 风险门禁：
+  - `apps/admin/tests/router/route-policy.unit.test.ts`、`apps/admin-lite/tests/router/route-policy.unit.test.ts` 新增约束：
+    - `keepAlive=true` 的路由必须有稳定 `name`
+    - `access='open'` 路由必须 `hiddenTab=true` 且不得配置 `activePath`
+  - `apps/admin/tests/architecture/route-meta-helper-source.unit.test.ts` 补齐 `DocumentFormManagement` 路由文件检查，防止漏走 meta helper
+- 文档同步：
+  - `apps/admin-lite/README.md`、`apps/docs/docs/guide/admin-lite-base-app.md`：补充 `--preset` 使用方式与三种 preset 语义
+  - `apps/docs/docs/guide/quick-start.md`、`apps/docs/docs/guide/for-users.md`：补充“10 分钟起新后台”闭环
+  - `apps/docs/docs/guide/menu-route-spec.md`：新增 route meta 常见坑与自检项
+  - `apps/docs/docs/guide/module-system.md`：更新模块 id 命名收口说明与旧 id 兼容告警说明
+  - `apps/admin/AGENTS.md`：更新 Portal 模块“目录名 vs moduleMeta.id”约束描述
+
 ## 2026-04-02（docs 维护治理补充：版本治理 SOP + 业务版本矩阵）
 
 - 目标：把“多版本并行维护（A=1.x，B=2.x）”治理规则沉淀到 `apps/docs`，避免仅停留在会话说明。
