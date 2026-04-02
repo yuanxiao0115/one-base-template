@@ -10263,3 +10263,12 @@
   - admin/admin-lite 路由策略定向单测均通过（各 `1 file / 3 tests`）。
   - `new:module --dry-run` 输出已切换为 `index.ts` 模块入口。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-02（docs：1分钟路由 meta 速查卡）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error。
+  - `apps/docs`：`build` 成功。

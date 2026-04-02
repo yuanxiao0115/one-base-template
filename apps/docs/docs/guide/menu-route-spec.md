@@ -3,6 +3,55 @@
 > 适用范围：`apps/admin` + `apps/admin-lite` + `packages/core` + `packages/adapters` + `packages/ui`  
 > 目标：给后台基座使用者一份“能直接照做”的菜单/路由规范，降低理解与配置成本。
 
+## TL;DR：1分钟路由 Meta 速查卡
+
+### 你只需要先记住这 4 件事
+
+1. `meta.access` 决定这条路由要不要登录、要不要走菜单权限。
+2. 不写 `meta.access` 会按 `menu` 处理（最严格，既要登录也要菜单权限）。
+3. 路由 meta 统一用 `@/router/meta` helper，禁止散写 `meta: {}`。
+4. `keepAlive=true` 的路由必须有稳定 `name`，否则缓存命中会漂移。
+
+### `meta.access` 三种取值（先看这个）
+
+| 场景                           | access | 是否需要登录 | 是否校验菜单权限 | 是否进菜单                 |
+| ------------------------------ | ------ | ------------ | ---------------- | -------------------------- |
+| 登录页、SSO 回调页、公开页     | `open` | 否           | 否               | 否                         |
+| 已登录可访问，但不依赖菜单权限 | `auth` | 是           | 否               | 视 `hideInMenu/title` 而定 |
+| 常规业务菜单页（默认）         | `menu` | 是           | 是               | 是（需 `meta.title`）      |
+
+### 路由写法模板（直接复制）
+
+```ts
+import { createAuthRouteMeta, createOpenRouteMeta, defineRouteMeta } from '@/router/meta';
+
+// 开放页（如登录页）
+const loginMeta = createOpenRouteMeta({
+  title: '登录页'
+});
+
+// 仅登录可访问（不走菜单权限）
+const profileMeta = createAuthRouteMeta({
+  title: '个人信息',
+  hiddenTab: true
+});
+
+// 常规菜单页（默认 menu）
+const userListMeta = defineRouteMeta({
+  title: '用户管理',
+  icon: 'ep:user',
+  order: 10,
+  keepAlive: true
+});
+```
+
+### 30 秒自检（避免 80% 的坑）
+
+1. `open` 路由必须 `hiddenTab=true`，并且不要配 `activePath`。
+2. `keepAlive=true` 路由必须有唯一、稳定的 `route.name`。
+3. 非菜单详情页才配 `activePath`，且值必须是已存在的绝对路径。
+4. 变更后执行 `pnpm check:admin:route-policy`，检查 `.codex/route-policy/admin-route-policy.json`。
+
 ## 1. 推荐模式（不混合）
 
 本模板明确不推荐“静态 + 远程混合菜单”。对外只推荐两种模式：

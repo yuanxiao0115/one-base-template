@@ -11609,3 +11609,11 @@
 - 脚手架可测性补齐：
   - 重构 `scripts/new-module.mjs`，导出 `parseArgs` 与 `scaffoldModule`，并改为 `import.meta.url` 守卫主入口执行。
   - 新增 `scripts/__tests__/new-module.test.mjs`（参数解析、dry-run、真实生成断言）。
+
+## 2026-04-02（docs：补充 1 分钟版路由 meta 速查卡）
+
+- 按用户要求在 `apps/docs/docs/guide/menu-route-spec.md` 顶部新增 `TL;DR：1分钟路由 Meta 速查卡`。
+- 速查卡内容包含：
+  - `meta.access` 三种取值（`open/auth/menu`）的登录与菜单权限语义对照表；
+  - helper 写法模板（`createOpenRouteMeta/createAuthRouteMeta/defineRouteMeta`）；
+  - 30 秒自检清单（`open + hiddenTab`、`keepAlive + name`、`activePath` 约束、`check:admin:route-policy`）。
