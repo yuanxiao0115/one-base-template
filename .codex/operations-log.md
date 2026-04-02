@@ -11572,3 +11572,16 @@
   - 新增 `resolveCarouselArrow(value)`，返回严格联合类型：`'always' | 'hover' | 'never'`。
   - `publicityConfig.arrow` 改为调用该函数，避免被推断成宽泛 `string`。
 - 结果：`apps/admin typecheck` 恢复通过，整条登录域相关验证链路通过。
+
+## 2026-04-02（架构治理补强：命名门禁 + admin-lite 体积门禁 + new-module 测试）
+
+- 命名治理收口：
+  - `scripts/check-naming.mjs` 的模块入口匹配从 `module.ts` 切到 `index.ts`，与当前模块契约一致。
+  - 收敛命名违规函数（`route-policy`、`DocumentFormManagement template-service`、`PortalManagement materials/extensions`），`pnpm check:naming` 已拉绿。
+- admin-lite 体积预算门禁：
+  - 新增 `scripts/check-admin-lite-build-size.mjs`。
+  - 根 `package.json` 新增 `check:admin-lite:bundle`，并接入 `verify`（`... && pnpm check:admin:bundle && pnpm check:admin-lite:bundle`）。
+  - 文档与规则同步：`apps/docs/docs/guide/development.md`、`apps/admin-lite/AGENTS.md`、`apps/admin-lite/README.md`。
+- 脚手架可测性补齐：
+  - 重构 `scripts/new-module.mjs`，导出 `parseArgs` 与 `scaffoldModule`，并改为 `import.meta.url` 守卫主入口执行。
+  - 新增 `scripts/__tests__/new-module.test.mjs`（参数解析、dry-run、真实生成断言）。

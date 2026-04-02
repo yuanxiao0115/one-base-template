@@ -10211,3 +10211,24 @@
   - admin/admin-lite 登录相关定向测试通过；`typecheck` 通过。
   - core `sso-callback-strategy` 测试集通过（25 files / 120 tests）。
   - portal `typecheck` 通过。
+
+## 2026-04-02（架构治理补强：命名门禁 + admin-lite 体积门禁 + new-module 测试）
+
+- GREEN / 回归：
+  - `pnpm check:naming`
+  - `pnpm check:admin:bundle`
+  - `pnpm check:admin-lite:bundle`
+  - `node --test scripts/__tests__/new-module.test.mjs scripts/__tests__/new-app.test.mjs`
+  - `pnpm -C apps/admin test:run:file -- tests/router/route-policy.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/router/route-policy.unit.test.ts`
+  - `pnpm new:module codex-temp-module --dry-run`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `check:naming` 通过（schema 校验通过 + 命名扫描 0 违规）。
+  - `check:admin:bundle` 通过（startup js count `7/22`，startup js gzip `141.1KiB/820KiB`）。
+  - `check:admin-lite:bundle` 通过（startup js count `7/22`，startup js gzip `140.8KiB/820KiB`）。
+  - `scripts` 测试通过：`5 tests / 5 pass`（含新增 `new-module` 测试）。
+  - admin/admin-lite 路由策略定向单测均通过（各 `1 file / 3 tests`）。
+  - `new:module --dry-run` 输出已切换为 `index.ts` 模块入口。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
