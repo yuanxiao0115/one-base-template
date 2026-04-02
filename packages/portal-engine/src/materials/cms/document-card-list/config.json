@@ -5,7 +5,7 @@
   "content": {
     "name": "cms-document-card-list-content",
     "title": {
-      "title": "文件专栏卡片",
+      "title": "卡片专栏",
       "titleStyle": "simple",
       "showMore": false,
       "moreLink": ""

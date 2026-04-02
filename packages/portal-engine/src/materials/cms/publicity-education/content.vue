@@ -184,7 +184,7 @@ const { sectionData } = useSchemaConfig<PublicityEducationContentData>({
     container: {
       defaultValue: {
         showTitle: true,
-        title: '宣传教育',
+        title: '分页签图文轮播',
         subtitle: '按栏目展示图文与资讯',
         icon: 'ri:book-open-line'
       }

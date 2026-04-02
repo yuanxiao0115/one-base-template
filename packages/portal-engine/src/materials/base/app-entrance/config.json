@@ -16,9 +16,31 @@
     },
     "addText": "添加应用",
     "appCenterUrl": "/application/center",
+    "dataSource": {
+      "mode": "static",
+      "staticRowsJson": "[\n  {\n    \"id\": \"entry-1\",\n    \"title\": \"门户首页\",\n    \"description\": \"前往门户首页\",\n    \"icon\": \"ri:home-5-line\",\n    \"image\": \"\",\n    \"badge\": \"常用\",\n    \"link\": {\n      \"path\": \"/portal/index\",\n      \"paramKey\": \"id\",\n      \"valueKey\": \"id\",\n      \"openType\": \"router\"\n    }\n  },\n  {\n    \"id\": \"entry-2\",\n    \"title\": \"通知公告\",\n    \"description\": \"查看最新通知\",\n    \"icon\": \"ri:notification-3-line\",\n    \"image\": \"\",\n    \"badge\": \"\",\n    \"link\": {\n      \"path\": \"/portal/notice\",\n      \"paramKey\": \"id\",\n      \"valueKey\": \"id\",\n      \"openType\": \"router\"\n    }\n  }\n]",
+      "method": "GET",
+      "apiUrl": "",
+      "headersJson": "{}",
+      "queryJson": "{}",
+      "bodyJson": "{}",
+      "listPath": "data.records",
+      "totalPath": "data.total",
+      "successPath": "code",
+      "successValue": "200",
+      "pageParamKey": "currentPage",
+      "pageSizeParamKey": "pageSize"
+    },
     "entrance": {
       "columnCount": 4,
       "showDescription": false,
+      "idKey": "id",
+      "titleKey": "title",
+      "descriptionKey": "description",
+      "iconKey": "icon",
+      "imageKey": "image",
+      "badgeKey": "badge",
+      "linkKey": "link",
       "items": [
         {
           "id": "entry-1",

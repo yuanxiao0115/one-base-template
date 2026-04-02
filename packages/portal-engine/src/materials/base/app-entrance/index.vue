@@ -1,6 +1,7 @@
 <template>
   <UnifiedContainerDisplay :content="containerContentConfig" :style="containerStyleConfig">
-    <div class="app-entrance" :style="containerStyleObj">
+    <el-skeleton v-if="loading" :rows="4" animated />
+    <div v-else class="app-entrance" :style="containerStyleObj">
       <div
         v-for="(app, index) in displayItems"
         :key="app.id || index"
@@ -34,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type CSSProperties } from 'vue';
+import { computed, onBeforeUnmount, ref, watch, type CSSProperties } from 'vue';
 import { useRouter } from 'vue-router';
 import { MenuIcon } from '@one-base-template/ui';
 import { UnifiedContainerDisplay } from '../../common/unified-container';
@@ -42,6 +43,11 @@ import type {
   UnifiedContainerContentConfigModel,
   UnifiedContainerStyleConfigModel
 } from '../../common/unified-container';
+import {
+  loadPortalDataSourceRows,
+  mergePortalDataSourceModel,
+  type PortalDataSourceModel
+} from '../common/portal-data-source';
 import {
   normalizeImageSource,
   resolveValueByPath,
@@ -73,11 +79,19 @@ interface EntranceItem {
 interface AppEntranceSchema {
   content?: {
     container?: Partial<UnifiedContainerContentConfigModel>;
+    dataSource?: Partial<PortalDataSourceModel>;
     addText?: string;
     appCenterUrl?: string;
     entrance?: {
       columnCount?: number;
       showDescription?: boolean;
+      idKey?: string;
+      titleKey?: string;
+      descriptionKey?: string;
+      iconKey?: string;
+      imageKey?: string;
+      badgeKey?: string;
+      linkKey?: string;
       items?: EntranceItem[];
     };
   };
@@ -115,12 +129,18 @@ try {
   router = null;
 }
 
+const loading = ref(false);
+const sourceRows = ref<Record<string, unknown>[]>([]);
+const dataSourceLoadError = ref(false);
+let requestController: AbortController | null = null;
+
 const containerContentConfig = computed(() => props.schema?.content?.container);
 const containerStyleConfig = computed(() => props.schema?.style?.container);
 const entranceConfig = computed(() => props.schema?.content?.entrance || {});
+const dataSource = computed(() => mergePortalDataSourceModel(props.schema?.content?.dataSource));
 const entranceStyle = computed(() => props.schema?.style?.entrance || {});
 
-const displayItems = computed(() => {
+const fallbackItems = computed(() => {
   const items = Array.isArray(entranceConfig.value.items) ? entranceConfig.value.items : [];
   return items.map((item, index) => ({
     id: String(item.id || `app-${index + 1}`),
@@ -138,6 +158,50 @@ const displayItems = computed(() => {
       }
     )
   }));
+});
+
+const itemMapping = computed(() => ({
+  idKey: String(entranceConfig.value.idKey || 'id'),
+  titleKey: String(entranceConfig.value.titleKey || 'title'),
+  descriptionKey: String(entranceConfig.value.descriptionKey || 'description'),
+  iconKey: String(entranceConfig.value.iconKey || 'icon'),
+  imageKey: String(entranceConfig.value.imageKey || 'image'),
+  badgeKey: String(entranceConfig.value.badgeKey || 'badge'),
+  linkKey: String(entranceConfig.value.linkKey || 'link')
+}));
+
+function resolveRowLinkConfig(row: Record<string, unknown>): Partial<PortalLinkConfig> {
+  const linkValue = resolveValueByPath(row, itemMapping.value.linkKey);
+  if (linkValue && typeof linkValue === 'object' && !Array.isArray(linkValue)) {
+    return linkValue as Partial<PortalLinkConfig>;
+  }
+  return {
+    path: resolveValueByPath(row, 'linkPath'),
+    paramKey: resolveValueByPath(row, 'linkParamKey'),
+    valueKey: resolveValueByPath(row, 'linkValueKey'),
+    openType: resolveValueByPath(row, 'openType')
+  };
+}
+
+const dataSourceItems = computed(() => {
+  return sourceRows.value.map((row, index) => {
+    return {
+      id: String(resolveValueByPath(row, itemMapping.value.idKey) || `app-${index + 1}`),
+      title: String(resolveValueByPath(row, itemMapping.value.titleKey) || `入口${index + 1}`),
+      description: String(resolveValueByPath(row, itemMapping.value.descriptionKey) || ''),
+      icon: String(resolveValueByPath(row, itemMapping.value.iconKey) || ''),
+      image: String(resolveValueByPath(row, itemMapping.value.imageKey) || ''),
+      badge: String(resolveValueByPath(row, itemMapping.value.badgeKey) || ''),
+      link: mergePortalLinkConfig(resolveRowLinkConfig(row))
+    };
+  });
+});
+
+const displayItems = computed(() => {
+  if (dataSourceLoadError.value) {
+    return fallbackItems.value;
+  }
+  return dataSourceItems.value;
 });
 
 const showDescription = computed(() => entranceConfig.value.showDescription === true);
@@ -260,6 +324,48 @@ function openAppCenter() {
     routerPush: router ? (nextLink: string) => router!.push(nextLink) : null
   });
 }
+
+function cancelRequest() {
+  if (requestController) {
+    requestController.abort();
+    requestController = null;
+  }
+}
+
+async function loadSourceRows() {
+  cancelRequest();
+  requestController = new AbortController();
+
+  loading.value = true;
+  const result = await loadPortalDataSourceRows<Record<string, unknown>>(dataSource.value, {
+    page: 1,
+    pageSize: 120,
+    signal: requestController.signal
+  });
+
+  if (requestController.signal.aborted) {
+    return;
+  }
+
+  dataSourceLoadError.value = !result.success;
+  sourceRows.value = result.success ? result.rows : [];
+  loading.value = false;
+}
+
+watch(
+  () => [dataSource.value, itemMapping.value],
+  () => {
+    loadSourceRows();
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+);
+
+onBeforeUnmount(() => {
+  cancelRequest();
+});
 
 defineOptions({
   name: 'app-entrance-index'

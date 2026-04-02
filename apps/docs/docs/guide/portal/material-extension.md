@@ -75,6 +75,16 @@
     - 重点复刻：`publicity-education`、`mail-list`、`dept-upload-files`、`app-entrance`、`image-link-list`
     - 细节对齐：`image-text-column`（恢复 `showDot` 绑定）、`carousel-text-list`（轮播图 `coverUrl/carouselUrl` 双字段兼容）
   - 迁移口径：**配置组件可以按新项目标准演进，但前台渲染样式以老项目效果为基准**。
+- 分类与命名收口（2026-04-02）：
+  - `app-entrance`：配置面板新增统一 `PortalDataSourceCard`，支持静态 JSON / 接口数据；渲染层数据源优先，失败时回退到入口列表兜底。
+  - 物料分类调整：
+    - `cms-mail-list`、`cms-dept-upload-files` -> `列表组件`
+    - `cms-related-links` -> `链接组件`
+    - `basic-app-entrance` -> `业务组件`
+  - 物料重命名：
+    - `文件专栏卡片` -> `卡片专栏`
+    - `宣传教育` -> `分页签图文轮播`
+  - 物料库中组件名称发生省略时，统一通过 tooltip 展示完整名称。
 
 ## 关键约束
 

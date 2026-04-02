@@ -277,13 +277,10 @@ const LIST_COMPONENT_IDS = [
   'basic-base-timeline'
 ] as const;
 
-const LINK_COMPONENT_IDS = [
-  'basic-app-entrance',
-  'basic-image-link-list',
-  'basic-base-button-group'
-] as const;
+const LINK_COMPONENT_IDS = ['basic-image-link-list', 'basic-base-button-group'] as const;
 
 const BUSINESS_COMPONENT_IDS = [
+  'basic-app-entrance',
   'basic-base-search-box',
   'basic-base-notice',
   'basic-base-form',
@@ -299,11 +296,8 @@ function pickMaterialGroup(materialIds: readonly string[]): PortalMaterialItem[]
 
 const basicComponents = pickMaterialGroup(BASIC_COMPONENT_IDS);
 const containerComponents = pickMaterialGroup(CONTAINER_COMPONENT_IDS);
-const listComponents = pickMaterialGroup(LIST_COMPONENT_IDS);
-const linkComponents = pickMaterialGroup(LINK_COMPONENT_IDS);
-const businessComponents = pickMaterialGroup(BUSINESS_COMPONENT_IDS);
 
-const cmsComponents = createComponentGroup(
+const allCmsComponents = createComponentGroup(
   [
     {
       id: 'cms-related-links',
@@ -335,7 +329,7 @@ const cmsComponents = createComponentGroup(
     {
       id: 'cms-document-card-list',
       type: 'cms-document-card-list',
-      name: '文件专栏卡片',
+      name: '卡片专栏',
       width: 12,
       height: 50,
       icon: MATERIAL_ICON_MAP.documentCardList,
@@ -353,7 +347,7 @@ const cmsComponents = createComponentGroup(
     {
       id: 'cms-publicity-education',
       type: 'cms-publicity-education',
-      name: '宣传教育',
+      name: '分页签图文轮播',
       width: 12,
       height: 50,
       icon: MATERIAL_ICON_MAP.publicityEducation,
@@ -380,6 +374,34 @@ const cmsComponents = createComponentGroup(
   ],
   baseConfig
 );
+
+const CMS_LIST_COMPONENT_IDS = ['cms-mail-list', 'cms-dept-upload-files'] as const;
+const CMS_LINK_COMPONENT_IDS = ['cms-related-links'] as const;
+const CMS_COMPONENT_IDS = [
+  'cms-image-text-list',
+  'cms-image-text-column',
+  'cms-document-card-list',
+  'cms-carousel-text-list',
+  'cms-publicity-education'
+] as const;
+
+function pickCmsMaterialGroup(materialIds: readonly string[]): PortalMaterialItem[] {
+  const materialIdSet = new Set(materialIds);
+  return allCmsComponents
+    .filter((material) => materialIdSet.has(material.id))
+    .map((material) => cloneMaterialItem(material));
+}
+
+const listComponents = [
+  ...pickMaterialGroup(LIST_COMPONENT_IDS),
+  ...pickCmsMaterialGroup(CMS_LIST_COMPONENT_IDS)
+];
+const linkComponents = [
+  ...pickMaterialGroup(LINK_COMPONENT_IDS),
+  ...pickCmsMaterialGroup(CMS_LINK_COMPONENT_IDS)
+];
+const businessComponents = pickMaterialGroup(BUSINESS_COMPONENT_IDS);
+const cmsComponents = pickCmsMaterialGroup(CMS_COMPONENT_IDS);
 
 function cloneMaterialItem(item: PortalMaterialItem): PortalMaterialItem {
   return { ...item };

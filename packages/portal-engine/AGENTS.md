@@ -24,6 +24,8 @@
 - 物料库图标必须使用可渲染的 `MenuIcon` 值（`ri:`/`ep:`/iconfont/资源 id），避免不可用图标导致空白占位。
 - 影响配置面板结构时，同步维护文档：`apps/docs/docs/guide/portal-engine.md`。
 - 设计器 public API 一旦补上语义化命名，开发阶段**直接删除旧 public 命名导出**，不保留 deprecated/兼容 alias；实现语义统一收敛到 `@one-base-template/portal-engine/internal`。
+- 业务物料中的跳转行为禁止写死 `router.push('/xxx')` 或固定业务路径；组件仅声明业务 `target/action`，具体路由映射由 `apps/admin`、`apps/portal` 的注册层维护。
+- 通讯录/应用中心等业务页面必须落在应用层（`apps/*/src/modules/**/pages`），`portal-engine` 仅承载共享引擎与物料协议，不承载业务页面实现。
 
 ## 组件注册一致性（防再发）
 

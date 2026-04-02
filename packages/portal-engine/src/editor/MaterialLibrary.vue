@@ -74,7 +74,9 @@ function onDragStart(e: DragEvent, item: RegistryItem) {
             <div class="icon" :class="{ placeholder: !item.cmptIcon }">
               <MenuIcon v-if="item.cmptIcon" :icon="item.cmptIcon" />
             </div>
-            <div class="name" :title="item.cmptName">{{ item.cmptName }}</div>
+            <el-tooltip :content="item.cmptName || item.id" placement="top">
+              <div class="name">{{ item.cmptName }}</div>
+            </el-tooltip>
           </div>
         </div>
       </el-collapse-item>
@@ -175,10 +177,19 @@ function onDragStart(e: DragEvent, item: RegistryItem) {
 }
 
 .name {
+  display: block;
+  flex: 1;
   overflow: hidden;
+  min-width: 0;
   font-size: 12px;
   color: var(--el-text-color-regular);
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.material-card :deep(.el-tooltip__trigger) {
+  display: block;
+  flex: 1;
+  min-width: 0;
 }
 </style>
