@@ -8,7 +8,7 @@ import {
 } from './module-registry';
 
 describe('core/router/module-registry', () => {
-  it('collectModuleLoadEntries 应过滤无效清单并按 id 排序', () => {
+  it('collectModuleLoadEntries 应过滤无效元信息并按 id 排序', () => {
     const warnings: string[] = [];
     const validMeta = {
       id: 'PortalManagement',
@@ -18,29 +18,20 @@ describe('core/router/module-registry', () => {
     } as const satisfies AppModuleManifestMeta;
 
     const entries = collectModuleLoadEntries({
-      manifestDefinitions: {
-        '../modules/PortalManagement/manifest.ts': {
-          default: validMeta
+      moduleMetaDefinitions: {
+        '../modules/PortalManagement/module.ts': validMeta,
+        '../modules/home/module.ts': {
+          id: 'home',
+          version: '1',
+          moduleTier: 'core',
+          enabledByDefault: true
         },
-        '../modules/home/manifest.ts': {
-          default: {
-            id: 'home',
-            version: '1',
-            moduleTier: 'core',
-            enabledByDefault: true
-          }
-        },
-        '../modules/bad/manifest.ts': {
-          default: {
-            id: 'bad',
-            version: '1',
-            moduleTier: 'optional',
-            enabledByDefault: true
-          }
+        '../modules/bad/module.ts': {
+          id: 'bad',
+          version: '1',
+          moduleTier: 'optional',
+          enabledByDefault: true
         }
-      },
-      hasModuleDeclaration(modulePath) {
-        return modulePath.includes('/home/') || modulePath.includes('/PortalManagement/');
       },
       onWarn(message) {
         warnings.push(message);
@@ -48,7 +39,7 @@ describe('core/router/module-registry', () => {
     });
 
     expect(entries.map((item) => item.id)).toEqual(['home', 'PortalManagement']);
-    expect(warnings.some((message) => message.includes('忽略无效模块清单'))).toBe(true);
+    expect(warnings.some((message) => message.includes('忽略无效模块元信息'))).toBe(true);
   });
 
   it('pickEnabledModuleEntries 应支持 * / 默认 / 去重与未知告警', () => {
@@ -59,7 +50,6 @@ describe('core/router/module-registry', () => {
         version: '1',
         moduleTier: 'core',
         enabledByDefault: true,
-        manifestPath: '../modules/home/manifest.ts',
         modulePath: '../modules/home/module.ts'
       },
       {
@@ -67,7 +57,6 @@ describe('core/router/module-registry', () => {
         version: '1',
         moduleTier: 'optional',
         enabledByDefault: false,
-        manifestPath: '../modules/PortalManagement/manifest.ts',
         modulePath: '../modules/PortalManagement/module.ts'
       }
     ] as const;
@@ -104,14 +93,13 @@ describe('core/router/module-registry', () => {
     );
   });
 
-  it('validateModuleDeclaration 应校验声明与清单一致性', () => {
+  it('validateModuleDeclaration 应校验声明与元信息一致性', () => {
     const warnings: string[] = [];
     const entry = {
       id: 'home',
       version: '1',
       moduleTier: 'core',
       enabledByDefault: true,
-      manifestPath: '../modules/home/manifest.ts',
       modulePath: '../modules/home/module.ts'
     } as const;
 
@@ -142,7 +130,7 @@ describe('core/router/module-registry', () => {
       onWarn: (message) => warnings.push(message)
     });
     expect(mismatch).toBeNull();
-    expect(warnings.some((message) => message.includes('模块清单与声明不一致'))).toBe(true);
+    expect(warnings.some((message) => message.includes('模块元信息与声明不一致'))).toBe(true);
   });
 
   it('resolveModuleDeclarationCandidate 应优先 default 再 fallback module', () => {

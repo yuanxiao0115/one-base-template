@@ -11,10 +11,9 @@ import {
 } from '@one-base-template/core';
 import { createAppLogger } from '@/utils/logger';
 
-const moduleManifestDefinitions = import.meta.glob<{
-  default?: AppModuleManifestMeta;
-  moduleManifest?: AppModuleManifestMeta;
-}>('../modules/**/manifest.ts', {
+const moduleMetaDefinitions = import.meta.glob<{
+  moduleMeta?: AppModuleManifestMeta;
+}>('../modules/**/module.ts', {
   eager: true
 });
 
@@ -36,10 +35,9 @@ function getAllModules(): ModuleLoadEntry[] {
   }
 
   cachedAllModules = collectModuleLoadEntries({
-    manifestDefinitions: moduleManifestDefinitions,
-    hasModuleDeclaration(modulePath) {
-      return Boolean(moduleDeclarationLoaders[modulePath]);
-    },
+    moduleMetaDefinitions: Object.fromEntries(
+      Object.entries(moduleMetaDefinitions).map(([path, mod]) => [path, mod.moduleMeta])
+    ),
     onWarn: warn
   });
 

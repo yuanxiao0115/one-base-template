@@ -6,19 +6,11 @@ import type {
 } from './module-assembly';
 
 export interface ModuleLoadEntry extends AppModuleManifestMeta {
-  manifestPath: string;
   modulePath: string;
 }
 
 interface CollectModuleLoadEntriesOptions {
-  manifestDefinitions: Record<
-    string,
-    {
-      default?: AppModuleManifestMeta;
-      moduleManifest?: AppModuleManifestMeta;
-    }
-  >;
-  hasModuleDeclaration: (modulePath: string) => boolean;
+  moduleMetaDefinitions: Record<string, AppModuleManifestMeta | undefined>;
   onWarn: (message: string) => void;
 }
 
@@ -69,14 +61,6 @@ export function isValidAppModuleManifest(input: unknown): input is AppModuleMani
   return Array.isArray(value.routes?.layout);
 }
 
-export function toModuleDeclarationPath(manifestPath: string): string | null {
-  if (!manifestPath.endsWith('/manifest.ts')) {
-    return null;
-  }
-
-  return manifestPath.replace(/\/manifest\.ts$/, '/module.ts');
-}
-
 export function resolveModuleDeclarationCandidate(
   loaded: AppModuleDeclarationModule
 ): AppModuleManifest | undefined {
@@ -99,9 +83,7 @@ export function validateModuleDeclaration(
     candidate.moduleTier !== entry.moduleTier ||
     candidate.enabledByDefault !== entry.enabledByDefault
   ) {
-    onWarn(
-      `模块清单与声明不一致：id=${entry.id}（manifest=${entry.manifestPath} module=${entry.modulePath}）`
-    );
+    onWarn(`模块元信息与声明不一致：id=${entry.id}（module=${entry.modulePath}）`);
     return null;
   }
 
@@ -111,37 +93,29 @@ export function validateModuleDeclaration(
 export function collectModuleLoadEntries(
   options: CollectModuleLoadEntriesOptions
 ): ModuleLoadEntry[] {
-  const { manifestDefinitions, hasModuleDeclaration, onWarn } = options;
+  const { moduleMetaDefinitions, onWarn } = options;
   const byId = new Map<string, ModuleLoadEntry>();
 
-  for (const [path, mod] of Object.entries(manifestDefinitions)) {
-    const candidate = mod.default ?? mod.moduleManifest;
+  for (const [modulePath, candidate] of Object.entries(moduleMetaDefinitions)) {
+    if (!modulePath.endsWith('/module.ts')) {
+      onWarn(`忽略无效模块声明路径：${modulePath}（要求文件名为 module.ts）`);
+      continue;
+    }
+
     if (!isValidAppModuleManifestMeta(candidate)) {
       onWarn(
-        `忽略无效模块清单：${path}（要求 moduleTier 必填，且 optional 模块 enabledByDefault 必须为 false）`
+        `忽略无效模块元信息：${modulePath}（要求 moduleTier 必填，且 optional 模块 enabledByDefault 必须为 false）`
       );
       continue;
     }
 
-    const modulePath = toModuleDeclarationPath(path);
-    if (!modulePath) {
-      onWarn(`忽略无效模块清单路径：${path}（要求文件名为 manifest.ts）`);
-      continue;
-    }
-
-    if (!hasModuleDeclaration(modulePath)) {
-      onWarn(`模块清单缺少对应声明文件：${modulePath}（manifest=${path}）`);
-      continue;
-    }
-
     if (byId.has(candidate.id)) {
-      onWarn(`检测到重复模块 id：${candidate.id}（忽略清单：${path}）`);
+      onWarn(`检测到重复模块 id：${candidate.id}（忽略声明：${modulePath}）`);
       continue;
     }
 
     byId.set(candidate.id, {
       ...candidate,
-      manifestPath: path,
       modulePath
     });
   }

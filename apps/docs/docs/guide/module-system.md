@@ -1,6 +1,6 @@
 # 模块系统与 CLI 切割
 
-从 2026-02-27 起，`apps/admin` 采用 **模块 Manifest 驱动** 的路由组装方式，目标是让模块可以被 CLI 稳定裁剪。
+从 2026-02-27 起，`apps/admin` 采用 **模块 moduleMeta + 模块声明驱动** 的路由组装方式，目标是让模块可以被 CLI 稳定裁剪。
 
 <div class="doc-tldr">
   <strong>先读这一段：</strong>新增模块只需要先看「1) 模块入口约定」+「2) 路由组装规则」+「3) enabledModules 配置开关」，其余章节是深入说明与治理细节。
@@ -8,11 +8,10 @@
 
 ## 1) 模块入口约定
 
-每个业务模块必须提供 `manifest.ts + module.ts` 两个入口：
+每个业务模块必须提供 `module.ts + routes.ts`（或 `routes/index.ts`）入口：
 
 ```text
 apps/admin/src/modules/<module-id>/
-  manifest.ts
   module.ts
   routes.ts | routes/index.ts
   <feature-a>/
@@ -27,19 +26,24 @@ apps/admin/src/modules/<module-id>/
 
 ![模块入口树图（SVG）](/diagrams/module-entry-tree.svg)
 
-`manifest.ts` 必填字段：
+`module.ts` 内 `moduleMeta` 必填字段：
 
 - `id`: 模块标识（建议 kebab-case，如 `portal-management`）
 - `version`: 当前固定为 `'1'`
 - `moduleTier`: 模块分层（`core`/`optional`）
 - `enabledByDefault`: 是否默认启用
 
-`module.ts` 必填字段：
+`module.ts` 默认导出（`AppModuleManifest`）必填字段：
 
 - `routes.layout`: 挂载到 `AdminLayout` 下的路由（可来自 `routes.ts` 或 `routes/index.ts`）
 - `routes.standalone`（可选）: 顶层路由（全屏/匿名等）
 - `apiNamespace`: API 命名空间
 - `compat`（可选）: 历史路径/字段兼容描述
+
+说明：
+
+- 类型名 `AppModuleManifest` / `AppModuleManifestMeta` 仍沿用历史命名。
+- **当前契约不再要求单独 `manifest.ts` 文件**，元信息统一内联在 `module.ts` 的 `moduleMeta` 常量中。
 
 路由文件组织建议：
 
@@ -56,6 +60,13 @@ apps/admin/src/modules/<module-id>/
   - 匿名页显式声明 `access: 'open'`
   - 登录后可访问但不依赖菜单权限的页面显式声明 `access: 'auth'`
   - compat 别名由装配器统一补齐 `hideInMenu/hiddenTab/activePath`
+
+### 为什么把 `manifest.ts` 合并进 `module.ts`
+
+- 单一事实源：模块 id、开关默认值、路由声明在同一文件，减少“改了 A 忘了改 B”的漂移。
+- 注册链路更短：不再需要 `manifest.ts -> module.ts` 的路径映射，`registry` 直接从 `module.ts` 读取 `moduleMeta`。
+- 新人心智更低：一个模块只看 `module.ts + routes.ts` 就能理解注册与装配逻辑。
+- 脚手架更稳：`new:module` 与 `new:app` 模板天然一致，后续维护不再双文件同步。
 
 ### 快速创建模块（推荐）
 
@@ -86,12 +97,12 @@ pnpm new:module user-center --title 用户中心
 ## 2) 路由组装规则
 
 - 统一入口：`apps/admin/src/router/assemble-routes.ts`
-- 清单扫描：`apps/admin/src/modules/**/manifest.ts`
+- 模块元信息扫描：`apps/admin/src/modules/**/module.ts`（eager 读取 `moduleMeta`）
 - 模块加载：按 `enabledModules` 动态加载 `apps/admin/src/modules/**/module.ts`
 - 全局固定路由仅保留：`/login`、`/sso`、`/403`、`/404`、404 兜底
   - 其中 `/login`、`/sso` 都按“认证入口”处理，不是“登录后也可反复进入的普通开放页”
 - admin 当前约定：`/403`、`/404` 作为 `AdminLayout` 子路由渲染（保留顶部栏与侧栏），404 通配兜底默认使用 push 语义
-- 业务路由一律来自模块 Manifest
+- 业务路由一律来自模块声明（`module.ts` 默认导出）
 
 这意味着：
 
@@ -124,7 +135,7 @@ await assembleRoutes({
 - 路由装配职责已拆为：
   - `route-assembly-builder`：递归构造模块路由、activePath 兼容、别名路由生成与冲突校验
   - 其中通用算法已下沉到 `packages/core/src/router/module-assembly.ts`，`apps/admin/src/router/route-assembly-builder.ts` 仅保留 admin 常量与日志适配
-  - `registry` 的 manifest 校验与 enabledModules 筛选纯逻辑已下沉到 `packages/core/src/router/module-registry.ts`，`apps/admin/src/router/registry.ts` 仅保留 `import.meta.glob` 加载与缓存编排
+  - `registry` 的 moduleMeta 校验与 enabledModules 筛选纯逻辑已下沉到 `packages/core/src/router/module-registry.ts`，`apps/admin/src/router/registry.ts` 仅保留 `import.meta.glob` 加载与缓存编排
   - 固定路由（layout/public/catchall）工厂已下沉到 `packages/core/src/router/fixed-routes.ts`，`apps/admin/src/router/assemble-routes.ts` 仅保留应用级参数编排
 
 ### 2.2 compat 执行语义（已落地）
@@ -165,6 +176,9 @@ compat: {
   `packages/core/src/auth/sso-callback-strategy.ts`，admin 侧只保留远端登录编排。
 - `sso-callback-strategy` 约定优先级固定为：
   `sourceCode=zhxt -> sourceCode=YDBG -> ticket -> type+token -> moaToken -> Usertoken`。
+- `ticket` 分支参数透传约定：
+  - 优先读取 URL `serviceUrl` 并透传给业务 handler（与 auth `/ticket/sso` 契约对齐）；
+  - 若未携带 `serviceUrl`，再透传 `redirectUrl` 供应用侧回退拼装。
 - 页面层职责收敛为“状态展示 + handler 注入”，后续新增 SSO 入口优先扩展策略层并补策略单测。
 - 路由装配诊断也已下沉到 `packages/core/src/router/{route-signature,route-diagnostics}.ts`，
   admin 只负责组装业务路由并消费 diagnostics。
@@ -178,6 +192,9 @@ compat: {
   - 新增 `auth-scenario-provider` 单测，覆盖场景分支、token 回填与异常分支。
   - 登录页直登 token 场景优先执行会话收口与跳转，避免被登录页配置接口阻塞。
   - SSO 失败分支统一清理 `tokenKey` 与 `idTokenKey`，降低残留状态影响。
+- 2026-04-02 补充：
+  - `apps/admin` 与 `apps/admin-lite` 的 SSO 配置与远端接口地址统一收敛到 `src/config/auth-sso.ts`；
+  - `apps/portal` 已启用 `/sso` 回调路由与 core SSO 策略（此前 `sso.enabled=false` 的缺口已关闭）。
 
 ### 2.4 路由冲突策略与测试护栏（第四批续）
 
@@ -281,7 +298,7 @@ compat: {
 CLI 生成器可按以下步骤裁剪：
 
 1. 读取 `platform-config.enabledModules`
-2. 过滤模块 Manifest
+2. 过滤模块 `moduleMeta`
 3. 只组装白名单模块路由
 4. 物理删除未选模块目录后执行验证：
    - `pnpm -w typecheck`
@@ -315,7 +332,6 @@ CLI 生成器可按以下步骤裁剪：
 
 ```text
 apps/admin/src/modules/adminManagement/
-  manifest.ts
   module.ts
   routes.ts
   position/list.vue
@@ -415,7 +431,6 @@ export default [
 
 ```text
 apps/admin/src/modules/LogManagement/
-  manifest.ts
   module.ts
   routes.ts
   login-log/api.ts
@@ -446,7 +461,6 @@ apps/admin/src/modules/LogManagement/
 
 ```text
 apps/admin/src/modules/SystemManagement/
-  manifest.ts
   module.ts
   routes.ts
   dict/
@@ -458,7 +472,6 @@ apps/admin/src/modules/SystemManagement/
     list.vue
 
 apps/admin/src/modules/adminManagement/
-  manifest.ts
   module.ts
   routes.ts
   menu/

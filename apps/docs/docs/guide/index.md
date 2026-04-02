@@ -44,7 +44,7 @@ outline: false
   </a>
   <a class="guide-card" href="/guide/module-system">
     <h3>模块系统与切割</h3>
-    <p>基于 manifest/module 的模块装配、白名单过滤与兼容策略。</p>
+    <p>基于 moduleMeta/module 的模块装配、白名单过滤与兼容策略。</p>
   </a>
   <a class="guide-card" href="/guide/menu-route-spec">
     <h3>菜单与路由规范（Schema）</h3>

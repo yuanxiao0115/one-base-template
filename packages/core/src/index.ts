@@ -141,7 +141,6 @@ export {
   validateModuleDeclaration,
   isValidAppModuleManifestMeta,
   isValidAppModuleManifest,
-  toModuleDeclarationPath,
   type ModuleLoadEntry
 } from './router/module-registry';
 export {

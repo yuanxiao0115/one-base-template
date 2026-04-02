@@ -1,9 +1,15 @@
-import type { AppModuleManifest } from '@one-base-template/core';
-import { moduleManifest } from './manifest';
+import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
 import layoutRoutes from './routes';
 
+export const moduleMeta = {
+  id: 'admin-management',
+  version: '1',
+  moduleTier: 'core',
+  enabledByDefault: true
+} as const satisfies AppModuleManifestMeta;
+
 const adminManagementModule: AppModuleManifest = {
-  ...moduleManifest,
+  ...moduleMeta,
   apiNamespace: 'admin-management',
   routes: {
     layout: layoutRoutes

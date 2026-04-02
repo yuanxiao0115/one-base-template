@@ -24,12 +24,12 @@
   <text class="label" x="332" y="147">apps/admin/src/modules/&lt;module-id&gt;/</text>
 
   <rect class="main" x="90" y="250" width="560" height="128" rx="12" />
-  <text class="label" x="116" y="298">manifest.ts</text>
+  <text class="label" x="116" y="298">module.ts（moduleMeta）</text>
   <text class="desc" x="116" y="332">声明 id / version / moduleTier / enabledByDefault</text>
 
   <rect class="main" x="730" y="250" width="560" height="128" rx="12" />
   <text class="label" x="756" y="298">module.ts</text>
-  <text class="desc" x="756" y="332">导出 AppModuleManifest，挂载 routes 与 apiNamespace</text>
+  <text class="desc" x="756" y="332">默认导出 AppModuleManifest，挂载 routes 与 apiNamespace</text>
 
   <rect class="main" x="410" y="432" width="560" height="128" rx="12" />
   <text class="label" x="436" y="480">routes.ts / routes/index.ts</text>
@@ -60,5 +60,5 @@
   <path class="line" d="M690 560 L1017 650" />
   <path class="line" d="M690 560 L1214 650" />
 
-  <text class="desc" x="52" y="910">规范重点：先声明 manifest，再通过 module 统一导出，路由与页面/API/服务组件保持同模块就近维护。</text>
+  <text class="desc" x="52" y="910">规范重点：在 module.ts 内先声明 moduleMeta，再统一导出模块声明，路由与页面/API/服务组件同模块就近维护。</text>
 </svg>

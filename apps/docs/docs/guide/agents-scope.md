@@ -58,7 +58,7 @@
 - `/sso` 登录回调、Cookie 模式鉴权。
 - Layout/TopBar/个性设置规范、UserManagement 迁移细则。
 - 表格迁移样式与结构规范（`ObPageContainer + ObTableBox + ObVxeTable`）。
-- admin-lite 基座红线（默认模块、可开关扩展、`manifest/module/routes` 契约、`lint:arch` 门禁、代码静态配置入口）。
+- admin-lite 基座红线（默认模块、可开关扩展、`module(moduleMeta)/routes` 契约、`lint:arch` 门禁、代码静态配置入口）。
 
 ### 3) core/ui 专属规则（分别下沉）
 

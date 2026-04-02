@@ -10,7 +10,7 @@
 1. 目录分层按“应用组装（apps）+ 共享能力（packages）”组织，**禁止跨层反向依赖**。
 2. `packages/core` 只做逻辑契约，`packages/ui` 只做壳层交互，`packages/adapters` 只做后端协议映射。
 3. admin/admin-lite/portal 共用同一套分层启动思想（`core + ui + adapter`），但保持各自应用边界。
-4. 模块与路由采用 Manifest 装配策略，菜单权限与路由权限按统一契约收敛。
+4. 模块与路由采用 `moduleMeta + module 声明` 装配策略，菜单权限与路由权限按统一契约收敛。
 
 ## Monorepo 架构总览（树图）
 
@@ -66,7 +66,7 @@
 
 ## 路由与模块摘要
 
-- 模块入口：`manifest.ts + module.ts`（先声明元数据，再按白名单装配路由）。
+- 模块入口：`module.ts + routes.ts`（在 `module.ts` 内声明 `moduleMeta`，再按白名单装配路由）。
 - 菜单模式：`remote`（后端菜单树）或 `static`（静态路由生成）。
 - 权限判定：默认 `allowedPaths` 由菜单树推导；未声明 `access` 时按 `menu` 处理，非菜单页通过 `meta.activePath` 或 `meta.access='auth'` 处理。
 

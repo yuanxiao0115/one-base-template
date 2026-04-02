@@ -30,7 +30,7 @@ outline: [2, 3]
 
 ## 路由与模块红线
 
-- 模块契约固定为：`manifest.ts + module.ts + routes.ts`。
+- 模块契约固定为：`module.ts（内含 moduleMeta） + routes.ts`。
 - 路由统一经 `router/registry.ts + router/assemble-routes.ts` 装配。
 - 禁止恢复运行时动态 `addRoute` 驱动主路由。
 - 模块间禁止直接相互 import，共享能力优先通过 `services/types` 或下沉 `packages/*`。

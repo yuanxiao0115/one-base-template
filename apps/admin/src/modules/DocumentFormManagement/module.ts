@@ -1,11 +1,16 @@
-import type { AppModuleManifest } from '@one-base-template/core';
-
-import { moduleManifest } from './manifest';
+import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
 import layoutRoutes from './routes/layout';
 import standaloneRoutes from './routes/standalone';
 
+export const moduleMeta = {
+  id: 'DocumentFormManagement',
+  version: '1',
+  moduleTier: 'optional',
+  enabledByDefault: false
+} as const satisfies AppModuleManifestMeta;
+
 const documentFormManagementModule: AppModuleManifest = {
-  ...moduleManifest,
+  ...moduleMeta,
   apiNamespace: 'document-form-management',
   routes: {
     layout: layoutRoutes,

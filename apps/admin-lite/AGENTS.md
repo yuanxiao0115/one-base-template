@@ -37,7 +37,7 @@
 ## 路由与菜单
 
 - 路由全部前端静态声明，统一通过 `modules/**/routes.ts` 导出。
-- 模块契约固定为：`manifest.ts + module.ts + routes.ts`。
+- 模块契约固定为：`module.ts（内含 moduleMeta） + routes.ts`。
 - 模块路由统一经 `router/registry.ts + router/assemble-routes.ts` 装配，禁止回退到运行时动态 `addRoute`。
 - 菜单模式支持 `remote` / `static`；未声明 `meta.access` 时默认按 `menu` 处理。
 - 非菜单但需要登录的页面，统一使用 `meta.access='auth'` 或 `meta.activePath` 收口。

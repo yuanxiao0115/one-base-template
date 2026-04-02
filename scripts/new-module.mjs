@@ -66,23 +66,18 @@ function createFiles(params) {
     params;
 
   return {
-    'manifest.ts': `import type { AppModuleManifestMeta } from '@one-base-template/core';
+    'module.ts': `import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
+import layoutRoutes from './routes';
 
-export const moduleManifest = {
+export const moduleMeta = {
   id: '${moduleId}',
   version: '1',
   moduleTier: 'core',
   enabledByDefault: true
 } as const satisfies AppModuleManifestMeta;
 
-export default moduleManifest;
-`,
-    'module.ts': `import type { AppModuleManifest } from '@one-base-template/core';
-import { moduleManifest } from './manifest';
-import layoutRoutes from './routes';
-
 const ${moduleVar}: AppModuleManifest = {
-  ...moduleManifest,
+  ...moduleMeta,
   apiNamespace: '${moduleId}',
   routes: {
     layout: layoutRoutes
