@@ -11631,3 +11631,13 @@
   - `apps/docs/docs/guide/development.md` 首屏体感章节标题与主语收口到 `ObTable`。
   - `apps/docs/docs/guide/agents-scope.md`、`apps/docs/docs/guide/module-system.md`、`apps/docs/docs/guide/portal/admin-designer.md` 同步替换历史表述，避免读者被双口径误导。
 - 过程说明：工作区存在 `apps/admin*/src/types/*.d.ts` 与 `=` 的并行改动，按用户确认“忽略并行开发内容”，本次仅提交 docs 相关文件。
+
+## 2026-04-02（docs 分层入口收口：P2/P4/P6 路径主入口）
+
+- 文档入口收口：
+  - `apps/docs/docs/guide/index.md` 新增“按水平进入（推荐主入口）”卡片区，提供 `P2/P4/P6` 直达。
+  - `apps/docs/docs/guide/for-users.md`、`apps/docs/docs/guide/for-maintainers.md` 顶部新增“推荐先看按水平入口”提示。
+- 导航与侧边栏收口：
+  - `apps/docs/docs/.vitepress/config.ts` 的总览侧边栏从“角色优先”调整为“水平优先，角色辅助”。
+- 范围控制：
+  - 按用户确认继续忽略并行改动（`apps/admin*/src/types/*.d.ts`、`=` 及其他业务并行文件），本次仅收口 docs + .codex。

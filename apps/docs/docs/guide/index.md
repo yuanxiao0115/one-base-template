@@ -6,6 +6,25 @@ outline: false
 
 文档按“大目录”组织：**入门 → 架构 → 开发实践 → 扩展能力 → 维护治理**。
 
+## 🧭 按水平进入（推荐主入口）
+
+<p class="guide-section-intro">先按能力层级选路径，再按任务跳到专题页，能明显降低上手心智负担。</p>
+
+<div class="guide-grid">
+  <a class="guide-card" href="/guide/levels/p2">
+    <h3>P2 路线（上手）</h3>
+    <p>30-45 分钟跑通首个开发闭环，先做成一件事。</p>
+  </a>
+  <a class="guide-card" href="/guide/levels/p4">
+    <h3>P4 路线（独立开发）</h3>
+    <p>围绕模块开发、路由规范与验证门禁，追求稳定交付。</p>
+  </a>
+  <a class="guide-card" href="/guide/levels/p6">
+    <h3>P6 路线（架构治理）</h3>
+    <p>聚焦规则分层、风险门禁与跨团队可复用的治理策略。</p>
+  </a>
+</div>
+
 ## 🚀 入门
 
 <p class="guide-section-intro">先跑通项目，再进入后续专题。</p>

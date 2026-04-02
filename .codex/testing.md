@@ -10281,3 +10281,12 @@
 - 结果：
   - `apps/docs`：`lint` 0 warning / 0 error。
   - `apps/docs`：`build` 成功。
+
+## 2026-04-02（docs：按水平入口收口，角色入口降级为辅助）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error。
+  - `apps/docs`：`build` 成功。

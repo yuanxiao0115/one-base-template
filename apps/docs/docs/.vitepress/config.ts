@@ -6,6 +6,13 @@ const introItems = [
   { text: 'admin-lite 后台基座', link: '/guide/admin-lite-base-app' }
 ];
 
+const levelItems = [
+  { text: '按水平进入（总览）', link: '/guide/levels/' },
+  { text: 'P2 路线（上手）', link: '/guide/levels/p2' },
+  { text: 'P4 路线（独立开发）', link: '/guide/levels/p4' },
+  { text: 'P6 路线（架构治理）', link: '/guide/levels/p6' }
+];
+
 const architectureItems = [
   { text: '目录结构与边界', link: '/guide/architecture' },
   { text: '启动链路细节（深度）', link: '/guide/architecture-runtime-deep-dive' },
@@ -61,6 +68,7 @@ const asSidebar = (moduleText: string, items: ReadonlyArray<{ text: string; link
 ];
 
 const introSidebar = asSidebar('入门', introItems);
+const levelSidebar = asSidebar('按水平进入', levelItems);
 const architectureSidebar = asSidebar('架构与运行时', architectureItems);
 const practiceSidebar = asSidebar('开发实践', practiceItems);
 const extensionSidebar = asSidebar('扩展能力', extensionItems);
@@ -73,7 +81,11 @@ const guideHomeSidebar = [
     items: [{ text: '总览页', link: '/guide/' }]
   },
   {
-    text: '按角色进入',
+    text: '按水平进入',
+    items: levelItems
+  },
+  {
+    text: '按角色进入（辅助）',
     items: roleItems
   }
 ];
@@ -89,6 +101,10 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
+      {
+        text: '按水平',
+        items: levelItems
+      },
       {
         text: '入门',
         items: [{ text: '文档总览', link: '/guide/' }, ...introItems]
@@ -119,6 +135,8 @@ export default defineConfig({
       '/guide/quick-start': introSidebar,
       '/guide/env': introSidebar,
       '/guide/admin-lite-base-app': introSidebar,
+
+      '/guide/levels/': levelSidebar,
 
       '/guide/architecture': architectureSidebar,
       '/guide/architecture-runtime-deep-dive': architectureSidebar,
