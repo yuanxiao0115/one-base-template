@@ -252,7 +252,7 @@
 - `openMode=1`（外部）：菜单点击改为浏览器新窗口打开，优先打开 `redirect`，若未配置则回退打开 `path`。
 - `remark`：可选扩展字段，推荐用于承载 microapp 宿主 JSON（例如 `{"appName":"oa-sub","disableSandbox":false}`）。
 
-## 7. 模块路由清单 Schema（module.ts）
+## 7. 模块路由清单 Schema（index.ts）
 
 ```json
 {

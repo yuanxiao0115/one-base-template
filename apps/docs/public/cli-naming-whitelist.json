@@ -52,11 +52,11 @@
     "adminAuthServices": "apps/admin/src/services/auth",
     "adminModuleApi": "apps/admin/src/modules/**/api",
     "adminModuleServices": "apps/admin/src/modules/**/services",
-    "adminModuleEntry": "apps/admin/src/modules/**/module.ts",
+    "adminModuleEntry": "apps/admin/src/modules/**/index.ts",
     "portalAuthServices": "apps/portal/src/services/auth",
     "portalModuleApi": "apps/portal/src/modules/**/api",
     "portalModuleServices": "apps/portal/src/modules/**/services",
-    "portalModuleEntry": "apps/portal/src/modules/**/module.ts",
+    "portalModuleEntry": "apps/portal/src/modules/**/index.ts",
     "adminLiteModuleRoutes": "apps/admin-lite/src/modules/**/routes.ts"
   }
 }

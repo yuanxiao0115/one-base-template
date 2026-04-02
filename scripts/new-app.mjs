@@ -230,7 +230,7 @@ async function updateGeneratedPackageJson(targetDir, appId, dryRun) {
 
 function createStarterCrudFiles() {
   return {
-    'src/modules/starter-crud/module.ts': `import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
+    'src/modules/starter-crud/index.ts': `import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
 import layoutRoutes from './routes';
 
 export const moduleMeta = {

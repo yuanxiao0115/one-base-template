@@ -8,11 +8,11 @@
 
 ## 1) 模块入口约定
 
-每个业务模块必须提供 `module.ts + routes.ts`（或 `routes/index.ts`）入口：
+每个业务模块必须提供 `index.ts + routes.ts`（或 `routes/index.ts`）入口：
 
 ```text
 apps/admin/src/modules/<module-id>/
-  module.ts
+  index.ts
   routes.ts | routes/index.ts
   <feature-a>/
   <feature-b>/
@@ -26,14 +26,14 @@ apps/admin/src/modules/<module-id>/
 
 ![模块入口树图（SVG）](/diagrams/module-entry-tree.svg)
 
-`module.ts` 内 `moduleMeta` 必填字段：
+`index.ts` 内 `moduleMeta` 必填字段：
 
 - `id`: 模块标识（建议 kebab-case，如 `portal-management`）
 - `version`: 当前固定为 `'1'`
 - `moduleTier`: 模块分层（`core`/`optional`）
 - `enabledByDefault`: 是否默认启用
 
-`module.ts` 默认导出（`AppModuleManifest`）必填字段：
+`index.ts` 默认导出（`AppModuleManifest`）必填字段：
 
 - `routes.layout`: 挂载到 `AdminLayout` 下的路由（可来自 `routes.ts` 或 `routes/index.ts`）
 - `routes.standalone`（可选）: 顶层路由（全屏/匿名等）
@@ -43,7 +43,7 @@ apps/admin/src/modules/<module-id>/
 说明：
 
 - 类型名 `AppModuleManifest` / `AppModuleManifestMeta` 仍沿用历史命名。
-- **当前契约不再要求单独 `manifest.ts` 文件**，元信息统一内联在 `module.ts` 的 `moduleMeta` 常量中。
+- **当前契约不再要求单独 `manifest.ts` 文件**，元信息统一内联在 `index.ts` 的 `moduleMeta` 常量中。
 
 路由文件组织建议：
 
@@ -61,11 +61,11 @@ apps/admin/src/modules/<module-id>/
   - 登录后可访问但不依赖菜单权限的页面显式声明 `access: 'auth'`
   - compat 别名由装配器统一补齐 `hideInMenu/hiddenTab/activePath`
 
-### 为什么把 `manifest.ts` 合并进 `module.ts`
+### 为什么把 `manifest.ts` 合并进 `index.ts`
 
 - 单一事实源：模块 id、开关默认值、路由声明在同一文件，减少“改了 A 忘了改 B”的漂移。
-- 注册链路更短：不再需要 `manifest.ts -> module.ts` 的路径映射，`registry` 直接从 `module.ts` 读取 `moduleMeta`。
-- 新人心智更低：一个模块只看 `module.ts + routes.ts` 就能理解注册与装配逻辑。
+- 注册链路更短：不再需要 `manifest.ts -> index.ts` 的路径映射，`registry` 直接从 `index.ts` 读取 `moduleMeta`。
+- 新人心智更低：一个模块只看 `index.ts + routes.ts` 就能理解注册与装配逻辑。
 - 脚手架更稳：`new:module` 与 `new:app` 模板天然一致，后续维护不再双文件同步。
 
 ### 快速创建模块（推荐）
@@ -97,12 +97,12 @@ pnpm new:module user-center --title 用户中心
 ## 2) 路由组装规则
 
 - 统一入口：`apps/admin/src/router/assemble-routes.ts`
-- 模块元信息扫描：`apps/admin/src/modules/**/module.ts`（eager 读取 `moduleMeta`）
-- 模块加载：按 `enabledModules` 动态加载 `apps/admin/src/modules/**/module.ts`
+- 模块元信息扫描：`apps/admin/src/modules/**/index.ts`（eager 读取 `moduleMeta`）
+- 模块加载：按 `enabledModules` 动态加载 `apps/admin/src/modules/**/index.ts`
 - 全局固定路由仅保留：`/login`、`/sso`、`/403`、`/404`、404 兜底
   - 其中 `/login`、`/sso` 都按“认证入口”处理，不是“登录后也可反复进入的普通开放页”
 - admin 当前约定：`/403`、`/404` 作为 `AdminLayout` 子路由渲染（保留顶部栏与侧栏），404 通配兜底默认使用 push 语义
-- 业务路由一律来自模块声明（`module.ts` 默认导出）
+- 业务路由一律来自模块声明（`index.ts` 默认导出）
 
 这意味着：
 
@@ -151,7 +151,7 @@ await assembleRoutes({
   - 别名路由默认 `meta.hideInMenu=true`、`meta.hiddenTab=true`
   - 若 `from` 与保留路径/已装配路径冲突，会跳过并输出 warn
 
-示例（`portal/module.ts`）：
+示例（`portal/index.ts`）：
 
 ```ts
 compat: {
@@ -332,7 +332,7 @@ CLI 生成器可按以下步骤裁剪：
 
 ```text
 apps/admin/src/modules/adminManagement/
-  module.ts
+  index.ts
   routes.ts
   position/list.vue
   position/api.ts
@@ -431,7 +431,7 @@ export default [
 
 ```text
 apps/admin/src/modules/LogManagement/
-  module.ts
+  index.ts
   routes.ts
   login-log/api.ts
   login-log/types.ts
@@ -461,7 +461,7 @@ apps/admin/src/modules/LogManagement/
 
 ```text
 apps/admin/src/modules/SystemManagement/
-  module.ts
+  index.ts
   routes.ts
   dict/
     api.ts
@@ -472,7 +472,7 @@ apps/admin/src/modules/SystemManagement/
     list.vue
 
 apps/admin/src/modules/adminManagement/
-  module.ts
+  index.ts
   routes.ts
   menu/
     api.ts

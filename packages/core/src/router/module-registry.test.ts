@@ -19,14 +19,14 @@ describe('core/router/module-registry', () => {
 
     const entries = collectModuleLoadEntries({
       moduleMetaDefinitions: {
-        '../modules/PortalManagement/module.ts': validMeta,
-        '../modules/home/module.ts': {
+        '../modules/PortalManagement/index.ts': validMeta,
+        '../modules/home/index.ts': {
           id: 'home',
           version: '1',
           moduleTier: 'core',
           enabledByDefault: true
         },
-        '../modules/bad/module.ts': {
+        '../modules/bad/index.ts': {
           id: 'bad',
           version: '1',
           moduleTier: 'optional',
@@ -50,14 +50,14 @@ describe('core/router/module-registry', () => {
         version: '1',
         moduleTier: 'core',
         enabledByDefault: true,
-        modulePath: '../modules/home/module.ts'
+        modulePath: '../modules/home/index.ts'
       },
       {
         id: 'PortalManagement',
         version: '1',
         moduleTier: 'optional',
         enabledByDefault: false,
-        modulePath: '../modules/PortalManagement/module.ts'
+        modulePath: '../modules/PortalManagement/index.ts'
       }
     ] as const;
 
@@ -100,7 +100,7 @@ describe('core/router/module-registry', () => {
       version: '1',
       moduleTier: 'core',
       enabledByDefault: true,
-      modulePath: '../modules/home/module.ts'
+      modulePath: '../modules/home/index.ts'
     } as const;
 
     const valid = validateModuleDeclaration({

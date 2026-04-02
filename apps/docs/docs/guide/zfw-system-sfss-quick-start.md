@@ -84,7 +84,7 @@ pnpm -C apps/zfw-system-sfss build
 ## 7. 新业务模块最快落地方式
 
 1. 复制 `apps/zfw-system-sfss/src/modules/starter-crud` 为你的业务模块目录。
-2. 按模块契约改名与改配置：`module.ts（含 moduleMeta） + routes.ts`。
+2. 按模块契约改名与改配置：`index.ts（含 moduleMeta） + routes.ts`。
 3. 在 `apps/zfw-system-sfss/src/config/platform-config.ts` 把新模块加入 `enabledModules`。
 4. 把 `api.ts` 从本地内存数据替换为真实接口。
 5. 跑完第 6 节命令后再提测。

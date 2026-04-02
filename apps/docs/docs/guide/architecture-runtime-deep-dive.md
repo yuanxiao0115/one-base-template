@@ -38,7 +38,7 @@
 - `apps/admin-lite/src/bootstrap/admin-lite-styles.ts`：基座基础样式统一入口
 - `apps/admin-lite/src/bootstrap/{http,adapter,core,plugins,error-view}.ts`：HTTP、后端适配、core 安装、壳层插件、错误视图分层
 - `apps/admin-lite/src/router/{registry,assemble-routes,meta,public-routes}.ts`：模块声明加载、路由装配、meta helper、公共路由定义
-- `apps/admin-lite/src/modules/**/{module,routes}.ts`：模块契约与路由声明（`module.ts` 内含 `moduleMeta`）
+- `apps/admin-lite/src/modules/**/{index,routes}.ts`：模块契约与路由声明（`index.ts` 内含 `moduleMeta`）
 
 ### admin-lite 启动顺序（流程图）
 
@@ -73,8 +73,8 @@
 - `apps/admin` 不再依赖 `public/platform-config.json` 运行时文件，平台配置改为 `src/config/platform-config.ts` 代码静态维护。
 - `apps/portal` 仍保留 runtime config loader 能力（并发复用、超时、重试、按需快照兜底）；`apps/admin-lite` 已收敛到代码静态配置。
 - `router/registry.ts` 改为两阶段装配：
-  - 先扫描 `modules/**/module.ts` 中的 `moduleMeta`（eager）
-  - 再按 `enabledModules` 动态导入同路径 `modules/**/module.ts` 默认导出
+  - 先扫描 `modules/**/index.ts` 中的 `moduleMeta`（eager）
+  - 再按 `enabledModules` 动态导入同路径 `modules/**/index.ts` 默认导出
 - `router/assemble-routes.ts` 增加保留 path/name 与重复路由冲突防护
 - `router/assemble-routes.ts` 新增 `diagnostics` 输出（由 `route-assembly-diagnostics.ts` 统一生成）：
   - `routeCount`

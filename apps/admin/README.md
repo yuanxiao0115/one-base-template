@@ -84,7 +84,7 @@ src/
 以“新建一个与 admin 并行的业务子项目”为目标：
 
 1. 复制 `apps/admin` 的启动骨架（`main.ts + bootstrap + router + config + services + types`）
-2. 保留 `router/registry.ts + module manifest` 机制（`modules/**/module.ts`）
+2. 保留 `router/registry.ts + module manifest` 机制（`modules/**/index.ts`）
 3. 把业务代码只放进新项目的 `modules/**`
 4. 若后端协议不同，优先改 adapter/service，不在页面散落兼容逻辑
 5. 保持“模块只依赖 services/types/core/ui”的边界
@@ -94,7 +94,7 @@ src/
 ### 5.1 子项目升级友好约定（关键）
 
 1. **子项目只做组装，不复制基建实现**：`bootstrap/router/config/services` 只保留薄编排，通用逻辑优先沉淀到 `packages/*`
-2. **模块契约稳定优先**：模块只暴露 `module.ts + routes.ts + apiNamespace` 等稳定接口，避免直接耦合启动细节
+2. **模块契约稳定优先**：模块只暴露 `index.ts + routes.ts + apiNamespace` 等稳定接口，避免直接耦合启动细节
 3. **兼容能力集中声明**：历史路径与菜单归属统一写在 `module.compat`，不在页面里散落跳转兼容代码
 4. **升级入口单点化**：路由装配、守卫、HTTP、主题等升级点集中在少量文件，业务模块尽量无感
 
@@ -110,8 +110,8 @@ src/
 
 1. HTTP 运行时访问器下沉到 core：统一从 `@one-base-template/core` 使用 `obHttp/setObHttpClient`
 2. 统一模块路由入口写法：
-   - `home/module.ts` 改为从 `./routes` 导入
-   - `portal/module.ts` 改为从 `./routes` 统一导入 `layout + standalone`
+   - `home/index.ts` 改为从 `./routes` 导入
+   - `portal/index.ts` 改为从 `./routes` 统一导入 `layout + standalone`
    - `portal/routes.ts` 增加 `standaloneRoutes` 聚合导出
 3. `bootstrap` 的 `baseUrl/storageNamespace` 已由 `bootstrap/index.ts` 显式下传（减少隐式全局依赖）
 4. 模块路由组件改为懒加载（`component: () => import(...)`），降低 `admin-app-shell` 首包压力

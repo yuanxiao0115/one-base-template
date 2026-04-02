@@ -97,8 +97,8 @@ export function collectModuleLoadEntries(
   const byId = new Map<string, ModuleLoadEntry>();
 
   for (const [modulePath, candidate] of Object.entries(moduleMetaDefinitions)) {
-    if (!modulePath.endsWith('/module.ts')) {
-      onWarn(`忽略无效模块声明路径：${modulePath}（要求文件名为 module.ts）`);
+    if (!modulePath.endsWith('/index.ts')) {
+      onWarn(`忽略无效模块声明路径：${modulePath}（要求文件名为 index.ts）`);
       continue;
     }
 

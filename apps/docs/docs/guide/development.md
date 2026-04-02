@@ -242,11 +242,11 @@ pnpm check:naming
 
 - `apps/admin/src/router`
 - `apps/admin/src/services/auth`
-- `apps/admin/src/modules/**/module.ts`
+- `apps/admin/src/modules/**/index.ts`
 - `apps/admin/src/modules/**/api/*.ts`
 - `apps/admin/src/modules/**/services/*.ts`
 - `apps/portal/src/services/auth`
-- `apps/portal/src/modules/**/module.ts`
+- `apps/portal/src/modules/**/index.ts`
 - `apps/portal/src/modules/**/api/*.ts`
 - `apps/portal/src/modules/**/services/*.ts`
 - `apps/admin-lite/src/modules/**/routes.ts`

@@ -66,7 +66,7 @@ function createFiles(params) {
     params;
 
   return {
-    'module.ts': `import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
+    'index.ts': `import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
 import layoutRoutes from './routes';
 
 export const moduleMeta = {
