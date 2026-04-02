@@ -16,7 +16,8 @@ export function buildUserColumns(enableDragSort: boolean): TableColumnList {
     {
       type: 'selection',
       fixed: 'left',
-      width: 55
+      width: 55,
+      reserveSelection: true
     },
     {
       label: '用户名',

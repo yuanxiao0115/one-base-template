@@ -151,3 +151,6 @@
 
   --el-button-active-color: var(--one-color-link-light-7);
 }
+.el-button.is-link.el-button--danger {
+  --el-button-text-color: var(--el-color-danger);
+}

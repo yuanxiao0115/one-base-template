@@ -255,12 +255,14 @@ watch(
 </script>
 
 <template>
-  <el-dialog
+  <ObCrudContainer
     v-model="visible"
+    container="dialog"
+    mode="edit"
     :title="`菜单权限配置 - ${props.roleName || '--'}`"
-    width="760px"
-    append-to-body
-    destroy-on-close
+    :dialog-width="760"
+    :loading="submitting"
+    @confirm="save"
   >
     <div v-loading="loading" class="role-permission-dialog">
       <div class="role-permission-dialog__toolbar">
@@ -276,18 +278,12 @@ watch(
           :data="treeData"
           :props="treeProps"
           show-checkbox
+          empty-text="暂无权限数据"
           :default-expand-all="expandedAll"
         />
       </el-scrollbar>
     </div>
-
-    <template #footer>
-      <div class="role-permission-dialog__footer">
-        <el-button @click="visible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="save">确定</el-button>
-      </div>
-    </template>
-  </el-dialog>
+  </ObCrudContainer>
 </template>
 
 <style scoped>
@@ -299,15 +295,9 @@ watch(
 }
 
 .role-permission-dialog__tree {
-  max-height: 60vh;
+  height: min(60vh, calc(100vh - 260px));
   border: 1px solid var(--el-border-color-light);
   border-radius: 4px;
   padding: 8px;
-}
-
-.role-permission-dialog__footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
 }
 </style>

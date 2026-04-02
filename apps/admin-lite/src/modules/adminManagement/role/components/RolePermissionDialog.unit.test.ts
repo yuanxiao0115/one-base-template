@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { defineComponent, h, ref, watch } from 'vue';
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
-import type { PermissionTreeNode } from '../types';
+import type { PermissionTreeNode } from '@/modules/adminManagement/role/types';
 
 const messageMocks = vi.hoisted(() => ({
   error: vi.fn(),
@@ -26,11 +26,11 @@ vi.mock('@one-base-template/ui', async () => {
   };
 });
 
-vi.mock('../api', () => ({
+vi.mock('@/modules/adminManagement/role/api', () => ({
   roleApi: apiMocks
 }));
 
-import RolePermissionDialog from './RolePermissionDialog.vue';
+import RolePermissionDialog from '@/modules/adminManagement/role/components/RolePermissionDialog.vue';
 
 function createDeferred<T>() {
   let resolve!: (value: T) => void;
@@ -51,8 +51,8 @@ function createStubs() {
   const renderedTreeData = ref<PermissionTreeNode[]>([]);
   const renderedCheckedKeys = ref<string[]>([]);
 
-  const ElDialog = defineComponent({
-    name: 'ElDialog',
+  const ObCrudContainer = defineComponent({
+    name: 'ObCrudContainer',
     props: {
       modelValue: {
         type: Boolean,
@@ -63,13 +63,12 @@ function createStubs() {
         default: ''
       }
     },
-    emits: ['update:modelValue'],
+    emits: ['update:modelValue', 'confirm', 'cancel', 'close'],
     setup(props, { slots }) {
       return () =>
         h('div', { 'data-testid': 'dialog' }, [
           h('div', { 'data-testid': 'dialog-title' }, props.title),
-          slots.default?.(),
-          slots.footer?.()
+          slots.default?.()
         ]);
     }
   });
@@ -92,22 +91,6 @@ function createStubs() {
     emits: ['update:modelValue'],
     setup(_, { slots }) {
       return () => h('label', slots.default?.());
-    }
-  });
-
-  const ElButton = defineComponent({
-    name: 'ElButton',
-    emits: ['click'],
-    setup(_, { slots, emit }) {
-      return () =>
-        h(
-          'button',
-          {
-            type: 'button',
-            onClick: () => emit('click')
-          },
-          slots.default?.()
-        );
     }
   });
 
@@ -161,10 +144,9 @@ function createStubs() {
     renderedTreeData,
     renderedCheckedKeys,
     stubs: {
-      ElDialog,
+      ObCrudContainer,
       ElScrollbar,
       ElCheckbox,
-      ElButton,
       ElTree
     }
   };

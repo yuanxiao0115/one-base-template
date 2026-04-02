@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Table as ObTable } from '@one-base-template/ui';
 import SysLogSearchForm from './components/SysLogSearchForm.vue';
 import SysLogDetail from './components/SysLogDetail.vue';
 import { useSysLogPageState } from './composables/useSysLogPageState';
@@ -39,7 +40,7 @@ const {
       @reset-form="onResetSearch"
     >
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :loading
           :size
@@ -66,7 +67,7 @@ const {
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>

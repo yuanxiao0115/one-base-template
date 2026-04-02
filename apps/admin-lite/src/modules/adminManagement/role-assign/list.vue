@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { Table as ObTable } from '@one-base-template/ui';
 import { Delete, Plus, Search } from '@element-plus/icons-vue';
 import RoleAssignMemberSelectForm from './components/RoleAssignMemberSelectForm.vue';
 import { useRoleAssignPageState } from './composables/useRoleAssignPageState';
@@ -91,7 +92,7 @@ function onRoleMenuSelect(roleId: string) {
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :loading="table.loading"
           :size
@@ -110,7 +111,7 @@ function onRoleMenuSelect(roleId: string) {
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
     </ObTableBox>
   </ObPageContainer>

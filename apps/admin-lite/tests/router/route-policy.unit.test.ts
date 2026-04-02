@@ -16,7 +16,7 @@ function resolvePolicyArtifactPath() {
   const repoRoot = path.resolve(process.cwd(), '../..');
   const artifactDir = path.join(repoRoot, '.codex', 'route-policy');
   mkdirSync(artifactDir, { recursive: true });
-  return path.join(artifactDir, 'admin-route-policy.json');
+  return path.join(artifactDir, 'admin-lite-route-policy.json');
 }
 
 describe('router/route-policy', () => {
@@ -47,7 +47,7 @@ describe('router/route-policy', () => {
     });
     const report = buildRoutePolicyReport(result.routes);
 
-    const expectedOpenPaths = [routePaths.login, routePaths.sso, '/portal/preview'].sort();
+    const expectedOpenPaths = [routePaths.login, routePaths.sso].sort();
     const actualOpenPaths = [...new Set(report.openRoutes.map((item) => item.path))].sort();
 
     expect(actualOpenPaths).toEqual(expectedOpenPaths);
@@ -72,6 +72,7 @@ describe('router/route-policy', () => {
     expect(report.authRoutes.some((item) => item.path === routePaths.forbidden)).toBe(true);
     expect(report.authRoutes.some((item) => item.path === routePaths.notFound)).toBe(true);
     expect(report.authRoutes.some((item) => item.path === '/home/index')).toBe(true);
-    expect(report.menuRoutes.some((item) => item.path === '/portal/design')).toBe(true);
+    expect(report.menuRoutes.some((item) => item.path === '/system/permission')).toBe(true);
+    expect(report.menuRoutes.some((item) => item.path === '/ext/:slug(.*)*')).toBe(true);
   });
 });

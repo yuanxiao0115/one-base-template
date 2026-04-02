@@ -166,6 +166,14 @@ async function handleDelete(row: OrgLevelItem) {
   await deleteRow(row);
 }
 
+async function openCreate() {
+  await levelCrud.openCreate();
+}
+
+async function openEdit(row: OrgLevelItem) {
+  await levelCrud.openEdit(row);
+}
+
 watch(
   () => props.modelValue,
   (visibleValue) => {
@@ -182,10 +190,10 @@ watch(
   <el-dialog v-model="visible" title="等级管理" width="760" append-to-body destroy-on-close>
     <div class="org-level-dialog">
       <div class="org-level-dialog__toolbar">
-        <el-button type="primary" :icon="Plus" @click="levelCrud.openCreate()">新增等级</el-button>
+        <el-button type="primary" :icon="Plus" @click="openCreate">新增等级</el-button>
       </div>
 
-      <ObVxeTable
+      <ObTable
         ref="tableRef"
         :loading
         :data="dataList"
@@ -195,11 +203,11 @@ watch(
       >
         <template #operation="{ row, size }">
           <ObActionButtons>
-            <el-button link type="primary" :size @click="levelCrud.openEdit(row)">编辑</el-button>
+            <el-button link type="primary" :size @click="openEdit(row)">编辑</el-button>
             <el-button link type="danger" :size @click="handleDelete(row)">删除</el-button>
           </ObActionButtons>
         </template>
-      </ObVxeTable>
+      </ObTable>
     </div>
 
     <template #footer>
@@ -270,7 +278,7 @@ watch(
   margin-bottom: 12px;
 }
 
-.org-level-dialog :deep(.ob-vxe-table) {
+.org-level-dialog :deep(.ob-table) {
   background: #fff;
 }
 

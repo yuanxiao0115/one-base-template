@@ -154,7 +154,7 @@ pnpm -C apps/<app-id> build
 
 约束：
 
-- 列表页统一使用 `ObPageContainer + ObTableBox + ObVxeTable`。
+- 列表页统一使用 `ObPageContainer + ObTableBox + ObTable`。
 - 新增/编辑/查看统一使用 `ObCrudContainer`。
 - 模块目录优先 feature-first，不新增无收益的中间层。
 

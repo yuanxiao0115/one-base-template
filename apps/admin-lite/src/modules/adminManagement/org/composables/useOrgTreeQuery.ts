@@ -7,10 +7,23 @@ interface SearchRefExpose {
   resetFields?: () => void;
 }
 
+interface TableRefExpose {
+  getTableRef?: () => {
+    store?: {
+      states?: {
+        lazyTreeNodeMap?: {
+          value?: Record<string, unknown>;
+        };
+      };
+    };
+  } | null;
+}
+
 interface UseOrgTreeQueryOptions {
   inSearchMode: ComputedRef<boolean>;
   searchForm: { orgName: string };
   searchRef: Ref<SearchRefExpose | undefined>;
+  tableRef: Ref<unknown>;
   onSearch: (goFirstPage?: boolean) => Promise<void>;
   resetForm: (formRef: Ref<SearchRefExpose | undefined>, keywordField?: string) => void;
 }
@@ -26,14 +39,46 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
+function normalizeTreeRows(rows: OrgRecord[]): OrgRecord[] {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return [];
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    hasChildren: typeof row.hasChildren === 'boolean' ? row.hasChildren : true
+  }));
+}
+
 export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
-  const { inSearchMode, searchForm, searchRef, onSearch, resetForm } = options;
+  const { inSearchMode, searchForm, searchRef, tableRef, onSearch, resetForm } = options;
 
   const treeChildrenCache = new Map<string, TreeCacheEntry>();
   const deletingRow = ref<OrgRecord | null>(null);
+  const lazyNodeResolverCache = new Map<
+    string,
+    {
+      row: OrgRecord;
+      treeNode: unknown;
+      resolve: (rows: OrgRecord[]) => void;
+    }
+  >();
+
+  function clearLazyTreeNodeMap() {
+    const tableInstance = (tableRef.value as TableRefExpose | null | undefined)?.getTableRef?.();
+    const store = tableInstance?.store;
+    const states = store?.states;
+    const lazyTreeNodeMap = states?.lazyTreeNodeMap;
+    if (!lazyTreeNodeMap || typeof lazyTreeNodeMap.value !== 'object') {
+      return;
+    }
+    lazyTreeNodeMap.value = {};
+  }
 
   function clearTreeCache() {
     treeChildrenCache.clear();
+    lazyNodeResolverCache.clear();
+    clearLazyTreeNodeMap();
   }
 
   function isCacheExpired(cache: TreeCacheEntry): boolean {
@@ -61,12 +106,12 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
     });
   }
 
-  async function loadTreeChildren(params: { row: OrgRecord }) {
+  async function queryTreeChildren(row: OrgRecord) {
     if (inSearchMode.value) {
       return [];
     }
 
-    const parentId = String(params.row.id);
+    const parentId = String(row.id);
     const cacheRows = getCacheRows(parentId);
     if (cacheRows) {
       return cacheRows;
@@ -78,9 +123,9 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
         throw new Error(response.message || '加载下级组织失败');
       }
 
-      const rows = Array.isArray(response.data) ? response.data : [];
+      const rows = normalizeTreeRows(Array.isArray(response.data) ? response.data : []);
       if (!rows.length) {
-        params.row.hasChildren = false;
+        row.hasChildren = false;
       }
 
       saveCacheRows(parentId, rows);
@@ -89,6 +134,41 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
       message.error(getErrorMessage(error, '加载下级组织失败'));
       return [];
     }
+  }
+
+  async function loadTreeChildren(
+    row: OrgRecord,
+    treeNode: unknown,
+    resolve: (rows: OrgRecord[]) => void
+  ) {
+    lazyNodeResolverCache.set(String(row.id), {
+      row,
+      treeNode,
+      resolve
+    });
+    const rows = await queryTreeChildren(row);
+    resolve(rows);
+    return rows;
+  }
+
+  async function refreshTreeNode(parentId?: string): Promise<boolean> {
+    if (!parentId) {
+      return false;
+    }
+    if (inSearchMode.value) {
+      return false;
+    }
+
+    const resolvedParentId = String(parentId);
+    const lazyNode = lazyNodeResolverCache.get(resolvedParentId);
+    if (!lazyNode) {
+      return false;
+    }
+
+    treeChildrenCache.delete(resolvedParentId);
+    const rows = await queryTreeChildren(lazyNode.row);
+    lazyNode.resolve(rows);
+    return true;
   }
 
   async function refreshTable() {
@@ -141,6 +221,7 @@ export function useOrgTreeQuery(options: UseOrgTreeQueryOptions) {
   return {
     clearTreeCache,
     loadTreeChildren,
+    refreshTreeNode,
     refreshTable,
     markDeletingRow,
     clearDeletingRow,

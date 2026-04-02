@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { Plus } from '@element-plus/icons-vue';
+import { Table as ObTable } from '@one-base-template/ui';
+import { Delete, Edit, Plus } from '@element-plus/icons-vue';
 import MenuPermissionEditForm from './components/MenuPermissionEditForm.vue';
 import MenuPermissionSearchForm from './components/MenuPermissionSearchForm.vue';
+import SystemPermissionEditForm from './components/SystemPermissionEditForm.vue';
 import { useMenuManagementPageState } from './composables/useMenuManagementPageState';
 
 defineOptions({
@@ -19,7 +21,77 @@ const options = reactive(pageState.options);
 </script>
 
 <template>
-  <ObPageContainer padding="0" overflow="hidden">
+  <ObPageContainer padding="0" overflow="hidden" left-width="248px">
+    <template #left>
+      <div class="system-menu-management-page__system-panel">
+        <div class="system-menu-management-page__system-header">
+          <div class="system-menu-management-page__system-header-left">
+            <span class="system-menu-management-page__system-title">系统列表</span>
+            <el-tag size="small" type="info">{{ table.systemList.length }}</el-tag>
+          </div>
+          <el-button
+            type="primary"
+            text
+            :icon="Plus"
+            class="system-menu-management-page__system-add-button"
+            @click="actions.openRootCreateDialog"
+            >新增系统</el-button
+          >
+        </div>
+
+        <el-scrollbar class="system-menu-management-page__system-scrollbar">
+          <el-empty
+            v-if="!table.hasSystemData"
+            :image-size="72"
+            description="暂无系统权限"
+            class="system-menu-management-page__system-empty"
+          />
+
+          <el-menu
+            v-else
+            :default-active="table.activeSystemId"
+            class="system-menu-management-page__system-menu"
+            @select="actions.selectSystem"
+          >
+            <el-menu-item
+              v-for="item in table.systemList"
+              :key="item.id"
+              :index="item.id"
+              class="system-menu-management-page__system-menu-item"
+            >
+              <span class="system-menu-management-page__system-name">{{ item.name }}</span>
+              <span class="system-menu-management-page__system-actions">
+                <span class="system-menu-management-page__system-action-icons">
+                  <span
+                    class="system-menu-management-page__icon-button"
+                    role="button"
+                    tabindex="0"
+                    aria-label="编辑系统"
+                    @click.stop="actions.openEdit(item.row)"
+                    @keydown.enter.stop="actions.openEdit(item.row)"
+                    @keydown.space.prevent.stop="actions.openEdit(item.row)"
+                  >
+                    <el-icon :size="16"><Edit /></el-icon>
+                  </span>
+                  <span
+                    class="system-menu-management-page__icon-button system-menu-management-page__icon-button--danger"
+                    role="button"
+                    tabindex="0"
+                    aria-label="删除系统"
+                    @click.stop="actions.remove(item.row)"
+                    @keydown.enter.stop="actions.remove(item.row)"
+                    @keydown.space.prevent.stop="actions.remove(item.row)"
+                  >
+                    <el-icon :size="16"><Delete /></el-icon>
+                  </span>
+                </span>
+              </span>
+            </el-menu-item>
+          </el-menu>
+        </el-scrollbar>
+      </div>
+    </template>
+
     <ObTableBox
       title="菜单管理"
       :columns="table.tableColumns"
@@ -30,13 +102,17 @@ const options = reactive(pageState.options);
       @reset-form="actions.onResetSearch"
     >
       <template #buttons>
-        <el-button type="primary" :icon="Plus" @click="actions.openRootCreateDialog"
+        <el-button
+          type="primary"
+          :icon="Plus"
+          :disabled="table.inTreeMode && !table.activeSystemId"
+          @click="actions.openCreateUnderActiveSystem"
           >添加权限</el-button
         >
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :size
           :loading="table.loading"
@@ -46,15 +122,6 @@ const options = reactive(pageState.options);
           row-key="id"
           :tree-config="table.tableTreeConfig"
         >
-          <template #icon="{ row }">
-            <div class="system-menu-management-page__icon-cell">
-              <ObMenuIcon :icon="row.icon" class="system-menu-management-page__icon-preview" />
-              <span class="system-menu-management-page__icon-text" :title="row.icon || '--'">
-                {{ row.icon || '--' }}
-              </span>
-            </div>
-          </template>
-
           <template #operation="{ row, size: actionSize }">
             <ObActionButtons>
               <el-button
@@ -85,7 +152,7 @@ const options = reactive(pageState.options);
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>
@@ -106,13 +173,21 @@ const options = reactive(pageState.options);
     :loading="editor.crudSubmitting"
     :show-cancel-button="!editor.crudReadonly"
     confirm-text="保存"
-    :drawer-size="760"
-    :drawer-columns="2"
+    :drawer-size="editor.drawerSize"
+    :drawer-columns="editor.drawerColumns"
     @confirm="actions.onConfirmCrud"
     @cancel="editor.crud.close"
     @close="editor.crud.close"
   >
+    <SystemPermissionEditForm
+      v-if="editor.isSystemForm"
+      :ref="refs.editFormRef"
+      v-model="editor.crudForm"
+      :rules="editor.menuPermissionFormRules"
+      :disabled="editor.crudReadonly"
+    />
     <MenuPermissionEditForm
+      v-else
       :ref="refs.editFormRef"
       v-model="editor.crudForm"
       :rules="editor.menuPermissionFormRules"
@@ -124,25 +199,113 @@ const options = reactive(pageState.options);
 </template>
 
 <style scoped>
-.system-menu-management-page__icon-cell {
+.system-menu-management-page__system-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-right: 1px solid var(--el-border-color-lighter);
+  background: var(--el-bg-color);
+}
+
+.system-menu-management-page__system-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+
+.system-menu-management-page__system-header-left {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
-  min-width: 0;
 }
 
-.system-menu-management-page__icon-preview {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
+.system-menu-management-page__system-add-button {
+  padding: 0;
 }
 
-.system-menu-management-page__icon-text {
-  min-width: 0;
-  max-width: 100%;
+.system-menu-management-page__system-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.system-menu-management-page__system-scrollbar {
+  flex: 1;
+}
+
+.system-menu-management-page__system-empty {
+  height: 100%;
+}
+
+.system-menu-management-page__system-menu {
+  border-right: none;
+}
+
+.system-menu-management-page__system-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 10px !important;
+}
+
+.system-menu-management-page__system-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.system-menu-management-page__system-actions {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.system-menu-management-page__system-action-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.system-menu-management-page__icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  min-height: 16px;
+  padding: 0;
+  color: var(--el-text-color-secondary);
+  cursor: pointer;
+  border-radius: 2px;
+  transition:
+    color 0.16s ease,
+    background-color 0.16s ease;
+}
+
+.system-menu-management-page__icon-button:hover {
+  color: var(--el-color-primary);
+  background: var(--el-fill-color-light);
+}
+
+.system-menu-management-page__icon-button:active {
+  background: var(--el-fill-color);
+}
+
+.system-menu-management-page__icon-button:focus-visible {
+  outline: 1px solid var(--el-color-primary);
+  outline-offset: 1px;
+}
+
+.system-menu-management-page__icon-button--danger {
+  color: var(--el-color-danger);
+}
+
+.system-menu-management-page__icon-button--danger:hover {
+  color: var(--el-color-danger);
+  background: var(--el-color-danger-light-9);
 }
 </style>

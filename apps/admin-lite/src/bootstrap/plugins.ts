@@ -1,7 +1,7 @@
 import type { App } from 'vue';
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
-import { OneUiVxePlugin } from '@one-base-template/ui/vxe';
+import { OneUiObTablePlugin } from '@one-base-template/ui/obtable';
 import OneTag from '@one-base-template/tag';
 
 import { appCrudContainerDefaultType, appTableDefaults } from '../config';
@@ -26,7 +26,7 @@ export function installAppShellPlugins(params: {
   const { app, pinia, router, storageNamespace } = params;
 
   // 全局注册 @one-base-template/ui 组件，仅使用 Ob 前缀组件名（如 ObPageContainer / ObTableBox）。
-  app.use(OneUiVxePlugin, {
+  app.use(OneUiObTablePlugin, {
     prefix: 'Ob',
     aliases: false,
     crudContainer: {

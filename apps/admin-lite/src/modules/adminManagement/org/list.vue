@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { Table as ObTable } from '@one-base-template/ui';
 import { Plus } from '@element-plus/icons-vue';
 import OrgSearchForm from './components/OrgSearchForm.vue';
 import OrgEditForm from './components/OrgEditForm.vue';
@@ -39,7 +40,7 @@ const dialogs = reactive(pageState.dialogs);
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :loading="table.loading"
           :size
@@ -48,13 +49,18 @@ const dialogs = reactive(pageState.dialogs);
           :pagination="false"
           :tree-config="table.treeConfig"
           row-key="id"
+          :show-empty-value="true"
+          empty-value-text="---"
+          empty-text="暂未生产任何数据"
         >
           <template #orgName="{ row }">
             <div class="org-management-page__name-cell">
               <el-tag size="small" type="info">{{
                 row.orgType === 1 ? '单位' : row.orgType === 0 ? '部门' : '--'
               }}</el-tag>
-              <span>{{ row.orgName }}</span>
+              <span class="org-management-page__name-text" :title="row.orgName || '---'">
+                {{ row.orgName || '---' }}
+              </span>
               <el-tag v-if="row.isExternal" size="small" type="warning">外部</el-tag>
             </div>
           </template>
@@ -96,7 +102,7 @@ const dialogs = reactive(pageState.dialogs);
               </ObActionButtons>
             </div>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>
@@ -148,14 +154,64 @@ const dialogs = reactive(pageState.dialogs);
 
 <style scoped>
 .org-management-page__name-cell {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  flex: 1;
+  width: auto;
+  min-width: 0;
   gap: 6px;
+}
+
+.org-management-page__name-cell :deep(.el-tag) {
+  flex-shrink: 0;
+}
+
+.org-management-page__name-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .org-management-page__actions {
   display: inline-flex;
   align-items: center;
   gap: 2px;
+}
+
+:deep(.org-management-page__tree-cell .cell) {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  gap: 6px;
+}
+
+:deep(.org-management-page__tree-cell .el-table__indent),
+:deep(.org-management-page__tree-cell .el-table__placeholder) {
+  flex-shrink: 0;
+}
+
+:deep(.org-management-page__tree-cell .el-table__expand-icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 0;
+  border-radius: 4px;
+  color: var(--el-text-color-secondary);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+:deep(.org-management-page__tree-cell .el-table__expand-icon:hover) {
+  color: var(--one-color-primary);
+  background: var(--el-fill-color-light);
+}
+
+:deep(.org-management-page__tree-cell .el-table__expand-icon--expanded) {
+  color: var(--one-color-primary);
+  background: var(--one-color-primary-light-100);
 }
 </style>

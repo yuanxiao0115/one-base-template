@@ -5,6 +5,7 @@ export interface ParentOption {
   value: string;
   label: string;
   disabled?: boolean;
+  children?: ParentOption[];
 }
 
 export interface MenuPermissionForm {

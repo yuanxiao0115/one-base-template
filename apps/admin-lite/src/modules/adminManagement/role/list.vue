@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { Table as ObTable } from '@one-base-template/ui';
 import { Plus } from '@element-plus/icons-vue';
 import RoleEditForm from './components/RoleEditForm.vue';
 import RolePermissionDialog from './components/RolePermissionDialog.vue';
@@ -36,7 +37,7 @@ const dialogs = reactive(pageState.dialogs);
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :loading="table.loading"
           :size
@@ -67,7 +68,7 @@ const dialogs = reactive(pageState.dialogs);
               >
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>

@@ -10054,3 +10054,27 @@
 - 结果：
   - `packages/portal-engine`：源码测试通过（`33 files / 127 tests`），`typecheck` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-02（admin-lite 同步跟进 admin 最新基线）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin-lite lint`
+  - `pnpm -C apps/admin-lite lint:arch`
+  - `pnpm -C apps/admin-lite build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- RED（中途失败）：
+  - `pnpm -C apps/admin-lite test:run`
+  - 结果：`4 failed`（`useUserCrudState.unit.test.ts`、`RolePermissionDialog.unit.test.ts`、`tests/router/route-policy.unit.test.ts`），原因是 admin-lite 断言仍是旧口径。
+- GREEN / 修复后回归：
+  - `pnpm -C apps/admin-lite test:run`
+  - `pnpm -C apps/admin-lite lint`
+  - `pnpm -C apps/admin-lite lint:arch`
+- 结果：
+  - `apps/admin-lite`：`typecheck` 通过。
+  - `apps/admin-lite`：`lint` 0 warning / 0 error。
+  - `apps/admin-lite`：`lint:arch` 通过。
+  - `apps/admin-lite`：`build` 通过。
+  - `apps/admin-lite`：`40 files / 110 tests` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。

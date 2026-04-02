@@ -360,7 +360,7 @@ async function main() {
         absolutePath,
         content,
         /<\s*el-table\b/gi,
-        'CRUD list.vue 禁止使用 el-table，请统一使用 ObVxeTable。',
+        'CRUD list.vue 禁止使用 el-table，请统一使用 ObTable。',
         violations
       );
       pushViolations(

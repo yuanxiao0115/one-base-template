@@ -2,7 +2,7 @@ import type { Ref } from 'vue';
 import { userApi } from '../api';
 import type { OrgTreeNode, PositionItem, RoleItem } from '../types';
 import { assertUniqueCheck, toUserUniqueSnapshot } from '../../shared/unique';
-import { createCachedAsyncLoader } from '../../shared/cachedAsyncLoader';
+import { createCachedAsyncLoader } from '../utils/cachedAsyncLoader';
 
 interface UseUserRemoteOptionsParams {
   orgTreeData: Ref<OrgTreeNode[]>;

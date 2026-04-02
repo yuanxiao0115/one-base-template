@@ -65,7 +65,7 @@
 
 ## CRUD 与交互红线
 
-- CRUD 列表编排页统一使用 `ObPageContainer + ObTableBox + ObVxeTable`，禁止回退 `el-table`。
+- CRUD 列表编排页统一使用 `ObPageContainer + ObTableBox + ObTable`，禁止回退 `el-table`。
 - CRUD 新增/编辑/查看容器统一使用 `ObCrudContainer`，禁止在 CRUD 场景回退 `el-dialog` / `el-drawer` 直连编排。
 - 模块业务代码统一使用 `@one-base-template/ui` 的消息与确认能力，禁止直接使用 `ElMessage` / `ElMessageBox`。
 - CRUD 目录范式固定：`list.vue + api.ts + types.ts + routes.ts`。

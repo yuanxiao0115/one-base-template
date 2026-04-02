@@ -13,7 +13,9 @@ import type {
 
 export const orgApi = {
   getOrgTree: async (params: { parentId?: string }) =>
-    obHttp().get<ApiResponse<OrgRecord[]>>('/cmict/admin/org/children', { params }),
+    obHttp().get<ApiResponse<OrgRecord[]>>('/cmict/admin/org/children', {
+      params
+    }),
 
   searchOrgList: async (params: { parentId?: string; orgName?: string }) =>
     obHttp().get<ApiResponse<OrgRecord[]>>('/cmict/admin/org/search', { params }),

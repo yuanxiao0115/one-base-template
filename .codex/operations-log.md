@@ -11421,3 +11421,21 @@
 - `packages/portal-engine/src/materials/base/base-table/config.json`：示例列补齐 tag 配置默认字段。
 - `packages/portal-engine/src/materials/base/base-table/source.test.ts`：新增中文分页与 tag 配置源码门禁断言。
 - `apps/docs/docs/guide/portal/material-extension.md`：同步 base-table 新能力说明。
+
+## 2026-04-02（admin-lite 同步跟进 admin 最新基线）
+
+- 背景：用户要求“admin 已更新，admin-lite 需要同步跟进”。
+- 同步范围（代码）：
+  - `apps/admin-lite/src/modules/adminManagement/**` 全量对齐 `apps/admin/src/modules/adminManagement/**`（含新增 `menu/pages/ExternalFramePage.vue`、`menu/pages/MicroAppHostPage.vue`、`menu/components/SystemPermissionEditForm.vue`、`user/utils/cachedAsyncLoader.ts`）。
+  - `apps/admin-lite/src/modules/LogManagement/login-log/list.vue`、`sys-log/list.vue` 对齐 `ObTable`。
+  - `apps/admin-lite/src/modules/SystemManagement/dict/list.vue` 对齐 `ObTable`。
+  - `apps/admin-lite/src/styles/element-plus/button-overrides.css` 对齐按钮样式基线。
+- 同步范围（基座与规则）：
+  - `apps/admin-lite/src/bootstrap/plugins.ts` 从 `@one-base-template/ui/vxe` 切到 `@one-base-template/ui/obtable`，并使用 `OneUiObTablePlugin`。
+  - `apps/admin-lite/AGENTS.md`、`apps/admin-lite/README.md`、`apps/docs/docs/guide/admin-lite-agent-redlines.md`、`apps/docs/docs/guide/admin-lite-base-app.md` 的 CRUD 表格口径统一为 `ObTable`。
+  - `scripts/check-admin-lite-arch.mjs` 的 CRUD 红线报错文案从 `ObVxeTable` 更新为 `ObTable`。
+- 测试跟进：
+  - 对齐 `apps/admin-lite/src/modules/adminManagement/user/composables/useUserCrudState.unit.test.ts` 与 `role/components/RolePermissionDialog.unit.test.ts` 到 admin 最新断言口径。
+  - 修正 `apps/admin-lite/tests/router/route-policy.unit.test.ts`：开放路由与菜单断言改为 admin-lite 基线（无 `/portal/*`，新增 `/ext/:slug(.*)*` 断言）。
+- 过程备注：
+  - `apps/docs build` 后出现 docs 侧自动变更提示，已按用户确认“保留并一起提交”。

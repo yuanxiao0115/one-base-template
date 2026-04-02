@@ -37,7 +37,7 @@ outline: [2, 3]
 
 ## CRUD 与交互红线
 
-- CRUD 列表编排页必须使用 `ObPageContainer + ObTableBox + ObVxeTable`。
+- CRUD 列表编排页必须使用 `ObPageContainer + ObTableBox + ObTable`。
 - CRUD 新增/编辑/查看必须使用 `ObCrudContainer`。
 - 消息与确认统一使用 `@one-base-template/ui`，禁止直接使用 `ElMessage` / `ElMessageBox`。
 - 模板事件禁止内联箭头函数。

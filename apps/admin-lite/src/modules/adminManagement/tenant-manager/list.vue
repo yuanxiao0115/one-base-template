@@ -25,7 +25,7 @@ const table = reactive(pageState.table);
       @reset-form="actions.onResetSearch"
     >
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :size
           :loading="table.loading"
@@ -55,7 +55,7 @@ const table = reactive(pageState.table);
               </el-button>
             </ObActionButtons>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>

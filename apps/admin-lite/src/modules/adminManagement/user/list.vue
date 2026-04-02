@@ -101,7 +101,7 @@ function getStatusTagType(isEnable?: boolean) {
       </template>
 
       <template #default="{ size, dynamicColumns }">
-        <ObVxeTable
+        <ObTable
           :ref="refs.tableRef"
           :loading="table.loading"
           :size
@@ -184,7 +184,7 @@ function getStatusTagType(isEnable?: boolean) {
               </ObActionButtons>
             </div>
           </template>
-        </ObVxeTable>
+        </ObTable>
       </template>
 
       <template #drawer>

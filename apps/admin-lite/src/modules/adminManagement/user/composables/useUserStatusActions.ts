@@ -5,7 +5,7 @@ import type { UserListRecord } from '../types';
 import { confirmWarn, isConfirmCancelled } from '../../shared/confirm';
 
 interface UseUserStatusActionsOptions {
-  selectedList: Ref<UserListRecord[]>;
+  selectedList: Readonly<Ref<UserListRecord[]>>;
   onSearch: (goFirstPage?: boolean) => Promise<void>;
 }
 

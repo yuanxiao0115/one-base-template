@@ -1,4 +1,4 @@
-import { computed, onMounted, reactive, ref, type Ref } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, watch, type Ref } from 'vue';
 import type { CrudFormLike } from '@one-base-template/ui';
 import { useCrudPage } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
@@ -39,6 +39,15 @@ interface SearchRefExpose {
 
 interface TreeRefExpose {
   setCurrentKey?: (key?: string | null) => void;
+}
+
+interface TableInstanceExpose {
+  clearSelection?: () => void;
+  toggleRowSelection?: (row: UserListRecord, selected?: boolean) => void;
+}
+
+interface TableRefExpose {
+  getTableRef?: () => TableInstanceExpose | null;
 }
 
 function getUserTypeLabelMap(
@@ -90,6 +99,9 @@ export function useUserCrudState() {
     children: 'children',
     label: 'orgName'
   };
+
+  const crossPageSelectedMap = reactive<Record<string, UserListRecord>>({});
+  const syncingSelection = ref(false);
 
   const canDragSort = computed(() => Boolean(searchForm.orgId));
   const tableColumns = computed(() => buildUserColumns(canDragSort.value));
@@ -199,10 +211,10 @@ export function useUserCrudState() {
     loading,
     dataList,
     pagination,
-    selectedList,
     onSearch,
     resetForm,
-    handleSelectionChange,
+    handleSelectionChange: handleSelectionChangeRaw,
+    onSelectionCancel,
     handleSizeChange,
     handleCurrentChange
   } = crudPage.table;
@@ -224,7 +236,9 @@ export function useUserCrudState() {
   const userTypeLabelMap = getUserTypeLabelMap(userTypeOptions);
   const currentOrgId = computed(() => searchForm.orgId);
   const userDataList = dataList as Ref<UserListRecord[]>;
-  const userSelectedList = selectedList as Ref<UserListRecord[]>;
+  const crossPageSelectedList = computed<UserListRecord[]>(() =>
+    Object.values(crossPageSelectedMap)
+  );
 
   const { loadOrgTree, loadPositionOptions, loadRoleOptions, checkFieldUnique, uploadAvatar } =
     useUserRemoteOptions({
@@ -233,8 +247,75 @@ export function useUserCrudState() {
       roleOptions
     });
 
+  function getUserRowId(row: UserListRecord): string {
+    const id = row?.id;
+    return typeof id === 'string' && id.trim() ? id : '';
+  }
+
+  function clearCrossPageSelection() {
+    Object.keys(crossPageSelectedMap).forEach((id) => {
+      delete crossPageSelectedMap[id];
+    });
+  }
+
+  function mergeCurrentPageSelection(selection: UserListRecord[]) {
+    const currentPageIds = new Set(
+      userDataList.value.map((row) => getUserRowId(row)).filter((id) => id.length > 0)
+    );
+
+    currentPageIds.forEach((id) => {
+      delete crossPageSelectedMap[id];
+    });
+
+    selection.forEach((row) => {
+      const id = getUserRowId(row);
+      if (!id) {
+        return;
+      }
+      crossPageSelectedMap[id] = row;
+    });
+  }
+
+  async function syncCurrentPageSelectionToTable() {
+    const tableInstance = (tableRef.value as TableRefExpose | null)?.getTableRef?.();
+    if (!tableInstance || typeof tableInstance.clearSelection !== 'function') {
+      return;
+    }
+
+    syncingSelection.value = true;
+    tableInstance.clearSelection();
+
+    if (typeof tableInstance.toggleRowSelection === 'function') {
+      userDataList.value.forEach((row) => {
+        const id = getUserRowId(row);
+        if (!id || !crossPageSelectedMap[id]) {
+          return;
+        }
+        tableInstance.toggleRowSelection?.(row, true);
+      });
+    }
+
+    await nextTick();
+    syncingSelection.value = false;
+  }
+
+  function clearAllSelection() {
+    clearCrossPageSelection();
+    onSelectionCancel(tableRef.value);
+  }
+
+  function handleSelectionChange(selection: UserListRecord[]) {
+    if (syncingSelection.value) {
+      return;
+    }
+
+    handleSelectionChangeRaw(selection);
+    mergeCurrentPageSelection(Array.isArray(selection) ? selection : []);
+  }
+
   function tableSearch(keyword: string) {
     searchForm.nickName = keyword;
+    clearAllSelection();
     void onSearch();
   }
 
@@ -243,6 +324,7 @@ export function useUserCrudState() {
   }
 
   function onResetSearch() {
+    clearAllSelection();
     searchForm.orgId = '';
     searchForm.date = [];
     treeRef.value?.setCurrentKey?.(null);
@@ -250,6 +332,7 @@ export function useUserCrudState() {
   }
 
   function handleNodeClick(node: OrgTreeNode) {
+    clearAllSelection();
     searchForm.orgId = Number(node.orgType) === 1 ? '' : node.id;
     void onSearch();
   }
@@ -271,11 +354,15 @@ export function useUserCrudState() {
   }
 
   async function handleDelete(row: UserListRecord) {
+    const deletedId = getUserRowId(row);
     await remove(row);
+    if (deletedId) {
+      delete crossPageSelectedMap[deletedId];
+    }
   }
 
   const { handleSingleStatus, handleBatchStatus, handleResetPassword } = useUserStatusActions({
-    selectedList: userSelectedList,
+    selectedList: crossPageSelectedList,
     onSearch
   });
 
@@ -288,6 +375,7 @@ export function useUserCrudState() {
   }
 
   async function handleImportUploaded() {
+    clearAllSelection();
     await onSearch(false);
   }
 
@@ -299,6 +387,14 @@ export function useUserCrudState() {
     pagination,
     onSearch
   });
+
+  watch(
+    () => userDataList.value,
+    () => {
+      void syncCurrentPageSelectionToTable();
+    },
+    { flush: 'post' }
+  );
 
   onMounted(async () => {
     try {
