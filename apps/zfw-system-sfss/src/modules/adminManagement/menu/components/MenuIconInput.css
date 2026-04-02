@@ -1,0 +1,214 @@
+.menu-icon-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.menu-icon-input__field {
+  width: 100%;
+}
+
+.menu-icon-input__field :deep(.el-input) {
+  width: 100%;
+}
+
+.menu-icon-input__field :deep(.el-input__wrapper) {
+  height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.menu-icon-input__field :deep(.el-input__inner) {
+  height: 28px;
+  line-height: 28px;
+}
+
+.menu-icon-input__field :deep(.el-input-group__append) {
+  padding: 0;
+}
+
+.menu-icon-input__field :deep(.el-input-group__append .el-button) {
+  margin: 0;
+}
+
+.menu-icon-input__prefix-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--el-text-color-secondary);
+}
+
+.menu-icon-input__prefix-preview :deep(i),
+.menu-icon-input__prefix-preview :deep(svg),
+.menu-icon-input__prefix-preview :deep(img) {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.menu-icon-input__prefix-placeholder {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.menu-icon-input__append-btn {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--el-text-color-regular);
+  background: transparent;
+  box-shadow: none;
+}
+
+.menu-icon-input__append-btn :deep(.el-icon) {
+  font-size: 14px;
+}
+
+.menu-icon-input__append-btn:not(.is-disabled):hover {
+  color: var(--el-color-primary);
+  background: var(--el-fill-color-light);
+}
+
+.menu-icon-input__search {
+  margin-bottom: 6px;
+}
+
+.menu-icon-input__tab-hint {
+  margin: 0;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.menu-icon-input__tabs {
+  margin-top: 8px;
+}
+
+.menu-icon-input__tabs :deep(.el-tabs__item) {
+  height: 38px;
+  padding: 0 10px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.menu-icon-input__panel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  min-height: 336px;
+  max-height: 420px;
+  overflow: auto;
+  padding: 2px 4px 2px 0;
+}
+
+.menu-icon-input__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 116px;
+  border: 1px solid var(--el-border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  background: var(--el-bg-color);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.menu-icon-input__item:hover {
+  border-color: var(--el-color-primary);
+  box-shadow: 0 8px 20px rgb(10 28 68 / 0.08);
+  transform: translateY(-1px);
+}
+
+.menu-icon-input__item:focus-visible {
+  outline: 2px solid var(--el-color-primary-light-3);
+  outline-offset: 1px;
+}
+
+.menu-icon-input__item.is-active {
+  border-color: var(--el-color-primary);
+  box-shadow: 0 8px 20px rgb(64 158 255 / 0.18);
+}
+
+.menu-icon-input__item-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.menu-icon-input__item-preview :deep(i),
+.menu-icon-input__item-preview :deep(svg),
+.menu-icon-input__item-preview :deep(img) {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.menu-icon-input__item-name,
+.menu-icon-input__item-icon {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-icon-input__item-name {
+  color: var(--el-text-color-primary);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.menu-icon-input__item-icon {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.menu-icon-input__dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  border-top: 1px solid var(--el-border-color-lighter);
+  padding-top: 12px;
+}
+
+.menu-icon-input__dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (width <= 1200px) {
+  .menu-icon-input__panel {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 1100px) {
+  .menu-icon-input__panel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 760px) {
+  .menu-icon-input__panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

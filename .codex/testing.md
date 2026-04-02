@@ -2,6 +2,38 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-02（zfw-system-sfss 迁移执行 + zfw 迁移 skill）
+
+- RED（先失败）：
+  - `pnpm -C apps/zfw-system-sfss lint`
+  - 失败原因：`apps/zfw-system-sfss/migration/**` 中 legacy 原始代码被 lint 扫描，触发大量历史 `any` 与规则告警。
+  - 修复：将 legacy 迁移源移动到 `.codex/migration-sources/zfw-system-sfss/**`，应用内仅保留说明文件。
+- RED（先失败）：
+  - `pnpm -C apps/zfw-system-sfss test:run`
+  - 失败原因：`tests/build/manual-chunks.unit.test.ts` 3 条断言失败，`scripts/vite/manual-chunks.ts` 未把 `zfw-system-sfss` 识别为 admin-shell app，也未兼容 `admin-lite-*` 历史 chunk 前缀。
+  - 修复：
+    - `manual-chunks.ts` 增加 `zfw-system-sfss` admin-shell 识别；
+    - 为派生 app 增加 `admin-lite` chunk 前缀别名（preload/filter/prune 三条链路统一）。
+
+- GREEN / 回归：
+  - `node --test scripts/__tests__/new-module.test.mjs`
+  - `python3 /Users/haoqiuzhi/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/haoqiuzhi/code/one-base-template/.codex/skills/zfw-system-migration-playbook`
+  - `pnpm -C apps/zfw-system-sfss typecheck`
+  - `pnpm -C apps/zfw-system-sfss lint`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/build/manual-chunks.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss test:run`
+  - `pnpm -C apps/zfw-system-sfss build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - `new-module` 脚手架测试 `3/3` 通过。
+  - zfw 迁移 skill 结构校验通过（`Skill is valid!`）。
+  - `apps/zfw-system-sfss`：`typecheck/lint/lint:arch/build` 通过。
+  - `apps/zfw-system-sfss`：测试 `40 files / 113 tests` 全通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
 ## 2026-04-02（安全收口：v-html/link/认证回跳公共封装）
 
 - GREEN / 回归：

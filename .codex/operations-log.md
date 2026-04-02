@@ -2,6 +2,29 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-02（zfw-system-sfss 迁移执行 + zfw 迁移 skill 落地）
+
+- 脚手架能力补齐：
+  - `scripts/new-module.mjs`：新增 `--app <app-id>` 参数，支持在任意派生 app 下生成模块。
+  - `scripts/__tests__/new-module.test.mjs`：补齐 `--app` 参数与目标目录断言。
+- 新 app 与模块迁移收口：
+  - 已创建 `apps/zfw-system-sfss`，并生成 `system-sfss` 模块。
+  - `apps/zfw-system-sfss/src/modules/system-sfss/routes.ts`：按老项目 URL 对齐 6 组业务路由（`/law-supervison/**`、`/lawsuit-petitions/**`），先保证菜单链路可达。
+  - 新增 `SystemSfssLegacyPage.vue` 作为可运行占位页，支持后续逐页替换。
+  - `apps/zfw-system-sfss/src/config/platform-config.ts`：对齐 zfw 运行口径（`appcode=od`、`defaultSystemCode=judicial_petition_management_system`、`systemHomeMap` 指向涉法涉诉首页、`enabledModules` 加入 `system-sfss`）。
+- 迁移源与 lint 冲突收口：
+  - 老项目原始目录以压缩包形式保留到 `apps/zfw-system-sfss/migration/System-sfss-legacy-src.tar.gz`（应用内仅保留 `migration/README.md` 说明），避免 legacy 代码进入 app lint/typecheck 扫描。
+- 构建链路兼容修复：
+  - `scripts/vite/manual-chunks.ts`：将 `zfw-system-sfss` 纳入 admin-shell 分桶策略，并补充 `admin-lite` 历史 chunk 前缀别名，修复 `manual-chunks` 预加载过滤测试失败。
+- 文档同步：
+  - `apps/docs/docs/guide/module-system.md`：更新 `new:module --app` 用法与示例。
+  - `apps/docs/docs/guide/zfw-system-sfss-quick-start.md`：更新 zfw 实际默认配置、模块清单、迁移源路径与验证口径。
+  - `apps/docs/docs/.vitepress/config.ts`、`apps/docs/docs/guide/index.md`：增加 zfw 快速手册入口。
+  - `apps/zfw-system-sfss/README.md`：收敛为 zfw 项目专用说明，移除误导性“new:app 来源”表述。
+- skill 创建（按用户要求）：
+  - 新增 `.codex/skills/zfw-system-migration-playbook/`，完成 `SKILL.md`、`references/*`、`assets/migration-plan-template.md`。
+  - 使用 `skill-creator` 官方脚本初始化并通过 `quick_validate.py` 校验。
+
 ## 2026-04-02（安全收口：v-html / 外链校验 / 认证回跳 target 公共封装 + docs）
 
 - core 公共安全能力新增：

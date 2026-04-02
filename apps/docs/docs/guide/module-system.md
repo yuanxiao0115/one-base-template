@@ -131,10 +131,16 @@ compat: {
 
 ## 5) 新增模块最短路径
 
-1. 生成骨架：`pnpm new:module <module-id> --title 模块标题`
+1. 生成骨架：`pnpm new:module <module-id> --title 模块标题 --app <app-id>`
 2. 在模块内补齐页面、接口、路由。
 3. 在 `platform-config.ts` 的 `enabledModules` 中加入模块 id。
 4. 执行验证命令。
+
+示例：
+
+```bash
+pnpm new:module system-sfss --title "System-sfss" --app zfw-system-sfss
+```
 
 建议验证：
 

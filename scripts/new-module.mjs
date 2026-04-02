@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 const MODULE_ID_REGEX = /^[a-z][a-z0-9-]*$/;
+const APP_ID_REGEX = /^[a-z][a-z0-9-]*$/;
 
 function toPascalCase(value) {
   return value
@@ -18,12 +19,13 @@ function toCamelCase(value) {
 }
 
 function createUsage() {
-  return '用法: pnpm new:module <module-id> [--title 模块标题] [--route 路由前缀] [--dry-run]';
+  return '用法: pnpm new:module <module-id> [--app app-id] [--title 模块标题] [--route 路由前缀] [--dry-run]';
 }
 
 export function parseArgs(argv) {
   const args = {
     moduleId: '',
+    appId: 'admin',
     title: '',
     routeBase: '',
     dryRun: false
@@ -60,6 +62,16 @@ export function parseArgs(argv) {
 
     if (item === '--route') {
       args.routeBase = (rest.shift() || '').trim();
+      continue;
+    }
+
+    if (item.startsWith('--app=')) {
+      args.appId = item.slice('--app='.length).trim();
+      continue;
+    }
+
+    if (item === '--app') {
+      args.appId = (rest.shift() || '').trim();
       continue;
     }
 
@@ -174,6 +186,7 @@ export async function scaffoldModule(options) {
   const {
     rootDir,
     moduleId,
+    appId: appIdOption = 'admin',
     title: titleOption = '',
     routeBase: routeBaseOption = '',
     dryRun = false
@@ -186,6 +199,14 @@ export async function scaffoldModule(options) {
   if (!MODULE_ID_REGEX.test(moduleId)) {
     throw new Error(`模块名不合法: "${moduleId}"。仅支持小写字母、数字、短横线，且必须字母开头。`);
   }
+  if (!appIdOption) {
+    throw new Error('缺少 app-id。');
+  }
+  if (!APP_ID_REGEX.test(appIdOption)) {
+    throw new Error(
+      `应用名不合法: "${appIdOption}"。仅支持小写字母、数字、短横线，且必须字母开头。`
+    );
+  }
 
   const routeBase = routeBaseOption || moduleId;
   const pascal = toPascalCase(moduleId);
@@ -197,7 +218,11 @@ export async function scaffoldModule(options) {
   const apiName = `${camel}Api`;
   const serviceName = `${camel}Service`;
 
-  const moduleDir = path.join(rootDir, 'apps/admin/src/modules', moduleId);
+  const appModulesDir = path.join(rootDir, 'apps', appIdOption, 'src/modules');
+  if (!(await pathExists(appModulesDir))) {
+    throw new Error(`未找到目标应用模块目录: ${appModulesDir}`);
+  }
+  const moduleDir = path.join(appModulesDir, moduleId);
 
   if (await pathExists(moduleDir)) {
     throw new Error(`模块目录已存在: ${moduleDir}`);
@@ -220,6 +245,7 @@ export async function scaffoldModule(options) {
       created: false,
       dryRun: true,
       moduleId,
+      appId: appIdOption,
       moduleDir,
       plannedFiles
     };
@@ -231,6 +257,7 @@ export async function scaffoldModule(options) {
     created: true,
     dryRun: false,
     moduleId,
+    appId: appIdOption,
     moduleDir,
     plannedFiles
   };
@@ -248,6 +275,7 @@ async function main() {
   const result = await scaffoldModule({
     rootDir,
     moduleId: args.moduleId,
+    appId: args.appId,
     title: args.title,
     routeBase: args.routeBase,
     dryRun: args.dryRun

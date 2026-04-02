@@ -1,0 +1,50 @@
+{
+  "name": "zfw-system-sfss",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "node ../../scripts/run-vp-build.mjs",
+    "preview": "vp preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vp test --config vitest.config.ts",
+    "test:run": "vp test run --config vitest.config.ts",
+    "test:run:file": "sh -c 'shift; vp test run --config vitest.config.ts \"$@\"' --",
+    "test:e2e:minimal-auth": "vp test run --config vitest.config.ts tests/architecture/route-meta-helper-source.unit.test.ts tests/architecture/login-route-robustness-source.unit.test.ts tests/services/auth/sso-minimal-e2e.unit.test.ts",
+    "check:route-policy": "vp test run --config vitest.config.ts tests/router/route-policy.unit.test.ts",
+    "lint": "node ../../scripts/run-vp-task-from-root.mjs lint",
+    "lint:arch": "node ../../scripts/check-admin-lite-arch.mjs --app zfw-system-sfss",
+    "lint:fix": "node ../../scripts/run-vp-task-from-root.mjs check --fix src"
+  },
+  "dependencies": {
+    "@one-base-template/adapters": "workspace:*",
+    "@one-base-template/app-starter": "workspace:*",
+    "@one-base-template/core": "workspace:*",
+    "@one-base-template/tag": "workspace:*",
+    "@one-base-template/ui": "workspace:*",
+    "cropperjs": "^1.6.2",
+    "element-plus": "^2.13.2",
+    "gm-crypto": "^0.1.12",
+    "pinia": "^3.0.4",
+    "sortablejs": "^1.15.7",
+    "vue": "^3.5.28",
+    "vue-router": "^5.0.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/sortablejs": "^1.15.9",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.0.0",
+    "happy-dom": "^20.0.10",
+    "postcss": "^8.0.0",
+    "sass": "^1.93.2",
+    "tailwindcss": "^4.1.18",
+    "unplugin-auto-import": "^21.0.0",
+    "unplugin-vue-components": "^31.0.0",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  }
+}

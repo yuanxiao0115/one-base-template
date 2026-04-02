@@ -42,6 +42,10 @@ outline: false
     <h3>admin-lite 后台基座</h3>
     <p>与 admin 同构的后台快速起项目基座，用于直接承接新后台业务开发。</p>
   </a>
+  <a class="guide-card" href="/guide/zfw-system-sfss-quick-start">
+    <h3>zfw-system-sfss 快速手册</h3>
+    <p>聚焦 zfw 项目的默认配置口径、System-sfss 模块路径与迁移起步方式。</p>
+  </a>
 </div>
 
 ## 🧱 架构与运行时

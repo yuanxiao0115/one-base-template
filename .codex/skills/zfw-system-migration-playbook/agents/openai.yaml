@@ -1,0 +1,4 @@
+interface:
+  display_name: 'ZFW 迁移手册'
+  short_description: '将 zfw 老后台模块迁移到 one-base-template 的可执行流程'
+  default_prompt: '请按 zfw 迁移流程完成模块迁移、配置对齐、验证和文档更新。'

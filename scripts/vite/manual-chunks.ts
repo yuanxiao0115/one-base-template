@@ -166,19 +166,32 @@ const WORKSPACE_CHUNK_RULES: AppFeatureChunk[] = [
   }
 ];
 
+const ADMIN_SHELL_APP_NAMES = new Set(['admin', 'admin-lite', 'zfw-system-sfss']);
+
 function isAdminShellAppName(appName: string) {
-  return appName === 'admin' || appName === 'admin-lite';
+  return ADMIN_SHELL_APP_NAMES.has(appName);
+}
+
+function resolveAdminShellAppAliases(appName: string) {
+  if (appName === 'admin' || appName === 'admin-lite') {
+    return [appName];
+  }
+
+  // admin-lite 派生 app 可能仍沿用 admin-lite 历史 chunk 前缀。
+  return ['admin-lite', appName];
 }
 
 function createAdminShellPreloadBlockedPrefixes(appName: string) {
+  const aliases = resolveAdminShellAppAliases(appName);
+
   return [
-    `assets/${appName}-entry-`,
-    `assets/${appName}-app-shell-`,
-    `assets/${appName}-home-`,
-    `assets/${appName}-log-management-`,
-    `assets/${appName}-system-management-`,
+    ...aliases.map((name) => `assets/${name}-entry-`),
+    ...aliases.map((name) => `assets/${name}-app-shell-`),
+    ...aliases.map((name) => `assets/${name}-home-`),
+    ...aliases.map((name) => `assets/${name}-log-management-`),
+    ...aliases.map((name) => `assets/${name}-system-management-`),
     'assets/admin-management-',
-    `assets/${appName}-portal-`,
+    ...aliases.map((name) => `assets/${name}-portal-`),
     'assets/portal-engine-',
     'assets/sortable-grid-',
     'assets/one-ui-shell-',
@@ -190,9 +203,11 @@ function createAdminShellPreloadBlockedPrefixes(appName: string) {
 }
 
 function createAdminRuntimePreloadBlockedPrefixes(appName: string) {
+  const aliases = resolveAdminShellAppAliases(appName);
+
   return [
     ...createAdminShellPreloadBlockedPrefixes(appName),
-    `assets/${appName}-auth-`,
+    ...aliases.map((name) => `assets/${name}-auth-`),
     'assets/LoginPage-',
     'assets/one-ui-auth-',
     'assets/element-plus-',
@@ -204,8 +219,10 @@ function createAdminRuntimePreloadBlockedPrefixes(appName: string) {
 }
 
 function createAdminLoginPagePreloadBlockedPrefixes(appName: string) {
+  const aliases = resolveAdminShellAppAliases(appName);
+
   return [
-    `assets/${appName}-app-shell-`,
+    ...aliases.map((name) => `assets/${name}-app-shell-`),
     'assets/one-ui-shell-',
     'assets/one-ui-table-',
     'assets/iconify-ri-',
@@ -215,12 +232,14 @@ function createAdminLoginPagePreloadBlockedPrefixes(appName: string) {
 }
 
 function createAdminIndexHtmlBlockedStylePrefixes(appName: string) {
+  const aliases = resolveAdminShellAppAliases(appName);
+
   return [
-    `assets/${appName}-entry-`,
+    ...aliases.map((name) => `assets/${name}-entry-`),
     'assets/admin-management-',
-    `assets/${appName}-system-management-`,
+    ...aliases.map((name) => `assets/${name}-system-management-`),
     'assets/portal-engine-',
-    `assets/${appName}-portal-`,
+    ...aliases.map((name) => `assets/${name}-portal-`),
     'assets/vxe-',
     'assets/one-ui-table-',
     'assets/one-ui-shell-'

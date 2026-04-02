@@ -7,9 +7,11 @@ import { access, mkdir, mkdtemp, readFile } from 'node:fs/promises';
 
 import { parseArgs, scaffoldModule } from '../new-module.mjs';
 
-async function createWorkspaceFixture() {
+async function createWorkspaceFixture(appIds = ['admin']) {
   const rootDir = await mkdtemp(path.join(os.tmpdir(), 'one-base-template-new-module-'));
-  await mkdir(path.join(rootDir, 'apps/admin/src/modules'), { recursive: true });
+  for (const appId of appIds) {
+    await mkdir(path.join(rootDir, `apps/${appId}/src/modules`), { recursive: true });
+  }
   return rootDir;
 }
 
@@ -18,9 +20,18 @@ async function assertExists(targetPath) {
 }
 
 test('parseArgs 支持 title/route/dry-run 参数', () => {
-  const args = parseArgs(['demo-module', '--title', '示例模块', '--route=demo', '--dry-run']);
+  const args = parseArgs([
+    'demo-module',
+    '--app',
+    'zfw-system-sfss',
+    '--title',
+    '示例模块',
+    '--route=demo',
+    '--dry-run'
+  ]);
 
   assert.equal(args.moduleId, 'demo-module');
+  assert.equal(args.appId, 'zfw-system-sfss');
   assert.equal(args.title, '示例模块');
   assert.equal(args.routeBase, 'demo');
   assert.equal(args.dryRun, true);
@@ -44,9 +55,10 @@ test('scaffoldModule dry-run 仅返回计划文件不落盘', async () => {
 });
 
 test('scaffoldModule 生成标准模块骨架', async () => {
-  const rootDir = await createWorkspaceFixture();
+  const rootDir = await createWorkspaceFixture(['admin', 'zfw-system-sfss']);
   const result = await scaffoldModule({
     rootDir,
+    appId: 'zfw-system-sfss',
     moduleId: 'sample-module',
     title: '示例模块',
     routeBase: 'sample'
@@ -54,7 +66,10 @@ test('scaffoldModule 生成标准模块骨架', async () => {
 
   assert.equal(result.created, true);
   assert.equal(result.dryRun, false);
-  assert.equal(result.moduleDir, path.join(rootDir, 'apps/admin/src/modules/sample-module'));
+  assert.equal(
+    result.moduleDir,
+    path.join(rootDir, 'apps/zfw-system-sfss/src/modules/sample-module')
+  );
 
   const indexPath = path.join(result.moduleDir, 'index.ts');
   const routesPath = path.join(result.moduleDir, 'routes.ts');

@@ -1,0 +1,79 @@
+{
+  "id": "5075393",
+  "name": "od-web",
+  "font_family": "iconfont-od",
+  "css_prefix_text": "icon-",
+  "description": "公文web端图标",
+  "glyphs": [
+    {
+      "icon_id": "46203182",
+      "name": "考勤管理",
+      "font_class": "kaoqinguanli",
+      "unicode": "e810",
+      "unicode_decimal": 59408
+    },
+    {
+      "icon_id": "46203183",
+      "name": "统计报表",
+      "font_class": "tongjibaobiao",
+      "unicode": "e80f",
+      "unicode_decimal": 59407
+    },
+    {
+      "icon_id": "46202865",
+      "name": "收文",
+      "font_class": "shouwenguanli",
+      "unicode": "e806",
+      "unicode_decimal": 59398
+    },
+    {
+      "icon_id": "46202866",
+      "name": "发文",
+      "font_class": "fawenguanli",
+      "unicode": "e802",
+      "unicode_decimal": 59394
+    },
+    {
+      "icon_id": "46201580",
+      "name": "公文库",
+      "font_class": "gongwenku",
+      "unicode": "e809",
+      "unicode_decimal": 59401
+    },
+    {
+      "icon_id": "46201581",
+      "name": "我的已办",
+      "font_class": "wodeyiban",
+      "unicode": "e80d",
+      "unicode_decimal": 59405
+    },
+    {
+      "icon_id": "46187849",
+      "name": "个性化设置",
+      "font_class": "gexinghuashezhi",
+      "unicode": "e7fc",
+      "unicode_decimal": 59388
+    },
+    {
+      "icon_id": "46190157",
+      "name": "我的待办",
+      "font_class": "wodedaiban",
+      "unicode": "e7f3",
+      "unicode_decimal": 59379
+    },
+    {
+      "icon_id": "46190499",
+      "name": "回收站",
+      "font_class": "huishouzhan",
+      "unicode": "e801",
+      "unicode_decimal": 59393
+    },
+    {
+      "icon_id": "46190583",
+      "name": "首页",
+      "font_class": "shouye",
+      "unicode": "e803",
+      "unicode_decimal": 59395
+    }
+  ]
+}
