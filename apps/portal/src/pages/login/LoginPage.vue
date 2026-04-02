@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { loginByPassword, resolvePortalLoginTarget } from '@one-base-template/core';
-import { ElMessage } from 'element-plus';
+import {
+  buildLoginScenario,
+  loginByPassword,
+  resolvePortalLoginTarget
+} from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { appEnv } from '@/config/env';
@@ -8,24 +12,15 @@ import {
   fetchCaptchaCheck as checkCaptcha,
   loadCaptcha
 } from '@/services/auth/auth-captcha-service';
-import { getLoginPageConfig, getPortalFrontConfig } from '@/services/auth/auth-remote-service';
+import {
+  getLoginPageConfig,
+  getPortalFrontConfig,
+  type PortalLoginPageConfig
+} from '@/services/auth/auth-remote-service';
 
 defineOptions({
   name: 'PortalLoginPage'
 });
-
-interface BizResponse<T> {
-  code?: unknown;
-  success?: boolean;
-  message?: string;
-  data?: T;
-}
-
-interface LoginPageConfig {
-  webLogoText?: string;
-  loginPageFodders?: string[];
-  [k: string]: unknown;
-}
 
 interface VerifyLoginPayload {
   username: string;
@@ -38,7 +33,13 @@ interface VerifyLoginPayload {
 const router = useRouter();
 const route = useRoute();
 const { backend } = appEnv;
-const useBasicLogin = backend === 'basic';
+const loginScenario = buildLoginScenario({
+  backend,
+  routeQuery: route.query,
+  verifyLoginFallback: '/portal/index',
+  defaultFallback: '/portal/index'
+});
+const { useVerifyLogin } = loginScenario;
 
 const loading = ref(false);
 const form = reactive({
@@ -46,7 +47,7 @@ const form = reactive({
   password: ''
 });
 
-const loginInfoConfig = ref<LoginPageConfig | null>(null);
+const loginInfoConfig = ref<PortalLoginPageConfig | null>(null);
 const backgroundImage = ref('');
 
 function isBizSuccess(code: unknown) {
@@ -54,7 +55,7 @@ function isBizSuccess(code: unknown) {
 }
 
 async function loadLoginPageMeta() {
-  const res = (await getLoginPageConfig()) as BizResponse<LoginPageConfig>;
+  const res = await getLoginPageConfig();
 
   if (!(res && isBizSuccess(res.code))) {
     return;
@@ -68,16 +69,30 @@ async function loadLoginPageMeta() {
   }
 }
 
-async function getTargetPath() {
-  const res = (await getPortalFrontConfig()) as BizResponse<{
-    enable?: boolean;
-    customUrl?: string;
-  }>;
+function shouldSkipLocalErrorToast(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  if (error.name === 'ObBizError') {
+    return true;
+  }
+  return 'response' in error || 'code' in error;
+}
+
+function getDefaultTargetPath() {
+  return resolvePortalLoginTarget({
+    redirect: route.query.redirect,
+    fallback: loginScenario.fallback
+  });
+}
+
+async function getVerifyLoginTargetPath() {
+  const res = await getPortalFrontConfig();
   const frontConfig = isBizSuccess(res?.code) ? res.data : undefined;
 
   return resolvePortalLoginTarget({
     redirect: route.query.redirect,
-    fallback: '/portal/index',
+    fallback: loginScenario.fallback,
     frontConfig
   });
 }
@@ -90,18 +105,18 @@ async function doDefaultLogin(payload: { username: string; password: string }) {
       username: payload.username,
       password: payload.password
     });
-    await router.replace(
-      resolvePortalLoginTarget({ redirect: route.query.redirect, fallback: '/portal/index' })
-    );
-  } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : '登录失败';
-    ElMessage.error(message);
+    await router.replace(getDefaultTargetPath());
+  } catch (error: unknown) {
+    if (!shouldSkipLocalErrorToast(error)) {
+      const errorMessage = error instanceof Error && error.message ? error.message : '登录失败';
+      void message.error(errorMessage);
+    }
   } finally {
     loading.value = false;
   }
 }
 
-async function doBasicVerifyLogin(payload: VerifyLoginPayload) {
+async function doVerifyLogin(payload: VerifyLoginPayload) {
   loading.value = true;
   try {
     await loginByPassword({
@@ -112,17 +127,19 @@ async function doBasicVerifyLogin(payload: VerifyLoginPayload) {
       captchaKey: payload.captchaKey,
       alreadyEncrypted: payload.encrypt === 1
     });
-    await router.replace(await getTargetPath());
-  } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : '登录失败';
-    ElMessage.error(message);
+    await router.replace(await getVerifyLoginTargetPath());
+  } catch (error: unknown) {
+    if (!shouldSkipLocalErrorToast(error)) {
+      const errorMessage = error instanceof Error && error.message ? error.message : '登录失败';
+      void message.error(errorMessage);
+    }
   } finally {
     loading.value = false;
   }
 }
 
 onMounted(async () => {
-  if (useBasicLogin) {
+  if (loginScenario.shouldLoadLoginPageConfig) {
     await loadLoginPageMeta();
   }
 });
@@ -140,9 +157,9 @@ onMounted(async () => {
     </div>
 
     <div class="portal-login__inner">
-      <el-card class="portal-login__card" :class="{ 'portal-login__card--basic': useBasicLogin }">
+      <el-card class="portal-login__card" :class="{ 'portal-login__card--basic': useVerifyLogin }">
         <ObLoginBoxV2
-          v-if="useBasicLogin"
+          v-if="useVerifyLogin"
           v-model:username="form.username"
           v-model:password="form.password"
           title="用户登录"
@@ -154,7 +171,7 @@ onMounted(async () => {
           password-label=""
           username-placeholder="账号"
           password-placeholder="密码"
-          @submit="doBasicVerifyLogin"
+          @submit="doVerifyLogin"
         />
         <ObLoginBox
           v-else

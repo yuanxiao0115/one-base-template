@@ -1,7 +1,8 @@
 import { obHttp } from '@one-base-template/core';
 import type { PortalFrontConfig } from '@one-base-template/core';
+import { appPortalSsoApiConfig } from '@/config/sso';
 
-interface BizResponse<T> {
+export interface PortalBizResponse<T> {
   code?: unknown;
   success?: boolean;
   message?: string;
@@ -9,20 +10,26 @@ interface BizResponse<T> {
   encrypted?: boolean;
 }
 
-interface LoginPageConfig {
+export interface PortalLoginPageConfig {
   webLogoText?: string;
   loginPageFodders?: string[];
   [k: string]: unknown;
 }
 
 export async function getLoginPageConfig() {
-  return obHttp().get<BizResponse<LoginPageConfig>>('/cmict/portal/getLoginPage', {
-    $noErrorAlert: true
-  });
+  return obHttp().get<PortalBizResponse<PortalLoginPageConfig>>(
+    appPortalSsoApiConfig.loginPageConfigEndpoint,
+    {
+      $noErrorAlert: true
+    }
+  );
 }
 
 export async function getPortalFrontConfig() {
-  return obHttp().get<BizResponse<PortalFrontConfig>>('/cmict/admin/front-config/portal', {
-    $noErrorAlert: true
-  });
+  return obHttp().get<PortalBizResponse<PortalFrontConfig>>(
+    appPortalSsoApiConfig.portalFrontConfigEndpoint,
+    {
+      $noErrorAlert: true
+    }
+  );
 }

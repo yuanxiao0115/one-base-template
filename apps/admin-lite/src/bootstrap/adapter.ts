@@ -8,13 +8,17 @@ export function createAppAdapter(params: {
   http: ObHttp;
   tokenKey: string;
   basicSystemPermissionCode?: string;
+  basicTicketSsoEndpoint: string;
 }): BackendAdapter {
-  const { backend, http, tokenKey, basicSystemPermissionCode } = params;
+  const { backend, http, tokenKey, basicSystemPermissionCode, basicTicketSsoEndpoint } = params;
 
   if (backend === 'basic') {
     return createBasicAdapter(http, {
       tokenKey,
-      systemPermissionCode: basicSystemPermissionCode || 'admin_server'
+      systemPermissionCode: basicSystemPermissionCode || 'admin_server',
+      ssoEndpoints: {
+        ticketSsoEndpoint: basicTicketSsoEndpoint
+      }
     });
   }
 

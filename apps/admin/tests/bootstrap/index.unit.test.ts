@@ -98,6 +98,9 @@ vi.mock('@/config/env', () => ({
 }));
 
 vi.mock('@/config', () => ({
+  appAuthSsoApiConfig: {
+    ticketSsoEndpoint: '/cmict/auth/ticket/sso'
+  },
   appLayoutMode: 'side',
   appSidebarCollapsedWidth: 64,
   appSidebarWidth: 220,

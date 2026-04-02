@@ -10078,3 +10078,136 @@
   - `apps/admin-lite`：`build` 通过。
   - `apps/admin-lite`：`40 files / 110 tests` 通过。
   - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-02（SSO 统一配置入口 + ticket serviceUrl + portal /sso 闭环）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run -- tests/services/auth/auth-scenario-provider.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run -- tests/services/auth/auth-scenario-provider.unit.test.ts`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin-lite lint`
+  - `pnpm -C apps/portal lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- RED（并行改动导致，非本次 SSO 改动引入）：
+  - `pnpm -C packages/core test:run -- src/auth/sso-callback-strategy.test.ts`
+    - 失败点：`packages/core/src/router/module-registry.test.ts`（`collectModuleLoadEntries` 断言不匹配）。
+  - `pnpm -C apps/portal typecheck`
+    - 失败点：`packages/portal-engine/src/materials/base/app-entrance/index.vue`（unknown -> string 类型错误）。
+  - `pnpm -C apps/admin typecheck`
+    - 失败点：同上 `packages/portal-engine/src/materials/base/app-entrance/index.vue`，另含
+      `packages/portal-engine/src/materials/cms/publicity-education/index.vue` 类型错误。
+- 结果说明：
+  - admin 与 admin-lite 场景测试均通过（分别 `74 files/177 tests`、`40 files/112 tests`）。
+  - 文档站 lint/build 通过。
+  - admin lint 仅有 4 条既有 `max-lines` warning，无 error。
+
+## 2026-04-02（模块契约收口：manifest.ts -> moduleMeta）
+
+- GREEN / 回归：
+  - `pnpm -C packages/core test:run -- src/router/module-registry.test.ts`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin test:run:file -- tests/router/route-policy.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/router/route-policy.unit.test.ts`
+  - `pnpm -C apps/admin-lite lint:arch`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- RED（并行改动导致，非本次改动引入）：
+  - `pnpm -C apps/admin typecheck`
+  - 失败点：
+    - `packages/portal-engine/src/materials/base/app-entrance/index.vue`（`unknown` 不能赋给 `string | undefined`）
+    - `packages/portal-engine/src/materials/cms/publicity-education/index.vue`（`string` 不能赋给 `'hover' | 'always' | 'never'`）
+- 结果：
+  - `packages/core`：模块注册相关测试 `25 files / 120 tests` 全通过，`typecheck` 通过。
+  - `apps/admin`：路由策略定向测试 `1 file / 3 tests` 通过。
+  - `apps/admin-lite`：`typecheck` 通过；路由策略定向测试 `1 file / 3 tests` 通过；`lint:arch` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
+## 2026-04-02（SSO 收口二次调整：去兼容导出 + adapters 端点注入）
+
+- GREEN / 回归：
+  - `pnpm -C packages/adapters typecheck`
+  - `pnpm -C packages/adapters lint`
+  - `pnpm -C apps/admin test:run -- tests/services/auth/auth-scenario-provider.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run -- tests/services/auth/auth-scenario-provider.unit.test.ts`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin-lite lint`
+  - `pnpm -C apps/portal lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- RED（并行改动导致，非本轮 SSO 文件）：
+  - `pnpm -C apps/admin typecheck`
+    - 失败点：`packages/portal-engine/src/materials/base/app-entrance/index.vue`、
+      `packages/portal-engine/src/materials/cms/publicity-education/index.vue`。
+  - `pnpm -C apps/portal typecheck`
+    - 失败点：`packages/portal-engine/src/materials/base/app-entrance/index.vue`。
+- 备注：
+  - 本轮中途出现 `apps/admin/tests/bootstrap/index.unit.test.ts` 与
+    `apps/admin-lite/tests/bootstrap/index.unit.test.ts` 缺少 `appAuthSsoApiConfig` mock 导致失败；
+    补齐 mock 后两端测试均恢复通过。
+
+## 2026-04-02（模块入口命名收口：module.ts -> index.ts）
+
+- GREEN / 回归：
+  - `pnpm -C packages/core test:run -- src/router/module-registry.test.ts`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C apps/admin test:run:file -- tests/router/route-policy.unit.test.ts`
+  - `pnpm -C apps/admin lint:arch`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/router/route-policy.unit.test.ts`
+  - `pnpm -C apps/admin-lite lint:arch`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `node --test scripts/__tests__/new-app.test.mjs`
+  - `pnpm new:module codex-temp-demo --dry-run`
+- RED（命令口径问题，非代码失败）：
+  - `pnpm exec vp test run scripts/__tests__/new-app.test.mjs`
+  - 结果：`No test suite found`（该文件使用 Node 原生 `node:test`，应以 `node --test` 运行）。
+- 结果：
+  - 模块注册链路（admin/admin-lite/core）已对齐 `index.ts`，相关定向测试与门禁通过。
+  - docs lint/build 通过，脚手架 `new:module --dry-run` 已输出 `index.ts`。
+
+## 2026-04-02（portal 登录域收口：提示栈/场景/端点/meta.access）
+
+- GREEN / 回归：
+  - `pnpm -C apps/portal lint`
+  - `pnpm -C apps/portal build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- RED（存量问题，非本次改动引入）：
+  - `pnpm -C apps/portal typecheck`
+  - 失败点：
+    - `packages/portal-engine/src/materials/base/app-entrance/index.vue`
+    - 错误：`Type 'unknown' is not assignable to type 'string | undefined'`（及 `PortalLinkOpenType | undefined`）。
+- 结果：
+  - `apps/portal`：`lint` 0 warning / 0 error；`build` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+  - `apps/portal typecheck` 仍被 `packages/portal-engine` 既有类型错误阻断。
+
+## 2026-04-02（portal typecheck 存量阻塞补修）
+
+- GREEN / 回归：
+  - `pnpm -C apps/portal typecheck`
+  - `pnpm -C apps/portal lint`
+  - `pnpm -C apps/portal build`
+- 结果：
+  - `apps/portal` 三项验证全部通过；此前 `app-entrance/index.vue` 的 `unknown` 类型报错已清除。
+
+## 2026-04-02（登录域收口补充回归：admin/admin-lite/core + portal）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin test:run:file -- tests/bootstrap/index.unit.test.ts`
+  - `pnpm -C apps/admin test:run:file -- tests/services/auth/auth-scenario-provider.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/bootstrap/index.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/services/auth/auth-scenario-provider.unit.test.ts`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C packages/core test:run -- src/auth/sso-callback-strategy.test.ts`
+  - `pnpm -C apps/portal typecheck`
+- 结果：
+  - admin/admin-lite 登录相关定向测试通过；`typecheck` 通过。
+  - core `sso-callback-strategy` 测试集通过（25 files / 120 tests）。
+  - portal `typecheck` 通过。

@@ -54,7 +54,7 @@ pnpm -C apps/admin-lite lint
 | token key                  | `apps/admin-lite/src/config/platform-config.ts` | `tokenKey`、`idTokenKey`（可选）                                        | preset 场景默认按 `storageNamespace` 自动生成，通常无需手写 |
 | UI 开关                    | `apps/admin-lite/src/config/ui.ts`              | `appTopBarFeatureConfig`、`appLoginUiConfig`                            | 控制顶栏能力、登录文案、缓存开关等                          |
 | 布局参数                   | `apps/admin-lite/src/config/layout.ts`          | `appLayoutMode`、`appTopbarHeight`、`appSidebarWidth`                   | 控制布局模式与尺寸                                          |
-| SSO 策略                   | `apps/admin-lite/src/config/sso.ts`             | `appSsoOptions`                                                         | 配置 `/sso` 参数策略与交换方式                              |
+| SSO 策略与接口             | `apps/admin-lite/src/config/auth-sso.ts`        | `appSsoOptions`、`appAuthSsoApiConfig`                                  | 统一配置 `/sso` 参数策略与 SSO 端点                         |
 
 ## 1. 当前定位
 

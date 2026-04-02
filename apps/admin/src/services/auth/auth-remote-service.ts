@@ -1,4 +1,5 @@
 import { obHttp } from '@one-base-template/core';
+import { appAuthSsoApiConfig } from '@/config/auth-sso';
 import type { ApiResponse } from '@/types/api';
 
 export interface TokenResult {
@@ -19,13 +20,13 @@ export interface LoginPageConfig {
 }
 
 export async function getLoginPageConfig() {
-  return obHttp().get<ApiResponse<LoginPageConfig>>('/cmict/portal/getLoginPage', {
+  return obHttp().get<ApiResponse<LoginPageConfig>>(appAuthSsoApiConfig.loginPageConfigEndpoint, {
     $noErrorAlert: true
   });
 }
 
 export async function loginByZhxt(token: string) {
-  return obHttp().get<ApiResponse<TokenResult>>('/cmict/auth/external/zhxt/sso', {
+  return obHttp().get<ApiResponse<TokenResult>>(appAuthSsoApiConfig.zhxtSsoEndpoint, {
     params: { 'zhxt-token': token },
     $isAuth: true,
     $throwOnBizError: true
@@ -33,7 +34,7 @@ export async function loginByZhxt(token: string) {
 }
 
 export async function loginByYdbg(token: string) {
-  return obHttp().get<ApiResponse<TokenResult>>('/cmict/auth/external/ydbg/sso', {
+  return obHttp().get<ApiResponse<TokenResult>>(appAuthSsoApiConfig.ydbgSsoEndpoint, {
     params: {
       'ydbg-token': token,
       appType: 2
@@ -44,7 +45,7 @@ export async function loginByYdbg(token: string) {
 }
 
 export async function loginByTicket(payload: { ticket: string; serviceUrl: string }) {
-  return obHttp().get<ApiResponse<TokenResult>>('/cmict/auth/ticket/sso', {
+  return obHttp().get<ApiResponse<TokenResult>>(appAuthSsoApiConfig.ticketSsoEndpoint, {
     params: payload,
     $isAuth: true,
     $throwOnBizError: true
@@ -52,15 +53,18 @@ export async function loginByTicket(payload: { ticket: string; serviceUrl: strin
 }
 
 export async function loginByExternal(payload: { from: 'om' | 'portal'; token: string }) {
-  return obHttp().get<ApiResponse<TokenResult>>(`/cmict/auth/external/${payload.from}/sso`, {
-    params: { token: payload.token },
-    $isAuth: true,
-    $throwOnBizError: true
-  });
+  return obHttp().get<ApiResponse<TokenResult>>(
+    appAuthSsoApiConfig.externalSsoEndpoints[payload.from],
+    {
+      params: { token: payload.token },
+      $isAuth: true,
+      $throwOnBizError: true
+    }
+  );
 }
 
 export async function loginByDesktop() {
-  return obHttp().post<ApiResponse<IdTokenResult>>('/cmict/uaa/unity-desktop/sso-login', {
+  return obHttp().post<ApiResponse<IdTokenResult>>(appAuthSsoApiConfig.desktopSsoLoginEndpoint, {
     $noErrorAlert: true
   });
 }

@@ -1,4 +1,3 @@
-import { ElMessage } from 'element-plus';
 import type { Pinia } from 'pinia';
 import type { Router } from 'vue-router';
 import {
@@ -9,7 +8,9 @@ import {
   useMenuStore,
   useSystemStore
 } from '@one-base-template/core';
+import { message } from '@one-base-template/ui';
 import type { AuthMode, BackendKind } from '@/config/env';
+import { APP_LOGIN_ROUTE_PATH } from '@/router/constants';
 
 export function createAppHttp(params: {
   backend: BackendKind;
@@ -72,9 +73,9 @@ export function createAppHttp(params: {
       autoDownload: true
     },
     hooks: {
-      onBizError: ({ message }) => {
-        if (message) {
-          ElMessage.error(message);
+      onBizError: ({ message: errorMessage }) => {
+        if (errorMessage) {
+          void message.error(errorMessage);
         }
       },
       onUnauthorized: () => {
@@ -83,7 +84,7 @@ export function createAppHttp(params: {
         useAuthStore(pinia).reset();
         useMenuStore(pinia).reset();
         useSystemStore(pinia).reset();
-        router.replace('/login');
+        router.replace(APP_LOGIN_ROUTE_PATH);
       }
     }
   });

@@ -170,16 +170,30 @@ const itemMapping = computed(() => ({
   linkKey: String(entranceConfig.value.linkKey || 'link')
 }));
 
+function toOptionalString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function toOptionalOpenType(value: unknown): PortalLinkConfig['openType'] | undefined {
+  return value === 'router' || value === 'newTab' || value === 'current' ? value : undefined;
+}
+
 function resolveRowLinkConfig(row: Record<string, unknown>): Partial<PortalLinkConfig> {
   const linkValue = resolveValueByPath(row, itemMapping.value.linkKey);
   if (linkValue && typeof linkValue === 'object' && !Array.isArray(linkValue)) {
     return linkValue as Partial<PortalLinkConfig>;
   }
+
+  const path = resolveValueByPath(row, 'linkPath');
+  const paramKey = resolveValueByPath(row, 'linkParamKey');
+  const valueKey = resolveValueByPath(row, 'linkValueKey');
+  const openType = resolveValueByPath(row, 'openType');
+
   return {
-    path: resolveValueByPath(row, 'linkPath'),
-    paramKey: resolveValueByPath(row, 'linkParamKey'),
-    valueKey: resolveValueByPath(row, 'linkValueKey'),
-    openType: resolveValueByPath(row, 'openType')
+    path: toOptionalString(path),
+    paramKey: toOptionalString(paramKey),
+    valueKey: toOptionalString(valueKey),
+    openType: toOptionalOpenType(openType)
   };
 }
 

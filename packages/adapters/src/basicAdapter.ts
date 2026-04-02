@@ -65,6 +65,10 @@ interface BasicMenuRoot {
   [k: string]: unknown;
 }
 
+interface BasicSsoEndpoints {
+  ticketSsoEndpoint: string;
+}
+
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
 }
@@ -135,10 +139,13 @@ export function createBasicAdapter(
     tokenKey: string;
     /** my-tree 根节点 permissionCode，默认 admin_server */
     systemPermissionCode?: string;
+    /** basic 场景 SSO 端点。 */
+    ssoEndpoints: BasicSsoEndpoints;
   }
 ): BackendAdapter {
   const tokenKey = options.tokenKey;
   const systemPermissionCode = options.systemPermissionCode ?? 'admin_server';
+  const ssoEndpoints = options.ssoEndpoints;
 
   return {
     auth: {
@@ -254,11 +261,14 @@ export function createBasicAdapter(
         localStorage.setItem(tokenKey, token);
       },
       async exchangeTicket(payload: { ticket: string; serviceUrl?: string }) {
-        const res = await http.get<BizResponse<{ authToken?: string }>>('/cmict/auth/ticket/sso', {
-          params: payload,
-          $throwOnBizError: true,
-          $cancelOnRouteChange: false
-        });
+        const res = await http.get<BizResponse<{ authToken?: string }>>(
+          ssoEndpoints.ticketSsoEndpoint,
+          {
+            params: payload,
+            $throwOnBizError: true,
+            $cancelOnRouteChange: false
+          }
+        );
 
         const token = res.data?.authToken;
         if (!isNonEmptyString(token)) {

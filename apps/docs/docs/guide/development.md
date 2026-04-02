@@ -334,9 +334,12 @@ pnpm exec vp --version
 
 ## 全局消息工具（兼容老项目 message.ts）
 
-admin 已引入消息工具：`@one-base-template/ui`（`message` / `closeAllMessage` / `registerMessageUtils`），并在启动时全局注册：
+admin / admin-lite / portal 已统一引入消息工具：`@one-base-template/ui`（`message` / `closeAllMessage` / `registerMessageUtils`），并在启动时全局注册：
 
-- `bootstrap` 注册入口：`apps/admin/src/bootstrap/index.ts`
+- `bootstrap` 注册入口：
+  - `apps/admin/src/bootstrap/index.ts`
+  - `apps/admin-lite/src/bootstrap/index.ts`
+  - `apps/portal/src/bootstrap/index.ts`
 - Options API 全局属性：
   - `$obMessage`
   - `$closeAllMessage`

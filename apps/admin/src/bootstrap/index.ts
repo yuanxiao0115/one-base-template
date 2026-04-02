@@ -13,6 +13,7 @@ import App from '../App.vue';
 import { buildAppRoutes } from '../router/assemble-routes';
 import { getAppEnv } from '../config/env';
 import {
+  appAuthSsoApiConfig,
   appLayoutMode,
   appSidebarCollapsedWidth,
   appSidebarWidth,
@@ -112,7 +113,8 @@ export async function bootstrapAdminApp() {
           backend: resolvedAppEnv.backend,
           http,
           tokenKey: resolvedAppEnv.tokenKey,
-          basicSystemPermissionCode: resolvedAppEnv.basicSystemPermissionCode
+          basicSystemPermissionCode: resolvedAppEnv.basicSystemPermissionCode,
+          basicTicketSsoEndpoint: appAuthSsoApiConfig.ticketSsoEndpoint
         }),
       () => ({
         backend: resolvedAppEnv.backend

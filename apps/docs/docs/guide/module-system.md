@@ -195,6 +195,10 @@ compat: {
 - 2026-04-02 补充：
   - `apps/admin` 与 `apps/admin-lite` 的 SSO 配置与远端接口地址统一收敛到 `src/config/auth-sso.ts`；
   - `apps/portal` 已启用 `/sso` 回调路由与 core SSO 策略（此前 `sso.enabled=false` 的缺口已关闭）。
+  - `apps/portal` 登录页接入 `buildLoginScenario`，并统一复用 `@one-base-template/core` 的 `loginByPassword` / `resolvePortalLoginTarget`；
+  - `apps/portal/src/config/sso.ts` 现统一收口 portal 登录相关端点（`loginPageConfigEndpoint`、`portalFrontConfigEndpoint`、`ticketSsoEndpoint`），`services/auth/auth-remote-service.ts` 仅消费配置；
+  - `apps/portal` 路由访问语义收敛到 `meta.access`：`/`、`/login`、`/sso`、`/403`、`/404` 为 `open`，`/portal/index`、`/portal/preview` 为 `auth`（不再依赖 `meta.public`）；
+  - `apps/portal` 的登录页、SSO 回调页与 HTTP `onBizError` 提示统一改为 `@one-base-template/ui` 的 `message`，不再散落 `ElMessage`。
 
 ### 2.4 路由冲突策略与测试护栏（第四批续）
 

@@ -9,16 +9,14 @@ import {
   setObHttpClient,
   setupRouterGuards
 } from '@one-base-template/core';
+import { registerMessageUtils } from '@one-base-template/ui';
 import { registerOneLiteUiComponents } from '@one-base-template/ui/lite';
 import '@one-base-template/tag/style';
 
 import App from '@/App.vue';
 import { appEnv } from '@/config/env';
-import {
-  APP_FORBIDDEN_ROUTE_PATH,
-  APP_LOGIN_ROUTE_PATH,
-  APP_PUBLIC_ROUTE_PATHS
-} from '@/router/constants';
+import { appPortalSsoApiConfig, appSsoOptions } from '@/config/sso';
+import { APP_FORBIDDEN_ROUTE_PATH, APP_LOGIN_ROUTE_PATH } from '@/router/constants';
 import { createAppRouter } from '@/router';
 import { portalRoutes } from '@/router/routes';
 import { createAppAdapter } from './adapter';
@@ -26,6 +24,7 @@ import { createAppHttp } from './http';
 
 export function bootstrapPortalApp() {
   const app = createApp(App);
+  registerMessageUtils(app);
 
   const pinia = createPinia();
   app.use(pinia);
@@ -62,7 +61,8 @@ export function bootstrapPortalApp() {
     backend: appEnv.backend,
     http,
     tokenKey: appEnv.tokenKey,
-    basicSystemPermissionCode: appEnv.basicSystemPermissionCode
+    basicSystemPermissionCode: appEnv.basicSystemPermissionCode,
+    basicTicketSsoEndpoint: appPortalSsoApiConfig.ticketSsoEndpoint
   });
 
   const staticMenus =
@@ -80,11 +80,7 @@ export function bootstrapPortalApp() {
       },
       menuMode: appEnv.menuMode,
       staticMenus,
-      sso: {
-        enabled: false,
-        routePath: '/sso',
-        strategies: []
-      },
+      sso: appSsoOptions,
       theme: {
         defaultTheme: 'blue',
         allowCustomPrimary: true,
@@ -106,7 +102,6 @@ export function bootstrapPortalApp() {
   );
 
   setupRouterGuards(router, {
-    publicRoutePaths: [...APP_PUBLIC_ROUTE_PATHS],
     loginRoutePath: APP_LOGIN_ROUTE_PATH,
     forbiddenRoutePath: APP_FORBIDDEN_ROUTE_PATH,
     onNavigationStart: () => {

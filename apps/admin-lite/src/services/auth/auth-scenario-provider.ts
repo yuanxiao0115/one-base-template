@@ -1,4 +1,5 @@
 import { resolveAppRedirectTarget, startSsoCallbackStrategy } from '@one-base-template/core';
+import { resolveTicketServiceUrl } from '@/config/auth-sso';
 import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 import type { BackendKind } from '@/config/env';
 import {
@@ -87,13 +88,18 @@ export async function startSsoScenario(options: ExecuteSsoScenarioOptions) {
     await setTokenAndBootstrap(authToken);
   }
 
-  async function loginByTicketToken(ticket: string, ticketRedirectUrlRaw: string | null) {
-    const serviceUrl = ticketRedirectUrlRaw
-      ? `${locationLike.origin}/${ticketRedirectUrlRaw}`
-      : locationLike.href;
-
+  async function loginByTicketToken(params: {
+    ticket: string;
+    serviceUrlRaw: string | null;
+    ticketRedirectUrlRaw: string | null;
+  }) {
+    const serviceUrl = resolveTicketServiceUrl({
+      serviceUrlRaw: params.serviceUrlRaw,
+      redirectUrlRaw: params.ticketRedirectUrlRaw,
+      locationLike
+    });
     const res = await loginByTicket({
-      ticket,
+      ticket: params.ticket,
       serviceUrl
     });
 
@@ -134,8 +140,12 @@ export async function startSsoScenario(options: ExecuteSsoScenarioOptions) {
       onYdbg: async ({ token }) => {
         await loginByYdbgToken(token);
       },
-      onTicket: async ({ ticket, redirectUrlRaw: ticketRedirectUrlRaw }) => {
-        await loginByTicketToken(ticket, ticketRedirectUrlRaw);
+      onTicket: async ({ ticket, serviceUrlRaw, redirectUrlRaw: ticketRedirectUrlRaw }) => {
+        await loginByTicketToken({
+          ticket,
+          serviceUrlRaw,
+          ticketRedirectUrlRaw
+        });
       },
       onTypeToken: async ({ token }) => {
         await setTokenAndBootstrap(token);

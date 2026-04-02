@@ -49,7 +49,7 @@
 | `src/config/env.ts`             | 构建期 env + 平台配置聚合       | 一般不改                   |
 | `src/config/layout.ts`          | 布局参数（侧栏宽度、顶栏高度）  | 按需修改                   |
 | `src/config/theme.ts`           | 主题注册与默认主题              | 按需修改                   |
-| `src/config/sso.ts`             | SSO 回调策略                    | 按需修改                   |
+| `src/config/auth-sso.ts`        | SSO 策略与 SSO 接口配置统一入口 | 按需修改                   |
 | `src/config/systems.ts`         | 系统首页映射                    | 按需修改                   |
 | `src/config/ui.ts`              | UI 默认配置（容器类型、分页键） | 按需修改                   |
 | `src/utils/logger.ts`           | 日志工具                        | 非配置，不放在 config 维护 |
@@ -70,6 +70,6 @@
 
 ## 6) 其他应用说明
 
-- `apps/portal` 仍使用 `public/platform-config.json` 运行时文件
+- `apps/portal` 仍使用 `public/platform-config.json` 运行时文件，并在 `src/config/sso.ts` 统一维护 SSO 路由策略与登录相关端点（`loginPageConfigEndpoint`、`portalFrontConfigEndpoint`、`ticketSsoEndpoint`）
 - `apps/admin-lite` 与 `apps/admin` 一样，采用“构建期 env + 代码静态平台配置”模式
 - 本页以 `apps/admin` 为主说明，`apps/admin-lite` 可按同口径理解

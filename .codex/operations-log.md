@@ -11439,3 +11439,136 @@
   - 修正 `apps/admin-lite/tests/router/route-policy.unit.test.ts`：开放路由与菜单断言改为 admin-lite 基线（无 `/portal/*`，新增 `/ext/:slug(.*)*` 断言）。
 - 过程备注：
   - `apps/docs build` 后出现 docs 侧自动变更提示，已按用户确认“保留并一起提交”。
+
+## 2026-04-02（SSO 统一配置入口 + ticket serviceUrl 收口 + portal /sso 闭环）
+
+- 新增 `apps/admin/src/config/auth-sso.ts`：
+  - 收敛 admin 侧 SSO 策略配置 `appSsoOptions`；
+  - 收敛 SSO 远端接口地址 `appAuthSsoApiConfig`；
+  - 新增 `resolveTicketServiceUrl`（优先 `serviceUrl`，回退 `redirectUrl`，兜底 `location.href`）。
+- 新增 `apps/admin-lite/src/config/auth-sso.ts`：同 admin 口径。
+- `apps/admin/src/config/sso.ts`、`apps/admin-lite/src/config/sso.ts` 改为兼容导出入口；
+  `config/index.ts` 改为从 `auth-sso.ts` 导出 `appSsoOptions` 与 `appAuthSsoApiConfig`。
+- `apps/admin/src/services/auth/auth-remote-service.ts`、`apps/admin-lite/src/services/auth/auth-remote-service.ts`：
+  - SSO 相关接口地址改为读取 `appAuthSsoApiConfig`，去除散落硬编码。
+- `apps/admin/src/services/auth/auth-scenario-provider.ts`、`apps/admin-lite/src/services/auth/auth-scenario-provider.ts`：
+  - ticket 分支改为消费 core 透传 `serviceUrlRaw`；
+  - serviceUrl 解析统一走 `resolveTicketServiceUrl`。
+- `packages/core/src/auth/sso-callback-strategy.ts`：
+  - ticket handler payload 新增 `serviceUrlRaw` 透传字段。
+- `packages/core/src/auth/sso-callback-strategy.test.ts`：
+  - 新增/更新 ticket 分支测试，覆盖 `serviceUrl` 透传与缺省为 `null`。
+- `apps/portal` 补齐 SSO 闭环：
+  - 新增 `src/config/sso.ts`；
+  - `bootstrap/index.ts` 启用 `sso: appSsoOptions`；
+  - `router/constants.ts` 新增 `APP_SSO_ROUTE_PATH` 并加入 `APP_PUBLIC_ROUTE_PATHS`；
+  - `router/routes.ts` 新增 `/sso` 回调路由；
+  - 新增 `pages/sso/SsoCallbackPage.vue`，失败分支统一清理 `tokenKey/idTokenKey`。
+- 文档同步：
+  - `apps/docs/docs/guide/env.md`：配置入口改为 `config/auth-sso.ts`；
+  - `apps/docs/docs/guide/module-system.md`：补充 ticket `serviceUrl` 透传约定与 portal `/sso` 闭环说明。
+
+## 2026-04-02（模块契约收口：manifest.ts 合并到 module.ts 的 moduleMeta）
+
+- 目标：按用户要求降低维护成本，把 `manifest.ts + module.ts` 双文件契约收口为 `module.ts（moduleMeta） + routes.ts`。
+- 代码收口：
+  - 删除 `apps/admin/src/modules/**/manifest.ts` 与 `apps/admin-lite/src/modules/**/manifest.ts`（共 11 个）。
+  - `apps/admin/src/modules/**/module.ts`、`apps/admin-lite/src/modules/**/module.ts` 统一新增 `moduleMeta`，并通过 `...moduleMeta` 组装默认导出。
+  - `apps/admin/src/router/registry.ts`、`apps/admin-lite/src/router/registry.ts` 改为从 `../modules/**/module.ts` eager 读取 `moduleMeta`。
+  - `packages/core/src/router/module-registry.ts` 去除 `manifestPath` 依赖，`collectModuleLoadEntries` 改为消费 `moduleMetaDefinitions`。
+  - `scripts/new-module.mjs`、`scripts/new-app.mjs` 模板改为仅生成 `module.ts + routes.ts`（`moduleMeta` 内联）。
+- 术语与可读性收口：
+  - 两个 registry 变量名由 `moduleManifestDefinitions` 改为 `moduleMetaDefinitions`，减少“文件名=manifest”的误导。
+  - `packages/core/src/router/module-registry.test.ts` 同步断言文案为“无效模块元信息”。
+- 文档/规则同步：
+  - `apps/admin-lite/AGENTS.md` 与 `apps/docs/docs/guide/admin-lite-agent-redlines.md` 的模块契约改为 `module.ts（内含 moduleMeta） + routes.ts`。
+  - `apps/docs/docs/guide/module-system.md` 全面替换旧口径，并新增“为什么把 manifest.ts 合并进 module.ts”说明。
+  - `apps/docs/docs/guide/{architecture,architecture-runtime-deep-dive,for-users,index,agents-scope,zfw-system-sfss-quick-start}.md` 同步新契约。
+  - `apps/docs/docs/public/diagrams/module-entry-tree.svg` 同步图示文本。
+- 额外校验：根 `package.json` 的 `scripts` 引用 `.mjs` 文件全部存在（未发现可直接删除的无效脚本）。
+
+## 2026-04-02（SSO 收口二次调整：去兼容导出 + adapters 端点注入）
+
+- 按用户要求移除兼容导出：
+  - 删除 `apps/admin/src/config/sso.ts`
+  - 删除 `apps/admin-lite/src/config/sso.ts`
+  - 两端仅保留 `config/auth-sso.ts` 作为 SSO 入口。
+- `packages/adapters/src/basicAdapter.ts`：
+  - `createBasicAdapter` 新增必填参数 `ssoEndpoints.ticketSsoEndpoint`；
+  - `exchangeTicket` 改为读取注入端点，适配层不再硬编码 ticket SSO 地址。
+- 三个应用统一向 adapter 注入 ticket 端点：
+  - `apps/admin/src/bootstrap/adapter.ts` + `bootstrap/index.ts`（来源：`appAuthSsoApiConfig.ticketSsoEndpoint`）
+  - `apps/admin-lite/src/bootstrap/adapter.ts` + `bootstrap/index.ts`（来源：`appAuthSsoApiConfig.ticketSsoEndpoint`）
+  - `apps/portal/src/bootstrap/adapter.ts` + `bootstrap/index.ts`（来源：`appPortalSsoApiConfig.ticketSsoEndpoint`）
+- `apps/portal/src/config/sso.ts` 补充 `appPortalSsoApiConfig`，统一管理 portal 侧 SSO 策略与 ticket 端点。
+- 单测跟进：
+  - `apps/admin/tests/bootstrap/index.unit.test.ts`
+  - `apps/admin-lite/tests/bootstrap/index.unit.test.ts`
+  - 两处 `@/config` mock 新增 `appAuthSsoApiConfig`，适配新注入参数。
+- 文档更新：
+  - `apps/docs/docs/guide/env.md` 移除 `config/sso.ts` 兼容说明；
+  - `apps/admin-lite/README.md` 改为 `config/auth-sso.ts`（策略 + 接口统一入口）。
+
+## 2026-04-02（模块入口命名收口：module.ts -> index.ts）
+
+- 背景：用户确认继续减少维护面，要求执行“去掉 module 命名，统一入口为 index.ts”。
+- 执行内容：
+  - `apps/admin` 与 `apps/admin-lite` 的 11 个模块入口文件统一从 `module.ts` 重命名为 `index.ts`。
+  - `apps/admin/src/router/registry.ts`、`apps/admin-lite/src/router/registry.ts` 的 `import.meta.glob` 扫描路径改为 `../modules/**/index.ts`。
+  - `packages/core/src/router/module-registry.ts` 校验规则从 `endsWith('/module.ts')` 收口为 `endsWith('/index.ts')`，并同步测试断言。
+  - `scripts/new-module.mjs`、`scripts/new-app.mjs` 模板输出入口改为 `index.ts`。
+  - 文档与规则口径同步到 `index.ts（含 moduleMeta） + routes.ts`，含 AGENTS、README、module-system、menu-route-spec、naming whitelist、架构文档与入口树图。
+- 提交：`c020faf`（重构：模块入口统一为 index.ts 并收敛文档口径）。
+
+## 2026-04-02（portal 登录域收口：提示栈统一 + 场景编排 + SSO 端点配置 + meta.access 语义）
+
+- 目标：按用户要求完成“admin/portal 登录体系底层对齐”的 P0 收口。
+- portal 代码改动：
+  - `apps/portal/src/bootstrap/index.ts`
+    - 启动阶段新增 `registerMessageUtils(app)`；
+    - 路由守卫移除 `APP_PUBLIC_ROUTE_PATHS` 依赖，改由路由 `meta.access` 语义驱动。
+  - `apps/portal/src/bootstrap/http.ts`
+    - `onBizError` 从 `ElMessage` 收口到 `@one-base-template/ui` 的 `message.error`；
+    - 未授权跳转改为复用 `APP_LOGIN_ROUTE_PATH` 常量。
+  - `apps/portal/src/pages/login/LoginPage.vue`
+    - 接入 `buildLoginScenario`，统一 basic/default 登录场景判定；
+    - 错误提示改为 `@one-base-template/ui` 的 `message`，并复用“跳过 HTTP/业务异常重复提示”判定；
+    - basic 场景继续使用 `ObLoginBoxV2`，默认场景保留 `ObLoginBox`。
+  - `apps/portal/src/pages/sso/SsoCallbackPage.vue`
+    - SSO 回调异常提示统一改为 `message.error`。
+  - `apps/portal/src/services/auth/auth-remote-service.ts`
+    - 登录页配置与 portal 前台配置接口地址改为读取 `config/sso.ts`，移除 service 层硬编码。
+  - `apps/portal/src/config/sso.ts`
+    - `appPortalSsoApiConfig` 扩展为 `loginPageConfigEndpoint`、`portalFrontConfigEndpoint`、`ticketSsoEndpoint` 三端点统一入口。
+  - `apps/portal/src/router/routes.ts`
+    - 路由元信息从 `meta.public` 收口到 `meta.access`；
+    - `/`、`/login`、`/sso`、`/403`、`/404` 标记为 `open`；
+    - `/portal/index`、`/portal/preview` 标记为 `auth`。
+  - `apps/portal/src/router/constants.ts`
+    - 删除旧常量 `APP_PUBLIC_ROUTE_PATHS`。
+- 文档同步：
+  - `apps/docs/docs/guide/env.md`
+  - `apps/docs/docs/guide/development.md`
+  - `apps/docs/docs/guide/module-system.md`
+
+## 2026-04-02（补充收口：修复 portal typecheck 存量阻塞）
+
+- 背景：`pnpm -C apps/portal typecheck` 被 `packages/portal-engine/src/materials/base/app-entrance/index.vue` 的 `unknown -> PortalLinkConfig` 赋值阻断。
+- 执行内容：
+  - 文件：`packages/portal-engine/src/materials/base/app-entrance/index.vue`
+  - 在 `resolveRowLinkConfig` 增加边界类型收敛：
+    - 新增 `toOptionalString(value: unknown)`
+    - 新增 `toOptionalOpenType(value: unknown)`
+  - 将 `resolveValueByPath(...)` 的 4 个返回值先收敛后再组装为 `Partial<PortalLinkConfig>`。
+- 结果：portal 登录域收口相关验证命令现已全部通过（含 `typecheck`）。
+
+## 2026-04-02（补充收口：修复 admin typecheck 阻塞）
+
+- 背景：在执行 admin/admin-lite/core 定向验证时，`apps/admin typecheck` 报错：
+  - `packages/portal-engine/src/materials/cms/publicity-education/index.vue:36`
+  - `Type 'string' is not assignable to type '"hover" | "always" | "never" | undefined'`
+- 执行内容：
+  - 文件：`packages/portal-engine/src/materials/cms/publicity-education/index.vue`
+  - 新增 `resolveCarouselArrow(value)`，返回严格联合类型：`'always' | 'hover' | 'never'`。
+  - `publicityConfig.arrow` 改为调用该函数，避免被推断成宽泛 `string`。
+- 结果：`apps/admin typecheck` 恢复通过，整条登录域相关验证链路通过。

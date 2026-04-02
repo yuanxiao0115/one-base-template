@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { startSsoScenario } from '@/services/auth/auth-scenario-provider';
-import { loginByDesktop, loginByExternal, loginByZhxt } from '@/services/auth/auth-remote-service';
+import {
+  loginByDesktop,
+  loginByExternal,
+  loginByTicket,
+  loginByZhxt
+} from '@/services/auth/auth-remote-service';
 
 vi.mock('@/services/auth/auth-remote-service', () => {
   return {
@@ -110,6 +115,89 @@ describe('services/auth/auth-scenario-provider', () => {
         }
       })
     ).rejects.toThrowError('智慧协同单点登录失败');
+  });
+
+  it('startSsoScenario: basic 命中 ticket 时应优先透传 serviceUrl', async () => {
+    vi.mocked(loginByTicket).mockResolvedValue({
+      code: 200,
+      message: 'success',
+      data: {
+        authToken: 'ticket-auth-token'
+      }
+    } as never);
+
+    const setItem = vi.fn();
+    const onFinalizeAuthSession = vi.fn(async () => {});
+    const onAuthenticatedRedirect = vi.fn(async () => {});
+
+    await startSsoScenario({
+      backend: 'basic',
+      baseUrl: '/',
+      tokenKey: 'token-key',
+      idTokenKey: 'id-token-key',
+      searchParams: new URLSearchParams({
+        ticket: 'st-001',
+        serviceUrl: 'https://sso.example.com/portal/sso',
+        redirect: '/portal/index'
+      }),
+      onDefaultSsoCallback: vi.fn(async () => ({ redirect: '/unused' })),
+      onAuthenticatedRedirect,
+      onFinalizeAuthSession,
+      storage: {
+        setItem,
+        removeItem: vi.fn()
+      },
+      locationLike: {
+        origin: 'https://example.com',
+        href: 'https://example.com/sso/callback'
+      }
+    });
+
+    expect(loginByTicket).toHaveBeenCalledWith({
+      ticket: 'st-001',
+      serviceUrl: 'https://sso.example.com/portal/sso'
+    });
+    expect(setItem).toHaveBeenCalledWith('token-key', 'ticket-auth-token');
+    expect(onFinalizeAuthSession).toHaveBeenCalledTimes(1);
+    expect(onAuthenticatedRedirect).toHaveBeenCalledWith('/portal/index');
+  });
+
+  it('startSsoScenario: basic ticket 未携带 serviceUrl 时应回退 redirectUrl', async () => {
+    vi.mocked(loginByTicket).mockResolvedValue({
+      code: 200,
+      message: 'success',
+      data: {
+        authToken: 'ticket-auth-token'
+      }
+    } as never);
+
+    await startSsoScenario({
+      backend: 'basic',
+      baseUrl: '/',
+      tokenKey: 'token-key',
+      idTokenKey: 'id-token-key',
+      searchParams: new URLSearchParams({
+        ticket: 'st-002',
+        redirectUrl: 'portal/sso',
+        redirect: '/home/index'
+      }),
+      onDefaultSsoCallback: vi.fn(async () => ({ redirect: '/unused' })),
+      onAuthenticatedRedirect: vi.fn(async () => {}),
+      onFinalizeAuthSession: vi.fn(async () => {}),
+      storage: {
+        setItem: vi.fn(),
+        removeItem: vi.fn()
+      },
+      locationLike: {
+        origin: 'https://example.com',
+        href: 'https://example.com/sso/callback'
+      }
+    });
+
+    expect(loginByTicket).toHaveBeenCalledWith({
+      ticket: 'st-002',
+      serviceUrl: 'https://example.com/portal/sso'
+    });
   });
 
   it('startSsoScenario: basic 无有效参数应抛错', async () => {

@@ -53,7 +53,7 @@ describe('auth/sso-callback-strategy', () => {
     expect(handlers.onTicket).not.toHaveBeenCalled();
   });
 
-  it('应按优先级命中 ticket 并透传 redirectUrl', async () => {
+  it('应按优先级命中 ticket 并透传 serviceUrl 与 redirectUrl', async () => {
     const handlers = {
       onZhxt: vi.fn(async () => {}),
       onYdbg: vi.fn(async () => {}),
@@ -65,6 +65,7 @@ describe('auth/sso-callback-strategy', () => {
 
     const searchParams = new URLSearchParams({
       ticket: 'ticket-1',
+      serviceUrl: 'https://sso.example.com/portal/sso',
       redirectUrl: 'oa/redirect',
       redirect: '/home/index'
     });
@@ -73,6 +74,32 @@ describe('auth/sso-callback-strategy', () => {
 
     expect(handlers.onTicket).toHaveBeenCalledWith({
       ticket: 'ticket-1',
+      serviceUrlRaw: 'https://sso.example.com/portal/sso',
+      redirectUrlRaw: 'oa/redirect'
+    });
+  });
+
+  it('ticket 未携带 serviceUrl 时应透传 null', async () => {
+    const handlers = {
+      onZhxt: vi.fn(async () => {}),
+      onYdbg: vi.fn(async () => {}),
+      onTicket: vi.fn(async () => {}),
+      onTypeToken: vi.fn(async () => {}),
+      onMoaToken: vi.fn(async () => {}),
+      onUserToken: vi.fn(async () => {})
+    };
+
+    await startSsoCallbackStrategy({
+      searchParams: new URLSearchParams({
+        ticket: 'ticket-1',
+        redirectUrl: 'oa/redirect'
+      }),
+      handlers
+    });
+
+    expect(handlers.onTicket).toHaveBeenCalledWith({
+      ticket: 'ticket-1',
+      serviceUrlRaw: null,
       redirectUrlRaw: 'oa/redirect'
     });
   });

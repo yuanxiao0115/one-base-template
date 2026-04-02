@@ -209,6 +209,12 @@ try {
 const containerContentConfig = computed(() => props.schema?.content?.container);
 const containerStyleConfig = computed(() => props.schema?.style?.container);
 
+function resolveCarouselArrow(
+  value: PublicityContentConfig['arrow']
+): 'always' | 'hover' | 'never' {
+  return value === 'always' || value === 'never' ? value : 'hover';
+}
+
 const publicityConfig = computed(() => {
   const raw = props.schema?.content?.publicity || {};
   return {
@@ -219,7 +225,7 @@ const publicityConfig = computed(() => {
     autoplay: raw.autoplay !== false,
     interval: Math.min(10000, Math.max(1000, toPositiveNumber(raw.interval, 3000))),
     indicator: raw.indicator === true,
-    arrow: raw.arrow === 'always' || raw.arrow === 'never' ? raw.arrow : 'hover',
+    arrow: resolveCarouselArrow(raw.arrow),
     showRowDot: raw.showRowDot !== false,
     showRowDivider: raw.showRowDivider !== false
   };

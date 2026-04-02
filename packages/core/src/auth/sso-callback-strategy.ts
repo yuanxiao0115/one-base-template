@@ -1,7 +1,11 @@
 export interface SsoCallbackStrategyHandlers {
   onZhxt(payload: { token: string }): Promise<void>;
   onYdbg(payload: { token: string }): Promise<void>;
-  onTicket(payload: { ticket: string; redirectUrlRaw: string | null }): Promise<void>;
+  onTicket(payload: {
+    ticket: string;
+    serviceUrlRaw: string | null;
+    redirectUrlRaw: string | null;
+  }): Promise<void>;
   onTypeToken(payload: { type: string; token: string }): Promise<void>;
   onMoaToken(payload: { token: string }): Promise<void>;
   onUserToken(payload: { token: string }): Promise<void>;
@@ -35,6 +39,7 @@ export async function startSsoCallbackStrategy(options: StartSsoCallbackStrategy
   if (ticket) {
     await handlers.onTicket({
       ticket,
+      serviceUrlRaw: searchParams.get('serviceUrl'),
       redirectUrlRaw: searchParams.get('redirectUrl')
     });
     return;

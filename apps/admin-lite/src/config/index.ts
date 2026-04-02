@@ -5,7 +5,7 @@
  * - 这里只导出“可维护配置项”；
  * - 工具逻辑请放到 `utils/*` 或 `services/*`，不要回流到 `config/*`。
  */
-export { appSsoOptions } from './sso';
+export { appAuthSsoApiConfig, appSsoOptions } from './auth-sso';
 export { createSystemsOptions, DEFAULT_FALLBACK_HOME } from './systems';
 export { appThemeOptions } from './theme';
 export {

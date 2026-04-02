@@ -11,7 +11,8 @@ import {
   APP_NOT_FOUND_ROUTE_PATH,
   APP_PORTAL_INDEX_ROUTE_PATH,
   APP_PORTAL_PREVIEW_ROUTE_PATH,
-  APP_ROOT_PATH
+  APP_ROOT_PATH,
+  APP_SSO_ROUTE_PATH
 } from './constants';
 
 const DEFAULT_FALLBACK_HOME = '/portal/index';
@@ -30,7 +31,7 @@ export const portalRoutes: RouteRecordRaw[] = [
     path: APP_ROOT_PATH,
     redirect: () => getRootRedirect(),
     meta: {
-      public: true,
+      access: 'open',
       hiddenTab: true
     }
   },
@@ -40,7 +41,7 @@ export const portalRoutes: RouteRecordRaw[] = [
     component: PortalRenderPage,
     meta: {
       title: '门户首页',
-      public: true,
+      access: 'auth',
       hiddenTab: true,
       skipMenuAuth: true
     }
@@ -50,7 +51,7 @@ export const portalRoutes: RouteRecordRaw[] = [
     name: 'PortalPreview',
     component: PortalRenderPage,
     meta: {
-      public: true,
+      access: 'auth',
       hiddenTab: true
     }
   },
@@ -59,7 +60,16 @@ export const portalRoutes: RouteRecordRaw[] = [
     name: 'PortalLogin',
     component: LoginPage,
     meta: {
-      public: true,
+      access: 'open',
+      hiddenTab: true
+    }
+  },
+  {
+    path: APP_SSO_ROUTE_PATH,
+    name: 'PortalSsoCallback',
+    component: async () => import('@/pages/sso/SsoCallbackPage.vue'),
+    meta: {
+      access: 'open',
       hiddenTab: true
     }
   },
@@ -68,7 +78,7 @@ export const portalRoutes: RouteRecordRaw[] = [
     name: 'PortalForbidden',
     component: ForbiddenPage,
     meta: {
-      public: true,
+      access: 'open',
       hiddenTab: true
     }
   },
@@ -77,7 +87,7 @@ export const portalRoutes: RouteRecordRaw[] = [
     name: 'PortalNotFound',
     component: NotFoundPage,
     meta: {
-      public: true,
+      access: 'open',
       hiddenTab: true
     }
   },
@@ -88,7 +98,7 @@ export const portalRoutes: RouteRecordRaw[] = [
       replace: true
     }),
     meta: {
-      public: true,
+      access: 'open',
       hiddenTab: true
     }
   }
