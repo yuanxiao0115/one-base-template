@@ -17,17 +17,23 @@
 
 文件路径：`apps/admin/src/config/platform-config.ts`
 
-业务配置集中维护在该文件常量中，核心字段包括：
+业务配置集中维护在该文件常量中。推荐按下面清单逐项维护（`apps/admin`、`apps/admin-lite` 同口径）：
 
-- `backend`: `default | basic`
-- `authMode`: `cookie | token | mixed`
-- `historyMode`: `history | hash`（默认 `history`）
-- `menuMode`: `remote | static`
-- `enabledModules`: `"*"` 或 `string[]`（模块白名单）
-- `defaultSystemCode` / `systemHomeMap`: 多系统默认与首页映射
-- `storageNamespace`: 前端持久化命名空间
-- `tokenKey` / `idTokenKey`: preset 模式下可省略，默认按 `storageNamespace`（未配置则回退 `appcode`）自动生成，形如 `${scope}-token` 与 `${scope}-id-token`
-- `clientSignatureClientId` / `clientSignatureSalt`: basic 签名参数
+1. `preset`：路由与菜单预设（`static-single | remote-single`）；当前后台默认 `remote-single`。
+2. `backend`：后端适配类型（`default | basic`）；当前默认 `basic`。
+3. `authMode`：鉴权模式（`cookie | token | mixed`）；当前默认 `token`。
+4. `historyMode`：路由模式（`history | hash`）；当前默认 `history`。
+5. `menuMode`：菜单来源（`remote | static`）；`remote-single` 下应为 `remote`。
+6. `authorizationType`：权限类型透传字段；用于后端权限域区分。
+7. `appsource`：应用来源透传字段；用于后端识别终端来源。
+8. `appcode`：应用唯一标识；用于后端与本地配置区分应用。
+9. `storageNamespace`：本地存储命名空间；用于隔离多应用缓存与 token key 前缀。
+10. `tokenKey` / `idTokenKey`：登录 token 存储 key；preset 场景可省略，默认按 `storageNamespace`（未配置回退 `appcode`）自动生成。
+11. `clientSignatureClientId`：basic 签名 clientId。
+12. `clientSignatureSalt`：basic 签名盐值（公开盐，不是 secret）。
+13. `defaultSystemCode`：默认系统编码；首次进入或无系统上下文时使用。
+14. `systemHomeMap`：系统首页映射（`Record<string, string>`）；key 为系统编码，value 为首页路由。
+15. `enabledModules`：模块开关（`"*"` 或 `string[]`）；建议显式维护白名单。
 
 说明：
 

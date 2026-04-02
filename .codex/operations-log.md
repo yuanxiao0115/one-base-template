@@ -11641,3 +11641,12 @@
   - `apps/docs/docs/.vitepress/config.ts` 的总览侧边栏从“角色优先”调整为“水平优先，角色辅助”。
 - 范围控制：
   - 按用户确认继续忽略并行改动（`apps/admin*/src/types/*.d.ts`、`=` 及其他业务并行文件），本次仅收口 docs + .codex。
+
+## 2026-04-02（platform-config 列表化：逐项解释配置语义）
+
+- 代码注释收口：
+  - `apps/admin/src/config/platform-config.ts`
+  - `apps/admin-lite/src/config/platform-config.ts`
+  - 两处均补齐“配置项清单（14 项）”，明确 `preset/backend/authMode/historyMode/menuMode/.../enabledModules` 语义，并补充 `tokenKey/idTokenKey` 自动生成规则。
+- 文档收口：
+  - `apps/docs/docs/guide/env.md` 的“代码静态平台配置（platform-config.ts）”改为完整列表（15 项），逐项解释用途与默认语义。

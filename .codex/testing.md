@@ -10290,3 +10290,12 @@
 - 结果：
   - `apps/docs`：`lint` 0 warning / 0 error。
   - `apps/docs`：`build` 成功。
+
+## 2026-04-02（platform-config 列表化与逐项说明）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error。
+  - `apps/docs`：`build` 成功。
