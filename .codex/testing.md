@@ -10356,3 +10356,12 @@
 - 结果：
   - `apps/docs`：`lint` 0 warning / 0 error。
   - `apps/docs`：`build` 成功。
+
+## 2026-04-02（docs：恢复 CRUD 容器进阶下拉入口）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error。
+  - `apps/docs`：`build` 成功。

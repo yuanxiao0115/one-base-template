@@ -22,7 +22,10 @@ const architectureItems = [
   { text: '主题系统', link: '/guide/theme-system' }
 ];
 
-const practiceCrudItems = [{ text: 'CRUD 开发规范', link: '/guide/crud-module-best-practice' }];
+const practiceCrudItems = [
+  { text: 'CRUD 开发规范', link: '/guide/crud-module-best-practice' },
+  { text: 'CRUD 容器与 Hook（进阶）', link: '/guide/crud-container' }
+];
 const practiceTableItems = [{ text: '表格开发规范', link: '/guide/table-vxe-migration' }];
 const practiceBuiltinItems = [{ text: '内置组件（Ob 系列）', link: '/guide/built-in-components' }];
 const practiceIconItems = [{ text: 'Iconfont 集成', link: '/guide/iconfont' }];
