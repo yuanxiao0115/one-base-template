@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const MODULE_ID_REGEX = /^[a-z][a-z0-9-]*$/;
 
@@ -16,7 +17,11 @@ function toCamelCase(value) {
   return pascal ? pascal.charAt(0).toLowerCase() + pascal.slice(1) : '';
 }
 
-function parseArgs(argv) {
+function createUsage() {
+  return '用法: pnpm new:module <module-id> [--title 模块标题] [--route 路由前缀] [--dry-run]';
+}
+
+export function parseArgs(argv) {
   const args = {
     moduleId: '',
     title: '',
@@ -55,7 +60,10 @@ function parseArgs(argv) {
 
     if (item === '--route') {
       args.routeBase = (rest.shift() || '').trim();
+      continue;
     }
+
+    throw new Error(`未知参数: ${item}`);
   }
 
   return args;
@@ -141,49 +149,48 @@ export const ${serviceName} = {
   };
 }
 
-async function writeFiles(moduleDir, files, dryRun) {
-  const fileEntries = Object.entries(files);
-
-  if (dryRun) {
-    console.log('[dry-run] 计划创建以下文件：');
-    for (const [relPath] of fileEntries) {
-      console.log(`- ${path.join(moduleDir, relPath)}`);
-    }
-    return;
+async function pathExists(targetPath) {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch {
+    return false;
   }
+}
 
-  for (const [relPath, content] of fileEntries) {
+function getPlannedFilePaths(moduleDir, files) {
+  return Object.keys(files).map((relativePath) => path.join(moduleDir, relativePath));
+}
+
+async function writeFiles(moduleDir, files) {
+  for (const [relPath, content] of Object.entries(files)) {
     const absPath = path.join(moduleDir, relPath);
     await fs.mkdir(path.dirname(absPath), { recursive: true });
     await fs.writeFile(absPath, content, 'utf-8');
   }
-
-  console.log(`模块创建完成：${moduleDir}`);
 }
 
-async function main() {
-  const rootDir = process.cwd();
-  const args = parseArgs(process.argv.slice(2));
+export async function scaffoldModule(options) {
+  const {
+    rootDir,
+    moduleId,
+    title: titleOption = '',
+    routeBase: routeBaseOption = '',
+    dryRun = false
+  } = options;
 
-  if (!args.moduleId) {
-    console.error(
-      '用法: pnpm new:module <module-id> [--title 模块标题] [--route 路由前缀] [--dry-run]'
-    );
-    process.exit(1);
+  if (!moduleId) {
+    throw new Error('缺少 module-id。');
   }
 
-  if (!MODULE_ID_REGEX.test(args.moduleId)) {
-    console.error(
-      `模块名不合法: "${args.moduleId}"。仅支持小写字母、数字、短横线，且必须字母开头。`
-    );
-    process.exit(1);
+  if (!MODULE_ID_REGEX.test(moduleId)) {
+    throw new Error(`模块名不合法: "${moduleId}"。仅支持小写字母、数字、短横线，且必须字母开头。`);
   }
 
-  const moduleId = args.moduleId;
-  const routeBase = args.routeBase || moduleId;
+  const routeBase = routeBaseOption || moduleId;
   const pascal = toPascalCase(moduleId);
   const camel = toCamelCase(moduleId);
-  const title = args.title || `${pascal} 模块`;
+  const title = titleOption || `${pascal} 模块`;
   const pageName = `${pascal}Index`;
   const pageFileName = `${pascal}IndexPage.vue`;
   const moduleVar = `${camel}Module`;
@@ -192,12 +199,8 @@ async function main() {
 
   const moduleDir = path.join(rootDir, 'apps/admin/src/modules', moduleId);
 
-  try {
-    await fs.access(moduleDir);
-    console.error(`模块目录已存在: ${moduleDir}`);
-    process.exit(1);
-  } catch {
-    // 目录不存在，继续创建
+  if (await pathExists(moduleDir)) {
+    throw new Error(`模块目录已存在: ${moduleDir}`);
   }
 
   const files = createFiles({
@@ -211,11 +214,62 @@ async function main() {
     moduleVar
   });
 
-  await writeFiles(moduleDir, files, args.dryRun);
+  const plannedFiles = getPlannedFilePaths(moduleDir, files);
+  if (dryRun) {
+    return {
+      created: false,
+      dryRun: true,
+      moduleId,
+      moduleDir,
+      plannedFiles
+    };
+  }
+
+  await writeFiles(moduleDir, files);
+
+  return {
+    created: true,
+    dryRun: false,
+    moduleId,
+    moduleDir,
+    plannedFiles
+  };
 }
 
-main().catch((error) => {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error(`创建模块失败: ${message}`);
-  process.exit(1);
-});
+async function main() {
+  const rootDir = process.cwd();
+  const args = parseArgs(process.argv.slice(2));
+
+  if (!args.moduleId) {
+    console.error(createUsage());
+    process.exit(1);
+  }
+
+  const result = await scaffoldModule({
+    rootDir,
+    moduleId: args.moduleId,
+    title: args.title,
+    routeBase: args.routeBase,
+    dryRun: args.dryRun
+  });
+
+  if (result.dryRun) {
+    console.log('[dry-run] 计划创建以下文件：');
+    for (const filePath of result.plannedFiles) {
+      console.log(`- ${filePath}`);
+    }
+    return;
+  }
+
+  console.log(`模块创建完成：${result.moduleDir}`);
+}
+
+const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : '';
+
+if (invokedPath === import.meta.url) {
+  main().catch((error) => {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`创建模块失败: ${message}`);
+    process.exit(1);
+  });
+}
