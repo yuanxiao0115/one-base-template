@@ -23,10 +23,6 @@ outline: false
     <h3>admin-lite 后台基座</h3>
     <p>与 admin 同构的后台快速起项目基座，用于直接承接新后台业务开发。</p>
   </a>
-  <a class="guide-card" href="/guide/zfw-system-sfss-quick-start">
-    <h3>zfw-system-sfss 快速使用手册</h3>
-    <p>面向同事交接：一页搞定启动、验证命令与 starter-crud 上手路径。</p>
-  </a>
 </div>
 
 ## 🧱 架构与运行时
@@ -73,9 +69,9 @@ outline: false
     <h3>CRUD 模块最佳实践</h3>
     <p>以 Position 模板沉淀 API、表单和状态组织方式。</p>
   </a>
-  <a class="guide-card" href="/guide/table-vxe-migration">
-    <h3>VXE 表格迁移</h3>
-    <p>从旧表格页面迁移到 ObTableBox + ObVxeTable 的标准路径。</p>
+  <a class="guide-card" href="/guide/layout-menu">
+    <h3>表格开发规范</h3>
+    <p>统一 `ObPageContainer + ObTableBox + ObTable` 的页面编排与交互约定。</p>
   </a>
   <a class="guide-card" href="/guide/button-styles">
     <h3>组件样式（按钮）</h3>
@@ -146,10 +142,6 @@ outline: false
   <a class="guide-card" href="/guide/admin-lite-agent-redlines">
     <h3>admin-lite Agent 红线</h3>
     <p>约束后台基座的默认模块、启动骨架、可开关扩展与派生边界。</p>
-  </a>
-  <a class="guide-card" href="/guide/admin-legacy-migration-workflow">
-    <h3>Admin 老项目迁移工作流</h3>
-    <p>把老项目迁移、管理模块标准化与验证收口串成一条主流程。</p>
   </a>
   <a class="guide-card" href="/guide/naming-whitelist">
     <h3>命名白名单（CLI）</h3>

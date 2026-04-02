@@ -38,7 +38,7 @@
 | adapters 子包      | `packages/adapters/AGENTS.md`      | 后端协议适配、字段映射边界                             |
 | core 子包          | `packages/core/AGENTS.md`          | 逻辑契约、主题 token、核心 hooks 约束                  |
 | portal-engine 子包 | `packages/portal-engine/AGENTS.md` | 门户引擎物料配置红线、统一封装组件复用                 |
-| ui 子包            | `packages/ui/AGENTS.md`            | 壳组件导出边界、`ObVxeTable` 与视觉规范                |
+| ui 子包            | `packages/ui/AGENTS.md`            | 壳组件导出边界、`ObTable` 与视觉规范                   |
 | tag 子包           | `packages/tag/AGENTS.md`           | 样式资产与入口导出规范                                 |
 | utils 子包         | `packages/utils/AGENTS.md`         | 通用工具函数语义与纯函数边界                           |
 
@@ -57,13 +57,13 @@
 - 静态路由 + 动态菜单、`allowedPaths` 权限模型。
 - `/sso` 登录回调、Cookie 模式鉴权。
 - Layout/TopBar/个性设置规范、UserManagement 迁移细则。
-- 表格迁移样式与结构规范（`ObPageContainer + ObTableBox + ObVxeTable`）。
+- 表格样式与结构规范（`ObPageContainer + ObTableBox + ObTable`）。
 - admin-lite 基座红线（默认模块、可开关扩展、`module(moduleMeta)/routes` 契约、`lint:arch` 门禁、代码静态配置入口）。
 
 ### 3) core/ui 专属规则（分别下沉）
 
 - `packages/core`：主题能力下沉、`useTable` 局部覆盖、`useEntityEditor` 保存语义。
-- `packages/ui`：内部组件禁止对外暴露、菜单激活态 token 约束、`ObVxeTable` 视觉与布局规范。
+- `packages/ui`：内部组件禁止对外暴露、菜单激活态 token 约束、`ObTable` 视觉与布局规范。
 
 ## 新增规则的落盘原则
 

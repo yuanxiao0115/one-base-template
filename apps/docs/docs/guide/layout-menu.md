@@ -93,15 +93,15 @@ defineOptions({ name: 'UserListPage' });
 - 若页面开启 `meta.fullScreen=true`，可结合 `ObPageContainer` 管理页面内部滚动，避免整页滚动串联。
 - 管理端已提供可访问示例页：`/system/permission`（菜单管理页，采用 `ObPageContainer + ObTableBox` 组合）。
 
-## 表格布局组合（ObTableBox + ObVxeTable）
+## 表格布局组合（ObTableBox + ObTable）
 
-为了降低旧 puretable 页面迁移成本，模板提供了 **ObTableBox + ObVxeTable** 组合：
+当前后台页面统一推荐使用 **ObTableBox + ObTable** 组合：
 
-- `ObTableBox`：保留旧工具条交互（快捷搜索、抽屉筛选、已选条、按钮区）。
-- `ObVxeTable`：承接表格渲染与分页，多数旧列定义可直接复用。
-- `useTable`：继续支持旧调用方式，同时可按需切换到新版缓存/防抖/刷新策略。
+- `ObTableBox`：负责工具条、快捷搜索、筛选与按钮区编排。
+- `ObTable`：负责表格渲染、分页、树形与懒加载树场景。
+- `useTable`：统一分页参数、请求适配与刷新策略。
 
-推荐用法（与旧页面结构基本一致）：
+推荐用法：
 
 ```vue
 <ObPageContainer padding="0">
@@ -112,7 +112,7 @@ defineOptions({ name: 'UserListPage' });
     @search="tableSearch"
   >
     <template #default="{ size, dynamicColumns }">
-      <ObVxeTable
+      <ObTable
         ref="tableRef"
         :size="size"
         :data="dataList"
@@ -126,9 +126,7 @@ defineOptions({ name: 'UserListPage' });
 </ObPageContainer>
 ```
 
-视觉默认值已对齐旧 puretable 登录日志风格：工具条默认筛选图标按钮、分页左总数右操作；表格内容超高时仅主体滚动，分页器固定在底部（表体与分页拆分渲染）。颜色全部走主题 token（`--one-*` / `--el-*`），不在组件内维护独立硬编码色值；行高 `56px`、无左右边框、最后一行不绘制底边；表格默认 `min-width: 100%` 铺满内容区并使用窄轨道纵向滚动条样式。VXE 主题变量文件位于 `packages/ui/src/styles/vxe-theme.css`，作为全局唯一主题映射入口。
-
-树形页面（如组织管理）可在 `ObVxeTable` 上直接传 `treeConfig`（`lazy + loadMethod + hasChildField`），样板页参考：`/system/org`。
+树形页面（如组织管理）可在 `ObTable` 上直接传 `treeConfig`（`lazy + loadMethod + hasChildField`），样板页参考：`/system/org`。
 
 菜单权限迁移页支持“树模式 + 条件筛选列表模式”切换，样板页参考：`/system/permission`。
 
@@ -147,7 +145,7 @@ defineOptions({ name: 'UserListPage' });
 - 菜单管理抽屉按场景切换：系统表单 `1` 列 `400px`，菜单/按钮表单保持常规多字段布局。
 - 右侧菜单列表列精简为高频字段：`权限名称 / 排序 / 权限类型 / 访问路径 / 状态 / 操作`，减少低频字段干扰。
 
-完整迁移清单与映射关系请查看：[VXE 表格迁移](/guide/table-vxe-migration)。
+如需查看历史表格兼容说明，可参考：[VXE 表格迁移](/guide/table-vxe-migration)。
 
 ## 多系统菜单（permissionCode）
 

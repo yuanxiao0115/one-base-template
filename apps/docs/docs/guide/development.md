@@ -135,9 +135,9 @@ const statusOptions = statusDict.list;
 const statusLabelMap = statusDict.map;
 ```
 
-## admin 列表首屏体感基线（ObVxeTable）
+## admin 列表首屏体感基线（ObTable）
 
-- `ObVxeTable` 默认开启“首屏骨架”策略：仅在 `loading=true 且 data.length=0` 时生效。
+- `ObTable` 默认开启“首屏骨架”策略：仅在 `loading=true 且 data.length=0` 时生效。
 - 骨架策略包含两段门禁：
   - `skeletonDelayMs`（默认 `120ms`）：短请求不显示骨架，避免闪烁。
   - `skeletonMinDurationMs`（默认 `200ms`）：已显示后最短保留时长，避免瞬时抖动。

@@ -38,7 +38,7 @@
 - 搜索防抖：分类与素材检索统一 300ms 防抖，减少高频请求。
 - 图片懒加载：素材卡片预览统一 `el-image loading=\"lazy\"`。
 - Service Worker 图片缓存：`apps/admin/public/material-image-cache-sw.js` 采用 `stale-while-revalidate`，仅缓存 `/cmict/file/resource/show?id=...` 图片请求，默认上限 `240` 条、TTL `7 天`，并在激活与更新时自动清理。
-- 布局与复用：页面编排改为 `ObPageContainer` 左右结构（左侧分类、右侧卡片表格）；右侧统一使用 `ObCardTable`（`packages/ui/src/components/table/CardTable.vue`）输出卡片网格与分页，分页器样式与 `ObVxeTable` 保持一致。
+- 布局与复用：页面编排改为 `ObPageContainer` 左右结构（左侧分类、右侧卡片表格）；右侧统一使用 `ObCardTable`（`packages/ui/src/components/table/CardTable.vue`）输出卡片网格与分页，分页器样式与后台表格规范保持一致。
 
 ### 视觉优化基线（2026-03-24）
 

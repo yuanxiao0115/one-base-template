@@ -351,7 +351,7 @@ apps/admin/src/modules/adminManagement/
 - 路由防漏：新增/迁移 `list.vue` 必须同次更新 `routes.ts`，且路由组件路径必须可解析到真实文件
 - 功能目录：`position/` 下内聚 `page + api + form + components`
 - 路由入口：`/system/position`
-- 页面结构：`ObPageContainer + ObTableBox + ObVxeTable`
+- 页面结构：`ObPageContainer + ObTableBox + ObTable`
 - 弹窗形态：`ObCrudContainer + useEntityEditor`（业务只关心表单与接口）
 - 接口对齐老项目：直接调用 `/cmict/admin/sys-post/page|add|update|delete|unique/check` 真实后端接口
 - 角色域补充：迁移 adminManagement 角色模块时，需同时核对 `角色管理(/system/role/management)` 与 `角色分配(/system/role/assign)` 两条路由
@@ -365,7 +365,7 @@ apps/admin/src/modules/adminManagement/
 
 当前交互基线：
 
-- 左侧角色列表（支持关键字筛选）+ 右侧成员分页表格（`ObTableBox + ObVxeTable`）
+- 左侧角色列表（支持关键字筛选）+ 右侧成员分页表格（`ObTableBox + ObTable`）
 - 左侧角色区通过 `ObPageContainer` 的 `#left` 插槽承载，采用“标题统计 + 搜索 + 菜单化角色列表”结构，优先复用容器与 Element 能力，减少页面私有样式
 - 左侧角色区遵循扁平化视觉：搜索输入框与角色选中项均为无圆角样式，和管理端整体风格保持一致
 - 右侧支持关键词搜索、批量选择、单条/批量移除人员
@@ -455,7 +455,7 @@ apps/admin/src/modules/LogManagement/
 关键点：
 
 - 路由集中：`routes.ts` 统一管理 `/system/log/login-log` 与 `/system/log/sys-log`
-- 页面编排：`list.vue` 仅保留 `ObTableBox + ObVxeTable + 详情抽屉` 编排
+- 页面编排：`list.vue` 仅保留 `ObTableBox + ObTable + 详情抽屉` 编排
 - 逻辑下沉：查询、删除、详情拉取统一放在 `composables/use*PageState.ts`
 - 接口契约：`api.ts` 只保留请求调用；`types.ts` 保持“够用即可”，日志实体优先“关键字段 + 索引签名”以降低维护负担
 - 模块装配：`apps/admin/src/config/platform-config.ts` 的 `enabledModules` 显式加入 `log-management`

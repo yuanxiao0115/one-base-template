@@ -3,8 +3,7 @@ import { defineConfig } from 'vitepress';
 const introItems = [
   { text: '快速开始', link: '/guide/quick-start' },
   { text: '环境变量', link: '/guide/env' },
-  { text: 'admin-lite 后台基座', link: '/guide/admin-lite-base-app' },
-  { text: 'zfw-system-sfss 快速使用手册', link: '/guide/zfw-system-sfss-quick-start' }
+  { text: 'admin-lite 后台基座', link: '/guide/admin-lite-base-app' }
 ];
 
 const architectureItems = [
@@ -19,7 +18,7 @@ const architectureItems = [
 const practiceItems = [
   { text: 'CRUD 容器与 Hook', link: '/guide/crud-container' },
   { text: 'CRUD 模块最佳实践', link: '/guide/crud-module-best-practice' },
-  { text: 'VXE 表格迁移', link: '/guide/table-vxe-migration' },
+  { text: '表格开发规范', link: '/guide/layout-menu' },
   { text: '组件样式（按钮）', link: '/guide/button-styles' },
   { text: 'Iconfont 集成', link: '/guide/iconfont' },
   { text: 'Utils 工具包（总览）', link: '/guide/utils' },
@@ -42,8 +41,6 @@ const governanceItems = [
   { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
   { text: 'Admin Agent 红线', link: '/guide/admin-agent-redlines' },
   { text: 'admin-lite Agent 红线', link: '/guide/admin-lite-agent-redlines' },
-  { text: 'Admin 老项目迁移工作流', link: '/guide/admin-legacy-migration-workflow' },
-  { text: 'Admin Management Standardizer', link: '/guide/admin-management-standardizer' },
   { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
   { text: '子包发布与版本控制', link: '/guide/package-release' },
   { text: '子包版本治理 SOP（多主线）', link: '/guide/package-version-governance' },
@@ -122,7 +119,6 @@ export default defineConfig({
       '/guide/quick-start': introSidebar,
       '/guide/env': introSidebar,
       '/guide/admin-lite-base-app': introSidebar,
-      '/guide/zfw-system-sfss-quick-start': introSidebar,
 
       '/guide/architecture': architectureSidebar,
       '/guide/architecture-runtime-deep-dive': architectureSidebar,
@@ -144,8 +140,6 @@ export default defineConfig({
       '/guide/agent-harness': governanceSidebar,
       '/guide/admin-agent-redlines': governanceSidebar,
       '/guide/admin-lite-agent-redlines': governanceSidebar,
-      '/guide/admin-legacy-migration-workflow': governanceSidebar,
-      '/guide/admin-management-standardizer': governanceSidebar,
       '/guide/naming-whitelist': governanceSidebar,
       '/guide/package-release': governanceSidebar,
       '/guide/package-version-governance': governanceSidebar,

@@ -11617,3 +11617,17 @@
   - `meta.access` 三种取值（`open/auth/menu`）的登录与菜单权限语义对照表；
   - helper 写法模板（`createOpenRouteMeta/createAuthRouteMeta/defineRouteMeta`）；
   - 30 秒自检清单（`open + hiddenTab`、`keepAlive + name`、`activePath` 约束、`check:admin:route-policy`）。
+
+## 2026-04-02（docs 收口：开发阶段去历史迁移展示 + 表格口径统一）
+
+- 收口目标（按用户确认）：开发阶段不展示历史迁移说明，docs 统一对外口径。
+- 导航与入口收口：
+  - `apps/docs/docs/.vitepress/config.ts` 移除 `zfw-system-sfss` 与迁移工作流在 nav/sidebar 的展示入口。
+  - `apps/docs/docs/guide/index.md`、`apps/docs/docs/guide/for-users.md` 同步移除历史迁移导向，改为开发主线入口。
+- 基础环境口径修正：
+  - `apps/docs/docs/guide/quick-start.md` 将 Node/pnpm 要求改为与根 `package.json` 一致（Node `>=20.19.0`，pnpm `>=10.32.1`）。
+- 表格文档口径收口：
+  - `apps/docs/docs/guide/layout-menu.md` 主线示例从 `ObVxeTable` 收口到 `ObTable`。
+  - `apps/docs/docs/guide/development.md` 首屏体感章节标题与主语收口到 `ObTable`。
+  - `apps/docs/docs/guide/agents-scope.md`、`apps/docs/docs/guide/module-system.md`、`apps/docs/docs/guide/portal/admin-designer.md` 同步替换历史表述，避免读者被双口径误导。
+- 过程说明：工作区存在 `apps/admin*/src/types/*.d.ts` 与 `=` 的并行改动，按用户确认“忽略并行开发内容”，本次仅提交 docs 相关文件。
