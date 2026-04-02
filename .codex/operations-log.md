@@ -2,6 +2,19 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-02（docs 维护治理补充：版本治理 SOP + 业务版本矩阵）
+
+- 目标：把“多版本并行维护（A=1.x，B=2.x）”治理规则沉淀到 `apps/docs`，避免仅停留在会话说明。
+- 新增文档：
+  - `apps/docs/docs/guide/package-version-governance.md`
+  - `apps/docs/docs/guide/business-integration-version-matrix.md`
+- 入口同步：
+  - `apps/docs/docs/.vitepress/config.ts`（维护治理导航 + sidebar）
+  - `apps/docs/docs/guide/index.md`（维护治理卡片）
+  - `apps/docs/docs/guide/for-maintainers.md`（维护主线入口）
+  - `apps/docs/docs/guide/package-release.md`（新增“延伸治理（多版本并行）”互链）
+- 结论：版本发布流程文档与长期维护文档已打通，后续可直接在 docs 中维护策略与模板。
+
 ## 2026-04-02（Portal 老组件样式复刻收口：9 组件迁移二阶段）
 
 - 目标收口：保持新项目配置协议与统一容器链路不变，渲染层按老项目视觉复刻。

@@ -159,6 +159,14 @@ outline: false
     <h3>子包发布与版本控制</h3>
     <p>Changeset、SemVer、发包流程与回滚注意事项。</p>
   </a>
+  <a class="guide-card" href="/guide/package-version-governance">
+    <h3>子包版本治理 SOP（多主线）</h3>
+    <p>定义 main/LTS 分支协作方式，支撑 1.x 与 2.x 并行维护。</p>
+  </a>
+  <a class="guide-card" href="/guide/business-integration-version-matrix">
+    <h3>业务接入版本矩阵与迁移模板</h3>
+    <p>用矩阵管理业务项目版本线，并提供跨 major 迁移模板。</p>
+  </a>
 </div>
 
 ## 👥 角色入口（可选）

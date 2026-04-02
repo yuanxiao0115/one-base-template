@@ -21,6 +21,8 @@ outline: false
 4. [portal-engine 边界与导出层](/guide/portal/engine-boundary)
 5. [Admin Agent 红线](/guide/admin-agent-redlines)
 6. [子包发布与版本控制](/guide/package-release)
+7. [子包版本治理 SOP（多主线）](/guide/package-version-governance)
+8. [业务接入版本矩阵与迁移模板](/guide/business-integration-version-matrix)
 
 ## 文档治理主线
 

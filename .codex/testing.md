@@ -2,6 +2,14 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-02（docs：版本治理 SOP 与业务版本矩阵）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-04-02（Portal 老组件样式复刻收口：9 组件迁移二阶段）
 
 - GREEN / 回归：

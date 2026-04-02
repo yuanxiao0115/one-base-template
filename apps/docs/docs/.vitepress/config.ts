@@ -46,6 +46,8 @@ const governanceItems = [
   { text: 'Admin Management Standardizer', link: '/guide/admin-management-standardizer' },
   { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
   { text: '子包发布与版本控制', link: '/guide/package-release' },
+  { text: '子包版本治理 SOP（多主线）', link: '/guide/package-version-governance' },
+  { text: '业务接入版本矩阵与迁移模板', link: '/guide/business-integration-version-matrix' },
   { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' }
 ];
 
@@ -146,6 +148,8 @@ export default defineConfig({
       '/guide/admin-management-standardizer': governanceSidebar,
       '/guide/naming-whitelist': governanceSidebar,
       '/guide/package-release': governanceSidebar,
+      '/guide/package-version-governance': governanceSidebar,
+      '/guide/business-integration-version-matrix': governanceSidebar,
       '/guide/markdown-doc-style': governanceSidebar,
 
       '/guide/for-users': roleSidebar,

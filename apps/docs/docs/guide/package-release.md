@@ -88,6 +88,13 @@ pnpm -C packages/<pkg-name> publish --access public
 3. `pnpm -C apps/docs build`
 4. `pnpm release:packages`（仅在 release job 执行）
 
+## 延伸治理（多版本并行）
+
+当出现“A 项目继续用 `1.x`、B 项目接入 `2.x`”场景时，本页只负责“如何发包”，还需要配套：
+
+- [子包版本治理 SOP（多主线）](/guide/package-version-governance)：定义 `main` 与 `release/<major>.x` 的维护策略。
+- [业务接入版本矩阵与迁移模板](/guide/business-integration-version-matrix)：定义业务项目版本台账、升级窗口与迁移模板。
+
 ## 新子包接入发布清单
 
 - [ ] `package.json` 已设置 `private: false`
