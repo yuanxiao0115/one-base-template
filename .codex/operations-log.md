@@ -11685,3 +11685,15 @@
   - 两处均补齐“配置项清单（14 项）”，明确 `preset/backend/authMode/historyMode/menuMode/.../enabledModules` 语义，并补充 `tokenKey/idTokenKey` 自动生成规则。
 - 文档收口：
   - `apps/docs/docs/guide/env.md` 的“代码静态平台配置（platform-config.ts）”改为完整列表（15 项），逐项解释用途与默认语义。
+
+## 2026-04-02（docs 可读性收口：主线中文化 + module-system 最终版 + 树形目录）
+
+- 按用户要求收口文档可读性，应用 `$antfu`（减少噪音、单一职责）与 `$vitepress`（信息结构化、可跳转入口）实践：
+  - `apps/docs/docs/guide/levels/p2.md`：最小必读改为中文标题可点击。
+  - `apps/docs/docs/guide/levels/p4.md`：必读主线改为中文标题可点击，任务索引补充中文跳转入口。
+  - `apps/docs/docs/guide/levels/p6.md`：必读主线改为中文标题可点击。
+  - `apps/docs/docs/guide/levels/index.md`：分层入口表格与辅助入口改为中文标题可点击。
+- `apps/docs/docs/guide/module-system.md` 全文重写为“最终版”：
+  - 删除历史演进与中间过程叙述，仅保留当前生效方案。
+  - 使用 `├── / └── / │` 树形目录展示模块结构与装配关系。
+  - 减少反引号与长段叙述，改为短段、清单与表格。
