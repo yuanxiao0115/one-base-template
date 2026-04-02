@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type AppMenuItem, useAuthStore, useMenuStore } from '@one-base-template/core';
+import {
+  resolveExternalTargetUrl,
+  type AppMenuItem,
+  useAuthStore,
+  useMenuStore
+} from '@one-base-template/core';
 import { useRoute } from 'vue-router';
 
 defineOptions({
@@ -16,10 +21,6 @@ interface MicroRemarkConfig {
 const route = useRoute();
 const menuStore = useMenuStore();
 const authStore = useAuthStore();
-
-function isHttpUrl(value: string): boolean {
-  return /^https?:\/\//i.test(value);
-}
 
 function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefined {
   for (const item of list) {
@@ -60,12 +61,11 @@ function buildDefaultAppName(pathname: string): string {
 
 const currentMenu = computed(() => findMenuByPath(menuStore.menus, route.path));
 const remarkConfig = computed(() => parseRemarkConfig(currentMenu.value?.remark));
-const rawTarget = computed(() => {
-  const redirect =
-    typeof currentMenu.value?.redirect === 'string' ? currentMenu.value.redirect.trim() : '';
-  return redirect || '';
-});
-const frameSrc = computed(() => (isHttpUrl(rawTarget.value) ? rawTarget.value : ''));
+const frameSrc = computed(() =>
+  resolveExternalTargetUrl({
+    redirect: currentMenu.value?.redirect
+  })
+);
 const hasValidTarget = computed(() => Boolean(frameSrc.value));
 const microAppAvailable = computed(() => {
   if (typeof window === 'undefined') {

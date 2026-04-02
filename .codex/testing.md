@@ -2,6 +2,34 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-02（安全收口：v-html/link/认证回跳公共封装）
+
+- GREEN / 回归：
+  - `pnpm -C packages/core test:run src/router/redirect.test.ts src/utils/url.test.ts src/utils/html.test.ts`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C apps/admin test:run:file -- tests/bootstrap/index.unit.test.ts tests/services/auth/auth-scenario-provider.unit.test.ts src/components/rich-text/rich-text-html.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/bootstrap/index.unit.test.ts tests/services/auth/auth-scenario-provider.unit.test.ts`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/core lint`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin-lite lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 修复后复验：
+  - `pnpm -C packages/core lint`
+  - `pnpm -C packages/core test:run src/router/redirect.test.ts src/utils/url.test.ts src/utils/html.test.ts`
+  - `pnpm -C packages/core typecheck`
+- 结果：
+  - `packages/core`：新增/改造相关测试 `3 files / 10 tests` 通过，`typecheck` 通过，`lint` 0 warning / 0 error。
+  - `apps/admin`：定向测试 `3 files / 13 tests` 通过；`typecheck` 通过。
+  - `apps/admin-lite`：定向测试 `2 files / 9 tests` 通过；`typecheck` 通过。
+  - `packages/ui`：`typecheck` 与 `lint` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+  - `apps/admin lint` 存在 4 条既有 `max-lines` warning（历史文件，非本次改动引入）；0 error。
+
 ## 2026-04-02（admin/admin-lite 命名收口 + new:app preset + route meta 门禁）
 
 - RED（先失败）：

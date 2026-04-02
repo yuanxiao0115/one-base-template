@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import {
   installRouteDynamicImportRecovery,
-  resolveAppRedirectTarget,
+  resolveAuthRedirectTargetFromQuery,
   setObHttpClient,
   setupRouterGuards
 } from '@one-base-template/core';
@@ -147,7 +147,7 @@ export async function bootstrapAdminApp() {
           loginRoutePath: routePaths.login,
           forbiddenRoutePath: routePaths.forbidden,
           resolveAuthedLoginRedirect: ({ to }) =>
-            resolveAppRedirectTarget(to.query.redirect ?? to.query.redirectUrl, {
+            resolveAuthRedirectTargetFromQuery(to.query, {
               fallback: routePaths.root,
               baseUrl: resolvedAppEnv.baseUrl
             }),

@@ -11,6 +11,7 @@ import type {
 import { Plus } from '@element-plus/icons-vue';
 import type { CrudFormLike } from '@one-base-template/ui';
 import { message } from '@one-base-template/ui';
+import { toSafeRichTextHtml } from '@/components/rich-text/rich-text-html';
 import { contentApi } from '../api';
 import type { ContentCategoryRecord, UploadAttachmentResult, UploadResourceResult } from '../types';
 import type { ContentForm } from '../form';
@@ -343,7 +344,7 @@ const attachmentPreviewList = computed(() =>
 );
 
 const contentPreviewHtml = computed(() => {
-  const html = String(model.value.articleContent || '').trim();
+  const html = toSafeRichTextHtml(model.value.articleContent || '');
   return html || "<p class='content-empty'>暂无正文内容</p>";
 });
 const coverPreviewUrl = computed(() => resolveCoverImageUrl(model.value.coverUrl));

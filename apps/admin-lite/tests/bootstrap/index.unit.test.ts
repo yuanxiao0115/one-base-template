@@ -19,7 +19,7 @@ const mocks = vi.hoisted(() => {
     createWebHistory: vi.fn(() => ({ __history: true })),
     setObHttpClient: vi.fn(),
     setupRouterGuards: vi.fn(),
-    resolveAppRedirectTarget: vi.fn(() => '/'),
+    resolveAuthRedirectTargetFromQuery: vi.fn(() => '/'),
     installRouteDynamicImportRecovery: vi.fn(),
     buildAppRoutes: vi.fn(async () => ({
       routes: [{ path: '/' }],
@@ -76,7 +76,7 @@ vi.mock('vue-router', () => ({
 
 vi.mock('@one-base-template/core', () => ({
   installRouteDynamicImportRecovery: mocks.installRouteDynamicImportRecovery,
-  resolveAppRedirectTarget: mocks.resolveAppRedirectTarget,
+  resolveAuthRedirectTargetFromQuery: mocks.resolveAuthRedirectTargetFromQuery,
   setObHttpClient: mocks.setObHttpClient,
   setupRouterGuards: mocks.setupRouterGuards
 }));
@@ -179,10 +179,13 @@ describe('bootstrap/index', () => {
       }
     });
 
-    expect(mocks.resolveAppRedirectTarget).toHaveBeenCalledWith('/admin/system/user', {
-      fallback: '/',
-      baseUrl: '/'
-    });
+    expect(mocks.resolveAuthRedirectTargetFromQuery).toHaveBeenCalledWith(
+      { redirect: '/admin/system/user' },
+      {
+        fallback: '/',
+        baseUrl: '/'
+      }
+    );
     expect(resolved).toBe('/');
   });
 });

@@ -1,4 +1,9 @@
-import type { RouteLocationNormalized, RouteLocationRaw } from 'vue-router';
+import type {
+  LocationQuery,
+  LocationQueryValue,
+  RouteLocationNormalized,
+  RouteLocationRaw
+} from 'vue-router';
 import { safeRedirect } from '../auth/flow';
 
 function normalizeBasePath(baseUrl: string): string {
@@ -39,6 +44,66 @@ function stripBasePath(path: string, basePath: string): string {
   return buildPath(url.pathname, url.search, url.hash);
 }
 
+function getQueryStringValue(
+  value: LocationQueryValue | LocationQueryValue[] | undefined
+): string | null {
+  const list = Array.isArray(value) ? value : [value];
+  for (const item of list) {
+    if (typeof item !== 'string') {
+      continue;
+    }
+    const normalized = item.trim();
+    if (normalized) {
+      return normalized;
+    }
+  }
+  return null;
+}
+
+function getSearchParamStringValue(
+  searchParams: Pick<URLSearchParams, 'get'>,
+  key: string
+): string | null {
+  const value = searchParams.get(key);
+  if (!value) {
+    return null;
+  }
+  const normalized = value.trim();
+  return normalized || null;
+}
+
+export interface ResolveAppRedirectTargetOptions {
+  fallback: string;
+  baseUrl: string;
+}
+
+export function readAuthRedirectRawFromQuery(query: LocationQuery): string | null {
+  return getQueryStringValue(query.redirect) ?? getQueryStringValue(query.redirectUrl);
+}
+
+export function readAuthRedirectRawFromSearchParams(
+  searchParams: Pick<URLSearchParams, 'get'>
+): string | null {
+  return (
+    getSearchParamStringValue(searchParams, 'redirect') ??
+    getSearchParamStringValue(searchParams, 'redirectUrl')
+  );
+}
+
+export function resolveAuthRedirectTargetFromQuery(
+  query: LocationQuery,
+  options: ResolveAppRedirectTargetOptions
+): string {
+  return resolveAppRedirectTarget(readAuthRedirectRawFromQuery(query), options);
+}
+
+export function resolveAuthRedirectTargetFromSearchParams(
+  searchParams: Pick<URLSearchParams, 'get'>,
+  options: ResolveAppRedirectTargetOptions
+): string {
+  return resolveAppRedirectTarget(readAuthRedirectRawFromSearchParams(searchParams), options);
+}
+
 /**
  * 在 safeRedirect 的基础上，额外处理子路径部署（baseUrl）场景：
  * - 拦截外链/协议跳转
@@ -47,10 +112,7 @@ function stripBasePath(path: string, basePath: string): string {
  */
 export function resolveAppRedirectTarget(
   raw: unknown,
-  options: {
-    fallback: string;
-    baseUrl: string;
-  }
+  options: ResolveAppRedirectTargetOptions
 ): string {
   const target = safeRedirect(raw, options.fallback);
   const basePath = normalizeBasePath(options.baseUrl);

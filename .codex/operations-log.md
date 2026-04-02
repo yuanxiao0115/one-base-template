@@ -2,6 +2,41 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-02（安全收口：v-html / 外链校验 / 认证回跳 target 公共封装 + docs）
+
+- core 公共安全能力新增：
+  - `packages/core/src/utils/html.ts`：新增 `sanitizeHtmlContent(html)`，统一 HTML 渲染净化（移除危险标签、事件属性、`javascript:` 协议，`target=_blank` 自动补 `rel`）。
+  - `packages/core/src/utils/url.ts`：新增 `resolveSafeHttpUrl`、`resolveExternalTargetUrl`，并强化 `isHttpUrl`（trim 后判断）。
+  - `packages/core/src/router/redirect.ts`：新增
+    - `readAuthRedirectRawFromQuery`
+    - `readAuthRedirectRawFromSearchParams`
+    - `resolveAuthRedirectTargetFromQuery`
+    - `resolveAuthRedirectTargetFromSearchParams`
+      统一 `redirect/redirectUrl` 读取与安全回跳解析。
+  - `packages/core/src/router/initial-path.ts`：复用 `utils/url.ts` 的 `isHttpUrl`，删除本地重复实现。
+  - `packages/core/src/index.ts`：导出以上新增安全能力。
+- core 单测补齐：
+  - 新增 `packages/core/src/utils/html.test.ts`、`packages/core/src/utils/url.test.ts`
+  - 扩展 `packages/core/src/router/redirect.test.ts`（query/searchParams 读取与安全回跳断言）。
+- 应用层接入改造：
+  - `apps/admin/src/modules/CmsManagement/content/components/ContentEditForm.vue`
+    - `v-html` 预览改为 `toSafeRichTextHtml(...)` 后再渲染。
+  - `apps/admin/src/components/rich-text/rich-text-html.ts`
+    - 富文本净化逻辑改为复用 core 的 `sanitizeHtmlContent`。
+  - `apps/admin` / `apps/admin-lite`
+    - `pages/login/LoginPage.vue`、`bootstrap/index.ts` 改用 `resolveAuthRedirectTargetFromQuery`。
+    - `services/auth/auth-scenario-provider.ts` 改用 `resolveAuthRedirectTargetFromSearchParams`。
+    - `modules/adminManagement/menu/pages/{ExternalFramePage,MicroAppHostPage}.vue` 改用 `resolveExternalTargetUrl`。
+  - `packages/ui/src/components/menu/{SidebarMenu,TopMenu}.vue`
+    - 菜单外跳改为 `resolveExternalTargetUrl`，无合法外链时不再 `window.open`。
+- 文档同步：
+  - `apps/docs/docs/guide/menu-route-spec.md` 新增“安全封装统一入口（2026-04）”，提供 `v-html/外链/认证回跳` 的统一用法与禁用写法。
+  - `apps/docs/docs/guide/development.md` 新增“安全公共方法复用约束”，要求新需求优先复用 core。
+- 测试桩同步：
+  - `apps/admin/tests/bootstrap/index.unit.test.ts`
+  - `apps/admin-lite/tests/bootstrap/index.unit.test.ts`
+  - 统一替换为 `resolveAuthRedirectTargetFromQuery` mock 与断言。
+
 ## 2026-04-02（admin/admin-lite 命名收口 + new:app preset + route meta 风险门禁）
 
 - 命名收口（模块 id）：

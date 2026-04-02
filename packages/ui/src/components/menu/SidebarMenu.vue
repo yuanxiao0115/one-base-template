@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useMenuStore, type AppMenuItem } from '@one-base-template/core';
+import { resolveExternalTargetUrl, useMenuStore, type AppMenuItem } from '@one-base-template/core';
 import MenuItem from './MenuItem.vue';
 
 const menuStore = useMenuStore();
@@ -41,15 +41,14 @@ const openeds = computed(() => findOpenPaths(menuItems.value, activePath.value))
 function onSelect(index: string) {
   const item = findMenuByPath(menuItems.value, index);
   if (item?.external) {
-    window.open(resolveExternalTarget(item), '_blank', 'noopener,noreferrer');
+    const target = resolveExternalTargetUrl({ redirect: item.redirect, path: item.path });
+    if (!target) {
+      return;
+    }
+    window.open(target, '_blank', 'noopener,noreferrer');
     return;
   }
   router.push(index);
-}
-
-function resolveExternalTarget(item: AppMenuItem): string {
-  const redirect = typeof item.redirect === 'string' ? item.redirect.trim() : '';
-  return redirect || item.path;
 }
 
 function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefined {

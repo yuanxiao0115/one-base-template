@@ -106,7 +106,14 @@ export {
 } from './router/route-diagnostics';
 export { handleSsoCallback } from './router/sso';
 export { getInitialPath, type GetInitialPathOptions } from './router/initial-path';
-export { resolveAppRedirectTarget, buildLoginRedirectLocation } from './router/redirect';
+export {
+  resolveAppRedirectTarget,
+  resolveAuthRedirectTargetFromQuery,
+  resolveAuthRedirectTargetFromSearchParams,
+  readAuthRedirectRawFromQuery,
+  readAuthRedirectRawFromSearchParams,
+  buildLoginRedirectLocation
+} from './router/redirect';
 export { getRouteSignature } from './router/route-signature';
 export { buildRouteFullPath, normalizeRoutePath, toRouteNameKey } from './router/route-utils';
 export { getRouteAccess, isRouteAccess, type RouteAccess } from './router/route-access';
@@ -156,6 +163,8 @@ export {
   type LatestRequestGuard,
   type LatestRequestToken
 } from './utils/latest-request-guard';
+export { sanitizeHtmlContent } from './utils/html';
+export { isHttpUrl, resolveSafeHttpUrl, resolveExternalTargetUrl } from './utils/url';
 
 export { createStaticMenusFromRoutes, type CreateStaticMenusOptions } from './menu/fromRoutes';
 export { finalizeAuthSession, safeRedirect, type FinalizeAuthSessionOptions } from './auth/flow';

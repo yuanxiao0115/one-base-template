@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type AppMenuItem, useMenuStore } from '@one-base-template/core';
+import { resolveExternalTargetUrl, type AppMenuItem, useMenuStore } from '@one-base-template/core';
 import { useRoute } from 'vue-router';
 
 defineOptions({
@@ -9,10 +9,6 @@ defineOptions({
 
 const route = useRoute();
 const menuStore = useMenuStore();
-
-function isHttpUrl(value: string): boolean {
-  return /^https?:\/\//i.test(value);
-}
 
 function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefined {
   for (const item of list) {
@@ -30,16 +26,11 @@ function findMenuByPath(list: AppMenuItem[], path: string): AppMenuItem | undefi
 }
 
 const currentMenu = computed(() => findMenuByPath(menuStore.menus, route.path));
-const rawTarget = computed(() => {
-  const redirect =
-    typeof currentMenu.value?.redirect === 'string' ? currentMenu.value.redirect.trim() : '';
-  if (redirect) {
-    return redirect;
-  }
-  return '';
-});
-
-const frameSrc = computed(() => (isHttpUrl(rawTarget.value) ? rawTarget.value : ''));
+const frameSrc = computed(() =>
+  resolveExternalTargetUrl({
+    redirect: currentMenu.value?.redirect
+  })
+);
 const hasValidTarget = computed(() => Boolean(frameSrc.value));
 
 function openInNewTab() {

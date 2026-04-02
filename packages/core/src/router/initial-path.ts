@@ -1,5 +1,6 @@
 import { readFromStorages } from '../utils/storage';
 import { getWithLegacy, getNamespacedPrefix } from '../storage/namespace';
+import { isHttpUrl } from '../utils/url';
 
 export interface GetInitialPathOptions {
   defaultSystemCode?: string;
@@ -16,10 +17,6 @@ interface StoredMenuItem {
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.length > 0;
-}
-
-function isHttpUrl(path: string): boolean {
-  return /^https?:\/\//i.test(path);
 }
 
 function getStoredSystemCode(storageNamespace?: string): string {

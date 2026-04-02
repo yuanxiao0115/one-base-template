@@ -164,6 +164,20 @@ const statusLabelMap = statusDict.map;
 - Adapter 接口变更（路径、字段映射、鉴权模式）
 - 核心约定变更（例如路由/菜单/SSO 流程）
 
+## 安全公共方法复用约束
+
+为避免各模块重复实现导致口径漂移，以下场景必须优先复用 `@one-base-template/core`：
+
+1. HTML 安全渲染：`sanitizeHtmlContent`（`v-html` 前置净化）。
+2. 外链校验：`resolveExternalTargetUrl` / `resolveSafeHttpUrl` / `isHttpUrl`。
+3. 认证回跳解析：`resolveAuthRedirectTargetFromQuery` / `resolveAuthRedirectTargetFromSearchParams`。
+
+落地要求：
+
+1. 新功能禁止再手写 `redirect ?? redirectUrl`、`isHttpUrl`、`sanitizeHtml` 的重复逻辑。
+2. 发现历史重复实现时，优先收口到 core，再改调用方。
+3. 相关规范说明统一维护在 `/guide/menu-route-spec`，新增同类需求优先补充该文档。
+
 ## PortalManagement 注册链路回归
 
 涉及 `portal-engine` 物料注册、分类扩展或设计器导出变更时，提交前至少执行：

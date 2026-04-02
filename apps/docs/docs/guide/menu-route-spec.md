@@ -279,6 +279,89 @@ const userListMeta = defineRouteMeta({
    影响：匿名页被错误绑定到菜单高亮链路，易引发权限判断歧义。  
    处理：`activePath` 仅用于 `menu/auth` 路由，不用于 `open` 路由。
 
+## 6. 安全封装统一入口（2026-04）
+
+### 6.1 `v-html` 渲染必须走 `sanitizeHtmlContent`
+
+来源：`@one-base-template/core`  
+导出：`sanitizeHtmlContent(html: unknown): string`
+
+适用场景：
+
+1. 后端返回 HTML 内容回显（例如 CMS 正文预览）。
+2. 富文本编辑器输出在只读模式下展示。
+
+示例：
+
+```ts
+import { sanitizeHtmlContent } from '@one-base-template/core';
+
+const safeHtml = computed(() => sanitizeHtmlContent(rawHtml.value));
+```
+
+规范：
+
+1. 禁止把后端返回字符串直接绑定 `v-html`。
+2. 禁止在业务页面复制粘贴正则清洗逻辑，统一复用 core。
+3. 空内容兜底文案在页面层处理（例如“暂无正文内容”），不要写进 core。
+
+### 6.2 外链地址必须走 `resolveExternalTargetUrl`
+
+来源：`@one-base-template/core`  
+导出：
+
+1. `isHttpUrl(value: string): boolean`
+2. `resolveSafeHttpUrl(raw: unknown, fallback?: string): string`
+3. `resolveExternalTargetUrl({ redirect, path, fallback }): string`
+
+示例（菜单新标签打开）：
+
+```ts
+const target = resolveExternalTargetUrl({ redirect: item.redirect, path: item.path });
+if (target) {
+  window.open(target, '_blank', 'noopener,noreferrer');
+}
+```
+
+规范：
+
+1. 只允许 `http/https`，阻断 `javascript:`、`//host` 等危险输入。
+2. `window.open` 必须带 `noopener,noreferrer`。
+3. 菜单 iframe/micro-host 地址解析与顶部/侧边菜单外跳，统一复用该方法。
+
+### 6.3 认证回跳 target 必须走 `resolveAuthRedirectTargetFrom*`
+
+来源：`@one-base-template/core`  
+导出：
+
+1. `resolveAuthRedirectTargetFromQuery(query, { fallback, baseUrl })`
+2. `resolveAuthRedirectTargetFromSearchParams(searchParams, { fallback, baseUrl })`
+3. `resolveAppRedirectTarget(raw, { fallback, baseUrl })`（底层能力）
+
+示例（登录页）：
+
+```ts
+const target = resolveAuthRedirectTargetFromQuery(route.query, {
+  fallback: loginScenario.fallback,
+  baseUrl
+});
+```
+
+示例（SSO 回调）：
+
+```ts
+const target = resolveAuthRedirectTargetFromSearchParams(searchParams, {
+  fallback: DEFAULT_FALLBACK_HOME,
+  baseUrl
+});
+```
+
+规范：
+
+1. 不再在业务层手写 `route.query.redirect ?? route.query.redirectUrl`。
+2. 不再手写 `searchParams.get('redirectUrl') ?? searchParams.get('redirect')`。
+3. 回跳必须经过安全校验与 `baseUrl` 剥离，避免开放重定向。
+
 4. 模块路由散写 `meta: {}` 而非 helper  
    影响：公共策略（例如 hiddenTab/access）容易漏配。  
    处理：统一从 `@/router/meta` 导入 helper 生成 meta。

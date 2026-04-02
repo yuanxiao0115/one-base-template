@@ -1,4 +1,8 @@
-import { resolveAppRedirectTarget, startSsoCallbackStrategy } from '@one-base-template/core';
+import {
+  resolveAppRedirectTarget,
+  resolveAuthRedirectTargetFromSearchParams,
+  startSsoCallbackStrategy
+} from '@one-base-template/core';
 import { resolveTicketServiceUrl } from '@/config/auth-sso';
 import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
 import type { BackendKind } from '@/config/env';
@@ -58,8 +62,7 @@ export async function startSsoScenario(options: ExecuteSsoScenarioOptions) {
     return;
   }
 
-  const redirectUrlRaw = searchParams.get('redirectUrl') ?? searchParams.get('redirect');
-  const redirect = resolveAppRedirectTarget(redirectUrlRaw, {
+  const redirect = resolveAuthRedirectTargetFromSearchParams(searchParams, {
     fallback: DEFAULT_FALLBACK_HOME,
     baseUrl
   });

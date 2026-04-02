@@ -3,7 +3,7 @@ import {
   buildLoginScenario,
   finalizeAuthSession,
   loginByPassword,
-  resolveAppRedirectTarget
+  resolveAuthRedirectTargetFromQuery
 } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
 import { LoginBoxV2 as ObLoginBoxV2 } from '@one-base-template/ui/lite-auth';
@@ -78,8 +78,10 @@ const stageText = computed(() => {
 const showStageTip = computed(() => loginStage.value !== 'idle');
 
 function getRedirectTarget() {
-  const raw = route.query.redirect ?? route.query.redirectUrl;
-  return resolveAppRedirectTarget(raw, { fallback: loginScenario.fallback, baseUrl });
+  return resolveAuthRedirectTargetFromQuery(route.query, {
+    fallback: loginScenario.fallback,
+    baseUrl
+  });
 }
 
 function shouldSkipLocalErrorToast(error: unknown): boolean {
