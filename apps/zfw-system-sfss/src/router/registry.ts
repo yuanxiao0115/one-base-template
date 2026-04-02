@@ -13,12 +13,12 @@ import { createAppLogger } from '@/utils/logger';
 
 const moduleMetaDefinitions = import.meta.glob<{
   moduleMeta?: AppModuleManifestMeta;
-}>('../modules/**/index.ts', {
+}>('../modules/*/index.ts', {
   eager: true
 });
 
 const moduleDeclarationLoaders = import.meta.glob<AppModuleDeclarationModule>(
-  '../modules/**/index.ts'
+  '../modules/*/index.ts'
 );
 
 const logger = createAppLogger('router/modules');

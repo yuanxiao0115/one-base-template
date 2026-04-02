@@ -40,6 +40,19 @@ VITE_API_BASE_URL=http://<你的后端地址> pnpm -C apps/zfw-system-sfss dev
 1. 路由 URL 对齐老项目路径（便于直接命中后端菜单）。
 2. 页面统一接入可运行占位页，保证新项目可启动、可联调、可逐页替换。
 
+当前业务目录已按 legacy 结构落地到：
+
+- `apps/zfw-system-sfss/src/modules/system-sfss/views/System-sfss`
+
+并保持 6 个子模块结构：
+
+1. `sunshine-petition`
+2. `petition-supervision`
+3. `petition-processing`
+4. `special-petition-management`
+5. `petition-query`
+6. `litigation-related`
+
 老项目原始迁移源保留在：
 
 - `apps/zfw-system-sfss/migration/System-sfss-legacy-src.tar.gz`

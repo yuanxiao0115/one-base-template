@@ -8,7 +8,8 @@ const ROUTE_FILES = [
   'src/modules/home/routes.ts',
   'src/modules/LogManagement/routes.ts',
   'src/modules/SystemManagement/routes.ts',
-  'src/modules/adminManagement/routes.ts'
+  'src/modules/adminManagement/routes.ts',
+  'src/modules/system-sfss/routes.ts'
 ] as const;
 
 function readSourceFile(relativePath: string): string {

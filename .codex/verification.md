@@ -6,7 +6,7 @@
 
 - 日期：2026-04-02
 - 文件：`.codex/verification/2026-04-02.md`
-- 补充：最新条目新增“zfw-system-sfss 迁移执行 + zfw 迁移 skill 落地”验证结论。
+- 补充：最新条目新增“system-sfss 模块重建（legacy 6 子模块结构恢复）”与“zfw-system-sfss 迁移执行 + zfw 迁移 skill 落地”验证结论。
 
 ## 历史归档
 

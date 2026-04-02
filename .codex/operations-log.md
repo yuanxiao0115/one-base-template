@@ -2,6 +2,29 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-02（system-sfss 模块重建：按 legacy 6 子模块结构落地）
+
+- 问题背景：
+  - 用户已手动删除 `apps/zfw-system-sfss/src/modules/system-sfss`，要求重新迁移并保证目录结构与 legacy 一致。
+- 目录与文件重建：
+  - 重新创建 `apps/zfw-system-sfss/src/modules/system-sfss/index.ts`、`routes.ts`、`api/**`、`services/**`、`pages/**`。
+  - 在 `apps/zfw-system-sfss/src/modules/system-sfss/views/System-sfss` 下按 legacy 一致性重建 6 个子模块：
+    - `sunshine-petition`
+    - `petition-supervision`
+    - `petition-processing`
+    - `special-petition-management`
+    - `petition-query`
+    - `litigation-related`
+  - 同步落地 legacy 同名目录与文件（含 `litigation-related/assets/add.png`），待开发页面统一使用可运行占位页承接。
+- 路由恢复：
+  - 每个子模块新增 `router/index.ts`，并在模块根 `routes.ts` 聚合。
+  - 关键 URL 与老项目保持一致：`/law-supervison/**`、`/lawsuit-petitions/litigation-related/**`。
+- 架构收口：
+  - `apps/zfw-system-sfss/src/router/registry.ts` 的模块声明扫描范围从 `../modules/**/index.ts` 收敛到 `../modules/*/index.ts`，避免把子目录 `api/index.ts` 误识别为模块入口。
+  - `apps/zfw-system-sfss/tests/architecture/route-meta-helper-source.unit.test.ts` 新增 `system-sfss/routes.ts` 门禁覆盖。
+- 文档同步：
+  - `apps/docs/docs/guide/zfw-system-sfss-quick-start.md` 补充 `views/System-sfss` 目录落位与 6 子模块清单。
+
 ## 2026-04-02（zfw-system-sfss 迁移执行 + zfw 迁移 skill 落地）
 
 - 脚手架能力补齐：

@@ -2,6 +2,28 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-02（system-sfss 重建迁移：legacy 6 子模块结构恢复）
+
+- RED（先失败）：
+  - `pnpm -C apps/zfw-system-sfss lint`
+  - 结果：`SystemSfssTodoPage.vue` 触发 2 条 `no-required-prop-with-default` warning（`routePath/legacyFile` 有默认值但声明为必填）。
+  - 修复：将 `routePath`、`legacyFile` 类型改为可选属性。
+
+- GREEN / 回归：
+  - `pnpm -C apps/zfw-system-sfss typecheck`
+  - `pnpm -C apps/zfw-system-sfss lint`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/router/registry.unit.test.ts tests/router/assemble-routes.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/router/route-policy.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - `apps/zfw-system-sfss`：`typecheck/lint/lint:arch/build` 通过。
+  - `apps/zfw-system-sfss`：路由相关测试 `4 files / 12 tests` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+
 ## 2026-04-02（zfw-system-sfss 迁移执行 + zfw 迁移 skill）
 
 - RED（先失败）：
