@@ -21,7 +21,7 @@ export interface RoutePolicyReport {
   activePathRoutes: RoutePolicyEntry[];
 }
 
-function readActivePath(meta: RouteMeta | undefined): string | undefined {
+function getActivePath(meta: RouteMeta | undefined): string | undefined {
   const activePath = meta?.activePath;
   if (typeof activePath !== 'string') {
     return undefined;
@@ -32,7 +32,7 @@ function readActivePath(meta: RouteMeta | undefined): string | undefined {
   return activePath;
 }
 
-function collectRoutePolicyEntries(
+function buildRoutePolicyEntries(
   routes: RouteRecordRaw[],
   parentPath: string,
   output: RoutePolicyEntry[]
@@ -45,19 +45,19 @@ function collectRoutePolicyEntries(
       path: fullPath,
       access: getRouteAccess(meta)
     };
-    const activePath = readActivePath(meta);
+    const activePath = getActivePath(meta);
     if (activePath) {
       entry.activePath = activePath;
     }
     output.push(entry);
 
     if (Array.isArray(route.children) && route.children.length > 0) {
-      collectRoutePolicyEntries(route.children, fullPath, output);
+      buildRoutePolicyEntries(route.children, fullPath, output);
     }
   }
 }
 
-function sortByPathAndName(entries: RoutePolicyEntry[]): RoutePolicyEntry[] {
+function buildPathSortedEntries(entries: RoutePolicyEntry[]): RoutePolicyEntry[] {
   return [...entries].sort((left, right) => {
     if (left.path !== right.path) {
       return left.path.localeCompare(right.path);
@@ -68,7 +68,7 @@ function sortByPathAndName(entries: RoutePolicyEntry[]): RoutePolicyEntry[] {
 
 export function buildRoutePolicyReport(routes: RouteRecordRaw[]): RoutePolicyReport {
   const allRoutes: RoutePolicyEntry[] = [];
-  collectRoutePolicyEntries(routes, '/', allRoutes);
+  buildRoutePolicyEntries(routes, '/', allRoutes);
 
   const openRoutes = allRoutes.filter((item) => item.access === 'open');
   const authRoutes = allRoutes.filter((item) => item.access === 'auth');
@@ -76,10 +76,10 @@ export function buildRoutePolicyReport(routes: RouteRecordRaw[]): RoutePolicyRep
   const activePathRoutes = allRoutes.filter((item) => Boolean(item.activePath));
 
   return {
-    routes: sortByPathAndName(allRoutes),
-    openRoutes: sortByPathAndName(openRoutes),
-    authRoutes: sortByPathAndName(authRoutes),
-    menuRoutes: sortByPathAndName(menuRoutes),
-    activePathRoutes: sortByPathAndName(activePathRoutes)
+    routes: buildPathSortedEntries(allRoutes),
+    openRoutes: buildPathSortedEntries(openRoutes),
+    authRoutes: buildPathSortedEntries(authRoutes),
+    menuRoutes: buildPathSortedEntries(menuRoutes),
+    activePathRoutes: buildPathSortedEntries(activePathRoutes)
   };
 }

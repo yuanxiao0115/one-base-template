@@ -13,7 +13,7 @@ const portalAdminMaterialModules = import.meta.glob<PortalAdminMaterialModule>('
   eager: true
 });
 
-function resolvePortalAdminMaterial(
+function getPortalAdminMaterial(
   modulePath: string,
   moduleValue: PortalAdminMaterialModule
 ): PortalMaterialDescriptor {
@@ -24,9 +24,9 @@ function resolvePortalAdminMaterial(
   return material;
 }
 
-function collectPortalAdminMaterials(): PortalMaterialDescriptor[] {
+function listPortalAdminMaterials(): PortalMaterialDescriptor[] {
   const materials = Object.entries(portalAdminMaterialModules)
-    .map(([modulePath, moduleValue]) => resolvePortalAdminMaterial(modulePath, moduleValue))
+    .map(([modulePath, moduleValue]) => getPortalAdminMaterial(modulePath, moduleValue))
     .sort((a, b) => a.type.localeCompare(b.type));
 
   const typeSet = new Set<string>();
@@ -40,7 +40,7 @@ function collectPortalAdminMaterials(): PortalMaterialDescriptor[] {
   return materials;
 }
 
-const portalAdminMaterials = collectPortalAdminMaterials();
+const portalAdminMaterials = listPortalAdminMaterials();
 
 export const PORTAL_ADMIN_MATERIAL_EXTENSIONS = [
   definePortalMaterialExtension({

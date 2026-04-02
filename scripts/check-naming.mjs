@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const rootDir = process.cwd();
 const whitelistPath = path.join(rootDir, 'apps/docs/public/cli-naming-whitelist.json');
-const TARGET_MODULE_FILE_REGEX = /\/module\.ts$|\/api\/.*\.ts$|\/services\/.*\.ts$/;
+const TARGET_MODULE_FILE_REGEX = /\/index\.ts$|\/api\/.*\.ts$|\/services\/.*\.ts$/;
 const TARGET_BASE_ROUTE_REGEX = /\/routes\.ts$/;
 const LEADING_LOWERCASE_REGEX = /^[a-z]+/;
 const CAMEL_CASE_NAME_REGEX = /^[a-z][A-Za-z0-9]*$/;

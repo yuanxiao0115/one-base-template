@@ -54,7 +54,7 @@ function createRecordId() {
   return `document-template-${recordSeed}`;
 }
 
-function cloneTemplate(template: DocumentTemplateSchema): DocumentTemplateSchema {
+function toTemplateCopy(template: DocumentTemplateSchema): DocumentTemplateSchema {
   return JSON.parse(JSON.stringify(template)) as DocumentTemplateSchema;
 }
 
@@ -70,7 +70,7 @@ function getStorage() {
   }
 }
 
-function normalizeRecord(record: DocumentTemplateRecord): DocumentTemplateRecord {
+function parseRecord(record: DocumentTemplateRecord): DocumentTemplateRecord {
   const template = normalizeDocumentTemplate(record.template);
   return {
     ...record,
@@ -78,23 +78,23 @@ function normalizeRecord(record: DocumentTemplateRecord): DocumentTemplateRecord
   };
 }
 
-function cloneRecord(record: DocumentTemplateRecord): DocumentTemplateRecord {
+function toRecordCopy(record: DocumentTemplateRecord): DocumentTemplateRecord {
   return {
     ...record,
-    template: cloneTemplate(record.template)
+    template: toTemplateCopy(record.template)
   };
 }
 
-function cloneSnapshot(): DocumentTemplateSnapshot {
+function toSnapshotCopy(): DocumentTemplateSnapshot {
   return {
-    draft: store.draft ? cloneRecord(store.draft) : null,
-    published: store.published ? cloneRecord(store.published) : null,
-    history: store.history.map((item) => cloneRecord(item))
+    draft: store.draft ? toRecordCopy(store.draft) : null,
+    published: store.published ? toRecordCopy(store.published) : null,
+    history: store.history.map((item) => toRecordCopy(item))
   };
 }
 
-function upsertHistory(record: DocumentTemplateRecord) {
-  const nextRecord = cloneRecord(record);
+function saveHistoryRecord(record: DocumentTemplateRecord) {
+  const nextRecord = toRecordCopy(record);
   const nextHistory = store.history.filter((item) => item.id !== nextRecord.id);
   nextHistory.push(nextRecord);
   nextHistory.sort((a, b) => a.version - b.version);
@@ -116,20 +116,20 @@ function syncRecordSeed() {
   recordSeed = Math.max(recordSeed, maxSeed);
 }
 
-function persistStore() {
+function saveStoreToStorage() {
   const storage = getStorage();
   if (!storage) {
     return;
   }
 
   try {
-    storage.setItem(DOCUMENT_TEMPLATE_STORAGE_KEY, JSON.stringify(cloneSnapshot()));
+    storage.setItem(DOCUMENT_TEMPLATE_STORAGE_KEY, JSON.stringify(toSnapshotCopy()));
   } catch (error) {
     console.warn('[DocumentTemplateService] 持久化草稿失败', error);
   }
 }
 
-function hydrateStoreFromStorage() {
+function loadStoreFromStorage() {
   if (hydrated) {
     return;
   }
@@ -149,16 +149,16 @@ function hydrateStoreFromStorage() {
     const parsed = JSON.parse(raw) as Partial<DocumentTemplateSnapshot>;
     store.draft =
       parsed.draft && parsed.draft.status === 'draft'
-        ? normalizeRecord(parsed.draft as DocumentTemplateRecord)
+        ? parseRecord(parsed.draft as DocumentTemplateRecord)
         : null;
     store.published =
       parsed.published && parsed.published.status === 'published'
-        ? normalizeRecord(parsed.published as DocumentTemplateRecord)
+        ? parseRecord(parsed.published as DocumentTemplateRecord)
         : null;
     store.history = Array.isArray(parsed.history)
       ? parsed.history
           .filter((item) => item && (item.status === 'draft' || item.status === 'published'))
-          .map((item) => normalizeRecord(item as DocumentTemplateRecord))
+          .map((item) => parseRecord(item as DocumentTemplateRecord))
       : [];
     syncRecordSeed();
   } catch (error) {
@@ -179,20 +179,20 @@ function createDraftRecord(
     version: draftVersion,
     status: 'draft',
     note,
-    template: cloneTemplate(template),
+    template: toTemplateCopy(template),
     createdAt: now
   };
 }
 
 export function createDocumentTemplateService(): DocumentTemplateService {
-  hydrateStoreFromStorage();
+  loadStoreFromStorage();
 
-  function ensureDraft(seedTemplate: DocumentTemplateSchema) {
+  function getDraftRecord(seedTemplate: DocumentTemplateSchema) {
     if (!store.draft) {
       store.draft = createDraftRecord(seedTemplate);
-      persistStore();
+      saveStoreToStorage();
     }
-    return cloneRecord(store.draft);
+    return toRecordCopy(store.draft);
   }
 
   function updateDraft(template: DocumentTemplateSchema, note = '更新草稿') {
@@ -203,14 +203,14 @@ export function createDocumentTemplateService(): DocumentTemplateService {
     store.draft = {
       ...store.draft,
       note,
-      template: cloneTemplate(template)
+      template: toTemplateCopy(template)
     };
-    persistStore();
+    saveStoreToStorage();
 
-    return cloneRecord(store.draft);
+    return toRecordCopy(store.draft);
   }
 
-  function publishDraft(note = '发布模板') {
+  function savePublishedDraft(note = '发布模板') {
     if (!store.draft) {
       throw new Error('当前无可发布草稿');
     }
@@ -222,7 +222,7 @@ export function createDocumentTemplateService(): DocumentTemplateService {
       version: nextVersion,
       status: 'published',
       note,
-      template: cloneTemplate(store.draft.template),
+      template: toTemplateCopy(store.draft.template),
       createdAt: store.draft.createdAt,
       publishedAt: now
     };
@@ -233,12 +233,12 @@ export function createDocumentTemplateService(): DocumentTemplateService {
       version: nextVersion,
       note: `草稿基于发布 v${nextVersion}`
     };
-    upsertHistory(publishedRecord);
-    persistStore();
-    return cloneRecord(publishedRecord);
+    saveHistoryRecord(publishedRecord);
+    saveStoreToStorage();
+    return toRecordCopy(publishedRecord);
   }
 
-  function rollbackToPublished(version?: number) {
+  function resetDraftToPublished(version?: number) {
     const source =
       typeof version === 'number'
         ? (store.history.find((item) => item.version === version && item.status === 'published') ??
@@ -252,19 +252,19 @@ export function createDocumentTemplateService(): DocumentTemplateService {
     const nextDraft = createDraftRecord(source.template, `回滚到发布 v${source.version}`);
     nextDraft.version = source.version;
     store.draft = nextDraft;
-    persistStore();
-    return cloneRecord(nextDraft);
+    saveStoreToStorage();
+    return toRecordCopy(nextDraft);
   }
 
   function getSnapshot() {
-    return cloneSnapshot();
+    return toSnapshotCopy();
   }
 
   return {
-    ensureDraft,
+    ensureDraft: getDraftRecord,
     updateDraft,
-    publishDraft,
-    rollbackToPublished,
+    publishDraft: savePublishedDraft,
+    rollbackToPublished: resetDraftToPublished,
     getSnapshot
   };
 }
