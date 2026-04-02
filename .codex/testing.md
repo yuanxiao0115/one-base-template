@@ -10336,3 +10336,14 @@
 - 结果：
   - `apps/docs`：`lint` 0 warning / 0 error。
   - `apps/docs`：`build` 成功。
+
+## 2026-04-02（docs 收口二轮：结构化导航 + 文档精简）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `pnpm -C apps/admin typecheck`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error。
+  - `apps/docs`：`build` 成功。
+  - `apps/admin`：`typecheck` 通过。

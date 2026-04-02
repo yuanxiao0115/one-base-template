@@ -11697,3 +11697,22 @@
   - 删除历史演进与中间过程叙述，仅保留当前生效方案。
   - 使用 `├── / └── / │` 树形目录展示模块结构与装配关系。
   - 减少反引号与长段叙述，改为短段、清单与表格。
+
+## 2026-04-02（docs 收口二轮：导航分组、页面精简、内置组件页）
+
+- 导航与侧边栏重构（`apps/docs/docs/.vitepress/config.ts`）：
+  - 开发实践改为分组：`CRUD`、`表格`、`内置组件`、`图标`、`Utils`。
+  - CRUD 下拉入口合并为主线“CRUD 开发规范”，`crud-container` 作为进阶页保留。
+  - 修复“表格开发规范”链接到 `table-vxe-migration`。
+  - 删除“组件样式（按钮）”在导航中的入口。
+  - 扩展能力按 3 类分组：`公文表单`、`门户设计器`、`basic Adapter`。
+  - 扩展页侧边栏按分类显示，不再混合全部扩展条目。
+- 文档页收口：
+  - `guide/development.md` 改为可执行清单结构（精简版）。
+  - `guide/layout-menu.md` 改为技术文档短版，聚焦布局配置与菜单规则。
+  - `guide/crud-module-best-practice.md` 改为“合并版”，减少重复与长段落。
+  - 新增 `guide/built-in-components.md`，集中说明 `Ob*` 内置组件与最小用法。
+  - `guide/index.md`、`guide/for-users.md` 同步调整入口文案与卡片链接。
+  - `guide/portal/admin-designer.md` 新增“portal-engine 内置组件速查”。
+- 代码注释补齐：
+  - `apps/admin/src/config/layout.ts` 为每个配置项新增中文注释，降低理解成本。

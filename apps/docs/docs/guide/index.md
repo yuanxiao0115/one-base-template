@@ -80,21 +80,17 @@ outline: false
 <p class="guide-section-intro">沉淀组件与页面开发范式，保持实现一致性。</p>
 
 <div class="guide-grid">
-  <a class="guide-card" href="/guide/crud-container">
-    <h3>CRUD 容器与 Hook</h3>
-    <p>统一弹窗/抽屉容器行为，减少页面重复编排代码。</p>
-  </a>
   <a class="guide-card" href="/guide/crud-module-best-practice">
-    <h3>CRUD 模块最佳实践</h3>
-    <p>以 Position 模板沉淀 API、表单和状态组织方式。</p>
+    <h3>CRUD 开发规范</h3>
+    <p>合并 CRUD 容器与模块实践，按一条主线完成列表与弹层开发。</p>
   </a>
-  <a class="guide-card" href="/guide/layout-menu">
+  <a class="guide-card" href="/guide/table-vxe-migration">
     <h3>表格开发规范</h3>
     <p>统一 `ObPageContainer + ObTableBox + ObTable` 的页面编排与交互约定。</p>
   </a>
-  <a class="guide-card" href="/guide/button-styles">
-    <h3>组件样式（按钮）</h3>
-    <p>按钮视觉规范、状态约束与主题变量映射。</p>
+  <a class="guide-card" href="/guide/built-in-components">
+    <h3>内置组件（Ob 系列）</h3>
+    <p>快速了解已封装组件能力边界与最小接入方式。</p>
   </a>
   <a class="guide-card" href="/guide/iconfont">
     <h3>Iconfont 集成</h3>
@@ -111,29 +107,17 @@ outline: false
 <p class="guide-section-intro">门户能力与后端适配能力的接入入口。</p>
 
 <div class="guide-grid">
+  <a class="guide-card" href="/guide/document-form-designer">
+    <h3>公文表单</h3>
+    <p>覆盖设计引擎与 Sheet Schema，聚焦表单设计与渲染协议。</p>
+  </a>
   <a class="guide-card" href="/guide/portal/">
-    <h3>门户体系总览</h3>
-    <p>先看入口、边界和阅读路径，再进入分层文档。</p>
-  </a>
-  <a class="guide-card" href="/guide/portal/admin-designer">
-    <h3>PortalManagement 管理端接入</h3>
-    <p>聚焦 admin 消费者视角：路由、编排与注入链路。</p>
-  </a>
-  <a class="guide-card" href="/guide/portal/engine-boundary">
-    <h3>portal-engine 边界与导出层</h3>
-    <p>共享引擎职责、导出约束与跨应用复用边界。</p>
-  </a>
-  <a class="guide-card" href="/guide/portal/material-extension">
-    <h3>门户物料扩展与注册</h3>
-    <p>新增分类/物料并注册到 admin 的标准方式。</p>
+    <h3>门户设计器</h3>
+    <p>聚焦管理端接入、portal-engine 边界与内置组件复用。</p>
   </a>
   <a class="guide-card" href="/guide/adapter-basic">
     <h3>basic Adapter</h3>
     <p>后端接口适配与字段映射的实现约定。</p>
-  </a>
-  <a class="guide-card" href="/guide/document-form-sheet-schema">
-    <h3>公文表单 Sheet Schema</h3>
-    <p>查看合并、边框线色、样式区域、冻结区与版本迁移口径。</p>
   </a>
 </div>
 

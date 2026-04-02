@@ -1,299 +1,65 @@
-# 布局与菜单
+# 布局与菜单（精简版）
 
-> 如果你需要“完整的菜单/路由配置与 Schema”，优先查看：[菜单与路由规范（Schema）](/guide/menu-route-spec)。
+> 如果你主要关注路由和权限字段，请先看：[菜单与路由规范（Schema）](/guide/menu-route-spec)。
 
-## 布局模式
+## TL;DR
 
-布局由 `packages/core` 的 layout store 驱动，app 在启动时从 `apps/admin/src/config/layout.ts` 注入默认值：
+1. 布局默认配置只看一个文件：`apps/admin/src/config/layout.ts`。
+2. 页面编排默认三件套：`ObPageContainer + ObTableBox + ObTable`。
+3. 菜单高亮异常先查 `meta.activePath`。
 
-- `side`：顶部栏 + 左侧菜单（可折叠）
-- `top`：顶部横向菜单
+## 1) 布局模式
 
-配置项：
+布局由 `layout.ts` 的常量控制，推荐直接在该文件查看注释后修改。
 
-- `apps/admin/src/config/layout.ts`：`appLayoutMode=side|top`
-- `apps/admin/src/config/layout.ts`：`appSystemSwitchStyle=dropdown|menu`（决定系统切换使用下拉或菜单样式）
-- `apps/admin/src/config/layout.ts`：`appTopbarHeight`（`ob-topbar` 高度，默认 `64px`）
-- `apps/admin/src/config/layout.ts`：`appSidebarWidth`（左侧菜单展开宽度，默认 `256px`）
-- `apps/admin/src/config/layout.ts`：`appSidebarCollapsedWidth`（左侧菜单折叠宽度，默认 `64px`）
-- `apps/admin/src/bootstrap/plugins.ts`：可通过 `OneUiPlugin` 的 `topBarComponent` 注入应用级顶栏（admin 当前注入 `AdminTopBar.vue`）
+当前可配项：
 
-示例：
+1. `appLayoutMode`：`side | top`
+2. `appSystemSwitchStyle`：`dropdown | menu`
+3. `appTopbarHeight`：顶栏高度
+4. `appSidebarWidth`：侧栏展开宽度
+5. `appSidebarCollapsedWidth`：侧栏折叠宽度
 
-```ts
-// apps/admin/src/config/layout.ts
-export const appLayoutMode = 'side';
-export const appSystemSwitchStyle = 'menu';
-export const appTopbarHeight = '64px';
-export const appSidebarWidth = '256px';
-export const appSidebarCollapsedWidth = '64px';
-```
+## 2) 页面编排基线
 
-## 页面容器（ObPageContainer）
-
-当业务页面需要“**撑满可用区域** + **内容超高后内部滚动**”时，推荐直接使用全局组件 `ObPageContainer`（导出名为 `PageContainer`）：
-
-- 组件位置：`packages/ui/src/components/container/PageContainer.vue`
-- 插件全局组件名：`ObPageContainer`（默认 `OneUiPlugin` 前缀为 `Ob`）
-- 命名导出：`import { PageContainer } from '@one-base-template/ui'`
-
-能力约定：
-
-- 根容器固定 `height: 100%` + `min-height: 0`，可贴合父级剩余高度。
-- 默认插槽位于内部滚动区，内容超出时由组件自身滚动（`overflow: auto`）。
-- 支持 `left` 插槽，可实现“左树右表”布局；左区固定宽度，右区保持自适应。
-- 支持 `header` / `footer` 插槽，头尾固定，主体滚动。
-
-可用 props：
-
-- `padding?: string`：滚动内容区内边距，默认 `0`
-- `overflow?: 'auto' | 'scroll' | 'hidden'`：滚动策略，默认 `auto`
-- `leftWidth?: string`：左侧插槽宽度（`#left` 生效时），默认 `216px`
-
-示例：
-
-```vue
-<script setup lang="ts">
-defineOptions({ name: 'UserListPage' });
-</script>
-
-<template>
-  <ObPageContainer padding="16px">
-    <template #header>
-      <el-card class="mb-4">筛选条件</el-card>
-    </template>
-
-    <el-card v-for="item in 30" :key="item" class="mb-4"> 第 {{ item }} 行业务内容 </el-card>
-  </ObPageContainer>
-</template>
-```
-
-左树右表示例：
-
-```vue
-<ObPageContainer padding="0" overflow="hidden" left-width="216px">
-  <template #left>
-    <ObTree
-      :data="orgTreeData"
-      :tree-props="{ label: 'orgName', children: 'children' }"
-      highlight-current
-      @node-click="handleNodeClick"
-    />
-  </template>
-
-  <ObTableBox ...>
-    <!-- 右侧表格内容 -->
-  </ObTableBox>
-</ObPageContainer>
-```
-
-使用提示：
-
-- 该组件依赖“父容器可计算高度”，在本模板默认布局（`SideLayout`/`TopLayout`）下可直接使用。
-- 若页面开启 `meta.fullScreen=true`，可结合 `ObPageContainer` 管理页面内部滚动，避免整页滚动串联。
-- 管理端已提供可访问示例页：`/system/permission`（菜单管理页，采用 `ObPageContainer + ObTableBox` 组合）。
-
-## 表格布局组合（ObTableBox + ObTable）
-
-当前后台页面统一推荐使用 **ObTableBox + ObTable** 组合：
-
-- `ObTableBox`：负责工具条、快捷搜索、筛选与按钮区编排。
-- `ObTable`：负责表格渲染、分页、树形与懒加载树场景。
-- `useTable`：统一分页参数、请求适配与刷新策略。
-
-推荐用法：
+后台列表页默认按以下结构落地：
 
 ```vue
 <ObPageContainer padding="0">
-  <ObTableBox
-    title="登录日志"
-    :columns="columns"
-    :keyword="searchForm.nickName"
-    @search="tableSearch"
-  >
+  <ObTableBox ...>
     <template #default="{ size, dynamicColumns }">
-      <ObTable
-        ref="tableRef"
-        :size="size"
-        :data="dataList"
-        :columns="dynamicColumns"
-        :pagination="pagination"
-        @page-size-change="handleSizeChange"
-        @page-current-change="handleCurrentChange"
-      />
+      <ObTable ... />
     </template>
   </ObTableBox>
 </ObPageContainer>
 ```
 
-树形页面（如组织管理）可在 `ObTable` 上直接传 `treeConfig`（`lazy + loadMethod + hasChildField`），样板页参考：`/system/org`。
+推荐原因：
 
-菜单权限迁移页支持“树模式 + 条件筛选列表模式”切换，样板页参考：`/system/permission`。
+1. 高度与滚动行为统一。
+2. 搜索区、按钮区、表格区职责清晰。
+3. 迁移和复用成本低。
 
-菜单管理页（`/system/permission`）当前交互基线：
+## 3) 菜单与高亮
 
-- 左侧展示系统列表（`resourceType=1`），右侧仅展示当前系统下的权限树，避免整棵权限树过大导致操作困难。
-- 新增系统入口固定在左侧系统列表头部右上角（`+ 新增系统`），不再放在右侧“权限操作”按钮区。
-- 左侧系统项内置 icon 操作：可直接编辑/删除当前系统（并与系统切换点击区分离）。
-- 编辑表单中的“上级权限”改为树形选择（`el-tree-select`）。
-- `parentId=0` 时权限类型固定为“系统”；非顶级节点禁止选择“系统”类型。
-- 组件路径与缓存路由在当前静态路由模式下不作为菜单编辑项，统一隐藏，避免与路由配置源重复。
-- 菜单配置新增“内嵌配置提示”：`访问路径=/ext/*` 表示外链宿主、`访问路径=/micro/*` 表示微应用宿主；`跳转地址`填写真实 `http(s)` 入口地址。
-- 通用宿主路由只需一次性注册在 layout 子路由：`/ext/:slug(.*)*` 与 `/micro/:slug(.*)*`，后续新增内嵌页面只改菜单配置，不需要再改路由代码。
-- `打开方式` 与运行时联动：`内部` 在当前页内嵌（iframe/microapp），`外部` 以浏览器新窗口优先打开菜单 `redirect`（无 `redirect` 时回退打开 `path`）。
-- 新增/编辑系统时使用独立系统表单：上级权限固定为“顶级权限（系统）”，并隐藏“打开方式 / 图片地址 / 缓存路由 / 跳转地址”。
-- 菜单管理抽屉按场景切换：系统表单 `1` 列 `400px`，菜单/按钮表单保持常规多字段布局。
-- 右侧菜单列表列精简为高频字段：`权限名称 / 排序 / 权限类型 / 访问路径 / 状态 / 操作`，减少低频字段干扰。
+常见规则：
 
-如需查看历史表格兼容说明，可参考：[VXE 表格迁移](/guide/table-vxe-migration)。
+1. 菜单路由默认走 `meta.access='menu'`。
+2. 非菜单但登录后可访问页面用 `meta.access='auth'`。
+3. 匿名可访问页面用 `meta.access='open'`。
+4. 页面在菜单中的高亮路径由 `meta.activePath` 或兼容映射提供。
 
-## 多系统菜单（permissionCode）
+## 4) 常见问题
 
-适配 basic 时，`/cmict/admin/permission/my-tree` 可能一次返回多个根节点（每个根代表一个系统）。
+1. 页面能进但左侧菜单不高亮。
+   : 先检查该页面是否配置 `meta.activePath`。
+2. 同一页面在不同系统切换后落点不一致。
+   : 检查 `systemHomeMap` 与 `defaultSystemCode`。
+3. 列表页出现双滚动。
+   : 优先确认是否使用了 `ObPageContainer`，并避免额外包裹无意义容器。
 
-本模板约定：
+## 5) 相关阅读
 
-- 系统 code：根节点 `permissionCode`
-- 系统 name：优先用根节点 `title`，无则兜底 `resourceName/permissionCode`
-
-UI 行为：
-
-- 顶部系统切换：支持 `dropdown`（下拉）与 `menu`（顶栏菜单）两种样式
-- `menu` 样式使用 `el-menu(mode=horizontal)`，激活态背景 `#0955df`，字号 `14px`，并开启 `ellipsis` 以便宽度不足时自动折叠
-- 左侧菜单：展示 `menuStore.menus`（当前系统菜单树）
-- 左侧折叠按钮：固定在侧栏底部，使用 Iconify 图标（`ri:menu-fold-line` / `ri:menu-unfold-line`）
-- 菜单文案：超长时单行省略，hover 自动显示 tooltip 全文
-- 菜单状态（按设计稿）：默认 `--one-text-color-regular`；hover 使用 `--one-color-primary-light-7` + `--one-color-primary-light-1`；**仅叶子菜单项**保留选中高亮，菜单组不做选中高亮；禁用态使用 `--one-text-color-disabled`
-- 菜单层级统一：一级/二级组/子菜单项高度均为 `48px`，默认字重 `400`
-- 三级缩进：一级 `16px`、二级 `40px`、三级 `56px`（仅展开态生效）
-- 切系统后跳系统首页：`systemStore.resolveHomePath(systemCode)`（受 `apps/admin/src/config/platform-config.ts` 中 `systemHomeMap` 影响）
-- 空系统过滤：若某系统映射后 `menus.length===0`（例如后端 `children=[]`），则不展示该系统名，也不写该系统菜单缓存
-- 本地缓存策略：只要系统 `menus.length>0`（即使是纯叶子列表）就会写入该系统缓存；空系统会清理对应缓存 key
-
-### admin 顶栏扩展（租户 + 个人中心）
-
-admin 当前顶栏在 `apps/admin/src/components/top/AdminTopBar.vue`，基于 `OneUiPlugin.topBarComponent` 注入，默认能力：
-
-- 保留系统切换（`dropdown/menu` 两种样式）。
-- 仅超级管理员显示租户切换（`/cmict/admin/tenant/list` + `/cmict/admin/tenant/switch`）。
-- 用户下拉菜单包含：`用户信息`、`修改密码`、`个性设置`、`退出登录`。
-- 顶栏头像触发器使用自定义圆形 avatar（`32px`），右侧展示 `nickName`（非账号）；无头像时回退 `nickName` 后两个字。
-- 用户信息弹窗支持头像上传，上传前使用 `cropperjs` 插件进行图片裁剪。
-- 用户信息弹窗支持“清空头像”：会记录当前用户头像隐藏偏好并持久化到本地存储，刷新后仍按文字头像展示。
-
-租户切换后统一执行：
-
-1. `fetchMe()` 刷新当前用户租户信息。
-2. `menuStore.reset()` + `menuStore.loadMenus()` 重拉系统/菜单。
-3. 路由优先回到“当前可访问路由”，其次回到“系统首页或首个可访问菜单叶子”。
-4. 若切换后无任何可访问系统，直接跳转 `/login`（不跳 `/403`）。
-
-### 远端菜单拉取时机（remote）
-
-- 接口：`/cmict/admin/permission/my-tree`
-- 会话内策略：`remoteSynced=false` 时才会尝试远端同步；`true` 后普通跳转不重复请求
-- 缓存优先：若本地已有当前系统菜单缓存（`menuStore.loaded=true`），守卫会先放行，并在会话内最多尝试一次后台同步，减少首跳阻塞体感
-- 无缓存兜底：若当前系统菜单未加载，守卫仍会阻塞等待 `my-tree` 返回，确保首次权限边界可靠
-- 普通路由跳转：不会在每次跳转都重复请求 `my-tree`（包括后台同步失败场景）
-- 并发防重：`menuStore.loadMenus()` 内部复用同一个 in-flight Promise，避免同一时刻重复打接口
-- 当前系统菜单未命中且已完成本会话同步时，守卫会直接走权限判定（403/放行），不再反复请求
-- 导航优先：admin 启动时会在每次路由切换前取消“可取消”的在途页面请求（默认可取消），避免慢请求占用连接导致跳转卡顿；鉴权/菜单/SSO 这类关键请求会显式标记为不可取消
-
-## 标签栏（Tabs）
-
-- 组件：`packages/ui/src/components/tabs/TabsBar.vue`（UI 壳）+ `@one-base-template/tag`（`TagComponent` + store）
-- 集成入口：`apps/admin/src/bootstrap/plugins.ts`
-  - 通过 `app.use(OneTag, { pinia, router, ... })` 注册标签能力
-  - `TabsBar` 仅负责渲染 `TagComponent`，状态由 tag 包维护
-- 保持的行为约定：
-  - 点击切换、关闭当前、关闭左/右/其他/全部
-  - 滚轮横向滚动标签区
-  - KeepAlive include 按 `meta.keepAlive + route.name` 推导
-  - `KeepAliveView` 会基于 `route.name` 包一层同名组件，避免“页面组件 `defineOptions.name` 与路由名不一致”时 include 失效
-  - 路由名需要保持唯一且稳定（不要在运行期动态改名），否则会影响缓存命中与复用
-  - 标签状态写入 `sessionStorage`，默认 key 为 `storageNamespace + ':ob_tags'`
-- 隐藏规则：
-  - `meta.hiddenTab=true` 或 `meta.noTag=true` 不进入标签栏
-  - admin 默认忽略 `/login`、`/sso`、`/403`、`/404`、`/`、`/redirect*`、`/error*`
-
-## 非菜单路由（详情/编辑）与 meta.activePath
-
-详情/编辑类页面通常不出现在菜单里，但仍需要：
-
-- 菜单高亮正确
-- 权限校验“归属到某个菜单入口”
-
-做法：在路由上补 `meta.activePath`，指向其所属菜单的 path。
-
-```ts
-// 示例（伪代码）
-{
-  path: '/system/user/detail/:id',
-  component: () => import('./DetailPage.vue'),
-  meta: {
-    activePath: '/system/user'
-  }
-}
-```
-
-守卫逻辑会以 `menuKey = to.meta.activePath ?? to.path` 做系统识别与权限校验。
-
-## 本地维护路由（未进菜单）与 meta.access='auth'
-
-有些页面可能由前端先行维护（或开发期联调临时页），暂时**不会出现在后端菜单**里。
-
-默认策略下：`allowedPaths` 来自菜单树，不在集合内的路由会被拦截到 `403`。
-
-如果你希望“**仍需要登录**，但不依赖菜单权限即可访问”，可以在路由上增加：
-
-```ts
-{
-  path: '/local/page',
-  component: () => import('./LocalPage.vue'),
-  meta: {
-    access: 'auth'
-  }
-}
-```
-
-注意：
-
-- `access: 'auth'` 只会跳过“菜单 allowedPaths 校验”，不会跳过登录校验（仍会被重定向到 `/login`）。
-- `token` 模式下的登录态以“本地 token + 当前用户态”共同成立为准；仅残留 `ob_auth_user` 缓存不会放行路由。
-- 该能力会放宽前端权限控制，应谨慎使用；**能用 `activePath` 归属到已有菜单时，优先用 `activePath`**。
-- admin 默认首页 `/home/index` 已按本地静态页处理，使用 `access: 'auth'` 放行登录后访问，避免被远端菜单差异误拦截到 `403`。
-
-## 菜单 icon：class / url / minio id / iconify
-
-后端的 `menu.icon` 可能是：
-
-- iconfont class（如 `i-icon-xxx` / `icon-xxx` / `dj-icon-xxx` / `iconfont-od icon-xxx`）
-- iconify 名称（如 `ep:home-filled` / `ri:settings-3-line`）
-- url（http/https/data/blob）
-- minio 资源 id（需要额外请求拿图片）
-
-本模板做法：
-
-- UI：`packages/ui/src/components/menu/MenuIcon.vue`
-- core：`packages/core/src/stores/assets.ts`（IndexedDB 持久化 blob，刷新不重复拉取）
-- adapter：实现 `assets.fetchImageBlob({ id })`
-
-补充：
-
-- `dj-icon-*` 会自动叠加 `dj-icons` 基类，避免与 CP 的 `icon-*` 冲突。
-- legacy OD 菜单图标（如 `icon-huishouzhan`）会自动补齐 `iconfont-od` 基类。
-- `ep:*` / `ri:*` 图标通过 Iconify 离线集合渲染，不依赖运行时网络请求。
-- 图标组件化用法与三套字体 demo 预览见：`/guide/iconfont`。
-- 菜单管理页（`/system/permission`）支持“输入 + 可视化选择器”混合模式：
-  - 选择器分组缩写：`CP=产品 Iconfont`、`DJ=党建 Iconfont`、`OM=OM Iconfont`、`OD=公文 Iconfont`、`EP=Element Plus`、`RI=Remix Icon`。
-  - iconfont 选择后会落盘完整 class（例如 `iconfont icon-tongxunlu2`）。
-  - iconify 选择后会落盘 `ep:*` / `ri:*` 字符串。
-
-## 首次进入路由兜底
-
-- 根路由重定向统一调用 `@one-base-template/core` 的 `getInitialPath()`，不在 admin 内直接读取 `ob_system_current` / `ob_menu_tree:*`。
-- 决策顺序：
-  1. 命中 `systemHomeMap[当前系统]`
-  2. 未命中时尝试当前系统菜单缓存中的“首个可访问叶子路由”
-  3. 都未命中时回落到 `fallbackHome`（默认 `/home/index`）
-- 该能力支持 `storageNamespace`，并自动兼容历史无命名空间缓存 key，便于模板升级时平滑迁移。
+- [菜单与路由规范（Schema）](/guide/menu-route-spec)
+- [表格开发规范](/guide/table-vxe-migration)
+- [内置组件（Ob 系列）](/guide/built-in-components)

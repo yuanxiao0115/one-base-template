@@ -18,8 +18,13 @@ import {
  * - sidebarWidth: 侧边栏展开宽度
  * - sidebarCollapsedWidth: 侧边栏折叠宽度
  */
+// 布局模式：side=顶部栏+左侧菜单，top=顶部横向菜单。
 export const appLayoutMode: LayoutMode = 'side';
+// 系统切换样式：dropdown=下拉，menu=菜单式切换。
 export const appSystemSwitchStyle: SystemSwitchStyle = 'menu';
+// 顶栏高度，建议使用 px 字符串。
 export const appTopbarHeight = '60px';
+// 左侧菜单展开宽度。
 export const appSidebarWidth = '200px';
+// 左侧菜单折叠宽度（默认来自 core 常量）。
 export const appSidebarCollapsedWidth = DEFAULT_LAYOUT_SIDEBAR_COLLAPSED_WIDTH;

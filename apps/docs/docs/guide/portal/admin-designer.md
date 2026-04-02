@@ -59,6 +59,28 @@
 
 约束：页面层禁止直接散落调用 `setPortal*` 注入函数。
 
+## portal-engine 内置组件速查（管理端常用）
+
+`packages/portal-engine/src/public-designer.ts` 已对外导出一批可复用组件，PortalManagement 页面优先复用这些组件，不要重复造壳。
+
+| 导出组件                                     | 作用           | 对应文件                                  |
+| -------------------------------------------- | -------------- | ----------------------------------------- |
+| `PortalMaterialPalette`                      | 物料面板       | `editor/MaterialLibrary.vue`              |
+| `PortalTemplateDesignerPreview`              | 设计态预览框   | `editor/PortalDesignerPreviewFrame.vue`   |
+| `PortalPageDesignerLayout`                   | 页面编辑工作区 | `editor/PortalPageEditorWorkbench.vue`    |
+| `PortalPropertyInspector`                    | 属性面板       | `editor/PropertyPanel.vue`                |
+| `PortalTemplateDesignerToolbar`              | 页面级工具条   | `workbench/PortalDesignerActionStrip.vue` |
+| `PortalTemplateDesignerHeader`               | 门户级顶部栏   | `workbench/PortalDesignerHeaderBar.vue`   |
+| `PortalTemplateDesignerSidebar`              | 页面树面板     | `workbench/PortalDesignerTreePanel.vue`   |
+| `PortalPageDesignerSettingsDrawer`           | 页面设置抽屉   | `workbench/PortalPageSettingsDrawer.vue`  |
+| `PortalTemplateDesignerShellSettingsDrawer`  | 门户壳设置抽屉 | `workbench/PortalShellSettingsDialog.vue` |
+| `PortalTemplateDesignerPageAttributesDialog` | 页面属性弹窗   | `workbench/PortalTabAttributeDialog.vue`  |
+
+配套路由 Hook（同文件导出）：
+
+1. `usePortalTemplateDesignerRoute`：模板设计页路由编排。
+2. `usePortalPageDesignerRoute`：页面编辑页路由编排。
+
 ## 页面接入基线
 
 - 设计页优先使用：`usePortalTemplateDesignerRoute()`。

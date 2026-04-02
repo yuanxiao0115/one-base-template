@@ -22,7 +22,7 @@ outline: false
 2. [菜单与路由规范（Schema）](/guide/menu-route-spec)
 3. [布局与菜单](/guide/layout-menu)
 4. [admin-lite Agent 红线](/guide/admin-lite-agent-redlines)
-5. [CRUD 模块最佳实践](/guide/crud-module-best-practice)
+5. [CRUD 开发规范](/guide/crud-module-best-practice)
 6. [开发规范与维护](/guide/development)
 
 ## 最短开发闭环（可直接照做）
@@ -36,9 +36,9 @@ outline: false
 
 ## 扩展能力
 
+- [公文表单设计引擎](/guide/document-form-designer)
 - [门户体系总览](/guide/portal/)
 - [PortalManagement 管理端接入](/guide/portal/admin-designer)
-- [门户物料扩展与注册](/guide/portal/material-extension)
 - [basic Adapter](/guide/adapter-basic)
 
 ## 你可以暂时跳过
