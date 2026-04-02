@@ -30,6 +30,13 @@ const practiceUtilsItems = [
   { text: 'Utils 工具包（总览）', link: '/guide/utils' },
   { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
 ];
+const practiceNavItems = [
+  ...practiceCrudItems,
+  ...practiceTableItems,
+  ...practiceBuiltinItems,
+  ...practiceIconItems,
+  ...practiceUtilsItems
+];
 
 const extensionDocumentItems = [
   { text: '公文表单设计引擎', link: '/guide/document-form-designer' },
@@ -42,6 +49,11 @@ const extensionPortalItems = [
   { text: '门户物料扩展与注册', link: '/guide/portal/material-extension' }
 ];
 const extensionAdapterItems = [{ text: 'basic Adapter', link: '/guide/adapter-basic' }];
+const extensionNavItems = [
+  ...extensionDocumentItems,
+  ...extensionPortalItems,
+  ...extensionAdapterItems
+];
 
 const governanceItems = [
   { text: '开发规范与维护', link: '/guide/development' },
@@ -122,45 +134,11 @@ export default defineConfig({
       },
       {
         text: '开发实践',
-        items: [
-          {
-            text: 'CRUD',
-            items: practiceCrudItems
-          },
-          {
-            text: '表格',
-            items: practiceTableItems
-          },
-          {
-            text: '内置组件',
-            items: practiceBuiltinItems
-          },
-          {
-            text: '图标',
-            items: practiceIconItems
-          },
-          {
-            text: 'Utils',
-            items: practiceUtilsItems
-          }
-        ]
+        items: practiceNavItems
       },
       {
         text: '扩展能力',
-        items: [
-          {
-            text: '公文表单',
-            items: extensionDocumentItems
-          },
-          {
-            text: '门户设计器',
-            items: extensionPortalItems
-          },
-          {
-            text: 'basic Adapter',
-            items: extensionAdapterItems
-          }
-        ]
+        items: extensionNavItems
       },
       {
         text: '维护治理',

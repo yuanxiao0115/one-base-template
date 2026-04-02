@@ -11716,3 +11716,9 @@
   - `guide/portal/admin-designer.md` 新增“portal-engine 内置组件速查”。
 - 代码注释补齐：
   - `apps/admin/src/config/layout.ts` 为每个配置项新增中文注释，降低理解成本。
+
+## 2026-04-02（docs 导航微调：下拉菜单去分组标题）
+
+- `apps/docs/docs/.vitepress/config.ts`：
+  - 顶部“开发实践”“扩展能力”下拉从“分组标题 + 子项”改为“平铺列表项”。
+  - 保留原有页面链接与侧边栏分类，不再在下拉层显示分组标题。
