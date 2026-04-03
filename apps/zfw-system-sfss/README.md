@@ -20,11 +20,14 @@ VITE_API_BASE_URL=http://<你的后端地址> pnpm -C apps/zfw-system-sfss dev
 
 ```bash
 VITE_PORT=5173
+VITE_PROXY_DEBUG=true
 VITE_API_BASE_URL=http://<主网关地址>
 VITE_API_LM_URL=http://<sfss业务服务地址>
 VITE_ZB_BASE_URL=http://<指标服务地址>
 pnpm -C apps/zfw-system-sfss dev
 ```
+
+说明：`VITE_PROXY_DEBUG=true` 时，终端会打印每条代理转发日志（请求路径 -> 实际后端 URL）。
 
 ## 关键配置入口
 

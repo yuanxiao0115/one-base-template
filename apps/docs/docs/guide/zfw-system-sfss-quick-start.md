@@ -28,6 +28,7 @@ VITE_API_BASE_URL=http://<你的后端地址> pnpm -C apps/zfw-system-sfss dev
 
 ```bash
 VITE_PORT=5173                                # dev 端口（默认 5173）
+VITE_PROXY_DEBUG=true                         # 打印代理转发日志（可选）
 VITE_API_BASE_URL=http://<主网关地址>       # /cmict、/api
 VITE_API_LM_URL=http://<sfss业务服务地址>   # /zfw
 VITE_ZB_BASE_URL=http://<指标服务地址>      # /zb

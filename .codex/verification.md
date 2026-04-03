@@ -8,6 +8,7 @@
 - 文件：`.codex/verification/2026-04-03.md`
 - 补充：新增“platformConfig 模块化维护 + 切账号权限缓存防串号”、“system-sfss 列表页结构统一（ObPageContainer + ObTableBox + ObTable）”、“迁移策略文档增强（Ob 规范 + CRUD 收口）”、“admin-lite 可开关 starter-crud 示例模块”、“docs 技术文档分析与改造（四技能顺序）”、“docs 第二批结构化改造（env/theme/adapter/utils）”、“docs 第三批结构化改造（角色入口/图标/命名/按钮）”、“docs 第四批结构化改造（内置组件/分层路线）”、“docs 第五批结构化改造（分层入口强化 + utils/portal）”与“docs 第六批结构化改造（portal 子页执行化 + 总览/levels 互链）”、“docs 第七批结构化改造（table/crud/material/runtime）”、“new:app 规则同步补丁”与“脚手架规则变更收口（子项目模块脚本 + 管理模块开关 + 文档规则同步）”专项验证记录。
 - 补充（本轮）：新增“zfw vite server 配置收口（移除多层三元，固定 open/host/port 与 cmict/zb/zfw 代理）”验证记录。
+- 补充（本轮）：新增“zfw 代理目标可观测性增强（启动映射输出 + VITE_PROXY_DEBUG 逐请求日志）”验证记录。
 
 ## 历史归档
 

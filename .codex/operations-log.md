@@ -12230,3 +12230,15 @@
 - 文档与样例同步：
   - `apps/zfw-system-sfss/.env.example` 增加 `VITE_PORT=5173`。
   - `apps/zfw-system-sfss/README.md`、`apps/docs/docs/guide/zfw-system-sfss-quick-start.md` 补充 `VITE_PORT` 示例。
+
+## 2026-04-03（补充）zfw 代理可观测性增强：显示真实后端转发目标
+
+- 背景：用户反馈代理后浏览器只看到 localhost，无法直观看到请求真实转发到哪个后端 baseUrl。
+- 改造文件：`apps/zfw-system-sfss/vite.config.ts`
+  - 删除临时 `console.log(env)`，避免噪音输出。
+  - 新增 `logProxySummary()`：dev 启动时打印 `/api`、`/cmict`、`/zb`、`/zfw` 到后端 target 的映射。
+  - 新增 `VITE_PROXY_DEBUG` 开关与 `createProxyEntry()`：开启后按请求打印 `本地请求路径 -> 实际转发URL`。
+  - 代理构造保持“显式 if 组装”，不引入多层三元。
+- 说明同步：
+  - `apps/zfw-system-sfss/.env.example` 增加 `VITE_PROXY_DEBUG=false`。
+  - `apps/zfw-system-sfss/README.md` 与 docs 手册补充使用示例。

@@ -10730,3 +10730,14 @@
   - `apps/zfw-system-sfss lint:arch`：通过。
   - `apps/docs lint`：0 warning / 0 error。
   - `apps/docs build`：通过。
+
+## 2026-04-03（补充）zfw 代理目标可观测性增强（VITE_PROXY_DEBUG）
+
+- GREEN / 回归：
+  - `pnpm -C apps/zfw-system-sfss build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - `apps/zfw-system-sfss build`：通过（vite config 变更未引入构建回归）。
+  - `apps/docs lint/build`：通过。

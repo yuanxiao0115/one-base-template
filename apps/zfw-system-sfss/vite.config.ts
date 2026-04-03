@@ -19,6 +19,14 @@ const WORKSPACE_ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const DEFAULT_DEV_PORT = 5173;
 const DEFAULT_ZFW_PROXY_TARGET = 'http://11.11.54.110:9999';
 
+function isProxyDebugEnabled(value: string | undefined) {
+  if (!value) {
+    return false;
+  }
+  const normalized = value.trim().toLowerCase();
+  return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+}
+
 function resolveDevPort(value: string | undefined) {
   const port = Number(value);
   if (Number.isFinite(port) && port > 0) {
@@ -27,51 +35,130 @@ function resolveDevPort(value: string | undefined) {
   return DEFAULT_DEV_PORT;
 }
 
-function createDevProxy(options: { apiBaseUrl: string; zbBaseUrl: string; zfwBaseUrl: string }) {
+function resolveForwardPath(rawUrl: string, rewrite?: (path: string) => string) {
+  const queryIndex = rawUrl.indexOf('?');
+  const pathname = queryIndex >= 0 ? rawUrl.slice(0, queryIndex) : rawUrl;
+  const search = queryIndex >= 0 ? rawUrl.slice(queryIndex) : '';
+  if (!rewrite) {
+    return rawUrl;
+  }
+  return rewrite(pathname) + search;
+}
+
+function createProxyEntry(options: {
+  prefix: string;
+  target: string;
+  rewrite?: (path: string) => string;
+  enableProxyDebugLog: boolean;
+}) {
+  const entry: Record<string, unknown> = {
+    target: options.target,
+    changeOrigin: true,
+    secure: false
+  };
+
+  if (options.rewrite) {
+    entry.rewrite = options.rewrite;
+  }
+
+  if (options.enableProxyDebugLog) {
+    entry.configure = (proxy: {
+      on(
+        event: 'proxyReq',
+        handler: (proxyReq: unknown, req: { method?: string; url?: string }) => void
+      ): void;
+    }) => {
+      proxy.on('proxyReq', (_proxyReq, req) => {
+        const requestUrl = req.url || '/';
+        const forwardPath = resolveForwardPath(requestUrl, options.rewrite);
+        const method = req.method || 'GET';
+        console.info(`[zfw-proxy] ${method} ${requestUrl} -> ${options.target}${forwardPath}`);
+      });
+    };
+  }
+
+  return entry;
+}
+
+function logProxySummary(proxy: Record<string, Record<string, unknown>>) {
+  const entries = Object.entries(proxy);
+  if (entries.length === 0) {
+    console.info(
+      '[zfw-proxy] 当前未启用后端代理（请检查 VITE_API_BASE_URL / VITE_ZB_BASE_URL / VITE_API_LM_URL）。'
+    );
+    return;
+  }
+  console.info('[zfw-proxy] 当前代理目标：');
+  for (const [prefix, config] of entries) {
+    const target = String(config.target || '');
+    console.info(`  ${prefix} -> ${target}`);
+  }
+}
+
+function createDevProxy(options: {
+  apiBaseUrl: string;
+  zbBaseUrl: string;
+  zfwBaseUrl: string;
+  enableProxyDebugLog: boolean;
+}) {
   const proxy: Record<string, Record<string, unknown>> = {};
 
   if (options.apiBaseUrl) {
-    proxy['/api'] = {
+    proxy['/api'] = createProxyEntry({
+      prefix: '/api',
       target: options.apiBaseUrl,
-      changeOrigin: true,
-      secure: false
-    };
-    proxy['/cmict'] = {
+      enableProxyDebugLog: options.enableProxyDebugLog
+    });
+    proxy['/cmict'] = createProxyEntry({
+      prefix: '/cmict',
       target: options.apiBaseUrl,
-      changeOrigin: true,
-      secure: false
-    };
+      enableProxyDebugLog: options.enableProxyDebugLog
+    });
   }
 
   if (options.zbBaseUrl) {
-    proxy['/zb'] = {
+    proxy['/zb'] = createProxyEntry({
+      prefix: '/zb',
       target: options.zbBaseUrl,
-      changeOrigin: true,
-      secure: false,
+      enableProxyDebugLog: options.enableProxyDebugLog,
       rewrite(path: string) {
         return path.replace(/^\/zb/, '');
       }
-    };
+    });
   }
 
   if (options.zfwBaseUrl) {
-    proxy['/zfw'] = {
+    proxy['/zfw'] = createProxyEntry({
+      prefix: '/zfw',
       target: options.zfwBaseUrl,
-      changeOrigin: true,
-      secure: false
-    };
+      enableProxyDebugLog: options.enableProxyDebugLog
+    });
   }
 
   return proxy;
 }
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiBaseUrl = env.VITE_API_BASE_URL || '';
   const zbBaseUrl = env.VITE_ZB_BASE_URL || env.VITE_API_BASE_URL || '';
   const zfwBaseUrl = env.VITE_API_LM_URL || DEFAULT_ZFW_PROXY_TARGET;
   const devPort = resolveDevPort(env.VITE_PORT);
+  const enableProxyDebugLog = isProxyDebugEnabled(env.VITE_PROXY_DEBUG);
   const appBase = normalizeAppBase(env.VITE_APP_BASE);
+  const devProxy = createDevProxy({
+    apiBaseUrl,
+    zbBaseUrl,
+    zfwBaseUrl,
+    enableProxyDebugLog
+  });
+
+  if (command === 'serve') {
+    logProxySummary(devProxy);
+    if (enableProxyDebugLog) {
+      console.info('[zfw-proxy] 已开启逐请求代理日志（VITE_PROXY_DEBUG=true）。');
+    }
+  }
 
   return {
     base: appBase,
@@ -99,11 +186,7 @@ export default defineConfig(({ mode }) => {
       fs: {
         allow: [WORKSPACE_ROOT]
       },
-      proxy: createDevProxy({
-        apiBaseUrl,
-        zbBaseUrl,
-        zfwBaseUrl
-      }),
+      proxy: devProxy,
       // 预热文件以提前转换和缓存结果，降低启动期间的初始页面加载时长并防止转换瀑布
       warmup: {
         clientFiles: ['./index.html', './src/{views,components}/*']
