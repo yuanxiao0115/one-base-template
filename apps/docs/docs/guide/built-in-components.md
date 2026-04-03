@@ -6,84 +6,95 @@ outline: [2, 3]
 
 ## TL;DR
 
-- `@one-base-template/ui` 已内置一批可直接用的 `Ob*` 组件。
-- 默认通过 `OneUiPlugin` 全局注册，页面里可直接写 `<ObXxx />`。
-- 先掌握 3 类：容器、表格、反馈交互，就能覆盖大多数后台页面。
+- 后台应用默认通过 `OneUiObTablePlugin`（`@one-base-template/ui/obtable`）注册 `Ob*` 组件。
+- 日常列表页优先使用 `ObPageContainer + ObTableBox + ObTable + ObActionButtons`，弹层优先 `ObCrudContainer`。
+- 写页面前先确认“插件已注册 + 组件清单匹配 + 验证命令可跑通”，避免出现页面能写但组件不可用。
 
-## 1) 注册与命名规则
+## 适用范围
 
-默认注册方式（admin/admin-lite 已接入）：
+- 适用于：`apps/admin`、`apps/admin-lite` 的后台页面开发。
+- 适用于：希望按仓库标准快速搭建列表页、编辑弹层、布局壳层的场景。
+- 不适用于：需要 `VxeTable` 的页面（默认 `OneUiObTablePlugin` 不注册 `VxeTable`，见 FAQ）。
+
+## 前置条件
+
+1. 应用已安装 `@one-base-template/ui/obtable` 并在启动链路注册插件。
+2. 页面使用的是 Vue 组件模板（`.vue`），且运行在本仓库应用内。
+3. 你知道目标应用（`admin` 或 `admin-lite`）并能执行其验证命令。
+
+插件注册参考（真实路径）：
+
+- `apps/admin/src/bootstrap/plugins.ts`
+- `apps/admin-lite/src/bootstrap/plugins.ts`
 
 ```ts
-app.use(OneUiPlugin, { prefix: 'Ob' });
+import { OneUiObTablePlugin } from '@one-base-template/ui/obtable';
+
+app.use(OneUiObTablePlugin, {
+  prefix: 'Ob',
+  aliases: false
+});
 ```
 
-命名规则：
+## 组件速查
 
-1. 组件名由 `Ob + 组件名` 组成，例如 `ObTable`、`ObCrudContainer`。
-2. 不需要在每个页面重复 import。
-3. 登录框 `LoginBox/LoginBoxV2` 属于 `lite-auth`，通常按需引入。
+### 页面与容器
 
-## 2) 常用组件速查
+| 组件名            | 用途                         | 典型场景           |
+| ----------------- | ---------------------------- | ------------------ |
+| `ObPageContainer` | 页面主容器（支持左栏、滚动） | 左树右表、整页编排 |
+| `ObCrudContainer` | 新增/编辑/详情容器           | 统一弹窗/抽屉交互  |
+| `ObCard`          | 卡片壳样式                   | 分区信息块         |
 
-### 2.1 页面与容器
+### 表格与操作
 
-| 全局组件名        | 用途                        | 建议场景           |
-| ----------------- | --------------------------- | ------------------ |
-| `ObPageContainer` | 页面主容器（支持左栏/滚动） | 左树右表、整页布局 |
-| `ObCrudContainer` | 新增/编辑/详情容器          | 统一弹窗/抽屉交互  |
-| `ObCard`          | 统一卡片壳样式              | 信息块、分区内容   |
-
-### 2.2 表格与列表
-
-| 全局组件名        | 用途                | 建议场景           |
+| 组件名            | 用途                | 典型场景           |
 | ----------------- | ------------------- | ------------------ |
 | `ObTableBox`      | 搜索区 + 表格区编排 | 列表页标准骨架     |
-| `ObTable`         | 默认表格组件        | 常规列表/树表      |
+| `ObTable`         | 默认表格组件        | 列表、树表         |
 | `ObCardTable`     | 卡片式列表          | 素材管理、图文列表 |
 | `ObActionButtons` | 操作按钮折叠/排序   | 行操作列           |
 
-### 2.3 导航与壳层
+### 导航壳层与字段
 
-| 全局组件名        | 用途         |
+| 组件名            | 用途         |
 | ----------------- | ------------ |
 | `ObAdminLayout`   | 后台主布局   |
 | `ObSidebarMenu`   | 左侧菜单     |
 | `ObTopBar`        | 顶栏壳       |
 | `ObTabsBar`       | 标签栏       |
 | `ObKeepAliveView` | 页面缓存渲染 |
+| `ObTree`          | 树组件封装   |
+| `ObImportUpload`  | 导入上传封装 |
+| `ObColorField`    | 颜色字段封装 |
+| `ObFontIcon`      | 图标渲染封装 |
+| `ObMenuIcon`      | 菜单图标渲染 |
 
-### 2.4 字段与工具
+## 最短执行路径
 
-| 全局组件名       | 用途             |
-| ---------------- | ---------------- |
-| `ObTree`         | 树组件封装       |
-| `ObImportUpload` | 导入上传封装     |
-| `ObColorField`   | 颜色字段封装     |
-| `ObFontIcon`     | 项目图标封装     |
-| `ObMenuIcon`     | 菜单图标统一渲染 |
+### 1. 先确认插件注册
 
-## 3) 配套方法（不是组件）
+```bash
+rg -n "OneUiObTablePlugin|prefix:\s*'Ob'" \
+  apps/admin/src/bootstrap/plugins.ts \
+  apps/admin-lite/src/bootstrap/plugins.ts
+```
 
-这些能力同样来自 `@one-base-template/ui`，通常和 `Ob*` 组件一起使用：
+预期结果：能看到 `app.use(OneUiObTablePlugin, { prefix: 'Ob' ... })`。
 
-1. `message`：统一消息提示。
-2. `obConfirm`：统一确认弹窗。
-3. `useEntityEditor`：CRUD 弹层状态机。
-
-## 4) 最小使用示例
+### 2. 新页面先落标准骨架
 
 ```vue
 <template>
-  <ObPageContainer padding="0">
-    <ObTableBox title="用户列表" :columns="columns" @search="onSearch">
+  <ObPageContainer padding="0" overflow="hidden">
+    <ObTableBox title="示例列表" :columns="columns" @search="onSearch">
       <template #default="{ size, dynamicColumns }">
         <ObTable
           :size="size"
           :columns="dynamicColumns"
-          :data="dataList"
+          :data="rows"
           :pagination="pagination"
-          @page-current-change="onPageChange"
+          @page-current-change="onPageCurrentChange"
         />
       </template>
     </ObTableBox>
@@ -91,8 +102,50 @@ app.use(OneUiPlugin, { prefix: 'Ob' });
 </template>
 ```
 
-## 5) 相关阅读
+### 3. 操作列统一用 `ObActionButtons`
+
+- 当按钮超过 2-3 个时，优先使用 `ObActionButtons` 管理顺序与折叠。
+- 列表编辑/详情弹层优先接 `ObCrudContainer`，避免页面层重复维护弹窗状态。
+
+### 4. 页面完成后跑最小验证
+
+```bash
+pnpm -C apps/admin-lite typecheck
+pnpm -C apps/admin-lite lint
+pnpm -C apps/admin-lite build
+```
+
+如果你改的是 `apps/admin`，将命令中的 `admin-lite` 换成 `admin`。
+
+## 验证与验收
+
+通过标准：
+
+1. 页面能正常识别 `Ob*` 组件（无“未注册组件”警告）。
+2. 列表页结构符合标准骨架（`ObPageContainer + ObTableBox + ObTable`）。
+3. 目标应用 `typecheck/lint/build` 通过。
+
+## FAQ
+
+### 为什么页面里写了 `<ObTable>` 但不渲染？
+
+优先检查插件是否注册在应用启动链路；其次检查组件名是否使用了 `Ob` 前缀。
+
+### 默认为什么没有 `VxeTable`？
+
+`apps/admin` 与 `apps/admin-lite` 默认使用 `OneUiObTablePlugin`（轻量注册集），不包含 `VxeTable`。如需完整插件能力，使用 `@one-base-template/ui/vxe` 的 `OneUiPlugin`。
+
+### `message`、`obConfirm` 属于组件吗？
+
+不是。它们是 `@one-base-template/ui` 的反馈方法，与 `Ob*` 组件配套使用。
+
+### portal 应用也能直接用这一套吗？
+
+`apps/portal` 走的是 `registerOneLiteUiComponents` 轻量注册，能力集合不同，按对应应用文档执行。
+
+## 相关阅读
 
 - [布局与菜单](/guide/layout-menu)
 - [CRUD 开发规范](/guide/crud-module-best-practice)
+- [CRUD 容器与 Hook（进阶）](/guide/crud-container)
 - [表格开发规范](/guide/table-vxe-migration)

@@ -6,7 +6,7 @@
 
 - 日期：2026-04-03
 - 文件：`.codex/verification/2026-04-03.md`
-- 补充：新增“platformConfig 模块化维护 + 切账号权限缓存防串号”、“system-sfss 列表页结构统一（ObPageContainer + ObTableBox + ObTable）”、“迁移策略文档增强（Ob 规范 + CRUD 收口）”、“admin-lite 可开关 starter-crud 示例模块”、“docs 技术文档分析与改造（四技能顺序）”、“docs 第二批结构化改造（env/theme/adapter/utils）”与“docs 第三批结构化改造（角色入口/图标/命名/按钮）”专项验证记录。
+- 补充：新增“platformConfig 模块化维护 + 切账号权限缓存防串号”、“system-sfss 列表页结构统一（ObPageContainer + ObTableBox + ObTable）”、“迁移策略文档增强（Ob 规范 + CRUD 收口）”、“admin-lite 可开关 starter-crud 示例模块”、“docs 技术文档分析与改造（四技能顺序）”、“docs 第二批结构化改造（env/theme/adapter/utils）”、“docs 第三批结构化改造（角色入口/图标/命名/按钮）”与“docs 第四批结构化改造（内置组件/分层路线）”专项验证记录。
 
 ## 历史归档
 
@@ -49,3 +49,8 @@
 
 - 影响范围：`.codex/skills/technical-doc-collaboration/**`。
 - 结论：Skill 已创建并通过 `quick_validate.py` 校验，可用于技术文档协作场景。
+
+## 2026-04-03（docs 第四批结构化改造）
+
+- 影响范围：`apps/docs/docs/guide/built-in-components.md`、`apps/docs/docs/guide/levels/p2.md`、`apps/docs/docs/guide/levels/p4.md`、`apps/docs/docs/guide/levels/p6.md`。
+- 结论：已完成执行型结构收口并通过 `pnpm -C apps/docs lint`、`pnpm -C apps/docs build`。

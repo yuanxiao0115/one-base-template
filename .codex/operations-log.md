@@ -12072,3 +12072,21 @@
 - 样式规范页改造：
   - `apps/docs/docs/guide/button-styles.md`
   - 保留 `ButtonStyleDocDemo`，并收口为执行型结构（样式类型 -> 变量链路 -> 验收）。
+
+## 2026-04-03（docs 第四批结构化改造：内置组件 + 分层路线）
+
+- 目标：继续按“完整计划 -> 顺序执行”推进 docs 改造，把组件速查页与分层路线页收口为可执行文档。
+- 计划落盘：
+  - 新增 `docs/plans/2026-04-03-docs-tech-doc-refactor-batch4-plan.md`，明确受众、范围、执行顺序、验收口径。
+- 文档改造：
+  - `apps/docs/docs/guide/built-in-components.md`
+    - 补齐“适用范围 / 前置条件 / 最短执行路径 / 验证与验收 / FAQ”；
+    - 文档口径对齐真实链路：`OneUiObTablePlugin` + `prefix: 'Ob'`。
+  - `apps/docs/docs/guide/levels/p2.md`
+    - 从“路线说明”升级为“30-45 分钟可执行闭环”。
+  - `apps/docs/docs/guide/levels/p4.md`
+    - 补齐任务型入口、默认门禁命令与验收标准。
+  - `apps/docs/docs/guide/levels/p6.md`
+    - 补齐治理前检查、全链路命令与证据化要求。
+- 信息架构策略：
+  - 本轮仅改内容结构，不改 `.vitepress` 导航，保持最小差异改造。

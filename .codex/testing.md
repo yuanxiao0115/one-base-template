@@ -10632,3 +10632,12 @@
 - 结果：
   - `apps/docs lint`：0 warning / 0 error。
   - `apps/docs build`：成功（VitePress 构建完成）。
+
+## 2026-04-03（docs 第四批结构化改造：内置组件 + 分层路线）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs lint`：0 warning / 0 error。
+  - `apps/docs build`：成功（VitePress 构建完成）。
