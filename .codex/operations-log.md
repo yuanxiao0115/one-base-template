@@ -12109,3 +12109,24 @@
     - 收口为任务驱动总览，补齐“管理端接入/引擎改造/物料扩展”最短执行路径。
 - 约束执行：
   - 本轮仅改文档内容，不改 `.vitepress` 导航结构。
+
+## 2026-04-03（docs 第六批结构化改造：portal 子页执行化 + 总览/levels 互链）
+
+- 用户选择：继续执行“1+2”，本轮聚焦 portal 子页与分层成长互链。
+- 计划落盘：
+  - 新增 `docs/plans/2026-04-03-docs-tech-doc-refactor-batch6-plan.md`。
+- 本轮改造页面：
+  - `apps/docs/docs/guide/portal/admin-designer.md`
+    - 重构为执行型文档：补齐 TL;DR、范围、前置、最短接入路径、验证与 FAQ。
+  - `apps/docs/docs/guide/portal/engine-boundary.md`
+    - 重构为执行型文档：补齐导出层职责、决策流程、准入清单、最小改造闭环与验收口径。
+  - `apps/docs/docs/guide/index.md`
+    - 首页卡片文案强化“升级与回看”信号，新增成长信号区块。
+  - `apps/docs/docs/guide/levels/p2.md`
+    - 强化“升级到 P4 的信号”并补回看建议。
+  - `apps/docs/docs/guide/levels/p4.md`
+    - 强化“升级到 P6 的信号”并新增“回看 P2 的信号”。
+  - `apps/docs/docs/guide/levels/p6.md`
+    - 新增“回看 P4/P2 的信号”，避免治理路径过载。
+- 约束执行：
+  - 本轮仅改文档内容，未调整 `.vitepress` 导航结构。

@@ -13,15 +13,34 @@ outline: false
 <div class="guide-grid">
   <a class="guide-card" href="/guide/levels/p2">
     <h3>P2 路线（上手）</h3>
-    <p>30-45 分钟跑通首个开发闭环，先做成一件事。</p>
+    <p>30-45 分钟跑通首个开发闭环，并附“升级到 P4”判断信号。</p>
   </a>
   <a class="guide-card" href="/guide/levels/p4">
     <h3>P4 路线（独立开发）</h3>
-    <p>围绕模块开发、路由规范与验证门禁，追求稳定交付。</p>
+    <p>围绕模块开发与验证门禁稳定交付，并附“升级到 P6”信号。</p>
   </a>
   <a class="guide-card" href="/guide/levels/p6">
     <h3>P6 路线（架构治理）</h3>
-    <p>聚焦规则分层、风险门禁与跨团队可复用的治理策略。</p>
+    <p>聚焦规则分层与治理策略，并给出“何时回看 P4/P2”路径。</p>
+  </a>
+</div>
+
+## 📈 成长信号（升级与回看）
+
+<p class="guide-section-intro">如果你不确定该进阶还是回退，先看层级页里的“升级信号”章节，再决定下一步。</p>
+
+<div class="guide-grid">
+  <a class="guide-card" href="/guide/levels/p2">
+    <h3>P2 → P4</h3>
+    <p>当你能独立完成模块新增并通过验证时，进入 P4 主线。</p>
+  </a>
+  <a class="guide-card" href="/guide/levels/p4">
+    <h3>P4 → P6</h3>
+    <p>当你开始承担规则治理与跨模块收口时，进入 P6 主线。</p>
+  </a>
+  <a class="guide-card" href="/guide/levels/p6">
+    <h3>P6 回看 P4/P2</h3>
+    <p>当任务仅是模块实现或首跑问题时，按信号回看更低层路径。</p>
   </a>
 </div>
 
@@ -176,7 +195,9 @@ outline: false
   </a>
 </div>
 
-## 👥 角色入口（可选）
+## 👥 角色入口（辅助）
+
+角色入口用于“同层任务分流”，建议先走分层主线再进入角色页。
 
 - [框架使用者阅读入口](/guide/for-users)
 - [仓库维护者阅读入口](/guide/for-maintainers)
