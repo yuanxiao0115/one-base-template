@@ -31,9 +31,12 @@ pnpm -C apps/zfw-system-sfss dev
 
 ## 关键配置入口
 
-- 平台配置：`apps/zfw-system-sfss/src/config/platform-config.ts`
+- 平台配置：`apps/zfw-system-sfss/src/config/app.ts`
+- 鉴权配置：`apps/zfw-system-sfss/src/config/auth.ts`
+- 请求配置：`apps/zfw-system-sfss/src/config/request.ts`
 - UI 配置：`apps/zfw-system-sfss/src/config/ui.ts`
-- 布局配置：`apps/zfw-system-sfss/src/config/layout.ts`
+- 主题配置：`apps/zfw-system-sfss/src/config/theme.ts`
+- 环境解析：`apps/zfw-system-sfss/src/bootstrap/runtime.ts`
 
 当前平台配置已对齐 zfw 口径：
 

@@ -2,7 +2,7 @@ import { computed, nextTick, onMounted, reactive, ref, watch, type Ref } from 'v
 import type { CrudFormLike } from '@one-base-template/ui';
 import { useCrudPage } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
-import { getAppEnv } from '@/config/env';
+import { getRuntime } from '@/bootstrap/runtime';
 import buildUserColumns from '../columns';
 import { userApi } from '../api';
 import type {
@@ -367,7 +367,7 @@ export function useUserCrudState() {
   });
 
   function downloadTemplate() {
-    downloadUserTemplate('组织用户导入模板.xlsx', getAppEnv().baseUrl);
+    downloadUserTemplate('组织用户导入模板.xlsx', getRuntime().baseUrl);
   }
 
   async function importRequest(file: File) {

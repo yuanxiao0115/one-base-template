@@ -76,7 +76,7 @@
 
 ### 5.1 配置前提（以 admin 为例）
 
-- `apps/admin/src/config/platform-config.ts`：`backend: 'basic'`
+- `apps/admin/src/config/app.ts`：`backend: 'basic'`
 - `authMode` 推荐 `token`
 - 按需配置 `defaultSystemCode/systemHomeMap`
 

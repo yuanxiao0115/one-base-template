@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, useSlots, watch } from 'vue';
 import { Filter, Search } from '@element-plus/icons-vue';
 import type { TableColumnList } from './types';
 
@@ -31,6 +31,8 @@ const props = withDefaults(defineProps<TableBoxProps>(), {
   maxlength: 30
 });
 
+const slots = useSlots();
+
 const emit = defineEmits<{
   (e: 'selectionCancel' | 'resetForm'): void;
   (e: 'update:keyword' | 'search', keyword: string): void;
@@ -48,6 +50,8 @@ function cloneColumns(columns: TableColumnList): TableColumnList {
 }
 
 const dynamicColumns = computed<TableColumnList>(() => cloneColumns(props.columns));
+const showToolbar = computed(() => props.showSearchBar || Boolean(slots.buttons));
+const showButtonsOnlyToolbar = computed(() => !props.showSearchBar && Boolean(slots.buttons));
 
 watch(
   () => props.keyword,
@@ -105,8 +109,12 @@ function onClear() {
 
     <div v-if="$slots.title || title" class="one-table-bar-title" />
 
-    <div v-if="showSearchBar" class="one-table-bar__toolbar">
-      <div class="one-table-bar__search">
+    <div
+      v-if="showToolbar"
+      class="one-table-bar__toolbar"
+      :class="{ 'one-table-bar__toolbar--buttons-only': showButtonsOnlyToolbar }"
+    >
+      <div v-if="showSearchBar" class="one-table-bar__search">
         <el-form
           v-if="showQuickSearch"
           class="one-table-bar__quick-form"
@@ -206,6 +214,10 @@ function onClear() {
   width: 100%;
   min-height: 48px;
   padding-top: 8px;
+}
+
+.one-table-bar__toolbar--buttons-only {
+  justify-content: flex-end;
 }
 
 .one-table-bar__search {

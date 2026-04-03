@@ -244,6 +244,15 @@ const { visible, openDrawer, mode, Mode, submit, closeDrawer } = useDrawer(
 );
 
 const drawerTitle = computed(() => props.title);
+const crudMode = computed(() => {
+  if (mode.value === Mode.Add) {
+    return "create";
+  }
+  if (mode.value === Mode.Update) {
+    return "edit";
+  }
+  return "detail";
+});
 
 function openDrawerFn(type, row) {
   if (type === Mode.Add) {
@@ -299,15 +308,10 @@ const seeDetail = row => {
           table-layout="auto"
           :loading="loading"
           :size="size"
-          adaptive
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="pagination"
           :paginationSmall="size === 'small' ? true : false"
-          :header-cell-style="{
-            background: 'var(--el-fill-color-light)',
-            color: 'var(--el-text-color-primary)'
-          }"
           @page-size-change="handleSizeChange"
           @page-current-change="handleCurrentChange"
           @sort-change="handleSortChange"
@@ -406,12 +410,16 @@ const seeDetail = row => {
     </ObTableBox>
   </ObPageContainer>
 
-  <OneDrawer
+  <ObCrudContainer
     v-model="visible"
+    container="drawer"
+    :mode="crudMode"
     :title="drawerTitle"
-    :mode="mode"
-    :width="824"
-    @submit="submit"
+    :drawer-size="824"
+    :show-footer="mode !== Mode.View"
+    confirm-text="保存"
+    @confirm="submit"
+    @cancel="handleClose"
     @close="handleClose"
   >
     <EditInfoForm
@@ -422,7 +430,7 @@ const seeDetail = row => {
       :is-jing="isJJ"
       :disabled="mode === 'view'"
     />
-  </OneDrawer>
+  </ObCrudContainer>
 
   <el-dialog
     v-model="upload.open"

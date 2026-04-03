@@ -21,14 +21,15 @@
 ## 默认能力
 
 - 启动链路固定为：`main.ts -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`。
-- 平台配置唯一入口：`src/config/platform-config.ts`。
-- UI 开关统一收口：`src/config/ui.ts`。
+- 平台配置唯一入口：`src/config/app.ts`。
+- UI 开关与主题统一收口：`src/config/ui.ts`、`src/config/theme.ts`。
 - 默认打开模块：`home`、`admin-management`、`system-management`、`log-management`。
 - 默认关闭扩展：租户切换、素材图片缓存、强业务管理模块。
 
 ## 目录约束
 
-- `src/config`：只放开发者可维护配置项与代码静态平台配置入口。
+- `src/config`：只放开发者可维护配置项（`app.ts`、`auth.ts`、`request.ts`、`ui.ts`、`theme.ts`、`index.ts`）。
+- `src/bootstrap/runtime.ts`：构建期 env 解析入口，统一通过 `getRuntime/resolveBuildRuntime` 读取。
 - `src/services/auth`：登录、SSO、验证码场景服务。
 - `src/services/security`：签名与加密能力。
 - `src/types`：跨模块通用协议类型。

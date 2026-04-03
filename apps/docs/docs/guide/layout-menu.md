@@ -4,21 +4,21 @@
 
 ## TL;DR
 
-1. 布局默认配置只看一个文件：`apps/admin/src/config/layout.ts`。
+1. 布局默认配置只看一个文件：`apps/admin/src/config/ui.ts`。
 2. 页面编排默认三件套：`ObPageContainer + ObTableBox + ObTable`。
 3. 菜单高亮异常先查 `meta.activePath`。
 
 ## 1) 布局模式
 
-布局由 `layout.ts` 的常量控制，推荐直接在该文件查看注释后修改。
+布局由 `ui.ts` 的 `ui.layout` 控制，推荐直接在该文件查看注释后修改。
 
 当前可配项：
 
-1. `appLayoutMode`：`side | top`
-2. `appSystemSwitchStyle`：`dropdown | menu`
-3. `appTopbarHeight`：顶栏高度
-4. `appSidebarWidth`：侧栏展开宽度
-5. `appSidebarCollapsedWidth`：侧栏折叠宽度
+1. `ui.layout.mode`：`side | top`
+2. `ui.layout.systemSwitchStyle`：`dropdown | menu`
+3. `ui.layout.topbarHeight`：顶栏高度
+4. `ui.layout.sidebarWidth`：侧栏展开宽度
+5. `ui.layout.sidebarCollapsedWidth`：侧栏折叠宽度
 
 ## 2) 页面编排基线
 

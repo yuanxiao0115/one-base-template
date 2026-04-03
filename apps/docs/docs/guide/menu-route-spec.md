@@ -107,7 +107,7 @@ const userListMeta = defineRouteMeta({
 
 以下为当前实现可用的 JSON Schema（与 `parseRuntimeConfig` 对齐）：
 
-- `apps/admin` / `apps/admin-lite` 在各自 `src/config/platform-config.ts` 内维护同结构对象；
+- `apps/admin` / `apps/admin-lite` 在各自 `src/config/app.ts` 内维护同结构对象；
 - `apps/portal` 仍通过 `public/platform-config.json` 维护运行时配置。
 
 ```json
@@ -499,7 +499,7 @@ const target = resolveAuthRedirectTargetFromSearchParams(searchParams, {
 
 ## 10. 落地检查清单
 
-1. `apps/admin/src/config/platform-config.ts` 的 `preset`（或 `menuMode`）与目标模式一致
+1. `apps/admin/src/config/app.ts` 的 `preset`（或 `menuMode`）与目标模式一致
 2. 模块页面路由都在 `modules/**/routes*` 下
 3. 路由 `meta` 使用 `@/router/meta` helper，不再直接写 `meta: {}`
 4. 需要进菜单的页面都配置了 `meta.title`

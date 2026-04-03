@@ -20,15 +20,16 @@
 ## 默认能力
 
 - 启动链路固定为：`main.ts -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`。
-- 平台配置唯一入口：`src/config/platform-config.ts`。
-- UI 开关统一收口：`src/config/ui.ts`。
+- 平台配置唯一入口：`src/config/app.ts`。
+- UI 开关与主题统一收口：`src/config/ui.ts`、`src/config/theme.ts`。
 - 默认打开模块：`home`、`admin-management`、`system-management`、`log-management`、`system-sfss`。
 - 默认关闭扩展：租户切换、素材图片缓存、强业务管理模块。
 - 预发布联调启动命令：`pnpm -C apps/zfw-system-sfss dev:staging`（对应 `--mode staging`）。
 
 ## 目录约束
 
-- `src/config`：只放开发者可维护配置项与代码静态平台配置入口。
+- `src/config`：只放开发者可维护配置项（`app.ts`、`auth.ts`、`request.ts`、`ui.ts`、`theme.ts`、`index.ts`）。
+- `src/bootstrap/runtime.ts`：构建期 env 解析入口，统一通过 `getRuntime/resolveBuildRuntime` 读取。
 - `src/services/auth`：登录、SSO、验证码场景服务。
 - `src/services/security`：签名与加密能力。
 - `src/types`：跨模块通用协议类型。
@@ -74,6 +75,8 @@
 - 模块业务代码统一使用 `@one-base-template/ui` 的消息与确认能力，禁止直接使用 `ElMessage` / `ElMessageBox`。
 - CRUD 目录范式固定：`list.vue + api.ts + types.ts + routes.ts`。
 - 模板事件禁止内联箭头函数（如 `@click="() => handleXxx(row)"`）。
+- `ObTable` 迁移默认不再传 `adaptive` 与 `header-cell-style`；仅在有明确证据证明默认样式或布局无法满足时，才允许按页级例外并补注释说明原因。
+- `ObTableBox` 在 `:showSearchBar="false"` 场景下仍应通过 `#buttons` 提供操作入口，不得因隐藏搜索栏而丢失按钮区。
 
 ## API 与类型红线
 

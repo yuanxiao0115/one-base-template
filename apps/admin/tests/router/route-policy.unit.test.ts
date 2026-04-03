@@ -3,7 +3,7 @@ import path from 'node:path';
 import { describe, expect, it, vi } from 'vite-plus/test';
 import { buildRouteFullPath, getRouteAccess } from '@one-base-template/core';
 import type { RouteRecordRaw, RouteMeta } from 'vue-router';
-import { getPlatformConfig } from '@/config/platform-config';
+import { getApp } from '@/config/app';
 import { buildAppRoutes } from '@/router/assemble-routes';
 import { routePaths } from '@/router/constants';
 import { buildRoutePolicyReport } from '@/router/route-policy';
@@ -48,7 +48,7 @@ function flattenRoutesWithMeta(routes: RouteRecordRaw[], parentPath = '/'): Rout
 
 describe('router/route-policy', () => {
   it('应生成路由策略清单并落盘产物', async () => {
-    const config = getPlatformConfig();
+    const config = getApp();
     const result = await buildAppRoutes({
       enabledModules: config.enabledModules,
       defaultSystemCode: config.defaultSystemCode,
@@ -65,7 +65,7 @@ describe('router/route-policy', () => {
   });
 
   it('open 路由清单应保持在受控范围内', async () => {
-    const config = getPlatformConfig();
+    const config = getApp();
     const result = await buildAppRoutes({
       enabledModules: config.enabledModules,
       defaultSystemCode: config.defaultSystemCode,
@@ -81,7 +81,7 @@ describe('router/route-policy', () => {
   });
 
   it('access 与 activePath 规则应保持一致', async () => {
-    const config = getPlatformConfig();
+    const config = getApp();
     const result = await buildAppRoutes({
       enabledModules: config.enabledModules,
       defaultSystemCode: config.defaultSystemCode,

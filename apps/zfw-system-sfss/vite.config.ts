@@ -110,14 +110,19 @@ function createDevProxy(options: {
       target: options.apiBaseUrl,
       enableProxyDebugLog: options.enableProxyDebugLog
     });
-  }
-  if (options.cmictBaseUrl) {
     proxy['/cmict'] = createProxyEntry({
       prefix: '/cmict',
-      target: options.cmictBaseUrl,
+      target: options.apiBaseUrl,
       enableProxyDebugLog: options.enableProxyDebugLog
     });
   }
+  // if (options.cmictBaseUrl) {
+  //   proxy['/cmict'] = createProxyEntry({
+  //     prefix: '/cmict',
+  //     target: options.cmictBaseUrl,
+  //     enableProxyDebugLog: options.enableProxyDebugLog
+  //   });
+  // }
   if (options.zbBaseUrl) {
     proxy['/zb'] = createProxyEntry({
       prefix: '/zb',

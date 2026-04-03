@@ -35,7 +35,7 @@ const messageMocks = vi.hoisted(() => ({
 }));
 
 const envMocks = vi.hoisted(() => ({
-  getAppEnv: vi.fn(() => ({
+  getRuntime: vi.fn(() => ({
     baseUrl: '/admin/'
   }))
 }));
@@ -91,8 +91,8 @@ vi.mock('@one-base-template/ui', () => ({
   message: messageMocks
 }));
 
-vi.mock('@/config/env', () => ({
-  getAppEnv: envMocks.getAppEnv
+vi.mock('@/bootstrap/runtime', () => ({
+  getRuntime: envMocks.getRuntime
 }));
 
 vi.mock('@/modules/adminManagement/user/composables/useUserDragSort', () => dragSortMocks);

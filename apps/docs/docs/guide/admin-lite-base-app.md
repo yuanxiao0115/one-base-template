@@ -26,7 +26,7 @@
 
 ## 2. 默认模块
 
-`apps/admin-lite/src/config/platform-config.ts` 当前默认模块为：
+`apps/admin-lite/src/config/app.ts` 当前默认模块为：
 
 - `home`
 - `admin-management`
@@ -46,7 +46,7 @@
 开启方式（代码静态配置）：
 
 ```ts
-// apps/admin-lite/src/config/platform-config.ts
+// apps/admin-lite/src/config/app.ts
 const enableStarterCrudDemoModule = true;
 const enableDemoManagementTemplateModule = true;
 
@@ -78,12 +78,12 @@ const moduleConfig = {
 - `src/main.ts`
 - `src/bootstrap/startup.ts`
 - `src/bootstrap/index.ts`
-- `src/config/platform-config.ts`
+- `src/config/app.ts`
 - `src/config/ui.ts`
 
 约束：
 
-- 平台配置只认 `platform-config.ts`。
+- 平台配置只认 `app.ts`。
 - UI 开关只认 `ui.ts`。
 - 登录页、顶栏、启动链路禁止散落业务化分支。
 - `systemConfig.mode === 'single'` 时会按 `systemConfig.code` 收口系统范围；即使后端返回多系统，也只展示配置系统。

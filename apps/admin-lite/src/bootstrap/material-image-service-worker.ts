@@ -1,18 +1,19 @@
-import { appMaterialImageCacheConfig } from '@/config';
-import { getAppEnv } from '@/config/env';
+import { ui } from '@/config';
+import { getRuntime } from '@/bootstrap/runtime';
 
-const MATERIAL_IMAGE_SW_FILE_NAME = 'material-image-cache-sw.js';
+const MATERIAL_IMAGE_SW_FILE = 'material-image-cache-sw.js';
+const MATERIAL_IMAGE_SW_VERSION = 'v1';
 
 function resolveServiceWorkerUrl() {
-  const baseUrl = new URL(getAppEnv().baseUrl, window.location.origin);
-  return new URL(MATERIAL_IMAGE_SW_FILE_NAME, baseUrl);
+  const baseUrl = new URL(getRuntime().baseUrl, window.location.origin);
+  return new URL(MATERIAL_IMAGE_SW_FILE, baseUrl);
 }
 
 function buildServiceWorkerScriptUrl() {
   const scriptUrl = resolveServiceWorkerUrl();
-  scriptUrl.searchParams.set('version', 'v1');
-  scriptUrl.searchParams.set('maxEntries', String(appMaterialImageCacheConfig.maxEntries));
-  scriptUrl.searchParams.set('ttlMs', String(appMaterialImageCacheConfig.ttlMs));
+  scriptUrl.searchParams.set('version', MATERIAL_IMAGE_SW_VERSION);
+  scriptUrl.searchParams.set('maxEntries', String(ui.materialCache.maxEntries));
+  scriptUrl.searchParams.set('ttlMs', String(ui.materialCache.ttlMs));
   return scriptUrl;
 }
 
@@ -23,7 +24,7 @@ function isMaterialImageRegistration(registration: ServiceWorkerRegistration) {
     registration.installing?.scriptURL
   ].filter((value): value is string => typeof value === 'string' && value.length > 0);
 
-  return scripts.some((scriptUrl) => scriptUrl.includes(MATERIAL_IMAGE_SW_FILE_NAME));
+  return scripts.some((scriptUrl) => scriptUrl.includes(MATERIAL_IMAGE_SW_FILE));
 }
 
 async function unregisterMaterialImageServiceWorker() {
@@ -40,12 +41,12 @@ export async function registerMaterialImageServiceWorker() {
     return;
   }
 
-  const { enabled, enableInDev } = appMaterialImageCacheConfig;
+  const { enabled, enableInDev } = ui.materialCache;
   if (!enabled) {
     await unregisterMaterialImageServiceWorker();
     return;
   }
-  if (!enableInDev && !getAppEnv().isProd) {
+  if (!enableInDev && !getRuntime().isProd) {
     return;
   }
   if (!window.isSecureContext) {
@@ -55,10 +56,10 @@ export async function registerMaterialImageServiceWorker() {
   const scriptUrl = buildServiceWorkerScriptUrl();
   try {
     await navigator.serviceWorker.register(scriptUrl, {
-      scope: getAppEnv().baseUrl
+      scope: getRuntime().baseUrl
     });
   } catch (error) {
-    if (!getAppEnv().isProd) {
+    if (!getRuntime().isProd) {
       console.warn('[material-image-sw] 注册失败', error);
     }
   }

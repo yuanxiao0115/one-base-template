@@ -11,15 +11,7 @@ import { registerMessageUtils } from '@one-base-template/ui';
 
 import App from '../App.vue';
 import { buildAppRoutes } from '../router/assemble-routes';
-import { getAppEnv } from '../config/env';
-import {
-  appAuthSsoApiConfig,
-  appLayoutMode,
-  appSidebarCollapsedWidth,
-  appSidebarWidth,
-  appSystemSwitchStyle,
-  appTopbarHeight
-} from '../config';
+import { authApi } from '../config';
 import { routePaths } from '../router/constants';
 import { guardOpenRoutePaths } from '../router/public-routes';
 
@@ -28,6 +20,7 @@ import { createAppAdapter } from './adapter';
 import { installCore } from './core';
 import { installAppShellPlugins } from './plugins';
 import { createStartupProfiler } from './startup-profiler';
+import { getRuntime } from './runtime';
 
 function createRouterHistory(historyMode: 'history' | 'hash', baseUrl: string) {
   return historyMode === 'hash' ? createWebHashHistory(baseUrl) : createWebHistory(baseUrl);
@@ -35,18 +28,18 @@ function createRouterHistory(historyMode: 'history' | 'hash', baseUrl: string) {
 
 export async function bootstrapZfwSystemSfssApp() {
   const profiler = createStartupProfiler();
-  let appEnv: ReturnType<typeof getAppEnv> | null = null;
+  let runtime: ReturnType<typeof getRuntime> | null = null;
 
   try {
-    const resolvedAppEnv = await profiler.runStage(
-      'resolve-app-env',
-      () => getAppEnv(),
-      (env) => ({
-        baseUrl: env.baseUrl,
-        menuMode: env.menuMode
+    const resolvedRuntime = await profiler.runStage(
+      'resolve-runtime',
+      () => getRuntime(),
+      (nextRuntime) => ({
+        baseUrl: nextRuntime.baseUrl,
+        menuMode: nextRuntime.menuMode
       })
     );
-    appEnv = resolvedAppEnv;
+    runtime = resolvedRuntime;
 
     const app = await profiler.runStage('create-app', () => {
       const nextApp = createApp(App);
@@ -57,7 +50,6 @@ export async function bootstrapZfwSystemSfssApp() {
     const pinia = await profiler.runStage('create-pinia', () => {
       const nextPinia = createPinia();
       app.use(nextPinia);
-      // 允许在路由守卫 / http hooks 等“组件外”场景安全使用 store
       setActivePinia(nextPinia);
       return nextPinia;
     });
@@ -66,10 +58,10 @@ export async function bootstrapZfwSystemSfssApp() {
       'assemble-routes',
       () =>
         buildAppRoutes({
-          enabledModules: resolvedAppEnv.enabledModules,
-          defaultSystemCode: resolvedAppEnv.defaultSystemCode,
-          systemHomeMap: resolvedAppEnv.systemHomeMap,
-          storageNamespace: resolvedAppEnv.storageNamespace
+          enabledModules: resolvedRuntime.enabledModules,
+          defaultSystemCode: resolvedRuntime.defaultSystemCode,
+          systemHomeMap: resolvedRuntime.systemHomeMap,
+          storageNamespace: resolvedRuntime.storageNamespace
         }),
       (result) => ({ ...result.diagnostics })
     );
@@ -77,7 +69,7 @@ export async function bootstrapZfwSystemSfssApp() {
       'create-router',
       () => {
         const nextRouter = createRouter({
-          history: createRouterHistory(resolvedAppEnv.historyMode, resolvedAppEnv.baseUrl),
+          history: createRouterHistory(resolvedRuntime.historyMode, resolvedRuntime.baseUrl),
           routes: routeAssemblyResult.routes,
           strict: true
         });
@@ -90,15 +82,15 @@ export async function bootstrapZfwSystemSfssApp() {
 
     const http = await profiler.runStage('create-http', () => {
       const nextHttp = createAppHttp({
-        backend: resolvedAppEnv.backend,
-        isProd: resolvedAppEnv.isProd,
-        apiBaseUrl: resolvedAppEnv.apiBaseUrl,
-        authMode: resolvedAppEnv.authMode,
-        tokenKey: resolvedAppEnv.tokenKey,
-        idTokenKey: resolvedAppEnv.idTokenKey,
-        basicHeaders: resolvedAppEnv.basicHeaders,
-        clientSignatureSalt: resolvedAppEnv.clientSignatureSalt,
-        clientSignatureClientId: resolvedAppEnv.clientSignatureClientId,
+        backend: resolvedRuntime.backend,
+        isProd: resolvedRuntime.isProd,
+        apiBaseUrl: resolvedRuntime.apiBaseUrl,
+        authMode: resolvedRuntime.authMode,
+        tokenKey: resolvedRuntime.tokenKey,
+        idTokenKey: resolvedRuntime.idTokenKey,
+        basicHeaders: resolvedRuntime.basicHeaders,
+        clientSignatureSalt: resolvedRuntime.clientSignatureSalt,
+        clientSignatureClientId: resolvedRuntime.clientSignatureClientId,
         pinia,
         router
       });
@@ -110,33 +102,28 @@ export async function bootstrapZfwSystemSfssApp() {
       'create-adapter',
       () =>
         createAppAdapter({
-          backend: resolvedAppEnv.backend,
+          backend: resolvedRuntime.backend,
           http,
-          tokenKey: resolvedAppEnv.tokenKey,
-          basicSystemPermissionCode: resolvedAppEnv.basicSystemPermissionCode,
-          systemConfig: resolvedAppEnv.systemConfig,
-          basicTicketSsoEndpoint: appAuthSsoApiConfig.ticketSsoEndpoint
+          tokenKey: resolvedRuntime.tokenKey,
+          basicSystemPermissionCode: resolvedRuntime.basicSystemPermissionCode,
+          systemConfig: resolvedRuntime.systemConfig,
+          basicTicketSsoEndpoint: authApi.ticketSsoEndpoint
         }),
       () => ({
-        backend: resolvedAppEnv.backend
+        backend: resolvedRuntime.backend
       })
     );
 
     await profiler.runStage('install-core', () =>
       installCore(app, {
         adapter,
-        authMode: resolvedAppEnv.authMode,
-        tokenKey: resolvedAppEnv.tokenKey,
-        menuMode: resolvedAppEnv.menuMode,
+        authMode: resolvedRuntime.authMode,
+        tokenKey: resolvedRuntime.tokenKey,
+        menuMode: resolvedRuntime.menuMode,
         routes: routeAssemblyResult.routes,
-        layoutMode: appLayoutMode,
-        systemSwitchStyle: appSystemSwitchStyle,
-        topbarHeight: appTopbarHeight,
-        sidebarWidth: appSidebarWidth,
-        sidebarCollapsedWidth: appSidebarCollapsedWidth,
-        storageNamespace: resolvedAppEnv.storageNamespace,
-        defaultSystemCode: resolvedAppEnv.defaultSystemCode,
-        systemHomeMap: resolvedAppEnv.systemHomeMap
+        storageNamespace: resolvedRuntime.storageNamespace,
+        defaultSystemCode: resolvedRuntime.defaultSystemCode,
+        systemHomeMap: resolvedRuntime.systemHomeMap
       })
     );
 
@@ -150,7 +137,7 @@ export async function bootstrapZfwSystemSfssApp() {
           resolveAuthedLoginRedirect: ({ to }) =>
             resolveAuthRedirectTargetFromQuery(to.query, {
               fallback: routePaths.root,
-              baseUrl: resolvedAppEnv.baseUrl
+              baseUrl: resolvedRuntime.baseUrl
             }),
           onNavigationStart: () => {
             http.cancelRouteRequests();
@@ -174,13 +161,13 @@ export async function bootstrapZfwSystemSfssApp() {
         app,
         pinia,
         router,
-        storageNamespace: resolvedAppEnv.storageNamespace
+        storageNamespace: resolvedRuntime.storageNamespace
       })
     );
 
     profiler.complete({
-      baseUrl: resolvedAppEnv.baseUrl,
-      menuMode: resolvedAppEnv.menuMode,
+      baseUrl: resolvedRuntime.baseUrl,
+      menuMode: resolvedRuntime.menuMode,
       routeSignature: routeAssemblyResult.diagnostics.signature
     });
 
@@ -192,10 +179,10 @@ export async function bootstrapZfwSystemSfssApp() {
   } catch (error) {
     profiler.fail(
       error,
-      appEnv
+      runtime
         ? {
-            baseUrl: appEnv.baseUrl,
-            menuMode: appEnv.menuMode
+            baseUrl: runtime.baseUrl,
+            menuMode: runtime.menuMode
           }
         : undefined
     );

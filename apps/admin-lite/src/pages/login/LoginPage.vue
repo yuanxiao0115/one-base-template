@@ -9,11 +9,10 @@ import { message } from '@one-base-template/ui';
 import { LoginBoxV2 as ObLoginBoxV2 } from '@one-base-template/ui/lite-auth';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { appLoginUiConfig } from '@/config';
-import { getAppEnv } from '@/config/env';
+import { getRuntime } from '@/bootstrap/runtime';
 import { fetchCaptchaCheck, loadCaptcha } from '@/services/auth/auth-captcha-service';
 import { getLoginPageConfig, type LoginPageConfig } from '@/services/auth/auth-remote-service';
-import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
+import { homeFallback, ui } from '@/config';
 
 defineOptions({
   name: 'LoginPage'
@@ -38,7 +37,7 @@ type LoginStage =
 
 const router = useRouter();
 const route = useRoute();
-const appEnv = getAppEnv();
+const appEnv = getRuntime();
 
 const { backend } = appEnv;
 const { baseUrl } = appEnv;
@@ -46,7 +45,7 @@ const { tokenKey } = appEnv;
 const loginScenario = buildLoginScenario({
   backend,
   routeQuery: route.query,
-  verifyLoginFallback: DEFAULT_FALLBACK_HOME,
+  verifyLoginFallback: homeFallback,
   defaultFallback: '/'
 });
 const { useVerifyLogin } = loginScenario;
@@ -191,7 +190,7 @@ onMounted(async () => {
     <div class="login-header">
       <span v-if="loginInfoConfig?.webLogoText">{{ loginInfoConfig.webLogoText }}</span>
       <el-divider v-if="loginInfoConfig?.webLogoText" direction="vertical" />
-      <span>{{ appLoginUiConfig.headerTitle }}</span>
+      <span>{{ ui.login.headerTitle }}</span>
     </div>
 
     <div class="login-container">
@@ -200,7 +199,7 @@ onMounted(async () => {
           <ObLoginBoxV2
             v-model:username="form.username"
             v-model:password="form.password"
-            :title="appLoginUiConfig.loginBoxTitle"
+            :title="ui.login.loginBoxTitle"
             :loading="loading"
             :encrypt="useVerifyLogin"
             :load-captcha="loadCaptcha"

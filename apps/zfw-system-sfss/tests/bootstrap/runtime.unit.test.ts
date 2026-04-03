@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
-import { getPlatformConfig } from '@/config/platform-config';
-import { resolveAppEnv, resolveDefaultSystemCode, resolveBasicHeaders } from '@/config/env';
+import { getApp } from '@/config/app';
+import { resolveRuntime, resolveDefaultSystemCode, resolveBasicHeaders } from '@/bootstrap/runtime';
 
-describe('config/env', () => {
+describe('bootstrap/runtime', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
@@ -41,8 +41,8 @@ describe('config/env', () => {
   });
 
   it('应将构建期与代码静态配置合并为 appEnv', () => {
-    const runtime = getPlatformConfig();
-    const appEnv = resolveAppEnv({
+    const runtime = getApp();
+    const appEnv = resolveRuntime({
       buildEnv: {
         isProd: true,
         baseUrl: '/admin/',

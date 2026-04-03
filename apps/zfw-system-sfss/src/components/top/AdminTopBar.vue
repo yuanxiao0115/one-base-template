@@ -10,7 +10,7 @@ import {
 } from '@one-base-template/core';
 import { useTagStoreHook } from '@one-base-template/tag';
 import { message } from '@one-base-template/ui';
-import { appTopBarFeatureConfig } from '@/config';
+import { ui } from '@/config';
 import { routePaths } from '@/router/constants';
 import authAccountService from '@/services/auth/auth-account-service';
 import {
@@ -62,7 +62,7 @@ const showSystemSwitcherMenu = computed(
   () => showSystemSwitcher.value && systemSwitchStyle.value === 'menu'
 );
 const currentSystemName = computed(() => systemStore.currentSystemName);
-const title = computed(() => `${currentSystemName.value} | ${appTopBarFeatureConfig.titleSuffix}`);
+const title = computed(() => `${currentSystemName.value} | ${ui.topbar.titleSuffix}`);
 const topbarHeight = computed(() => layoutStore.topbarHeight);
 
 const isSuperAdmin = computed(() => {
@@ -81,7 +81,7 @@ const isSuperAdmin = computed(() => {
 
 const showTenantSwitcher = computed(() => {
   return (
-    appTopBarFeatureConfig.tenantSwitcher && isSuperAdmin.value && tenantOptions.value.length > 0
+    ui.topbar.tenantSwitcher && isSuperAdmin.value && tenantOptions.value.length > 0
   );
 });
 const userId = computed(() => {
@@ -141,7 +141,7 @@ watch(
 );
 
 watch(
-  () => [isSuperAdmin.value, appTopBarFeatureConfig.tenantSwitcher] as const,
+  () => [isSuperAdmin.value, ui.topbar.tenantSwitcher] as const,
   async ([isSuperAdminEnabled, tenantSwitcherEnabled]) => {
     if (!(isSuperAdminEnabled && tenantSwitcherEnabled)) {
       tenantOptions.value = [];
@@ -449,19 +449,19 @@ async function onSwitchTenant(tenantId: string) {
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item
-              v-if="appTopBarFeatureConfig.profileDialog"
+              v-if="ui.topbar.profileDialog"
               @click="profileDialogVisible = true"
             >
               用户信息
             </el-dropdown-item>
             <el-dropdown-item
-              v-if="appTopBarFeatureConfig.changePassword"
+              v-if="ui.topbar.changePassword"
               @click="changePasswordDialogVisible = true"
             >
               修改密码
             </el-dropdown-item>
             <el-dropdown-item
-              v-if="appTopBarFeatureConfig.personalization"
+              v-if="ui.topbar.personalization"
               @click="personalizationDrawerVisible = true"
             >
               个性设置
@@ -474,7 +474,7 @@ async function onSwitchTenant(tenantId: string) {
   </div>
 
   <el-drawer
-    v-if="appTopBarFeatureConfig.personalization"
+    v-if="ui.topbar.personalization"
     v-model="personalizationDrawerVisible"
     title="个性设置"
     size="520"
@@ -485,13 +485,13 @@ async function onSwitchTenant(tenantId: string) {
   </el-drawer>
 
   <UserProfileDialog
-    v-if="appTopBarFeatureConfig.profileDialog"
+    v-if="ui.topbar.profileDialog"
     v-model="profileDialogVisible"
     :user="authStore.user"
     @refresh="refreshCurrentUser"
   />
   <ChangePasswordDialog
-    v-if="appTopBarFeatureConfig.changePassword"
+    v-if="ui.topbar.changePassword"
     v-model="changePasswordDialogVisible"
   />
 </template>

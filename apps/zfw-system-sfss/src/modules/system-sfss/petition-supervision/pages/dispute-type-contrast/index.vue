@@ -158,13 +158,8 @@ const seeDetail = async row => {
         showOverflowTooltip
         table-layout="auto"
         :loading="loading"
-        adaptive
         :data="dataList"
         :columns="columns"
-        :header-cell-style="{
-          background: 'var(--el-fill-color-light)',
-          color: 'var(--el-text-color-primary)'
-        }"
         :cell-style="getCellStyle"
         @sort-change="handleSortChange"
         @cell-click="handleCellClick"

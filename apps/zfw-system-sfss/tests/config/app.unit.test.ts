@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { getPlatformConfig, loadPlatformConfig } from '@/config/platform-config';
+import { getApp, loadApp } from '@/config/app';
 
-describe('config/platform-config', () => {
+describe('config/app', () => {
   it('应返回代码静态配置并支持同步读取', () => {
-    const config = getPlatformConfig();
+    const config = getApp();
 
     expect(config.backend).toBe('basic');
     expect(config.historyMode).toBe('history');
@@ -27,8 +27,8 @@ describe('config/platform-config', () => {
   });
 
   it('异步读取应返回同一份静态配置', async () => {
-    const fromLoad = await loadPlatformConfig();
-    const fromGet = getPlatformConfig();
+    const fromLoad = await loadApp();
+    const fromGet = getApp();
 
     expect(fromLoad).toBe(fromGet);
   });

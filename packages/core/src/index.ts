@@ -15,6 +15,14 @@ export {
   type EnabledModulesSetting
 } from './config/platform-config';
 export type {
+  UiConfig,
+  ThemeConfig,
+  RequestConfig,
+  AuthApiConfig,
+  ExternalSsoEndpoints,
+  TagStorageType
+} from './config/app-config';
+export type {
   BackendAdapter,
   AssetAdapter,
   AuthAdapter,

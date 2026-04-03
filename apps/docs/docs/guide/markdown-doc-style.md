@@ -116,7 +116,7 @@ pnpm -C apps/docs build
 ## 文件引用规则（避免本机路径泄漏）
 
 - 禁止在文档中写本机绝对路径（例如 `~/workspace/...`、`C:\\workspace\\...`）。
-- 文件路径统一写仓库相对路径（如 `apps/admin/src/config/platform-config.ts`）。
+- 文件路径统一写仓库相对路径（如 `apps/admin/src/config/app.ts`）。
 - 文件引用默认保留仓库相对路径全文，便于直接阅读与全文检索。
 - 命令示例统一使用相对路径，例如：`pnpm -C apps/admin lint`、`pnpm -C apps/docs build`。
 

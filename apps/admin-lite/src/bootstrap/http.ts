@@ -12,7 +12,8 @@ import {
 } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
 
-import type { AuthMode, BackendKind } from '../config/env';
+import { request } from '../config';
+import type { AuthMode, BackendKind } from './runtime';
 import { routePaths } from '../router/constants';
 
 function isBizError(error: unknown): boolean {
@@ -21,7 +22,7 @@ function isBizError(error: unknown): boolean {
 
 function resolveNetworkErrorMessage(error: unknown): string {
   if (!(error instanceof Error)) {
-    return '网络异常，请稍后重试';
+    return request.networkMsg.unknown;
   }
 
   const code = 'code' in error ? String(error.code ?? '') : '';
@@ -34,22 +35,21 @@ function resolveNetworkErrorMessage(error: unknown): string {
   }
 
   if (code === 'ECONNABORTED' || /timeout/i.test(error.message)) {
-    return '请求超时，请稍后重试';
+    return request.networkMsg.timeout;
   }
 
   if (!status) {
-    return '网络连接异常，请检查网络后重试';
+    return request.networkMsg.offline;
   }
 
   if (status >= 500) {
-    return '服务异常，请稍后重试';
+    return request.networkMsg.serverError;
   }
 
-  return error.message || '请求失败，请稍后重试';
+  return error.message || request.networkMsg.fallback;
 }
 
 function resetTagStore() {
-  // 统一走单启动链路后，未授权时始终清空 tags，避免残留上一个会话的页签状态。
   void import('@one-base-template/tag/store').then(({ useTagStoreHook }) => {
     useTagStoreHook().handleTags('equal', []);
   });
@@ -65,7 +65,6 @@ function getUnauthorizedRedirect(router: Router) {
     return routePaths.login;
   }
 
-  // 只有受保护页面才保留 redirect，避免开放页把用户又带回匿名场景。
   return buildLoginRedirectLocation({
     to: currentRoute,
     loginRoutePath: routePaths.login
@@ -105,7 +104,6 @@ export function createAppHttp(params: {
           basicHeaders,
           clientSignatureSalt,
           clientSignatureClientId,
-          // 仅在请求真正发出前再按需加载 gm-crypto，避免把签名依赖拉进 admin 冷启动链。
           loadCreateClientSignature: async () => {
             const { createClientSignature } = await import('../services/security/client-signature');
             return createClientSignature;
@@ -115,21 +113,19 @@ export function createAppHttp(params: {
 
   return createObHttp({
     axios: {
-      // 开发环境推荐使用 Vite proxy（同源），生产环境如需跨域可配置 VITE_API_BASE_URL 直连
       baseURL: isProd ? apiBaseUrl || undefined : undefined,
       withCredentials: authMode !== 'token',
-      timeout: backend === 'basic' ? 100_000 : 30_000,
+      timeout: backend === 'basic' ? request.timeout.basic : request.timeout.default,
       ...(basicHeaders ? { headers: basicHeaders } : {})
     },
     auth: {
       mode: authMode,
-      tokenHeader: 'Authorization',
-      tokenPrefix: '',
+      tokenHeader: request.auth.tokenHeader,
+      tokenPrefix: request.auth.tokenPrefix,
       getToken: () => localStorage.getItem(tokenKey) || undefined
     },
     biz: {
-      // 默认约定 { code, data, message } 且 code=0/200 成功；不稳定时可通过 app 层覆盖这些策略
-      successCodes: [0, 200]
+      successCodes: request.successCodes
     },
     beforeRequestCallback,
     download: {
@@ -151,7 +147,6 @@ export function createAppHttp(params: {
         }
       },
       onUnauthorized: () => {
-        // 仅做“清状态 + 回登录页”，具体跳转/SSO 可由业务项目再扩展
         localStorage.removeItem(tokenKey);
         localStorage.removeItem(idTokenKey);
         useAuthStore(pinia).reset();

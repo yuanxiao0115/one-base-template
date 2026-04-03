@@ -1,7 +1,7 @@
 # 配置模型（apps/admin / admin-lite）
 
 <div class="doc-tldr">
-  <strong>TL;DR：</strong>`admin` 与 `admin-lite` 统一采用“构建期 env + 代码静态平台配置（platform-config.ts）”，不再依赖运行时 `platform-config.json`；业务模块统一通过 `getAppEnv()` 取配置，禁止直接读 `import.meta.env`。
+  <strong>TL;DR：</strong>`admin` 与 `admin-lite` 统一采用“构建期 env + 代码静态平台配置（app.ts）”，不再依赖运行时 `platform-config.json`；业务模块统一通过 `getRuntime()` 取运行时配置，禁止直接读 `import.meta.env`。
 </div>
 
 ## 适用范围
@@ -21,16 +21,16 @@
 | `VITE_API_BASE_URL` | `https://gateway-basic-30746.p.onecode.cmict.cloud` | Vite 开发代理目标（`/api`、`/cmict`）与可选 http baseURL |
 | `VITE_APP_BASE`     | `/`                                                 | 统一 base 前缀（Vite `base` + Router `baseUrl`）         |
 
-### 1.2 代码静态平台配置（`platform-config.ts`）
+### 1.2 代码静态平台配置（`app.ts`）
 
-核心文件：`apps/admin/src/config/platform-config.ts`
+核心文件：`apps/admin/src/config/app.ts`
 
 当前按 4 组维护：
 
-1. `systemScopeConfig`：系统范围（`systemConfig/defaultSystemCode/systemHomeMap`）
-2. `runtimeModeConfig`：运行模式（`backend/authMode/historyMode/menuMode`）
-3. `appIdentityConfig`：应用身份（`appcode/storageNamespace/basic headers/signature`）
-4. `moduleConfig`：模块开关（`enabledModules`）
+1. `systemScope`：系统范围（`systemConfig/defaultSystemCode/systemHomeMap`）
+2. `runtimeMode`：运行模式（`backend/authMode/historyMode/menuMode`）
+3. `identity`：应用身份（`appcode/storageNamespace/basic headers/signature`）
+4. `modules`：模块开关（`enabledModules`）
 
 最终通过 `parseRuntimeConfig({...})` 合并并校验。
 
@@ -52,7 +52,7 @@
 ### 3.1 修改入口
 
 1. 改构建期变量：`apps/admin/.env.development.local`
-2. 改业务平台配置：`apps/admin/src/config/platform-config.ts`
+2. 改业务平台配置：`apps/admin/src/config/app.ts`
 
 ### 3.2 快速核对
 
@@ -60,7 +60,7 @@
 
 ```bash
 rg -n "VITE_API_BASE_URL|VITE_APP_BASE" apps/admin/.env.example
-rg -n "systemConfig|backend|authMode|menuMode|storageNamespace|enabledModules" apps/admin/src/config/platform-config.ts
+rg -n "systemConfig|backend|authMode|menuMode|storageNamespace|enabledModules" apps/admin/src/config/app.ts
 ```
 
 ### 3.3 验证命令
@@ -79,28 +79,28 @@ pnpm -C apps/docs build
 
 ## 4. 启动与读取链路（真实行为）
 
-- 聚合入口：`apps/admin/src/config/env.ts`
-- 统一读取：`getAppEnv()`
+- 聚合入口：`apps/admin/src/bootstrap/runtime.ts`
+- 统一读取：`getRuntime()`（构建信息可用 `resolveBuildRuntime()`）
 - 启动链路：`main.ts -> startAdminApp() -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`
 
 关键约束：
 
 1. 业务模块禁止直接使用 `import.meta.env`。
-2. 配置读取统一走 `getAppEnv()`。
-3. `loadPlatformConfig()` 与 `getPlatformConfig()` 读取同一份静态配置。
+2. 配置读取统一走 `getRuntime()`。
+3. `loadApp()` 与 `getApp()` 读取同一份静态配置。
 
 ## 5. 其他应用差异
 
 - `apps/portal`：仍使用 `public/platform-config.json` 运行时配置。
-- `apps/admin-lite`：与 `apps/admin` 同口径，采用静态 `platform-config.ts`。
+- `apps/admin-lite`：与 `apps/admin` 同口径，采用静态 `app.ts`。
 
 ## 6. 常见问题
 
 | 问题                          | 原因                                  | 处理方式                                      |
 | ----------------------------- | ------------------------------------- | --------------------------------------------- |
-| 改了 `.env` 但菜单/模块没变化 | 菜单/模块受 `platform-config.ts` 控制 | 到 `platform-config.ts` 调整对应字段          |
+| 改了 `.env` 但菜单/模块没变化 | 菜单/模块受 `app.ts` 控制 | 到 `app.ts` 调整对应字段          |
 | 多应用 token 互相污染         | `storageNamespace` 重复或缺失         | 为每个应用显式设置独立 `storageNamespace`     |
-| 页面读取到旧配置              | 业务代码绕过 `getAppEnv()`            | 清理直读 `import.meta.env`，统一改走 `env.ts` |
+| 页面读取到旧配置              | 业务代码绕过 `getRuntime()`           | 清理直读 `import.meta.env`，统一改走 `bootstrap/runtime.ts` |
 
 ## 7. 相关阅读
 

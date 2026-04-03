@@ -105,7 +105,7 @@ platform-config
 
 ## 3) 模块开关（enabledModules）
 
-配置文件：`apps/admin/src/config/platform-config.ts`
+配置文件：`apps/admin/src/config/app.ts`
 
 推荐生产配置（白名单）：
 
@@ -152,7 +152,7 @@ compat: {
 
 1. 在目标子项目生成模块级骨架：`pnpm -C apps/<app-id> new:module <module-id> --title 模块标题`。
 2. 在模块目录生成子业务骨架：`pnpm -C apps/<app-id> new:module:item <item-id> --module <module-id>`。
-3. 在 `platform-config.ts` 的 `enabledModules` 中加入模块 id（可开关模块按需开启）。
+3. 在 `app.ts` 的 `enabledModules` 中加入模块 id（可开关模块按需开启）。
 4. 执行验证命令。
 
 示例：

@@ -6,7 +6,9 @@ import type {
 } from '@one-base-template/core';
 import { createDefaultAdapter, createBasicAdapter } from '@one-base-template/adapters';
 
-import type { BackendKind } from '../config/env';
+import type { BackendKind } from './runtime';
+
+const BASIC_SYSTEM_PERMISSION_CODE_FALLBACK = 'admin_server';
 
 function resolveAllowedSystemCodes(systemConfig: RuntimeSystemConfig): Set<string> | undefined {
   if (systemConfig.mode === 'single') {
@@ -49,7 +51,7 @@ export function createAppAdapter(params: {
   if (backend === 'basic') {
     const basicAdapter = createBasicAdapter(http, {
       tokenKey,
-      systemPermissionCode: basicSystemPermissionCode || 'admin_server',
+      systemPermissionCode: basicSystemPermissionCode || BASIC_SYSTEM_PERMISSION_CODE_FALLBACK,
       ssoEndpoints: {
         ticketSsoEndpoint: basicTicketSsoEndpoint
       }
@@ -66,7 +68,6 @@ export function createAppAdapter(params: {
             return scopedSystems;
           }
 
-          // single 模式下若未命中后端系统列表，仍回退到固定系统，保证可用性。
           const fixedSystemCode = systemConfig.code;
           return [
             {

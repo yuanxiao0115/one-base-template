@@ -2,6 +2,25 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-03（zfw-system-sfss：ObTable 迁移规则收口 + code=1 兼容）
+
+- 背景：
+  - 用户反馈 `zfw-system-sfss` 迁移后存在 5 类问题：`ObTableBox` 搜索栏隐藏时按钮丢失、`ObTable` 仍传 `adaptive/header-cell-style`、`court-related` 列宽异常、仍使用 `OneDrawer`、接口返回 `code=1` 时兼容不足。
+- 代码收口：
+  - `packages/ui/src/components/table/TableBox.vue`
+    - 新增 `showToolbar/showButtonsOnlyToolbar`，支持 `:showSearchBar="false"` 时依然渲染 `#buttons` 区域。
+  - `apps/zfw-system-sfss/src/modules/system-sfss/**`
+    - `sunshine-petition/components/visit-list.vue`、`litigation-related/{court-related,prosecution-related}/index.vue`：`OneDrawer` 统一替换为 `ObCrudContainer`（并补 `add/update/view -> create/edit/detail` 模式映射）。
+    - `petition-supervision/pages/{petition-topic-contrast,collaboration-statistics,dispute-type-contrast}/index.vue` 与 `litigation-related/police-related/index.vue`：移除 `ObTable` 上的 `adaptive/header-cell-style` 迁移遗留属性。
+    - `litigation-related/court-related/index.vue`：移除 `table-layout="auto"`，回到 `ObTable` 默认 fixed 布局，修复“仅设 `minWidth` 但期望固定宽度”导致的视觉误判。
+  - `apps/zfw-system-sfss/src/bootstrap/http.ts`
+    - `createAppHttp` 的 `biz.successCodes` 从 `[0, 200]` 扩展为 `[0, 1, 200]`，兼容 legacy `code=1` 成功返回。
+- 规则与文档同步：
+  - `apps/zfw-system-sfss/AGENTS.md` 增加两条红线：
+    - `ObTable` 迁移默认不传 `adaptive/header-cell-style`；
+    - `ObTableBox` 隐藏搜索栏时仍需保留 `#buttons`。
+  - `apps/docs/docs/guide/{zfw-system-sfss-quick-start,admin-agent-redlines}.md` 同步口径与成功码兼容说明。
+
 ## 2026-04-03（admin-lite 新增可开关 starter-crud 示例模块）
 
 - 背景：
@@ -12242,3 +12261,43 @@
 - 说明同步：
   - `apps/zfw-system-sfss/.env.example` 增加 `VITE_PROXY_DEBUG=false`。
   - `apps/zfw-system-sfss/README.md` 与 docs 手册补充使用示例。
+
+## 2026-04-03（三端 config 二次收口：ui/theme 拆分 + 类型下沉 core + externalSsoEndpoints）
+
+- 背景：用户新增 4 条要求：
+  1. `ui` 拆分为 `ui + theme`；
+  2. config 内类型全部迁出到 package；
+  3. 配置项补齐注释；
+  4. `zhxtSsoEndpoint/ydbgSsoEndpoint/desktopSsoLoginEndpoint` 收口到 `externalSsoEndpoints`。
+
+- 代码改造：
+  - 新增共享类型：`packages/core/src/config/app-config.ts`，并在 `packages/core/src/index.ts` 导出：
+    - `UiConfig`、`ThemeConfig`、`RequestConfig`、`AuthApiConfig`、`ExternalSsoEndpoints`、`TagStorageType`。
+  - 三端配置文件重构：
+    - `apps/{admin,admin-lite,zfw-system-sfss}/src/config/{app,auth,request,ui,index}.ts`
+    - 新增 `apps/{admin,admin-lite,zfw-system-sfss}/src/config/theme.ts`
+    - 三端配置对象均补充逐项中文注释。
+  - SSO 端点结构收口：
+    - `authApi` 改为 `loginPageConfigEndpoint + ticketSsoEndpoint + externalSsoEndpoints`。
+    - `externalSsoEndpoints` 包含：`zhxtSsoEndpoint`、`ydbgSsoEndpoint`、`desktopSsoLoginEndpoint`、`omSsoEndpoint`、`portalSsoEndpoint`。
+  - 消费侧同步：
+    - `apps/{admin,admin-lite,zfw-system-sfss}/src/bootstrap/core.ts` 改为消费 `theme`（不再 `ui.theme`）。
+    - `apps/{admin,admin-lite,zfw-system-sfss}/src/services/auth/auth-remote-service.ts` 改为消费新的 `externalSsoEndpoints`。
+
+- 测试适配：
+  - `apps/{admin,admin-lite,zfw-system-sfss}/tests/bootstrap/http.unit.test.ts`
+    - 补充 core mock 导出：`parseRuntimeConfig`、`ONE_BUILTIN_THEMES`、`DEFAULT_LAYOUT_SIDEBAR_COLLAPSED_WIDTH`，避免经 `@/config` 聚合导入时缺导出报错。
+
+- 文档/规则同步：
+  - `apps/{admin,admin-lite,zfw-system-sfss}/AGENTS.md`：config 文件清单更新为 `app/auth/request/ui/theme/index`。
+  - `apps/admin-lite/README.md`、`apps/zfw-system-sfss/README.md`：补充 `theme.ts` 入口说明。
+  - `apps/docs/docs/guide/architecture-runtime-deep-dive.md`：config 文件数改为 6，并拆分 `ui` 与 `theme` 说明。
+  - `apps/docs/docs/guide/theme-system.md`：主题配置入口改回 `config/theme.ts`，安装示例改为 `...theme`。
+
+## 2026-04-03（core 类型门禁修复）
+
+- 背景：`packages/core typecheck` 因 `platform-config.test.ts` 中 3 处 `Unused '@ts-expect-error' directive` 失败。
+- 处理：
+  - `packages/core/src/config/platform-config.test.ts` 删除 3 处失效 `@ts-expect-error`，保留运行时错误断言不变。
+- 验证：
+  - `pnpm -C packages/core typecheck` 通过。

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, toRaw } from 'vue';
+import { computed, reactive, ref, toRaw } from 'vue';
 import useTable from '@/hooks/table';
 import { jcColumns as columns } from './columns';
 import { jcApi } from './api';
@@ -185,6 +185,15 @@ const { visible, openDrawer, title, mode, Mode, submit, closeDrawer } = useDrawe
   drawerOpt,
   submitRef
 );
+const crudMode = computed(() => {
+  if (mode.value === Mode.Add) {
+    return 'create';
+  }
+  if (mode.value === Mode.Update) {
+    return 'edit';
+  }
+  return 'detail';
+});
 
 const handleClose = () => {
   Object.assign(submitForm, formData);
@@ -221,26 +230,18 @@ const seeDetail = (row) => {
     >
       <template #buttons>
         <el-button type="primary" @click="openDrawerFn(Mode.Add)">新增</el-button>
-        <el-button :loading="upload.isUploading" @click="openUploadDialog"
-          >导入</el-button
-        >
+        <el-button :loading="upload.isUploading" @click="openUploadDialog">导入</el-button>
       </template>
       <template v-slot="{ size, dynamicColumns }">
         <ObTable
           ref="tableRef"
           align-whole="left"
           showOverflowTooltip
-          table-layout="auto"
           :loading="loading"
           :size="size"
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="pagination"
-          :paginationSmall="size === 'small' ? true : false"
-          :header-cell-style="{
-            background: 'var(--el-fill-color-light)',
-            color: 'var(--el-text-color-primary)'
-          }"
           @page-size-change="handleSizeChange"
           @page-current-change="handleCurrentChange"
         >
@@ -318,12 +319,16 @@ const seeDetail = (row) => {
     </ObTableBox>
   </ObPageContainer>
 
-  <OneDrawer
+  <ObCrudContainer
     v-model="visible"
+    container="drawer"
+    :mode="crudMode"
     :title="title"
-    :mode="mode"
-    :width="824"
-    @submit="submit"
+    :drawer-size="824"
+    :show-footer="mode !== Mode.View"
+    confirm-text="保存"
+    @confirm="submit"
+    @cancel="handleClose"
     @close="handleClose"
   >
     <EditInfoForm
@@ -333,7 +338,7 @@ const seeDetail = (row) => {
       :mode="mode"
       :disabled="mode === 'view'"
     />
-  </OneDrawer>
+  </ObCrudContainer>
   <!-- 导入弹窗 -->
   <el-dialog v-model="upload.open" :title="upload.title" width="400px" append-to-body>
     <el-upload

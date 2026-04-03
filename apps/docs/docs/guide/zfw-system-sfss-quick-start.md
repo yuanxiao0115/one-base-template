@@ -7,7 +7,7 @@
 
 - 启动命令：`pnpm -C apps/zfw-system-sfss dev`
 - 预发布启动命令：`pnpm -C apps/zfw-system-sfss dev:staging`
-- 配置入口：`apps/zfw-system-sfss/src/config/platform-config.ts`
+- 配置入口：`apps/zfw-system-sfss/src/config/app.ts`
 - 当前系统默认编码：`judicial_petition_management_system`
 - 当前默认模块：`home`、`admin-management`、`log-management`、`system-management`、`system-sfss`
 
@@ -36,7 +36,7 @@ VITE_ZB_BASE_URL=http://<指标服务地址>      # /zb
 
 ## 2. 当前运行口径（重点）
 
-`apps/zfw-system-sfss/src/config/platform-config.ts` 当前按以下口径维护：
+`apps/zfw-system-sfss/src/config/app.ts` 当前按以下口径维护：
 
 1. `systemConfig.mode=single`，`systemConfig.code=judicial_petition_management_system`
 2. `backend=basic`、`menuMode=remote`（走后端菜单）
@@ -44,6 +44,7 @@ VITE_ZB_BASE_URL=http://<指标服务地址>      # /zb
 4. `defaultSystemCode=judicial_petition_management_system`
 5. `systemHomeMap.judicial_petition_management_system=/law-supervison/sunshine-petition/shi`
 6. `enabledModules` 已包含 `system-sfss`
+7. `src/config/request.ts` 已配置业务成功码 `code=0/1/200`（避免 legacy 接口返回 `code=1` 时误判为失败）
 
 说明：即使后端 `my-tree` 返回多个系统根节点，`single` 模式也会只注入 `systemConfig.code` 对应系统，顶部系统切换会自动隐藏。
 
@@ -78,6 +79,9 @@ VITE_ZB_BASE_URL=http://<指标服务地址>      # /zb
 
 - 禁止使用 `I*` 组件做 Element 二次封装/映射转发。
 - 列表编排统一使用 `ObTableBox + ObTable`。
+- `ObTable` 迁移默认不传 `adaptive` 与 `header-cell-style`，先走组件默认布局与主题。
+- `ObTableBox` 在 `:showSearchBar="false"` 时仍可通过 `#buttons` 放置操作按钮，不允许因为隐藏搜索栏丢失按钮区。
+- CRUD 弹层统一使用 `ObCrudContainer`，不再使用 `OneDrawer` / `OneDialog`。
 - 表单与基础控件直接使用 `el-*` 或已有 `Ob*` 公共组件，不再新增本地壳组件别名。
 
 ## 4. 新增模块命令
@@ -115,7 +119,7 @@ pnpm -C apps/docs build
 
 ### 登录后菜单为空
 
-先检查是否连到正确后端，以及 `platform-config.ts` 中 `defaultSystemCode` 与后端系统编码是否一致。
+先检查是否连到正确后端，以及 `app.ts` 中 `defaultSystemCode` 与后端系统编码是否一致。
 
 ### 菜单能看到但页面 404
 

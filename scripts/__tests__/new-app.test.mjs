@@ -59,13 +59,10 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
     'node ../../scripts/new-module-item.mjs --app sample-app'
   );
 
-  const platformConfig = await readFile(
-    path.join(rootDir, 'apps/sample-app/src/config/platform-config.ts'),
-    'utf8'
-  );
-  assert.match(platformConfig, /appcode: 'sample-app'/);
-  assert.match(platformConfig, /storageNamespace: 'one-base-template-sample-app'/);
-  assert.match(platformConfig, /enabledModules: \['home'\]/);
+  const appConfig = await readFile(path.join(rootDir, 'apps/sample-app/src/config/app.ts'), 'utf8');
+  assert.match(appConfig, /appcode: 'sample-app'/);
+  assert.match(appConfig, /storageNamespace: 'one-base-template-sample-app'/);
+  assert.match(appConfig, /enabledModules: \['home'\]/);
 
   const viteConfig = await readFile(path.join(rootDir, 'apps/sample-app/vite.config.ts'), 'utf8');
   assert.match(viteConfig, /SampleAppBuildConfig/);
@@ -151,11 +148,11 @@ test('scaffoldApp 支持 minimal preset 并收口顶栏能力', async () => {
     withCrudStarter: false
   });
 
-  const platformConfig = await readFile(
-    path.join(rootDir, 'apps/sample-minimal-app/src/config/platform-config.ts'),
+  const appConfig = await readFile(
+    path.join(rootDir, 'apps/sample-minimal-app/src/config/app.ts'),
     'utf8'
   );
-  assert.match(platformConfig, /enabledModules: \['home'\]/);
+  assert.match(appConfig, /enabledModules: \['home'\]/);
 
   const uiConfig = await readFile(
     path.join(rootDir, 'apps/sample-minimal-app/src/config/ui.ts'),
@@ -178,11 +175,11 @@ test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', asyn
     withCrudStarter: true
   });
 
-  const platformConfig = await readFile(
-    path.join(rootDir, 'apps/sample-crud-app/src/config/platform-config.ts'),
+  const appConfig = await readFile(
+    path.join(rootDir, 'apps/sample-crud-app/src/config/app.ts'),
     'utf8'
   );
-  assert.match(platformConfig, /enabledModules: \['home', 'starter-crud'\]/);
+  assert.match(appConfig, /enabledModules: \['home', 'starter-crud'\]/);
 
   const uiConfig = await readFile(
     path.join(rootDir, 'apps/sample-crud-app/src/config/ui.ts'),
@@ -213,12 +210,9 @@ test('scaffoldApp 支持通过参数追加管理模块', async () => {
     withCrudStarter: false
   });
 
-  const platformConfig = await readFile(
-    path.join(rootDir, 'apps/sample-managed-app/src/config/platform-config.ts'),
-    'utf8'
-  );
+  const appConfig = await readFile(path.join(rootDir, 'apps/sample-managed-app/src/config/app.ts'), 'utf8');
   assert.match(
-    platformConfig,
+    appConfig,
     /enabledModules: \['home', 'admin-management', 'log-management', 'system-management'\]/
   );
 

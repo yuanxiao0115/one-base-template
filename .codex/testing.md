@@ -2,6 +2,21 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-03（zfw-system-sfss：ObTable 迁移规则收口 + code=1 兼容）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/zfw-system-sfss build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：`vue-tsc` 通过（`TableBox.vue` 变更无类型回归）。
+  - `apps/zfw-system-sfss`：架构边界检查通过；`build` 通过（保留既有 `INEFFECTIVE_DYNAMIC_IMPORT` 提示，不阻断）。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功。
+- 未执行：
+  - `pnpm -C apps/zfw-system-sfss typecheck`（该应用存在既有 legacy 类型债务，本轮未做类型专项清债）。
+
 ## 2026-04-03（admin-lite：starter-crud 示例模块开关 + 文档同步）
 
 - RED（先失败）：
@@ -10741,3 +10756,41 @@
 - 结果：
   - `apps/zfw-system-sfss build`：通过（vite config 变更未引入构建回归）。
   - `apps/docs lint/build`：通过。
+
+## 2026-04-03（三端 config 二次收口：ui/theme 拆分 + externalSsoEndpoints）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin lint:arch`
+  - `pnpm -C apps/admin-lite lint:arch`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `pnpm -C apps/admin test:run:file -- tests/bootstrap/http.unit.test.ts tests/services/auth/auth-scenario-provider.unit.test.ts tests/bootstrap/index.unit.test.ts tests/config/app.unit.test.ts tests/bootstrap/runtime.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/bootstrap/http.unit.test.ts tests/services/auth/auth-scenario-provider.unit.test.ts tests/bootstrap/index.unit.test.ts tests/config/app.unit.test.ts tests/bootstrap/runtime.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/bootstrap/http.unit.test.ts tests/services/auth/auth-scenario-provider.unit.test.ts tests/bootstrap/index.unit.test.ts tests/config/app.unit.test.ts tests/bootstrap/runtime.unit.test.ts`
+
+- RED（历史遗留，非本次引入）：
+  - `pnpm -C apps/zfw-system-sfss typecheck`
+  - 仍失败于既有 `system-sfss` 大量 `unknown` 字段访问与 `LogManagement/index.ts` 路由类型问题。
+
+- RED（仓库既有，非本次引入）：
+  - `pnpm -C packages/core typecheck`
+  - `src/config/platform-config.test.ts` 存在 3 处 `Unused '@ts-expect-error' directive`。
+
+- 本轮修复性测试补丁：
+  - `apps/{admin,admin-lite,zfw-system-sfss}/tests/bootstrap/http.unit.test.ts` 增补 core mock 导出：
+    - `parseRuntimeConfig`
+    - `ONE_BUILTIN_THEMES`
+    - `DEFAULT_LAYOUT_SIDEBAR_COLLAPSED_WIDTH`
+  - 补丁后 3 端定向单测均通过（`5 files / 21 tests`）。
+
+## 2026-04-03（core typecheck 修复：移除失效 @ts-expect-error）
+
+- 变更：
+  - `packages/core/src/config/platform-config.test.ts` 移除 3 处已失效 `@ts-expect-error`。
+- 回归：
+  - `pnpm -C packages/core typecheck`
+- 结果：
+  - 通过（`tsc --noEmit` 无报错）。

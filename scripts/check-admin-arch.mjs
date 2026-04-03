@@ -5,11 +5,7 @@ import { fileURLToPath } from 'node:url';
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const adminSrcDir = path.join(rootDir, 'apps/admin/src');
 const targetExtensions = new Set(['.ts', '.tsx', '.vue']);
-const importMetaEnvAllowList = new Set([
-  'config/env.ts',
-  'config/platform-config.ts',
-  'utils/logger.ts'
-]);
+const importMetaEnvAllowList = new Set(['bootstrap/runtime.ts', 'utils/logger.ts']);
 
 /**
  * @typedef {{ file: string; line: number; column: number; message: string }} Violation
@@ -187,7 +183,7 @@ function isDirectInfraHttpGuardedFile(relativePath) {
  * @param {string} relativePath
  */
 function isBootstrapScopedFile(relativePath) {
-  return relativePath.startsWith('bootstrap/') || relativePath === 'config/env.ts';
+  return relativePath.startsWith('bootstrap/') || relativePath === 'bootstrap/runtime.ts';
 }
 
 /**
@@ -234,7 +230,7 @@ async function main() {
         absolutePath,
         content,
         /import\.meta\.env\b/g,
-        "禁止直接使用 import.meta.env，请改为通过 '@/config/env' 的 getAppEnv/buildEnv 读取。",
+        "禁止直接使用 import.meta.env，请改为通过 '@/bootstrap/runtime' 的 getRuntime/resolveBuildRuntime 读取。",
         violations
       );
     }

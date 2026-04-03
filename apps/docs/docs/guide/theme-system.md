@@ -1,7 +1,7 @@
 # 主题系统（Core 内置 + Admin 注册）
 
 <div class="doc-tldr">
-  <strong>TL;DR：</strong>主题能力收敛在 `packages/core`（token 计算与应用），`apps/admin` 只做业务主题注册与存储命名空间配置；落地时先配 `storageNamespace`，再注册主题，最后验证样式变量与切换行为。
+  <strong>TL;DR：</strong>主题能力收敛在 `packages/core`（token 计算与应用），`apps/admin` 只做业务主题注册与存储命名空间配置；落地时先配 `storageNamespace`，再在 `theme.ts` 定义主题，最后验证样式变量与切换行为。
 </div>
 
 ## 适用范围
@@ -23,7 +23,7 @@
 
 ### 2.1 配置存储命名空间
 
-文件：`apps/admin/src/config/platform-config.ts`
+文件：`apps/admin/src/config/app.ts`
 
 ```ts
 storageNamespace: 'one-base-template-admin';
@@ -36,7 +36,7 @@ storageNamespace: 'one-base-template-admin';
 文件：`apps/admin/src/config/theme.ts`
 
 ```ts
-export const appThemeOptions: CoreOptions['theme'] = {
+export const theme: ThemeConfig = {
   defaultTheme: 'blue',
   allowCustomPrimary: true,
   themes: {
@@ -47,6 +47,7 @@ export const appThemeOptions: CoreOptions['theme'] = {
     }
   }
 };
+
 ```
 
 ### 2.3 安装 Core 并透传 storageNamespace
@@ -55,7 +56,7 @@ export const appThemeOptions: CoreOptions['theme'] = {
 
 ```ts
 theme: {
-  ...appThemeOptions,
+  ...theme,
   storageNamespace
 }
 ```
@@ -127,7 +128,7 @@ pnpm -C apps/docs build
 
 | 问题                   | 原因                             | 处理方式                                     |
 | ---------------------- | -------------------------------- | -------------------------------------------- |
-| 主题切换后刷新失效     | `storageNamespace` 未配置或变更  | 校对 `platform-config.ts` 与旧 key           |
+| 主题切换后刷新失效     | `storageNamespace` 未配置或变更  | 校对 `app.ts` 与旧 key           |
 | 自定义主色不生效       | 未切到 `custom` 模式或颜色值非法 | 调用 `setThemeMode('custom')` 并使用合法 HEX |
 | Element 组件颜色不一致 | token 桥接被局部样式覆盖         | 检查 `apply-theme.ts` 映射与页面局部覆盖样式 |
 

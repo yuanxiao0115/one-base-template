@@ -1,4 +1,4 @@
-import { getAppEnv } from '@/config/env';
+import { getRuntime } from '@/bootstrap/runtime';
 import {
   buildMap,
   createResource,
@@ -29,7 +29,7 @@ export function createDictService(deps: DictServiceDeps = {}) {
   const pendingRequests = new Map<string, Promise<DictResource>>();
 
   const fetchItems = deps.fetchItems ?? fetchDictItems;
-  const getStorageNamespace = deps.getStorageNamespace ?? (() => getAppEnv().storageNamespace);
+  const getStorageNamespace = deps.getStorageNamespace ?? (() => getRuntime().storageNamespace);
   const now = deps.now ?? (() => Date.now());
   const defaultTtlMs = resolveTtlMs(deps.defaultTtlMs, DEFAULT_DICT_CACHE_TTL_MS);
 

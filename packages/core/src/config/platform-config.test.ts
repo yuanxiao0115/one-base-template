@@ -47,7 +47,6 @@ describe('parseRuntimeConfig systemConfig 收敛', () => {
     expect(() =>
       parseRuntimeConfig({
         ...createBaseInput(),
-        // @ts-expect-error 测试非法输入
         systemConfig: { mode: 'single' }
       })
     ).toThrowError(/systemConfig\.code/);
@@ -77,7 +76,6 @@ describe('parseRuntimeConfig systemConfig 收敛', () => {
     expect(() =>
       parseRuntimeConfig({
         ...createBaseInput(),
-        // @ts-expect-error 测试非法输入
         systemConfig: {
           mode: 'multi',
           codes: []
@@ -112,7 +110,6 @@ describe('parseRuntimeConfig systemConfig 收敛', () => {
     expect(() =>
       parseRuntimeConfig({
         ...createBaseInput(),
-        // @ts-expect-error 测试废弃字段
         preset: 'remote-single'
       })
     ).toThrowError(/"preset" 已废弃/);

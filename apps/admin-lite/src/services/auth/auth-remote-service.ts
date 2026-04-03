@@ -1,5 +1,5 @@
 import { obHttp } from '@one-base-template/core';
-import { appAuthSsoApiConfig } from '@/config/auth-sso';
+import { authApi } from '@/config/auth';
 import type { ApiResponse } from '@/types/api';
 
 export interface TokenResult {
@@ -20,13 +20,13 @@ export interface LoginPageConfig {
 }
 
 export async function getLoginPageConfig() {
-  return obHttp().get<ApiResponse<LoginPageConfig>>(appAuthSsoApiConfig.loginPageConfigEndpoint, {
+  return obHttp().get<ApiResponse<LoginPageConfig>>(authApi.loginPageConfigEndpoint, {
     $noErrorAlert: true
   });
 }
 
 export async function loginByZhxt(token: string) {
-  return obHttp().get<ApiResponse<TokenResult>>(appAuthSsoApiConfig.zhxtSsoEndpoint, {
+  return obHttp().get<ApiResponse<TokenResult>>(authApi.externalSsoEndpoints.zhxtSsoEndpoint, {
     params: { 'zhxt-token': token },
     $isAuth: true,
     $throwOnBizError: true
@@ -34,7 +34,7 @@ export async function loginByZhxt(token: string) {
 }
 
 export async function loginByYdbg(token: string) {
-  return obHttp().get<ApiResponse<TokenResult>>(appAuthSsoApiConfig.ydbgSsoEndpoint, {
+  return obHttp().get<ApiResponse<TokenResult>>(authApi.externalSsoEndpoints.ydbgSsoEndpoint, {
     params: {
       'ydbg-token': token,
       appType: 2
@@ -45,7 +45,7 @@ export async function loginByYdbg(token: string) {
 }
 
 export async function loginByTicket(payload: { ticket: string; serviceUrl: string }) {
-  return obHttp().get<ApiResponse<TokenResult>>(appAuthSsoApiConfig.ticketSsoEndpoint, {
+  return obHttp().get<ApiResponse<TokenResult>>(authApi.ticketSsoEndpoint, {
     params: payload,
     $isAuth: true,
     $throwOnBizError: true
@@ -53,8 +53,13 @@ export async function loginByTicket(payload: { ticket: string; serviceUrl: strin
 }
 
 export async function loginByExternal(payload: { from: 'om' | 'portal'; token: string }) {
+  const externalEndpointBySource = {
+    om: authApi.externalSsoEndpoints.omSsoEndpoint,
+    portal: authApi.externalSsoEndpoints.portalSsoEndpoint
+  } as const;
+
   return obHttp().get<ApiResponse<TokenResult>>(
-    appAuthSsoApiConfig.externalSsoEndpoints[payload.from],
+    externalEndpointBySource[payload.from],
     {
       params: { token: payload.token },
       $isAuth: true,
@@ -64,7 +69,10 @@ export async function loginByExternal(payload: { from: 'om' | 'portal'; token: s
 }
 
 export async function loginByDesktop() {
-  return obHttp().post<ApiResponse<IdTokenResult>>(appAuthSsoApiConfig.desktopSsoLoginEndpoint, {
-    $noErrorAlert: true
-  });
+  return obHttp().post<ApiResponse<IdTokenResult>>(
+    authApi.externalSsoEndpoints.desktopSsoLoginEndpoint,
+    {
+      $noErrorAlert: true
+    }
+  );
 }

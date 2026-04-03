@@ -3,7 +3,7 @@ import { finalizeAuthSession, handleSsoCallback } from '@one-base-template/core'
 import { message } from '@one-base-template/ui';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { getAppEnv } from '@/config/env';
+import { getRuntime } from '@/bootstrap/runtime';
 import { routePaths } from '@/router/constants';
 import { startSsoScenario } from '@/services/auth/auth-scenario-provider';
 
@@ -11,7 +11,7 @@ defineOptions({
   name: 'SsoCallbackPage'
 });
 
-const appEnv = getAppEnv();
+const appEnv = getRuntime();
 const router = useRouter();
 const loading = ref(true);
 const errorMessage = ref('');

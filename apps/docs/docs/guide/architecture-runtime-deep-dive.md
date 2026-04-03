@@ -1,19 +1,20 @@
 # 启动链路细节（深度）
 
-> 适用范围：`apps/admin`、`apps/admin-lite`、`apps/portal`、`packages/app-starter`、`packages/core`
+> 适用范围：`apps/admin`、`apps/admin-lite`、`apps/zfw-system-sfss`、`apps/portal`、`packages/app-starter`、`packages/core`
 
 本页承接 [目录结构与边界](/guide/architecture) 的运行时细节，聚焦“应用如何启动、如何收敛路由与平台配置”。
 
 ## TL;DR
 
 - `admin` 与 `admin-lite` 已收敛为“代码静态平台配置 + 统一 bootstrap 编排”。
+- `admin` / `admin-lite` / `zfw-system-sfss` 的 `config` 已收敛为 `app.ts/auth.ts/request.ts/ui.ts/theme.ts/index.ts` 六个文件。
 - `portal` 保留 runtime config loader，但登录与鉴权链路与 admin 共用 core 能力。
-- 走查启动问题时优先看四层：`platform-config` -> `env` -> `bootstrap/startup` -> `router assemble`。
+- 走查启动问题时优先看四层：`app` -> `runtime` -> `bootstrap/startup` -> `router assemble`。
 
 ## 最短执行路径（源码走查）
 
 1. 先确定目标应用：`admin`、`admin-lite`、`portal` 三者启动入口不同，不要混看文件。
-2. 按顺序阅读：`config/platform-config.ts` -> `config/env.ts` -> `bootstrap/startup.ts` -> `bootstrap/index.ts`。
+2. 按顺序阅读：`config/app.ts` -> `bootstrap/runtime.ts` -> `bootstrap/startup.ts` -> `bootstrap/index.ts`。
 3. 再定位路由链路：`router/registry.ts` 与 `router/assemble-routes.ts`，确认模块装配与冲突防护。
 4. 最后对照 `packages/core` 的共享能力（签名、登录场景、动态导入恢复）确认边界是否漂移。
 5. 使用文末“验证与验收”命令做最小回归，避免只靠阅读判断。
@@ -28,9 +29,9 @@
 
 管理端将启动链路集中在以下位置，避免多入口分叉：
 
-- `apps/admin/src/config/platform-config.ts`：维护并校验代码静态平台配置
+- `apps/admin/src/config/app.ts`：维护并校验代码静态平台配置
 - `apps/admin/src/bootstrap/startup.ts`：统一启动编排（bootstrap -> beforeMount -> router.isReady -> mount）
-- `apps/admin/src/config/env.ts`：聚合构建期 env 与代码静态平台配置
+- `apps/admin/src/bootstrap/runtime.ts`：聚合构建期 env 并输出运行时读取能力（`getRuntime/resolveBuildRuntime`）
 - `apps/admin/src/router/{types,registry,assemble-routes}.ts`：模块清单扫描与按需路由装配
 - `apps/admin/src/bootstrap/index.ts`：创建 app/pinia/router/http/core，并安装插件与守卫
 - `apps/admin/src/bootstrap/startup-profiler.ts`：启动阶段耗时打点与汇总
@@ -50,8 +51,8 @@
 
 ## admin-lite 启动分层（后台基座）
 
-- `apps/admin-lite/src/config/platform-config.ts`：代码静态平台配置入口（默认 `remote-single + token + backend=basic`）
-- `apps/admin-lite/src/config/env.ts`：聚合构建期 env 与平台静态配置
+- `apps/admin-lite/src/config/app.ts`：代码静态平台配置入口（默认 `remote-single + token + backend=basic`）
+- `apps/admin-lite/src/bootstrap/runtime.ts`：聚合构建期 env 并输出运行时读取能力（`getRuntime/resolveBuildRuntime`）
 - `apps/admin-lite/src/main.ts`：保留 beforeMount 扩展入口
 - `apps/admin-lite/src/bootstrap/startup.ts`：统一启动编排与错误兜底
 - `apps/admin-lite/src/bootstrap/index.ts`：创建 app/pinia/router/http/core，并安装插件与守卫
@@ -63,6 +64,23 @@
 ### admin-lite 启动顺序（流程图）
 
 ![admin-lite 启动顺序流程图（SVG）](/diagrams/runtime-admin-lite-startup.svg)
+
+## config 收敛（2026-04）
+
+`admin`、`admin-lite`、`zfw-system-sfss` 三端统一将 `config` 收敛为仅面向项目使用者的配置入口：
+
+- `src/config/app.ts`：平台运行配置（`backend/authMode/menuMode/historyMode/enabledModules` 等）
+- `src/config/auth.ts`：SSO 策略与认证端点（`sso/authApi`）
+- `src/config/request.ts`：请求策略（`timeout/auth/successCodes/networkMsg`）
+- `src/config/ui.ts`：界面策略（`layout/table/crud/login/topbar/materialCache`）
+- `src/config/theme.ts`：主题策略（`defaultTheme/allowCustomPrimary/themes`）
+- `src/config/index.ts`：统一导出
+
+非配置逻辑不再放进 `config`：
+
+- `src/bootstrap/runtime.ts`：构建期 env 解析与运行时读取
+- `src/bootstrap/{adapter,plugins,error-view,material-image-service-worker}.ts`：默认值就地常量收敛
+- `src/services/auth/ticket-service-url.ts`：`resolveTicketServiceUrl` 逻辑收敛
 
 ## portal 启动分层（门户消费者）
 
@@ -89,8 +107,8 @@
 
 ## 启动收敛补充（2026-03）
 
-- `bootstrap/index.ts` 按 `historyMode` 选择 `createWebHistory/createWebHashHistory`，统一消费 `appEnv.baseUrl`，避免路由前缀与静态资源前缀分散
-- `apps/admin` 不再依赖 `public/platform-config.json` 运行时文件，平台配置改为 `src/config/platform-config.ts` 代码静态维护。
+- `bootstrap/index.ts` 按 `historyMode` 选择 `createWebHistory/createWebHashHistory`，统一消费 runtime 的 `baseUrl`，避免路由前缀与静态资源前缀分散
+- `apps/admin` 不再依赖 `public/platform-config.json` 运行时文件，平台配置改为 `src/config/app.ts` 代码静态维护。
 - `apps/portal` 仍保留 runtime config loader 能力（并发复用、超时、重试、按需快照兜底）；`apps/admin-lite` 已收敛到代码静态配置。
 - `router/registry.ts` 改为两阶段装配：
   - 先扫描 `modules/**/index.ts` 中的 `moduleMeta`（eager）
@@ -133,7 +151,7 @@ pnpm -C apps/docs build
 失败处理：
 
 1. 若“看起来卡启动”：优先检查 `startup.ts` 是否卡在 `router.isReady()` 前后，再看 `startup-profiler` 输出阶段。
-2. 若配置来源混乱：先区分代码静态配置（`platform-config.ts`）与 runtime 配置（`portal/public/platform-config.json`）。
+2. 若配置来源混乱：先区分代码静态配置（`app.ts`）与 runtime 配置（`portal/public/platform-config.json`）。
 3. 若菜单行为异常：确认是否误把 portal 当 admin 菜单体系（`portal` 默认不接 `/cmict/admin/permission/*`）。
 
 ## FAQ

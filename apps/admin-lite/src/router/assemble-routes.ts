@@ -7,7 +7,7 @@ import {
   getInitialPath
 } from '@one-base-template/core';
 import { AdminLayout } from '@one-base-template/ui/shell';
-import { DEFAULT_FALLBACK_HOME } from '../config/systems';
+import { homeFallback } from '../config/app';
 import {
   buildAliasRoutes,
   buildRoutes,
@@ -48,7 +48,7 @@ function getDefaultHomePath(
     defaultSystemCode,
     systemHomeMap,
     storageNamespace,
-    fallbackHome: DEFAULT_FALLBACK_HOME
+    fallbackHome: homeFallback
   });
 }
 

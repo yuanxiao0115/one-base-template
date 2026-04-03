@@ -22,7 +22,7 @@ src/
   main.ts                    # 最小入口：触发 startAdminApp（共享启动骨架）
   bootstrap/                 # 启动编排（create app/router/pinia/http/core + 插件 + 守卫）
   router/                    # 模块注册与路由装配（manifest 扫描、白名单、保留路由）
-  config/                    # 可维护配置项与代码静态平台配置入口（layout/theme/sso/systems/platform-config/env/ui）
+  config/                    # 可维护配置项入口（app/auth/request/ui/index）
   services/                  # 应用服务（认证/SSO/验证码等）
   services/security/         # 安全能力（签名与加密）
   types/                     # 跨模块通用类型（如 ApiResponse / ApiPageData）
@@ -51,7 +51,8 @@ src/
 - 把单模块私有逻辑（仅一处使用的 mapper/normalize/helper）上提到 `services`/`types`
   目录边界说明：
 
-- `config/`：环境解析、代码静态平台配置与可维护配置项
+- `config/`：可维护配置项（`app/auth/request/ui/index`）
+- `bootstrap/runtime.ts`：环境解析入口（`getRuntime/resolveBuildRuntime`）
 - `utils/`：应用级工具（如 logger、响应适配器）
 - `services/security/`：basic 签名与加密能力
 - `services/auth/`：认证/SSO/验证码服务
@@ -119,7 +120,7 @@ src/
 
 ## 8. 本轮已完成的升级友好收敛（新增）
 
-1. `router/assemble-routes.ts` 已完全参数化：通过 `AppRouteAssemblyOptions` 显式传入 `enabledModules/defaultSystemCode/systemHomeMap/storageNamespace`，装配层不再直接读取 `getAppEnv()`
+1. `router/assemble-routes.ts` 已完全参数化：通过 `AppRouteAssemblyOptions` 显式传入 `enabledModules/defaultSystemCode/systemHomeMap/storageNamespace`，装配层不再直接读取运行时配置解析逻辑。
 2. `module manifest compat` 已进入执行链：
    - `compat.activePathMap`：在路由未声明 `meta.activePath` 时补齐归属
    - `compat.routeAliases`：生成历史路径 `redirect` 兼容路由（冲突或保留路径会自动跳过并告警）
@@ -136,7 +137,7 @@ src/
 
 ```bash
 pnpm -C packages/core exec vitest run src/http/runtime.test.ts
-pnpm -C apps/admin exec vitest run tests/config/env.unit.test.ts tests/bootstrap/http.unit.test.ts
+pnpm -C apps/admin exec vitest run tests/config/app.unit.test.ts tests/bootstrap/runtime.unit.test.ts tests/bootstrap/http.unit.test.ts
 pnpm -C apps/admin typecheck
 pnpm -C apps/admin lint:arch
 pnpm -C apps/admin lint

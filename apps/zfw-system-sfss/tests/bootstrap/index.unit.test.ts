@@ -28,13 +28,13 @@ const mocks = vi.hoisted(() => {
         signature: 'route-signature'
       }
     })),
-    getAppEnv: vi.fn(() => ({
+    getRuntime: vi.fn(() => ({
       baseUrl: '/',
       menuMode: 'remote',
       enabledModules: ['home'],
-      defaultSystemCode: 'admin_server',
+      defaultSystemCode: 'judicial_petition_management_system',
       systemHomeMap: {
-        admin_server: '/home/index'
+        judicial_petition_management_system: '/law-supervison/sunshine-petition/shi'
       },
       storageNamespace: 'one-base-template-zfw-system-sfss',
       backend: 'basic',
@@ -46,7 +46,11 @@ const mocks = vi.hoisted(() => {
       basicHeaders: undefined,
       clientSignatureSalt: undefined,
       clientSignatureClientId: undefined,
-      basicSystemPermissionCode: 'admin_server'
+      basicSystemPermissionCode: 'judicial_petition_management_system',
+      systemConfig: {
+        mode: 'single',
+        code: 'judicial_petition_management_system'
+      }
     })),
     createAppHttp: vi.fn(() => ({ cancelRouteRequests: vi.fn() })),
     createAppAdapter: vi.fn(() => ({ __adapter: true })),
@@ -93,19 +97,14 @@ vi.mock('@/router/assemble-routes', () => ({
   buildAppRoutes: mocks.buildAppRoutes
 }));
 
-vi.mock('@/config/env', () => ({
-  getAppEnv: mocks.getAppEnv
+vi.mock('@/bootstrap/runtime', () => ({
+  getRuntime: mocks.getRuntime
 }));
 
 vi.mock('@/config', () => ({
-  appAuthSsoApiConfig: {
+  authApi: {
     ticketSsoEndpoint: '/cmict/auth/ticket/sso'
-  },
-  appLayoutMode: 'side',
-  appSidebarCollapsedWidth: 64,
-  appSidebarWidth: 220,
-  appSystemSwitchStyle: 'tabs',
-  appTopbarHeight: 56
+  }
 }));
 
 vi.mock('@/router/constants', () => ({

@@ -16,7 +16,7 @@ const mockSsoTicket = async (): Promise<void> => {
 };
 
 const staticMenuModeHint = [
-  '你可以通过 apps/zfw-system-sfss/src/config/platform-config.ts 的 menuMode=static',
+  '你可以通过 apps/zfw-system-sfss/src/config/app.ts 的 menuMode=static',
   '切换为静态菜单模式。'
 ].join(' ');
 

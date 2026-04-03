@@ -14,7 +14,7 @@
 
 ### 目录收敛边界（config / types / services / tests）
 
-- `apps/admin/src/config`：仅放“开发者可维护配置项”与代码静态平台配置入口（`env.ts`、`layout.ts`、`platform-config.ts`、`sso.ts`、`systems.ts`、`theme.ts`、`ui.ts`）。
+- `apps/admin/src/config`：仅放“开发者可维护配置项”入口（`app.ts`、`auth.ts`、`request.ts`、`ui.ts`、`theme.ts`、`index.ts`）。
 - `apps/admin/src/utils`：应用级工具（如 `logger.ts`、`table-response-adapter.ts`），禁止放入 config。
 - `apps/admin/src/services/security`：安全能力（`client-signature.ts`、`signature.ts`、`crypto.ts`），禁止回流到 config。
 - `apps/admin/src/types`：跨模块通用类型定义（如 `types/api.ts` 的 `ApiResponse` / `ApiPageData`）。
@@ -52,9 +52,9 @@
 
 ## 布局与主题（admin 侧）
 
-- Layout 模式与系统切换样式使用代码配置：`apps/admin/src/config/layout.ts`，禁止通过运行时文件动态修改。
-- `apps/admin/src/config/env.ts` 仅聚合构建期 env 与代码静态平台配置，禁止再引入运行时配置加载语义。
-- 布局尺寸（TopBar 高度/侧栏展开宽度/侧栏折叠宽度）统一在 `apps/admin/src/config/layout.ts` 配置，禁止在页面或组件内硬编码。
+- Layout 模式与系统切换样式使用代码配置：`apps/admin/src/config/ui.ts`（`ui.layout`）与 `apps/admin/src/config/theme.ts`，禁止通过运行时文件动态修改。
+- 构建期 env 解析统一收敛在 `apps/admin/src/bootstrap/runtime.ts`，并通过 `getRuntime/resolveBuildRuntime` 对外读取。
+- 布局尺寸（TopBar 高度/侧栏展开宽度/侧栏折叠宽度）统一在 `apps/admin/src/config/ui.ts` 的 `ui.layout` 配置，禁止在页面或组件内硬编码。
 - TopBar 主题设置入口必须放在用户头像下拉菜单内，并通过弹窗承载独立主题配置组件。
 - 个性设置面板约束：
   - `ob-personalize__section` 不加外边框。

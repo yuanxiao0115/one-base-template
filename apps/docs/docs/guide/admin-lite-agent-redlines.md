@@ -24,7 +24,7 @@ outline: [2, 3]
 ## 启动与配置红线
 
 - 启动链路固定为：`main.ts -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`。
-- 平台配置唯一入口：`src/config/platform-config.ts`。
+- 平台配置唯一入口：`src/config/app.ts`。
 - UI 开关唯一入口：`src/config/ui.ts`。
 - 登录页与顶栏文案从配置读取，禁止在页面中写死业务名称。
 

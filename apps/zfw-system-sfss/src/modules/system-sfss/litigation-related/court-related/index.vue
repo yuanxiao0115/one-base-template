@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { reactive, ref, toRaw } from "vue";
-import useTable from "@/hooks/table";
-import { fyColumns as columns } from "./columns";
-import { fyApi } from "./api";
-import { message } from "@one-base-template/ui";
-import useDrawer from "@/hooks/drawer";
-import { cloneDeep } from "@one-base-template/utils";
-import EditInfoForm from "./edit-info-form-fy.vue";
-import detail from "./detail.vue";
-import ChatModel from "@/components/ChatModel/index.vue";
-import { UploadFilled } from "@element-plus/icons-vue";
+import { computed, reactive, ref, toRaw } from 'vue';
+import useTable from '@/hooks/table';
+import { fyColumns as columns } from './columns';
+import { fyApi } from './api';
+import { message } from '@one-base-template/ui';
+import useDrawer from '@/hooks/drawer';
+import { cloneDeep } from '@one-base-template/utils';
+import EditInfoForm from './edit-info-form-fy.vue';
+import detail from './detail.vue';
+import ChatModel from '@/components/ChatModel/index.vue';
+import { UploadFilled } from '@element-plus/icons-vue';
 
 const tableRef = ref();
 const searchRef = ref();
@@ -17,73 +17,73 @@ const uploadRef = ref();
 const submitRef = ref();
 const open = ref(false);
 const detailData = ref({});
-const chatType = ref("1");
-const meg = ref("");
+const chatType = ref('1');
+const meg = ref('');
 const chatModalVisible = ref(false);
 const searchForm = reactive({
-  XFRMC: ""
+  XFRMC: ''
 });
 const formData = {
-  RQ: "",
-  CZ: "",
-  LX: "",
-  XFSQ: "",
-  ZRDW: "",
-  ZRLD: "",
-  BLLD: "",
-  BLQK: "",
-  SFJXGPC: "",
-  AJJZ: "",
-  NZJJD: "",
-  SFSYWPXF: "",
-  YF: "",
-  AJSXRQ: "",
-  SYNZQK: "",
-  SFYHPC: "",
-  QLCTJ: "",
-  PHDY: "",
-  FXYP: "",
-  RS: "",
-  BFYAH: "",
-  BFYHSYTS: "",
-  FL: "",
-  YIJAY: "",
-  ERJAY: "",
-  SANJAY: "",
-  SIJAY: "",
-  JTAY: "",
-  YISAH: "",
-  YISFY: "",
-  YISZBR: "",
-  ERSAH: "",
-  ERSFY: "",
-  ERSJG: "",
-  ERSZBR: "",
-  ZSAH: "",
-  ZSFY: "",
-  ZSZBR: "",
-  SXAH: "",
-  SXFY: "",
-  SXZBR: "",
-  BZ: "",
-  SKSFLQK: "",
-  DISTRICT_CODE: "",
-  DISTRICT_NAME: "",
+  RQ: '',
+  CZ: '',
+  LX: '',
+  XFSQ: '',
+  ZRDW: '',
+  ZRLD: '',
+  BLLD: '',
+  BLQK: '',
+  SFJXGPC: '',
+  AJJZ: '',
+  NZJJD: '',
+  SFSYWPXF: '',
+  YF: '',
+  AJSXRQ: '',
+  SYNZQK: '',
+  SFYHPC: '',
+  QLCTJ: '',
+  PHDY: '',
+  FXYP: '',
+  RS: '',
+  BFYAH: '',
+  BFYHSYTS: '',
+  FL: '',
+  YIJAY: '',
+  ERJAY: '',
+  SANJAY: '',
+  SIJAY: '',
+  JTAY: '',
+  YISAH: '',
+  YISFY: '',
+  YISZBR: '',
+  ERSAH: '',
+  ERSFY: '',
+  ERSJG: '',
+  ERSZBR: '',
+  ZSAH: '',
+  ZSFY: '',
+  ZSZBR: '',
+  SXAH: '',
+  SXFY: '',
+  SXZBR: '',
+  BZ: '',
+  SKSFLQK: '',
+  DISTRICT_CODE: '',
+  DISTRICT_NAME: '',
   PERSONLIST: []
 };
 const submitForm = reactive({ ...formData });
 const detailParam = ref({});
 
-const tableSearch = e => {
+const tableSearch = (e) => {
   searchForm.XFRMC = e;
   onSearch();
 };
 /** 导入参数 */
 const upload = reactive({
   open: false,
-  title: "导入",
+  title: '导入',
   isUploading: false, // 是否禁用上传
-  headers: { Authorization: "Bearer " }
+  headers: { Authorization: 'Bearer ' }
 });
 
 function openUploadDialog() {
@@ -96,12 +96,12 @@ const importTemplate = async () => {
   try {
     const timestamp = Date.now();
     const response = await fetch(`/pettion-fy.xlsx?t=${timestamp}`);
-    if (!response.ok) throw new Error("文件加载失败");
+    if (!response.ok) throw new Error('文件加载失败');
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
+    const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = "涉法涉诉(法院)导入模板.xlsx";
+    anchor.download = '涉法涉诉(法院)导入模板.xlsx';
     document.body.appendChild(anchor);
     anchor.click();
     setTimeout(() => {
@@ -109,7 +109,7 @@ const importTemplate = async () => {
       URL.revokeObjectURL(url);
     }, 100);
   } catch (error) {
-    message(`模板下载失败，请检查文件是否存在`, { type: "error" });
+    message(`模板下载失败，请检查文件是否存在`, { type: 'error' });
   }
 };
 //文件上传
@@ -123,17 +123,16 @@ async function handleFileSuccess(response, file, fileList) {
   onSearch();
 }
 const handleExceed = () => {
-  message(`一次只能上传一个文件`, { type: "error" });
+  message(`一次只能上传一个文件`, { type: 'error' });
 };
-const onBeforeUploadExcel = file => {
-  const isExcel =
-    file.name.slice(file.name.lastIndexOf(".")) === ".xlsx" || "xls";
+const onBeforeUploadExcel = (file) => {
+  const isExcel = file.name.slice(file.name.lastIndexOf('.')) === '.xlsx' || 'xls';
   const isLt20M = file.size / 1024 / 1024 <= 20;
   if (!isExcel) {
-    message("上传文件只能是xls/xlsx格式", { type: "error" });
+    message('上传文件只能是xls/xlsx格式', { type: 'error' });
   }
   if (!isLt20M) {
-    message("上传文件大小不能超过20M", { type: "error" });
+    message('上传文件大小不能超过20M', { type: 'error' });
   }
   return isExcel && isLt20M;
 };
@@ -141,7 +140,7 @@ async function importExcel(param) {
   const { code } = await fyApi.import({ file: param.file });
   try {
     if (code === 200) {
-      message("导入成功!", { type: "success" });
+      message('导入成功!', { type: 'success' });
     }
   } catch (e) {
     console.log(e);
@@ -160,11 +159,7 @@ const getPettionList = async () => {
       size: pagination.pageSize
     };
     for (const key in params) {
-      if (
-        params[key] === "" ||
-        params[key] === null ||
-        params[key] === undefined
-      ) {
+      if (params[key] === '' || params[key] === null || params[key] === undefined) {
         delete params[key];
       }
     }
@@ -194,13 +189,13 @@ const {
   handleCurrentChange
 } = useTable(tableOpt, tableRef);
 const drawerOpt = reactive({
-  title: "涉法涉诉(法院)",
+  title: '涉法涉诉(法院)',
   submitForm: submitForm,
   addApi: fyApi.add,
   updateApi: fyApi.update,
   detailApi: fyApi.detail,
   detailParam: detailParam,
-  getDetailCallback: detailData => {
+  getDetailCallback: (detailData) => {
     let detailObj = toRaw(detailData.value);
     Object.assign(submitForm, detailObj);
   },
@@ -215,14 +210,25 @@ const drawerOpt = reactive({
   }
 });
 
-const openAI = row => {
+const openAI = (row) => {
   meg.value = row.ZJHM;
-  chatType.value = "2";
+  chatType.value = '2';
   chatModalVisible.value = true;
 };
 
-const { visible, openDrawer, title, mode, Mode, submit, closeDrawer } =
-  useDrawer(drawerOpt, submitRef);
+const { visible, openDrawer, title, mode, Mode, submit, closeDrawer } = useDrawer(
+  drawerOpt,
+  submitRef
+);
+const crudMode = computed(() => {
+  if (mode.value === Mode.Add) {
+    return 'create';
+  }
+  if (mode.value === Mode.Update) {
+    return 'edit';
+  }
+  return 'detail';
+});
 
 const handleClose = () => {
   Object.assign(submitForm, formData);
@@ -237,7 +243,7 @@ function openDrawerFn(type, row) {
   }
   openDrawer(type, row);
 }
-const seeDetail = row => {
+const seeDetail = (row) => {
   detailData.value = row;
   open.value = true;
 };
@@ -254,28 +260,18 @@ const seeDetail = row => {
     >
       <template #buttons>
         <el-button type="primary" @click="openDrawerFn(Mode.Add)">新增</el-button>
-        <el-button
-          :loading="upload.isUploading"
-          @click="openUploadDialog"
-          >导入</el-button>
+        <el-button :loading="upload.isUploading" @click="openUploadDialog">导入</el-button>
       </template>
       <template v-slot="{ size, dynamicColumns }">
         <ObTable
           ref="tableRef"
           align-whole="left"
           showOverflowTooltip
-          table-layout="auto"
           :loading="loading"
           :size="size"
-          adaptive
           :data="dataList"
           :columns="dynamicColumns"
           :pagination="pagination"
-          :paginationSmall="size === 'small' ? true : false"
-          :header-cell-style="{
-            background: 'var(--el-fill-color-light)',
-            color: 'var(--el-text-color-primary)'
-          }"
           @page-size-change="handleSizeChange"
           @page-current-change="handleCurrentChange"
         >
@@ -298,13 +294,7 @@ const seeDetail = row => {
             >
               查看
             </el-button>
-            <el-button
-              class="reset-margin"
-              link
-              type="primary"
-              :size="size"
-              @click="openAI(row)"
-            >
+            <el-button class="reset-margin" link type="primary" :size="size" @click="openAI(row)">
               画像
             </el-button>
             <!-- <el-popconfirm
@@ -359,12 +349,16 @@ const seeDetail = row => {
     </ObTableBox>
   </ObPageContainer>
 
-  <OneDrawer
+  <ObCrudContainer
     v-model="visible"
+    container="drawer"
+    :mode="crudMode"
     :title="title"
-    :mode="mode"
-    :width="824"
-    @submit="submit"
+    :drawer-size="824"
+    :show-footer="mode !== Mode.View"
+    confirm-text="保存"
+    @confirm="submit"
+    @cancel="handleClose"
     @close="handleClose"
   >
     <EditInfoForm
@@ -374,14 +368,9 @@ const seeDetail = row => {
       :mode="mode"
       :disabled="mode === 'view'"
     />
-  </OneDrawer>
+  </ObCrudContainer>
   <!-- 导入弹窗 -->
-  <el-dialog
-    v-model="upload.open"
-    :title="upload.title"
-    width="400px"
-    append-to-body
-  >
+  <el-dialog v-model="upload.open" :title="upload.title" width="400px" append-to-body>
     <el-upload
       ref="uploadRef"
       :limit="1"

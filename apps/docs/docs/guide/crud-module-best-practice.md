@@ -70,7 +70,7 @@
 2. 填充 `api.ts` 与 `types.ts`。
 3. 完成 `list.vue` 编排和表单组件。
 4. 在 `routes.ts` 注册路由。
-5. 在 `platform-config.ts` 的 `enabledModules` 中加入模块 id。
+5. 在 `app.ts` 的 `enabledModules` 中加入模块 id。
 
 ## 6) 验证命令
 

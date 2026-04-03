@@ -376,7 +376,7 @@ function toSingleQuotedArrayLiteral(values) {
   return `[${values.map((value) => `'${value}'`).join(', ')}]`;
 }
 
-function replaceEnabledModulesInPlatformConfig(source, modules) {
+function replaceEnabledModulesInAppConfig(source, modules) {
   const pattern = /enabledModules:\s*\[[^\]]*\]/;
   if (!pattern.test(source)) {
     throw new Error('未找到 enabledModules 配置项，无法更新模块白名单。');
@@ -405,9 +405,9 @@ async function applyAppPreset(targetDir, preset, dryRun) {
     throw new Error(`不支持的 preset: ${preset}`);
   }
 
-  const platformConfigPath = path.join(targetDir, 'src/config/platform-config.ts');
-  const platformConfig = await fs.readFile(platformConfigPath, 'utf8');
-  const nextPlatformConfig = replaceEnabledModulesInPlatformConfig(platformConfig, presetModules);
+  const appConfigPath = path.join(targetDir, 'src/config/app.ts');
+  const appConfig = await fs.readFile(appConfigPath, 'utf8');
+  const nextAppConfig = replaceEnabledModulesInAppConfig(appConfig, presetModules);
 
   const uiConfigPath = path.join(targetDir, 'src/config/ui.ts');
   const uiConfig = await fs.readFile(uiConfigPath, 'utf8');
@@ -433,8 +433,8 @@ async function applyAppPreset(targetDir, preset, dryRun) {
     presetTopBarFeatures.personalization
   );
 
-  if (!dryRun && nextPlatformConfig !== platformConfig) {
-    await fs.writeFile(platformConfigPath, nextPlatformConfig, 'utf8');
+  if (!dryRun && nextAppConfig !== appConfig) {
+    await fs.writeFile(appConfigPath, nextAppConfig, 'utf8');
   }
 
   if (!dryRun && nextUiConfig !== uiConfig) {
@@ -442,7 +442,7 @@ async function applyAppPreset(targetDir, preset, dryRun) {
   }
 }
 
-function parseEnabledModulesFromPlatformConfig(source) {
+function parseEnabledModulesFromAppConfig(source) {
   const matched = source.match(/enabledModules:\s*\[(?<items>[^\]]*)\]/);
   const rawItems = matched?.groups?.items;
   if (!rawItems) {
@@ -469,9 +469,9 @@ async function applyOptionalManagementModules(targetDir, options, dryRun) {
     return;
   }
 
-  const platformConfigPath = path.join(targetDir, 'src/config/platform-config.ts');
-  const platformConfig = await fs.readFile(platformConfigPath, 'utf8');
-  const enabledModules = parseEnabledModulesFromPlatformConfig(platformConfig);
+  const appConfigPath = path.join(targetDir, 'src/config/app.ts');
+  const appConfig = await fs.readFile(appConfigPath, 'utf8');
+  const enabledModules = parseEnabledModulesFromAppConfig(appConfig);
   const requestedModules = [];
 
   if (withAdminManagement) {
@@ -485,10 +485,10 @@ async function applyOptionalManagementModules(targetDir, options, dryRun) {
   }
 
   const nextModules = appendUniqueModules(enabledModules, requestedModules);
-  const nextPlatformConfig = replaceEnabledModulesInPlatformConfig(platformConfig, nextModules);
+  const nextAppConfig = replaceEnabledModulesInAppConfig(appConfig, nextModules);
 
-  if (!dryRun && nextPlatformConfig !== platformConfig) {
-    await fs.writeFile(platformConfigPath, nextPlatformConfig, 'utf8');
+  if (!dryRun && nextAppConfig !== appConfig) {
+    await fs.writeFile(appConfigPath, nextAppConfig, 'utf8');
   }
 }
 
@@ -1288,16 +1288,16 @@ async function writeFiles(rootDir, files, dryRun) {
 
 async function enableCrudStarter(targetDir, dryRun) {
   const createdFiles = await writeFiles(targetDir, createStarterCrudFiles(), dryRun);
-  const platformConfigPath = path.join(targetDir, 'src/config/platform-config.ts');
-  const platformConfig = await fs.readFile(platformConfigPath, 'utf8');
-  const modules = parseEnabledModulesFromPlatformConfig(platformConfig);
+  const appConfigPath = path.join(targetDir, 'src/config/app.ts');
+  const appConfig = await fs.readFile(appConfigPath, 'utf8');
+  const modules = parseEnabledModulesFromAppConfig(appConfig);
   if (!modules.includes('starter-crud')) {
     modules.push('starter-crud');
   }
-  const nextPlatformConfig = replaceEnabledModulesInPlatformConfig(platformConfig, modules);
+  const nextAppConfig = replaceEnabledModulesInAppConfig(appConfig, modules);
 
-  if (!dryRun && nextPlatformConfig !== platformConfig) {
-    await fs.writeFile(platformConfigPath, nextPlatformConfig, 'utf8');
+  if (!dryRun && nextAppConfig !== appConfig) {
+    await fs.writeFile(appConfigPath, nextAppConfig, 'utf8');
   }
 
   return createdFiles;

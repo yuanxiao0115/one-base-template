@@ -3,9 +3,9 @@ import {
   resolveAuthRedirectTargetFromSearchParams,
   startSsoCallbackStrategy
 } from '@one-base-template/core';
-import { resolveTicketServiceUrl } from '@/config/auth-sso';
-import { DEFAULT_FALLBACK_HOME } from '@/config/systems';
-import type { BackendKind } from '@/config/env';
+import { resolveTicketServiceUrl } from '@/services/auth/ticket-service-url';
+import { homeFallback } from '@/config/app';
+import type { BackendKind } from '@/bootstrap/runtime';
 import {
   loginByDesktop,
   loginByExternal,
@@ -55,7 +55,7 @@ export async function startSsoScenario(options: ExecuteSsoScenarioOptions) {
   if (backend !== 'basic') {
     const { redirect } = await onDefaultSsoCallback();
     const target = resolveAppRedirectTarget(redirect, {
-      fallback: DEFAULT_FALLBACK_HOME,
+      fallback: homeFallback,
       baseUrl
     });
     await onAuthenticatedRedirect(target);
@@ -63,7 +63,7 @@ export async function startSsoScenario(options: ExecuteSsoScenarioOptions) {
   }
 
   const redirect = resolveAuthRedirectTargetFromSearchParams(searchParams, {
-    fallback: DEFAULT_FALLBACK_HOME,
+    fallback: homeFallback,
     baseUrl
   });
 

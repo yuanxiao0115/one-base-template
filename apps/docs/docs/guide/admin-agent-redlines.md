@@ -18,6 +18,8 @@ admin 侧已经沉淀了统一壳组件与交互工具（`ObCrudContainer`、`Ob
 ## 强制红线
 
 - `apps/admin/src/modules/**` 的 CRUD 列表编排页必须使用 `ObPageContainer + ObTableBox + ObTable`，禁止页面层直接使用 `el-table` 与 `ObVxeTable`。
+- `ObTable` 迁移默认不传 `adaptive` 与 `header-cell-style`；仅在有明确证据证明默认布局/样式不满足时，才允许页级例外并补注释说明。
+- `ObTableBox` 在 `:showSearchBar="false"` 场景仍需保留 `#buttons` 操作区，禁止隐藏搜索栏后丢失操作按钮。
 - CRUD 新增/编辑/查看容器必须使用 `ObCrudContainer`，禁止在 CRUD 场景直接使用 `el-dialog` 或 `el-drawer` 编排。
 - 业务消息提示统一使用 `@one-base-template/ui`，禁止在模块业务代码中直接使用 `ElMessage`。
 - 业务确认交互统一使用 `@one-base-template/ui` 的 `obConfirm`/`tryConfirmWarn`，禁止直接使用 `ElMessageBox`。

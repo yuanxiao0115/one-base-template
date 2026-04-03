@@ -49,12 +49,12 @@ pnpm -C apps/admin-lite lint
 | -------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------- |
 | 后端网关地址（apiBaseUrl） | `apps/admin-lite/.env.development.local`        | `VITE_API_BASE_URL`                                                     | 开发态代理 `/api`、`/cmict`；生产态可作为请求 `baseURL`     |
 | 统一前缀（资源 + 路由）    | `apps/admin-lite/.env.development.local`        | `VITE_APP_BASE`                                                         | 同时控制 Vite 静态资源前缀与 router base，避免路径不一致    |
-| 平台业务配置               | `apps/admin-lite/src/config/platform-config.ts` | `backend`、`authMode`、`menuMode`、`enabledModules`、`storageNamespace` | 统一定义鉴权模式、菜单模式、模块开关、存储命名空间          |
-| 路由模式                   | `apps/admin-lite/src/config/platform-config.ts` | `historyMode`（`history` \| `hash`）                                    | 控制 `createWebHistory/createWebHashHistory`                |
-| token key                  | `apps/admin-lite/src/config/platform-config.ts` | `tokenKey`、`idTokenKey`（可选）                                        | preset 场景默认按 `storageNamespace` 自动生成，通常无需手写 |
-| UI 开关                    | `apps/admin-lite/src/config/ui.ts`              | `appTopBarFeatureConfig`、`appLoginUiConfig`                            | 控制顶栏能力、登录文案、缓存开关等                          |
-| 布局参数                   | `apps/admin-lite/src/config/layout.ts`          | `appLayoutMode`、`appTopbarHeight`、`appSidebarWidth`                   | 控制布局模式与尺寸                                          |
-| SSO 策略与接口             | `apps/admin-lite/src/config/auth-sso.ts`        | `appSsoOptions`、`appAuthSsoApiConfig`                                  | 统一配置 `/sso` 参数策略与 SSO 端点                         |
+| 平台运行配置               | `apps/admin-lite/src/config/app.ts`             | `backend`、`authMode`、`menuMode`、`enabledModules`、`storageNamespace` | 统一定义鉴权模式、菜单模式、模块开关、存储命名空间          |
+| 路由模式                   | `apps/admin-lite/src/config/app.ts`             | `historyMode`（`history` \| `hash`）                                    | 控制 `createWebHistory/createWebHashHistory`                |
+| 主题配置                   | `apps/admin-lite/src/config/theme.ts`           | `defaultTheme`、`allowCustomPrimary`、`themes`                          | 控制内置主题与业务扩展主题                                  |
+| UI 开关与布局              | `apps/admin-lite/src/config/ui.ts`              | `ui.topbar`、`ui.login`、`ui.layout`、`ui.materialCache`                | 控制顶栏能力、登录文案、布局尺寸与缓存开关                  |
+| SSO 策略与接口             | `apps/admin-lite/src/config/auth.ts`            | `sso`、`authApi`                                                         | 统一配置 `/sso` 参数策略与 SSO 端点                         |
+| 请求策略                   | `apps/admin-lite/src/config/request.ts`         | `timeout`、`auth`、`successCodes`、`networkMsg`                         | 统一配置请求超时、认证头、成功码与网络错误文案              |
 
 ## 1. 当前定位
 
@@ -78,7 +78,7 @@ pnpm -C apps/admin-lite lint
 - `system-management`
 - `log-management`
 
-对应配置入口：`apps/admin-lite/src/config/platform-config.ts`
+对应配置入口：`apps/admin-lite/src/config/app.ts`
 
 基座原则：
 
@@ -94,7 +94,7 @@ pnpm -C apps/admin-lite lint
 - 强业务管理模块（CMS / Portal / 公文表单）
 - 迁移模板模块（`demo-management`）
 
-如需开启迁移模板模块，可在 `apps/admin-lite/src/config/platform-config.ts` 打开开关：
+如需开启迁移模板模块，可在 `apps/admin-lite/src/config/app.ts` 打开开关：
 
 ```ts
 const enableDemoManagementTemplateModule = true;
@@ -115,12 +115,16 @@ const enableDemoManagementTemplateModule = true;
 - `src/main.ts`
 - `src/bootstrap/startup.ts`
 - `src/bootstrap/index.ts`
-- `src/config/platform-config.ts`
+- `src/config/app.ts`
+- `src/config/theme.ts`
+- `src/bootstrap/runtime.ts`
 - `src/config/ui.ts`
 
 关键约束：
 
-- 平台配置只认 `platform-config.ts`。
+- 平台运行配置只认 `app.ts`。
+- 主题配置只认 `theme.ts`。
+- 构建期 env 解析统一走 `bootstrap/runtime.ts`。
 - UI 开关只认 `ui.ts`。
 - 登录页、顶栏和启动链路不要散落业务化分支。
 

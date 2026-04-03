@@ -36,6 +36,8 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@one-base-template/core', () => ({
+  DEFAULT_LAYOUT_SIDEBAR_COLLAPSED_WIDTH: 64,
+  ONE_BUILTIN_THEMES: {},
   buildLoginRedirectLocation: vi.fn(
     (params: { to: { fullPath: string }; loginRoutePath: string }) => ({
       path: params.loginRoutePath,
@@ -47,6 +49,7 @@ vi.mock('@one-base-template/core', () => ({
   createBasicClientSignatureBeforeRequest: mocks.createBasicClientSignatureBeforeRequestMock,
   createObHttp: mocks.createObHttpMock,
   getRouteAccess: vi.fn((meta?: { access?: string }) => meta?.access ?? 'menu'),
+  parseRuntimeConfig: vi.fn((input: unknown) => input),
   useAuthStore: () => ({ reset: mocks.authReset }),
   useMenuStore: () => ({ reset: mocks.menuReset }),
   useSystemStore: () => ({ reset: mocks.systemReset })
@@ -78,6 +81,13 @@ interface ObHttpMockOptions {
     baseURL?: string;
     withCredentials?: boolean;
     timeout?: number;
+  };
+  auth: {
+    tokenHeader?: string;
+    tokenPrefix?: string;
+  };
+  biz: {
+    successCodes?: number[];
   };
   beforeRequestCallback?: (config: { headers: Record<string, string> }) => Promise<void> | void;
   hooks: {
@@ -130,6 +140,25 @@ describe('bootstrap/http', () => {
     expect(options.axios.baseURL).toBe('https://api.example.com');
     expect(options.axios.withCredentials).toBe(true);
     expect(options.axios.timeout).toBe(30_000);
+  });
+
+  it('应使用应用配置中的认证头与成功码策略', () => {
+    createAppHttp({
+      backend: 'default',
+      isProd: false,
+      authMode: 'cookie',
+      tokenKey: 'token-key',
+      idTokenKey: 'id-token-key',
+      pinia: {} as never,
+      router: { replace: vi.fn() } as never
+    });
+
+    const options = mocks.createObHttpMock.mock.calls[0]?.[0] as ObHttpMockOptions;
+    expect(options.auth).toMatchObject({
+      tokenHeader: 'Authorization',
+      tokenPrefix: ''
+    });
+    expect(options.biz.successCodes).toEqual([0, 1, 200]);
   });
 
   it('basic 场景应按请求懒加载签名模块并注入签名请求头', async () => {

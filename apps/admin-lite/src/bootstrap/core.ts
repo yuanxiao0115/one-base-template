@@ -5,13 +5,11 @@ import {
   createCore,
   createStaticMenusFromRoutes,
   type ObAuthMode,
-  type LayoutMode,
-  type MenuMode,
-  type SystemSwitchStyle
+  type MenuMode
 } from '@one-base-template/core';
 import { obConfirm } from '@one-base-template/ui';
 
-import { appSsoOptions, appThemeOptions, createSystemsOptions } from '../config';
+import { homeFallback, sso, theme, ui } from '../config';
 
 export function installCore(
   app: App,
@@ -21,11 +19,6 @@ export function installCore(
     tokenKey: string;
     menuMode: MenuMode;
     routes: RouteRecordRaw[];
-    layoutMode: LayoutMode;
-    systemSwitchStyle: SystemSwitchStyle;
-    topbarHeight: number | string;
-    sidebarWidth: number | string;
-    sidebarCollapsedWidth: number | string;
     storageNamespace: string;
     defaultSystemCode?: string;
     systemHomeMap: Record<string, string>;
@@ -37,11 +30,6 @@ export function installCore(
     tokenKey,
     menuMode,
     routes,
-    layoutMode,
-    systemSwitchStyle,
-    topbarHeight,
-    sidebarWidth,
-    sidebarCollapsedWidth,
     storageNamespace,
     defaultSystemCode,
     systemHomeMap
@@ -60,23 +48,24 @@ export function installCore(
       },
       menuMode,
       staticMenus,
-      sso: appSsoOptions,
+      sso,
       theme: {
-        ...appThemeOptions,
+        ...theme,
         storageNamespace
       },
       layout: {
-        defaultMode: layoutMode,
-        systemSwitchStyle,
-        topbarHeight,
-        sidebarWidth,
-        sidebarCollapsedWidth,
+        defaultMode: ui.layout.mode,
+        systemSwitchStyle: ui.layout.systemSwitchStyle,
+        topbarHeight: ui.layout.topbarHeight,
+        sidebarWidth: ui.layout.sidebarWidth,
+        sidebarCollapsedWidth: ui.layout.sidebarCollapsedWidth,
         persist: true
       },
-      systems: createSystemsOptions({
+      systems: {
         defaultCode: defaultSystemCode,
-        homeMap: systemHomeMap
-      }),
+        homeMap: systemHomeMap,
+        fallbackHome: homeFallback
+      },
       hooks: {
         tableConfirmAdapter: {
           warn: async (message, title, options) => obConfirm.warn(message, title, options),

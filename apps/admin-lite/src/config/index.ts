@@ -1,24 +1,5 @@
-/**
- * admin-lite 配置统一出口。
- *
- * 维护约束：
- * - 这里只导出“可维护配置项”；
- * - 工具逻辑请放到 `utils/*` 或 `services/*`，不要回流到 `config/*`。
- */
-export { appAuthSsoApiConfig, appSsoOptions } from './auth-sso';
-export { createSystemsOptions, DEFAULT_FALLBACK_HOME } from './systems';
-export { appThemeOptions } from './theme';
-export {
-  appCrudContainerDefaultType,
-  appLoginUiConfig,
-  appMaterialImageCacheConfig,
-  appTableDefaults,
-  appTopBarFeatureConfig
-} from './ui';
-export {
-  appLayoutMode,
-  appSystemSwitchStyle,
-  appTopbarHeight,
-  appSidebarWidth,
-  appSidebarCollapsedWidth
-} from './layout';
+export { app, getApp, loadApp, homeFallback } from './app';
+export { authApi, sso } from './auth';
+export { request } from './request';
+export { ui } from './ui';
+export { theme } from './theme';
