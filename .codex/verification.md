@@ -6,7 +6,7 @@
 
 - 日期：2026-04-03
 - 文件：`.codex/verification/2026-04-03.md`
-- 补充：新增“platformConfig 模块化维护 + 切账号权限缓存防串号”、“system-sfss 列表页结构统一（ObPageContainer + ObTableBox + ObTable）”、“迁移策略文档增强（Ob 规范 + CRUD 收口）”与“admin-lite 可开关 starter-crud 示例模块”专项验证记录。
+- 补充：新增“platformConfig 模块化维护 + 切账号权限缓存防串号”、“system-sfss 列表页结构统一（ObPageContainer + ObTableBox + ObTable）”、“迁移策略文档增强（Ob 规范 + CRUD 收口）”、“admin-lite 可开关 starter-crud 示例模块”与“docs 技术文档分析与改造（四技能顺序）”专项验证记录。
 
 ## 历史归档
 

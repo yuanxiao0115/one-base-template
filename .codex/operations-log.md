@@ -12029,3 +12029,17 @@
   - thundergolfer（三件套技术写作文章）
   - Infosec Docs & Reports 资源索引
   - Reddit 用户 Knightcalibre 公开帖子
+
+## 2026-04-03（docs 技术文档分析与改造：四技能顺序执行）
+
+- 执行顺序：`brainstorming -> technical-doc-collaboration -> write-markdown-tech-docs -> vitepress-doc-beauty`。
+- 分析落盘：新增 `docs/plans/2026-04-03-docs-tech-doc-refactor-plan.md`，记录受众画像、结构化审计指标（45 页、TL;DR/范围/步骤/验收覆盖率）、方案对比与验收口径。
+- 文档改造：
+  - 新增 `apps/docs/docs/guide/tech-doc-collaboration.md`（技术文档协作与改造手册，含问题框架、最小可运行路径、协作流程、验收清单、维护触发条件）。
+  - 重写 `apps/docs/docs/guide/quick-start.md`（可执行版：前置条件、分步命令、预期结果、失败处理、验收）。
+  - 重写 `apps/docs/docs/guide/architecture.md`（执行版：边界铁律、最小可运行路径、FAQ、阅读顺序）。
+  - 重写 `apps/docs/docs/guide/development.md`（执行清单：最小工作流、质量门禁、失败处理、验收标准）。
+- 信息架构同步：
+  - `apps/docs/docs/.vitepress/config.ts` 增加“技术文档协作与改造”导航与 sidebar 入口。
+  - `apps/docs/docs/guide/index.md` 在“维护治理”新增卡片入口。
+  - `apps/docs/docs/index.md` 首页“推荐阅读路径”新增“文档改造手册”入口。

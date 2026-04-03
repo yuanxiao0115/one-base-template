@@ -1,17 +1,32 @@
-# 开发规范与维护（精简版）
+# 开发规范与维护（执行清单）
 
-> 目标：给开发同学一页可执行清单。先做什么、改完跑什么、出问题看哪里。
+<div class="doc-tldr">
+  <strong>TL;DR：</strong>开发前先确认作用域与规则文件，开发后至少完成 `typecheck + lint + build`，改动涉及规则或行为时必须同步更新 docs 并通过文档构建。
+</div>
 
-## TL;DR
+## 适用范围
 
-1. 开发前：确认目标目录的 `AGENTS.md`。
-2. 开发中：优先复用 `Ob*` 组件和既有模块范式。
-3. 提交前：至少跑 `typecheck + lint + build`。
-4. 改了规则或行为：必须同步更新 `apps/docs`。
+- 适用目录：`/Users/haoqiuzhi/code/one-base-template/**`
+- 适用场景：日常开发、自测提交流程、文档同步治理
+- 目标读者：业务开发者、模块维护者、值班同学
 
-## 1) 最小工作流
+## 1. 最小工作流
 
-### 日常开发（本地）
+### 1.1 开发前
+
+1. 确认目标目录的 `AGENTS.md`。
+2. 明确本次改动属于“代码改动 / 文档改动 / 规则改动”。
+3. 若涉及跨模块联动，先阅读 [目录结构与边界](/guide/architecture)。
+
+### 1.2 开发中
+
+1. 优先复用既有 `Ob*` 组件与模块范式。
+2. 保持改动最小闭环，避免顺手引入无关重构。
+3. 变更规则、路径、命令时同步维护 `apps/docs` 页面。
+
+### 1.3 提交前
+
+在仓库根目录执行：
 
 ```bash
 pnpm typecheck
@@ -19,24 +34,15 @@ pnpm lint
 pnpm build
 ```
 
-### 提测前（推荐）
+大改动推荐补跑：
 
 ```bash
 pnpm verify
 ```
 
-`verify` 会串行执行：命名检查、架构门禁、测试、类型检查、lint、构建和 bundle 预算检查。
+## 2. app 级常用命令
 
-### 只改 docs 时
-
-```bash
-pnpm -C apps/docs lint
-pnpm -C apps/docs build
-```
-
-## 2) app 级常用命令
-
-### admin
+### 2.1 admin
 
 ```bash
 pnpm -C apps/admin dev
@@ -46,7 +52,7 @@ pnpm -C apps/admin lint:arch
 pnpm -C apps/admin build
 ```
 
-### admin-lite
+### 2.2 admin-lite
 
 ```bash
 pnpm -C apps/admin-lite dev
@@ -57,23 +63,30 @@ pnpm -C apps/admin-lite test:run
 pnpm -C apps/admin-lite build
 ```
 
-## 3) 文档同步规则
-
-以下变更必须同步文档：
-
-1. 路由、菜单、权限策略。
-2. 配置项（env、platform-config、layout、ui）。
-3. 组件基线或页面编排范式。
-4. 验证命令与门禁策略。
-
-最小要求：
+### 2.3 docs
 
 ```bash
 pnpm -C apps/docs lint
 pnpm -C apps/docs build
 ```
 
-## 4) 质量门禁（记住这 5 条）
+## 3. 文档同步规则
+
+以下变更必须同步 docs：
+
+1. 路由、菜单、权限策略。
+2. 配置项（`env`、`platform-config`、`layout`、`ui`）。
+3. 组件基线或页面编排范式。
+4. 验证命令与门禁策略。
+
+最小验收命令：
+
+```bash
+pnpm -C apps/docs lint
+pnpm -C apps/docs build
+```
+
+## 4. 质量门禁（5 条硬约束）
 
 1. 代码优先可读，不做无收益抽象。
 2. 模块内优先就近实现，跨模块复用再下沉。
@@ -81,28 +94,45 @@ pnpm -C apps/docs build
 4. CRUD 容器统一：`ObCrudContainer`。
 5. 消息与确认统一：`message`、`obConfirm`。
 
-## 5) 性能与体积基线
+## 5. 失败处理与回滚
 
-如果改动影响 admin/admin-lite 首屏或依赖图，提交前补跑：
+| 现象             | 原因                 | 处理动作                                         |
+| ---------------- | -------------------- | ------------------------------------------------ |
+| `lint:arch` 失败 | 触发架构边界红线     | 按错误提示回到对应 `AGENTS.md` 修正              |
+| typecheck 失败   | 类型签名与契约不一致 | 先修类型再继续功能迭代                           |
+| docs 构建失败    | 链接失效或导航未同步 | 更新 `config.ts`、`guide/index.md`、相关页面互链 |
+
+如果本轮仅是文档改动回滚，可用 `git restore <docs-file>` 定向回退单文件，再重跑 docs lint/build。
+
+## 6. 验证与验收
+
+### 6.1 验证命令
 
 ```bash
-pnpm check:admin:bundle
-pnpm check:admin-lite:bundle
+pnpm typecheck
+pnpm lint
+pnpm build
+pnpm -C apps/docs lint
+pnpm -C apps/docs build
 ```
 
-## 6) 新同学常见问题
+### 6.2 通过标准
 
-1. `lint` 和 `lint:arch` 区别？
-   : `lint` 查语法与风格，`lint:arch` 查架构边界与项目红线。
-2. 为什么我只改了代码还要改 docs？
-   : 本仓库把 docs 作为团队共识入口，不同步会导致规则漂移。
-3. 只改一个页面也要跑全量吗？
-   : 至少跑当前 app 的 `typecheck + lint + build`；大改动再跑 `verify`。
+1. 命令全部通过。
+2. 规则变化已在 docs 可检索页面体现。
+3. 导航入口与正文互链一致。
 
-## 7) 相关阅读
+## 7. 常见问题
 
-- [monorepo-web 迁移踩坑清单](/guide/monorepo-web-migration-pitfalls)
-- [模块系统（最终版）](/guide/module-system)
-- [菜单与路由规范（Schema）](/guide/menu-route-spec)
-- [admin-lite 后台基座](/guide/admin-lite-base-app)
+| 问题                             | 原因           | 解决方案                                     |
+| -------------------------------- | -------------- | -------------------------------------------- |
+| `lint` 和 `lint:arch` 有什么区别 | 检查维度不同   | `lint` 查语法风格，`lint:arch` 查架构边界    |
+| 只改一个页面也要跑全量吗         | 需要最低闭环   | 至少跑当前 app 的 `typecheck + lint + build` |
+| 为什么代码改动还要改 docs        | 文档是协作入口 | 不同步会导致规则漂移和误操作                 |
+
+## 8. 相关阅读
+
+- [快速开始](/guide/quick-start)
+- [目录结构与边界](/guide/architecture)
+- [技术文档协作与改造手册](/guide/tech-doc-collaboration)
 - [AGENTS 规则分层](/guide/agents-scope)

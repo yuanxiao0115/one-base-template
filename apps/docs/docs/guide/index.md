@@ -134,6 +134,10 @@ outline: false
     <h3>开发规范与维护</h3>
     <p>验证命令、构建策略、文档同步与工程约束。</p>
   </a>
+  <a class="guide-card" href="/guide/tech-doc-collaboration">
+    <h3>技术文档协作与改造</h3>
+    <p>按“分析 -> 改造 -> 验收”主线执行 docs 页面治理与持续维护。</p>
+  </a>
   <a class="guide-card" href="/guide/monorepo-web-migration-pitfalls">
     <h3>迁移踩坑清单（monorepo-web）</h3>
     <p>沉淀已踩坑与纠偏动作，减少迁移重复返工。</p>

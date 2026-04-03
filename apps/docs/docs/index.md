@@ -57,6 +57,10 @@ features:
     <h3>🧰 维护治理</h3>
     <p>交付前验证、规则分层、发布流程与文档治理。</p>
   </a>
+  <a class="doc-quick-card" href="/guide/tech-doc-collaboration">
+    <h3>📝 文档改造手册</h3>
+    <p>按统一方法把技术文档做成“可执行、可验收、可维护”。</p>
+  </a>
   <a class="doc-quick-card" href="/guide/for-users">
     <h3>👥 角色阅读入口</h3>
     <p>如果你更习惯按角色阅读，可从使用者/维护者入口进入。</p>
