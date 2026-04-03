@@ -99,6 +99,7 @@ function createDevProxy(options: {
   apiBaseUrl: string;
   zbBaseUrl: string;
   zfwBaseUrl: string;
+  cmictBaseUrl: string;
   enableProxyDebugLog: boolean;
 }) {
   const proxy: Record<string, Record<string, unknown>> = {};
@@ -109,13 +110,14 @@ function createDevProxy(options: {
       target: options.apiBaseUrl,
       enableProxyDebugLog: options.enableProxyDebugLog
     });
+  }
+  if (options.cmictBaseUrl) {
     proxy['/cmict'] = createProxyEntry({
       prefix: '/cmict',
-      target: options.apiBaseUrl,
+      target: options.cmictBaseUrl,
       enableProxyDebugLog: options.enableProxyDebugLog
     });
   }
-
   if (options.zbBaseUrl) {
     proxy['/zb'] = createProxyEntry({
       prefix: '/zb',
@@ -141,6 +143,7 @@ function createDevProxy(options: {
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiBaseUrl = env.VITE_API_BASE_URL || '';
+  const cmictBaseUrl = env.VITE_API_CMICT_URL || '';
   const zbBaseUrl = env.VITE_ZB_BASE_URL || env.VITE_API_BASE_URL || '';
   const zfwBaseUrl = env.VITE_API_LM_URL || DEFAULT_ZFW_PROXY_TARGET;
   const devPort = resolveDevPort(env.VITE_PORT);
@@ -149,6 +152,7 @@ export default defineConfig(({ command, mode }) => {
   const devProxy = createDevProxy({
     apiBaseUrl,
     zbBaseUrl,
+    cmictBaseUrl,
     zfwBaseUrl,
     enableProxyDebugLog
   });
