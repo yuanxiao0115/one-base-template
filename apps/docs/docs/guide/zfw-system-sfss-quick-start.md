@@ -23,6 +23,14 @@ pnpm -C apps/zfw-system-sfss dev
 VITE_API_BASE_URL=http://<你的后端地址> pnpm -C apps/zfw-system-sfss dev
 ```
 
+`system-sfss` 业务页面同时依赖 `/cmict`、`/zfw`、`/zb` 三类接口，建议本地 `.env.development.local` 同时配置：
+
+```bash
+VITE_API_BASE_URL=http://<主网关地址>       # /cmict、/api
+VITE_API_LM_URL=http://<sfss业务服务地址>   # /zfw
+VITE_ZB_BASE_URL=http://<指标服务地址>      # /zb
+```
+
 ## 2. 当前运行口径（重点）
 
 `apps/zfw-system-sfss/src/config/platform-config.ts` 当前按以下口径维护：

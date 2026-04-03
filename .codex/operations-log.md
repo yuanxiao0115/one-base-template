@@ -2,6 +2,28 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-03（zfw-system-sfss 接口对接：补齐 /cmict + /zfw + /zb 三链路）
+
+- 背景：
+  - 用户反馈 `apps/zfw-system-sfss` 仍未完成接口对接，重点在登录、菜单、`system-sfss` 业务接口联调可用性。
+- 现状排查：
+  - `basicAdapter` 与登录/菜单接口路径已对齐 `/cmict/**`（`/cmict/auth/login`、`/cmict/admin/permission/my-tree`）。
+  - `system-sfss` 业务代码除 `/cmict/**` 外还大量使用 `/zfw/**`、`/zb/**` 路径。
+  - 新项目 `vite.config.ts` 仅代理 `/api` 与 `/cmict`，导致 `/zfw`、`/zb` 在本地联调不可达。
+- 改造内容：
+  - `apps/zfw-system-sfss/vite.config.ts`
+    - 新增读取 `VITE_ZB_BASE_URL`、`VITE_API_LM_URL`；
+    - 代理规则扩展为：
+      - `/api`、`/cmict` -> `VITE_API_BASE_URL`
+      - `/zb` -> `VITE_ZB_BASE_URL`（缺省回退 `VITE_API_BASE_URL`，并 rewrite 去前缀）
+      - `/zfw` -> `VITE_API_LM_URL`（缺省回退 `VITE_API_BASE_URL`）
+  - `apps/zfw-system-sfss/.env.example`
+    - 增加 `VITE_ZB_BASE_URL`、`VITE_API_LM_URL` 示例说明。
+  - `apps/zfw-system-sfss/README.md`、`apps/docs/docs/guide/zfw-system-sfss-quick-start.md`
+    - 补充三链路联调变量说明（主网关 + LM 服务 + 指标服务）。
+  - 本地联调补充（未入库，git ignore）：
+    - 新建 `apps/zfw-system-sfss/.env.development.local`，写入老项目联调地址。
+
 ## 2026-04-03（路由自动注入能力推广：admin + admin-lite + zfw 统一）
 
 - 目标：

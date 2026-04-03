@@ -44,6 +44,20 @@
   - `pnpm -C apps/zfw-system-sfss typecheck` 失败（legacy 业务类型债务，含大量 `unknown` 字段访问报错），与本次“路由自动注入”改动无直接耦合；
   - 本次改动涉及文件（`system-sfss/routes.ts`、`LogManagement/routes*.ts`）未新增 typecheck 报错。
 
+## 2026-04-03（zfw-system-sfss 接口对接：补齐 /zfw 与 /zb 代理链路）
+
+- GREEN / 回归：
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/router/registry.unit.test.ts tests/router/assemble-routes.unit.test.ts tests/router/route-policy.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `zfw-system-sfss`：架构边界检查通过。
+  - `zfw-system-sfss`：路由相关测试 `4 files / 12 tests` 通过。
+  - `zfw-system-sfss`：构建通过（保留既有 `INEFFECTIVE_DYNAMIC_IMPORT` 警告，不阻断）。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
 ## 2026-04-02（system-sfss 重建迁移：legacy 6 子模块结构恢复）
 
 - RED（先失败）：

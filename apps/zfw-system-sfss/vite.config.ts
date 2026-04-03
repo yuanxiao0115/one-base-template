@@ -18,6 +18,8 @@ const INTERNAL_WORKSPACE_PACKAGES = [
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiBaseUrl = env.VITE_API_BASE_URL;
+  const zbBaseUrl = env.VITE_ZB_BASE_URL;
+  const lmApiBaseUrl = env.VITE_API_LM_URL;
   const appBase = normalizeAppBase(env.VITE_APP_BASE);
 
   return {
@@ -44,19 +46,42 @@ export default defineConfig(({ mode }) => {
         allow: [fileURLToPath(new URL('../../', import.meta.url))]
       },
       // 当配置了真实后端地址时，使用同源代理，Cookie 模式更顺畅（避免跨域）
-      ...(apiBaseUrl
+      ...(apiBaseUrl || zbBaseUrl || lmApiBaseUrl
         ? {
             proxy: {
-              '/api': {
-                target: apiBaseUrl,
-                changeOrigin: true,
-                secure: false
-              },
-              '/cmict': {
-                target: apiBaseUrl,
-                changeOrigin: true,
-                secure: false
-              }
+              ...(apiBaseUrl
+                ? {
+                    '/api': {
+                      target: apiBaseUrl,
+                      changeOrigin: true,
+                      secure: false
+                    },
+                    '/cmict': {
+                      target: apiBaseUrl,
+                      changeOrigin: true,
+                      secure: false
+                    }
+                  }
+                : {}),
+              ...(zbBaseUrl || apiBaseUrl
+                ? {
+                    '/zb': {
+                      target: zbBaseUrl || apiBaseUrl,
+                      changeOrigin: true,
+                      secure: false,
+                      rewrite: (path) => path.replace(/^\/zb/, '')
+                    }
+                  }
+                : {}),
+              ...(lmApiBaseUrl || apiBaseUrl
+                ? {
+                    '/zfw': {
+                      target: lmApiBaseUrl || apiBaseUrl,
+                      changeOrigin: true,
+                      secure: false
+                    }
+                  }
+                : {})
             }
           }
         : {})
