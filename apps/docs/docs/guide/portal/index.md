@@ -1,57 +1,81 @@
-# 门户体系（Portal）总览
+---
+outline: [2, 3]
+---
 
-> 适用范围：`apps/admin/src/modules/PortalManagement`、`packages/portal-engine`、`apps/portal/src/modules/portal`
+# 门户体系（Portal）总览
 
 ## TL;DR
 
-- **管理端编排** 在 `PortalManagement`，负责路由、页面组装与能力注入。
-- **共享引擎能力** 在 `portal-engine`，负责设计器/渲染器/物料体系。
-- 文档按“使用者视角”分层，避免在一页里混合历史、实现细节和接入步骤。
+- `PortalManagement`（`apps/admin`）负责管理端编排与接入。
+- `portal-engine`（`packages/portal-engine`）负责设计器、渲染器、物料体系等共享能力。
+- `apps/portal` 负责渲染端页面落地与运行态数据装配。
 
-## 文档分层
+## 适用范围
 
-| 文档                               | 适合读者       | 解决问题                             |
-| ---------------------------------- | -------------- | ------------------------------------ |
-| `/guide/portal/`（本页）           | 所有人         | 先看全局入口与阅读顺序               |
-| `/guide/portal/admin-designer`     | admin 业务开发 | 如何在 PortalManagement 接入与改造   |
-| `/guide/portal/engine-boundary`    | 引擎维护者     | `portal-engine` 的边界、导出层与约束 |
-| `/guide/portal/material-extension` | 物料扩展开发   | 如何新增分类/物料并注册到 admin      |
+- 适用于：门户管理端接入、引擎能力改造、物料扩展、渲染端联调。
+- 涉及目录：
+  - `apps/admin/src/modules/PortalManagement/**`
+  - `packages/portal-engine/**`
+  - `apps/portal/src/modules/portal/**`
+- 不适用于：admin 常规模块 CRUD 场景（请走通用模块文档）。
 
-## 快速阅读路径
+## 前置条件
 
-1. 只做管理端页面联调：先看 `admin-designer`。
-2. 要改共享能力（工作台/渲染器/协议）：看 `engine-boundary`。
-3. 只新增物料或分类：看 `material-extension`。
+1. 已明确你要做的是“管理端接入 / 引擎改造 / 物料扩展”哪一类任务。
+2. 已能本地启动 `apps/admin` 与 `apps/portal`。
+3. 已阅读 [按水平进入（P2 / P4 / P6）](/guide/levels/) 对当前任务层级做判断。
+
+## 阅读顺序（先选任务，再进子文档）
+
+| 你要做的事                           | 先读文档                                                    | 读完后的动作                 |
+| ------------------------------------ | ----------------------------------------------------------- | ---------------------------- |
+| 管理端页面联调（设计/编辑/预览）     | [PortalManagement 管理端接入](/guide/portal/admin-designer) | 对照路由与页面入口跑一次联调 |
+| 改共享引擎能力（工作台/渲染器/协议） | [portal-engine 边界与导出层](/guide/portal/engine-boundary) | 在 engine 包内改造并回归     |
+| 新增分类或物料                       | [门户物料扩展与注册](/guide/portal/material-extension)      | 按约定目录新增物料并注册     |
+
+## 最短执行路径（按任务）
+
+### 1. 管理端接入链路
+
+1. 先确认路由入口：`PortalManagement/routes/layout.ts` 与 `routes/standalone.ts`。
+2. 确认引擎注入唯一入口：`PortalManagement/engine/register.ts`。
+3. 在页面层只做路由参数、消息反馈、壳组件拼装，不散落注入逻辑。
+
+### 2. 引擎能力改造链路
+
+1. 先在 `packages/portal-engine` 内确定改动边界（editor/renderer/materials/workbench）。
+2. 仅通过对外导出层暴露能力，避免让 admin 直接依赖内部实现细节。
+3. 变更后回看管理端接入点，确认接口契约未漂移。
+
+### 3. 物料扩展链路
+
+1. 在 `PortalManagement/materials/**` 下按约定结构新增物料。
+2. 通过 `materials/extensions/index.ts` 统一声明扩展入口。
+3. 在编辑态/渲染态分别验证物料可见性与行为一致性。
 
 ## 代码目录地图
 
 ```text
 apps/admin/src/modules/PortalManagement
-  api/                            # 领域 API（portal/cms/authority）
   designPage/                     # 管理端三大页面入口（设计/编辑/预览）
-  templatePage/                   # 模板列表与权限配置（含 composables 拆分）
+  templatePage/                   # 模板列表与权限配置
+  materialManagement/             # 素材管理
   engine/register.ts              # admin 注入 portal-engine 的唯一入口
-  materials/extensions/index.ts   # admin 扩展物料声明唯一入口
+  materials/extensions/index.ts   # admin 扩展物料声明入口
 
 packages/portal-engine/src
-  editor/                         # 设计器工作台能力
+  editor/                         # 设计器工作台
   renderer/                       # 预览与运行态渲染
   materials/ + registry/          # 物料定义、加载与注册
-  workbench/                      # 路由与页面编排控制器
+  workbench/                      # 页面编排与工作区控制器
 
 apps/portal/src/modules/portal
-  pages/PortalRenderPage.vue      # 渲染端入口（壳层 + 页面内容）
+  pages/PortalRenderPage.vue      # 渲染端入口
   materials/useMaterials.ts       # 渲染态物料与 cmsApi 注入
-  services/portal-service.ts      # tab/template 公共接口封装
+  services/portal-service.ts      # tab/template 接口封装
 ```
 
-## 2026-03-18 并行优化结果
-
-- 权限能力：`PagePermissionDialog`、`PortalAuthorityDialog` 的 payload 归一化与数据源请求已抽离到 `templatePage/components/permission/*`。
-- 物料入口：admin 侧改为统一 `usePortalMaterials(scene)`，编辑态与预览态通过场景参数切换，不再维护三个并行 wrapper。
-- 协议兼容：模板详情接口的 `whiteList -> whiteDTOS` 兼容逻辑已下沉到 `packages/adapters`，`PortalManagement` 模块内不再保留同类 `compat` 映射文件。
-
-## 路由总览（管理端）
+## 管理端核心路由
 
 | 路由                                       | 作用                   |
 | ------------------------------------------ | ---------------------- |
@@ -61,9 +85,50 @@ apps/portal/src/modules/portal
 | `/portal/page/edit?id=...&tabId=...`       | 页面深度编辑           |
 | `/portal/preview?templateId=...&tabId=...` | 预览渲染（匿名可访问） |
 
-## 渲染端对齐口径（apps/portal）
+## 已落地收口（2026-03）
 
-- `PortalRenderPage` 统一复用 `PortalPreviewPanel`，直接消费 `portal-engine` 的页眉/页脚/布局壳层能力。
-- 路由入口：`/portal/index/:tabId?`、`/portal/preview/:tabId?`。
-- 当仅有 `templateId` 时，渲染端会先解析模板树首个页面 `tabId`，再进入壳层渲染。
-- 导航行为：页眉导航 `tab` 走站内路由切换，外链 `url` 走新窗口打开。
+1. `PortalManagement` 引擎注入统一收敛到 `engine/register.ts`，页面层不再散落 `setPortal*` 注入。
+2. 物料入口统一为 `usePortalMaterials(scene)`，不再维护多套并行 wrapper。
+3. 模板兼容 `whiteList -> whiteDTOS` 已下沉到 adapters，模块内不再保留重复 compat 映射。
+4. 素材管理页已收口到标准后台容器结构（`ObPageContainer` + `ObCardTable`）。
+
+## 验证与验收
+
+建议在仓库根目录执行：
+
+```bash
+pnpm -C apps/admin typecheck
+pnpm -C apps/admin lint
+pnpm -C apps/admin build
+pnpm -C apps/portal typecheck
+pnpm -C apps/portal lint
+pnpm -C apps/portal build
+pnpm -C apps/docs lint
+pnpm -C apps/docs build
+```
+
+通过标准：
+
+1. 管理端与渲染端构建通过。
+2. 门户路由可访问，设计/编辑/预览链路可联调。
+3. docs 构建通过，入口可达且无断链。
+
+## FAQ
+
+### 管理端可以直接调用 portal-engine 内部文件吗？
+
+不建议。应通过 `portal-engine` 对外导出层消费能力，避免跨包内部耦合。
+
+### 为什么强调 `engine/register.ts` 是唯一入口？
+
+统一入口可以确保注入顺序、幂等行为和扩展注册一致，减少“页面能跑但行为不一致”的隐性问题。
+
+### 我只想新增一个物料，需要先看全部门户文档吗？
+
+不用。按本页任务路由直接进入 [门户物料扩展与注册](/guide/portal/material-extension) 即可。
+
+## 相关阅读
+
+- [PortalManagement 管理端接入](/guide/portal/admin-designer)
+- [portal-engine 边界与导出层](/guide/portal/engine-boundary)
+- [门户物料扩展与注册](/guide/portal/material-extension)

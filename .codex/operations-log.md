@@ -12090,3 +12090,22 @@
     - 补齐治理前检查、全链路命令与证据化要求。
 - 信息架构策略：
   - 本轮仅改内容结构，不改 `.vitepress` 导航，保持最小差异改造。
+
+## 2026-04-03（docs 第五批结构化改造：分层入口强化 + utils/portal 执行化）
+
+- 用户选择：继续执行“1+2”，即同时推进“分层入口互链强化”与“utils/portal 执行化改造”。
+- 计划落盘：
+  - 新增 `docs/plans/2026-04-03-docs-tech-doc-refactor-batch5-plan.md`。
+- 本轮改造页面：
+  - `apps/docs/docs/guide/levels/index.md`
+    - 升级为“入口决策页”，补齐前置条件、最短路径、验收、FAQ。
+  - `apps/docs/docs/guide/for-users.md`
+    - 强化“先层级后角色”规则，角色页定位为任务分流辅助入口。
+  - `apps/docs/docs/guide/for-maintainers.md`
+    - 强化 P6 主线优先，补齐维护闭环步骤与验证口径。
+  - `apps/docs/docs/guide/utils.md`
+    - 收口为执行型结构，补齐导出核对步骤、验证命令与 FAQ。
+  - `apps/docs/docs/guide/portal/index.md`
+    - 收口为任务驱动总览，补齐“管理端接入/引擎改造/物料扩展”最短执行路径。
+- 约束执行：
+  - 本轮仅改文档内容，不改 `.vitepress` 导航结构。

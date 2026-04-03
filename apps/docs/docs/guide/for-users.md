@@ -1,49 +1,54 @@
 ---
-outline: false
+outline: [2, 3]
 ---
 
 # 框架使用者阅读入口（执行版）
 
-<div class="doc-tldr">
-  <strong>TL;DR：</strong>你是业务开发时，先按“启动 -> 边界 -> 模块 -> 验证”四步走；按本页清单执行，可以在 30-60 分钟内完成一个最小开发闭环。
-</div>
+## TL;DR
+
+- 业务开发场景下，建议先走分层主线，再用本页做任务索引。
+- 默认顺序：`先选 P2/P4 -> 再按任务进入专题页 -> 最后跑验证命令`。
+- 本页是“角色辅助入口”，不是主入口。
 
 ## 适用范围
 
-- 适用人群：业务开发、模块接入、页面开发、能力扩展
-- 适用目标：快速完成从启动项目到提交前验证的一次闭环
-- 推荐先看：[按水平进入（P2 / P4 / P6）](/guide/levels/)
+- 适合：业务开发、模块接入、页面改造、能力扩展。
+- 目标：在 30-60 分钟内完成一次最小开发闭环并通过验证。
+- 推荐先读：[按水平进入（P2 / P4 / P6）](/guide/levels/)。
 
-## 1. 5 分钟阅读路径（先建立心智）
+## 前置条件
 
-1. [快速开始](/guide/quick-start)：先把项目跑起来。
-2. [配置模型](/guide/env)：确认配置入口与读取方式。
-3. [目录结构与边界](/guide/architecture)：避免跨层误改。
-4. [菜单与路由规范（Schema）](/guide/menu-route-spec)：统一 route/meta 认知。
-5. [开发规范与维护](/guide/development)：明确提交流程与门禁。
+1. 已明确当前层级（P2 或 P4）。
+2. 本地可执行 `pnpm` 命令。
+3. 已准备好目标应用（`apps/admin` 或 `apps/admin-lite`）。
 
-## 2. 开发主线（按顺序执行）
+## 入口使用规则（先层级、后角色）
 
-1. [模块系统与切割](/guide/module-system)
-2. [菜单与路由规范（Schema）](/guide/menu-route-spec)
-3. [布局与菜单](/guide/layout-menu)
-4. [CRUD 开发规范](/guide/crud-module-best-practice)
-5. [开发规范与维护](/guide/development)
+1. 先进入 [P2 路线（上手）](/guide/levels/p2) 或 [P4 路线（独立开发）](/guide/levels/p4)。
+2. 在层级页完成“最短执行路径”后，再回本页按任务跳转。
+3. 如果你还没开始写代码，不要先读维护治理页面。
 
-## 3. 最短开发闭环（可直接照做）
+## 任务索引（按你要做的事进入）
 
-### 3.1 操作步骤
+| 任务                       | 优先阅读                                           | 补充阅读                                                                                 |
+| -------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 启动项目并跑通首轮闭环     | [快速开始](/guide/quick-start)                     | [环境变量](/guide/env)                                                                   |
+| 新增或改造模块             | [模块系统与切割](/guide/module-system)             | [admin-lite 后台基座](/guide/admin-lite-base-app)                                        |
+| 改路由与权限               | [菜单与路由规范（Schema）](/guide/menu-route-spec) | [布局与菜单](/guide/layout-menu)                                                         |
+| 做列表与 CRUD              | [CRUD 开发规范](/guide/crud-module-best-practice)  | [内置组件（Ob 系列）](/guide/built-in-components)                                        |
+| 扩展能力（门户/表单/适配） | [门户体系总览](/guide/portal/)                     | [公文表单设计引擎](/guide/document-form-designer)、[basic Adapter](/guide/adapter-basic) |
 
-1. 可选：起一个新后台项目
-   - `pnpm new:app my-admin --preset standard`
-2. 启动当前项目
-   - `pnpm dev`
-3. 生成模块骨架（先 dry-run）
-   - `pnpm new:module user-center --dry-run`
-4. 按 [模块系统与切割](/guide/module-system) 完成 `index.ts（含 moduleMeta） + routes.ts`
-5. 在 `apps/admin/src/config/platform-config.ts` 中确认 `enabledModules`
+## 最短开发闭环（可直接照做）
 
-### 3.2 验证命令
+### 1. 操作步骤
+
+1. 可选：创建新后台项目：`pnpm new:app my-admin --preset standard`。
+2. 启动目标应用：`pnpm dev` 或 `pnpm dev:admin-lite`。
+3. 生成模块骨架（建议先 dry-run）：`pnpm new:module user-center --dry-run`。
+4. 按模块文档完成 `index.ts（moduleMeta） + routes.ts`。
+5. 在 `platform-config.ts` 确认 `enabledModules` 已包含目标模块。
+
+### 2. 验证命令
 
 ```bash
 pnpm -C apps/admin typecheck
@@ -52,30 +57,33 @@ pnpm -C apps/admin build
 pnpm -C apps/docs build
 ```
 
+如果改的是 `admin-lite`，将命令中的 `apps/admin` 替换为 `apps/admin-lite`。
+
+## 验证与验收
+
 通过标准：
 
-1. admin 类型检查、lint、构建通过。
-2. docs 构建通过。
+1. 目标应用 `typecheck/lint/build` 通过。
+2. 模块可访问且菜单/路由行为正确。
+3. 若改了 docs，`apps/docs build` 通过。
 
-## 4. 扩展能力入口
+## FAQ
 
-- [公文表单设计引擎](/guide/document-form-designer)
-- [门户体系总览](/guide/portal/)
-- [PortalManagement 管理端接入](/guide/portal/admin-designer)
-- [basic Adapter](/guide/adapter-basic)
+### 我能只看角色入口，不看分层页吗？
 
-## 5. 你可以暂时跳过
+不建议。分层页定义主线与验证基线，角色页只负责任务分流。
 
-首次接入阶段可先不看以下治理类内容：
+### 刚接手项目该选 P2 还是 P4？
 
-- `AGENTS` 规则分层与 Agent 协作实践
-- 发布流程与命名治理
-- 仓库级文档治理规范
+只要你还不能独立完成“模块新增 + 验证通过”，先选 P2。
 
-## 6. 常见问题
+### 我只改了一个小点，还要跑完整验证吗？
 
-| 问题                   | 原因                               | 处理方式                                      |
-| ---------------------- | ---------------------------------- | --------------------------------------------- |
-| 页面能打开但菜单不高亮 | `meta.activePath` 或菜单映射未配齐 | 回看 [菜单与路由规范](/guide/menu-route-spec) |
-| 新模块不生效           | 未加入 `enabledModules`            | 检查 `platform-config.ts` 模块开关            |
-| 提交前校验太慢         | 一次跑全量命令                     | 先跑当前 app 必要命令，再补全量验证           |
+至少跑目标应用的 `typecheck + lint + build`；改了文档再补跑 `apps/docs build`。
+
+## 相关阅读
+
+- [按水平进入（P2 / P4 / P6）](/guide/levels/)
+- [P2 路线（上手）](/guide/levels/p2)
+- [P4 路线（独立开发）](/guide/levels/p4)
+- [仓库维护者阅读入口](/guide/for-maintainers)

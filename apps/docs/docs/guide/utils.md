@@ -1,45 +1,51 @@
 ---
-outline: [2]
+outline: [2, 3]
 ---
 
 # Utils 工具包
 
-`@one-base-template/utils` 用于承载跨应用复用的通用工具函数，能力迁移自历史项目 `one-admin-monorepo/packages/utils`。
+## TL;DR
 
-> 想快速按模块查 API：请直接看 [Utils API 速查](/guide/utils-api)。
-> 如果你只想“拷贝可用代码”，优先看下方「快速开始」与「在 admin 中使用」。
+- `@one-base-template/utils` 是跨应用通用工具库，定位是“纯工具能力”，不承载 UI 或业务流程。
+- 日常使用建议优先命名空间导入（如 `array`、`tree`、`format`），常用能力可用直出（如 `cloneDeep`、`formatTime`）。
+- 改动 utils 后，至少跑 `packages/utils` 的 `typecheck + lint`，再按影响范围补应用验证。
 
-## 包定位
+## 适用范围
 
-- **职责边界**：仅提供工具能力，不耦合 `packages/core` 与 `packages/ui` 的业务实现。
-- **适用范围**：`apps/admin` 与后续业务应用可直接复用，避免重复造轮子。
-- **导出策略**：以命名空间导出为主（`array/tree/format/date/...`），并保留部分兼容导出（如 `createEmitter`、`storage`）。
+- 适用于：`apps/admin`、`apps/admin-lite`、`apps/portal` 及后续业务应用。
+- 适用于：数组/树/日期/格式化/浏览器能力/加解密等通用工具复用。
+- 不适用于：组件封装、状态管理、路由权限等业务逻辑（应放在 `core` 或 `ui`）。
 
-## 快速开始
+## 前置条件
 
-### 导入方式
+1. 已安装仓库依赖并可执行 `pnpm`。
+2. 明确当前需求属于“通用工具”，不是业务专属逻辑。
+3. 知道目标导出入口：`packages/utils/src/index.ts`。
 
-```ts
-import {
-  array,
-  tree,
-  format,
-  date,
-  LocalStorage,
-  createEmitter,
-  createReactiveState
-} from '@one-base-template/utils';
+## 包定位与边界
+
+- 职责边界：只提供工具能力，不耦合 `packages/core` 与 `packages/ui` 的业务实现。
+- 导出策略：以命名空间导出为主（`array/tree/format/date/...`），并保留兼容导出（如 `createEmitter`、`storage`）。
+- 常用直出：`cloneDeep`、`deepClone`、`formatTime`。
+
+## 最短执行路径
+
+### 1. 先确认导出能力
+
+查看统一入口：`packages/utils/src/index.ts`。
+
+可用命令：
+
+```bash
+rg -n "export \* as|export \{ cloneDeep|export \{ formatTime" packages/utils/src/index.ts
 ```
 
-### 常见场景示例
+### 2. 在业务侧按命名空间导入
 
 ```ts
 import { array, tree, format, date, LocalStorage } from '@one-base-template/utils';
 
-// 1) 数组处理
-const uniqueList = array.unique([1, 1, 2, 3]); // [1, 2, 3]
-
-// 2) 扁平菜单转树
+const uniqueList = array.unique([1, 1, 2, 3]);
 const menuTree = tree.flatToTree(
   [
     { id: 1, parentId: 0, name: '系统管理' },
@@ -48,67 +54,71 @@ const menuTree = tree.flatToTree(
   { rootValue: 0 }
 );
 
-// 3) 格式化与日期
-const money = format.formatCurrency(123456.789); // ¥123,456.79
-const now = date.formatTime(new Date()); // YYYY-MM-DD HH:mm:ss
+const money = format.formatCurrency(123456.789);
+const now = date.formatTime(new Date());
 
-// 4) 带过期时间的本地存储（毫秒）
 const localStorageKit = new LocalStorage({ prefix: 'admin_' });
 localStorageKit.set('user', { id: 1, name: 'yuanxiao' }, 60_000);
-const user = localStorageKit.get('user');
 ```
+
+### 3. 需要直出能力时按需使用
 
 ```ts
-import { createEmitter, createReactiveState } from '@one-base-template/utils';
+import { cloneDeep, formatTime } from '@one-base-template/utils';
 
-// 5) Vue 组件事件透传
-const emitter = createEmitter((event, payload) => {
-  console.log(event, payload);
-});
-emitter.success('保存成功', { id: 1 });
-
-// 6) 轻量响应式状态
-const { state, setState, resetState } = createReactiveState({ count: 0 });
-setState({ count: 1 });
-resetState();
-console.log(state.count); // 0
+const copied = cloneDeep({ a: 1 });
+const text = formatTime(new Date());
 ```
 
-## 能力清单
-
-| 分类       | 模块                                                    | 代表能力                                                            |
-| ---------- | ------------------------------------------------------- | ------------------------------------------------------------------- |
-| 数据处理   | `array` / `object` / `tree` / `math` / `type`           | 去重、分组、树转换、数值计算、类型判断                              |
-| 格式化     | `format` / `date` / `url`                               | 金额与敏感信息脱敏、日期格式化、URL 参数处理                        |
-| 浏览器能力 | `file` / `storage` / `auth` / `base64`                  | 下载、local/session 封装、cookie/token 辅助、编解码                 |
-| 安全能力   | `crypto` / `sm3` / `sm4`                                | 常见加解密与国密摘要/对称加密                                       |
-| Vue 能力   | `vue` / `hooks`                                         | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading` |
-| 其他扩展   | `http` / `micro-app` / `pinyin` / `validation` / `tool` | 请求封装、微应用数据桥接、拼音与校验等                              |
-
-> CRUD Hook（`useTable/useEntityEditor/useCrudPage`）已迁移到 `@one-base-template/core`（真源）+ `@one-base-template/ui`（`useEntityEditor` 薄封装）。
->
-> 详见：
->
-> - [CRUD 容器与 Hook](/guide/crud-container)
-> - [VXE 表格迁移](/guide/table-vxe-migration)
-
-## 在 admin 中使用
-
-- 页面内直接从 `@one-base-template/utils` 导入通用工具即可，无需额外注册插件。
-- 推荐以命名空间调用（如 `array.unique`），可读性更高，也便于后续检索与替换。
-- 涉及 `localStorage/sessionStorage/window` 的 API 仅应在浏览器环境调用。
-
-## 测试与质量校验
-
-在仓库根目录执行：
+### 4. 改动后执行最小验证
 
 ```bash
 pnpm -C packages/utils typecheck
 pnpm -C packages/utils lint
 ```
 
-## 迁移说明
+如果改动已被应用侧使用，建议补跑目标应用：
 
-- 当前实现为**整包迁移 + 渐进收敛**策略，优先保证功能可用与可测试。
-- 已完成首轮规则收敛（如 `no-unused-vars`、`prefer-const`）。
-- 后续会继续收敛迁移期豁免规则（`any` / `unsafe-function-type` / `control-regex`）。
+```bash
+pnpm -C apps/admin typecheck
+pnpm -C apps/admin lint
+```
+
+## 能力清单（按模块）
+
+| 分类       | 模块                                                    | 代表能力                                                            |
+| ---------- | ------------------------------------------------------- | ------------------------------------------------------------------- |
+| 数据处理   | `array` / `object` / `tree` / `math` / `type`           | 去重、分组、树转换、数值计算、类型判断                              |
+| 格式化     | `format` / `date` / `url`                               | 金额脱敏、日期格式化、URL 参数处理                                  |
+| 浏览器能力 | `file` / `storage` / `auth` / `base64`                  | 下载、local/session 封装、cookie/token 辅助                         |
+| 安全能力   | `crypto` / `sm3` / `sm4`                                | 常见加解密与国密能力                                                |
+| Vue 能力   | `vue` / `hooks`                                         | `withInstall`、`createEmitter`、`createReactiveState`、`useLoading` |
+| 其他扩展   | `http` / `micro-app` / `pinyin` / `validation` / `tool` | 请求封装、微应用数据桥接、拼音与校验                                |
+
+## 验证与验收
+
+通过标准：
+
+1. `packages/utils` 的 `typecheck` 与 `lint` 通过。
+2. 导出入口与文档示例一致（命名空间与直出能力可用）。
+3. 影响到应用侧时，目标应用校验通过。
+
+## FAQ
+
+### 新工具应该放到 utils 还是 core？
+
+若是跨应用、无业务语义的通用方法，放 `utils`；涉及业务流程、鉴权、路由等放 `core`。
+
+### 为什么推荐命名空间导入？
+
+可读性更好，检索与批量替换成本更低，也能减少命名冲突。
+
+### CRUD Hook 在 utils 里吗？
+
+不是。`useTable/useEntityEditor/useCrudPage` 已迁移到 `@one-base-template/core`（真源）+ `@one-base-template/ui`（`useEntityEditor` 薄封装）。
+
+## 相关阅读
+
+- [Utils API 速查（按模块）](/guide/utils-api)
+- [CRUD 容器与 Hook（进阶）](/guide/crud-container)
+- [表格开发规范](/guide/table-vxe-migration)
