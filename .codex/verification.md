@@ -4,9 +4,9 @@
 
 ## 最新记录
 
-- 日期：2026-04-02
-- 文件：`.codex/verification/2026-04-02.md`
-- 补充：最新条目新增“system-sfss 模块重建（legacy 6 子模块结构恢复）”与“zfw-system-sfss 迁移执行 + zfw 迁移 skill 落地”验证结论。
+- 日期：2026-04-03
+- 文件：`.codex/verification/2026-04-03.md`
+- 补充：新增“platformConfig 模块化维护 + 切账号权限缓存防串号”、“system-sfss 列表页结构统一（ObPageContainer + ObTableBox + ObTable）”、“迁移策略文档增强（Ob 规范 + CRUD 收口）”与“admin-lite 可开关 starter-crud 示例模块”专项验证记录。
 
 ## 历史归档
 
@@ -22,3 +22,25 @@
 
 - 影响范围限定在 `PersonnelSelector` 与 `adminManagement/role-assign` 表单链路。
 - 结论：`typecheck` 与 3 条定向单测通过；未处理工作区其它既有改动。
+
+## 2026-04-03（迁移踩坑清单沉淀）
+
+- 影响范围：`apps/docs` 文档页面与导航。
+- 结论：新增“monorepo-web 迁移踩坑清单”页面，已在维护治理入口可见，文档构建通过。
+
+## 2026-04-03（zfw 单系统顶部菜单修复）
+
+- 影响范围：`apps/zfw-system-sfss/src/bootstrap/{index,adapter}.ts` 与新增 `tests/bootstrap/adapter.unit.test.ts`。
+- 结论：`systemConfig.mode='single'` 已通过适配器过滤逻辑生效，行为由单测锁定。
+
+## 2026-04-03（platformConfig 模块化维护 + 切账号权限缓存防串号）
+
+- 影响范围：
+  - `apps/{admin,admin-lite,zfw-system-sfss}/src/config/platform-config.ts`
+  - `packages/core/src/stores/auth.ts`
+  - `packages/core/src/router/guards.ts`
+- 结论：
+  - `platform-config.ts` 已改为分模块对象 + 展开合并，维护复杂度下降；
+  - remote 菜单未同步前不再用缓存放行；
+  - token/mixed 首次守卫强校验 `fetchMe`；
+  - `packages/core` 与三应用配置定向单测全部通过。

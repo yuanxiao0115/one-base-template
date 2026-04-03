@@ -2,6 +2,28 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-03（admin-lite：starter-crud 示例模块开关 + 文档同步）
+
+- RED（先失败）：
+  - `pnpm -C apps/admin-lite typecheck`
+  - 失败原因：
+    - `src/bootstrap/index.ts` 仍传递已删除字段 `singleSystem`；
+    - `src/modules/starter-crud/composables/useStarterCrudPageState.ts` 从 `api.ts` 导入未导出的 `StarterCrudRecord` 类型。
+  - 修复：
+    - `bootstrap/index.ts` 改为传递 `systemConfig`；
+    - `StarterCrudRecord` 类型导入改为 `../types`。
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin-lite lint:arch`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/admin-lite`：架构边界检查通过，`vue-tsc` 通过。
+  - `apps/admin-lite`：`platform-config` 定向测试 `1 file / 2 tests` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
 ## 2026-04-03（system-sfss 目录层级收口：去掉 `views/System-sfss`）
 
 - GREEN / 回归：
@@ -10497,3 +10519,78 @@
   - `pnpm -C apps/docs lint`
   - `pnpm -C apps/docs build`
   - 结果：均通过（lint 0 warning / 0 error，VitePress build 成功）。
+
+## 2026-04-03（zfw/admin-lite：中转层删除 + 单系统收口）
+
+- GREEN：
+  - `pnpm -C apps/zfw-system-sfss lint:arch`：通过
+  - `pnpm -C apps/zfw-system-sfss build`：通过
+  - `pnpm -C apps/admin-lite typecheck`：通过
+  - `pnpm -C apps/admin-lite lint:arch`：通过
+  - `pnpm -C apps/admin-lite build`：通过
+  - `pnpm -C apps/docs lint`：通过（0 warning / 0 error）
+  - `pnpm -C apps/docs build`：通过
+
+- RED（既有存量问题，非本次中转层收口新增）：
+  - `pnpm -C apps/zfw-system-sfss typecheck`：失败
+  - 主要集中在 legacy 迁移页面类型债务（大量 `unknown` 字段访问、旧表单类型不匹配、少量路由类型与组件事件类型问题）。
+
+- 说明：
+  - 本次新增 `@one-base-template/utils` 引入后，已在 `apps/zfw-system-sfss/tsconfig.json` 增加 `node` types，消除 `Buffer/process` 相关类型噪声；当前剩余失败项为业务存量类型问题。
+
+## 2026-04-03（迁移踩坑清单文档化）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs`：`lint` 0 warning / 0 error。
+  - `apps/docs`：`build` 成功。
+
+## 2026-04-03（zfw 单系统系统切换修复）
+
+- GREEN / 回归：
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/bootstrap/adapter.unit.test.ts tests/bootstrap/index.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+- 结果：
+  - `2 files / 6 tests` 全通过。
+  - zfw 架构边界检查通过。
+
+## 2026-04-03（platformConfig 模块化维护 + 切账号权限缓存防串号）
+
+- GREEN / 回归：
+  - `pnpm -C packages/core test:run -- src/stores/auth.test.ts src/router/guards.test.ts src/config/platform-config.test.ts`
+  - `pnpm -C packages/core lint`
+  - `pnpm -C apps/admin test:run:file -- tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/config/platform-config.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/config/platform-config.unit.test.ts`
+- 结果：
+  - `packages/core`：`27 files / 132 tests` 全通过。
+  - `packages/core lint`：0 warning / 0 error。
+  - `admin/admin-lite/zfw-system-sfss` 的 `platform-config` 定向单测均通过（各 `1 file / 2 tests`）。
+
+## 2026-04-03（system-sfss：列表页布局结构统一收口）
+
+- GREEN：
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - 结果：通过（`zfw-system-sfss 架构边界检查通过`）。
+
+- 语法完整性专项：
+  - `node -e "@vue/compiler-sfc parse"`（定向解析 7 个本次改动 `.vue` 文件）
+  - 结果：全部 `OK`，无 SFC 模板/脚本语法错误。
+
+- RED（存量问题，非本次布局收口新增）：
+  - `pnpm -C apps/zfw-system-sfss typecheck`
+  - 结果：失败；失败项集中在 legacy 迁移模块的既有类型债务（大量 `unknown` 字段访问、历史路由类型/表单类型问题）。
+
+  - `pnpm -C apps/zfw-system-sfss lint <7 files>`
+  - 结果：失败；主要为历史代码已存在的 `no-explicit-any`（并非本次结构改造引入）。
+
+## 2026-04-03（docs：迁移策略文档增强）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/docs lint`：0 warning / 0 error。
+  - `apps/docs build`：成功。

@@ -2,6 +2,25 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-03（admin-lite 新增可开关 starter-crud 示例模块）
+
+- 背景：
+  - 用户选择“在 `admin-lite` 内置 CRUD demo 模块”，目标是降低后续迁移与上手成本，并保持默认基座简洁。
+- 本次收口：
+  - 新增模块目录：`apps/admin-lite/src/modules/starter-crud/**`
+    - 包含 `index.ts + routes.ts + list.vue + api.ts + types.ts + form.ts + columns.tsx + components/* + composables/*`。
+    - 页面结构按 CRUD 红线统一：`ObPageContainer + ObTableBox + ObTable + ObActionButtons + ObCrudContainer`。
+  - 配置开关接入：`apps/admin-lite/src/config/platform-config.ts`
+    - 新增 `enableStarterCrudDemoModule`（默认 `false`）；
+    - `enabledModules` 改为在默认四模块基础上按开关追加 `starter-crud`。
+  - 文档同步：`apps/docs/docs/guide/admin-lite-base-app.md`
+    - 新增“可选示例模块”说明和开启代码块；
+    - 删除旧 `preset=remote-single/static-single` 口径，改为 `systemConfig.mode === 'single'`。
+- 过程中额外修复：
+  - `apps/admin-lite/src/bootstrap/index.ts`：适配 `createAppAdapter` 新契约，移除旧字段 `singleSystem`，改传 `systemConfig`。
+  - `apps/admin-lite/src/modules/starter-crud/composables/useStarterCrudPageState.ts`：
+    - `StarterCrudRecord` 类型导入改为 `../types`，避免从 `api.ts` 中转类型。
+
 ## 2026-04-03（zfw-system-sfss 接口对接：补齐 /cmict + /zfw + /zb 三链路）
 
 - 背景：
@@ -11869,3 +11888,123 @@
   - 保留 `src/hooks/{loading,table,drawer}.ts`、`src/utils/{http,message,legacy-compat}.ts`、`src/types/legacy-compat.d.ts` 作为 legacy 业务代码运行所需兼容层。
 - 结果：
   - `I*` 二次封装链路已从 `zfw-system-sfss` 项目源码中彻底移除；当前页面只保留 `Ob` 公共能力与原生 `el-*`。
+
+## 2026-04-03（zfw/admin-lite 收口：删除 utils 中转 + 单系统菜单强约束）
+
+- 目标：对齐 one-base-template 规则，删除重复中转能力，减少维护点与心智负担。
+- 代码收口：
+  - `apps/zfw-system-sfss` 业务侧已移除 `@/utils/http`、`@/utils/message`、`@/utils/legacy-compat`、`@/utils/index` 调用，改为直连：
+    - HTTP：`obHttp().get/post/put/...`（`@one-base-template/core`）
+    - 消息：`message`（`@one-base-template/ui`）
+    - 工具：`cloneDeep/formatTime`（`@one-base-template/utils`）
+  - 已删除 zfw 的 4 个中转文件：
+    - `apps/zfw-system-sfss/src/utils/http/index.ts`
+    - `apps/zfw-system-sfss/src/utils/message.ts`
+    - `apps/zfw-system-sfss/src/utils/legacy-compat.ts`
+    - `apps/zfw-system-sfss/src/utils/index.ts`
+  - 去重补充：`petition-supervision/pages/collaboration-statistics/index.vue` 改为复用 `@/hooks/table`，删除子模块内重复 `hooks/useTable.ts`。
+- 通用能力对齐：
+  - `packages/utils` 补齐 `cloneDeep` 命名别名直出（对齐 legacy 命名习惯）。
+  - `packages/utils/src/index.ts` 增加 `cloneDeep/deepClone/formatTime` 顶层导出，避免业务再造封装层。
+- 单系统收口（admin-lite + zfw 同步）：
+  - `src/config/env.ts` 新增 `singleSystem`（由 `preset=*-single` 自动推导）。
+  - `src/bootstrap/adapter.ts` 在 `singleSystem=true` 时覆盖 `fetchMenuSystems`，只注入 `defaultSystemCode` 对应系统，后端返回多系统也只展示一个。
+  - `src/bootstrap/index.ts` 已把 `singleSystem` 透传进 adapter 创建链路。
+- 文档同步：
+  - `apps/docs/docs/guide/zfw-system-sfss-quick-start.md`
+  - `apps/docs/docs/guide/admin-lite-base-app.md`
+  - `apps/zfw-system-sfss/README.md`
+  - 已补充“preset 单系统推导 + 菜单系统收口”说明。
+
+## 2026-04-03（沉淀迁移踩坑清单：monorepo-web -> one-base-template）
+
+- 目标：将“迁移高频坑 + 用户纠偏规则”从对话沉淀为 docs 可检索页面，避免后续重复踩坑。
+- 新增文档：
+  - `apps/docs/docs/guide/monorepo-web-migration-pitfalls.md`
+- 导航与入口同步：
+  - `apps/docs/docs/.vitepress/config.ts`
+    - 维护治理新增条目：`迁移踩坑清单（monorepo-web）`
+    - sidebar 增加 `/guide/monorepo-web-migration-pitfalls`
+  - `apps/docs/docs/guide/development.md`
+    - 相关阅读新增“迁移踩坑清单”
+  - `apps/docs/docs/guide/index.md`
+    - 维护治理卡片区新增“迁移踩坑清单（monorepo-web）”
+- 页面内容结构：
+  - 高频坑（配置语义混杂、目录额外层级、中转层残留、手工路由汇总、组件双轨、接口链路缺失、文档噪音）
+  - 已验证纠偏动作（删中转、结构对齐、路由自动装配、Ob 组件统一、配置语言化）
+  - 迁移前/中/后检查表 + 对外解释模板
+
+## 2026-04-03（zfw 单系统仍显示顶部系统菜单：systemConfig 链路修复）
+
+- 用户反馈：`apps/zfw-system-sfss` 已配置 `systemConfig.mode='single'`，但顶部仍展示多系统切换。
+- 根因定位：
+  - `src/config/env.ts` 已切到 `systemConfig`；
+  - `src/bootstrap/index.ts` 仍向 `createAppAdapter` 传旧字段 `singleSystem`；
+  - `src/bootstrap/adapter.ts` 仍按 `singleSystem` 分支，导致 `systemConfig` 不生效。
+- 修复动作：
+  - `apps/zfw-system-sfss/src/bootstrap/adapter.ts`
+    - 入参改为 `systemConfig: RuntimeSystemConfig`；
+    - 新增系统范围过滤逻辑：
+      - `single`：只保留 `code` 对应系统；
+      - `multi + codes`：白名单过滤（缺失 code 忽略）；
+      - `multi` 无 `codes`：不过滤，返回全量系统。
+    - `single` 模式若后端无匹配系统，回退固定系统并使用 `fetchMenuTree()`，保证可用。
+  - `apps/zfw-system-sfss/src/bootstrap/index.ts`
+    - `createAppAdapter` 参数从 `singleSystem` 改为 `systemConfig` 透传。
+- 回归测试新增：
+  - `apps/zfw-system-sfss/tests/bootstrap/adapter.unit.test.ts`
+    - 覆盖 single / multi+codes / multi(all) / single fallback 四种行为。
+
+## 2026-04-03（platformConfig 可维护性改造 + 切账号权限缓存防串号）
+
+- 目标：
+  - 按用户诉求把 `platform-config.ts` 从“单大对象”改为“按模块对象拆分 + 最终展开合并”，降低维护心智负担。
+  - 修复 remote 菜单缓存在“未完成服务端同步”时可能放行旧权限的问题，避免切账号串权限。
+- 配置改造（结构不变，仅维护方式优化）：
+  - `apps/admin/src/config/platform-config.ts`
+  - `apps/admin-lite/src/config/platform-config.ts`
+  - `apps/zfw-system-sfss/src/config/platform-config.ts`
+  - 均拆为四段：
+    - `systemScopeConfig`
+    - `runtimeModeConfig`
+    - `appIdentityConfig`
+    - `moduleConfig`
+  - 最终通过 `parseRuntimeConfig({ ...a, ...b, ...c, ...d })` 合并。
+- 权限防串号收口：
+  - `packages/core/src/router/guards.ts`
+    - remote 模式下，只要 `remoteSynced=false`，先同步菜单再做权限判定；同步失败走 `403`，不再用缓存菜单直接放行。
+  - `packages/core/src/stores/auth.ts`
+    - token/mixed 模式首次守卫强校验 `fetchMe()`，避免沿用旧用户缓存。
+- 对应测试更新：
+  - `packages/core/src/router/guards.test.ts`
+  - `packages/core/src/stores/auth.test.ts`
+
+## 2026-04-03（system-sfss 布局结构收口：统一 ObPageContainer + ObTableBox + ObTable）
+
+- 背景：用户要求 `system-sfss` 对齐 `admin` 布局结构，避免页面高度链不一致导致的滚动条/空白区问题。
+- 本次收口动作：
+  - 将剩余未收口页面统一改为 `ObPageContainer padding=\"0\" overflow=\"hidden\"` 外层容器。
+  - 列表主内容统一落在 `ObTableBox`，主表统一落在 `ObTable`。
+  - `petition-topic-contrast` 从 `el-table + calc(100vh - 280px)` 改为 `ObTable + adaptive`，移除硬编码高度。
+  - `collaboration-statistics` 改为 `ObTableBox` 内容区承载 `Search + ObTable`，修复高度链；移除无效 `.main/.btn/.search-form` 样式。
+- 变更文件（本轮直接修改）：
+  - `apps/zfw-system-sfss/src/modules/system-sfss/sunshine-petition/components/visit-list.vue`
+  - `apps/zfw-system-sfss/src/modules/system-sfss/litigation-related/prosecution-related/index.vue`
+  - `apps/zfw-system-sfss/src/modules/system-sfss/litigation-related/court-related/index.vue`
+  - `apps/zfw-system-sfss/src/modules/system-sfss/litigation-related/police-related/index.vue`
+  - `apps/zfw-system-sfss/src/modules/system-sfss/petition-supervision/pages/dispute-type-contrast/index.vue`
+  - `apps/zfw-system-sfss/src/modules/system-sfss/petition-supervision/pages/petition-topic-contrast/index.vue`
+  - `apps/zfw-system-sfss/src/modules/system-sfss/petition-supervision/pages/collaboration-statistics/index.vue`
+
+## 2026-04-03（迁移策略文档增强：补齐 Ob 规范与 CRUD 收口）
+
+- 目标：将 `monorepo-web` 迁移清单升级为“可执行迁移策略”，补齐本次迁移纠偏的组件规范。
+- 文档更新：
+  - `apps/docs/docs/guide/monorepo-web-migration-pitfalls.md`
+- 本次新增关键内容：
+  - 明确 CRUD 四件套：`ObPageContainer + ObTableBox + ObTable + ObActionButtons`
+  - 明确 CRUD 弹层统一：`ObCrudContainer`
+  - 增加“真实踩坑 -> 错误做法 -> 收口标准”表格
+  - 增加可执行检查命令（`lint:arch` + `rg` 扫描项）
+  - 增加“例外场景”说明（何时允许 `el-dialog`）
+  - 增加后续完善项：在 `admin-lite` 内置可开关 `CRUD Demo` 标准模块

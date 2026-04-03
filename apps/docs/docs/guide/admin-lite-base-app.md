@@ -38,6 +38,23 @@
 - 先满足后台项目最常见的基础能力。
 - 扩展模块一律按需回接，不反向污染基座默认值。
 
+可选示例模块（默认关闭）：
+
+- `starter-crud`：用于演示 `ObPageContainer + ObTableBox + ObTable + ObCrudContainer` 的标准 CRUD 编排。
+
+开启方式（代码静态配置）：
+
+```ts
+// apps/admin-lite/src/config/platform-config.ts
+const enableStarterCrudDemoModule = true;
+
+const moduleConfig = {
+  enabledModules: ['home', 'admin-management', 'log-management', 'system-management'].concat(
+    enableStarterCrudDemoModule ? 'starter-crud' : []
+  )
+};
+```
+
 ## 3. 默认关闭的扩展
 
 `apps/admin-lite/src/config/ui.ts` 已将以下能力收口为可配置或默认关闭：
@@ -67,6 +84,7 @@
 - 平台配置只认 `platform-config.ts`。
 - UI 开关只认 `ui.ts`。
 - 登录页、顶栏、启动链路禁止散落业务化分支。
+- `systemConfig.mode === 'single'` 时会按 `systemConfig.code` 收口系统范围；即使后端返回多系统，也只展示配置系统。
 
 ## 5. 新项目派生方式
 
