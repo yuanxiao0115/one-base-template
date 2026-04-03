@@ -17,6 +17,41 @@ import CrudContainerDrawerDocDemo from './components/CrudContainerDrawerDocDemo.
 - `useEntityEditor` 真源在 `@one-base-template/core`
 - `@one-base-template/ui` 的 `useEntityEditor` 是薄封装（默认错误提示 + 保持页面调用习惯）
 
+## TL;DR
+
+- 新页面默认先用 `useEntityEditor` 托管 `visible/mode/title/submitting`，容器层统一用 `ObCrudContainer`。
+- 容器类型优先顺序：常规表单 `dialog`，字段密集表单 `drawer`，复杂富文本场景才考虑 `dialogFullscreen`。
+- 验收重点不是“能弹出”，而是“打开前加载、校验提交流程、关闭重置、列表刷新”四段链路都可重复执行。
+
+## 适用范围与非范围
+
+适用范围：
+
+- `apps/admin` 与 `apps/admin-lite` 中的新增/编辑/详情容器收口。
+- 旧 `useDialog/useDrawer` 页面迁移到统一状态机。
+- 需要统一错误提示、提交流程、前置加载（`beforeOpen`）的模块。
+
+非范围：
+
+- 不替代业务层字段映射与接口契约定义（这些仍由模块 `api.ts/form.ts` 维护）。
+- 不负责复杂跨页流程编排（如多步向导、跨页面临时态同步）。
+- 不覆盖所有自定义 footer 场景；高度定制交互仍由页面自行接管插槽。
+
+## 前置条件
+
+1. 页面表单模型已固定（`create/edit/detail` 三模式字段一致性已确认）。
+2. 目标接口已具备最小可用的新增/编辑能力。
+3. 已确认容器类型：`dialog` 或 `drawer`，并明确是否需要全屏/双列。
+4. 本地可运行 `pnpm -C apps/admin typecheck`。
+
+## 最小执行路径（推荐 20 分钟）
+
+1. 先接入 `useEntityEditor`，只保留最小字段与 `save.request`，确认容器可以完整开关。
+2. 绑定 `ObCrudContainer` 到 `crud.visible/mode/title/submitting`，先使用默认 footer。
+3. 接入 `formRef + rules`，验证 `confirm()` 会先走 `form.validate()` 再提交。
+4. 增加 `onSuccess` 刷新列表逻辑，确认关闭后表单状态可重置。
+5. 仅在必要时再扩展 `beforeOpen`、`#footer`、纯容器模式。
+
 ## 能力总览
 
 - 统一容器壳：`dialog / drawer` 二选一
@@ -394,7 +429,7 @@ const visible = ref(false);
 </template>
 ```
 
-## 8. 常见问题
+## 8. FAQ（常见问题）
 
 ### 1) 为什么点击确定没有触发提交？
 
@@ -434,7 +469,32 @@ const visible = ref(false);
 - 使用 `obConfirm.warn/success/error`
 - `confirm` 仅做历史兼容，新增页面不再推荐直接使用
 
-## 迁移建议（旧写法 -> 新写法）
+## 9. 验证与验收（通过标准）
+
+在仓库根目录执行：
+
+```bash
+pnpm -C packages/core typecheck
+pnpm -C packages/ui typecheck
+pnpm -C apps/admin typecheck
+pnpm -C apps/docs lint
+pnpm -C apps/docs build
+```
+
+通过标准：
+
+- `create/edit/detail` 三模式切换正确，标题、禁用态、按钮态符合预期。
+- `confirm()` 在 `create/edit` 下会先校验再提交，在 `detail` 下仅关闭容器。
+- `beforeOpen` 失败时保持降级可打开，必填字段仍由表单规则兜底。
+- 保存成功后列表刷新链路稳定，重复打开不会出现脏数据残留。
+
+失败处理：
+
+1. 打开容器数据为空：先检查 `openEdit(row)` 入参与 `detail.load/mapToForm`。
+2. 点击确定不提交：先检查 `formRef` 绑定与 `form.validate()` 是否被调用。
+3. 关闭后状态未重置：检查 `resetOnCreateOpen`、`resetOnClose` 与页面自定义副作用是否冲突。
+
+## 10. 迁移建议（旧写法 -> 新写法）
 
 - `useDialog/useDrawer`：统一替换为 `useEntityEditor`
 - 手写 `visible/mode/title/submitting`：改为 Hook 托管

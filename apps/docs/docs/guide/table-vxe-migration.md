@@ -1,5 +1,32 @@
 # 统一表格迁移指南（ObTableBox + useTable）
 
+## TL;DR
+
+- 常规分页表格和树表，默认优先使用 `ObTable`；仅在明确依赖 VXE 专属能力时使用 `ObVxeTable`。
+- 迁移优先收敛到三处改动：**表格标签替换、导入替换、`useTable` 查询/删除配置收口**。
+- 验收不只看编译通过，还要现场回归：分页、排序、多选、树展开/懒加载、抽屉筛选。
+
+## 适用范围与非范围
+
+适用范围：
+
+- `apps/admin`、`apps/admin-lite` 的列表页与树形管理页迁移。
+- 旧 `pure-table` / 历史 `ObVxeTable` 页面迁移到统一表格壳。
+- 需要保留历史交互语义（分页、排序、选择、筛选、操作列）的改造场景。
+
+非范围：
+
+- 列拖拽排序（当前版本明确不纳入）。
+- 与表格壳无关的业务流程重构（如权限模型、后端接口协议变更）。
+- 追求像素级完全一致的历史视觉复刻（以统一视觉基线优先）。
+
+## 前置条件
+
+1. 已阅读页面所在模块的 `api.ts` 与 `columns.tsx/ts`，明确分页字段与树字段契约。
+2. 已确认是否需要 `treeConfig`、`rowDrag`、`expandSlot` 等扩展能力。
+3. 页面已收敛到 `ObPageContainer + ObTableBox + ObTable/ObVxeTable` 布局约定。
+4. 本地可运行 `pnpm -C apps/admin typecheck` 与 `pnpm -C apps/admin build`。
+
 本模板当前提供两套统一表格壳组件：
 
 - `ObTable`：基于 `Element Plus el-table + el-pagination`，适合绝大多数常规列表与树表页面
@@ -22,6 +49,14 @@
 > 共享表格 token 统一维护在 `packages/ui/src/styles/table-theme.css`；VXE 专属变量继续维护在 `packages/ui/src/styles/vxe-theme.css`。
 >
 > `ObTable` 内置中文分页、空态图片、空值占位、超长省略 tooltip、普通树表与懒加载树表桥接；`ObVxeTable` 继续保留 VXE 专属能力。
+
+## 最小执行路径（推荐 30 分钟）
+
+1. 先替换页面壳层：保持 `ObPageContainer + ObTableBox`，把旧表格组件替换为 `ObTable`。
+2. 补齐核心输入：仅先传 `data`、`columns`、`pagination`、`loading`、`rowKey`，不要一次性打开全部高级开关。
+3. 收口数据层：在 `useTable` 内统一配置 `query/remove`，分页字段映射放在 `paginationKey + paginationAlias`。
+4. 只在必要时启用扩展：树表才配 `treeConfig`，拖拽场景才启用 `rowDrag`，避免默认增加复杂度。
+5. 跑验收命令并做页面回归（分页/排序/多选/展开/筛选），通过后再进入下一页迁移。
 
 ## 组件与 Hook 对应关系
 
@@ -354,7 +389,7 @@ const table = useTable({
     - `apps/admin/src/modules/adminManagement/role-assign/columns.tsx`
     - `apps/admin/src/modules/adminManagement/role-assign/api.ts`
 
-## 常见迁移问题
+## FAQ（常见迁移问题）
 
 ### 1) 分页参数后端字段不一致
 
@@ -368,7 +403,7 @@ const table = useTable({
 
 继续使用 `ObTableBox` 的 `drawer` 插槽即可，无需改业务表单结构。
 
-## 验证建议
+## 验证与验收（通过标准）
 
 在仓库根目录执行：
 
@@ -377,5 +412,18 @@ pnpm -C packages/ui typecheck
 pnpm -C packages/core typecheck
 pnpm -C apps/admin typecheck
 pnpm -C apps/admin build
+pnpm -C apps/docs lint
 pnpm -C apps/docs build
 ```
+
+通过标准：
+
+- `typecheck/build` 全部通过，且无新增与本次迁移相关的类型错误。
+- 目标页面分页、排序、多选、筛选抽屉、操作列交互行为与迁移前一致。
+- 树形页面在“首次加载 + 展开子节点 + 关键字搜索”三种场景下无错乱与缓存污染。
+
+失败处理：
+
+1. 若分页参数不一致，先回到 `useTable.query.paginationKey/paginationAlias` 收口，不在页面层散落转换。
+2. 若多选清空失效，优先检查 `getTableRef().clearSelection()` 是否走到统一实例。
+3. 若树表展开异常，优先核对 `treeConfig.hasChildren/children/load` 与接口返回字段是否一致。

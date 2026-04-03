@@ -12130,3 +12130,25 @@
     - 新增“回看 P4/P2 的信号”，避免治理路径过载。
 - 约束执行：
   - 本轮仅改文档内容，未调整 `.vitepress` 导航结构。
+
+## 2026-04-03（docs 第七批结构化改造：table/crud/material/runtime）
+
+- 用户要求：按 `brainstorming -> technical-doc-collaboration -> write-markdown-tech-docs -> vitepress-doc-beauty` 顺序继续执行 docs 改造，并依次落地。
+- 计划落盘：新增 `docs/plans/2026-04-03-docs-tech-doc-refactor-batch7-plan.md`。
+- 本轮改造页面：
+  - `apps/docs/docs/guide/table-vxe-migration.md`
+    - 新增 `TL;DR / 适用范围与非范围 / 前置条件 / 最小执行路径`。
+    - 将“常见迁移问题”收口为 `FAQ`。
+    - 将“验证建议”升级为“验证与验收（通过标准 + 失败处理）”。
+  - `apps/docs/docs/guide/crud-container.md`
+    - 新增 `TL;DR / 适用范围与非范围 / 前置条件 / 最小执行路径`。
+    - 补齐 `验证与验收（通过标准 + 失败处理）`。
+    - 章节编号与 FAQ 命名统一。
+  - `apps/docs/docs/guide/portal/material-extension.md`
+    - 新增 `TL;DR / 背景与目标 / 范围与非范围 / 前置条件`。
+    - 把“回归命令”升级为“验证与验收（通过标准 + 失败处理）”。
+    - 新增 FAQ（注册未生效、路由硬编码、别名兼容）。
+  - `apps/docs/docs/guide/architecture-runtime-deep-dive.md`
+    - 新增 `TL;DR / 最短执行路径（源码走查） / 前置条件`。
+    - 新增“验证与验收（启动链路走查）”与 FAQ。
+- 信息架构策略：本轮仅做内容结构收口，不改 `.vitepress` 导航。

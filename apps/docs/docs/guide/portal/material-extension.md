@@ -2,6 +2,38 @@
 
 > 适用范围：`packages/portal-engine/src/materials/**`、`apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
 
+## TL;DR
+
+- 新增物料时，不再手工在页面层注册，统一走 `materials/extensions/index.ts` 的自动收集。
+- 每个物料目录固定五件套：`material.ts + defaults.ts + index.vue + content.vue + style.vue`。
+- 验收必须同时覆盖：物料注册生效、编辑器可见、默认值注入生效、扩展测试通过。
+
+## 背景与目标
+
+- 背景：门户物料新增历史上常出现“入口分散、默认值散落、注册方式不一致”的问题，导致迁移和排障成本高。
+- 目标：把新增物料流程收敛成一条固定路径，做到“目录即声明、声明即注册、注册可验收”。
+
+## 范围与非范围
+
+范围：
+
+- `packages/portal-engine/src/materials/**` 内置与扩展物料定义。
+- `apps/admin/src/modules/PortalManagement/materials/**` 的管理端扩展物料。
+- 物料注册、默认值、分类展示、兼容别名链路。
+
+非范围：
+
+- 具体业务页面实现（通讯录、应用中心等）不放在 `portal-engine`。
+- 业务路由跳转映射不在物料组件层硬编码。
+- 非物料体系的通用布局与菜单重构。
+
+## 前置条件
+
+1. 已确认物料所属分类与命名（避免后续再做重命名迁移）。
+2. 已准备内容配置（content）与样式配置（style）的默认值。
+3. 已明确是否涉及历史 `pb-*` 类型别名兼容。
+4. 本地可运行 `packages/portal-engine` 的物料验证命令。
+
 ## 固定入口
 
 - admin 扩展声明入口（唯一）：
@@ -34,7 +66,7 @@
   - descriptor：`apps/admin/src/modules/PortalManagement/materials/simple-hello-card/material.ts`
   - 注册入口：`apps/admin/src/modules/PortalManagement/materials/extensions/index.ts`
 
-## 最小流程
+## 最短执行路径（15 分钟）
 
 1. 在 admin 侧新增物料目录：`apps/admin/src/modules/PortalManagement/materials/<material>/`。
 2. 补齐 `material.ts + defaults.ts + index.vue + content.vue + style.vue`。
@@ -104,11 +136,39 @@
   - 后台页面：`apps/admin/src/modules/<domain>/pages/*.vue`
 - `portal-engine` 只提供动作协议、执行入口与扩展机制，不承载通讯录/应用中心这类业务页面实现。
 
-## 回归命令
+## 验证与验收（通过标准）
 
 ```bash
 pnpm -C packages/portal-engine run verify:materials
 pnpm -C packages/portal-engine run test:run -- src/materials/extensions.test.ts src/materials/registerMaterialExtensions.test.ts
 pnpm -C apps/admin run test:run:file -- src/modules/PortalManagement/engine/register.unit.test.ts
+pnpm -C apps/docs lint
 pnpm -C apps/docs build
 ```
+
+通过标准：
+
+- 新物料在 admin 设计器物料面板可见，且分类与名称符合预期。
+- `defaults.ts` 的默认值可在 `material/content/style` 三处一致生效。
+- `verify:materials` 与两组扩展注册测试均通过，无新增注册冲突。
+- 文档构建通过，页面无断链或语法错误。
+
+失败处理：
+
+1. 物料未显示：先检查 `material.ts` 是否导出 `PORTAL_ADMIN_MATERIAL`，再检查目录是否被 `import.meta.glob('../*/material.ts')` 命中。
+2. 默认值未注入：优先核对 `defaults.ts` 与 `useSchemaConfig({ sections.defaultValue })` 的字段名是否一致。
+3. 历史数据打不开：检查 `materials-registry.ts` 类型别名与 `static-fallbacks/*.ts` 组件名别名是否补齐。
+
+## FAQ
+
+### 1) 为什么新增物料后页面里看不到？
+
+优先检查目录结构是否完整五件套，其次检查 `material.ts` 导出名是否正确。
+
+### 2) 为什么我在组件里写了路由，评审被驳回？
+
+因为业务跳转属于应用层职责，物料层只维护 `target/action` 协议，避免引擎层耦合具体业务页面。
+
+### 3) 为什么已经有同名旧组件，还要做别名映射？
+
+历史页面可能仍保存旧 `pb-*` 类型；没有别名映射会导致老数据渲染丢失，影响线上可用性。

@@ -4,6 +4,26 @@
 
 本页承接 [目录结构与边界](/guide/architecture) 的运行时细节，聚焦“应用如何启动、如何收敛路由与平台配置”。
 
+## TL;DR
+
+- `admin` 与 `admin-lite` 已收敛为“代码静态平台配置 + 统一 bootstrap 编排”。
+- `portal` 保留 runtime config loader，但登录与鉴权链路与 admin 共用 core 能力。
+- 走查启动问题时优先看四层：`platform-config` -> `env` -> `bootstrap/startup` -> `router assemble`。
+
+## 最短执行路径（源码走查）
+
+1. 先确定目标应用：`admin`、`admin-lite`、`portal` 三者启动入口不同，不要混看文件。
+2. 按顺序阅读：`config/platform-config.ts` -> `config/env.ts` -> `bootstrap/startup.ts` -> `bootstrap/index.ts`。
+3. 再定位路由链路：`router/registry.ts` 与 `router/assemble-routes.ts`，确认模块装配与冲突防护。
+4. 最后对照 `packages/core` 的共享能力（签名、登录场景、动态导入恢复）确认边界是否漂移。
+5. 使用文末“验证与验收”命令做最小回归，避免只靠阅读判断。
+
+## 前置条件
+
+1. 已熟悉 [目录结构与边界](/guide/architecture) 中的分层职责。
+2. 已明确当前问题发生在 `admin`、`admin-lite` 还是 `portal`。
+3. 本地可运行目标应用的 `typecheck` 与 docs 构建命令。
+
 ## admin 启动分层
 
 管理端将启动链路集中在以下位置，避免多入口分叉：
@@ -91,6 +111,44 @@
 - `createCore({ storageNamespace })` 为 core 状态增加命名空间前缀（示例：`one-base-template-admin-lite:*`）
 - auth/system/menu/layout/tabs/assets 统一遵循命名空间规则，并兼容读取历史无前缀 key
 - admin 首次路由落点通过 `getInitialPath()` 统一决策（代码首页优先，菜单叶子兜底）
+
+## 验证与验收（启动链路走查）
+
+在仓库根目录执行：
+
+```bash
+pnpm -C apps/admin typecheck
+pnpm -C apps/admin-lite typecheck
+pnpm -C apps/portal typecheck
+pnpm -C apps/docs lint
+pnpm -C apps/docs build
+```
+
+通过标准：
+
+- 三个应用 `typecheck` 均通过，无新增启动链路相关类型错误。
+- 文档构建通过，启动链路页面无断链、图片引用错误、标题层级异常。
+- 走查时可明确回答三件事：配置从哪里来、路由何时装配、登录后菜单边界归属哪个应用。
+
+失败处理：
+
+1. 若“看起来卡启动”：优先检查 `startup.ts` 是否卡在 `router.isReady()` 前后，再看 `startup-profiler` 输出阶段。
+2. 若配置来源混乱：先区分代码静态配置（`platform-config.ts`）与 runtime 配置（`portal/public/platform-config.json`）。
+3. 若菜单行为异常：确认是否误把 portal 当 admin 菜单体系（`portal` 默认不接 `/cmict/admin/permission/*`）。
+
+## FAQ
+
+### 1) 为什么 admin 和 portal 的平台配置看起来不一样？
+
+`admin` 走代码静态配置收敛，`portal` 保留 runtime loader 能力，两者是有意分层，不是实现漂移。
+
+### 2) 启动链路排查时，先看 app 代码还是 core 代码？
+
+先看应用层入口是否按预期调用，再下钻到 `packages/core` 共享能力，避免一开始就陷入底层细节。
+
+### 3) 为什么文档强调“先定位目标应用”？
+
+因为三个应用的启动入口与配置来源不同，跨应用混看最容易把问题归因到错误文件。
 
 ## 延伸阅读
 
