@@ -26,6 +26,10 @@ export * as tool from './tool';
 export * from './vue';
 export * as hooks from './hooks';
 
+// 常用函数直出：避免业务侧为了单个方法引入二次封装。
+export { cloneDeep, deepClone } from './object';
+export { formatTime } from './date';
+
 // 兼容性模块（保留原有工具）
 export * from './auth';
 export * from './storage';

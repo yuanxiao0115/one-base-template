@@ -109,6 +109,11 @@ function shouldStrictCookieSessionCheck() {
   return authOptions.strictCookieSession !== false;
 }
 
+function shouldStrictTokenSessionCheck() {
+  const authOptions = getCoreOptions().auth;
+  return authOptions?.mode === 'token' || authOptions?.mode === 'mixed';
+}
+
 export const useAuthStore = defineStore('ob-auth', () => {
   const user = ref<AppUser | null>(null);
   const initialized = ref(false);
@@ -149,6 +154,19 @@ export const useAuthStore = defineStore('ob-auth', () => {
       clearStoredUser();
       initialized.value = true;
       return false;
+    }
+
+    if (shouldStrictTokenSessionCheck() && !initialized.value) {
+      // token/mixed 模式下首次守卫必须强校验，避免“切账号后沿用旧用户缓存”。
+      try {
+        await fetchMe();
+        return true;
+      } catch {
+        user.value = null;
+        clearStoredUser();
+        initialized.value = true;
+        return false;
+      }
     }
 
     if (shouldStrictCookieSessionCheck() && !initialized.value) {

@@ -335,11 +335,8 @@ describe('setupRouterGuards', () => {
     });
   });
 
-  it('remote 模式下 remoteSynced=false 且 loaded=true 时应后台触发一次 loadMenus 且按 isAllowed 继续判定', async () => {
-    let resolveLoadMenus!: () => void;
-    const loadMenusDeferred = new Promise<void>((resolve) => {
-      resolveLoadMenus = () => resolve();
-    });
+  it('remote 模式下 remoteSynced=false 且 loaded=true 时应先同步菜单再做权限判定', async () => {
+    const events: string[] = [];
 
     mocks.getCoreOptions.mockReturnValue({
       sso: {
@@ -350,8 +347,14 @@ describe('setupRouterGuards', () => {
     });
     menuStore.remoteSynced = false;
     menuStore.loaded = true;
-    menuStore.loadMenus.mockReturnValue(loadMenusDeferred);
-    menuStore.isAllowed.mockReturnValue(true);
+    menuStore.loadMenus.mockImplementation(async () => {
+      events.push('loadMenus');
+      menuStore.remoteSynced = true;
+    });
+    menuStore.isAllowed.mockImplementation(() => {
+      events.push('isAllowed');
+      return true;
+    });
 
     const runGuard = createGuardRunner();
 
@@ -364,12 +367,10 @@ describe('setupRouterGuards', () => {
 
     expect(menuStore.loadMenus).toHaveBeenCalledTimes(1);
     expect(menuStore.isAllowed).toHaveBeenCalledTimes(1);
-
-    resolveLoadMenus();
-    await loadMenusDeferred;
+    expect(events).toEqual(['loadMenus', 'isAllowed']);
   });
 
-  it('remote 模式下后台同步失败后不应在每次路由重复触发 loadMenus', async () => {
+  it('remote 模式下同步菜单失败时应按无权限处理并在后续导航继续尝试同步', async () => {
     mocks.getCoreOptions.mockReturnValue({
       sso: {
         enabled: false,
@@ -380,7 +381,7 @@ describe('setupRouterGuards', () => {
     menuStore.remoteSynced = false;
     menuStore.loaded = true;
     menuStore.loadMenus.mockRejectedValue(new Error('sync failed'));
-    menuStore.isAllowed.mockReturnValue(true);
+    menuStore.isAllowed.mockReturnValue(false);
 
     const runGuard = createGuardRunner();
 
@@ -389,16 +390,22 @@ describe('setupRouterGuards', () => {
         path: '/system/remote-first',
         fullPath: '/system/remote-first'
       })
-    ).resolves.toBe(true);
+    ).resolves.toEqual({
+      path: '/403',
+      query: { from: '/system/remote-first' }
+    });
 
     await expect(
       runGuard({
         path: '/system/remote-second',
         fullPath: '/system/remote-second'
       })
-    ).resolves.toBe(true);
+    ).resolves.toEqual({
+      path: '/403',
+      query: { from: '/system/remote-second' }
+    });
 
-    expect(menuStore.loadMenus).toHaveBeenCalledTimes(1);
+    expect(menuStore.loadMenus).toHaveBeenCalledTimes(2);
   });
 
   it('remote 模式下 remoteSynced=false 且 loaded=false 时应先 loadMenus 再继续权限判定', async () => {

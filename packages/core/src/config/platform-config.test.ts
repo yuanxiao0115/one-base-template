@@ -1,104 +1,137 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { parseRuntimeConfig } from './platform-config';
 
-describe('parseRuntimeConfig preset 收敛', () => {
-  it('preset=static-single 支持最小配置并自动补全', () => {
-    const config = parseRuntimeConfig({
-      preset: 'static-single'
-    });
+function createBaseInput() {
+  return {
+    systemConfig: {
+      mode: 'single' as const,
+      code: 'admin_server'
+    },
+    backend: 'basic' as const,
+    authMode: 'token' as const,
+    historyMode: 'history' as const,
+    menuMode: 'remote' as const,
+    enabledModules: '*',
+    authorizationType: 'ADMIN',
+    appsource: 'frame',
+    appcode: 'demo-admin',
+    systemHomeMap: {
+      admin_server: '/home/index'
+    }
+  };
+}
 
-    expect(config.preset).toBe('static-single');
-    expect(config.menuMode).toBe('static');
-    expect(config.backend).toBe('default');
-    expect(config.authMode).toBe('token');
-    expect(config.historyMode).toBe('history');
-    expect(config.tokenKey).toBe('one-base-template-token');
-    expect(config.idTokenKey).toBe('one-base-template-id-token');
-    expect(config.defaultSystemCode).toBe('default');
-    expect(config.systemHomeMap).toEqual({
-      default: '/home/index'
-    });
-  });
+describe('parseRuntimeConfig systemConfig 收敛', () => {
+  it('single 模式应自动补齐 defaultSystemCode', () => {
+    const config = parseRuntimeConfig(createBaseInput());
 
-  it('preset=remote-single 支持最小配置并自动补全', () => {
-    const config = parseRuntimeConfig({
-      preset: 'remote-single'
+    expect(config.systemConfig).toEqual({
+      mode: 'single',
+      code: 'admin_server'
     });
-
-    expect(config.preset).toBe('remote-single');
-    expect(config.menuMode).toBe('remote');
-    expect(config.backend).toBe('default');
-    expect(config.historyMode).toBe('history');
-    expect(config.tokenKey).toBe('one-base-template-token');
-    expect(config.idTokenKey).toBe('one-base-template-id-token');
-    expect(config.defaultSystemCode).toBe('default');
-    expect(config.systemHomeMap).toEqual({
-      default: '/home/index'
-    });
-  });
-
-  it('preset 下未显式传 storageNamespace 时应默认对齐 appcode', () => {
-    const config = parseRuntimeConfig({
-      preset: 'remote-single',
-      appcode: 'demo-admin'
-    });
-
-    expect(config.appcode).toBe('demo-admin');
-    expect(config.storageNamespace).toBe('demo-admin');
+    expect(config.defaultSystemCode).toBe('admin_server');
     expect(config.tokenKey).toBe('demo-admin-token');
     expect(config.idTokenKey).toBe('demo-admin-id-token');
   });
 
-  it('preset 与 menuMode 冲突时应报错', () => {
+  it('single 模式显式配置 defaultSystemCode 不一致时应报错', () => {
     expect(() =>
       parseRuntimeConfig({
-        preset: 'static-single',
-        menuMode: 'remote'
+        ...createBaseInput(),
+        defaultSystemCode: 'report_system'
       })
-    ).toThrowError(/preset=static-single.*menuMode=remote/);
+    ).toThrowError(/single 模式下 "defaultSystemCode" 必须与 "systemConfig.code" 一致/);
   });
 
-  it('preset 下 systemHomeMap 只能配置一个系统', () => {
+  it('single 模式缺少 code 时应报错', () => {
     expect(() =>
       parseRuntimeConfig({
-        preset: 'remote-single',
-        systemHomeMap: {
-          admin: '/home/index',
-          report: '/report/home'
-        }
+        ...createBaseInput(),
+        // @ts-expect-error 测试非法输入
+        systemConfig: { mode: 'single' }
       })
-    ).toThrowError(/单系统模式/);
+    ).toThrowError(/systemConfig\.code/);
   });
 
-  it('preset 下 defaultSystemCode 必须命中 systemHomeMap', () => {
+  it('multi + codes 应去重并保留输入顺序', () => {
+    const config = parseRuntimeConfig({
+      ...createBaseInput(),
+      systemConfig: {
+        mode: 'multi',
+        codes: ['admin_server', ' report_center ', 'admin_server']
+      },
+      defaultSystemCode: 'admin_server',
+      systemHomeMap: {
+        admin_server: '/home/index',
+        report_center: '/report/index'
+      }
+    });
+
+    expect(config.systemConfig).toEqual({
+      mode: 'multi',
+      codes: ['admin_server', 'report_center']
+    });
+  });
+
+  it('multi + 空数组应报错', () => {
     expect(() =>
       parseRuntimeConfig({
-        preset: 'remote-single',
-        defaultSystemCode: 'admin_server',
-        systemHomeMap: {
-          report: '/report/home'
+        ...createBaseInput(),
+        // @ts-expect-error 测试非法输入
+        systemConfig: {
+          mode: 'multi',
+          codes: []
         }
+      })
+    ).toThrowError(/systemConfig\.codes/);
+  });
+
+  it('multi 不传 codes 应视为全量系统', () => {
+    const config = parseRuntimeConfig({
+      ...createBaseInput(),
+      systemConfig: {
+        mode: 'multi'
+      }
+    });
+
+    expect(config.systemConfig).toEqual({
+      mode: 'multi'
+    });
+  });
+
+  it('defaultSystemCode 未命中 systemHomeMap 时应报错', () => {
+    expect(() =>
+      parseRuntimeConfig({
+        ...createBaseInput(),
+        defaultSystemCode: 'not-exist'
       })
     ).toThrowError(/defaultSystemCode/);
   });
 
-  it('preset 下显式传 storageNamespace 时不应被 appcode 默认值覆盖', () => {
+  it('旧 preset 字段应直接报错', () => {
+    expect(() =>
+      parseRuntimeConfig({
+        ...createBaseInput(),
+        // @ts-expect-error 测试废弃字段
+        preset: 'remote-single'
+      })
+    ).toThrowError(/"preset" 已废弃/);
+  });
+
+  it('显式传 storageNamespace 时 tokenKey 应按命名空间自动生成', () => {
     const config = parseRuntimeConfig({
-      preset: 'remote-single',
-      appcode: 'demo-admin',
+      ...createBaseInput(),
       storageNamespace: 'demo-storage'
     });
 
-    expect(config.appcode).toBe('demo-admin');
     expect(config.storageNamespace).toBe('demo-storage');
     expect(config.tokenKey).toBe('demo-storage-token');
     expect(config.idTokenKey).toBe('demo-storage-id-token');
   });
 
-  it('preset 下显式传 tokenKey/idTokenKey 时应优先使用显式值', () => {
+  it('显式传 tokenKey/idTokenKey 时应优先使用显式值', () => {
     const config = parseRuntimeConfig({
-      preset: 'remote-single',
-      appcode: 'demo-admin',
+      ...createBaseInput(),
       storageNamespace: 'demo-storage',
       tokenKey: 'custom-token',
       idTokenKey: 'custom-id-token'
@@ -113,39 +146,16 @@ describe('parseRuntimeConfig 基础契约', () => {
   it('显式传已废弃的 clientSignatureSecret 时应提示改名', () => {
     expect(() =>
       parseRuntimeConfig({
-        backend: 'basic',
-        authMode: 'token',
-        historyMode: 'history',
-        tokenKey: 'token',
-        idTokenKey: 'idToken',
-        menuMode: 'remote',
-        enabledModules: '*',
-        authorizationType: 'ADMIN',
-        appsource: 'frame',
-        appcode: 'demo-admin',
-        clientSignatureSecret: 'legacy-secret',
-        systemHomeMap: {
-          default: '/home/index'
-        }
+        ...createBaseInput(),
+        clientSignatureSecret: 'legacy-secret'
       })
     ).toThrowError(/clientSignatureSecret/);
   });
 
   it('enabledModules 应保留去重后的模块列表', () => {
     const config = parseRuntimeConfig({
-      backend: 'default',
-      authMode: 'token',
-      historyMode: 'history',
-      tokenKey: 'token',
-      idTokenKey: 'idToken',
-      menuMode: 'remote',
-      enabledModules: ['PortalManagement', ' PortalManagement ', 'LogManagement'],
-      authorizationType: 'ADMIN',
-      appsource: 'frame',
-      appcode: 'demo-admin',
-      systemHomeMap: {
-        default: '/home/index'
-      }
+      ...createBaseInput(),
+      enabledModules: ['PortalManagement', ' PortalManagement ', 'LogManagement']
     });
 
     expect(config.enabledModules).toEqual(['PortalManagement', 'LogManagement']);
@@ -153,19 +163,8 @@ describe('parseRuntimeConfig 基础契约', () => {
 
   it('应支持显式配置 hash 路由模式', () => {
     const config = parseRuntimeConfig({
-      backend: 'default',
-      authMode: 'token',
-      historyMode: 'hash',
-      tokenKey: 'token',
-      idTokenKey: 'idToken',
-      menuMode: 'remote',
-      enabledModules: '*',
-      authorizationType: 'ADMIN',
-      appsource: 'frame',
-      appcode: 'demo-admin',
-      systemHomeMap: {
-        default: '/home/index'
-      }
+      ...createBaseInput(),
+      historyMode: 'hash'
     });
 
     expect(config.historyMode).toBe('hash');

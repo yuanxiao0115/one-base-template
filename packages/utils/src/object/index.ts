@@ -47,6 +47,11 @@ export function deepClone<T>(obj: T): T {
 }
 
 /**
+ * deepClone 别名：用于承接 legacy 项目中 `cloneDeep` 的命名习惯。
+ */
+export const cloneDeep = deepClone;
+
+/**
  * 深度合并对象
  * @param target - 目标对象
  * @param sources - 源对象数组

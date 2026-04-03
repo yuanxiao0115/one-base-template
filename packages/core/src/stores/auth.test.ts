@@ -117,6 +117,36 @@ describe('core/stores/auth', () => {
     expect(store.user?.id).toBe('u-1');
   });
 
+  it('token 模式下存在 token 且命中缓存用户时，首次守卫仍应强校验服务端会话', async () => {
+    globalThis.localStorage.setItem(authUserKey, JSON.stringify(createUser()));
+    globalThis.localStorage.setItem('token', 'mock-token');
+
+    const fetchMe = vi.fn(async () => ({
+      id: 'u-2',
+      name: '切换后的用户'
+    }));
+    mocks.getCoreOptions.mockReturnValue({
+      storageNamespace: 'unit-test',
+      auth: {
+        mode: 'token',
+        tokenKey: 'token'
+      },
+      adapter: {
+        auth: {
+          fetchMe,
+          login: vi.fn(),
+          logout: vi.fn()
+        }
+      }
+    });
+
+    const store = useAuthStore();
+
+    await expect(store.ensureAuthed()).resolves.toBe(true);
+    expect(fetchMe).toHaveBeenCalledTimes(1);
+    expect(store.user?.id).toBe('u-2');
+  });
+
   it('token 模式下缺少 token 且服务端会话失效时应清空缓存并判定未登录（无缓存用户）', async () => {
     const fetchMe = vi.fn(async () => {
       throw new Error('session expired');

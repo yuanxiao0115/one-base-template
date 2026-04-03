@@ -3,10 +3,19 @@ export type AuthMode = 'cookie' | 'token' | 'mixed';
 export type MenuMode = 'remote' | 'static';
 export type RouterHistoryMode = 'history' | 'hash';
 export type EnabledModulesSetting = '*' | string[];
-export type MenuRoutePreset = 'static-single' | 'remote-single';
+
+export type RuntimeSystemConfig =
+  | {
+      mode: 'single';
+      code: string;
+    }
+  | {
+      mode: 'multi';
+      codes?: string[];
+    };
 
 export interface RuntimeConfig {
-  preset?: MenuRoutePreset;
+  systemConfig: RuntimeSystemConfig;
   backend: BackendKind;
   authMode: AuthMode;
   historyMode: RouterHistoryMode;
@@ -75,14 +84,6 @@ function expectOptionalString(
   return undefined;
 }
 
-function isMenuRoutePreset(v: unknown): v is MenuRoutePreset {
-  return v === 'static-single' || v === 'remote-single';
-}
-
-function getPresetExpectedMenuMode(preset: MenuRoutePreset): MenuMode {
-  return preset === 'static-single' ? 'static' : 'remote';
-}
-
 function resolveTokenStorageScope(normalized: Record<string, unknown>): string {
   if (isNonEmptyString(normalized.storageNamespace)) {
     return normalized.storageNamespace;
@@ -93,51 +94,8 @@ function resolveTokenStorageScope(normalized: Record<string, unknown>): string {
   return 'one-base-template';
 }
 
-function normalizePresetRuntimeConfig(
-  input: Record<string, unknown>,
-  errors: string[]
-): {
-  preset?: MenuRoutePreset;
-  normalized: Record<string, unknown>;
-} {
-  const rawPreset = input.preset;
-  if (rawPreset == null || rawPreset === '') {
-    return {
-      normalized: input
-    };
-  }
-
-  if (!isMenuRoutePreset(rawPreset)) {
-    errors.push('"preset" 必须是 static-single/remote-single 之一');
-    return {
-      normalized: input
-    };
-  }
-
-  const expectedMenuMode = getPresetExpectedMenuMode(rawPreset);
-  if (input.menuMode != null && input.menuMode !== expectedMenuMode) {
-    errors.push(
-      `preset=${rawPreset} 不允许 menuMode=${String(input.menuMode)}，应为 ${expectedMenuMode}`
-    );
-  }
-
-  const fallbackSystemCode = isNonEmptyString(input.defaultSystemCode)
-    ? input.defaultSystemCode
-    : 'default';
+function normalizeRuntimeConfig(input: Record<string, unknown>): Record<string, unknown> {
   const normalized: Record<string, unknown> = {
-    preset: rawPreset,
-    backend: 'default',
-    authMode: 'token',
-    historyMode: 'history',
-    menuMode: expectedMenuMode,
-    enabledModules: '*',
-    authorizationType: 'ADMIN',
-    appsource: 'frame',
-    appcode: 'one-base-template',
-    defaultSystemCode: fallbackSystemCode,
-    systemHomeMap: {
-      [fallbackSystemCode]: '/home/index'
-    },
     ...input
   };
 
@@ -154,10 +112,7 @@ function normalizePresetRuntimeConfig(
     normalized.idTokenKey = `${tokenStorageScope}-id-token`;
   }
 
-  return {
-    preset: rawPreset,
-    normalized
-  };
+  return normalized;
 }
 
 function expectEnabledModules(
@@ -210,14 +165,79 @@ function expectSystemHomeMap(
   return out;
 }
 
+function expectSystemConfig(
+  raw: Record<string, unknown>,
+  key: string,
+  errors: string[]
+): RuntimeSystemConfig | undefined {
+  const value = raw[key];
+  if (!isRecord(value)) {
+    errors.push(`"${key}" 必须是对象，形如 {"mode":"single","code":"admin"}`);
+    return undefined;
+  }
+
+  const mode = value.mode;
+  if (mode !== 'single' && mode !== 'multi') {
+    errors.push(`"${key}.mode" 必须是 single/multi 之一`);
+    return undefined;
+  }
+
+  if (mode === 'single') {
+    if (!isNonEmptyString(value.code)) {
+      errors.push(`"${key}.code" 在 single 模式下必须是非空字符串`);
+      return undefined;
+    }
+
+    return {
+      mode: 'single',
+      code: value.code
+    };
+  }
+
+  const rawCodes = value.codes;
+  if (rawCodes == null) {
+    return {
+      mode: 'multi'
+    };
+  }
+
+  if (!Array.isArray(rawCodes)) {
+    errors.push(`"${key}.codes" 必须是字符串数组`);
+    return undefined;
+  }
+
+  const codes = rawCodes
+    .map((item) => (typeof item === 'string' ? item.trim() : ''))
+    .filter(Boolean);
+  if (codes.length !== rawCodes.length) {
+    errors.push(`"${key}.codes" 仅允许非空字符串数组`);
+  }
+
+  const uniqueCodes = Array.from(new Set(codes));
+  if (uniqueCodes.length === 0) {
+    errors.push(`"${key}.codes" 至少需要一个 systemCode`);
+    return undefined;
+  }
+
+  return {
+    mode: 'multi',
+    codes: uniqueCodes
+  };
+}
+
 export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   if (!isRecord(input)) {
     throw new Error('[platform-config] 配置文件格式错误：根节点必须是 JSON 对象');
   }
 
   const errors: string[] = [];
-  const { preset, normalized } = normalizePresetRuntimeConfig(input, errors);
+  if ('preset' in input) {
+    errors.push('"preset" 已废弃，请改为 "systemConfig"（single/multi）');
+  }
 
+  const normalized = normalizeRuntimeConfig(input);
+
+  const systemConfig = expectSystemConfig(normalized, 'systemConfig', errors);
   const backend = expectEnum(normalized, 'backend', ['default', 'basic'], errors);
   const authMode = expectEnum(normalized, 'authMode', ['cookie', 'token', 'mixed'], errors);
   const historyMode = expectEnum(normalized, 'historyMode', ['history', 'hash'], errors);
@@ -244,13 +264,17 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
     );
   }
 
-  if (preset && systemHomeMap) {
-    if (Object.keys(systemHomeMap).length !== 1) {
-      errors.push(`preset=${preset} 为单系统模式，"systemHomeMap" 仅允许配置一个系统`);
+  let resolvedDefaultSystemCode = defaultSystemCode;
+  if (systemConfig?.mode === 'single') {
+    if (!resolvedDefaultSystemCode) {
+      resolvedDefaultSystemCode = systemConfig.code;
+    } else if (resolvedDefaultSystemCode !== systemConfig.code) {
+      errors.push('single 模式下 "defaultSystemCode" 必须与 "systemConfig.code" 一致');
     }
-    if (defaultSystemCode && !systemHomeMap[defaultSystemCode]) {
-      errors.push(`preset=${preset} 下 "defaultSystemCode" 必须命中 "systemHomeMap"`);
-    }
+  }
+
+  if (resolvedDefaultSystemCode && systemHomeMap && !systemHomeMap[resolvedDefaultSystemCode]) {
+    errors.push('"defaultSystemCode" 必须命中 "systemHomeMap"');
   }
 
   if (errors.length > 0) {
@@ -258,7 +282,7 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
   }
 
   return {
-    preset,
+    systemConfig: systemConfig!,
     backend: backend!,
     authMode: authMode!,
     historyMode: historyMode!,
@@ -272,7 +296,7 @@ export function parseRuntimeConfig(input: unknown): RuntimeConfig {
     clientSignatureSalt,
     clientSignatureClientId,
     storageNamespace,
-    defaultSystemCode,
+    defaultSystemCode: resolvedDefaultSystemCode,
     systemHomeMap: systemHomeMap!
   };
 }

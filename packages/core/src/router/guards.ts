@@ -159,34 +159,20 @@ function getDefaultAccess(params: {
 async function syncRemoteMenusIfNeeded(params: {
   isRemoteMenuMode: boolean;
   remoteSynced: boolean;
-  loaded: boolean;
   loadMenus: () => Promise<void>;
-  backgroundSyncAttempted: boolean;
-  markBackgroundSyncAttempted: () => void;
-}) {
-  const {
-    isRemoteMenuMode,
-    remoteSynced,
-    loaded,
-    loadMenus,
-    backgroundSyncAttempted,
-    markBackgroundSyncAttempted
-  } = params;
+}): Promise<boolean> {
+  const { isRemoteMenuMode, remoteSynced, loadMenus } = params;
   if (!(isRemoteMenuMode && !remoteSynced)) {
-    return;
+    return true;
   }
 
-  if (loaded) {
-    if (backgroundSyncAttempted) {
-      return;
-    }
-    markBackgroundSyncAttempted();
-    // 已有缓存时走后台同步，减少正常跳转阻塞。
-    void loadMenus().catch(() => {});
-    return;
+  // remote 模式下未完成同步时，不允许仅凭缓存菜单做权限判定，避免切账号后命中旧权限。
+  try {
+    await loadMenus();
+    return true;
+  } catch {
+    return false;
   }
-
-  await loadMenus();
 }
 
 function shouldLoadMenus(params: {
@@ -244,30 +230,37 @@ async function checkMenuAccess(params: {
     return true;
   }
 
-  if (
-    shouldLoadMenus({
-      loaded: menuStore.loaded,
-      isRemoteMenuMode,
-      remoteSynced: menuStore.remoteSynced
-    })
-  ) {
-    await menuStore.loadMenus();
+  const shouldLoad = shouldLoadMenus({
+    loaded: menuStore.loaded,
+    isRemoteMenuMode,
+    remoteSynced: menuStore.remoteSynced
+  });
+  if (shouldLoad) {
+    try {
+      await menuStore.loadMenus();
+    } catch {
+      return buildForbiddenRedirect(to, forbiddenRoutePath);
+    }
   }
 
   if (menuStore.isAllowed(menuKey)) {
     return true;
   }
 
-  await switchSystemByMenuKeyIfNeeded({
-    menuKey,
-    currentSystemCode: systemStore.currentSystemCode,
-    resolveSystemByMenuKey: (nextMenuKey) => menuStore.resolveSystemByMenuKey(nextMenuKey),
-    setCurrentSystem: (systemCode) => systemStore.setCurrentSystem(systemCode),
-    loaded: menuStore.loaded,
-    isRemoteMenuMode,
-    remoteSynced: menuStore.remoteSynced,
-    loadMenus: () => menuStore.loadMenus()
-  });
+  try {
+    await switchSystemByMenuKeyIfNeeded({
+      menuKey,
+      currentSystemCode: systemStore.currentSystemCode,
+      resolveSystemByMenuKey: (nextMenuKey) => menuStore.resolveSystemByMenuKey(nextMenuKey),
+      setCurrentSystem: (systemCode) => systemStore.setCurrentSystem(systemCode),
+      loaded: menuStore.loaded,
+      isRemoteMenuMode,
+      remoteSynced: menuStore.remoteSynced,
+      loadMenus: () => menuStore.loadMenus()
+    });
+  } catch {
+    return buildForbiddenRedirect(to, forbiddenRoutePath);
+  }
 
   return menuStore.isAllowed(menuKey) ? true : buildForbiddenRedirect(to, forbiddenRoutePath);
 }
@@ -276,7 +269,6 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
   const openRoutePaths = new Set<string>(options.publicRoutePaths ?? [...DEFAULT_OPEN_PATHS]);
   const loginRoutePath = options.loginRoutePath ?? DEFAULT_LOGIN_PATH;
   const forbiddenRoutePath = options.forbiddenRoutePath ?? DEFAULT_FORBIDDEN_PATH;
-  let remoteBackgroundSyncAttempted = false;
 
   router.beforeEach(async (to, from) => {
     await options.onNavigationStart?.({ to, from });
@@ -333,16 +325,14 @@ export function setupRouterGuards(router: Router, options: RouterGuardOptions = 
     }
 
     const menuStore = useMenuStore();
-    await syncRemoteMenusIfNeeded({
+    const remoteMenusReady = await syncRemoteMenusIfNeeded({
       isRemoteMenuMode: coreOptions.menuMode === 'remote',
       remoteSynced: menuStore.remoteSynced,
-      loaded: menuStore.loaded,
-      loadMenus: () => menuStore.loadMenus(),
-      backgroundSyncAttempted: remoteBackgroundSyncAttempted,
-      markBackgroundSyncAttempted: () => {
-        remoteBackgroundSyncAttempted = true;
-      }
+      loadMenus: () => menuStore.loadMenus()
     });
+    if (!remoteMenusReady) {
+      return buildForbiddenRedirect(to, forbiddenRoutePath);
+    }
 
     return checkMenuAccess({
       to,
