@@ -10594,3 +10594,14 @@
 - 结果：
   - `apps/docs lint`：0 warning / 0 error。
   - `apps/docs build`：成功。
+
+## 2026-04-03（新增 technical-doc-collaboration Skill）
+
+- GREEN：
+  - `python3 /Users/haoqiuzhi/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/haoqiuzhi/code/one-base-template/.codex/skills/technical-doc-collaboration`
+- 结果：
+  - `Skill is valid!`
+
+- 补充校验：
+  - `python3 /Users/haoqiuzhi/.codex/skills/.system/skill-creator/scripts/generate_openai_yaml.py ...`
+  - 结果：`agents/openai.yaml` 生成成功。

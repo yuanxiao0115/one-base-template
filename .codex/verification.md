@@ -44,3 +44,8 @@
   - remote 菜单未同步前不再用缓存放行；
   - token/mixed 首次守卫强校验 `fetchMe`；
   - `packages/core` 与三应用配置定向单测全部通过。
+
+## 2026-04-03（technical-doc-collaboration Skill）
+
+- 影响范围：`.codex/skills/technical-doc-collaboration/**`。
+- 结论：Skill 已创建并通过 `quick_validate.py` 校验，可用于技术文档协作场景。

@@ -12008,3 +12008,24 @@
   - 增加可执行检查命令（`lint:arch` + `rg` 扫描项）
   - 增加“例外场景”说明（何时允许 `el-dialog`）
   - 增加后续完善项：在 `admin-lite` 内置可开关 `CRUD Demo` 标准模块
+
+## 2026-04-03（新增 technical-doc-collaboration Skill：技术文档协作技巧）
+
+- 目标：将“受众优先 + 问题框架 + 协作评审 + 最小可运行示例”沉淀为可触发 Skill，支持文档写作与团队协作统一口径。
+- 创建路径：
+  - `.codex/skills/technical-doc-collaboration/SKILL.md`
+  - `.codex/skills/technical-doc-collaboration/agents/openai.yaml`
+  - `.codex/skills/technical-doc-collaboration/references/audience-first-checklist.md`
+  - `.codex/skills/technical-doc-collaboration/references/collaboration-playbook.md`
+  - `.codex/skills/technical-doc-collaboration/references/source-notes.md`
+  - `.codex/skills/technical-doc-collaboration/assets/tech-doc-collab-template.md`
+- 流程要点：
+  - 按 `skill-creator` 脚手架流程初始化并修复 metadata 约束（`short_description` 长度）。
+  - 采用渐进式加载：`SKILL.md` 放流程，`references/` 放细节，`assets/` 放模板。
+  - 引入 Mermaid 约定、端点全量清单要求、协作评审四分类（正确性/可执行性/边界/可维护性）。
+- 外部资料吸收：
+  - Google Technical Writing（Audience）
+  - Docs for Developers（主页与 Error Messages 文章）
+  - thundergolfer（三件套技术写作文章）
+  - Infosec Docs & Reports 资源索引
+  - Reddit 用户 Knightcalibre 公开帖子
