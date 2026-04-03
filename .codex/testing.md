@@ -2,6 +2,34 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-03（packages/ui：MenuIconInput + UploadShell）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+- RED（存在非本次改动阻断项）：
+  - `pnpm -C apps/zfw-system-sfss build`
+  - 失败信息：`Rolldown failed to resolve import "@vue-office/pdf"`（来源 `packages/ui/src/components/preview/engines/PdfPreviewEngine.vue`）。
+  - 处置：已执行 `pnpm -C /Users/haoqiuzhi/code/one-base-template install` 后复跑，结果仍失败，确认为工作区既有依赖解析问题，非本次 `MenuIconInput/UploadShell` 逻辑引入。
+
+## 2026-04-03（packages/ui：ObTable 文档增强 + PersonnelSelector / RichText 下沉）
+
+- GREEN / 回归：
+  - `pnpm -C /Users/haoqiuzhi/code/one-base-template install --lockfile-only`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - lockfile 更新成功（包含 `@wangeditor/editor` 与 `@wangeditor/editor-for-vue` 依赖变更）。
+  - `packages/ui`：`vue-tsc` 通过；`vp lint` 0 warning / 0 error。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功（保留 VitePress 既有 chunk size warning，不阻断）。
+
 ## 2026-04-03（zfw-system-sfss：ObTable 迁移规则收口 + code=1 兼容）
 
 - GREEN / 回归：
@@ -10794,3 +10822,69 @@
   - `pnpm -C packages/core typecheck`
 - 结果：
   - 通过（`tsc --noEmit` 无报错）。
+
+## 2026-04-03（docs 组件库入口与 Ob 组件文档）
+
+- 验证命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 均通过。
+  - `build` 阶段存在 Vite chunk size 提示（非阻断，历史常见告警），构建成功。
+
+## 2026-04-03（docs 组件库左侧分类 + 第二批组件文档）
+
+- 验证命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 均通过。
+  - `build` 保留 Vite chunk size 非阻断提示，页面渲染成功。
+
+## 2026-04-03（ObFilePreview 收尾验证）
+
+- 先验修复验证：
+  - `pnpm -C packages/ui typecheck`（通过）
+  - `pnpm -C apps/admin typecheck`（通过）
+  - `pnpm -C apps/admin-lite typecheck`（通过）
+
+- 全量验收命令（按计划）：
+  - `pnpm -C packages/ui typecheck`（通过）
+  - `pnpm -C packages/ui lint`（通过，0 warning / 0 error）
+  - `pnpm -C apps/admin typecheck`（通过）
+  - `pnpm -C apps/admin-lite typecheck`（通过）
+  - `pnpm -C apps/docs lint`（通过，0 warning / 0 error）
+  - `pnpm -C apps/docs build`（通过，保留 Vite chunk size 非阻断提示）
+
+- 组件相关单测：
+  - `pnpm -C packages/ui exec vp test run src/components/preview/file-meta.test.ts src/index.test.ts src/plugin.test.ts`
+  - 结果：`3 passed / 11 passed`。
+
+- 中途发现并处理的历史阻塞：
+  - `packages/ui/src/components/upload/UploadShell.vue` 的 `failed` 事件参数类型不匹配导致 `packages/ui typecheck` 失败；已修复并通过回归。
+
+## 2026-04-04（docs：ObFilePreview 详细文档）
+
+- 验证命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `lint` 通过（0 warning / 0 error）。
+  - `build` 通过（保留 plugin timing / chunk size 非阻断提示）。
+
+## 2026-04-04（ObFilePreview 构建阻断修复回归）
+
+- 验证命令：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/zfw-system-sfss build`
+- 结果：
+  - `packages/ui typecheck` 通过。
+  - `packages/ui lint` 通过（0 warning / 0 error）。
+  - `apps/admin typecheck` 通过。
+  - `apps/admin-lite typecheck` 通过。
+  - `zfw-system-sfss build` 通过；`@vue-office/pdf` 解析报错消失。
+  - 构建阶段仍有 chunk size 与 `INEFFECTIVE_DYNAMIC_IMPORT` 提示，均为非阻断告警。
+- 复跑（示例修正后）：`pnpm -C apps/docs lint`、`pnpm -C apps/docs build` 均通过。

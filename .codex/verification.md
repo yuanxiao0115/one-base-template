@@ -10,6 +10,8 @@
 - 补充（本轮）：新增“zfw vite server 配置收口（移除多层三元，固定 open/host/port 与 cmict/zb/zfw 代理）”验证记录。
 - 补充（本轮）：新增“zfw 代理目标可观测性增强（启动映射输出 + VITE_PROXY_DEBUG 逐请求日志）”验证记录。
 - 补充（本轮）：新增“zfw ObTable 迁移规则收口（showSearchBar 按钮保留、OneDrawer -> ObCrudContainer、去除 adaptive/header-cell-style）与 code=1 成功码兼容”验证记录。
+- 补充（本轮）：新增“packages/ui 组件沉淀（ObPersonnelSelector + ObRichText）与 ObTable 文档增强（勾选/树形/插槽懒加载/行拖拽）”验证记录。
+- 补充（本轮）：新增“packages/ui 组件沉淀（ObMenuIconInput + ObUploadShell）与三端菜单表单接入统一”验证记录。
 
 ## 历史归档
 
@@ -87,3 +89,96 @@
 
 - 影响范围：`packages/core/src/config/platform-config.test.ts`
 - 结论：移除 3 处已失效 `@ts-expect-error` 后，`pnpm -C packages/core typecheck` 通过。
+
+## 2026-04-03（docs 组件库入口 + Ob 组件 API 文档）
+
+- 影响范围：
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/index.md`
+  - `apps/docs/docs/components/*.md`
+- 结论：
+  - 顶部导航已新增“组件库”入口并可进入 `/components/`。
+  - 左侧 sidebar 已显示组件库名称与组件列表。
+  - `ObPageContainer/ObCrudContainer/ObTableBox/ObTable/ObCardTable/ObActionButtons/ObTree/ObImportUpload/ObCard/ObColorField` 已补齐属性、事件 API 与示例文档。
+  - `pnpm -C apps/docs lint`、`pnpm -C apps/docs build` 通过。
+
+## 2026-04-03（docs 组件库分类化 + 第二批架构壳层组件）
+
+- 影响范围：
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/components/index.md`
+  - `apps/docs/docs/components/{ob-admin-layout,ob-sidebar-menu,ob-top-bar,ob-tabs-bar,ob-keep-alive-view,ob-theme-switcher,ob-menu-icon,ob-font-icon}.md`
+- 结论：
+  - 组件库左侧菜单已支持分类展示。
+  - 已新增第二批架构壳层组件文档，并在页面中标注“通常不直接用于业务”。
+  - docs lint/build 均通过。
+
+## 2026-04-03（packages/ui：ObTable 文档增强 + PersonnelSelector / RichText 沉淀）
+
+- 影响范围：
+  - `packages/ui/src/components/personnel-selector/**`
+  - `packages/ui/src/components/rich-text/**`
+  - `packages/ui/src/{index.ts,plugin.ts,plugin-obtable.ts}`
+  - `apps/docs/docs/components/{ob-table,ob-personnel-selector,ob-rich-text,index}.md`
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/built-in-components.md`
+- 结论：
+  - `ObPersonnelSelector` 与 `openPersonnelSelection` 已下沉到 `@one-base-template/ui`。
+  - `ObRichText` 与富文本安全工具方法已下沉到 `@one-base-template/ui`。
+  - `ObTable` 文档已补齐勾选、树形懒加载、插槽懒加载、行拖拽完整示例。
+  - `pnpm -C packages/ui typecheck`、`pnpm -C packages/ui lint`、`pnpm -C apps/docs lint`、`pnpm -C apps/docs build` 全部通过。
+
+## 2026-04-03（ObFilePreview 统一预览组件）
+
+- 影响范围：
+  - `packages/ui/src/components/preview/**`
+  - `packages/ui/src/{index.ts,plugin.ts,plugin-obtable.ts,env.d.ts}`
+  - `packages/ui/src/{index.test.ts,plugin.test.ts}`
+  - `apps/admin/tsconfig.json`
+  - `apps/admin-lite/tsconfig.json`
+  - `apps/docs/docs/guide/built-in-components.md`
+- 验证结论：
+  - 计划要求的 6 条验收命令已全部通过。
+  - `file-meta` 格式识别与 `FilePreview` 导出/插件注册相关单测通过（`3 files / 11 tests`）。
+  - `ObFilePreview` 在公共层可导出并全局注册，`admin/admin-lite` 类型检查可通过。
+- 备注：
+  - `apps/docs build` 保留 chunk size 非阻断提示，不影响构建成功。
+
+## 2026-04-03（packages/ui：MenuIconInput + UploadShell）
+
+- 影响范围：
+  - `packages/ui/src/components/menu/{MenuIconInput.vue,MenuIconInput.css,menu-iconfont-sources.ts}`
+  - `packages/ui/src/components/upload/UploadShell.vue`
+  - `packages/ui/src/{index.ts,plugin.ts,plugin-obtable.ts}`
+  - `apps/{admin,admin-lite,zfw-system-sfss}/src/modules/adminManagement/menu/components/{MenuPermissionEditForm,SystemPermissionEditForm}.vue`
+  - `apps/docs/docs/components/{ob-menu-icon-input,ob-upload-shell,index}.md`
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/built-in-components.md`
+- 结论：
+  - `ObMenuIconInput` 已完成组件沉淀并对三端菜单表单生效。
+  - `ObUploadShell` 已补齐通用上传壳能力（校验、统一事件、拖拽模式、Expose 方法）。
+  - `packages/ui`、`apps/docs`、`apps/admin`、`apps/admin-lite` 验证通过。
+  - `apps/zfw-system-sfss build` 存在既有依赖解析阻断（`@vue-office/pdf`），与本次改动无直接耦合。
+
+## 2026-04-04（ObFilePreview 文档化到组件库）
+
+- 影响范围：
+  - `apps/docs/docs/components/ob-file-preview.md`
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/components/index.md`
+  - `apps/docs/docs/guide/built-in-components.md`
+- 结论：
+  - `ObFilePreview` 已在组件库形成独立详细文档页，并完成侧边栏接入与入口互链。
+  - docs lint/build 均通过。
+
+## 2026-04-04（ObFilePreview 构建阻断修复：@vue-office/\* 导入路径）
+
+- 影响范围：
+  - `packages/ui/src/components/preview/engines/OfficePreviewEngine.vue`
+  - `packages/ui/src/components/preview/engines/PdfPreviewEngine.vue`
+  - `packages/ui/src/env.d.ts`
+- 结论：
+  - `@vue-office/pdf` 的 Rolldown 解析失败已修复，`apps/zfw-system-sfss build` 成功。
+  - `packages/ui typecheck/lint` 均通过，类型与代码质量门禁正常。
+  - `apps/admin` 与 `apps/admin-lite` 的 `typecheck` 均通过，未引入跨端类型回归。
+  - 当前仍存在构建体积告警（非阻断），与本次修复目标无冲突。

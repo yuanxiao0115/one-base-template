@@ -2,6 +2,55 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-03（packages/ui：MenuIconInput 沉淀 + 通用上传壳 UploadShell）
+
+- 背景：
+  - 用户要求沉淀 `MenuIconInput` 为公共组件，并补齐“通用上传壳”能力，减少业务模块重复实现。
+- 组件沉淀：
+  - 新增 `packages/ui/src/components/menu/MenuIconInput.vue` 与 `MenuIconInput.css`。
+  - 新增 `packages/ui/src/components/menu/menu-iconfont-sources.ts`，统一图标源配置与 class 归一化逻辑。
+  - 新增 `packages/ui/src/components/upload/UploadShell.vue`，封装通用上传交互（扩展名/体积校验、统一事件、拖拽模式、自定义请求）。
+  - `packages/ui/src/{index.ts,plugin.ts,plugin-obtable.ts}` 同步导出与全局注册：
+    - `ObMenuIconInput`
+    - `ObUploadShell`
+- 三端接入：
+  - `apps/{admin,admin-lite,zfw-system-sfss}/src/modules/adminManagement/menu/components/{MenuPermissionEditForm,SystemPermissionEditForm}.vue`
+    - 菜单表单中的 `MenuIconInput` 改为统一从 `@one-base-template/ui` 引入。
+- 文档同步：
+  - 新增组件文档：
+    - `apps/docs/docs/components/ob-menu-icon-input.md`
+    - `apps/docs/docs/components/ob-upload-shell.md`
+  - 更新组件库导航与清单：
+    - `apps/docs/docs/components/index.md`
+    - `apps/docs/docs/.vitepress/config.ts`
+    - `apps/docs/docs/guide/built-in-components.md`
+
+## 2026-04-03（packages/ui：ObTable 文档增强 + PersonnelSelector / RichText 组件沉淀）
+
+- 背景：
+  - 用户要求补强 `ObTable` 文档细节（勾选、树形、插槽懒加载、行拖拽），并将 `PersonnelSelector`、`rich-text` 下沉到 `packages/ui`，同时补齐组件库文档与分类导航。
+- 组件能力收口：
+  - `packages/ui/src/components/personnel-selector/**`
+    - 新增 `PersonnelSelectionDialogHost.vue`、`openPersonnelSelection.ts`、`index.ts`。
+    - `PersonnelSelector` 组件从“仅内嵌”扩展为“内嵌 + 弹窗 API”双用法。
+  - `packages/ui/src/components/rich-text/**`
+    - 新增 `RichText.vue`、`rich-text-html.ts`、`index.ts`。
+    - 统一暴露 `sanitizeRichTextHtml/normalizeRichTextHtml/toSafeRichTextHtml/getRichTextToolbarExcludeKeys`。
+  - `packages/ui/src/{index.ts,plugin.ts,plugin-obtable.ts}`
+    - 补齐 `PersonnelSelector` 与 `RichText` 的导出和全局注册。
+  - `packages/ui/package.json`
+    - 新增 `@wangeditor/editor`、`@wangeditor/editor-for-vue` 依赖并更新 lockfile。
+- docs 同步：
+  - `apps/docs/docs/components/ob-table.md`
+    - 新增 `treeConfig/rowDragConfig` 字段说明与四类场景示例。
+  - 新增：
+    - `apps/docs/docs/components/ob-personnel-selector.md`
+    - `apps/docs/docs/components/ob-rich-text.md`
+  - 更新：
+    - `apps/docs/docs/components/index.md`
+    - `apps/docs/docs/.vitepress/config.ts`
+    - `apps/docs/docs/guide/built-in-components.md`
+
 ## 2026-04-03（zfw-system-sfss：ObTable 迁移规则收口 + code=1 兼容）
 
 - 背景：
@@ -12301,3 +12350,92 @@
   - `packages/core/src/config/platform-config.test.ts` 删除 3 处失效 `@ts-expect-error`，保留运行时错误断言不变。
 - 验证：
   - `pnpm -C packages/core typecheck` 通过。
+
+## 2026-04-03（docs 新增组件库入口 + Ob 组件 API 文档）
+
+- 背景：需要在 docs 顶部新增“组件库”入口，并提供 `ob-x` 组件的详细文档（属性配置、API、示例）。
+- 执行：
+  - 新增目录：`apps/docs/docs/components/`，落地 11 个页面（总览 + 10 个组件详情）：
+    - `index.md`
+    - `ob-page-container.md`
+    - `ob-crud-container.md`
+    - `ob-table-box.md`
+    - `ob-table.md`
+    - `ob-card-table.md`
+    - `ob-action-buttons.md`
+    - `ob-tree.md`
+    - `ob-import-upload.md`
+    - `ob-card.md`
+    - `ob-color-field.md`
+  - 修改导航：`apps/docs/docs/.vitepress/config.ts`
+    - 顶部 nav 新增 `组件库` 入口（`/components/`）。
+    - 新增 `/components/` sidebar，左侧展示组件名称列表。
+  - 修改总览页：`apps/docs/docs/guide/index.md`
+    - 在“开发实践”卡片区新增“组件库（Ob 系列）”入口卡片。
+- 文档口径：组件页均覆盖 `Props / Emits / Slots / Expose / 示例`（按源码真实实现整理）。
+
+## 2026-04-03（docs 组件库左侧分类 + 第二批架构壳层组件文档）
+
+- 目标：按用户反馈将组件库左侧菜单改为分类，并补充“第二批架构组件（一般不直接用于业务）”文档。
+- 导航改造：
+  - 文件：`apps/docs/docs/.vitepress/config.ts`
+  - 变更：`/components/` sidebar 由单组改为分组：
+    - 组件库总览
+    - 业务高频组件
+    - 架构壳层组件（一般不直接用于业务）
+    - 基础能力组件（图标 / 主题）
+- 文档补充：
+  - 新增 8 个组件页：
+    - `ob-admin-layout.md`
+    - `ob-sidebar-menu.md`
+    - `ob-top-bar.md`
+    - `ob-tabs-bar.md`
+    - `ob-keep-alive-view.md`
+    - `ob-theme-switcher.md`
+    - `ob-menu-icon.md`
+    - `ob-font-icon.md`
+  - 更新 `apps/docs/docs/components/index.md`，按三类展示组件目录并补充说明。
+
+## 2026-04-03（ObFilePreview 收尾：OFD 类型透传 + 全量验收）
+
+- 背景：按实施计划收尾 `packages/ui` 统一文件预览组件（`pdf/docx/xlsx/pptx/ofd + 图片`），并打通 `admin/admin-lite` typecheck。
+- 关键处理：
+  - `packages/ui/src/components/preview/engines/OfdPreviewEngine.vue`
+    - 删除失效 `@ts-expect-error`，保留正常类型导入。
+  - `packages/ui/src/env.d.ts`
+    - 收敛第三方声明：`parser_x.js`、`ofdview-vue3`、`@wangeditor/editor-for-vue`。
+  - `apps/admin/tsconfig.json`、`apps/admin-lite/tsconfig.json`
+    - `include` 增加 `../../packages/ui/src/env.d.ts`，让两端在 path alias 到 `@one-base-template/ui` 源码时可共享声明。
+  - `packages/ui/src/components/upload/UploadShell.vue`
+    - 修复既有 `failed` 事件参数类型不匹配（`UploadUserFile[]` -> `UploadFiles`）导致的 `typecheck` 阻塞。
+  - 测试稳定性修复：
+    - `packages/ui/src/index.test.ts`、`packages/ui/src/plugin.test.ts`
+    - 将 `readFileSync(new URL(..., import.meta.url))` 改为基于 `process.cwd()` 的路径读取，兼容 `vite-plus/test` 运行时 URL 协议。
+
+- 产出：`ObFilePreview` 方案保持“公共层实现 + 动态引擎 + 文档同步”，并完成全量验证。
+
+## 2026-04-04（docs 组件库补齐 ObFilePreview 详细文档）
+
+- 目标：在 `apps/docs` 组件库中补齐 `ObFilePreview` 详细文档，覆盖 Props / Emits / 格式路由 / 示例 / 降级与排障。
+- 执行：
+  - 新增：`apps/docs/docs/components/ob-file-preview.md`
+  - 导航接入：`apps/docs/docs/.vitepress/config.ts`（`componentBusinessItems` 增加 `ObFilePreview`）
+  - 目录同步：`apps/docs/docs/components/index.md` 增加组件链接
+  - 入口互链：`apps/docs/docs/guide/built-in-components.md` 增加“详细文档”跳转
+- 文档口径：明确“适用范围、前置条件、风险/限制、排障建议”四要素，保持与组件实现一致。
+
+## 2026-04-04（ObFilePreview 构建阻断修复：@vue-office/\* 解析路径收敛）
+
+- 背景：`apps/zfw-system-sfss build` 在 Rolldown 阶段报错 `failed to resolve import "@vue-office/pdf"`，阻断生产构建。
+- 根因：
+  - `@vue-office/*` 包当前安装形态仅稳定存在 `lib/v3/index.js`，包根导入依赖的 `lib/index.js` 不可用。
+  - 预览引擎使用了包根导入与 `lib/index.css` 路径，触发解析失败。
+- 处理：
+  - `packages/ui/src/components/preview/engines/OfficePreviewEngine.vue`
+    - `@vue-office/{docx,excel,pptx}` 改为 `lib/v3/index.js` 直连导入；
+    - 样式改为 `docx/excel` 的 `lib/v3/index.css`，移除 `pptx` 不存在样式导入。
+  - `packages/ui/src/components/preview/engines/PdfPreviewEngine.vue`
+    - `@vue-office/pdf` 改为 `@vue-office/pdf/lib/v3/index.js`；
+    - 移除 `@vue-office/pdf/lib/index.css` 导入（该路径不存在）。
+  - `packages/ui/src/env.d.ts`
+    - 新增 `@vue-office/*/lib/v3/index.js` 四个模块声明，保证 `vue-tsc` 类型可识别。
