@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import type { CrudFormLike } from '@one-base-template/ui';
+import { type CrudFormLike, MenuIconInput } from '@one-base-template/ui';
 import type { MenuPermissionForm } from '../form';
-import MenuIconInput from './MenuIconInput.vue';
 
 const props = defineProps<{
   rules: FormRules<MenuPermissionForm>;

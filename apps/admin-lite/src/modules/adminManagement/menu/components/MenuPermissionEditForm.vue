@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import type { CrudFormLike } from '@one-base-template/ui';
+import { type CrudFormLike, MenuIconInput } from '@one-base-template/ui';
 import { QuestionFilled } from '@element-plus/icons-vue';
 import type { PermissionTypeOption } from '../types';
 import type { MenuPermissionForm, ParentOption } from '../form';
-import MenuIconInput from './MenuIconInput.vue';
 
 const props = defineProps<{
   rules: FormRules<MenuPermissionForm>;
