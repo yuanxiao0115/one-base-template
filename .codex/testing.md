@@ -10716,3 +10716,17 @@
 
 - 备注：
   - `pnpm -C apps/zfw-system-sfss dev:staging -- --help` 会实际启动 dev server（输出本地地址后持续运行），验证脚本存在后已手动终止临时进程，避免端口占用。
+
+## 2026-04-03（zfw vite server 配置收口：去三元重构）
+
+- GREEN / 回归：
+  - `pnpm -C apps/zfw-system-sfss build`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - `apps/zfw-system-sfss build`：通过。
+  - `apps/zfw-system-sfss lint:arch`：通过。
+  - `apps/docs lint`：0 warning / 0 error。
+  - `apps/docs build`：通过。

@@ -12216,3 +12216,17 @@
     - `apps/docs/docs/guide/for-users.md`
     - `apps/docs/docs/guide/quick-start.md`
     - `apps/docs/docs/guide/zfw-system-sfss-quick-start.md`
+
+## 2026-04-03（zfw vite server 清理：移除多层三元，按旧项目口径收口）
+
+- 背景：用户要求参考 legacy `vite` 配置，将 `apps/zfw-system-sfss/vite.config.ts` 的 `server` 配置从“多层三元扩展”改为清晰可维护结构。
+- 代码改造：
+  - `apps/zfw-system-sfss/vite.config.ts`
+    - 新增常量：`WORKSPACE_ROOT`、`DEFAULT_DEV_PORT`、`DEFAULT_ZFW_PROXY_TARGET`。
+    - 新增 `resolveDevPort()`，统一解析 `VITE_PORT`（默认 `5173`）。
+    - 新增 `createDevProxy()`，使用显式 `if` 组装 `/api`、`/cmict`、`/zb`、`/zfw` 代理，移除原多层三元与对象展开。
+    - `server` 新增并固定：`open: true`、`port`、`host: '0.0.0.0'`、`warmup.clientFiles`。
+    - 保留 `fs.allow` 指向 monorepo 根目录。
+- 文档与样例同步：
+  - `apps/zfw-system-sfss/.env.example` 增加 `VITE_PORT=5173`。
+  - `apps/zfw-system-sfss/README.md`、`apps/docs/docs/guide/zfw-system-sfss-quick-start.md` 补充 `VITE_PORT` 示例。
