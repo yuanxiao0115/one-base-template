@@ -12152,3 +12152,18 @@
     - 新增 `TL;DR / 最短执行路径（源码走查） / 前置条件`。
     - 新增“验证与验收（启动链路走查）”与 FAQ。
 - 信息架构策略：本轮仅做内容结构收口，不改 `.vitepress` 导航。
+
+## 2026-04-03（new:app 规则同步补丁）
+
+- 背景：用户指出“规则变更后 `new:app` 需联动更新”。
+- 结论：脚手架功能可用，但生成物存在规则口径漂移（AGENTS/README 残留 `admin-lite` 语义、`lint:arch` 命令未带 `--app`、bundle 预算命令误导）。
+- 代码改动：
+  - `scripts/new-app.mjs`
+    - 新增 `replaceTextInFile()` 与 `syncGeneratedAppRules()`。
+    - 生成后同步修正 `AGENTS.md` / `README.md` 的派生语义与命令口径。
+    - `lint:arch` 文案统一为 `node ../../scripts/check-admin-lite-arch.mjs --app <app-id>`。
+    - `pnpm check:admin-lite:bundle` 改为“可选应用级预算脚本”提示，避免新 app 误用。
+    - 新 app 生成成功提示的验证命令升级为 `typecheck + lint + lint:arch + test:run + build`。
+  - `scripts/__tests__/new-app.test.mjs`
+    - 新增断言：生成后 `AGENTS.md` 与 `README.md` 规则文案必须与新 app 语义一致。
+    - 新增断言：禁止残留 `pnpm check:admin-lite:bundle` 与旧标题“admin-lite 后台基座指南”。

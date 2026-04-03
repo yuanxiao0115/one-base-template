@@ -272,6 +272,85 @@ async function updateGeneratedPackageJson(targetDir, appId, dryRun) {
   }
 }
 
+async function replaceTextInFile(filePath, replacements, dryRun) {
+  if (!(await pathExists(filePath))) {
+    return false;
+  }
+
+  const content = await fs.readFile(filePath, 'utf8');
+  let nextContent = content;
+
+  for (const [from, to] of replacements) {
+    nextContent = nextContent.split(from).join(to);
+  }
+
+  if (nextContent === content) {
+    return false;
+  }
+
+  if (!dryRun) {
+    await fs.writeFile(filePath, nextContent, 'utf8');
+  }
+
+  return true;
+}
+
+async function syncGeneratedAppRules(targetDir, appId, dryRun) {
+  const agentsPath = path.join(targetDir, 'AGENTS.md');
+  const readmePath = path.join(targetDir, 'README.md');
+
+  await replaceTextInFile(
+    agentsPath,
+    [
+      [
+        '- `admin-lite` 是**后台快速起项目基座**，用于承接新的后台管理项目。',
+        `- \`${appId}\` 是从 \`apps/admin-lite\` 派生的后台应用，继承后台基座默认约束。`
+      ],
+      [
+        '- 新项目从 `admin-lite` 派生时，优先改 `config/**`、`modules/**` 与少量样式文件，不要回退到“单文件拼装启动链路”。',
+        '- 新项目从 `apps/admin-lite` 派生时，优先改 `config/**`、`modules/**` 与少量样式文件，不要回退到“单文件拼装启动链路”。'
+      ],
+      [
+        '- `admin-lite` 默认不承载 `PortalManagement`、`CmsManagement`、`DocumentFormManagement`。',
+        `- \`${appId}\` 默认不承载 \`PortalManagement\`、\`CmsManagement\`、\`DocumentFormManagement\`。`
+      ],
+      [
+        '  - 不得把扩展模块规则写回 `admin-lite` 默认红线。',
+        '  - 不得把扩展模块规则写回基座默认红线。'
+      ],
+      [
+        '- `lint:arch`：`node ../../scripts/check-admin-lite-arch.mjs`',
+        `- \`lint:arch\`：\`node ../../scripts/check-admin-lite-arch.mjs --app ${appId}\``
+      ],
+      [
+        '- `bundle 预算`：`pnpm check:admin-lite:bundle`（在仓库根目录执行）',
+        '- `bundle 预算`：默认不强制；如需预算校验，请在仓库根目录新增并执行应用级预算脚本。'
+      ],
+      ['pnpm check:admin-lite:bundle', '# 可选：如已配置应用级 bundle 预算脚本，再执行对应命令']
+    ],
+    dryRun
+  );
+
+  await replaceTextInFile(
+    readmePath,
+    [
+      ['# admin-lite 后台基座指南', `# ${appId} 后台项目指南`],
+      [
+        '- `admin-lite` 是从 `apps/admin` 收敛出来的后台基座。',
+        `- \`${appId}\` 从 \`apps/admin-lite\` 派生，继承后台基座默认能力。`
+      ],
+      [
+        `- \`pnpm new:app <app-id>\` 已切到从 \`apps/${appId}\` 复制。`,
+        '- `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制。'
+      ],
+      [`- 默认从 \`apps/${appId}\` 复制。`, '- 默认从 `apps/admin-lite` 复制。'],
+      ['`admin-lite` 承担两件事：', `\`${appId}\` 继承两类能力：`],
+      ['pnpm check:admin-lite:bundle', '# 可选：如已配置应用级 bundle 预算脚本，再执行对应命令']
+    ],
+    dryRun
+  );
+}
+
 function toSingleQuotedArrayLiteral(values) {
   return `[${values.map((value) => `'${value}'`).join(', ')}]`;
 }
@@ -1231,6 +1310,7 @@ export async function scaffoldApp(options) {
   await transformCopiedFiles(targetDir, context, false);
   await updateGeneratedPackageJson(targetDir, appId, false);
   await applyAppPreset(targetDir, preset, false);
+  await syncGeneratedAppRules(targetDir, appId, false);
 
   let starterCrudFiles = [];
   if (withCrudStarter) {
@@ -1282,7 +1362,7 @@ async function main() {
   console.log(`- preset: ${result.preset}`);
   console.log(`启动命令: vp run --filter ${result.appId} dev`);
   console.log(
-    `验证命令: pnpm -C apps/${result.appId} typecheck && pnpm -C apps/${result.appId} build`
+    `验证命令: pnpm -C apps/${result.appId} typecheck && pnpm -C apps/${result.appId} lint && pnpm -C apps/${result.appId} lint:arch && pnpm -C apps/${result.appId} test:run && pnpm -C apps/${result.appId} build`
   );
 }
 

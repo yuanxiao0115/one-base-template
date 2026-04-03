@@ -10668,3 +10668,12 @@
 - 结果：
   - `apps/docs lint`：0 warning / 0 error。
   - `apps/docs build`：成功（VitePress 构建完成）。
+
+## 2026-04-03（new:app 规则同步补丁）
+
+- GREEN / 回归：
+  - `node --test scripts/__tests__/new-app.test.mjs`
+  - `pnpm new:app demo-check --dry-run`
+- 结果：
+  - `new-app` 单测：`4/4` 通过。
+  - `new:app --dry-run`：成功输出目标目录、preset 与样式入口，无异常退出。

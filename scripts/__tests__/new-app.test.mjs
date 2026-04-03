@@ -83,6 +83,29 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
   );
   assert.match(generatedPackageJson, /check-admin-lite-arch\.mjs --app sample-app/);
 
+  const generatedAgents = await readFile(path.join(rootDir, 'apps/sample-app/AGENTS.md'), 'utf8');
+  assert.match(
+    generatedAgents,
+    /`sample-app` 是从 `apps\/admin-lite` 派生的后台应用，继承后台基座默认约束。/
+  );
+  assert.match(
+    generatedAgents,
+    /`lint:arch`：`node \.\.\/\.\.\/scripts\/check-admin-lite-arch\.mjs --app sample-app`/
+  );
+  assert.match(
+    generatedAgents,
+    /`apps\/sample-app` 只做应用组装、页面样式、模块编排与项目级配置。/
+  );
+  assert.doesNotMatch(generatedAgents, /pnpm check:admin-lite:bundle/);
+  assert.doesNotMatch(generatedAgents, /`admin-lite` 是\*\*后台快速起项目基座\*\*/);
+
+  const generatedReadme = await readFile(path.join(rootDir, 'apps/sample-app/README.md'), 'utf8');
+  assert.match(generatedReadme, /^# sample-app 后台项目指南$/m);
+  assert.match(generatedReadme, /`sample-app` 从 `apps\/admin-lite` 派生，继承后台基座默认能力。/);
+  assert.match(generatedReadme, /`pnpm new:app <app-id>` 已切到从 `apps\/admin-lite` 复制。/);
+  assert.doesNotMatch(generatedReadme, /^# admin-lite 后台基座指南$/m);
+  assert.doesNotMatch(generatedReadme, /pnpm check:admin-lite:bundle/);
+
   await assertExists(path.join(rootDir, 'apps/sample-app/src/bootstrap/sample-app-styles.ts'));
   await assertExists(path.join(rootDir, 'apps/sample-app/build/vite-sample-app-build-config.ts'));
   await assertExists(path.join(rootDir, 'apps/sample-app/src/types/auto-imports.d.ts'));
