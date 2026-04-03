@@ -61,6 +61,7 @@ const extensionNavItems = [
 
 const governanceItems = [
   { text: '开发规范与维护', link: '/guide/development' },
+  { text: '迁移踩坑清单（monorepo-web）', link: '/guide/monorepo-web-migration-pitfalls' },
   { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
   { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
   { text: 'Admin Agent 红线', link: '/guide/admin-agent-redlines' },
@@ -178,6 +179,7 @@ export default defineConfig({
       '/guide/utils-api': practiceUtilsSidebar,
 
       '/guide/development': governanceSidebar,
+      '/guide/monorepo-web-migration-pitfalls': governanceSidebar,
       '/guide/agents-scope': governanceSidebar,
       '/guide/agent-harness': governanceSidebar,
       '/guide/admin-agent-redlines': governanceSidebar,

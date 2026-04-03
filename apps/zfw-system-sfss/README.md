@@ -32,10 +32,11 @@ pnpm -C apps/zfw-system-sfss dev
 
 当前平台配置已对齐 zfw 口径：
 
-1. `backend=basic`、`menuMode=remote`
-2. `appcode=od`
-3. `defaultSystemCode=judicial_petition_management_system`
-4. `enabledModules` 已包含 `system-sfss`
+1. `systemConfig.mode=single`，`systemConfig.code=judicial_petition_management_system`
+2. `backend=basic`、`menuMode=remote`
+3. `appcode=od`
+4. `defaultSystemCode=judicial_petition_management_system`
+5. `enabledModules` 已包含 `system-sfss`
 
 ## System-sfss 迁移说明
 

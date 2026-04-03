@@ -35,11 +35,14 @@ VITE_ZB_BASE_URL=http://<指标服务地址>      # /zb
 
 `apps/zfw-system-sfss/src/config/platform-config.ts` 当前按以下口径维护：
 
-1. `backend=basic`、`menuMode=remote`（走后端菜单）
-2. `appcode=od`（对齐老项目默认请求头）
-3. `defaultSystemCode=judicial_petition_management_system`
-4. `systemHomeMap.judicial_petition_management_system=/law-supervison/sunshine-petition/shi`
-5. `enabledModules` 已包含 `system-sfss`
+1. `systemConfig.mode=single`，`systemConfig.code=judicial_petition_management_system`
+2. `backend=basic`、`menuMode=remote`（走后端菜单）
+3. `appcode=od`（对齐老项目默认请求头）
+4. `defaultSystemCode=judicial_petition_management_system`
+5. `systemHomeMap.judicial_petition_management_system=/law-supervison/sunshine-petition/shi`
+6. `enabledModules` 已包含 `system-sfss`
+
+说明：即使后端 `my-tree` 返回多个系统根节点，`single` 模式也会只注入 `systemConfig.code` 对应系统，顶部系统切换会自动隐藏。
 
 ## 3. System-sfss 模块说明
 

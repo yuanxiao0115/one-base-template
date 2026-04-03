@@ -134,6 +134,10 @@ outline: false
     <h3>开发规范与维护</h3>
     <p>验证命令、构建策略、文档同步与工程约束。</p>
   </a>
+  <a class="guide-card" href="/guide/monorepo-web-migration-pitfalls">
+    <h3>迁移踩坑清单（monorepo-web）</h3>
+    <p>沉淀已踩坑与纠偏动作，减少迁移重复返工。</p>
+  </a>
   <a class="guide-card" href="/guide/agents-scope">
     <h3>AGENTS 规则分层</h3>
     <p>全仓规则与子项目规则的适用范围和维护方式。</p>

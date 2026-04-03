@@ -1,8 +1,8 @@
 # AGENTS.MD（apps/zfw-system-sfss）
 
-> 适用范围：`/Users/haoqiuzhi/code/one-base-template/apps/zfw-system-sfss/**`
+> 适用范围：`one-base-template/apps/zfw-system-sfss/**`
 >
-> 先遵循根规则：`/Users/haoqiuzhi/code/one-base-template/AGENTS.md`
+> 先遵循根规则：`one-base-template/AGENTS.md`
 
 ## 核心职责
 

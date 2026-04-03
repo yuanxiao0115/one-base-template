@@ -101,6 +101,7 @@ pnpm check:admin-lite:bundle
 
 ## 7) 相关阅读
 
+- [monorepo-web 迁移踩坑清单](/guide/monorepo-web-migration-pitfalls)
 - [模块系统（最终版）](/guide/module-system)
 - [菜单与路由规范（Schema）](/guide/menu-route-spec)
 - [admin-lite 后台基座](/guide/admin-lite-base-app)
