@@ -115,6 +115,10 @@ outline: false
     <h3>内置组件（Ob 系列）</h3>
     <p>快速了解已封装组件能力边界与最小接入方式。</p>
   </a>
+  <a class="guide-card" href="/components/">
+    <h3>组件库（Ob 系列）</h3>
+    <p>查看每个组件的完整属性、事件 API、插槽、暴露方法与示例。</p>
+  </a>
   <a class="guide-card" href="/guide/iconfont">
     <h3>Iconfont 集成</h3>
     <p>图标来源、命名约束与菜单图标兼容策略。</p>

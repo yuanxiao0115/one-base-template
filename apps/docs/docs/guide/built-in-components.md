@@ -48,12 +48,16 @@ app.use(OneUiObTablePlugin, {
 
 ### 表格与操作
 
-| 组件名            | 用途                | 典型场景           |
-| ----------------- | ------------------- | ------------------ |
-| `ObTableBox`      | 搜索区 + 表格区编排 | 列表页标准骨架     |
-| `ObTable`         | 默认表格组件        | 列表、树表         |
-| `ObCardTable`     | 卡片式列表          | 素材管理、图文列表 |
-| `ObActionButtons` | 操作按钮折叠/排序   | 行操作列           |
+| 组件名                | 用途                | 典型场景                |
+| --------------------- | ------------------- | ----------------------- |
+| `ObTableBox`          | 搜索区 + 表格区编排 | 列表页标准骨架          |
+| `ObTable`             | 默认表格组件        | 列表、树表              |
+| `ObCardTable`         | 卡片式列表          | 素材管理、图文列表      |
+| `ObActionButtons`     | 操作按钮折叠/排序   | 行操作列                |
+| `ObUploadShell`       | 通用上传壳          | 表单附件、图片/文件上传 |
+| `ObPersonnelSelector` | 组织/人员选择器     | 角色配置、权限成员选择  |
+| `ObRichText`          | 富文本编辑器        | 公告、内容管理正文      |
+| `ObMenuIconInput`     | 菜单图标输入壳      | 菜单配置图标选择        |
 
 ### 导航壳层与字段
 
@@ -66,9 +70,34 @@ app.use(OneUiObTablePlugin, {
 | `ObKeepAliveView` | 页面缓存渲染 |
 | `ObTree`          | 树组件封装   |
 | `ObImportUpload`  | 导入上传封装 |
+| `ObFilePreview`   | 文件在线预览 |
 | `ObColorField`    | 颜色字段封装 |
 | `ObFontIcon`      | 图标渲染封装 |
 | `ObMenuIcon`      | 菜单图标渲染 |
+
+## 文件预览（ObFilePreview）
+
+- 支持格式：`pdf/doc/docx/xls/xlsx/ppt/pptx/ofd/png/jpg/jpeg/gif/bmp/webp/svg`。
+- 输入源：`source` 支持 `{ url }` 或 `{ file }` 二选一；可通过 `fileName`、`mimeType` 覆盖推断。
+- 交互：默认嵌入式预览，支持“全屏弹窗”与“下载”按钮开关。
+- 降级：无法识别格式时显示“暂不支持在线预览”，并保留下载入口。
+- 详细 API 与排障说明见：[ObFilePreview 组件文档](/components/ob-file-preview)。
+
+```vue
+<template>
+  <ObFilePreview
+    :source="{ url: fileUrl }"
+    file-name="投标方案.docx"
+    :height="560"
+    :fullscreenable="true"
+    :downloadable="true"
+    fit="contain"
+    @ready="onReady"
+    @error="onError"
+    @unsupported="onUnsupported"
+  />
+</template>
+```
 
 ## 最短执行路径
 
