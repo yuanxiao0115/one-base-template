@@ -2,6 +2,65 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-03（路由自动注入能力推广：admin + admin-lite + zfw 统一）
+
+- 目标：
+  - 将 `system-sfss` 已验证的“子路由自动注入”方案沉淀为可复用能力，并在 `admin` 与 `admin-lite` 落地。
+- core 能力新增：
+  - `packages/core/src/router/route-utils.ts` 新增 `collectGlobRouteModules`（按文件路径稳定排序 + 扁平化路由模块导出）。
+  - `packages/core/src/router/route-utils.test.ts` 增加对应单测。
+  - `packages/core/src/index.ts` 对外导出 `collectGlobRouteModules` 与 `GlobRouteModuleExport`。
+- admin 落地：
+  - `apps/admin/src/modules/LogManagement/routes.ts` 改为 `import.meta.glob('./routes/*.ts')` + `collectGlobRouteModules` 自动收集子路由。
+  - 新增：
+    - `apps/admin/src/modules/LogManagement/routes/login-log.ts`
+    - `apps/admin/src/modules/LogManagement/routes/sys-log.ts`
+- admin-lite 落地：
+  - `apps/admin-lite/src/modules/LogManagement/routes.ts` 改为自动收集子路由。
+  - 新增：
+    - `apps/admin-lite/src/modules/LogManagement/routes/login-log.ts`
+    - `apps/admin-lite/src/modules/LogManagement/routes/sys-log.ts`
+- zfw 对齐：
+  - `apps/zfw-system-sfss/src/modules/system-sfss/routes.ts` 改为复用 `collectGlobRouteModules`，删除本地重复的排序/扁平化逻辑。
+- 规范同步：
+  - `apps/admin/AGENTS.md`、`apps/admin-lite/AGENTS.md` 新增“复杂模块优先自动收集 `routes/*.ts`”规则。
+  - `apps/docs/docs/guide/module-system.md`、`apps/docs/docs/guide/zfw-system-sfss-quick-start.md` 同步说明与示例。
+
+## 2026-04-03（system-sfss 目录层级收口：去掉多余 `views/System-sfss`）
+
+- 问题背景：
+  - 用户反馈 `apps/zfw-system-sfss/src/modules/system-sfss` 相比 `adminManagement` 多了一层目录，要求对齐同层结构。
+- 结构调整：
+  - 将 6 个业务子模块从 `.../system-sfss/views/System-sfss/*` 平铺迁移至 `.../system-sfss/*`。
+  - 删除空目录 `views/System-sfss` 与 `views`。
+  - 变更文件：`apps/zfw-system-sfss/src/modules/system-sfss/routes.ts`，子路由引入改为 `./<sub-module>/router` 同层路径。
+- 文档与说明同步：
+  - `apps/zfw-system-sfss/src/modules/system-sfss/pages/SystemSfssIndexPage.vue`：目录说明改为同层结构。
+  - `apps/docs/docs/guide/zfw-system-sfss-quick-start.md`：明确“已去掉 `views/System-sfss` 额外层级”。
+- 验证结果：
+  - `pnpm -C apps/zfw-system-sfss lint:arch` 通过。
+  - 路由相关定向测试 `4 files / 12 tests` 通过。
+
+## 2026-04-03（system-sfss 冗余目录清理 + 路由自动注入）
+
+- 用户诉求：
+  - `system-sfss` 根目录的 `pages`、`api` 是否可删除；
+  - `routes.ts` 不再手动 import 6 组子路由，改为自动发现注入。
+- 代码收口：
+  - `apps/zfw-system-sfss/src/modules/system-sfss/routes.ts`
+    - 改为 `import.meta.glob('./*/router/index.ts' + './*/router.ts')` 自动收集子模块路由；
+    - `legacyModuleRoutes` 按路径排序后平铺，保证装配顺序稳定；
+    - `/system-sfss/index` 由页面组件改为重定向至 `/law-supervison/sunshine-petition/shi`。
+  - 删除根级过渡文件：
+    - `apps/zfw-system-sfss/src/modules/system-sfss/pages/SystemSfssIndexPage.vue`
+    - `apps/zfw-system-sfss/src/modules/system-sfss/pages/SystemSfssLegacyPage.vue`
+    - `apps/zfw-system-sfss/src/modules/system-sfss/pages/SystemSfssTodoPage.vue`
+    - `apps/zfw-system-sfss/src/modules/system-sfss/api/client.ts`
+    - `apps/zfw-system-sfss/src/modules/system-sfss/api/endpoints.ts`
+  - 清理空目录：`apps/zfw-system-sfss/src/modules/system-sfss/pages`、`.../api`。
+- 文档同步：
+  - `apps/docs/docs/guide/zfw-system-sfss-quick-start.md` 新增“模块路由自动收集”说明，并标注根级仅保留 `index.ts + routes.ts + 6 子模块`。
+
 ## 2026-04-02（system-sfss 模块重建：按 legacy 6 子模块结构落地）
 
 - 问题背景：
@@ -11774,3 +11833,17 @@
 - `apps/docs/docs/.vitepress/config.ts`：
   - 顶部“开发实践”下拉恢复 `CRUD 容器与 Hook（进阶）` 入口。
   - 保持“下拉无分组标题”样式不变。
+
+## 2026-04-03（system-sfss 迁移收口：移除 I\* 二次封装，统一回归 Ob 体系）
+
+- 背景：用户明确要求“所有 I 开头组件不要再做 Element 二次封装/映射转发，改用封装 Ob 组件体系”。
+- 结构收口：
+  - 业务页面内统一替换：`OneTableBar -> ObTableBox`、`pure-table -> ObTable`。
+  - 业务页面内移除所有 `I*` 标签，改为直接 `el-*`（不再经过本地壳组件转发）。
+- 兼容壳删除：
+  - 删除 `apps/zfw-system-sfss/src/components/I*.vue`、`src/components/PureTable.vue`、`src/components/OneTableBar/**`、`src/components/index.ts`。
+  - 同步清理 `apps/zfw-system-sfss/src/types/components.d.ts` 中 `I* / OneTableBar / PureTable` 全局组件声明。
+- 迁移兼容补充（本轮前序已落地并延续使用）：
+  - 保留 `src/hooks/{loading,table,drawer}.ts`、`src/utils/{http,message,legacy-compat}.ts`、`src/types/legacy-compat.d.ts` 作为 legacy 业务代码运行所需兼容层。
+- 结果：
+  - `I*` 二次封装链路已从 `zfw-system-sfss` 项目源码中彻底移除；当前页面只保留 `Ob` 公共能力与原生 `el-*`。

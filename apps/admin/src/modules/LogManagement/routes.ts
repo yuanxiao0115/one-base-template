@@ -1,5 +1,13 @@
 import { defineRouteMeta } from '@/router/meta';
+import { collectGlobRouteModules } from '@one-base-template/core';
 import type { RouteRecordRaw } from 'vue-router';
+
+const logChildRoutes = collectGlobRouteModules(
+  import.meta.glob<RouteRecordRaw[]>('./routes/*.ts', {
+    eager: true,
+    import: 'default'
+  })
+);
 
 export default [
   {
@@ -10,22 +18,5 @@ export default [
       title: '日志管理'
     })
   },
-  {
-    path: '/system/log/login-log',
-    name: 'SystemLoginLogManagement',
-    component: async () => import('./login-log/list.vue'),
-    meta: defineRouteMeta({
-      title: '登录日志',
-      keepAlive: true
-    })
-  },
-  {
-    path: '/system/log/sys-log',
-    name: 'SystemSysLogManagement',
-    component: async () => import('./sys-log/list.vue'),
-    meta: defineRouteMeta({
-      title: '操作日志',
-      keepAlive: true
-    })
-  }
+  ...logChildRoutes
 ] satisfies RouteRecordRaw[];

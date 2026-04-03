@@ -39,6 +39,7 @@
 - 路由全部前端静态声明，统一通过 `modules/**/routes.ts` 导出。
 - 模块契约固定为：`index.ts（内含 moduleMeta） + routes.ts`。
 - 模块路由统一经 `router/registry.ts + router/assemble-routes.ts` 装配，禁止回退到运行时动态 `addRoute`。
+- 当模块存在多个子路由文件时，优先使用 `collectGlobRouteModules + import.meta.glob` 自动收集 `routes/*.ts`，避免在 `routes.ts` 手工维护导入清单。
 - 菜单模式支持 `remote` / `static`；未声明 `meta.access` 时默认按 `menu` 处理。
 - 非菜单但需要登录的页面，统一使用 `meta.access='auth'` 或 `meta.activePath` 收口。
 

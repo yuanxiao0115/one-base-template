@@ -41,6 +41,24 @@ apps/admin/src/modules/
 2. 模块元信息统一写在 `index.ts` 的 `moduleMeta`，不再单独维护 `manifest.ts`。
 3. 简单模块优先 `routes.ts` 单文件；复杂模块再拆 `routes/` 目录。
 
+### 子路由自动注入（推荐）
+
+当模块拆分为多个子路由文件时，`routes.ts` 推荐使用自动收集，避免手工维护 import 列表。
+
+```ts
+import { collectGlobRouteModules } from '@one-base-template/core';
+import type { RouteRecordRaw } from 'vue-router';
+
+const childRoutes = collectGlobRouteModules(
+  import.meta.glob<RouteRecordRaw[]>('./routes/*.ts', {
+    eager: true,
+    import: 'default'
+  })
+);
+```
+
+当前已在 `admin`、`admin-lite` 的 `LogManagement` 与 `zfw-system-sfss/system-sfss` 中落地。
+
 ### moduleMeta 字段（必须理解）
 
 | 字段               | 作用         | 典型值               |

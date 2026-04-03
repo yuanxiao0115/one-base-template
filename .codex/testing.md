@@ -2,6 +2,48 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-03（system-sfss 目录层级收口：去掉 `views/System-sfss`）
+
+- GREEN / 回归：
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/router/registry.unit.test.ts tests/router/assemble-routes.unit.test.ts tests/router/route-policy.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts`
+- 结果：
+  - `lint:arch` 通过（架构边界检查通过）。
+  - 路由与 meta 相关定向测试 `4 files / 12 tests` 全通过。
+
+## 2026-04-03（system-sfss 路由自动注入 + 根级 pages/api 清理）
+
+- GREEN / 回归：
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/router/registry.unit.test.ts tests/router/assemble-routes.unit.test.ts tests/router/route-policy.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts`
+  - `pnpm -C apps/zfw-system-sfss build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `apps/zfw-system-sfss`：架构边界检查通过。
+  - `apps/zfw-system-sfss`：路由相关测试 `4 files / 12 tests` 全通过。
+  - `apps/zfw-system-sfss`：`build` 通过（含一个既有动态导入提示，不阻断构建）。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+## 2026-04-03（路由自动注入能力推广：admin + admin-lite + zfw 统一）
+
+- GREEN / 回归：
+  - `pnpm -C packages/core test:run src/router/route-utils.test.ts`
+  - `pnpm -C packages/core typecheck`
+  - `pnpm -C apps/admin test:run:file -- tests/router/registry.unit.test.ts tests/router/assemble-routes.unit.test.ts tests/router/route-policy.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts`
+  - `pnpm -C apps/admin-lite test:run:file -- tests/router/registry.unit.test.ts tests/router/assemble-routes.unit.test.ts tests/router/route-policy.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts`
+  - `pnpm -C apps/admin lint:arch`
+  - `pnpm -C apps/admin-lite lint:arch`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/zfw-system-sfss test:run:file -- tests/router/registry.unit.test.ts tests/router/assemble-routes.unit.test.ts tests/router/route-policy.unit.test.ts tests/architecture/route-meta-helper-source.unit.test.ts`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 非阻断已知项：
+  - `pnpm -C apps/zfw-system-sfss typecheck` 失败（legacy 业务类型债务，含大量 `unknown` 字段访问报错），与本次“路由自动注入”改动无直接耦合；
+  - 本次改动涉及文件（`system-sfss/routes.ts`、`LogManagement/routes*.ts`）未新增 typecheck 报错。
+
 ## 2026-04-02（system-sfss 重建迁移：legacy 6 子模块结构恢复）
 
 - RED（先失败）：
@@ -10419,3 +10461,25 @@
 - 结果：
   - `apps/docs`：`lint` 0 warning / 0 error。
   - `apps/docs`：`build` 成功。
+
+## 2026-04-03（system-sfss：移除 I\* 包装并回归 Ob 组件）
+
+- GREEN：
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - 结果：通过（`zfw-system-sfss 架构边界检查通过`）。
+
+- RED（未全绿，保留待收口项）：
+  - `pnpm -C apps/zfw-system-sfss typecheck`
+  - 结果：失败；当前主要阻塞为 legacy 迁移页的 TS 类型问题（`defineModel` 推断 `unknown`、旧表单字段访问、route union 推断等），另有 `packages/ui/src/components/auth/VerifySlide.vue` 的既有 `Event.clientX` 类型报错。
+
+  - `pnpm -C apps/zfw-system-sfss lint`
+  - 结果：失败；当前主要为 legacy 页面显式 `any`（`typescript-eslint/no-explicit-any`）与少量 `no-wrapper-object-types`（`Number -> number`）问题。
+
+- 规则专项自检：
+  - `rg -n "<I[A-Z]|</I[A-Z]|\bI(Button|Form|FormItem|Row|Col|DatePicker|Input|Drawer|Popconfirm)\b" apps/zfw-system-sfss/src -g '*.vue'`
+  - `rg -n "OneTableBar|PureTable" apps/zfw-system-sfss/src -g '*.*'`
+  - 结果：均无命中，确认 `I*` 包装链、`OneTableBar/PureTable` 已从源码移除。
+- docs 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - 结果：均通过（lint 0 warning / 0 error，VitePress build 成功）。

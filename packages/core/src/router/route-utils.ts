@@ -1,5 +1,7 @@
 import type { RouteRecordName } from 'vue-router';
 
+export type GlobRouteModuleExport<T> = T | T[] | null | undefined;
+
 /**
  * 把路由 name 统一成可比较的字符串键。
  * - string 直接返回
@@ -51,4 +53,19 @@ export function buildRouteFullPath(
     return normalizeRoutePath(currentPath, rootPath);
   }
   return normalizeRoutePath(`${parentPath}/${currentPath}`, rootPath);
+}
+
+/**
+ * 把 import.meta.glob 返回的路由模块结果收敛为稳定数组：
+ * - 按文件路径升序排序，避免构建/热更新顺序漂移；
+ * - 兼容模块导出“单条路由”或“路由数组”；
+ * - 自动过滤 null/undefined。
+ */
+export function collectGlobRouteModules<T>(
+  routeModules: Record<string, GlobRouteModuleExport<T>>
+): T[] {
+  return Object.entries(routeModules)
+    .filter(([, value]) => value != null)
+    .sort(([leftPath], [rightPath]) => leftPath.localeCompare(rightPath))
+    .flatMap(([, value]) => (Array.isArray(value) ? value : [value as T]));
 }

@@ -1,30 +1,26 @@
 import { createAuthRouteMeta } from '@/router/meta';
+import { collectGlobRouteModules } from '@one-base-template/core';
 import type { RouteRecordRaw } from 'vue-router';
-import sunshinePetitionRoutes from './views/System-sfss/sunshine-petition/router';
-import petitionSupervisionRoutes from './views/System-sfss/petition-supervision/router';
-import petitionProcessingRoutes from './views/System-sfss/petition-processing/router';
-import specialPetitionManagementRoutes from './views/System-sfss/special-petition-management/router';
-import petitionQueryRoutes from './views/System-sfss/petition-query/router';
-import litigationRelatedRoutes from './views/System-sfss/litigation-related/router';
 
-const legacyModuleRoutes: RouteRecordRaw[] = [
-  ...sunshinePetitionRoutes,
-  ...petitionSupervisionRoutes,
-  ...petitionProcessingRoutes,
-  ...specialPetitionManagementRoutes,
-  ...petitionQueryRoutes,
-  ...litigationRelatedRoutes
-];
+const legacyModuleRoutes = collectGlobRouteModules({
+  ...import.meta.glob<RouteRecordRaw[]>('./*/router/index.ts', {
+    eager: true,
+    import: 'default'
+  }),
+  ...import.meta.glob<RouteRecordRaw[]>('./*/router.ts', {
+    eager: true,
+    import: 'default'
+  })
+});
 
 export default [
   {
     path: '/system-sfss/index',
     name: 'SystemSfssIndex',
-    component: () => import('./pages/SystemSfssIndexPage.vue'),
+    redirect: '/law-supervison/sunshine-petition/shi',
     meta: createAuthRouteMeta({
       title: '涉法涉诉系统',
-      hideInMenu: true,
-      keepAlive: true
+      hideInMenu: true
     })
   },
   ...legacyModuleRoutes

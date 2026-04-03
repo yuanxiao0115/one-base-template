@@ -30,6 +30,7 @@
 
 - 路由全部前端静态声明（`modules/**/routes.ts`），不依赖后端动态 `addRoute` 才能访问。
 - 模块路由文件（`modules/**/routes*.ts`、`modules/**/routes/*.ts`）保持“路由静态声明 + 页面组件 `component: async () => import(...)` 懒加载”模式；禁止回退到运行时动态 `addRoute` 装配，也不额外抽离通用 lazy loader。
+- 当模块存在多个子路由文件时，优先使用 `collectGlobRouteModules + import.meta.glob` 自动收集 `routes/*.ts`，避免在 `routes.ts` 手工维护导入清单。
 - 菜单模式支持：
   - `remote`：后端返回可见菜单树。
   - `static`：基于静态路由 `meta.title` 生成菜单树。

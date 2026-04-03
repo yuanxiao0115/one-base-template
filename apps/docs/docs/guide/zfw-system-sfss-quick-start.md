@@ -35,14 +35,17 @@ VITE_API_BASE_URL=http://<你的后端地址> pnpm -C apps/zfw-system-sfss dev
 
 ## 3. System-sfss 模块说明
 
-`system-sfss` 已先完成两件事：
+`system-sfss` 当前已完成两件事：
 
 1. 路由 URL 对齐老项目路径（便于直接命中后端菜单）。
-2. 页面统一接入可运行占位页，保证新项目可启动、可联调、可逐页替换。
+2. 业务页面按 legacy 落地：有业务逻辑的页面直接展示业务，无业务页面统一为“待开发”可运行页。
+3. 模块根 `routes.ts` 已改为 `collectGlobRouteModules + import.meta.glob` 自动收集 `./*/router/index.ts`（兼容 sfss 子模块路由目录写法），不再手工逐个 import。
 
 当前业务目录已按 legacy 结构落地到：
 
-- `apps/zfw-system-sfss/src/modules/system-sfss/views/System-sfss`
+- `apps/zfw-system-sfss/src/modules/system-sfss/*`（与 `adminManagement` 同层，已去掉 `views/System-sfss` 额外层级）
+
+当前模块根目录只保留 `index.ts + routes.ts + <6 个子模块>`，不再保留根级 `pages/api/services` 过渡目录。
 
 并保持 6 个子模块结构：
 
@@ -56,6 +59,12 @@ VITE_API_BASE_URL=http://<你的后端地址> pnpm -C apps/zfw-system-sfss dev
 老项目原始迁移源保留在：
 
 - `apps/zfw-system-sfss/migration/System-sfss-legacy-src.tar.gz`
+
+### 页面编排约束（新增）
+
+- 禁止使用 `I*` 组件做 Element 二次封装/映射转发。
+- 列表编排统一使用 `ObTableBox + ObTable`。
+- 表单与基础控件直接使用 `el-*` 或已有 `Ob*` 公共组件，不再新增本地壳组件别名。
 
 ## 4. 新增模块命令
 

@@ -115,7 +115,13 @@ export {
   buildLoginRedirectLocation
 } from './router/redirect';
 export { getRouteSignature } from './router/route-signature';
-export { buildRouteFullPath, normalizeRoutePath, toRouteNameKey } from './router/route-utils';
+export {
+  buildRouteFullPath,
+  collectGlobRouteModules,
+  normalizeRoutePath,
+  toRouteNameKey,
+  type GlobRouteModuleExport
+} from './router/route-utils';
 export { getRouteAccess, isRouteAccess, type RouteAccess } from './router/route-access';
 export {
   buildFixedRoutes,
