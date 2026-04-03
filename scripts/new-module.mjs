@@ -1,9 +1,10 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const MODULE_ID_REGEX = /^[a-z][a-z0-9-]*$/;
 const APP_ID_REGEX = /^[a-z][a-z0-9-]*$/;
+const MODULE_TIER_VALUES = new Set(['core', 'optional']);
 
 function toPascalCase(value) {
   return value
@@ -18,21 +19,37 @@ function toCamelCase(value) {
   return pascal ? pascal.charAt(0).toLowerCase() + pascal.slice(1) : '';
 }
 
+function normalizeRouteBase(routeBase) {
+  return String(routeBase || '')
+    .trim()
+    .replace(/^\/+/, '')
+    .replace(/\/+$/, '');
+}
+
+function normalizeRoutePath(routeBase) {
+  const normalized = normalizeRouteBase(routeBase);
+  return normalized ? `/${normalized}/index` : '/index';
+}
+
 function createUsage() {
-  return '用法: pnpm new:module <module-id> [--app app-id] [--title 模块标题] [--route 路由前缀] [--dry-run]';
+  return [
+    '用法: pnpm -C apps/<app-id> new:module <module-id> [--title 模块标题] [--route 路由前缀] [--tier core|optional] [--enabled-by-default] [--dry-run]',
+    '兼容模式: node scripts/new-module.mjs <module-id> --app <app-id> ...'
+  ].join('\n');
 }
 
 export function parseArgs(argv) {
   const args = {
     moduleId: '',
-    appId: 'admin',
+    appId: '',
     title: '',
     routeBase: '',
+    moduleTier: 'optional',
+    enabledByDefault: false,
     dryRun: false
   };
 
   const rest = [...argv];
-  args.moduleId = rest.shift() || '';
 
   while (rest.length > 0) {
     const item = rest.shift();
@@ -40,8 +57,26 @@ export function parseArgs(argv) {
       continue;
     }
 
+    if (!item.startsWith('-')) {
+      if (!args.moduleId) {
+        args.moduleId = item;
+        continue;
+      }
+      throw new Error(`未知参数: ${item}`);
+    }
+
     if (item === '--dry-run') {
       args.dryRun = true;
+      continue;
+    }
+
+    if (item === '--enabled-by-default') {
+      args.enabledByDefault = true;
+      continue;
+    }
+
+    if (item === '--core') {
+      args.moduleTier = 'core';
       continue;
     }
 
@@ -65,6 +100,16 @@ export function parseArgs(argv) {
       continue;
     }
 
+    if (item.startsWith('--tier=')) {
+      args.moduleTier = item.slice('--tier='.length).trim();
+      continue;
+    }
+
+    if (item === '--tier') {
+      args.moduleTier = (rest.shift() || '').trim();
+      continue;
+    }
+
     if (item.startsWith('--app=')) {
       args.appId = item.slice('--app='.length).trim();
       continue;
@@ -82,8 +127,15 @@ export function parseArgs(argv) {
 }
 
 function createFiles(params) {
-  const { moduleId, pageName, pageFileName, title, routeBase, apiName, serviceName, moduleVar } =
-    params;
+  const {
+    moduleId,
+    title,
+    routePath,
+    moduleVar,
+    moduleTier,
+    enabledByDefault,
+    moduleIndexRouteName
+  } = params;
 
   return {
     'index.ts': `import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
@@ -92,8 +144,8 @@ import layoutRoutes from './routes';
 export const moduleMeta = {
   id: '${moduleId}',
   version: '1',
-  moduleTier: 'core',
-  enabledByDefault: true
+  moduleTier: '${moduleTier}',
+  enabledByDefault: ${enabledByDefault}
 } as const satisfies AppModuleManifestMeta;
 
 const ${moduleVar}: AppModuleManifest = {
@@ -106,23 +158,37 @@ const ${moduleVar}: AppModuleManifest = {
 
 export default ${moduleVar};
 `,
-    'routes.ts': `import type { RouteRecordRaw } from 'vue-router';
+    'routes.ts': `import { createAuthRouteMeta } from '@/router/meta';
+import { collectGlobRouteModules } from '@one-base-template/core';
+import type { RouteRecordRaw } from 'vue-router';
+
+const legacyModuleRoutes = collectGlobRouteModules({
+  ...import.meta.glob<RouteRecordRaw[]>('./*/router/index.ts', {
+    eager: true,
+    import: 'default'
+  }),
+  ...import.meta.glob<RouteRecordRaw[]>('./*/router.ts', {
+    eager: true,
+    import: 'default'
+  })
+});
 
 export default [
   {
-    path: '${routeBase}/index',
-    name: '${pageName}',
-    component: () => import('./pages/${pageFileName}'),
-    meta: {
+    path: '${routePath}',
+    name: '${moduleIndexRouteName}',
+    component: async () => import('./index.vue'),
+    meta: createAuthRouteMeta({
       title: '${title}',
       keepAlive: true
-    }
-  }
+    })
+  },
+  ...legacyModuleRoutes
 ] satisfies RouteRecordRaw[];
 `,
-    [`pages/${pageFileName}`]: `<script setup lang="ts">
+    'index.vue': `<script setup lang="ts">
 defineOptions({
-  name: '${pageName}'
+  name: '${moduleIndexRouteName}View'
 });
 </script>
 
@@ -132,31 +198,20 @@ defineOptions({
       <div class="font-medium">${title}</div>
     </template>
     <p class="text-sm text-[var(--el-text-color-regular)]">
-      这是 ${moduleId} 模块默认首页，请按业务需求替换页面内容。
+      该模块使用 legacy 聚合路由模板，子业务请通过 'pnpm -C apps/&lt;app-id&gt; new:module:item' 继续生成。
     </p>
   </el-card>
 </template>
 `,
-    'api/endpoints.ts': `export const ${apiName}Endpoints = {
-  list: '/api/${moduleId}/list'
-} as const;
-`,
-    'api/client.ts': `import { obHttp } from '@one-base-template/core';
-import { ${apiName}Endpoints } from './endpoints';
+    'README.md': `# ${title}
 
-export const ${apiName}Api = {
-  list() {
-    return obHttp().get(${apiName}Endpoints.list);
-  }
-};
-`,
-    [`services/${moduleId}-service.ts`]: `import { ${apiName}Api } from '../api/client';
+该模块为“模块级骨架”模板，默认包含：
 
-export const ${serviceName} = {
-  list() {
-    return ${apiName}Api.list();
-  }
-};
+- 'index.ts'：模块声明与 moduleMeta
+- 'routes.ts'：legacy 聚合路由（collectGlobRouteModules + import.meta.glob）
+- 'index.vue'：模块默认占位页
+
+子业务建议按目录 './<feature>/router/index.ts' 或 './<feature>/router.ts' 落地，以便被聚合路由自动收集。
 `
   };
 }
@@ -175,10 +230,10 @@ function getPlannedFilePaths(moduleDir, files) {
 }
 
 async function writeFiles(moduleDir, files) {
-  for (const [relPath, content] of Object.entries(files)) {
-    const absPath = path.join(moduleDir, relPath);
-    await fs.mkdir(path.dirname(absPath), { recursive: true });
-    await fs.writeFile(absPath, content, 'utf-8');
+  for (const [relativePath, content] of Object.entries(files)) {
+    const absolutePath = path.join(moduleDir, relativePath);
+    await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+    await fs.writeFile(absolutePath, content, 'utf-8');
   }
 }
 
@@ -186,9 +241,11 @@ export async function scaffoldModule(options) {
   const {
     rootDir,
     moduleId,
-    appId: appIdOption = 'admin',
+    appId,
     title: titleOption = '',
     routeBase: routeBaseOption = '',
+    moduleTier = 'optional',
+    enabledByDefault = false,
     dryRun = false
   } = options;
 
@@ -199,53 +256,55 @@ export async function scaffoldModule(options) {
   if (!MODULE_ID_REGEX.test(moduleId)) {
     throw new Error(`模块名不合法: "${moduleId}"。仅支持小写字母、数字、短横线，且必须字母开头。`);
   }
-  if (!appIdOption) {
-    throw new Error('缺少 app-id。');
-  }
-  if (!APP_ID_REGEX.test(appIdOption)) {
-    throw new Error(
-      `应用名不合法: "${appIdOption}"。仅支持小写字母、数字、短横线，且必须字母开头。`
-    );
+
+  if (!appId) {
+    throw new Error('缺少 app-id。请在子项目脚本中固定 --app，或手动传 --app <app-id>。');
   }
 
-  const routeBase = routeBaseOption || moduleId;
-  const pascal = toPascalCase(moduleId);
-  const camel = toCamelCase(moduleId);
-  const title = titleOption || `${pascal} 模块`;
-  const pageName = `${pascal}Index`;
-  const pageFileName = `${pascal}IndexPage.vue`;
-  const moduleVar = `${camel}Module`;
-  const apiName = `${camel}Api`;
-  const serviceName = `${camel}Service`;
+  if (!APP_ID_REGEX.test(appId)) {
+    throw new Error(`应用名不合法: "${appId}"。仅支持小写字母、数字、短横线，且必须字母开头。`);
+  }
 
-  const appModulesDir = path.join(rootDir, 'apps', appIdOption, 'src/modules');
+  if (!MODULE_TIER_VALUES.has(moduleTier)) {
+    throw new Error(`不支持的模块层级: "${moduleTier}"。可选值：core / optional。`);
+  }
+
+  const routeBase = normalizeRouteBase(routeBaseOption || moduleId);
+  const routePath = normalizeRoutePath(routeBase);
+  const modulePascal = toPascalCase(moduleId);
+  const moduleCamel = toCamelCase(moduleId);
+  const title = titleOption || `${modulePascal} 模块`;
+  const moduleIndexRouteName = `${modulePascal}Index`;
+  const moduleVar = `${moduleCamel}Module`;
+
+  const appModulesDir = path.join(rootDir, 'apps', appId, 'src/modules');
   if (!(await pathExists(appModulesDir))) {
     throw new Error(`未找到目标应用模块目录: ${appModulesDir}`);
   }
-  const moduleDir = path.join(appModulesDir, moduleId);
 
+  const moduleDir = path.join(appModulesDir, moduleId);
   if (await pathExists(moduleDir)) {
     throw new Error(`模块目录已存在: ${moduleDir}`);
   }
 
   const files = createFiles({
     moduleId,
-    pageName,
-    pageFileName,
     title,
-    routeBase,
-    apiName,
-    serviceName,
-    moduleVar
+    routePath,
+    moduleVar,
+    moduleTier,
+    enabledByDefault,
+    moduleIndexRouteName
   });
 
   const plannedFiles = getPlannedFilePaths(moduleDir, files);
+
   if (dryRun) {
     return {
       created: false,
       dryRun: true,
       moduleId,
-      appId: appIdOption,
+      appId,
       moduleDir,
       plannedFiles
     };
@@ -257,14 +316,15 @@ export async function scaffoldModule(options) {
     created: true,
     dryRun: false,
     moduleId,
-    appId: appIdOption,
+    appId,
     moduleDir,
     plannedFiles
   };
 }
 
 async function main() {
-  const rootDir = process.cwd();
+  const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+  const rootDir = path.resolve(scriptDir, '..');
   const args = parseArgs(process.argv.slice(2));
 
   if (!args.moduleId) {
@@ -278,6 +338,8 @@ async function main() {
     appId: args.appId,
     title: args.title,
     routeBase: args.routeBase,
+    moduleTier: args.moduleTier,
+    enabledByDefault: args.enabledByDefault,
     dryRun: args.dryRun
   });
 

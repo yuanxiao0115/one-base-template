@@ -8,7 +8,7 @@
 
 - `admin-lite` 是从 `apps/admin` 收敛出来的后台基座。
 - 默认只保留 `home`、`admin-management`、`system-management`、`log-management`。
-- `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制。
+- `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制，**默认只生成 `home` 模块**。
 - 强业务扩展默认不启用，需要时以可开关模块回接。
 
 ## 快速使用手册（先跑起来）
@@ -92,6 +92,13 @@ pnpm -C apps/admin-lite lint
 - 顶栏租户切换
 - 素材图片缓存
 - 强业务管理模块（CMS / Portal / 公文表单）
+- 迁移模板模块（`demo-management`）
+
+如需开启迁移模板模块，可在 `apps/admin-lite/src/config/platform-config.ts` 打开开关：
+
+```ts
+const enableDemoManagementTemplateModule = true;
+```
 
 对应配置入口：`apps/admin-lite/src/config/ui.ts`
 
@@ -124,6 +131,7 @@ pnpm -C apps/admin-lite lint
 ```bash
 pnpm new:app <app-id>
 pnpm new:app <app-id> --preset minimal
+pnpm new:app <app-id> --with-admin-management --with-log-management --with-system-management
 pnpm new:app <app-id> --preset enterprise
 pnpm new:app <app-id> --with-crud-starter
 pnpm new:app <app-id> --dry-run
@@ -132,12 +140,20 @@ pnpm new:app <app-id> --dry-run
 脚手架行为：
 
 - 默认从 `apps/admin-lite` 复制。
-- 默认 preset 为 `standard`，可选：
+- 默认 preset 为 `minimal`，可选：
   - `minimal`：只保留 `home` 模块，顶栏能力最小化（关闭个人中心/改密/个性化）。
-  - `standard`：默认四模块（`home/admin-management/system-management/log-management`）。
+  - `standard`：仍只保留 `home` 模块，恢复标准顶栏能力（个人中心/改密/个性化）。
   - `enterprise`：在 `standard` 基础上开启 `tenantSwitcher`。
+- 通过 `--with-admin-management --with-log-management --with-system-management` 可按需追加后台管理基础模块。
 - 自动替换应用名、样式入口、构建配置与存储命名空间。
 - `--with-crud-starter` 会附带一个本地可跑通的 CRUD 起步模块。
+
+子项目内模块脚手架（根目录不再提供 `new:module`）：
+
+```bash
+pnpm -C apps/<app-id> new:module demo-management --route demo/management
+pnpm -C apps/<app-id> new:module:item user --module demo-management --route /demo/management/user
+```
 
 生成后建议执行：
 

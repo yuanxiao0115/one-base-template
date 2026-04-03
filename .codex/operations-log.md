@@ -12167,3 +12167,52 @@
   - `scripts/__tests__/new-app.test.mjs`
     - 新增断言：生成后 `AGENTS.md` 与 `README.md` 规则文案必须与新 app 语义一致。
     - 新增断言：禁止残留 `pnpm check:admin-lite:bundle` 与旧标题“admin-lite 后台基座指南”。
+
+## 2026-04-03（脚手架规则收口：模块生成下沉子项目 + new:app 管理模块开关 + docs/AGENTS 同步）
+
+- 背景：用户要求收口 5 条规则：
+  1. `admin-lite` 增加 `demoManagement` 迁移模板模块。
+  2. `new:app` 默认不带 `adminManagement/logManagement/systemManagement`，改为参数按需开启。
+  3. 规则变更需同步 AGENTS。
+  4. `apps/zfw-system-sfss` 增加 `env.staging` 启动脚本。
+  5. `new:module` 从“根目录入口”改为“子项目入口”，并拆分“模块级骨架”与“子业务骨架”两个脚本。
+
+- 脚手架改造：
+  - `scripts/new-app.mjs`
+    - 默认 preset 改为 `minimal`（`enabledModules=['home']`）。
+    - 新增可选参数：`--with-admin-management`、`--with-log-management`、`--with-system-management`。
+    - 生成子项目时自动注入 `new:module`、`new:module:item` 到应用 `package.json`。
+    - `dry-run` 输出新增“启用模块”摘要。
+    - 修复派生 README 文案替换：保持“来源 app 为 admin-lite”语义不被 appId 覆盖。
+  - `scripts/new-module.mjs`
+    - 重构为“模块级骨架生成器”：产物为 `index.ts + routes.ts + index.vue + README.md`。
+    - `routes.ts` 默认内置 `legacyModuleRoutes = collectGlobRouteModules(...)`，自动收集 `./*/router/index.ts` 与 `./*/router.ts`。
+    - 新增参数：`--tier core|optional`、`--enabled-by-default`。
+    - 修复子项目执行场景：根目录改为“按脚本文件路径反推仓库根”。
+    - 参数解析改为“选项与位置参数顺序无关”，兼容 `--app <id> <module-id>`。
+  - 新增 `scripts/new-module-item.mjs`
+    - 生成“子业务骨架”：`router/index.ts + list.vue + api.ts + types.ts + form.ts + columns.tsx + const.ts`。
+    - 参数：`--module`、`--route`、`--title`、`--app`、`--dry-run`。
+    - 修复 `obHttp().post` 调用契约，统一改为 `{ data: payload }` 形式。
+    - 同样支持“参数顺序无关”与“子项目执行自动定位仓库根”。
+
+- 子项目脚本入口下沉：
+  - 根 `package.json` 删除 `new:module`。
+  - `apps/admin/package.json` 新增：`new:module` / `new:module:item`。
+  - `apps/admin-lite/package.json` 新增：`new:module` / `new:module:item`。
+  - `apps/zfw-system-sfss/package.json` 新增：`new:module` / `new:module:item`、`dev:staging`。
+
+- `admin-lite` 迁移模板模块：
+  - 新增 `apps/admin-lite/src/modules/demoManagement/**`（模块骨架 + `demo-user` 子业务骨架）。
+  - `routes.ts` 已落地 legacy 聚合模板。
+  - `platform-config.ts` 新增 `enableDemoManagementTemplateModule`（默认 `false`），并支持按开关追加 `demo-management`。
+
+- 规则与文档同步：
+  - 规则：`AGENTS.md`、`apps/admin-lite/AGENTS.md`、`apps/zfw-system-sfss/AGENTS.md`。
+  - README：`README.md`、`apps/admin-lite/README.md`、`apps/zfw-system-sfss/README.md`。
+  - docs：
+    - `apps/docs/docs/guide/admin-lite-base-app.md`
+    - `apps/docs/docs/guide/module-system.md`
+    - `apps/docs/docs/guide/for-users.md`
+    - `apps/docs/docs/guide/quick-start.md`
+    - `apps/docs/docs/guide/zfw-system-sfss-quick-start.md`

@@ -6,8 +6,8 @@ import { pathToFileURL } from 'node:url';
 const APP_ID_REGEX = /^[a-z][a-z0-9-]*$/;
 const APP_PRESET_MODULES = Object.freeze({
   minimal: ['home'],
-  standard: ['home', 'admin-management', 'log-management', 'system-management'],
-  enterprise: ['home', 'admin-management', 'log-management', 'system-management']
+  standard: ['home'],
+  enterprise: ['home']
 });
 const APP_PRESET_TOPBAR_FEATURES = Object.freeze({
   minimal: {
@@ -59,7 +59,7 @@ function toRuntimeAppPascal(value) {
 }
 
 function createUsage() {
-  return '用法: pnpm new:app <app-id> [--preset minimal|standard|enterprise] [--with-crud-starter] [--dry-run]';
+  return '用法: pnpm new:app <app-id> [--preset minimal|standard|enterprise] [--with-admin-management] [--with-log-management] [--with-system-management] [--with-crud-starter] [--dry-run]';
 }
 
 export function parseArgs(argv) {
@@ -67,7 +67,10 @@ export function parseArgs(argv) {
     appId: '',
     dryRun: false,
     withCrudStarter: false,
-    preset: 'standard'
+    withAdminManagement: false,
+    withLogManagement: false,
+    withSystemManagement: false,
+    preset: 'minimal'
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -85,6 +88,18 @@ export function parseArgs(argv) {
     }
     if (token === '--with-crud-starter' || token === '--withCrudStarter') {
       args.withCrudStarter = true;
+      continue;
+    }
+    if (token === '--with-admin-management' || token === '--withAdminManagement') {
+      args.withAdminManagement = true;
+      continue;
+    }
+    if (token === '--with-log-management' || token === '--withLogManagement') {
+      args.withLogManagement = true;
+      continue;
+    }
+    if (token === '--with-system-management' || token === '--withSystemManagement') {
+      args.withSystemManagement = true;
       continue;
     }
     if (token.startsWith('--preset=')) {
@@ -266,6 +281,8 @@ async function updateGeneratedPackageJson(targetDir, appId, dryRun) {
   packageJson.name = appId;
   packageJson.scripts = packageJson.scripts || {};
   packageJson.scripts['lint:arch'] = `node ../../scripts/check-admin-lite-arch.mjs --app ${appId}`;
+  packageJson.scripts['new:module'] = `node ../../scripts/new-module.mjs --app ${appId}`;
+  packageJson.scripts['new:module:item'] = `node ../../scripts/new-module-item.mjs --app ${appId}`;
 
   if (!dryRun) {
     await fs.writeFile(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, 'utf8');
@@ -342,6 +359,10 @@ async function syncGeneratedAppRules(targetDir, appId, dryRun) {
       [
         `- \`pnpm new:app <app-id>\` 已切到从 \`apps/${appId}\` 复制。`,
         '- `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制。'
+      ],
+      [
+        `- \`pnpm new:app <app-id>\` 已切到从 \`apps/${appId}\` 复制，**默认只生成 \`home\` 模块**。`,
+        '- `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制，**默认只生成 `home` 模块**。'
       ],
       [`- 默认从 \`apps/${appId}\` 复制。`, '- 默认从 `apps/admin-lite` 复制。'],
       ['`admin-lite` 承担两件事：', `\`${appId}\` 继承两类能力：`],
@@ -425,11 +446,50 @@ function parseEnabledModulesFromPlatformConfig(source) {
   const matched = source.match(/enabledModules:\s*\[(?<items>[^\]]*)\]/);
   const rawItems = matched?.groups?.items;
   if (!rawItems) {
-    throw new Error('未找到 enabledModules 配置项，无法注入 starter-crud。');
+    throw new Error('未找到 enabledModules 配置项，无法调整模块白名单。');
   }
 
   const modules = [...rawItems.matchAll(/'([^']+)'/g)].map((item) => item[1]).filter(Boolean);
   return modules;
+}
+
+function appendUniqueModules(baseModules, nextModules) {
+  const merged = [...baseModules];
+  for (const moduleId of nextModules) {
+    if (!merged.includes(moduleId)) {
+      merged.push(moduleId);
+    }
+  }
+  return merged;
+}
+
+async function applyOptionalManagementModules(targetDir, options, dryRun) {
+  const { withAdminManagement, withLogManagement, withSystemManagement } = options;
+  if (!withAdminManagement && !withLogManagement && !withSystemManagement) {
+    return;
+  }
+
+  const platformConfigPath = path.join(targetDir, 'src/config/platform-config.ts');
+  const platformConfig = await fs.readFile(platformConfigPath, 'utf8');
+  const enabledModules = parseEnabledModulesFromPlatformConfig(platformConfig);
+  const requestedModules = [];
+
+  if (withAdminManagement) {
+    requestedModules.push('admin-management');
+  }
+  if (withLogManagement) {
+    requestedModules.push('log-management');
+  }
+  if (withSystemManagement) {
+    requestedModules.push('system-management');
+  }
+
+  const nextModules = appendUniqueModules(enabledModules, requestedModules);
+  const nextPlatformConfig = replaceEnabledModulesInPlatformConfig(platformConfig, nextModules);
+
+  if (!dryRun && nextPlatformConfig !== platformConfig) {
+    await fs.writeFile(platformConfigPath, nextPlatformConfig, 'utf8');
+  }
 }
 
 function createStarterCrudFiles() {
@@ -1244,7 +1304,16 @@ async function enableCrudStarter(targetDir, dryRun) {
 }
 
 export async function scaffoldApp(options) {
-  const { rootDir, appId, dryRun = false, withCrudStarter = false, preset = 'standard' } = options;
+  const {
+    rootDir,
+    appId,
+    dryRun = false,
+    withCrudStarter = false,
+    withAdminManagement = false,
+    withLogManagement = false,
+    withSystemManagement = false,
+    preset = 'minimal'
+  } = options;
 
   if (!appId) {
     throw new Error('缺少 app-id。');
@@ -1288,6 +1357,9 @@ export async function scaffoldApp(options) {
       preset,
       targetDir,
       withCrudStarter,
+      withAdminManagement,
+      withLogManagement,
+      withSystemManagement,
       plannedFiles
     };
   }
@@ -1310,6 +1382,15 @@ export async function scaffoldApp(options) {
   await transformCopiedFiles(targetDir, context, false);
   await updateGeneratedPackageJson(targetDir, appId, false);
   await applyAppPreset(targetDir, preset, false);
+  await applyOptionalManagementModules(
+    targetDir,
+    {
+      withAdminManagement,
+      withLogManagement,
+      withSystemManagement
+    },
+    false
+  );
   await syncGeneratedAppRules(targetDir, appId, false);
 
   let starterCrudFiles = [];
@@ -1325,6 +1406,9 @@ export async function scaffoldApp(options) {
     preset,
     targetDir,
     withCrudStarter,
+    withAdminManagement,
+    withLogManagement,
+    withSystemManagement,
     plannedFiles
   };
 }
@@ -1343,13 +1427,31 @@ async function main() {
     appId: args.appId,
     preset: args.preset,
     dryRun: args.dryRun,
-    withCrudStarter: args.withCrudStarter
+    withCrudStarter: args.withCrudStarter,
+    withAdminManagement: args.withAdminManagement,
+    withLogManagement: args.withLogManagement,
+    withSystemManagement: args.withSystemManagement
   });
+
+  const selectedModules = ['home'];
+  if (result.withAdminManagement) {
+    selectedModules.push('admin-management');
+  }
+  if (result.withLogManagement) {
+    selectedModules.push('log-management');
+  }
+  if (result.withSystemManagement) {
+    selectedModules.push('system-management');
+  }
+  if (result.withCrudStarter) {
+    selectedModules.push('starter-crud');
+  }
 
   if (result.dryRun) {
     console.log('[dry-run] 计划生成新 app：');
     console.log(`- 目标目录: ${result.targetDir}`);
     console.log(`- preset: ${result.preset}`);
+    console.log(`- 启用模块: ${selectedModules.join(', ')}`);
     console.log(`- 附带 CRUD starter: ${result.withCrudStarter ? '是' : '否'}`);
     console.log(`- 样式入口: src/bootstrap/${result.appId}-styles.ts`);
     if (result.withCrudStarter) {
@@ -1360,6 +1462,7 @@ async function main() {
 
   console.log(`新 app 已生成: ${result.targetDir}`);
   console.log(`- preset: ${result.preset}`);
+  console.log(`- 启用模块: ${selectedModules.join(', ')}`);
   console.log(`启动命令: vp run --filter ${result.appId} dev`);
   console.log(
     `验证命令: pnpm -C apps/${result.appId} typecheck && pnpm -C apps/${result.appId} lint && pnpm -C apps/${result.appId} lint:arch && pnpm -C apps/${result.appId} test:run && pnpm -C apps/${result.appId} build`

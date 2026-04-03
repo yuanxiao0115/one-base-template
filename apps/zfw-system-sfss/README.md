@@ -7,6 +7,7 @@
 ```bash
 pnpm install
 pnpm -C apps/zfw-system-sfss dev
+pnpm -C apps/zfw-system-sfss dev:staging
 ```
 
 联调后端时：
@@ -47,6 +48,8 @@ pnpm -C apps/zfw-system-sfss dev
 ## 常用命令
 
 ```bash
+pnpm -C apps/zfw-system-sfss new:module demo-management --dry-run
+pnpm -C apps/zfw-system-sfss new:module:item user --module demo-management --dry-run
 pnpm -C apps/zfw-system-sfss typecheck
 pnpm -C apps/zfw-system-sfss lint
 pnpm -C apps/zfw-system-sfss lint:arch

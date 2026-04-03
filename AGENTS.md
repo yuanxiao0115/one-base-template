@@ -126,6 +126,18 @@ docs/
 - 避免对全仓跑带 `--fix` 的 lint / format，优先定向到本次改动文件，避免引入无关 diff。
 - 文档、规则、结构说明发生变化时，至少补跑 `pnpm -C apps/docs lint` 与 `pnpm -C apps/docs build`。
 
+## 🧰 脚手架口径（2026-04）
+
+- 根目录只保留 `new:app` 入口；`new:module` / `new:module:item` 必须在子项目内执行：
+  - `pnpm -C apps/<app-id> new:module <module-id>`
+  - `pnpm -C apps/<app-id> new:module:item <item-id> --module <module-id>`
+- `new:app` 默认生成最小模块集（仅 `home`）；如需管理模块，使用参数显式追加：
+  - `--with-admin-management`
+  - `--with-log-management`
+  - `--with-system-management`
+- `new:module` 负责生成“模块级骨架”（`index.ts + routes.ts + index.vue`，含 legacy 路由聚合模板）。
+- `new:module:item` 负责生成“子业务骨架”（`list.vue + api.ts + types.ts + form.ts + columns.tsx + router/index.ts`）。
+
 ---
 
 ## 🧩 可读性与封装约束（全仓）

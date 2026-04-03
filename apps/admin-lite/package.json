@@ -13,6 +13,8 @@
     "test:run:file": "sh -c 'shift; vp test run --config vitest.config.ts \"$@\"' --",
     "test:e2e:minimal-auth": "vp test run --config vitest.config.ts tests/architecture/route-meta-helper-source.unit.test.ts tests/architecture/login-route-robustness-source.unit.test.ts tests/services/auth/sso-minimal-e2e.unit.test.ts",
     "check:route-policy": "vp test run --config vitest.config.ts tests/router/route-policy.unit.test.ts",
+    "new:module": "node ../../scripts/new-module.mjs --app admin-lite",
+    "new:module:item": "node ../../scripts/new-module-item.mjs --app admin-lite",
     "lint": "node ../../scripts/run-vp-task-from-root.mjs lint",
     "lint:arch": "node ../../scripts/check-admin-lite-arch.mjs",
     "lint:fix": "node ../../scripts/run-vp-task-from-root.mjs check --fix src"

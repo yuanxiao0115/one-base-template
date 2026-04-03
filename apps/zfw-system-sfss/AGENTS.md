@@ -6,9 +6,9 @@
 
 ## 核心职责
 
-- `admin-lite` 是**后台快速起项目基座**，用于承接新的后台管理项目。
-- 默认只保留通用后台骨架：`home`、`admin-management`、`system-management`、`log-management`。
-- 不把 CMS、Portal、公文表单等强业务模块作为默认基线；确有需要时，只能以**可开关扩展**方式回接。
+- `zfw-system-sfss` 是基于 `admin-lite` 派生的涉法涉诉业务应用，承接 zfw 联调与模块迁移。
+- 默认模块包含 `home`、`admin-management`、`system-management`、`log-management` 与 `system-sfss`。
+- 保持“通用骨架 + sfss 业务模块”边界，不把无关强业务能力回灌为默认模块。
 
 ## 基座边界
 
@@ -22,8 +22,9 @@
 - 启动链路固定为：`main.ts -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`。
 - 平台配置唯一入口：`src/config/platform-config.ts`。
 - UI 开关统一收口：`src/config/ui.ts`。
-- 默认打开模块：`home`、`admin-management`、`system-management`、`log-management`。
+- 默认打开模块：`home`、`admin-management`、`system-management`、`log-management`、`system-sfss`。
 - 默认关闭扩展：租户切换、素材图片缓存、强业务管理模块。
+- 预发布联调启动命令：`pnpm -C apps/zfw-system-sfss dev:staging`（对应 `--mode staging`）。
 
 ## 目录约束
 
@@ -56,11 +57,14 @@
 
 ## 模块与扩展
 
-- `admin-lite` 默认不承载 `PortalManagement`、`CmsManagement`、`DocumentFormManagement`。
+- `zfw-system-sfss` 默认不承载 `PortalManagement`、`CmsManagement`、`DocumentFormManagement`。
+- 模块脚手架入口固定在子项目：
+  - `pnpm -C apps/zfw-system-sfss new:module <module-id>`
+  - `pnpm -C apps/zfw-system-sfss new:module:item <item-id> --module <module-id>`
 - 后续如需回接扩展模块，必须同时满足：
   - 默认关闭，不影响基座冷启动与构建体积。
   - 有单独文档说明启用方式、依赖范围与验证命令。
-  - 不得把扩展模块规则写回 `admin-lite` 默认红线。
+  - 不得把扩展模块规则写回 `zfw-system-sfss` 默认红线。
 - 新增后台管理模块优先沿用现有 CRUD 范式，不要为单模块重新设计目录结构。
 
 ## CRUD 与交互红线
@@ -81,7 +85,7 @@
 ## 工程门禁
 
 - `lint`：`node ../../scripts/run-vp-task-from-root.mjs lint`
-- `lint:arch`：`node ../../scripts/check-admin-lite-arch.mjs`
+- `lint:arch`：`node ../../scripts/check-admin-lite-arch.mjs --app zfw-system-sfss`
 - `lint:fix`：`node ../../scripts/run-vp-task-from-root.mjs check --fix src`
 - `build`：`node ../../scripts/run-vp-build.mjs`
 - `bundle 预算`：`pnpm check:admin-lite:bundle`（在仓库根目录执行）
@@ -91,9 +95,12 @@
 
 ```bash
 pnpm -C apps/zfw-system-sfss dev
+pnpm -C apps/zfw-system-sfss dev:staging
 pnpm -C apps/zfw-system-sfss typecheck
 pnpm -C apps/zfw-system-sfss lint
 pnpm -C apps/zfw-system-sfss lint:arch
+pnpm -C apps/zfw-system-sfss new:module demo-management --dry-run
+pnpm -C apps/zfw-system-sfss new:module:item user --module demo-management --dry-run
 pnpm -C apps/zfw-system-sfss test:run
 pnpm -C apps/zfw-system-sfss build
 pnpm check:admin-lite:bundle

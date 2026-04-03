@@ -9,6 +9,7 @@
 ## 1) 模块契约（固定）
 
 每个模块固定两个入口：`index.ts` 和 `routes.ts`（复杂模块可改为 `routes/index.ts`）。
+默认模块脚手架会在 `routes.ts` 预置 `legacyModuleRoutes` 聚合逻辑，自动收集 `./*/router/index.ts` 与 `./*/router.ts`。
 
 ### 推荐目录树
 
@@ -149,15 +150,16 @@ compat: {
 
 ## 5) 新增模块最短路径
 
-1. 生成骨架：`pnpm new:module <module-id> --title 模块标题 --app <app-id>`
-2. 在模块内补齐页面、接口、路由。
-3. 在 `platform-config.ts` 的 `enabledModules` 中加入模块 id。
+1. 在目标子项目生成模块级骨架：`pnpm -C apps/<app-id> new:module <module-id> --title 模块标题`。
+2. 在模块目录生成子业务骨架：`pnpm -C apps/<app-id> new:module:item <item-id> --module <module-id>`。
+3. 在 `platform-config.ts` 的 `enabledModules` 中加入模块 id（可开关模块按需开启）。
 4. 执行验证命令。
 
 示例：
 
 ```bash
-pnpm new:module system-sfss --title "System-sfss" --app zfw-system-sfss
+pnpm -C apps/zfw-system-sfss new:module system-sfss --title "System-sfss"
+pnpm -C apps/zfw-system-sfss new:module:item sunshine-petition --module system-sfss
 ```
 
 建议验证：

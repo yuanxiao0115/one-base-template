@@ -55,15 +55,16 @@ const appIdentityConfig = {
 
 /**
  * 可选示例模块开关：
- * - `false`：保持 admin-lite 默认四模块基线；
- * - `true`：额外加载 `starter-crud`，便于新项目参考 CRUD 编排范式。
+ * - `enableStarterCrudDemoModule=true`：额外加载 `starter-crud`，便于新项目参考 CRUD 编排范式。
+ * - `enableDemoManagementTemplateModule=true`：额外加载 `demo-management`，用于迁移脚手架模板对照。
  */
 const enableStarterCrudDemoModule = false;
+const enableDemoManagementTemplateModule = false;
 
 const moduleConfig = {
-  enabledModules: ['home', 'admin-management', 'log-management', 'system-management'].concat(
-    enableStarterCrudDemoModule ? 'starter-crud' : []
-  )
+  enabledModules: ['home', 'admin-management', 'log-management', 'system-management']
+    .concat(enableStarterCrudDemoModule ? 'starter-crud' : [])
+    .concat(enableDemoManagementTemplateModule ? 'demo-management' : [])
 };
 
 const platformConfig: RuntimeConfig = parseRuntimeConfig({

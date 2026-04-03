@@ -83,7 +83,10 @@ pnpm -C apps/docs dev
 ### 2.6 可选：10 分钟起一个新后台
 
 ```bash
-pnpm new:app my-admin --preset standard
+pnpm new:app my-admin
+pnpm new:app my-admin --with-admin-management --with-log-management --with-system-management
+pnpm -C apps/my-admin new:module demo-management --dry-run
+pnpm -C apps/my-admin new:module:item user --module demo-management --dry-run
 pnpm -C apps/my-admin typecheck
 pnpm -C apps/my-admin lint
 pnpm -C apps/my-admin build
@@ -92,8 +95,10 @@ pnpm -C apps/my-admin build
 `--preset` 可选值：
 
 - `minimal`：只保留 `home` 模块，顶栏能力最小化。
-- `standard`：默认四模块（`home/admin-management/system-management/log-management`）。
+- `standard`：仍只保留 `home` 模块，恢复标准顶栏能力。
 - `enterprise`：在 `standard` 基础上启用 `tenantSwitcher`。
+
+管理模块默认不启用，按需通过 `--with-admin-management --with-log-management --with-system-management` 追加。
 
 ## 3. 验证与验收
 

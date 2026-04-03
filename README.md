@@ -30,9 +30,11 @@ pnpm doctor
 
 ```bash
 pnpm new:app <app-id>
+pnpm new:app <app-id> --with-admin-management --with-log-management --with-system-management
 pnpm new:app <app-id> --with-crud-starter
 pnpm new:app <app-id> --dry-run
-pnpm new:module <module-id>
+pnpm -C apps/<app-id> new:module <module-id>
+pnpm -C apps/<app-id> new:module:item <item-id> --module <module-id>
 pnpm lint:arch
 pnpm test:run
 pnpm check:naming
@@ -45,6 +47,7 @@ pnpm verify
 
 ```bash
 pnpm new:app <app-id>
+pnpm new:app <app-id> --with-admin-management --with-log-management --with-system-management
 ```
 
 若需要一套可本地闭环运行的 CRUD 起步模块：
@@ -72,9 +75,24 @@ pnpm -C apps/<app-id> build
 
 说明：
 
-- 默认生成最小可运行 app，继承 `admin-lite` 的启动骨架、模块契约与架构门禁。
+- 默认生成最小可运行 app（仅 `home` 模块），继承 `admin-lite` 的启动骨架、模块契约与架构门禁。
+- 通过 `--with-admin-management --with-log-management --with-system-management` 可按需追加后台管理基础模块。
 - `--with-crud-starter` 会追加 `starter-crud` 模块，提供本地内存数据的 CRUD 闭环，便于后续迁移真实业务模块。
 - 根 `pnpm lint:arch` 会自动发现 `apps/*/package.json` 中声明了 `lint:arch` 的 app，并串联执行。
+
+## 子项目内模块脚手架
+
+模块级骨架（`adminManagement` 形态，含 `legacyModuleRoutes` 聚合）：
+
+```bash
+pnpm -C apps/<app-id> new:module demo-management --route demo/management
+```
+
+子业务骨架（`user` 形态，生成 `list.vue + api.ts + types.ts + form.ts + columns.tsx + router/index.ts`）：
+
+```bash
+pnpm -C apps/<app-id> new:module:item user --module demo-management --route /demo/management/user
+```
 
 ## Vite Plus 使用说明
 

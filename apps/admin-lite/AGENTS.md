@@ -8,6 +8,7 @@
 
 - `admin-lite` 是**后台快速起项目基座**，用于承接新的后台管理项目。
 - 默认只保留通用后台骨架：`home`、`admin-management`、`system-management`、`log-management`。
+- `new:app` 从 `admin-lite` 派生新应用时，默认仅保留 `home`；如需管理模块，使用 `--with-admin-management --with-log-management --with-system-management` 按需追加。
 - 不把 CMS、Portal、公文表单等强业务模块作为默认基线；确有需要时，只能以**可开关扩展**方式回接。
 
 ## 基座边界
@@ -58,6 +59,10 @@
 ## 模块与扩展
 
 - `admin-lite` 默认不承载 `PortalManagement`、`CmsManagement`、`DocumentFormManagement`。
+- `demo-management` 作为迁移模板模块默认关闭，仅用于演示“模块级骨架 + 子业务骨架”组合范式。
+- 模块脚手架入口固定在子项目：
+  - `pnpm -C apps/admin-lite new:module <module-id>`
+  - `pnpm -C apps/admin-lite new:module:item <item-id> --module <module-id>`
 - 后续如需回接扩展模块，必须同时满足：
   - 默认关闭，不影响基座冷启动与构建体积。
   - 有单独文档说明启用方式、依赖范围与验证命令。
@@ -95,6 +100,8 @@ pnpm -C apps/admin-lite dev
 pnpm -C apps/admin-lite typecheck
 pnpm -C apps/admin-lite lint
 pnpm -C apps/admin-lite lint:arch
+pnpm -C apps/admin-lite new:module demo-management --dry-run
+pnpm -C apps/admin-lite new:module:item user --module demo-management --dry-run
 pnpm -C apps/admin-lite test:run
 pnpm -C apps/admin-lite build
 pnpm check:admin-lite:bundle

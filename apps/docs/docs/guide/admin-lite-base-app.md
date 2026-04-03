@@ -7,7 +7,7 @@
 
 - `admin-lite` 由 `apps/admin` 收敛而来，用于承接新的后台管理项目。
 - 默认模块只保留：`home`、`admin-management`、`system-management`、`log-management`。
-- `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制。
+- `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制，默认仅保留 `home` 模块。
 - 强业务扩展默认不启用，确有需要时必须做成可开关能力。
 
 ## 1. 目标与边界
@@ -41,17 +41,19 @@
 可选示例模块（默认关闭）：
 
 - `starter-crud`：用于演示 `ObPageContainer + ObTableBox + ObTable + ObCrudContainer` 的标准 CRUD 编排。
+- `demo-management`：用于演示“模块级骨架（legacy 路由聚合）+ 子业务骨架（user 结构）”迁移模板。
 
 开启方式（代码静态配置）：
 
 ```ts
 // apps/admin-lite/src/config/platform-config.ts
 const enableStarterCrudDemoModule = true;
+const enableDemoManagementTemplateModule = true;
 
 const moduleConfig = {
-  enabledModules: ['home', 'admin-management', 'log-management', 'system-management'].concat(
-    enableStarterCrudDemoModule ? 'starter-crud' : []
-  )
+  enabledModules: ['home', 'admin-management', 'log-management', 'system-management']
+    .concat(enableStarterCrudDemoModule ? 'starter-crud' : [])
+    .concat(enableDemoManagementTemplateModule ? 'demo-management' : [])
 };
 ```
 
@@ -93,6 +95,7 @@ const moduleConfig = {
 ```bash
 pnpm new:app <app-id>
 pnpm new:app <app-id> --preset minimal
+pnpm new:app <app-id> --with-admin-management --with-log-management --with-system-management
 pnpm new:app <app-id> --preset enterprise
 pnpm new:app <app-id> --with-crud-starter
 pnpm new:app <app-id> --dry-run
@@ -101,12 +104,20 @@ pnpm new:app <app-id> --dry-run
 脚手架会：
 
 - 从 `apps/admin-lite` 复制项目骨架。
-- 默认 preset 为 `standard`，可选：
+- 默认 preset 为 `minimal`，可选：
   - `minimal`：只保留 `home` 模块，顶栏能力最小化（关闭个人中心/改密/个性化）。
-  - `standard`：默认四模块（`home/admin-management/system-management/log-management`）。
+  - `standard`：仍只保留 `home` 模块，恢复标准顶栏能力（个人中心/改密/个性化）。
   - `enterprise`：在 `standard` 基础上开启 `tenantSwitcher`。
+- 通过 `--with-admin-management --with-log-management --with-system-management` 可按需追加后台管理基础模块。
 - 自动替换应用名、样式入口、构建配置与存储命名空间。
 - 可选附带 `starter-crud` 起步模块。
+
+子项目内模块脚手架（根目录不再提供 `new:module`）：
+
+```bash
+pnpm -C apps/<app-id> new:module demo-management --route demo/management
+pnpm -C apps/<app-id> new:module:item user --module demo-management --route /demo/management/user
+```
 
 生成后建议直接验证：
 

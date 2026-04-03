@@ -42,11 +42,12 @@ outline: [2, 3]
 
 ### 1. 操作步骤
 
-1. 可选：创建新后台项目：`pnpm new:app my-admin --preset standard`。
+1. 可选：创建新后台项目：`pnpm new:app my-admin`（如需管理模块再加 `--with-admin-management --with-log-management --with-system-management`）。
 2. 启动目标应用：`pnpm dev` 或 `pnpm dev:admin-lite`。
-3. 生成模块骨架（建议先 dry-run）：`pnpm new:module user-center --dry-run`。
-4. 按模块文档完成 `index.ts（moduleMeta） + routes.ts`。
-5. 在 `platform-config.ts` 确认 `enabledModules` 已包含目标模块。
+3. 生成模块骨架（建议先 dry-run）：`pnpm -C apps/admin-lite new:module user-center --dry-run`。
+4. 生成子业务骨架：`pnpm -C apps/admin-lite new:module:item user --module user-center --dry-run`。
+5. 按模块文档完成 `index.ts（moduleMeta） + routes.ts`。
+6. 在 `platform-config.ts` 确认 `enabledModules` 已包含目标模块。
 
 ### 2. 验证命令
 

@@ -10677,3 +10677,42 @@
 - 结果：
   - `new-app` 单测：`4/4` 通过。
   - `new:app --dry-run`：成功输出目标目录、preset 与样式入口，无异常退出。
+
+## 2026-04-03（脚手架规则收口：new:app/new:module/new:module:item + docs 同步）
+
+- RED（先失败）：
+  - `pnpm -C apps/admin-lite new:module demo-management-template --dry-run`
+  - `pnpm -C apps/admin-lite new:module:item user --module home --dry-run`
+  - 失败原因：脚本参数顺序与 `pnpm` 透传顺序不一致（`--app` 在位置参数前），`parseArgs` 将 `--app` 误识别为 module/item id。
+  - 修复：
+    - `scripts/new-module.mjs`、`scripts/new-module-item.mjs` 参数解析改为“选项/位置参数顺序无关”。
+    - 新增参数顺序回归测试：
+      - `parseArgs 支持先传 --app 再传 module-id`
+      - `parseArgs 支持先传 --app 再传 item-id`
+
+- RED（先失败）：
+  - `pnpm -C apps/admin-lite typecheck`
+  - 失败原因：`demoManagement/demo-user/api.ts` 的 `obHttp().post(url, payload)` 与 `ObHttpRequestConfig` 契约不匹配。
+  - 修复：
+    - `apps/admin-lite/src/modules/demoManagement/demo-user/api.ts` 改为 `obHttp().post(url, { data: payload })`。
+    - `scripts/new-module-item.mjs` 同步改为生成 `{ data: ... }` 形式，避免后续模板继续产出错误调用。
+
+- GREEN / 回归：
+  - `node --test scripts/__tests__/new-app.test.mjs scripts/__tests__/new-module.test.mjs scripts/__tests__/new-module-item.test.mjs`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin-lite lint:arch`
+  - `pnpm -C apps/admin-lite new:module demo-management-template --dry-run`
+  - `pnpm -C apps/admin-lite new:module:item user --module home --dry-run`
+  - `pnpm -C apps/zfw-system-sfss new:module demo-management-template --dry-run`
+  - `pnpm -C apps/zfw-system-sfss new:module:item user --module system-sfss --dry-run`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - 脚手架测试：`15/15` 通过。
+  - `admin-lite`：`typecheck` 通过，`lint:arch` 通过。
+  - 子项目脚手架入口：`admin-lite` 与 `zfw-system-sfss` 的 `new:module/new:module:item` dry-run 均成功。
+  - `apps/docs`：`lint` 0 warning / 0 error，`build` 成功。
+
+- 备注：
+  - `pnpm -C apps/zfw-system-sfss dev:staging -- --help` 会实际启动 dev server（输出本地地址后持续运行），验证脚本存在后已手动终止临时进程，避免端口占用。

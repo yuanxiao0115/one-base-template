@@ -50,6 +50,14 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
     packageJson.scripts['lint:fix'],
     'node ../../scripts/run-vp-task-from-root.mjs check --fix src'
   );
+  assert.equal(
+    packageJson.scripts['new:module'],
+    'node ../../scripts/new-module.mjs --app sample-app'
+  );
+  assert.equal(
+    packageJson.scripts['new:module:item'],
+    'node ../../scripts/new-module-item.mjs --app sample-app'
+  );
 
   const platformConfig = await readFile(
     path.join(rootDir, 'apps/sample-app/src/config/platform-config.ts'),
@@ -57,10 +65,7 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
   );
   assert.match(platformConfig, /appcode: 'sample-app'/);
   assert.match(platformConfig, /storageNamespace: 'one-base-template-sample-app'/);
-  assert.match(
-    platformConfig,
-    /enabledModules: \['home', 'admin-management', 'log-management', 'system-management'\]/
-  );
+  assert.match(platformConfig, /enabledModules: \['home'\]/);
 
   const viteConfig = await readFile(path.join(rootDir, 'apps/sample-app/vite.config.ts'), 'utf8');
   assert.match(viteConfig, /SampleAppBuildConfig/);
@@ -102,7 +107,10 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
   const generatedReadme = await readFile(path.join(rootDir, 'apps/sample-app/README.md'), 'utf8');
   assert.match(generatedReadme, /^# sample-app 后台项目指南$/m);
   assert.match(generatedReadme, /`sample-app` 从 `apps\/admin-lite` 派生，继承后台基座默认能力。/);
-  assert.match(generatedReadme, /`pnpm new:app <app-id>` 已切到从 `apps\/admin-lite` 复制。/);
+  assert.match(
+    generatedReadme,
+    /`pnpm new:app <app-id>` 已切到从 `apps\/admin-lite` 复制，\*\*默认只生成 `home` 模块\*\*。/
+  );
   assert.doesNotMatch(generatedReadme, /^# admin-lite 后台基座指南$/m);
   assert.doesNotMatch(generatedReadme, /pnpm check:admin-lite:bundle/);
 
@@ -112,17 +120,22 @@ test('scaffoldApp 生成最小可运行 app 并替换关键标识', async () => 
   await assertExists(path.join(rootDir, 'apps/sample-app/src/types/components.d.ts'));
 });
 
-test('parseArgs 支持 preset 参数', () => {
+test('parseArgs 支持 preset 与模块开关参数', () => {
   const args = parseArgs([
     'demo-app',
     '--preset',
     'enterprise',
+    '--with-admin-management',
+    '--with-log-management',
     '--with-crud-starter',
     '--dry-run'
   ]);
 
   assert.equal(args.appId, 'demo-app');
   assert.equal(args.preset, 'enterprise');
+  assert.equal(args.withAdminManagement, true);
+  assert.equal(args.withLogManagement, true);
+  assert.equal(args.withSystemManagement, false);
   assert.equal(args.withCrudStarter, true);
   assert.equal(args.dryRun, true);
 });
@@ -169,10 +182,7 @@ test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', asyn
     path.join(rootDir, 'apps/sample-crud-app/src/config/platform-config.ts'),
     'utf8'
   );
-  assert.match(
-    platformConfig,
-    /enabledModules: \['home', 'admin-management', 'log-management', 'system-management', 'starter-crud'\]/
-  );
+  assert.match(platformConfig, /enabledModules: \['home', 'starter-crud'\]/);
 
   const uiConfig = await readFile(
     path.join(rootDir, 'apps/sample-crud-app/src/config/ui.ts'),
@@ -187,4 +197,34 @@ test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', asyn
     'utf8'
   );
   assert.match(starterRoutes, /starter\/crud/);
+});
+
+test('scaffoldApp 支持通过参数追加管理模块', async () => {
+  const rootDir = await createWorkspaceFixture();
+
+  await scaffoldApp({
+    rootDir,
+    appId: 'sample-managed-app',
+    preset: 'enterprise',
+    withAdminManagement: true,
+    withLogManagement: true,
+    withSystemManagement: true,
+    dryRun: false,
+    withCrudStarter: false
+  });
+
+  const platformConfig = await readFile(
+    path.join(rootDir, 'apps/sample-managed-app/src/config/platform-config.ts'),
+    'utf8'
+  );
+  assert.match(
+    platformConfig,
+    /enabledModules: \['home', 'admin-management', 'log-management', 'system-management'\]/
+  );
+
+  const uiConfig = await readFile(
+    path.join(rootDir, 'apps/sample-managed-app/src/config/ui.ts'),
+    'utf8'
+  );
+  assert.match(uiConfig, /tenantSwitcher: true,/);
 });

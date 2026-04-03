@@ -6,6 +6,7 @@
 ## TL;DR
 
 - 启动命令：`pnpm -C apps/zfw-system-sfss dev`
+- 预发布启动命令：`pnpm -C apps/zfw-system-sfss dev:staging`
 - 配置入口：`apps/zfw-system-sfss/src/config/platform-config.ts`
 - 当前系统默认编码：`judicial_petition_management_system`
 - 当前默认模块：`home`、`admin-management`、`log-management`、`system-management`、`system-sfss`
@@ -80,13 +81,15 @@ VITE_ZB_BASE_URL=http://<指标服务地址>      # /zb
 ## 4. 新增模块命令
 
 ```bash
-pnpm new:module <module-id> --title 模块标题 --app zfw-system-sfss
+pnpm -C apps/zfw-system-sfss new:module <module-id> --title 模块标题
+pnpm -C apps/zfw-system-sfss new:module:item <item-id> --module <module-id>
 ```
 
 示例：
 
 ```bash
-pnpm new:module system-sfss --title "System-sfss" --app zfw-system-sfss
+pnpm -C apps/zfw-system-sfss new:module system-sfss --title "System-sfss"
+pnpm -C apps/zfw-system-sfss new:module:item sunshine-petition --module system-sfss
 ```
 
 ## 5. 提交前最小验证
