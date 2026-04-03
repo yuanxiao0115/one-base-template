@@ -1,81 +1,109 @@
-# 配置模型（apps/admin）
+# 配置模型（apps/admin / admin-lite）
 
-从 2026-03-24 开始，`apps/admin` 采用“**构建期 env + 代码静态平台配置**”，不再依赖运行时 `platform-config.json` 文件。
+<div class="doc-tldr">
+  <strong>TL;DR：</strong>`admin` 与 `admin-lite` 统一采用“构建期 env + 代码静态平台配置（platform-config.ts）”，不再依赖运行时 `platform-config.json`；业务模块统一通过 `getAppEnv()` 取配置，禁止直接读 `import.meta.env`。
+</div>
 
-## 1) 构建期配置（`.env*`）
+## 适用范围
 
-示例见：`apps/admin/.env.example`
+- 适用目录：`apps/admin/**`、`apps/admin-lite/**`
+- 适用场景：环境配置调整、后端接入切换、模块开关治理
+- 目标读者：业务开发、项目维护者、迁移实施同学
 
-当前保留最小集合：
+## 1. 当前生效的配置分层
 
-| 名称                | 值                                                          | 解释                                                                               |
-| ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `VITE_API_BASE_URL` | `https://gateway-basic-30746.p.onecode.cmict.cloud`（示例） | Vite dev server 的 `/api`、`/cmict` 代理目标；生产构建时也可作为 http baseURL 来源 |
-| `VITE_APP_BASE`     | `/`（示例）                                                 | 统一前缀配置：同时作用于 Vite `base` 与 router `baseUrl`，避免静态资源路径错位     |
+### 1.1 构建期配置（`.env*`）
 
-## 2) 代码静态平台配置（`platform-config.ts`）
+示例文件：`apps/admin/.env.example`
 
-文件路径：`apps/admin/src/config/platform-config.ts`
+| 名称                | 示例值                                              | 用途                                                     |
+| ------------------- | --------------------------------------------------- | -------------------------------------------------------- |
+| `VITE_API_BASE_URL` | `https://gateway-basic-30746.p.onecode.cmict.cloud` | Vite 开发代理目标（`/api`、`/cmict`）与可选 http baseURL |
+| `VITE_APP_BASE`     | `/`                                                 | 统一 base 前缀（Vite `base` + Router `baseUrl`）         |
 
-业务配置集中维护在该文件常量中。推荐按下面清单逐项维护（`apps/admin`、`apps/admin-lite` 同口径）：
+### 1.2 代码静态平台配置（`platform-config.ts`）
 
-1. `preset`：路由与菜单预设（`static-single | remote-single`）；当前后台默认 `remote-single`。
-2. `backend`：后端适配类型（`default | basic`）；当前默认 `basic`。
-3. `authMode`：鉴权模式（`cookie | token | mixed`）；当前默认 `token`。
-4. `historyMode`：路由模式（`history | hash`）；当前默认 `history`。
-5. `menuMode`：菜单来源（`remote | static`）；`remote-single` 下应为 `remote`。
-6. `authorizationType`：权限类型透传字段；用于后端权限域区分。
-7. `appsource`：应用来源透传字段；用于后端识别终端来源。
-8. `appcode`：应用唯一标识；用于后端与本地配置区分应用。
-9. `storageNamespace`：本地存储命名空间；用于隔离多应用缓存与 token key 前缀。
-10. `tokenKey` / `idTokenKey`：登录 token 存储 key；preset 场景可省略，默认按 `storageNamespace`（未配置回退 `appcode`）自动生成。
-11. `clientSignatureClientId`：basic 签名 clientId。
-12. `clientSignatureSalt`：basic 签名盐值（公开盐，不是 secret）。
-13. `defaultSystemCode`：默认系统编码；首次进入或无系统上下文时使用。
-14. `systemHomeMap`：系统首页映射（`Record<string, string>`）；key 为系统编码，value 为首页路由。
-15. `enabledModules`：模块开关（`"*"` 或 `string[]`）；建议显式维护白名单。
+核心文件：`apps/admin/src/config/platform-config.ts`
 
-说明：
+当前按 4 组维护：
 
-- `getPlatformConfig()` 为同步读取；`loadPlatformConfig()` 仅保留兼容签名，返回同一份静态配置。
-- 配置 schema 校验规则位于 `packages/core/src/config/platform-config.ts`（通过 `parseRuntimeConfig` 统一校验）。
+1. `systemScopeConfig`：系统范围（`systemConfig/defaultSystemCode/systemHomeMap`）
+2. `runtimeModeConfig`：运行模式（`backend/authMode/historyMode/menuMode`）
+3. `appIdentityConfig`：应用身份（`appcode/storageNamespace/basic headers/signature`）
+4. `moduleConfig`：模块开关（`enabledModules`）
 
-## 3) 接手最小清单（降低心智负担）
+最终通过 `parseRuntimeConfig({...})` 合并并校验。
 
-优先只看两处：
+## 2. 高价值字段速查
 
-- **本地环境**：`apps/admin/.env.development.local` 的 `VITE_API_BASE_URL`
-- **业务平台配置**：`apps/admin/src/config/platform-config.ts`
+| 字段               | 当前语义                         | 常见修改场景           |
+| ------------------ | -------------------------------- | ---------------------- |
+| `systemConfig`     | 单系统/多系统范围控制            | 需要切系统展示策略     |
+| `backend`          | 后端适配类型（`basic/default`）  | 切换后端协议           |
+| `authMode`         | 鉴权模式（`token/cookie/mixed`） | 登录态策略切换         |
+| `menuMode`         | 菜单来源（`remote/static`）      | 后端菜单与静态菜单切换 |
+| `storageNamespace` | 本地缓存隔离命名空间             | 多应用并行部署防串数据 |
+| `enabledModules`   | 模块白名单/全量开关              | 发布裁剪或灰度模块     |
 
-其余配置文件按“是否需要维护”分层：
+> 说明：`tokenKey` / `idTokenKey` 未显式配置时，会基于 `storageNamespace` 自动生成。
 
-| 文件                            | 作用                            | 是否建议日常修改           |
-| ------------------------------- | ------------------------------- | -------------------------- |
-| `src/config/platform-config.ts` | 业务平台配置（静态）            | 按需修改                   |
-| `src/config/env.ts`             | 构建期 env + 平台配置聚合       | 一般不改                   |
-| `src/config/layout.ts`          | 布局参数（侧栏宽度、顶栏高度）  | 按需修改                   |
-| `src/config/theme.ts`           | 主题注册与默认主题              | 按需修改                   |
-| `src/config/auth-sso.ts`        | SSO 策略与 SSO 接口配置统一入口 | 按需修改                   |
-| `src/config/systems.ts`         | 系统首页映射                    | 按需修改                   |
-| `src/config/ui.ts`              | UI 默认配置（容器类型、分页键） | 按需修改                   |
-| `src/utils/logger.ts`           | 日志工具                        | 非配置，不放在 config 维护 |
-| `src/services/security/*`       | 签名与加密能力                  | 非配置，按安全能力维护     |
+## 3. 最小可运行路径（改配置必走）
 
-## 4) 启动顺序与失败策略
+### 3.1 修改入口
 
-- `src/main.ts` 统一调用 `startAdminApp()`
-- `startup.ts` 内执行：`bootstrapAdminApp()` -> `beforeMount` -> `router.isReady()` -> `app.mount('#app')`
-- 启动失败时统一渲染错误页（`renderBootstrapError`），避免白屏
-- 所有路径统一走同一条启动链路，不再维护匿名独立启动链路
+1. 改构建期变量：`apps/admin/.env.development.local`
+2. 改业务平台配置：`apps/admin/src/config/platform-config.ts`
 
-## 5) 代码约束
+### 3.2 快速核对
 
-- 业务模块仍然**禁止**直接使用 `import.meta.env`
-- 统一通过 `apps/admin/src/config/env.ts` 导出的 `getAppEnv()` 读取业务配置
-- `apps/admin/src/config` 仅承载“可维护配置项 + 平台配置入口”，工具逻辑统一放到 `utils/*` 或 `services/*`
+在仓库根目录执行：
 
-## 6) 其他应用说明
+```bash
+rg -n "VITE_API_BASE_URL|VITE_APP_BASE" apps/admin/.env.example
+rg -n "systemConfig|backend|authMode|menuMode|storageNamespace|enabledModules" apps/admin/src/config/platform-config.ts
+```
 
-- `apps/portal` 仍使用 `public/platform-config.json` 运行时文件，并在 `src/config/sso.ts` 统一维护 SSO 路由策略与登录相关端点（`loginPageConfigEndpoint`、`portalFrontConfigEndpoint`、`ticketSsoEndpoint`）
-- `apps/admin-lite` 与 `apps/admin` 一样，采用“构建期 env + 代码静态平台配置”模式
-- 本页以 `apps/admin` 为主说明，`apps/admin-lite` 可按同口径理解
+### 3.3 验证命令
+
+```bash
+pnpm -C apps/admin typecheck
+pnpm -C apps/admin build
+pnpm -C apps/docs build
+```
+
+通过标准：
+
+1. admin 构建通过。
+2. 文档构建通过。
+3. 配置字段与文档描述一致。
+
+## 4. 启动与读取链路（真实行为）
+
+- 聚合入口：`apps/admin/src/config/env.ts`
+- 统一读取：`getAppEnv()`
+- 启动链路：`main.ts -> startAdminApp() -> bootstrap/startup.ts -> bootstrap/index.ts -> mount`
+
+关键约束：
+
+1. 业务模块禁止直接使用 `import.meta.env`。
+2. 配置读取统一走 `getAppEnv()`。
+3. `loadPlatformConfig()` 与 `getPlatformConfig()` 读取同一份静态配置。
+
+## 5. 其他应用差异
+
+- `apps/portal`：仍使用 `public/platform-config.json` 运行时配置。
+- `apps/admin-lite`：与 `apps/admin` 同口径，采用静态 `platform-config.ts`。
+
+## 6. 常见问题
+
+| 问题                          | 原因                                  | 处理方式                                      |
+| ----------------------------- | ------------------------------------- | --------------------------------------------- |
+| 改了 `.env` 但菜单/模块没变化 | 菜单/模块受 `platform-config.ts` 控制 | 到 `platform-config.ts` 调整对应字段          |
+| 多应用 token 互相污染         | `storageNamespace` 重复或缺失         | 为每个应用显式设置独立 `storageNamespace`     |
+| 页面读取到旧配置              | 业务代码绕过 `getAppEnv()`            | 清理直读 `import.meta.env`，统一改走 `env.ts` |
+
+## 7. 相关阅读
+
+- [目录结构与边界](/guide/architecture)
+- [开发规范与维护](/guide/development)
+- [菜单与路由规范（Schema）](/guide/menu-route-spec)

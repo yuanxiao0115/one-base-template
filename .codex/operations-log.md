@@ -12043,3 +12043,17 @@
   - `apps/docs/docs/.vitepress/config.ts` 增加“技术文档协作与改造”导航与 sidebar 入口。
   - `apps/docs/docs/guide/index.md` 在“维护治理”新增卡片入口。
   - `apps/docs/docs/index.md` 首页“推荐阅读路径”新增“文档改造手册”入口。
+
+## 2026-04-03（docs 第二批结构化改造：env/theme/adapter/utils）
+
+- 改造目标：继续按“可执行技术文档”模板收口结构空白页，优先补齐 `TL;DR + 适用范围 + 最小路径 + 验收 + FAQ`。
+- 重写页面：
+  - `apps/docs/docs/guide/env.md`
+  - `apps/docs/docs/guide/adapter-basic.md`
+  - `apps/docs/docs/guide/utils-api.md`
+  - `apps/docs/docs/guide/theme-system.md`
+- 本轮重点：
+  - `env.md`：明确 admin/admin-lite 的“双层配置模型”（`.env*` + `platform-config.ts`）与真实读取链路 `getAppEnv()`。
+  - `adapter-basic.md`：补齐 basic 接口清单、应用层接入差异（admin/admin-lite/portal）与签名加密职责边界。
+  - `utils-api.md`：按 `packages/utils/src/index.ts` 导出模型重排模块速查，补齐导入范式与最小验证路径。
+  - `theme-system.md`：按 core/admin 职责拆分主题接入流程，补齐 theme store 行为、token 应用机制与验证口径。

@@ -1,100 +1,88 @@
 ---
-outline: [2]
+outline: [2, 3]
 ---
 
-# Utils API 速查
+# Utils API 速查（结构化版）
 
-> 本页提供 `@one-base-template/utils` 的模块级快速索引，方便在业务开发中按需检索。  
-> 完整实现请以源码为准：`packages/utils/src`
+<div class="doc-tldr">
+  <strong>TL;DR：</strong>`@one-base-template/utils` 采用“命名空间导出 + 直出高频函数”双轨模型；业务侧优先用命名空间导入，按模块查 API，再用最小示例验证调用。
+</div>
 
-## 导入范式
+## 适用范围
 
-### 1) 命名空间导入（推荐）
+- 适用目录：`packages/utils/src/**`
+- 适用场景：业务页面开发、工具函数复用、API 快速检索
+- 目标读者：前端业务开发者、基础包维护者
+
+## 1. 导入范式（推荐顺序）
+
+### 1.1 命名空间导入（推荐）
 
 ```ts
 import { array, tree, format, date, validation } from '@one-base-template/utils';
 ```
 
-### 2) 直接导入（兼容导出）
+### 1.2 高频函数直出（按需）
 
 ```ts
 import {
-  createEmitter,
-  createReactiveState,
+  cloneDeep,
+  formatTime,
+  getToken,
+  setToken,
   LocalStorage,
-  SessionStorage,
   encode,
-  decode,
-  hash,
-  encryptedCode,
-  decryptedCode
+  decode
 } from '@one-base-template/utils';
 ```
 
-## 模块速查（按能力分组）
+> 导出真源：`packages/utils/src/index.ts`
 
-### 数据处理
+## 2. 模块级 API 索引
 
-| 模块     | 常用 API                                                                     | 用途                                       |
-| -------- | ---------------------------------------------------------------------------- | ------------------------------------------ |
-| `array`  | `unique` / `groupBy` / `chunk` / `sortBy` / `difference` / `sum`             | 数组去重、分组、切片、排序、集合运算、统计 |
-| `object` | `deepClone` / `deepMerge` / `get` / `set` / `omit`                           | 对象深拷贝、合并、路径读写、字段裁剪       |
-| `tree`   | `flatToTree` / `treeToFlat` / `findNodePath` / `filterTree` / `traverseTree` | 菜单树与通用树结构转换、检索与遍历         |
-| `math`   | `getDistance` / `clamp` / `lerp` / `randomInt` / `standardDeviation`         | 几何计算、范围收敛、随机与统计计算         |
-| `type`   | `isString` / `isNumber` / `isPlainObject` / `isEmpty` / `getType`            | 运行时类型判断                             |
+### 2.1 数据结构与类型
 
-### 格式化与日期
+| 模块     | 常用 API（示例）                                                     | 用途                           |
+| -------- | -------------------------------------------------------------------- | ------------------------------ |
+| `array`  | `unique` / `groupBy` / `chunk` / `difference` / `sum`                | 数组去重、分组、集合运算、统计 |
+| `object` | `deepClone` / `deepMerge` / `get` / `set` / `omit`                   | 对象克隆、合并、路径读写       |
+| `tree`   | `flatToTree` / `treeToFlat` / `findNodePath` / `filterTree`          | 菜单树与通用树结构处理         |
+| `type`   | `isString` / `isNumber` / `isPlainObject` / `isEmpty`                | 运行时类型判断                 |
+| `math`   | `getDistance` / `clamp` / `lerp` / `randomInt` / `standardDeviation` | 计算与统计辅助                 |
 
-| 模块         | 常用 API                                                                            | 用途                                         |
-| ------------ | ----------------------------------------------------------------------------------- | -------------------------------------------- |
-| `format`     | `formatCurrency` / `formatNumber` / `formatPhone` / `hideSensitive` / `toCamelCase` | 金额与文本格式化、敏感信息脱敏、命名风格转换 |
-| `date`       | `formatDate` / `formatTime` / `fromNow` / `diff` / `addTime` / `isToday`            | 日期格式化、相对时间、时间差与时间偏移       |
-| `url`        | `addUrlParam` / `parseUrlParams` / `updateUrlParam` / `buildQueryString`            | URL 参数读写与查询串拼接                     |
-| `validation` | `isEmail` / `isPhone` / `isIdCard` / `validatePassword` / `checkPasswordStrength`   | 常见字段校验与密码强度检测                   |
+### 2.2 格式化、日期与校验
 
-### 浏览器与存储
+| 模块         | 常用 API（示例）                                                                    | 用途                           |
+| ------------ | ----------------------------------------------------------------------------------- | ------------------------------ |
+| `format`     | `formatCurrency` / `formatNumber` / `formatPhone` / `hideSensitive` / `toCamelCase` | 金额文本格式化、脱敏、命名转换 |
+| `date`       | `formatDate` / `formatTime` / `fromNow` / `diff` / `addTime`                        | 时间格式化与计算               |
+| `url`        | `addUrlParam` / `parseUrlParams` / `updateUrlParam` / `buildQueryString`            | URL 参数处理                   |
+| `validation` | `isEmail` / `isPhone` / `validatePassword` / `checkPasswordStrength`                | 常见字段与密码校验             |
 
-| 模块      | 常用 API                                                                                  | 用途                                 |
-| --------- | ----------------------------------------------------------------------------------------- | ------------------------------------ |
-| `file`    | `getFileInfo` / `formatFileSize` / `validateFileType` / `readFileAsText` / `downloadFile` | 文件信息识别、大小格式化、读写与下载 |
-| `storage` | `LocalStorage` / `SessionStorage` / `storage`                                             | 本地与会话存储封装（支持过期时间）   |
-| `auth`    | `getToken` / `setToken` / `removeToken`                                                   | token 读写辅助                       |
-| `base64`  | `encode` / `decode`                                                                       | Base64 编码与解码                    |
+### 2.3 浏览器、存储与安全
 
-### 安全与编码
+| 模块          | 常用 API（示例）                                                       | 用途                 |
+| ------------- | ---------------------------------------------------------------------- | -------------------- |
+| `file`        | `getFileInfo` / `formatFileSize` / `validateFileType` / `downloadFile` | 文件信息、校验与下载 |
+| `storage`     | `LocalStorage` / `SessionStorage` / `storage`                          | 本地/会话存储封装    |
+| `auth`        | `getToken` / `setToken` / `removeToken`                                | token 读写           |
+| `base64`      | `encode` / `decode`                                                    | Base64 编解码        |
+| `sm3` / `sm4` | `hash` / `encryptedCode` / `decryptedCode`                             | 国密摘要与对称加解密 |
+| `crypto`      | `Crypto`                                                               | 通用加密封装         |
 
-| 模块     | 常用 API                                | 用途                |
-| -------- | --------------------------------------- | ------------------- |
-| `crypto` | `Crypto`                                | 常见加密能力封装    |
-| `sm3`    | `hash`                                  | 国密 SM3 摘要       |
-| `sm4`    | `encryptedCode` / `decryptedCode`       | 国密 SM4 对称加解密 |
-| `pinyin` | `getPinYin` / `getPinYinFirstCharacter` | 中文转拼音与首字母  |
+### 2.4 工程扩展与 Vue 工具
 
-### Vue 与交互
+| 模块          | 常用 API（示例）                                                         | 用途                     |
+| ------------- | ------------------------------------------------------------------------ | ------------------------ |
+| `http`        | `createRequest` / `formatUrl` / `retryRequest` / `withTimeout`           | 请求辅助与重试超时       |
+| `microApp`    | `getMicroData` / `sendBaseInfo` / `MicroAppManager`                      | 微前端与 iframe 数据桥接 |
+| `tool`        | `filterNull` / `checkBlobFile` / `getAgeByIdCard`                        | 历史通用工具             |
+| `vue`（直出） | `withInstall` / `createPlugin` / `createReactiveState` / `createEmitter` | Vue 组件与状态辅助       |
+| `hooks`       | `useLoading`                                                             | 页面级 loading 状态复用  |
 
-| 模块              | 常用 API                                                                                     | 用途                               |
-| ----------------- | -------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `vue`（直接导出） | `withInstall` / `createPlugin` / `createValidator` / `createReactiveState` / `createEmitter` | 组件安装、插件封装、状态与事件工具 |
-| `hooks`           | `useLoading`                                                                                 | 页面级 loading 状态复用            |
+## 3. 高频示例
 
-> `useTable` / `useEntityEditor` / `useCrudPage` 已迁移到 `@one-base-template/core`（实现真源），`@one-base-template/ui` 仅保留 `useEntityEditor` 默认错误提示薄封装。
->
-> 参考文档：
->
-> - [CRUD 容器与 Hook](/guide/crud-container)
-> - [VXE 表格迁移](/guide/table-vxe-migration)
-
-### 其他扩展
-
-| 模块       | 常用 API                                                                            | 用途                           |
-| ---------- | ----------------------------------------------------------------------------------- | ------------------------------ |
-| `http`     | `createRequest` / `formatUrl` / `parseQueryString` / `withTimeout` / `retryRequest` | 请求封装、URL 处理、超时与重试 |
-| `microApp` | `getMicroData` / `getAppName` / `getIframeData` / `sendBaseInfo`                    | 微前端宿主与 iframe 数据桥接   |
-| `tool`     | `filterNull` / `downloadFile` / `checkBlobFile` / `getAgeByIdCard`                  | 历史业务通用小工具             |
-
-## 高频示例
-
-### 树结构转换（菜单常用）
+### 3.1 树结构转换（菜单场景）
 
 ```ts
 import { tree } from '@one-base-template/utils';
@@ -108,7 +96,7 @@ const menuTree = tree.flatToTree(rows, { rootValue: 0 });
 const flatRows = tree.treeToFlat(menuTree);
 ```
 
-### 轻量响应式状态
+### 3.2 轻量响应式状态
 
 ```ts
 import { createReactiveState } from '@one-base-template/utils';
@@ -122,7 +110,7 @@ setState({ keyword: '统计', pageNum: 1 });
 resetState();
 ```
 
-### 本地存储（带过期）
+### 3.3 本地存储（带过期）
 
 ```ts
 import { LocalStorage } from '@one-base-template/utils';
@@ -132,16 +120,31 @@ local.set('user', { id: 1 }, 5 * 60 * 1000);
 const user = local.get('user');
 ```
 
-## 质量校验
+## 4. 最小可运行路径
+
+在仓库根目录执行：
 
 ```bash
 pnpm -C packages/utils typecheck
 pnpm -C packages/utils lint
-pnpm -C packages/core test:run
 pnpm -C apps/docs build
 ```
 
-## 相关文档
+通过标准：
+
+1. `utils` 包类型与 lint 通过。
+2. docs 构建通过。
+
+## 5. 常见问题
+
+| 问题                | 原因                  | 解决方式                                       |
+| ------------------- | --------------------- | ---------------------------------------------- |
+| 不确定 API 是否存在 | 文档和源码不一致      | 以 `packages/utils/src/index.ts` 导出为准      |
+| 导入后体积变大      | 直接全量导入过多模块  | 优先使用命名空间并按需引用                     |
+| Hook 找不到         | Hook 已迁移到 core/ui | 先看 [CRUD 容器与 Hook](/guide/crud-container) |
+
+## 6. 相关阅读
 
 - [Utils 工具包总览](/guide/utils)
+- [CRUD 容器与 Hook](/guide/crud-container)
 - [目录结构与边界](/guide/architecture)
