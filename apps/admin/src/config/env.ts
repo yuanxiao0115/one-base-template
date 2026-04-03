@@ -4,7 +4,8 @@ import type {
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
   PlatformHistoryMode,
-  PlatformMenuMode
+  PlatformMenuMode,
+  RuntimeSystemConfig
 } from '@one-base-template/core';
 
 /**
@@ -37,6 +38,7 @@ export interface AppEnv {
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
+  systemConfig: RuntimeSystemConfig;
   enabledModules: EnabledModulesSetting;
   basicHeaders?: Record<string, string>;
   clientSignatureSalt?: string;
@@ -112,6 +114,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
   const { tokenKey } = platformConfig;
   const { idTokenKey } = platformConfig;
   const { menuMode } = platformConfig;
+  const { systemConfig } = platformConfig;
   const { enabledModules } = platformConfig;
   const basicHeaders = resolveBasicHeaders({
     backend,
@@ -141,6 +144,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     tokenKey,
     idTokenKey,
     menuMode,
+    systemConfig,
     enabledModules,
     basicHeaders,
     clientSignatureSalt,

@@ -8,7 +8,7 @@ import { parseRuntimeConfig, type RuntimeConfig } from '@one-base-template/core'
  * - 如需新增字段，先对齐 `packages/core/src/config/platform-config.ts` 契约。
  *
  * 配置项清单（按阅读顺序）：
- * 1. `preset`：路由与菜单预设；`remote-single` 表示“单系统 + 远程菜单”。
+ * 1. `systemConfig`：系统范围配置；支持单系统、多系统白名单、多系统全量三种模式。
  * 2. `backend`：后端适配类型；`basic` 表示走 basic 适配协议。
  * 3. `authMode`：鉴权模式；`token` 表示前端基于 token 管理登录态。
  * 4. `historyMode`：路由模式；`history` 对应 `createWebHistory`。
@@ -26,24 +26,43 @@ import { parseRuntimeConfig, type RuntimeConfig } from '@one-base-template/core'
  * 补充：
  * - `tokenKey` / `idTokenKey` 未显式配置时，会按 `storageNamespace` 自动生成。
  */
-const platformConfig: RuntimeConfig = parseRuntimeConfig({
-  preset: 'remote-single',
+const systemScopeConfig = {
+  systemConfig: {
+    mode: 'single',
+    code: 'judicial_petition_management_system'
+  },
+  defaultSystemCode: 'judicial_petition_management_system',
+  systemHomeMap: {
+    judicial_petition_management_system: '/law-supervison/sunshine-petition/shi'
+  }
+};
+
+const runtimeModeConfig = {
   backend: 'basic',
   authMode: 'token',
   historyMode: 'history',
-  menuMode: 'remote',
+  menuMode: 'remote'
+};
+
+const appIdentityConfig = {
   authorizationType: 'ADMIN',
   appsource: 'frame',
   // 老项目默认 Appcode 为 od，菜单与登录联调沿用该口径。
   appcode: 'od',
   storageNamespace: 'one-base-template-zfw-system-sfss',
   clientSignatureClientId: '1',
-  clientSignatureSalt: 'fc54f9655dc04da486663f1055978ba8',
-  defaultSystemCode: 'judicial_petition_management_system',
-  systemHomeMap: {
-    judicial_petition_management_system: '/law-supervison/sunshine-petition/shi'
-  },
+  clientSignatureSalt: 'fc54f9655dc04da486663f1055978ba8'
+};
+
+const moduleConfig = {
   enabledModules: ['home', 'admin-management', 'log-management', 'system-management', 'system-sfss']
+};
+
+const platformConfig: RuntimeConfig = parseRuntimeConfig({
+  ...systemScopeConfig,
+  ...runtimeModeConfig,
+  ...appIdentityConfig,
+  ...moduleConfig
 });
 
 export async function loadPlatformConfig(): Promise<RuntimeConfig> {

@@ -1,7 +1,14 @@
 {
-  "preset": "static-single",
+  "systemConfig": {
+    "mode": "single",
+    "code": "admin_server"
+  },
   "backend": "basic",
+  "authMode": "token",
   "historyMode": "history",
+  "menuMode": "static",
+  "enabledModules": "*",
+  "authorizationType": "ADMIN",
   "appsource": "frame",
   "appcode": "portal",
   "storageNamespace": "one-base-template-portal",

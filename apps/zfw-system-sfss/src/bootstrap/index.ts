@@ -114,6 +114,7 @@ export async function bootstrapZfwSystemSfssApp() {
           http,
           tokenKey: resolvedAppEnv.tokenKey,
           basicSystemPermissionCode: resolvedAppEnv.basicSystemPermissionCode,
+          systemConfig: resolvedAppEnv.systemConfig,
           basicTicketSsoEndpoint: appAuthSsoApiConfig.ticketSsoEndpoint
         }),
       () => ({

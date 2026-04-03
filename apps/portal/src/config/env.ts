@@ -3,7 +3,8 @@ import type {
   AuthMode as PlatformAuthMode,
   BackendKind as PlatformBackendKind,
   PlatformHistoryMode,
-  PlatformMenuMode
+  PlatformMenuMode,
+  RuntimeSystemConfig
 } from '@one-base-template/core';
 
 export type BackendKind = PlatformBackendKind;
@@ -27,6 +28,7 @@ export interface AppEnv {
   tokenKey: string;
   idTokenKey: string;
   menuMode: MenuMode;
+  systemConfig: RuntimeSystemConfig;
   basicHeaders?: Record<string, string>;
   clientSignatureSalt?: string;
   clientSignatureClientId?: string;
@@ -104,6 +106,7 @@ export function resolveAppEnv(params: { buildEnv: BuildEnv }): AppEnv {
     tokenKey: runtime.tokenKey,
     idTokenKey: runtime.idTokenKey,
     menuMode: runtime.menuMode,
+    systemConfig: runtime.systemConfig,
     basicHeaders: resolveBasicHeaders({
       backend: runtime.backend,
       authorizationType: runtime.authorizationType,
