@@ -4,6 +4,7 @@ import './styles/table-theme.css';
 export { default as AdminLayout } from './layouts/AdminLayout.vue';
 export { default as SidebarMenu } from './components/menu/SidebarMenu.vue';
 export { default as MenuIcon } from './components/menu/MenuIcon.vue';
+export { default as MenuIconInput } from './components/menu/MenuIconInput.vue';
 export { default as TopBar } from './components/top/TopBar.vue';
 export { default as TabsBar } from './components/tabs/TabsBar.vue';
 export { default as ThemeSwitcher } from './components/theme/ThemeSwitcher.vue';
@@ -19,6 +20,10 @@ export { default as TableBox } from './components/table/TableBox.vue';
 export { default as CardTable } from './components/table/CardTable.vue';
 export { default as Table } from './components/table/Table.vue';
 export { default as ImportUpload } from './components/upload/ImportUpload.vue';
+export { default as UploadShell } from './components/upload/UploadShell.vue';
+export { default as FilePreview } from './components/preview/FilePreview.vue';
+export { default as PersonnelSelector } from './components/personnel-selector/PersonnelSelector.vue';
+export { default as RichText } from './components/rich-text/RichText.vue';
 export { LoginBox, LoginBoxV2 } from './lite-auth';
 export {
   ensureMenuIconifyCollectionsRegistered,
@@ -26,6 +31,16 @@ export {
   isMenuIconifyValue,
   type MenuIconifyPrefix
 } from './iconify/menu-iconify';
+export type {
+  MenuIconfontSource,
+  MenuIconfontSourceKey
+} from './components/menu/menu-iconfont-sources';
+export {
+  buildMenuIconfontValue,
+  MENU_ICONFONT_SOURCE_MAP,
+  MENU_ICONFONT_SOURCES,
+  normalizeIconfontClass
+} from './components/menu/menu-iconfont-sources';
 export type {
   AdaptiveConfig,
   TableAlign,
@@ -47,6 +62,32 @@ export type {
   TableSortable,
   VxeVirtualConfig
 } from './components/table/types';
+export {
+  openPersonnelSelection,
+  type OpenPersonnelSelectionOptions
+} from './components/personnel-selector/openPersonnelSelection';
+export type {
+  OpenPersonnelSelectionResult,
+  PersonnelFetchNodes,
+  PersonnelNode,
+  PersonnelNodeType,
+  PersonnelSearchNodes,
+  PersonnelSelectedItem,
+  PersonnelSelectedOrg,
+  PersonnelSelectedPosition,
+  PersonnelSelectedRole,
+  PersonnelSelectedUser,
+  PersonnelSelectionField,
+  PersonnelSelectionModel,
+  PersonnelSelectMode
+} from './components/personnel-selector/types';
+export type { RichTextProfile } from './components/rich-text/rich-text-html';
+export {
+  getRichTextToolbarExcludeKeys,
+  normalizeRichTextHtml,
+  sanitizeRichTextHtml,
+  toSafeRichTextHtml
+} from './components/rich-text/rich-text-html';
 export { default as ForbiddenPage } from './pages/error/ForbiddenPage.vue';
 export { default as NotFoundPage } from './pages/error/NotFoundPage.vue';
 export { confirm, obConfirm, openSecondaryConfirm, type ConfirmTone } from './feedback/confirm';

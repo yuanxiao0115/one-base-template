@@ -1,9 +1,8 @@
-import { readFileSync } from 'node:fs';
-
 import { describe, expect, it } from 'vite-plus/test';
+import { readSourceFile } from './test-utils/read-source-file';
 
 describe('VxeTable source', () => {
-  const source = readFileSync(new URL('./components/table/VxeTable.vue', import.meta.url), 'utf8');
+  const source = readSourceFile('components/table/VxeTable.vue');
 
   it('应在组件边界把 data 归一为数组后再传给 VxeGrid，避免 vxe 内部 slice 报错', () => {
     expect(source).toContain(

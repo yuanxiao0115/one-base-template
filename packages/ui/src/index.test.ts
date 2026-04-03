@@ -1,10 +1,11 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vite-plus/test';
 
 describe('ui root entry source', () => {
-  const source = readFileSync(new URL('./index.ts', import.meta.url), 'utf8');
-  const obtableEntrySource = readFileSync(new URL('./obtable.ts', import.meta.url), 'utf8');
+  const source = readFileSync(resolve(process.cwd(), 'src/index.ts'), 'utf8');
+  const obtableEntrySource = readFileSync(resolve(process.cwd(), 'src/obtable.ts'), 'utf8');
 
   it('保留登录组件导出，避免调用方编译期回归', () => {
     expect(source).toContain("export { LoginBox, LoginBoxV2 } from './lite-auth';");

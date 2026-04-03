@@ -32,7 +32,10 @@
   "scripts": {
     "build": "pnpm typecheck",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "vp lint ."
+    "lint": "vp lint .",
+    "test": "vp test",
+    "test:run": "vp test run",
+    "test:coverage": "vp test run --coverage"
   },
   "dependencies": {
     "@iconify-json/ep": "^1.2.2",
@@ -40,7 +43,15 @@
     "@iconify/vue": "^4.3.0",
     "@one-base-template/core": "workspace:*",
     "@one-base-template/tag": "workspace:*",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
+    "@vue-office/docx": "^1.6.3",
+    "@vue-office/excel": "^1.7.14",
+    "@vue-office/pdf": "^2.0.10",
+    "@vue-office/pptx": "^1.0.1",
     "gm-crypto": "^0.1.12",
+    "ofdview-vue3": "^1.0.31",
+    "parser_x.js": "^1.1.80",
     "sortablejs": "^1.15.7",
     "vxe-pc-ui": "4.12.36",
     "vxe-table": "4.17.48"
@@ -52,6 +63,11 @@
     "vue-router": "^5.0.2"
   },
   "devDependencies": {
-    "@types/node": "^24.3.3"
+    "@types/node": "^24.3.3",
+    "@vitest/coverage-v8": "^4.1.1",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^20.0.10",
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

@@ -1,35 +1,16 @@
-import { readFileSync } from 'node:fs';
-
 import { describe, expect, it } from 'vite-plus/test';
+import { readSourceFile } from './test-utils/read-source-file';
 
 describe('Table source', () => {
-  const source = readFileSync(new URL('./components/table/Table.vue', import.meta.url), 'utf8');
-  const typesSource = readFileSync(new URL('./components/table/types.ts', import.meta.url), 'utf8');
-  const helperSource = readFileSync(
-    new URL('./components/table/internal/table-helpers.ts', import.meta.url),
-    'utf8'
-  );
-  const layoutSource = readFileSync(
-    new URL('./components/table/internal/use-table-layout.ts', import.meta.url),
-    'utf8'
-  );
-  const rowDragSource = readFileSync(
-    new URL('./components/table/internal/use-table-row-drag-sort.ts', import.meta.url),
-    'utf8'
-  );
-  const columnBridgeSource = readFileSync(
-    new URL('./components/table/internal/use-table-column-bridge.ts', import.meta.url),
-    'utf8'
-  );
-  const contractSource = readFileSync(
-    new URL('./components/table/table-contract/column-contract.ts', import.meta.url),
-    'utf8'
-  );
-  const tableStyleSource = readFileSync(
-    new URL('./components/table/Table.css', import.meta.url),
-    'utf8'
-  );
-  const themeSource = readFileSync(new URL('./styles/table-theme.css', import.meta.url), 'utf8');
+  const source = readSourceFile('components/table/Table.vue');
+  const typesSource = readSourceFile('components/table/types.ts');
+  const helperSource = readSourceFile('components/table/internal/table-helpers.ts');
+  const layoutSource = readSourceFile('components/table/internal/use-table-layout.ts');
+  const rowDragSource = readSourceFile('components/table/internal/use-table-row-drag-sort.ts');
+  const columnBridgeSource = readSourceFile('components/table/internal/use-table-column-bridge.ts');
+  const contractSource = readSourceFile('components/table/table-contract/column-contract.ts');
+  const tableStyleSource = readSourceFile('components/table/Table.css');
+  const themeSource = readSourceFile('styles/table-theme.css');
 
   it('应基于 Element Plus 表格与分页封装', () => {
     expect(source).toContain("name: 'Table'");
@@ -217,7 +198,7 @@ describe('Table source', () => {
     expect(themeSource).toContain('--ob-table-header-bg: #f8f8f8;');
     expect(themeSource).toContain('--ob-table-header-color: #333;');
     expect(themeSource).toContain('--ob-table-body-color: #333;');
-    expect(themeSource).toContain('--ob-table-body-font-weight: 500;');
+    expect(themeSource).toContain('--ob-table-body-font-weight: 400;');
     expect(themeSource).toContain('--ob-table-scrollbar-size: 8px;');
     expect(themeSource).toContain('--ob-table-scrollbar-radius: 6px;');
     expect(themeSource).toContain('--ob-table-scrollbar-thumb-color: #dcdee0;');

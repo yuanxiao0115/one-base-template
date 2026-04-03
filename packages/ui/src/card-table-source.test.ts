@@ -1,9 +1,8 @@
-import { readFileSync } from 'node:fs';
-
 import { describe, expect, it } from 'vite-plus/test';
+import { readSourceFile } from './test-utils/read-source-file';
 
 describe('CardTable source', () => {
-  const source = readFileSync(new URL('./components/table/CardTable.vue', import.meta.url), 'utf8');
+  const source = readSourceFile('components/table/CardTable.vue');
 
   it('应改为 Element Plus 分页并移除 VxePager 依赖', () => {
     expect(source).toContain('<el-pagination');

@@ -2,6 +2,7 @@ import type { App, Component } from 'vue';
 import AdminLayout from './layouts/AdminLayout.vue';
 import SidebarMenu from './components/menu/SidebarMenu.vue';
 import MenuIcon from './components/menu/MenuIcon.vue';
+import MenuIconInput from './components/menu/MenuIconInput.vue';
 import TopBar from './components/top/TopBar.vue';
 import TabsBar from './components/tabs/TabsBar.vue';
 import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
@@ -17,6 +18,10 @@ import TableBox from './components/table/TableBox.vue';
 import CardTable from './components/table/CardTable.vue';
 import Table from './components/table/Table.vue';
 import ImportUpload from './components/upload/ImportUpload.vue';
+import UploadShell from './components/upload/UploadShell.vue';
+import FilePreview from './components/preview/FilePreview.vue';
+import PersonnelSelector from './components/personnel-selector/PersonnelSelector.vue';
+import RichText from './components/rich-text/RichText.vue';
 import { setUseTableDefaults, type UseTableDefaults } from '@one-base-template/core';
 import {
   ONE_UI_GLOBAL_CONFIG_KEY,
@@ -28,6 +33,7 @@ const OB_TABLE_UI_COMPONENTS = {
   AdminLayout,
   SidebarMenu,
   MenuIcon,
+  MenuIconInput,
   TopBar,
   TabsBar,
   ThemeSwitcher,
@@ -42,7 +48,11 @@ const OB_TABLE_UI_COMPONENTS = {
   TableBox,
   CardTable,
   Table,
-  ImportUpload
+  ImportUpload,
+  UploadShell,
+  FilePreview,
+  PersonnelSelector,
+  RichText
 } as const;
 
 export type OneObTableUiComponentName = keyof typeof OB_TABLE_UI_COMPONENTS;

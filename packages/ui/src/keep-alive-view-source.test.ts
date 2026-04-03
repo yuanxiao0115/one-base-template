@@ -1,12 +1,8 @@
-import { readFileSync } from 'node:fs';
-
 import { describe, expect, it } from 'vite-plus/test';
+import { readSourceFile } from './test-utils/read-source-file';
 
 describe('KeepAliveView source', () => {
-  const source = readFileSync(
-    new URL('./components/view/KeepAliveView.vue', import.meta.url),
-    'utf8'
-  );
+  const source = readSourceFile('components/view/KeepAliveView.vue');
 
   it('应支持通过路由 meta.keepAlive 控制缓存分支', () => {
     expect(source).toContain(
