@@ -12057,3 +12057,18 @@
   - `adapter-basic.md`：补齐 basic 接口清单、应用层接入差异（admin/admin-lite/portal）与签名加密职责边界。
   - `utils-api.md`：按 `packages/utils/src/index.ts` 导出模型重排模块速查，补齐导入范式与最小验证路径。
   - `theme-system.md`：按 core/admin 职责拆分主题接入流程，补齐 theme store 行为、token 应用机制与验证口径。
+
+## 2026-04-03（docs 第三批结构化改造：角色入口 + 图标 + 命名 + 按钮）
+
+- 先落盘计划：新增 `docs/plans/2026-04-03-docs-tech-doc-refactor-batch3-plan.md`，明确范围、顺序、验收口径。
+- 角色入口页改造：
+  - `apps/docs/docs/guide/for-users.md`
+  - `apps/docs/docs/guide/for-maintainers.md`
+  - 统一补齐 `TL;DR/适用范围/最短闭环/验证/FAQ`，从“索引页”升级为“可执行入口页”。
+- 专项能力页改造：
+  - `apps/docs/docs/guide/iconfont.md`
+  - `apps/docs/docs/guide/naming-whitelist.md`
+  - 补齐真实行为说明、最小可运行路径、命令验收与失败处理。
+- 样式规范页改造：
+  - `apps/docs/docs/guide/button-styles.md`
+  - 保留 `ButtonStyleDocDemo`，并收口为执行型结构（样式类型 -> 变量链路 -> 验收）。
