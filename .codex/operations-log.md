@@ -2,6 +2,45 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-04（packages/ui：补充单元测试并打通覆盖率命令）
+
+- 背景：
+  - 用户要求在 `packages/ui` 补充单元测试，并完成测试与覆盖率测试闭环。
+- 本次收口：
+  - 补齐 `packages/ui/package.json` 测试脚本：`test`、`test:run`、`test:coverage`。
+  - `packages/ui/vitest.config.ts` 增加 coverage 配置（`provider: v8` + text/json/html 报告）。
+  - 增加/完善单测：
+    - `packages/ui/src/components/menu/menu-iconfont-sources.test.ts`
+    - `packages/ui/src/components/rich-text/rich-text-html.test.ts`
+    - `packages/ui/src/test-utils/read-source-file.ts`（统一源码读取辅助）
+    - 调整 `auth-entry/table/card-table/keep-alive-view/vxe-table` 源码断言测试读取方式，修复 `new URL(..., import.meta.url)` 在当前 runner 下的 file scheme 报错。
+  - 覆盖率依赖补齐：`@vitest/coverage-v8`。
+- 验证结果：
+  - `pnpm -C packages/ui test:run`：`16 files / 49 tests` 通过。
+  - `pnpm -C packages/ui test:coverage`：通过并产出 `packages/ui/coverage` 报告。
+  - `pnpm -C packages/ui typecheck`、`pnpm -C packages/ui lint`：均通过。
+
+## 2026-04-04（packages/ui：第二轮补测提升覆盖率）
+
+- 背景：
+  - 用户反馈覆盖率仍不足，要求继续补充单元测试提高覆盖率。
+- 本次收口：
+  - 新增：
+    - `packages/ui/src/components/auth/utils/util.test.ts`
+    - `packages/ui/src/lite/plugin.runtime.test.ts`
+  - 扩展：
+    - `packages/ui/src/components/table/internal/table-helpers.test.ts`
+    - `packages/ui/src/iconify/menu-iconify.test.ts`
+  - 覆盖重点：
+    - 表格内部 helper 纯函数分支（字段解析、分页布局、自适应高度、树数据归一化）；
+    - lite 组件注册插件（prefix/aliases/include/已有注册保护）；
+    - iconify 前缀解析、并发加载缓存、非法前缀报错；
+    - 验证码尺寸换算工具（默认值、父容器百分比、window 回退）。
+- 验证结果：
+  - `pnpm -C packages/ui test:run`：`18 files / 65 tests` 通过。
+  - `pnpm -C packages/ui test:coverage`：通过，整体覆盖率提升至 `Lines 67.22%`。
+  - `pnpm -C packages/ui typecheck` 与 `pnpm -C packages/ui lint`：通过。
+
 ## 2026-04-03（packages/ui：MenuIconInput 沉淀 + 通用上传壳 UploadShell）
 
 - 背景：

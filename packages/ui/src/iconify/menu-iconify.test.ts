@@ -80,5 +80,38 @@ describe('menu-iconify', () => {
     const mod = await import('./menu-iconify');
 
     expect(mod.getMenuIconifyPrefix(' ep:home-filled ')).toBe('ep');
+    expect(mod.getMenuIconifyPrefix('xx:home')).toBeUndefined();
+    expect(mod.isMenuIconifyValue('ep:')).toBe(false);
+  });
+
+  it('并发加载相同前缀时应复用同一个 pending 任务', async () => {
+    const { addCollection } = await import('@iconify/vue/dist/offline');
+    const mod = await import('./menu-iconify');
+
+    await Promise.all([
+      mod.ensureMenuIconifyCollectionsRegistered('ep'),
+      mod.ensureMenuIconifyCollectionsRegistered('ep')
+    ]);
+
+    expect(addCollection).toHaveBeenCalledTimes(1);
+  });
+
+  it('ensureMenuIconifyIconRegistered 对非法值应直接跳过，对合法值应触发注册', async () => {
+    const { addCollection } = await import('@iconify/vue/dist/offline');
+    const mod = await import('./menu-iconify');
+
+    await mod.ensureMenuIconifyIconRegistered('plain-icon');
+    expect(addCollection).not.toHaveBeenCalled();
+
+    await mod.ensureMenuIconifyIconRegistered('ri:home-line');
+    expect(addCollection).toHaveBeenCalledTimes(1);
+  });
+
+  it('传入不支持前缀时应抛出错误', async () => {
+    const mod = await import('./menu-iconify');
+
+    await expect(
+      mod.ensureMenuIconifyCollectionsRegistered(['ep', 'xx' as unknown as 'ep'])
+    ).rejects.toThrow('[menu-iconify] 不支持的图标前缀：xx');
   });
 });
