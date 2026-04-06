@@ -177,3 +177,19 @@
   - `packages/ui typecheck/lint` 均通过，类型与代码质量门禁正常。
   - `apps/admin` 与 `apps/admin-lite` 的 `typecheck` 均通过，未引入跨端类型回归。
   - 当前仍存在构建体积告警（非阻断），与本次修复目标无冲突。
+
+## 2026-04-07（packages/ui：覆盖率门禁落地）
+
+- 影响范围：
+  - `packages/ui/src/components/auth/VerifySlide.test.ts`
+  - `packages/ui/vitest.config.ts`
+
+- 验证结论：
+  - `pnpm -C packages/ui typecheck` 通过。
+  - `pnpm -C packages/ui lint` 通过。
+  - `pnpm -C packages/ui test:run` 通过（`20 files / 82 tests`）。
+  - `pnpm -C packages/ui test:coverage` 通过，覆盖率为 `89.12 / 77.04 / 91.11 / 89.37`。
+  - `vitest.config.ts` 覆盖率阈值 `85 / 70 / 85 / 85` 已生效，本次报告满足阈值。
+
+- 已知风险：
+  - 仍有 `vitest` 与 `@vitest/coverage-v8` 版本混用告警（非阻断）；建议后续统一依赖版本以消除潜在兼容风险。

@@ -12,7 +12,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'dist/', '**/*.d.ts', 'vitest.config.ts']
+      exclude: ['node_modules/', 'dist/', '**/*.d.ts', 'vitest.config.ts'],
+      thresholds: {
+        statements: 85,
+        branches: 70,
+        functions: 85,
+        lines: 85
+      }
     }
   },
   resolve: {

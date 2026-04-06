@@ -12515,3 +12515,17 @@
     - 移除 `@vue-office/pdf/lib/index.css` 导入（该路径不存在）。
   - `packages/ui/src/env.d.ts`
     - 新增 `@vue-office/*/lib/v3/index.js` 四个模块声明，保证 `vue-tsc` 类型可识别。
+
+## 2026-04-07（packages/ui：第五轮补测 + 覆盖率门禁）
+
+- 背景：用户选择“1+2”，继续提升 `packages/ui` 覆盖率并在 CI 侧加门禁阈值。
+- 代码改动：
+  - `packages/ui/src/components/auth/VerifySlide.test.ts`
+    - 新增 GIF/WEBP/SVG 裸 base64 识别分支测试，覆盖 data url 推断逻辑。
+    - 新增 `checkCaptcha` 返回失败码（非异常）分支测试，覆盖提示文案与 `refresh` 重置链路。
+    - 新增触摸拖动分支（`touches`、`preventDefault`）与关闭按钮事件分支。
+  - `packages/ui/vitest.config.ts`
+    - 新增 `coverage.thresholds`：`statements: 85`、`branches: 70`、`functions: 85`、`lines: 85`。
+- 验证结果：
+  - 全量测试：`20 files / 82 tests` 通过。
+  - 覆盖率：`Statements 89.12% / Branches 77.04% / Functions 91.11% / Lines 89.37%`，满足阈值门禁。

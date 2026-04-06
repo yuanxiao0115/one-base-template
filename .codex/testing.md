@@ -10972,3 +10972,22 @@
 
 - 新增测试：
   - `src/components/auth/LoginBox.test.ts`
+
+## 2026-04-07（packages/ui：第五轮补测 + 覆盖率门禁）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui test:run`
+  - `pnpm -C packages/ui test:coverage`
+
+- 结果：
+  - 全量测试通过：`20 files / 82 tests`。
+  - 覆盖率：`Statements 89.12% / Branches 77.04% / Functions 91.11% / Lines 89.37%`。
+  - 覆盖率阈值门禁（`85 / 70 / 85 / 85`）已生效并通过。
+
+- 本轮测试增强：
+  - `src/components/auth/VerifySlide.test.ts` 新增 GIF/WEBP/SVG base64 识别、失败码 refresh 链路、触摸拖动分支与关闭事件。
+
+- 备注：
+  - `test:coverage` 仍提示 `vitest@0.1.14` 与 `@vitest/coverage-v8@4.1.2` 版本混用告警，但不阻断执行（exit code 0）。

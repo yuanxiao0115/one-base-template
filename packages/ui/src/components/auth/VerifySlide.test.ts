@@ -5,12 +5,18 @@ import VerifySlide from './VerifySlide.vue';
 const CAPTCHA_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMB/6XbWQAAAABJRU5ErkJggg==';
 const JPEG_BASE64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2w==';
+const GIF_BASE64 = 'R0lGODlhAQABAIAAAAUEBA==';
+const WEBP_BASE64 = 'UklGRjwAAABXRUJQVlA4IC4AAABwAgCdASoBAAEALAAAAABAAQAcJaQAA3AA/vuUAAA=';
+const SVG_BASE64 = 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==';
 const PNG_DATA_URI = `data:image/png;base64,${CAPTCHA_BASE64}`;
 
 interface VerifySlideVm {
   show: () => Promise<void>;
   end: () => Promise<void>;
   getPictrue: () => Promise<void>;
+  start: (event: MouseEvent | TouchEvent) => void;
+  move: (event: MouseEvent | TouchEvent) => void;
+  closeBox: () => void;
   backImgBase: string;
   blockBackImgBase: string;
   tipWords: string;
@@ -21,6 +27,7 @@ interface VerifySlideVm {
   setSize: {
     imgWidth: string;
   };
+  startLeft: number;
   passFlag: boolean | '';
   startMoveTime: number;
 }
@@ -103,6 +110,31 @@ describe('VerifySlide', () => {
     expect(wrapper.get('.verify-move-block .verify-sub-block img').attributes('src')).toBe(
       PNG_DATA_URI
     );
+  });
+
+  it('会识别 GIF/WEBP/SVG 裸 base64 并转成 data url', async () => {
+    const cases = [
+      { source: GIF_BASE64, expectedPrefix: 'data:image/gif;base64,' },
+      { source: WEBP_BASE64, expectedPrefix: 'data:image/webp;base64,' },
+      { source: SVG_BASE64, expectedPrefix: 'data:image/svg+xml;base64,' }
+    ];
+
+    for (const item of cases) {
+      const wrapper = createWrapper({
+        originBase64: item.source,
+        jigsawBase64: item.source
+      });
+      const vm = wrapper.vm as unknown as VerifySlideVm;
+
+      await vm.show();
+      await flushPromises();
+
+      expect(wrapper.get('.verify-img-panel img').attributes('src')).toContain(item.expectedPrefix);
+      expect(wrapper.get('.verify-move-block .verify-sub-block img').attributes('src')).toContain(
+        item.expectedPrefix
+      );
+      wrapper.unmount();
+    }
   });
 
   it('获取验证码失败且 code=6201 时应清空图片并提示错误信息', async () => {
@@ -220,5 +252,91 @@ describe('VerifySlide', () => {
     expect(wrapper.emitted('error')?.length).toBe(1);
     expect(vm.passFlag).toBe(false);
     expect(vm.tipWords).toBe('网络异常');
+  });
+
+  it('校验返回失败码时应提示错误并触发 refresh 重置', async () => {
+    vi.useFakeTimers();
+    const loadCaptcha = vi.fn().mockResolvedValue({
+      code: 200,
+      data: {
+        originBase64: CAPTCHA_BASE64,
+        jigsawBase64: CAPTCHA_BASE64,
+        captchaKey: 'captcha-key'
+      }
+    });
+    const checkCaptcha = vi.fn().mockResolvedValue({
+      code: 500,
+      message: '拼图失败'
+    });
+    const wrapper = mount(VerifySlide, {
+      props: {
+        loadCaptcha,
+        checkCaptcha
+      }
+    });
+    const vm = wrapper.vm as unknown as VerifySlideVm;
+
+    await vm.show();
+    await flushPromises();
+
+    vm.status = true;
+    vm.isEnd = false;
+    vm.moveBlockLeft = '100px';
+    vm.setSize.imgWidth = '310px';
+
+    await vm.end();
+    await flushPromises();
+
+    expect(checkCaptcha).toHaveBeenCalledTimes(1);
+    expect(vm.passFlag).toBe(false);
+    expect(vm.tipWords).toBe('拼图失败');
+
+    await vi.runAllTimersAsync();
+    await flushPromises();
+
+    expect(loadCaptcha).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
+  });
+
+  it('触摸拖动分支应更新滑块偏移并支持关闭按钮', async () => {
+    const wrapper = createWrapper();
+    const vm = wrapper.vm as unknown as VerifySlideVm;
+    await vm.show();
+    await flushPromises();
+
+    const barArea = wrapper.get('.verify-bar-area').element as HTMLElement;
+    Object.defineProperty(barArea, 'offsetWidth', {
+      value: 310,
+      configurable: true
+    });
+    Object.defineProperty(barArea, 'getBoundingClientRect', {
+      value: () => ({ left: 20 }),
+      configurable: true
+    });
+
+    const startPreventDefault = vi.fn();
+    const startStopPropagation = vi.fn();
+    const startEvent = {
+      touches: [{ pageX: 120 }],
+      preventDefault: startPreventDefault,
+      stopPropagation: startStopPropagation
+    } as unknown as TouchEvent;
+    vm.start(startEvent);
+
+    const movePreventDefault = vi.fn();
+    const moveEvent = {
+      touches: [{ pageX: 160 }],
+      preventDefault: movePreventDefault
+    } as unknown as TouchEvent;
+    vm.move(moveEvent);
+
+    expect(vm.status).toBe(true);
+    expect(vm.startLeft).toBe(100);
+    expect(vm.moveBlockLeft).toBeDefined();
+    expect(startPreventDefault).toHaveBeenCalled();
+    expect(movePreventDefault).toHaveBeenCalled();
+
+    await wrapper.get('.verifybox-close').trigger('click');
+    expect(wrapper.emitted('closeBox')?.length).toBe(1);
   });
 });
