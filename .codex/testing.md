@@ -10930,3 +10930,27 @@
 
 - 备注：
   - `test:coverage` 仍提示 `vitest@0.1.14` 与 `@vitest/coverage-v8@4.1.2` 版本混用告警，但不阻断执行与报告产出。
+
+## 2026-04-06（packages/ui：第三轮补测冲线 75%+）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui test:run`
+  - `pnpm -C packages/ui test:coverage`
+
+- 结果：
+  - 全量测试通过：`19 files / 73 tests`。
+  - 覆盖率提升至：`Statements 78.12% / Branches 70.06% / Functions 75.55% / Lines 78.87%`。
+  - 关键提升点：
+    - `VerifySlide.vue`：`43.75% -> 68.75%`（line）
+    - `use-table-layout.ts`：`58.33% -> 86.66%`
+    - `use-table-row-drag-sort.ts`：`72.53% -> 80.28%`
+    - `src/lite/{auth.ts,container.ts}`：`50% -> 100%`
+
+- 新增/扩展测试：
+  - 新增：`src/lite/async-entries.test.ts`
+  - 扩展：
+    - `src/components/auth/VerifySlide.test.ts`
+    - `src/components/table/internal/use-table-layout.test.ts`
+    - `src/components/table/internal/use-table-row-drag-sort.test.ts`

@@ -41,6 +41,26 @@
   - `pnpm -C packages/ui test:coverage`：通过，整体覆盖率提升至 `Lines 67.22%`。
   - `pnpm -C packages/ui typecheck` 与 `pnpm -C packages/ui lint`：通过。
 
+## 2026-04-06（packages/ui：第三轮补测冲线）
+
+- 背景：
+  - 用户继续要求提升覆盖率，并达到组件库常用门槛。
+- 本次收口：
+  - 新增：`packages/ui/src/lite/async-entries.test.ts`
+  - 扩展：
+    - `packages/ui/src/components/auth/VerifySlide.test.ts`
+    - `packages/ui/src/components/table/internal/use-table-layout.test.ts`
+    - `packages/ui/src/components/table/internal/use-table-row-drag-sort.test.ts`
+  - 覆盖重点：
+    - `VerifySlide` 成功/异常/6201 失败分支；
+    - `useTableLayout` 的 DOM 解析、hover 变量、observer 绑定与解绑；
+    - `useTableRowDragSort` 的 `onEnd` 分支与禁用销毁流程；
+    - `lite` 异步入口加载器执行路径。
+- 验证结果：
+  - `pnpm -C packages/ui typecheck`、`pnpm -C packages/ui lint` 通过；
+  - `pnpm -C packages/ui test:run`：`19 files / 73 tests`；
+  - `pnpm -C packages/ui test:coverage`：`Lines 78.87%`（`Statements 78.12% / Branches 70.06% / Functions 75.55%`）。
+
 ## 2026-04-03（packages/ui：MenuIconInput 沉淀 + 通用上传壳 UploadShell）
 
 - 背景：
