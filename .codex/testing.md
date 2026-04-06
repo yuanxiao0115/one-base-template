@@ -10954,3 +10954,21 @@
     - `src/components/auth/VerifySlide.test.ts`
     - `src/components/table/internal/use-table-layout.test.ts`
     - `src/components/table/internal/use-table-row-drag-sort.test.ts`
+
+## 2026-04-06（packages/ui：第四轮补测冲线 80%+）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui test:run`
+  - `pnpm -C packages/ui test:coverage`
+
+- 结果：
+  - 全量测试通过：`20 files / 79 tests`。
+  - 覆盖率提升至：`Statements 83.43% / Branches 72.61% / Functions 87.22% / Lines 83.73%`。
+  - 关键提升点：
+    - `LoginBox.vue`：`4.34% -> 86.95%`（line）
+    - `components/auth` 目录整体：`55.40% -> 72.52%`（line）
+
+- 新增测试：
+  - `src/components/auth/LoginBox.test.ts`

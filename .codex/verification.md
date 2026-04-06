@@ -6,7 +6,7 @@
 
 - 日期：2026-04-04
 - 文件：`.codex/verification/2026-04-04.md`
-- 补充：新增“ObFilePreview 文档化到组件库”、“ObFilePreview 构建阻断修复（@vue-office 路径）”、“packages/ui 单元测试补充 + 覆盖率链路收口”、“packages/ui 第二轮覆盖率提升（table/lite/iconify/auth-utils）”与“packages/ui 第三轮覆盖率提升（verify-slide + layout + row-drag + lite-async）”验证记录。
+- 补充：新增“ObFilePreview 文档化到组件库”、“ObFilePreview 构建阻断修复（@vue-office 路径）”、“packages/ui 单元测试补充 + 覆盖率链路收口”、“packages/ui 第二轮覆盖率提升（table/lite/iconify/auth-utils）”、“packages/ui 第三轮覆盖率提升（verify-slide + layout + row-drag + lite-async）”与“packages/ui 第四轮覆盖率提升（LoginBox 运行时单测）”验证记录。
 
 ## 历史归档
 

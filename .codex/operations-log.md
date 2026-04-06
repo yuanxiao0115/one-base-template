@@ -61,6 +61,23 @@
   - `pnpm -C packages/ui test:run`：`19 files / 73 tests`；
   - `pnpm -C packages/ui test:coverage`：`Lines 78.87%`（`Statements 78.12% / Branches 70.06% / Functions 75.55%`）。
 
+## 2026-04-06（packages/ui：第四轮补测冲线 80%+）
+
+- 背景：
+  - 用户继续要求提升覆盖率，并询问组件库常见覆盖率门槛。
+- 本次收口：
+  - 新增：`packages/ui/src/components/auth/LoginBox.test.ts`
+  - 覆盖重点：
+    - `LoginBox` 输入更新事件；
+    - 表单校验通过/失败分支；
+    - `encrypt=true` 的 SM4 提交分支；
+    - `validate/clearValidate/buildSubmitPayload` 暴露能力；
+    - 用户名与密码规则开关分支。
+- 验证结果：
+  - `pnpm -C packages/ui typecheck`、`pnpm -C packages/ui lint` 通过；
+  - `pnpm -C packages/ui test:run`：`20 files / 79 tests` 通过；
+  - `pnpm -C packages/ui test:coverage`：`Lines 83.73%`（`Statements 83.43% / Branches 72.61% / Functions 87.22%`）。
+
 ## 2026-04-03（packages/ui：MenuIconInput 沉淀 + 通用上传壳 UploadShell）
 
 - 背景：
