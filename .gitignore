@@ -29,3 +29,14 @@ yarn-error.log*
 # Vite env (local overrides, should not be committed)
 **/.env.local
 **/.env.*.local
+
+# 测试产物（默认不入库）
+coverage
+**/coverage
+.nyc_output
+**/.nyc_output
+test-results
+**/test-results
+playwright-report
+**/playwright-report
+*.lcov
