@@ -38,7 +38,7 @@ const props = withDefaults(
     resolveSuccess?: (response: AccountCenterResponse) => boolean;
   }>(),
   {
-    encryptPassword: identityEncryptPassword,
+    encryptPassword: undefined,
     passwordPattern: () =>
       /^(?![A-Za-z]+$)(?![A-Z\d]+$)(?![A-Z\W_]+$)(?![a-z\d]+$)(?![a-z\W_]+$)(?![\d\W_]+$)\S{8,20}$/,
     passwordRuleMessage: '密码长度8-20位，至少包含大小写字母、数字、特殊字符中的3种及以上',

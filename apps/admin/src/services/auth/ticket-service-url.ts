@@ -13,7 +13,7 @@ function isAbsoluteHttpUrl(value: string) {
  * 2. 其次使用 redirectUrl 推导绝对地址；
  * 3. 最后兜底当前回调地址。
  */
-export function resolveTicketServiceUrl(params: {
+export function buildTicketServiceUrl(params: {
   serviceUrlRaw: string | null;
   redirectUrlRaw: string | null;
   locationLike: TicketServiceUrlLocationLike;

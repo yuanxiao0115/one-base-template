@@ -125,6 +125,11 @@ docs/
 
 - 避免对全仓跑带 `--fix` 的 lint / format，优先定向到本次改动文件，避免引入无关 diff。
 - 文档、规则、结构说明发生变化时，至少补跑 `pnpm -C apps/docs lint` 与 `pnpm -C apps/docs build`。
+- 根级 `pnpm typecheck` / `pnpm lint` / `pnpm build` / `pnpm test:run` 默认排除 `apps/zfw-system-sfss`（迁移遗留代码，不作为主门禁阻断项）。
+- 若本次确实改动 `apps/zfw-system-sfss/**`，必须额外定向执行：
+  - `pnpm -C apps/zfw-system-sfss typecheck`
+  - `pnpm -C apps/zfw-system-sfss lint`
+  - `pnpm -C apps/zfw-system-sfss build`
 
 ## 🧰 脚手架口径（2026-04）
 

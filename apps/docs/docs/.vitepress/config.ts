@@ -301,7 +301,7 @@ export default defineConfig({
       '/guide/': guideHomeSidebar
     },
     search: { provider: 'local' },
-    outline: { level: [2], label: '本页导航' },
+    outline: { level: 2, label: '本页导航' },
     docFooter: {
       prev: '上一页',
       next: '下一页'

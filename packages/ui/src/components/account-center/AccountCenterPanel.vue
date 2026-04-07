@@ -90,7 +90,7 @@ const props = withDefaults(
     uploadAvatar: undefined,
     checkPassword: undefined,
     changePassword: undefined,
-    encryptPassword: identityEncryptPassword,
+    encryptPassword: undefined,
     passwordPattern: undefined,
     passwordRuleMessage: '密码长度8-20位，至少包含大小写字母、数字、特殊字符中的3种及以上',
     isAvatarHidden: undefined,

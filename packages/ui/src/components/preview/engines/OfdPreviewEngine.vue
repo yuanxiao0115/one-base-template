@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { Ofdview } from 'ofdview-vue3';
+import Ofdview from 'ofdview-vue3';
+// @ts-expect-error 三方库未提供稳定类型声明，运行时可正常加载
 import parserX from 'parser_x.js';
 import 'ofdview-vue3/viewer.css';
 import type { FilePreviewSource } from '../file-meta';

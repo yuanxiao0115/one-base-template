@@ -29,9 +29,21 @@
 在仓库根目录执行：
 
 ```bash
+pnpm verify:changed
 pnpm typecheck
 pnpm lint
 pnpm build
+```
+
+说明：`pnpm verify:changed` 会按改动范围自动路由到“单应用验证 / docs 验证 / 全量 verify”。
+
+补充：根级 `pnpm typecheck` / `pnpm lint` / `pnpm build` / `pnpm test:run` 默认排除 `apps/zfw-system-sfss`（迁移遗留代码）。
+若改动 `apps/zfw-system-sfss/**`，请额外执行：
+
+```bash
+pnpm -C apps/zfw-system-sfss typecheck
+pnpm -C apps/zfw-system-sfss lint
+pnpm -C apps/zfw-system-sfss build
 ```
 
 大改动推荐补跑：
@@ -134,5 +146,6 @@ pnpm -C apps/docs build
 
 - [快速开始](/guide/quick-start)
 - [目录结构与边界](/guide/architecture)
+- [Harness 工程化落地](/guide/harness-engineering)
 - [技术文档协作与改造手册](/guide/tech-doc-collaboration)
 - [AGENTS 规则分层](/guide/agents-scope)

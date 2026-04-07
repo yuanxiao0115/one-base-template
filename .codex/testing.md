@@ -250,6 +250,30 @@
     - 应用内存在既有 legacy 类型债务（`system-sfss` 多处 `unknown` 字段访问、`{}` 上访问 `code/data` 等）；
     - 另有既有依赖类型问题（`../../packages/ui/src/components/auth/VerifySlide.vue` 与 `../../packages/ui/src/components/preview/engines/OfdPreviewEngine.vue`）。
   - 说明：本轮仅改动 `AdminTopBar`，未触碰上述失败文件。
+
+## 2026-04-07（P0 Milestone B：CommandPalette 组件沉淀与三端接入）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui test:run`
+  - `pnpm -C packages/ui test:coverage`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin-lite lint`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：`21 files / 89 tests` 通过；覆盖率 `Statements 87.48% / Branches 75.96% / Functions 90.65% / Lines 87.64%`，满足阈值。
+  - `apps/admin`：`typecheck` 通过；`lint` 仅既有 `max-lines` 4 条 warning。
+  - `apps/admin-lite`：`typecheck/lint` 通过。
+  - `apps/zfw-system-sfss`：`lint:arch` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功（保留 chunk size 非阻断提示）。
+- RED（非本次改动阻断项）：
+  - `pnpm -C apps/zfw-system-sfss typecheck`（既有 legacy 类型债务，与本轮无直接耦合）。
+  - `pnpm -C apps/zfw-system-sfss lint`（既有历史规则债务，含 `no-explicit-any` 与 `no-wrapper-object-types`）。
   - `pnpm check:admin:bundle`
   - `pnpm check:admin-lite:bundle`
 - 结果：
@@ -11036,3 +11060,291 @@
 - 结果：
   - docs lint 通过（`0 warning / 0 error`）。
   - docs build 通过（chunk size warning 为既有非阻断提示）。
+
+## 2026-04-07（Harness 工程化首轮验证）
+
+- 作用域：harness 脚本 + CI 版本 + docs 导航
+- 命令：
+  - `pnpm verify`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm verify`：失败（exit=1）
+- 输出摘要：
+
+```text
+$ pnpm verify
+> vp run --filter @one-base-template/portal-engine verify:materials && pnpm check:naming && pnpm check:admin:route-policy && pnpm lint:arch && pnpm test:run && pnpm typecheck && pnpm lint && pnpm build && pnpm check:admin:bundle && pnpm check:admin-lite:bundle
+
+~/packages/portal-engine$ node ../../scripts/check-portal-materials.mjs ⊘ cache disabled
+[portal-engine] 物料一致性检查通过，共检查 27 个 config.json。
+
+
+> one-base-template@0.0.0 check:naming /Users/haoqiuzhi/code/one-base-template
+> pnpm check:naming:config && node ./scripts/check-naming.mjs
+
+
+> one-base-template@0.0.0 check:naming:config /Users/haoqiuzhi/code/one-base-template
+> node ./scripts/check-naming-whitelist-schema.mjs
+
+命名白名单 schema 校验通过。
+ ELIFECYCLE  Command failed with exit code 1.
+ ELIFECYCLE  Command failed with exit code 1.
+
+命名检查失败：共 2 处问题。
+- apps/admin/src/services/auth/ticket-service-url.ts:16  resolveTicketServiceUrl（不建议动词 "resolve"）
+- apps/admin-lite/src/services/auth/ticket-service-url.ts:16  resolveTicketServiceUrl（不建议动词 "resolve"）
+
+```
+
+## 2026-04-07（Harness 工程化 docs 补充验证）
+
+- 作用域：docs 指南与导航
+- 命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm -C apps/docs lint`：通过（exit=0）
+  - `pnpm -C apps/docs build`：通过（exit=0）
+- 输出摘要：
+
+```text
+$ pnpm -C apps/docs lint
+> docs@0.0.0 lint /Users/haoqiuzhi/code/one-base-template/apps/docs
+> vp lint .
+
+Found 0 warnings and 0 errors.
+Finished in 291ms on 4 files with 140 rules using 8 threads.
+
+$ pnpm -C apps/docs build
+> docs@0.0.0 build /Users/haoqiuzhi/code/one-base-template/apps/docs
+> node ../../scripts/run-docs-build.mjs
+
+
+  vitepress v2.0.0-alpha.17
+
+build complete in 5.23s.
+
+- building client + server bundles...
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[32m✓[0m building client + server bundles...
+- rendering pages...
+[32m✓[0m rendering pages...
+
+```
+
+## 2026-04-07（Harness 工程化全量复验）
+
+- 作用域：harness 脚本 + CI + docs + 命名门禁修复
+- 命令：
+  - `pnpm verify`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm verify`：失败（exit=1）
+- 输出摘要：
+
+```text
+$ pnpm verify
+91 |      checkPassword: undefined,
+92 |      changePassword: undefined,
+93 |      encryptPassword: identityEncryptPassword,
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^
+94 |      passwordPattern: undefined,
+95 |      passwordRuleMessage: '密码长度8-20位，至少包含大小写字母、数字、特殊字符中的3种及以上',
+  Plugin: vite:vue
+  File: /Users/haoqiuzhi/code/one-base-template/packages/ui/src/components/account-center/AccountCenterPanel.vue
+ ❯ ScriptCompileContext.error ../../node_modules/.pnpm/@vue+compiler-sfc@3.5.28/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:19785:11
+ ❯ ../../node_modules/.pnpm/@vue+compiler-sfc@3.5.28/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:24404:13
+ ❯ Object.enter ../../node_modules/.pnpm/@vue+compiler-core@3.5.28/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:1571:11
+ ❯ SyncWalker.visit ../../node_modules/.pnpm/estree-walker@2.0.2/node_modules/estree-walker/dist/umd/estree-walker.js:116:17
+ ❯ SyncWalker.visit ../../node_modules/.pnpm/estree-walker@2.0.2/node_modules/estree-walker/dist/umd/estree-walker.js:153:12
+ ❯ SyncWalker.visit ../../node_modules/.pnpm/estree-walker@2.0.2/node_modules/estree-walker/dist/umd/estree-walker.js:146:19
+ ❯ Object.walk ../../node_modules/.pnpm/estree-walker@2.0.2/node_modules/estree-walker/dist/umd/estree-walker.js:322:19
+ ❯ Object.walkIdentifiers ../../node_modules/.pnpm/@vue+compiler-core@3.5.28/node_modules/@vue/compiler-core/dist/compiler-core.cjs.js:1561:16
+ ❯ checkInvalidScopeReference ../../node_modules/.pnpm/@vue+compiler-sfc@3.5.28/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:24401:17
+ ❯ Object.compileScript ../../node_modules/.pnpm/@vue+compiler-sfc@3.5.28/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:24696:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+```
+
+## 2026-04-07（Harness 阻塞定位复现）
+
+- 作用域：packages/ui AccountCenterPanel 编译错误
+- 命令：
+  - `pnpm -C packages/ui typecheck`
+- 结果：
+  - `pnpm -C packages/ui typecheck`：通过（exit=0）
+- 输出摘要：
+
+```text
+$ pnpm -C packages/ui typecheck
+> @one-base-template/ui@0.0.0 typecheck /Users/haoqiuzhi/code/one-base-template/packages/ui
+> vue-tsc --noEmit
+
+```
+
+## 2026-04-07（Harness 工程化全量复验（修复后））
+
+- 作用域：harness + account-center 宏修复 + portal-engine 测试修复
+- 命令：
+  - `pnpm verify`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm verify`：失败（exit=2）
+- 输出摘要：
+
+```text
+$ pnpm verify
+Try `npm i --save-dev @types/vue-office__pptx` if it exists or add a new declaration (.d.ts) file containing `declare module '@vue-office/pptx/lib/v3/index.js';`
+../ui/src/components/preview/engines/PdfPreviewEngine.vue(3,26): error TS7016: Could not find a declaration file for module '@vue-office/pdf/lib/v3/index.js'. '/Users/haoqiuzhi/code/one-base-template/node_modules/.pnpm/@vue-office+pdf@2.0.10_vue-demi@0.14.10_vue@3.5.28_typescript@5.9.3___vue@3.5.28_typescript@5.9.3_/node_modules/@vue-office/pdf/lib/v3/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/vue-office__pdf` if it exists or add a new declaration (.d.ts) file containing `declare module '@vue-office/pdf/lib/v3/index.js';`
+../ui/src/components/rich-text/RichText.vue(5,62): error TS7016: Could not find a declaration file for module '@wangeditor/editor-for-vue'. '/Users/haoqiuzhi/code/one-base-template/node_modules/.pnpm/@wangeditor+editor-for-vue@5.1.12_@wangeditor+editor@5.1.23_vue@3.5.28_typescript@5.9.3_/node_modules/@wangeditor/editor-for-vue/dist/index.esm.js' implicitly has an 'any' type.
+  There are types at '/Users/haoqiuzhi/code/one-base-template/packages/ui/node_modules/@wangeditor/editor-for-vue/dist/src/index.d.ts', but this result could not be resolved when respecting package.json "exports". The '@wangeditor/editor-for-vue' library may need to update its package.json or typings.
+
+---
+vp run: 0/5 cache hit (0%), 1 failed. (Run `vp run --last-details` for full details)
+ ELIFECYCLE  Command failed with exit code 2.
+ ELIFECYCLE  Command failed with exit code 2.
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+```
+
+## 2026-04-07（docs：开发实践顶部栏移除“内置组件”入口）
+
+- 作用域：`apps/docs` 顶部导航与文档总览卡片。
+- 命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm -C apps/docs lint`：通过（exit=0）。
+  - `pnpm -C apps/docs build`：通过（exit=0）。
+- 输出摘要：
+
+```text
+$ pnpm -C apps/docs lint
+Found 0 warnings and 0 errors.
+
+$ pnpm -C apps/docs build
+vitepress v2.0.0-alpha.17
+✓ building client + server bundles...
+✓ rendering pages...
+build complete in 22.39s.
+```
+
+## 2026-04-07（Harness 工程化全量复验（最终现状））
+
+- 作用域：harness + 宏修复 + portal-engine 测试修复 + 类型门禁现状
+- 命令：
+  - `pnpm verify`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm verify`：失败（exit=2）
+- 输出摘要：
+
+```text
+$ pnpm verify
+src/modules/system-sfss/sunshine-petition/components/visit-list.vue(293,43): error TS2554: Expected 2 arguments, but got 1.
+src/modules/system-sfss/sunshine-petition/components/visit-list.vue(386,35): error TS2339: Property 'DISTRICT_CODE' does not exist on type '{ NAME: string; PHONE_NUM: string; IDCARD_NUM: string; prop: string; order: string; TYPE_ID: string; }'.
+src/modules/system-sfss/sunshine-petition/components/visit-list.vue(403,40): error TS2353: Object literal may only specify known properties, and 'value' does not exist in type 'TreeOptionProps'.
+../../packages/ui/src/components/auth/VerifySlide.vue(301,19): error TS2339: Property 'clientX' does not exist on type 'Event'.
+../../packages/ui/src/components/auth/VerifySlide.vue(325,21): error TS2339: Property 'clientX' does not exist on type 'Event'.
+
+---
+vp run: 0/13 cache hit (0%), 1 failed. (Run `vp run --last-details` for full details)
+ ELIFECYCLE  Command failed with exit code 2.
+ ELIFECYCLE  Command failed with exit code 2.
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+[1m[33m[@vue/compiler-sfc][0m[33m `v-model` cannot update a `const` reactive binding `localModel`. The compiler has transformed it to `let` to make the update work.[0m
+
+```
+
+## 2026-04-07（docs：四级导航重构）
+
+- 作用域：`apps/docs` 导航配置（顶栏/下拉/侧栏/锚点）与总览文案。
+- 命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm -C apps/docs lint`：通过（exit=0）。
+  - `pnpm -C apps/docs build`：通过（exit=0）。
+- 输出摘要：
+
+```text
+$ pnpm -C apps/docs lint
+Found 0 warnings and 0 errors.
+
+$ pnpm -C apps/docs build
+vitepress v2.0.0-alpha.17
+✓ building client + server bundles...
+✓ rendering pages...
+build complete in 5.18s.
+```
+
+## 2026-04-07（docs：维护治理总览页与治理分组导航）
+
+- 作用域：`apps/docs` 治理总览页、治理导航分组与总览卡片入口。
+- 命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm -C apps/docs lint`：通过（exit=0）。
+  - `pnpm -C apps/docs build`：通过（exit=0）。
+- 输出摘要：
+
+```text
+$ pnpm -C apps/docs lint
+Found 0 warnings and 0 errors.
+
+$ pnpm -C apps/docs build
+vitepress v2.0.0-alpha.17
+✓ building client + server bundles...
+✓ rendering pages...
+build complete in 5.77s.
+```
+
+## 2026-04-07（docs：指南下拉瘦身 + 开发实践总览）
+
+- 作用域：`apps/docs` 指南顶栏下拉、开发实践总览页与导航规则。
+- 命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `pnpm -C apps/docs lint`：通过（exit=0）。
+  - `pnpm -C apps/docs build`：通过（exit=0）。
+- 输出摘要：
+
+```text
+$ pnpm -C apps/docs lint
+Found 0 warnings and 0 errors.
+
+$ pnpm -C apps/docs build
+vitepress v2.0.0-alpha.17
+✓ building client + server bundles...
+✓ rendering pages...
+build complete in 5.29s.
+```

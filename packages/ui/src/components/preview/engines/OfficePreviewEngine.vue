@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+// @ts-expect-error 三方库未提供稳定类型声明，运行时可正常加载
 import VueOfficeDocx from '@vue-office/docx/lib/v3/index.js';
+// @ts-expect-error 三方库未提供稳定类型声明，运行时可正常加载
 import VueOfficeExcel from '@vue-office/excel/lib/v3/index.js';
+// @ts-expect-error 三方库未提供稳定类型声明，运行时可正常加载
 import VueOfficePptx from '@vue-office/pptx/lib/v3/index.js';
 import '@vue-office/docx/lib/v3/index.css';
 import '@vue-office/excel/lib/v3/index.css';

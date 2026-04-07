@@ -3,7 +3,7 @@ import {
   resolveAuthRedirectTargetFromSearchParams,
   startSsoCallbackStrategy
 } from '@one-base-template/core';
-import { resolveTicketServiceUrl } from '@/services/auth/ticket-service-url';
+import { buildTicketServiceUrl } from '@/services/auth/ticket-service-url';
 import { homeFallback } from '@/config/app';
 import type { BackendKind } from '@/bootstrap/runtime';
 import {
@@ -96,7 +96,7 @@ export async function startSsoScenario(options: ExecuteSsoScenarioOptions) {
     serviceUrlRaw: string | null;
     ticketRedirectUrlRaw: string | null;
   }) {
-    const serviceUrl = resolveTicketServiceUrl({
+    const serviceUrl = buildTicketServiceUrl({
       serviceUrlRaw: params.serviceUrlRaw,
       redirectUrlRaw: params.ticketRedirectUrlRaw,
       locationLike

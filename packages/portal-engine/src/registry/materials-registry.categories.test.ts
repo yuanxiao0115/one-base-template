@@ -30,7 +30,7 @@ describe('portal material categories', () => {
     const documentCardList = cmsItems.find((item) => item.id === 'cms-document-card-list');
     const publicityEducation = cmsItems.find((item) => item.id === 'cms-publicity-education');
 
-    expect(documentCardList?.name).toBe('卡片专栏');
-    expect(publicityEducation?.name).toBe('分页签图文轮播');
+    expect(documentCardList?.cmptName).toBe('卡片专栏');
+    expect(publicityEducation?.cmptName).toBe('分页签图文轮播');
   });
 });

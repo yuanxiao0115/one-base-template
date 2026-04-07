@@ -291,7 +291,7 @@ export default defineComponent({
     },
 
     start(e: MouseEvent | TouchEvent) {
-      const event = e || window.event;
+      const event = e;
 
       let x: number;
       if ('touches' in event) {
@@ -314,7 +314,7 @@ export default defineComponent({
     },
 
     move(e: MouseEvent | TouchEvent) {
-      const event = e || window.event;
+      const event = e;
       let x: number;
 
       if (this.status && this.isEnd === false) {

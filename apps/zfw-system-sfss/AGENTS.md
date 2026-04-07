@@ -93,6 +93,7 @@
 - `build`：`node ../../scripts/run-vp-build.mjs`
 - `bundle 预算`：`pnpm check:admin-lite:bundle`（在仓库根目录执行）
 - `lint:arch` 必须覆盖启动边界、模块边界、模板事件禁令、CRUD 红线与 API 红线。
+- `zfw-system-sfss` 当前属于迁移遗留应用：默认不纳入仓库根级 `typecheck/lint/build/test:run` 主门禁阻断；仅在改动本目录时执行本节“本地验证命令”做定向验收。
 
 ## 本地验证命令
 

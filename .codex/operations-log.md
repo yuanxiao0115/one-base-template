@@ -2,6 +2,35 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-07（Harness 工程化第一版：路由验证 + 证据落盘 + CI 对齐）
+
+- 背景：
+  - 用户要求在 `one-base-template` 落地 Harness 工程化，可直接用于日常开发验证与证据沉淀。
+- 本次收口：
+  - 新增验证路由脚本：`scripts/harness/verify-changed.mjs`
+    - 按改动范围自动路由：`docs` / `single-app` / `full`；
+    - 本地默认按工作区改动计算，CI 场景自动启用基线比较；
+    - 兼容 `pnpm run ... -- --xxx` 透传参数中的独立 `--`。
+  - 新增证据脚本：`scripts/harness/record-evidence.mjs`
+    - 顺序执行 `--cmd`；
+    - 失败即停止；
+    - 结果写入 `.codex/testing.md`；
+    - 全通过时写入 `.codex/verification/YYYY-MM-DD.md` 并更新 `.codex/verification.md` 最新索引。
+  - 根脚本接入：
+    - `package.json` 新增 `verify:changed`、`verify:evidence`。
+  - CI 工具链对齐：
+    - `.github/workflows/ci.yml` 的 Node/pnpm 版本统一到仓库基线（Node `20.19.0`，pnpm `10.32.1`）。
+  - docs 同步：
+    - 新增 `apps/docs/docs/guide/harness-engineering.md`；
+    - 同步 `apps/docs/docs/.vitepress/config.ts` 与 `apps/docs/docs/guide/index.md` 导航入口；
+    - `apps/docs/docs/guide/development.md` 增加 `verify:changed` 用法。
+- 验证结果：
+  - `pnpm verify:changed -- --dry-run`：通过（路由到 full，命中 `pnpm verify`）。
+  - `pnpm verify:evidence -- --title "Harness 工程化首轮验证" --cmd "pnpm verify" ...`：失败，阻塞在命名门禁（`resolveTicketServiceUrl`）。
+  - 命名修复：`apps/admin` 与 `apps/admin-lite` 的 `resolveTicketServiceUrl` 已统一改名为 `buildTicketServiceUrl`，`pnpm check:naming` 复验通过。
+  - `pnpm verify:evidence -- --title "Harness 工程化全量复验" --cmd "pnpm verify" ...`：仍失败，当前阻塞点为 `packages/ui/src/components/account-center/AccountCenterPanel.vue` 的既有 SFC 编译错误（与本轮 harness 脚本改动无直接耦合）。
+  - `pnpm verify:evidence -- --title "Harness 工程化 docs 补充验证" --cmd "pnpm -C apps/docs lint" --cmd "pnpm -C apps/docs build"`：通过并已落盘验证索引。
+
 ## 2026-04-04（packages/ui：补充单元测试并打通覆盖率命令）
 
 - 背景：
@@ -12591,5 +12620,104 @@
   - 新增：`apps/docs/docs/components/ob-account-center-panel.md`
   - 更新：
     - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/components/index.md`
+  - `apps/docs/docs/guide/built-in-components.md`
+
+## 2026-04-07（Milestone B：CommandPalette 组件沉淀与三端接入）
+
+- 背景：
+  - 按 P0 计划继续执行 `ObCommandPalette`，统一三端顶栏菜单搜索能力（快捷键 + 历史记录 + 快速跳转）。
+- 组件沉淀（`packages/ui`）：
+  - 新增目录：`packages/ui/src/components/command-palette/**`
+  - 新增文件：
+    - `CommandPalette.vue`
+    - `CommandPaletteHistory.vue`
+    - `CommandPaletteResult.vue`
+    - `CommandPaletteFooter.vue`
+    - `useCommandPalette.ts`
+    - `types.ts`
+    - `index.ts`
+    - `useCommandPalette.test.ts`
+  - `packages/ui/src/{index.ts,plugin.ts,plugin-obtable.ts}` 同步导出与全局注册 `ObCommandPalette`。
+  - `packages/ui/src/{index.test.ts,plugin.test.ts}` 增加入口导出与插件注册回归断言。
+- 三端接入：
+  - `apps/{admin,admin-lite,zfw-system-sfss}/src/components/top/AdminTopBar.vue`
+    - 顶栏右侧接入 `ObCommandPalette`；
+    - 使用 `menuStore.menus` 作为菜单源；
+    - 通过 `@navigate` 回调处理站内跳转与外链打开；
+    - 历史 key 按 `currentSystemCode` 分片隔离。
+- 文档同步：
+  - 新增：`apps/docs/docs/components/ob-command-palette.md`
+  - 更新：
+    - `apps/docs/docs/.vitepress/config.ts`
     - `apps/docs/docs/components/index.md`
     - `apps/docs/docs/guide/built-in-components.md`
+    - `docs/plans/2026-04-07-admin-infra-components-p0-plan.md`（Milestone B 勾选与验收备注）
+
+## 2026-04-07（docs：开发实践顶部栏去除“内置组件”入口）
+
+- 背景：用户要求“开发实践”顶部下拉不再展示“内置组件”菜单，避免与“组件库”顶栏入口重复。
+- 处理：
+  - `apps/docs/docs/.vitepress/config.ts`
+    - `practiceNavItems` 移除 `practiceBuiltinItems`，仅对顶部导航生效。
+  - `apps/docs/docs/guide/index.md`
+    - “开发实践”卡片区移除“内置组件（Ob 系列）”卡片，保留“组件库（Ob 系列）”入口。
+  - `apps/docs/AGENTS.md`
+    - 新增“顶栏去重”规则：`开发实践` 顶栏不再挂载“内置组件（Ob 系列）”，组件入口统一走 `组件库` 顶栏。
+- 验证：
+  - `pnpm -C apps/docs lint` 通过。
+  - `pnpm -C apps/docs build` 通过（保留既有 chunk size / plugin timings 非阻断提示）。
+
+## 2026-04-07（docs：四级导航重构，收敛冗余）
+
+- 背景：用户反馈 docs 导航“顶部下拉与左侧菜单重复、层次混乱”，要求按四级模型重构。
+- 四级模型落地：
+  - L1 顶部菜单（域）：收敛为 `首页 / 指南 / 组件库 / 扩展能力 / 维护治理`。
+  - L2 顶部下拉（模块）：
+    - `指南` 下拉按分组承载“按水平 / 入门 / 架构 / 开发实践”；
+    - `维护治理` 下拉改为精简入口（高频 6 项），不再全量铺开 14 项。
+  - L3 左侧菜单（域内横跳）：
+    - `开发实践` 由“按单页拆分侧栏”改为统一 `practiceSidebar`；
+    - `扩展能力` 由分散 sidebar 改为统一 `extensionSidebar` 多分组。
+  - L4 右侧锚点（页内定位）：全站 `outline` 从 `[2,3]` 收敛为 `[2]`，降低长文档锚点噪音。
+- 变更文件：
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/index.md`
+  - `apps/docs/AGENTS.md`
+- 验证：
+  - `pnpm -C apps/docs lint` 通过。
+  - `pnpm -C apps/docs build` 通过（保留既有 chunk size 非阻断提示）。
+
+## 2026-04-07（docs：维护治理总览页 + 治理分组导航）
+
+- 背景：用户确认继续收敛 docs 导航，目标是进一步降低“维护治理”入口拥挤与重复。
+- 本次处理：
+  - 新增 `apps/docs/docs/guide/governance.md`，作为维护治理统一总览入口（任务直达 + 专题地图）。
+  - `apps/docs/docs/.vitepress/config.ts`：
+    - 新增治理分组数据结构：`governanceOverviewItems / governanceQualityItems / governanceRuleItems / governanceReleaseItems / governanceDocItems`。
+    - 顶部下拉 `governanceNavItems` 收敛为“总览 + 高频入口”。
+    - 左侧 `governanceSidebar` 改为 5 组分栏（总览/质量门禁/规则治理/发布与版本/文档与协作）。
+    - 新增 `/guide/governance` 的 sidebar 路由映射。
+  - `apps/docs/docs/guide/index.md`：维护治理卡片区改为“总览优先 + 高频入口”，移除低频卡片堆叠。
+  - `apps/docs/AGENTS.md`：补充规则，维护治理新增专题页优先同步到 `/guide/governance` 分组。
+- 验证：
+  - `pnpm -C apps/docs lint` 通过。
+  - `pnpm -C apps/docs build` 通过（保留既有 chunk size 非阻断提示）。
+
+## 2026-04-07（docs：指南下拉瘦身 + 开发实践总览）
+
+- 背景：用户确认继续第三轮收敛，目标是进一步缩短“指南”顶部下拉并保留任务导流能力。
+- 本次处理：
+  - `apps/docs/docs/.vitepress/config.ts`
+    - `guideNavItems` 从嵌套分组改为“总览 + 高频入口”5 项：`/guide/`、`/guide/levels/`、`/guide/quick-start`、`/guide/architecture`、`/guide/practice`。
+    - 新增 `/guide/practice` 路由映射到 `practiceSidebar`。
+    - 清理未使用变量 `practiceNavItems`（修复 lint 阻断）。
+  - 新增 `apps/docs/docs/guide/practice.md`
+    - 作为开发实践总览页，沉淀任务直达与专题地图（CRUD / 表格 / 组件图标 / Utils）。
+  - `apps/docs/docs/guide/index.md`
+    - 开发实践卡片区新增“开发实践总览”入口，承担总览导流。
+  - `apps/docs/AGENTS.md`
+    - 补充“指南下拉总览化”规则：详细分流落到总览页与左侧菜单。
+- 验证：
+  - `pnpm -C apps/docs lint` 通过。
+  - `pnpm -C apps/docs build` 通过（保留既有 chunk size 非阻断提示）。

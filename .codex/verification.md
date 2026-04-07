@@ -6,7 +6,7 @@
 
 - 日期：2026-04-07
 - 文件：`.codex/verification/2026-04-07.md`
-- 补充：新增“P0 Milestone A：AccountCenter 组件沉淀与三端接入”验证记录，包含 `packages/ui`、`admin/admin-lite`、`apps/docs` 的验证证据与 `zfw-system-sfss typecheck` 既有非阻断说明。
+- 补充：P0 Milestone A（AccountCenter）与 Milestone B（CommandPalette）组件沉淀及三端接入验证记录。
 
 ## 历史归档
 
@@ -223,3 +223,45 @@
 
 - 备注：
   - 构建阶段仍有 chunk size 提示，为既有非阻断告警。
+
+## 2026-04-07（docs：开发实践顶部栏移除“内置组件”入口）
+
+- 影响范围：
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/index.md`
+- 结论：
+  - 已移除“开发实践”顶栏下拉中的“内置组件（Ob 系列）”入口。
+  - `pnpm -C apps/docs lint`、`pnpm -C apps/docs build` 均通过。
+
+## 2026-04-07（docs：四级导航重构）
+
+- 影响范围：
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/index.md`
+  - `apps/docs/AGENTS.md`
+- 结论：
+  - 已按四级模型收敛导航职责，减少顶栏下拉与左侧菜单重复。
+  - `pnpm -C apps/docs lint`、`pnpm -C apps/docs build` 均通过。
+
+## 2026-04-07（docs：维护治理总览页与治理分组导航）
+
+- 影响范围：
+  - `apps/docs/docs/guide/governance.md`
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/index.md`
+  - `apps/docs/AGENTS.md`
+- 结论：
+  - 已新增维护治理总览页，并将治理导航收敛为“高频下拉 + 分组侧栏”。
+  - `pnpm -C apps/docs lint`、`pnpm -C apps/docs build` 均通过。
+
+## 2026-04-07（docs：指南下拉瘦身 + 开发实践总览）
+
+- 影响范围：
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/practice.md`
+  - `apps/docs/docs/guide/index.md`
+  - `apps/docs/AGENTS.md`
+- 结论：
+  - `指南` 顶部下拉已收敛为“总览 + 高频入口”。
+  - 已新增 `开发实践总览` 承接细分任务导流。
+  - `pnpm -C apps/docs lint`、`pnpm -C apps/docs build` 均通过。

@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, shallowRef } from 'vue';
 import { useFormItem } from 'element-plus';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/editor';
+// @ts-expect-error 三方库 exports 与类型声明不一致，运行时可正常加载
 import { Editor as WangEditor, Toolbar as WangToolbar } from '@wangeditor/editor-for-vue';
 import '@wangeditor/editor/dist/css/style.css';
 import { message } from '../../feedback/message';
