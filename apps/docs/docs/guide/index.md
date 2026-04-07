@@ -5,6 +5,7 @@ outline: false
 # 文档总览
 
 文档按“大目录”组织：**入门 → 架构 → 开发实践 → 扩展能力 → 维护治理**。
+站点导航按四级组织：**顶部菜单（域）→ 顶部下拉（模块）→ 左侧菜单（域内横跳）→ 右侧锚点（页内定位）**。
 
 ## 🧭 按水平进入（推荐主入口）
 
@@ -103,6 +104,10 @@ outline: false
 <p class="guide-section-intro">沉淀组件与页面开发范式，保持实现一致性。</p>
 
 <div class="guide-grid">
+  <a class="guide-card" href="/guide/practice">
+    <h3>开发实践总览</h3>
+    <p>按 CRUD / 表格 / 组件 / 图标 / Utils 五类任务快速定位实践规范。</p>
+  </a>
   <a class="guide-card" href="/guide/crud-module-best-practice">
     <h3>CRUD 开发规范</h3>
     <p>合并 CRUD 容器与模块实践，按一条主线完成列表与弹层开发。</p>
@@ -110,10 +115,6 @@ outline: false
   <a class="guide-card" href="/guide/table-vxe-migration">
     <h3>表格开发规范</h3>
     <p>统一 `ObPageContainer + ObTableBox + ObTable` 的页面编排与交互约定。</p>
-  </a>
-  <a class="guide-card" href="/guide/built-in-components">
-    <h3>内置组件（Ob 系列）</h3>
-    <p>快速了解已封装组件能力边界与最小接入方式。</p>
   </a>
   <a class="guide-card" href="/components/">
     <h3>组件库（Ob 系列）</h3>
@@ -153,41 +154,25 @@ outline: false
 <p class="guide-section-intro">变更前后检查、规则落盘与版本发布。</p>
 
 <div class="guide-grid">
+  <a class="guide-card" href="/guide/governance">
+    <h3>维护治理总览</h3>
+    <p>按“质量门禁 / 规则治理 / 发布版本 / 文档协作”四组快速定位治理入口。</p>
+  </a>
   <a class="guide-card" href="/guide/development">
     <h3>开发规范与维护</h3>
     <p>验证命令、构建策略、文档同步与工程约束。</p>
+  </a>
+  <a class="guide-card" href="/guide/harness-engineering">
+    <h3>Harness 工程化落地</h3>
+    <p>按改动范围自动路由验证命令，并将验证证据自动落盘到 .codex。</p>
   </a>
   <a class="guide-card" href="/guide/testing-coverage-governance">
     <h3>测试与覆盖率门禁（组件库）</h3>
     <p>统一 `packages/ui` 的单测执行、覆盖率阈值与测试产物处理策略。</p>
   </a>
-  <a class="guide-card" href="/guide/tech-doc-collaboration">
-    <h3>技术文档协作与改造</h3>
-    <p>按“分析 -> 改造 -> 验收”主线执行 docs 页面治理与持续维护。</p>
-  </a>
-  <a class="guide-card" href="/guide/monorepo-web-migration-pitfalls">
-    <h3>迁移踩坑清单（monorepo-web）</h3>
-    <p>沉淀已踩坑与纠偏动作，减少迁移重复返工。</p>
-  </a>
   <a class="guide-card" href="/guide/agents-scope">
     <h3>AGENTS 规则分层</h3>
     <p>全仓规则与子项目规则的适用范围和维护方式。</p>
-  </a>
-  <a class="guide-card" href="/guide/agent-harness">
-    <h3>Agent Harness 与仓库知识</h3>
-    <p>明确全局运行时与仓库项目知识的分工边界。</p>
-  </a>
-  <a class="guide-card" href="/guide/admin-agent-redlines">
-    <h3>Admin Agent 红线</h3>
-    <p>公共组件复用、CRUD 范式与 lint:arch 门禁的强制基线。</p>
-  </a>
-  <a class="guide-card" href="/guide/admin-lite-agent-redlines">
-    <h3>admin-lite Agent 红线</h3>
-    <p>约束后台基座的默认模块、启动骨架、可开关扩展与派生边界。</p>
-  </a>
-  <a class="guide-card" href="/guide/naming-whitelist">
-    <h3>命名白名单（CLI）</h3>
-    <p>统一动词+名词命名，保证脚手架生成物可维护。</p>
   </a>
   <a class="guide-card" href="/guide/package-release">
     <h3>子包发布与版本控制</h3>
@@ -196,10 +181,6 @@ outline: false
   <a class="guide-card" href="/guide/package-version-governance">
     <h3>子包版本治理 SOP（多主线）</h3>
     <p>定义 main/LTS 分支协作方式，支撑 1.x 与 2.x 并行维护。</p>
-  </a>
-  <a class="guide-card" href="/guide/business-integration-version-matrix">
-    <h3>业务接入版本矩阵与迁移模板</h3>
-    <p>用矩阵管理业务项目版本线，并提供跨 major 迁移模板。</p>
   </a>
 </div>
 

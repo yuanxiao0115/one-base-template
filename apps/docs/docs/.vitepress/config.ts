@@ -34,12 +34,19 @@ const practiceUtilsItems = [
   { text: 'Utils 工具包（总览）', link: '/guide/utils' },
   { text: 'Utils API 速查（按模块）', link: '/guide/utils-api' }
 ];
-const practiceNavItems = [
+const practiceSidebarItems = [
   ...practiceCrudItems,
   ...practiceTableItems,
   ...practiceBuiltinItems,
   ...practiceIconItems,
   ...practiceUtilsItems
+];
+const guideNavItems = [
+  { text: '指南总览', link: '/guide/' },
+  { text: '按水平进入', link: '/guide/levels/' },
+  { text: '快速开始', link: '/guide/quick-start' },
+  { text: '架构与运行时', link: '/guide/architecture' },
+  { text: '开发实践总览', link: '/guide/practice' }
 ];
 
 const componentLibraryOverviewItems = [{ text: '组件库总览', link: '/components/' }];
@@ -58,6 +65,7 @@ const componentBusinessItems = [
   { text: 'ObPersonnelSelector（人员选择器）', link: '/components/ob-personnel-selector' },
   { text: 'ObRichText（富文本编辑器）', link: '/components/ob-rich-text' },
   { text: 'ObAccountCenterPanel（账号中心面板）', link: '/components/ob-account-center-panel' },
+  { text: 'ObCommandPalette（菜单搜索面板）', link: '/components/ob-command-palette' },
   { text: 'ObMenuIconInput（菜单图标输入）', link: '/components/ob-menu-icon-input' },
   { text: 'ObCard（卡片）', link: '/components/ob-card' },
   { text: 'ObColorField（颜色输入）', link: '/components/ob-color-field' }
@@ -94,20 +102,35 @@ const extensionNavItems = [
   ...extensionAdapterItems
 ];
 
-const governanceItems = [
+const governanceOverviewItems = [{ text: '维护治理总览', link: '/guide/governance' }];
+const governanceQualityItems = [
   { text: '开发规范与维护', link: '/guide/development' },
-  { text: '测试与覆盖率门禁（组件库）', link: '/guide/testing-coverage-governance' },
-  { text: '技术文档协作与改造', link: '/guide/tech-doc-collaboration' },
-  { text: '迁移踩坑清单（monorepo-web）', link: '/guide/monorepo-web-migration-pitfalls' },
+  { text: 'Harness 工程化落地', link: '/guide/harness-engineering' },
+  { text: '测试与覆盖率门禁（组件库）', link: '/guide/testing-coverage-governance' }
+];
+const governanceRuleItems = [
   { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
   { text: 'Agent Harness 与仓库知识', link: '/guide/agent-harness' },
   { text: 'Admin Agent 红线', link: '/guide/admin-agent-redlines' },
   { text: 'admin-lite Agent 红线', link: '/guide/admin-lite-agent-redlines' },
-  { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' },
+  { text: '命名白名单（CLI）', link: '/guide/naming-whitelist' }
+];
+const governanceReleaseItems = [
   { text: '子包发布与版本控制', link: '/guide/package-release' },
   { text: '子包版本治理 SOP（多主线）', link: '/guide/package-version-governance' },
-  { text: '业务接入版本矩阵与迁移模板', link: '/guide/business-integration-version-matrix' },
+  { text: '业务接入版本矩阵与迁移模板', link: '/guide/business-integration-version-matrix' }
+];
+const governanceDocItems = [
+  { text: '技术文档协作与改造', link: '/guide/tech-doc-collaboration' },
+  { text: '迁移踩坑清单（monorepo-web）', link: '/guide/monorepo-web-migration-pitfalls' },
   { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' }
+];
+const governanceNavItems = [
+  ...governanceOverviewItems,
+  ...governanceQualityItems,
+  { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
+  { text: '子包发布与版本控制', link: '/guide/package-release' },
+  { text: '子包版本治理 SOP（多主线）', link: '/guide/package-version-governance' }
 ];
 
 const roleItems = [
@@ -125,11 +148,7 @@ const asSidebar = (moduleText: string, items: ReadonlyArray<{ text: string; link
 const introSidebar = asSidebar('入门', introItems);
 const levelSidebar = asSidebar('按水平进入', levelItems);
 const architectureSidebar = asSidebar('架构与运行时', architectureItems);
-const practiceCrudSidebar = asSidebar('开发实践 / CRUD', practiceCrudItems);
-const practiceTableSidebar = asSidebar('开发实践 / 表格', practiceTableItems);
-const practiceBuiltinSidebar = asSidebar('开发实践 / 内置组件', practiceBuiltinItems);
-const practiceIconSidebar = asSidebar('开发实践 / 图标', practiceIconItems);
-const practiceUtilsSidebar = asSidebar('开发实践 / Utils', practiceUtilsItems);
+const practiceSidebar = asSidebar('开发实践', practiceSidebarItems);
 const componentLibrarySidebar = [
   {
     text: '组件库总览',
@@ -148,10 +167,42 @@ const componentLibrarySidebar = [
     items: [...componentFoundationItems]
   }
 ];
-const extensionDocumentSidebar = asSidebar('扩展能力 / 公文表单', extensionDocumentItems);
-const extensionPortalSidebar = asSidebar('扩展能力 / 门户设计器', extensionPortalItems);
-const extensionAdapterSidebar = asSidebar('扩展能力 / basic Adapter', extensionAdapterItems);
-const governanceSidebar = asSidebar('维护治理', governanceItems);
+const extensionSidebar = [
+  {
+    text: '扩展能力 / 公文表单',
+    items: [...extensionDocumentItems]
+  },
+  {
+    text: '扩展能力 / 门户设计器',
+    items: [...extensionPortalItems]
+  },
+  {
+    text: '扩展能力 / basic Adapter',
+    items: [...extensionAdapterItems]
+  }
+];
+const governanceSidebar = [
+  {
+    text: '维护治理 / 总览',
+    items: [...governanceOverviewItems]
+  },
+  {
+    text: '维护治理 / 质量门禁',
+    items: [...governanceQualityItems]
+  },
+  {
+    text: '维护治理 / 规则治理',
+    items: [...governanceRuleItems]
+  },
+  {
+    text: '维护治理 / 发布与版本',
+    items: [...governanceReleaseItems]
+  },
+  {
+    text: '维护治理 / 文档与协作',
+    items: [...governanceDocItems]
+  }
+];
 const roleSidebar = asSidebar('角色入口', roleItems);
 
 const guideHomeSidebar = [
@@ -181,20 +232,8 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       {
-        text: '按水平',
-        items: levelItems
-      },
-      {
-        text: '入门',
-        items: [{ text: '文档总览', link: '/guide/' }, ...introItems]
-      },
-      {
-        text: '架构',
-        items: architectureItems
-      },
-      {
-        text: '开发实践',
-        items: practiceNavItems
+        text: '指南',
+        items: guideNavItems
       },
       {
         text: '组件库',
@@ -206,16 +245,16 @@ export default defineConfig({
       },
       {
         text: '维护治理',
-        items: governanceItems
+        items: governanceNavItems
       }
     ],
     sidebar: {
       '/components/': componentLibrarySidebar,
 
-      '/guide/document-form-designer': extensionDocumentSidebar,
-      '/guide/document-form-sheet-schema': extensionDocumentSidebar,
-      '/guide/portal/': extensionPortalSidebar,
-      '/guide/adapter-basic': extensionAdapterSidebar,
+      '/guide/document-form-designer': extensionSidebar,
+      '/guide/document-form-sheet-schema': extensionSidebar,
+      '/guide/portal/': extensionSidebar,
+      '/guide/adapter-basic': extensionSidebar,
 
       '/guide/quick-start': introSidebar,
       '/guide/env': introSidebar,
@@ -231,15 +270,18 @@ export default defineConfig({
       '/guide/layout-menu': architectureSidebar,
       '/guide/theme-system': architectureSidebar,
 
-      '/guide/crud-container': practiceCrudSidebar,
-      '/guide/crud-module-best-practice': practiceCrudSidebar,
-      '/guide/table-vxe-migration': practiceTableSidebar,
-      '/guide/built-in-components': practiceBuiltinSidebar,
-      '/guide/iconfont': practiceIconSidebar,
-      '/guide/utils': practiceUtilsSidebar,
-      '/guide/utils-api': practiceUtilsSidebar,
+      '/guide/crud-container': practiceSidebar,
+      '/guide/crud-module-best-practice': practiceSidebar,
+      '/guide/practice': practiceSidebar,
+      '/guide/table-vxe-migration': practiceSidebar,
+      '/guide/built-in-components': practiceSidebar,
+      '/guide/iconfont': practiceSidebar,
+      '/guide/utils': practiceSidebar,
+      '/guide/utils-api': practiceSidebar,
 
+      '/guide/governance': governanceSidebar,
       '/guide/development': governanceSidebar,
+      '/guide/harness-engineering': governanceSidebar,
       '/guide/testing-coverage-governance': governanceSidebar,
       '/guide/tech-doc-collaboration': governanceSidebar,
       '/guide/monorepo-web-migration-pitfalls': governanceSidebar,
@@ -259,7 +301,7 @@ export default defineConfig({
       '/guide/': guideHomeSidebar
     },
     search: { provider: 'local' },
-    outline: { level: [2, 3], label: '本页导航' },
+    outline: { level: [2], label: '本页导航' },
     docFooter: {
       prev: '上一页',
       next: '下一页'
