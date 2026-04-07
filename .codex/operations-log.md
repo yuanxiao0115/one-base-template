@@ -2,6 +2,26 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-07（admin/admin-lite 清理遗留 MenuIconInput 与 public/fonts）
+
+- 背景：
+  - 用户要求继续“清理收口”，并明确本轮不考虑 `zfw-system-sfss`。
+- 本次收口：
+  - 删除 `apps/admin` 与 `apps/admin-lite` 下已无引用的遗留本地菜单图标组件与常量：
+    - `src/modules/adminManagement/menu/components/MenuIconInput.vue`
+    - `src/modules/adminManagement/menu/components/MenuIconInput.css`
+    - `src/modules/adminManagement/menu/constants/iconfont-sources.ts`
+  - 删除 `apps/admin/public/fonts/**` 与 `apps/admin-lite/public/fonts/**` 全量静态资源目录（含 `iconfont.json/css/js/ttf/woff/woff2/demo*`），避免与 `packages/ui` 的内置 iconfont 资产重复维护。
+  - 代码检索复核：
+    - `apps/admin/src`、`apps/admin-lite/src` 已无 `MenuIconInput` 本地组件和 `/fonts/*/iconfont.json` 依赖链路。
+  - 范围约束：
+    - `apps/zfw-system-sfss/**` 未改动。
+- 验证结果：
+  - `pnpm -C apps/admin build`：通过。
+  - `pnpm check:admin:bundle`：通过（全部预算 PASS）。
+  - `pnpm -C apps/admin-lite build`：通过。
+  - `pnpm check:admin-lite:bundle`：通过（全部预算 PASS）。
+
 ## 2026-04-07（MenuIconInput 图标源收口：移除 packages 对 app public/fonts 的 json 依赖）
 
 - 背景：

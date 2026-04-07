@@ -2,6 +2,17 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-07（admin/admin-lite 清理遗留 MenuIconInput 与 public/fonts）
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin build`
+  - `pnpm check:admin:bundle`
+  - `pnpm -C apps/admin-lite build`
+  - `pnpm check:admin-lite:bundle`
+- 结果：
+  - 两端构建成功，且 bundle 预算门禁全部 PASS（`iconify-ri`、`wangeditor`、`element-plus`、startup js count/gzip、tiny chunks）。
+  - 清理后 `apps/admin/src` 与 `apps/admin-lite/src` 已无本地 `MenuIconInput` / `iconfont-sources` / `/fonts/*/iconfont.json` 依赖。
+
 ## 2026-04-07（MenuIconInput 图标源收口：packages 内置 glyph）
 
 - GREEN / 回归：
