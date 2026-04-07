@@ -193,3 +193,18 @@
 
 - 已知风险：
   - 仍有 `vitest` 与 `@vitest/coverage-v8` 版本混用告警（非阻断）；建议后续统一依赖版本以消除潜在兼容风险。
+
+## 2026-04-07（docs：测试与覆盖率门禁文档同步）
+
+- 影响范围：
+  - `apps/docs/docs/guide/testing-coverage-governance.md`
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/guide/index.md`
+
+- 验证结论：
+  - 新文档已接入维护治理导航与总览卡片，入口可检索。
+  - `pnpm -C apps/docs lint` 通过。
+  - `pnpm -C apps/docs build` 通过。
+
+- 备注：
+  - 构建过程中仍有 chunk size 提示，为既有非阻断告警。

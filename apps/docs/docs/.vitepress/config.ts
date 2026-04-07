@@ -95,6 +95,7 @@ const extensionNavItems = [
 
 const governanceItems = [
   { text: '开发规范与维护', link: '/guide/development' },
+  { text: '测试与覆盖率门禁（组件库）', link: '/guide/testing-coverage-governance' },
   { text: '技术文档协作与改造', link: '/guide/tech-doc-collaboration' },
   { text: '迁移踩坑清单（monorepo-web）', link: '/guide/monorepo-web-migration-pitfalls' },
   { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
@@ -238,6 +239,7 @@ export default defineConfig({
       '/guide/utils-api': practiceUtilsSidebar,
 
       '/guide/development': governanceSidebar,
+      '/guide/testing-coverage-governance': governanceSidebar,
       '/guide/tech-doc-collaboration': governanceSidebar,
       '/guide/monorepo-web-migration-pitfalls': governanceSidebar,
       '/guide/agents-scope': governanceSidebar,

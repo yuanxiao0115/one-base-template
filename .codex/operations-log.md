@@ -12529,3 +12529,16 @@
 - 验证结果：
   - 全量测试：`20 files / 82 tests` 通过。
   - 覆盖率：`Statements 89.12% / Branches 77.04% / Functions 91.11% / Lines 89.37%`，满足阈值门禁。
+
+## 2026-04-07（docs：补充组件库测试与覆盖率门禁文档）
+
+- 背景：用户要求补 `doc`，将已落地的 `packages/ui` 覆盖率门禁与测试产物策略沉淀到文档站。
+- 新增页面：
+  - `apps/docs/docs/guide/testing-coverage-governance.md`
+    - 覆盖适用范围、问题价值、阈值基线、最小执行路径、产物处理、风险与维护责任。
+- 导航同步：
+  - `apps/docs/docs/.vitepress/config.ts`（`governanceItems` 与 sidebar 路由映射增加新页）
+  - `apps/docs/docs/guide/index.md`（维护治理卡片新增入口）
+- 验证：
+  - `pnpm -C apps/docs lint` 通过。
+  - `pnpm -C apps/docs build` 通过（保留既有 chunk size 非阻断提示）。

@@ -157,6 +157,10 @@ outline: false
     <h3>开发规范与维护</h3>
     <p>验证命令、构建策略、文档同步与工程约束。</p>
   </a>
+  <a class="guide-card" href="/guide/testing-coverage-governance">
+    <h3>测试与覆盖率门禁（组件库）</h3>
+    <p>统一 `packages/ui` 的单测执行、覆盖率阈值与测试产物处理策略。</p>
+  </a>
   <a class="guide-card" href="/guide/tech-doc-collaboration">
     <h3>技术文档协作与改造</h3>
     <p>按“分析 -> 改造 -> 验收”主线执行 docs 页面治理与持续维护。</p>

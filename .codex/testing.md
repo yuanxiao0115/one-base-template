@@ -10991,3 +10991,13 @@
 
 - 备注：
   - `test:coverage` 仍提示 `vitest@0.1.14` 与 `@vitest/coverage-v8@4.1.2` 版本混用告警，但不阻断执行（exit code 0）。
+
+## 2026-04-07（docs：测试与覆盖率门禁文档页）
+
+- 验证命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - docs lint 通过（`0 warning / 0 error`）。
+  - docs build 通过（存在 chunk size warning，非阻断）。
