@@ -225,6 +225,31 @@
   - `pnpm check:naming`
   - `pnpm -C apps/docs lint`
   - `pnpm -C apps/docs build`
+
+## 2026-04-07（P0 Milestone A：AccountCenter 组件沉淀与三端接入）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin-lite lint`
+  - `pnpm -C apps/zfw-system-sfss lint:arch`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - `packages/ui`：`vue-tsc` 通过；`vp lint` 0 warning / 0 error。
+  - `apps/admin`：`typecheck` 通过；`lint` 仅存在既有 `max-lines` 4 条 warning（非本次改动引入）。
+  - `apps/admin-lite`：`typecheck` 与 `lint` 均通过。
+  - `apps/zfw-system-sfss`：`lint:arch` 通过。
+  - `apps/docs`：`lint` 0 warning / 0 error；`build` 成功（保留 chunk size 非阻断提示）。
+- RED（非本次改动阻断项）：
+  - `pnpm -C apps/zfw-system-sfss typecheck`
+  - 失败信息：
+    - 应用内存在既有 legacy 类型债务（`system-sfss` 多处 `unknown` 字段访问、`{}` 上访问 `code/data` 等）；
+    - 另有既有依赖类型问题（`../../packages/ui/src/components/auth/VerifySlide.vue` 与 `../../packages/ui/src/components/preview/engines/OfdPreviewEngine.vue`）。
+  - 说明：本轮仅改动 `AdminTopBar`，未触碰上述失败文件。
   - `pnpm check:admin:bundle`
   - `pnpm check:admin-lite:bundle`
 - 结果：

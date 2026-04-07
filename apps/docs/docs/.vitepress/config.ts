@@ -57,6 +57,7 @@ const componentBusinessItems = [
   { text: 'ObFilePreview（文件预览）', link: '/components/ob-file-preview' },
   { text: 'ObPersonnelSelector（人员选择器）', link: '/components/ob-personnel-selector' },
   { text: 'ObRichText（富文本编辑器）', link: '/components/ob-rich-text' },
+  { text: 'ObAccountCenterPanel（账号中心面板）', link: '/components/ob-account-center-panel' },
   { text: 'ObMenuIconInput（菜单图标输入）', link: '/components/ob-menu-icon-input' },
   { text: 'ObCard（卡片）', link: '/components/ob-card' },
   { text: 'ObColorField（颜色输入）', link: '/components/ob-color-field' }

@@ -13,12 +13,8 @@ import { message } from '@one-base-template/ui';
 import { ui } from '@/config';
 import { routePaths } from '@/router/constants';
 import authAccountService from '@/services/auth/auth-account-service';
-import {
-  buildAvatarFallbackText,
-  isAvatarHidden
-} from '@/services/auth/auth-avatar-preference-service';
-import UserProfileDialog from './dialogs/UserProfileDialog.vue';
-import ChangePasswordDialog from './dialogs/ChangePasswordDialog.vue';
+import { isAvatarHidden, setAvatarHidden } from '@/services/auth/auth-avatar-preference-service';
+import { sm4EncryptBase64 } from '@/services/security/crypto';
 
 interface TenantOption {
   id: string;
@@ -33,24 +29,11 @@ const menuStore = useMenuStore();
 const systemStore = useSystemStore();
 const tagStore = useTagStoreHook();
 
-const profileDialogVisible = ref(false);
-const changePasswordDialogVisible = ref(false);
 const personalizationDrawerVisible = ref(false);
 const tenantLoading = ref(false);
 const tenantSwitching = ref(false);
 const tenantOptions = ref<TenantOption[]>([]);
 const currentTenantId = ref('');
-const avatarTimestamp = ref(Date.now());
-const avatarLoadErrorMap = ref<Record<string, boolean>>({});
-
-const userName = computed(() => authStore.user?.name ?? '未登录');
-const userDisplayName = computed(
-  () =>
-    authStore.user?.nickName ||
-    authStore.user?.name ||
-    authStore.user?.userAccount ||
-    userName.value
-);
 const currentSystemCode = computed(() => systemStore.currentSystemCode);
 const systems = computed(() => systemStore.systems);
 const showSystemSwitcher = computed(() => systems.value.length > 1);
@@ -80,42 +63,7 @@ const isSuperAdmin = computed(() => {
 });
 
 const showTenantSwitcher = computed(() => {
-  return (
-    ui.topbar.tenantSwitcher && isSuperAdmin.value && tenantOptions.value.length > 0
-  );
-});
-const userId = computed(() => {
-  const id = authStore.user?.id;
-  return id == null ? '' : String(id);
-});
-
-const userAvatar = computed(() => {
-  const user = authStore.user;
-  if (!user) {
-    return '';
-  }
-
-  if (isAvatarHidden(user.id)) {
-    return '';
-  }
-
-  const currentUserId = userId.value;
-  if (currentUserId && avatarLoadErrorMap.value[currentUserId]) {
-    return '';
-  }
-
-  if (currentUserId) {
-    return `/cmict/file/user/avatar/${currentUserId}?timestamp=${avatarTimestamp.value}`;
-  }
-  return user.avatarUrl || user.avatar || '';
-});
-
-const userAvatarFallback = computed(() => {
-  return buildAvatarFallbackText(
-    authStore.user?.nickName,
-    authStore.user?.name,
-    authStore.user?.userAccount
-  );
+  return ui.topbar.tenantSwitcher && isSuperAdmin.value && tenantOptions.value.length > 0;
 });
 
 const headerStyle = computed(() => ({
@@ -128,16 +76,6 @@ watch(
     currentTenantId.value = tenantId == null ? '' : String(tenantId);
   },
   { immediate: true }
-);
-
-watch(
-  () => authStore.user?.id,
-  () => {
-    avatarTimestamp.value = Date.now();
-    if (userId.value) {
-      delete avatarLoadErrorMap.value[userId.value];
-    }
-  }
 );
 
 watch(
@@ -274,13 +212,6 @@ function onSelectSystemMenu(systemCode: string) {
   void onSwitchSystem(systemCode);
 }
 
-function onAvatarImageError() {
-  if (!userId.value) {
-    return;
-  }
-  avatarLoadErrorMap.value[userId.value] = true;
-}
-
 function resolveCurrentMenuKey() {
   const activePath = route.meta.activePath;
   return typeof activePath === 'string' && activePath.startsWith('/') ? activePath : route.path;
@@ -330,7 +261,25 @@ async function rebuildMenusAndRouteAfterTenantSwitch() {
 
 async function refreshCurrentUser() {
   await authStore.fetchMe();
-  avatarTimestamp.value = Date.now();
+}
+
+async function uploadAvatar(payload: { file: File; userId: string }) {
+  const formData = new FormData();
+  formData.append('file', payload.file);
+  formData.append('userId', payload.userId);
+  return authAccountService.uploadAvatar(formData);
+}
+
+function checkPassword(payload: { oldPassword: string }) {
+  return authAccountService.checkPassword(payload);
+}
+
+function changePassword(payload: { oldPassword: string; newPassword: string }) {
+  return authAccountService.changePassword(payload);
+}
+
+function openPersonalizationDrawer() {
+  personalizationDrawerVisible.value = true;
 }
 
 async function onSwitchTenant(tenantId: string) {
@@ -432,44 +381,21 @@ async function onSwitchTenant(tenantId: string) {
     </div>
 
     <div class="ob-topbar__right">
-      <el-dropdown class="ob-topbar__user">
-        <span class="ob-topbar__user-trigger">
-          <span class="ob-topbar__avatar" role="img" :aria-label="userDisplayName">
-            <img
-              v-if="userAvatar"
-              class="ob-topbar__avatar-image"
-              :src="userAvatar"
-              :alt="userDisplayName"
-              @error="onAvatarImageError"
-            />
-            <span v-else class="ob-topbar__avatar-text">{{ userAvatarFallback }}</span>
-          </span>
-          <span class="ob-topbar__user-name" :title="userDisplayName">{{ userDisplayName }}</span>
-        </span>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item
-              v-if="ui.topbar.profileDialog"
-              @click="profileDialogVisible = true"
-            >
-              用户信息
-            </el-dropdown-item>
-            <el-dropdown-item
-              v-if="ui.topbar.changePassword"
-              @click="changePasswordDialogVisible = true"
-            >
-              修改密码
-            </el-dropdown-item>
-            <el-dropdown-item
-              v-if="ui.topbar.personalization"
-              @click="personalizationDrawerVisible = true"
-            >
-              个性设置
-            </el-dropdown-item>
-            <el-dropdown-item divided @click="onLogout">退出登录</el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      <ObAccountCenterPanel
+        :user="authStore.user"
+        :show-profile-dialog="ui.topbar.profileDialog"
+        :show-change-password="ui.topbar.changePassword"
+        :show-personalization="ui.topbar.personalization"
+        :upload-avatar="uploadAvatar"
+        :check-password="checkPassword"
+        :change-password="changePassword"
+        :encrypt-password="sm4EncryptBase64"
+        :is-avatar-hidden="isAvatarHidden"
+        :set-avatar-hidden="setAvatarHidden"
+        @refresh-user="refreshCurrentUser"
+        @open-personalization="openPersonalizationDrawer"
+        @logout="onLogout"
+      />
     </div>
   </div>
 
@@ -483,17 +409,6 @@ async function onSwitchTenant(tenantId: string) {
   >
     <ObThemeSwitcher />
   </el-drawer>
-
-  <UserProfileDialog
-    v-if="ui.topbar.profileDialog"
-    v-model="profileDialogVisible"
-    :user="authStore.user"
-    @refresh="refreshCurrentUser"
-  />
-  <ChangePasswordDialog
-    v-if="ui.topbar.changePassword"
-    v-model="changePasswordDialogVisible"
-  />
 </template>
 
 <style scoped>
@@ -573,52 +488,6 @@ async function onSwitchTenant(tenantId: string) {
 
 .ob-topbar__tenant-select {
   width: 240px;
-}
-
-.ob-topbar__user-trigger {
-  cursor: pointer;
-  user-select: none;
-  color: #fff;
-  padding: 2px 10px;
-  border-radius: 999px;
-  transition: background-color 150ms ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ob-topbar__avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--one-color-primary-light-1, var(--el-color-primary-light-9));
-  color: var(--one-color-primary, var(--el-color-primary));
-  overflow: hidden;
-}
-
-.ob-topbar__avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.ob-topbar__avatar-text {
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 600;
-}
-
-.ob-topbar__user-name {
-  font-size: 14px;
-  color: #fff;
-  max-width: 180px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .ob-topbar :deep(.ob-topbar__system-menu.el-menu--horizontal) {

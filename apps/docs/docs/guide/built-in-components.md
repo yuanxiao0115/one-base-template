@@ -61,19 +61,20 @@ app.use(OneUiObTablePlugin, {
 
 ### 导航壳层与字段
 
-| 组件名            | 用途         |
-| ----------------- | ------------ |
-| `ObAdminLayout`   | 后台主布局   |
-| `ObSidebarMenu`   | 左侧菜单     |
-| `ObTopBar`        | 顶栏壳       |
-| `ObTabsBar`       | 标签栏       |
-| `ObKeepAliveView` | 页面缓存渲染 |
-| `ObTree`          | 树组件封装   |
-| `ObImportUpload`  | 导入上传封装 |
-| `ObFilePreview`   | 文件在线预览 |
-| `ObColorField`    | 颜色字段封装 |
-| `ObFontIcon`      | 图标渲染封装 |
-| `ObMenuIcon`      | 菜单图标渲染 |
+| 组件名                 | 用途                                     |
+| ---------------------- | ---------------------------------------- |
+| `ObAdminLayout`        | 后台主布局                               |
+| `ObSidebarMenu`        | 左侧菜单                                 |
+| `ObTopBar`             | 顶栏壳                                   |
+| `ObAccountCenterPanel` | 顶栏账号中心（头像、用户信息、修改密码） |
+| `ObTabsBar`            | 标签栏                                   |
+| `ObKeepAliveView`      | 页面缓存渲染                             |
+| `ObTree`               | 树组件封装                               |
+| `ObImportUpload`       | 导入上传封装                             |
+| `ObFilePreview`        | 文件在线预览                             |
+| `ObColorField`         | 颜色字段封装                             |
+| `ObFontIcon`           | 图标渲染封装                             |
+| `ObMenuIcon`           | 菜单图标渲染                             |
 
 ## 文件预览（ObFilePreview）
 

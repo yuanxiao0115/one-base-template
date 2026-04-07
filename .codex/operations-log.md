@@ -12554,3 +12554,42 @@
   - `apps/docs/docs/components/ob-*.md`
     - 23 个组件页标题统一改为 `# ObXxx（中文）`。
 - 结果：组件库入口、目录页、详情页标题命名一致，支持按中文关键词快速定位组件。
+
+## 2026-04-07（后台基建组件沉淀 P0 计划落盘）
+
+- 目标：在排除 `workflow` 与 `odFormComponents` 后，形成后台基建组件沉淀的 P0 执行清单。
+- 新增计划文档：
+  - `docs/plans/2026-04-07-admin-infra-components-p0-plan.md`
+- 计划范围：
+  - `ObAccountCenter`
+  - `ObCommandPalette`
+  - `ObDialogHost`
+- 计划内容包含：
+  - 里程碑任务拆分（A/B/C）
+  - 文件级改动清单
+  - 每阶段验收命令
+  - 风险与 DoD
+
+## 2026-04-07（Milestone A：AccountCenter 组件沉淀与三端接入）
+
+- 背景：
+  - 按 P0 计划先执行 `ObAccountCenter`，将 `admin/admin-lite/zfw-system-sfss` 顶栏账号区公共化到 `packages/ui`。
+- 组件沉淀（`packages/ui`）：
+  - 新增目录：`packages/ui/src/components/account-center/**`
+  - 新增组件：
+    - `AccountCenterPanel.vue`
+    - `AvatarCropDialog.vue`
+    - `UserProfileDialog.vue`
+    - `ChangePasswordDialog.vue`
+    - `index.ts`、`types.ts`
+  - `packages/ui/src/{index.ts,plugin.ts,plugin-obtable.ts}` 同步导出与全局注册 `ObAccountCenterPanel`。
+- 三端接入：
+  - `apps/{admin,admin-lite,zfw-system-sfss}/src/components/top/AdminTopBar.vue`
+    - 顶栏账号下拉改为统一消费 `ObAccountCenterPanel`；
+    - 应用侧仅保留账号服务装配（头像上传、密码校验/修改、SM4 加密、个性设置打开、登出回调）。
+- 文档同步：
+  - 新增：`apps/docs/docs/components/ob-account-center-panel.md`
+  - 更新：
+    - `apps/docs/docs/.vitepress/config.ts`
+    - `apps/docs/docs/components/index.md`
+    - `apps/docs/docs/guide/built-in-components.md`

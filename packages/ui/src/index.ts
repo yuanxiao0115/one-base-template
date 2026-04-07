@@ -24,6 +24,7 @@ export { default as UploadShell } from './components/upload/UploadShell.vue';
 export { default as FilePreview } from './components/preview/FilePreview.vue';
 export { default as PersonnelSelector } from './components/personnel-selector/PersonnelSelector.vue';
 export { default as RichText } from './components/rich-text/RichText.vue';
+export { AccountCenterPanel } from './components/account-center';
 export { LoginBox, LoginBoxV2 } from './lite-auth';
 export {
   ensureMenuIconifyCollectionsRegistered,
@@ -82,6 +83,20 @@ export type {
   PersonnelSelectMode
 } from './components/personnel-selector/types';
 export type { RichTextProfile } from './components/rich-text/rich-text-html';
+export type {
+  AccountCenterAvatarUrlResolver,
+  AccountCenterAvatarUrlResolverParams,
+  AccountCenterChangePassword,
+  AccountCenterCheckPassword,
+  AccountCenterEncryptPassword,
+  AccountCenterIsAvatarHidden,
+  AccountCenterResolveSuccess,
+  AccountCenterResponse,
+  AccountCenterSetAvatarHidden,
+  AccountCenterUploadAvatar,
+  AccountCenterUploadAvatarPayload,
+  AccountCenterUser
+} from './components/account-center';
 export {
   getRichTextToolbarExcludeKeys,
   normalizeRichTextHtml,

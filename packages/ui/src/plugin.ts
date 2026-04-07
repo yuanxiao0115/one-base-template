@@ -23,6 +23,7 @@ import UploadShell from './components/upload/UploadShell.vue';
 import FilePreview from './components/preview/FilePreview.vue';
 import PersonnelSelector from './components/personnel-selector/PersonnelSelector.vue';
 import RichText from './components/rich-text/RichText.vue';
+import { AccountCenterPanel } from './components/account-center';
 import { setUseTableDefaults, type UseTableDefaults } from '@one-base-template/core';
 import {
   ONE_UI_GLOBAL_CONFIG_KEY,
@@ -54,7 +55,8 @@ const UI_COMPONENTS = {
   UploadShell,
   FilePreview,
   PersonnelSelector,
-  RichText
+  RichText,
+  AccountCenterPanel
 } as const;
 
 export type OneUiComponentName = keyof typeof UI_COMPONENTS;
