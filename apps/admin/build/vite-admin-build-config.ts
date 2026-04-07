@@ -26,6 +26,10 @@ const adminFeatureChunks = [
   {
     name: 'admin-portal',
     patterns: ['/apps/admin/src/modules/PortalManagement/']
+  },
+  {
+    name: 'admin-document-form',
+    patterns: ['/apps/admin/src/modules/DocumentFormManagement/', '/packages/document-form-engine/']
   }
 ];
 

@@ -11484,3 +11484,38 @@ $ pnpm verify
 admin 构建体积预算检查通过。
 admin-lite 构建体积预算检查通过。
 ```
+
+## 2026-04-07（DocumentForm/预览引擎拆包 + wangeditor 首屏 CSS 收口）
+
+- RED（先失败）：
+  - `pnpm -C packages/ui typecheck`
+    - 失败原因：动态 `import('*.css')` 缺少类型声明，以及预览引擎局部类型标注不兼容。
+    - 修复：
+      - `packages/ui/src/env.d.ts` 新增 `declare module '*.css'`。
+      - 预览引擎组件类型改为 `DefineComponent<Record<string, unknown>, ..., unknown>`。
+  - `pnpm -C apps/admin build`
+    - 失败原因：`@vue-office/pdf/lib/v3/index.css` 不存在，Rolldown 无法解析。
+    - 修复：移除 `PdfPreviewEngine.vue` 对该 css 的动态导入，仅保留 `index.js` 动态导入。
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/document-form-engine typecheck`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin test:run:file -- src/modules/DocumentFormManagement/engine/register.unit.test.ts`
+  - `pnpm -C apps/admin build`
+  - `pnpm check:admin:bundle`
+
+- 结果：
+  - `apps/admin build` 通过，`DocumentFormDesignerPage/OfdPreviewEngine/OfficePreviewEngine/PdfPreviewEngine` 业务 chunk 已从多 MB 收敛到 KB 级。
+  - `check:admin:bundle` 全部 PASS。
+  - `apps/admin/dist/index.html` 首屏链路已移除 `wangeditor`、`univer`、`admin-document-form` 等样式与预加载依赖。
+
+- 关键对比（构建输出）：
+  - `DocumentFormDesignerPage`：`~5465 KiB -> 0.07 KiB`
+  - `OfdPreviewEngine`：`~5108 KiB -> 2.45 KiB`
+  - `OfficePreviewEngine`：`~3140 KiB -> 3.31 KiB`
+  - `PdfPreviewEngine`：`~2796 KiB -> 2.22 KiB`
+  - startup 依赖图：
+    - JS 数量 `9 -> 7`
+    - JS gzip `250.0 KiB -> 233.4 KiB`

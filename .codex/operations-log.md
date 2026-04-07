@@ -12859,3 +12859,42 @@
   - `pnpm -C apps/admin build` 通过，未再出现 `INEFFECTIVE_DYNAMIC_IMPORT`。
   - `pnpm -C apps/admin-lite build` 通过，未再出现 `INEFFECTIVE_DYNAMIC_IMPORT`。
   - `pnpm verify` 全链路通过（含 admin/admin-lite bundle 门禁）。
+
+## 2026-04-07（DocumentForm/预览引擎拆包 + wangeditor 首屏 CSS 收口）
+
+- 背景：
+  - 用户要求继续做 `DocumentForm` 大包拆分，优先 `DocumentFormDesignerPage` 与 `Ofd/Office/Pdf` 引擎重依赖按需加载，并把 `wangeditor` 样式从首屏链路移到编辑页按需注入。
+- 本次改动：
+  - 构建拆包策略：
+    - `scripts/vite/manual-chunks.ts`
+      - 新增 `admin-document-form` 相关 preload/style 阻断前缀，避免 DocumentForm 链路进入首屏预加载。
+      - 新增并细化 vendor 拆包规则：
+        - `univer-presets-vendor` / `univer-sheets-vendor` / `univer-runtime-vendor`
+        - `vue-office-pdf-vendor` / `vue-office-docx-vendor` / `vue-office-excel-vendor` / `vue-office-pptx-vendor`
+        - `ofd-viewer-vendor` / `ofd-parser-vendor`
+  - admin feature chunk：
+    - `apps/admin/build/vite-admin-build-config.ts`
+      - 新增 `admin-document-form` feature chunk（`DocumentFormManagement + packages/document-form-engine`）。
+  - DocumentForm 设计器链路按需化：
+    - `apps/admin/src/modules/DocumentFormManagement/designPage/DocumentFormDesignerPage.vue`
+      - `DocumentFormDesignerLayout` 改为 `defineAsyncComponent` 异步加载。
+    - `packages/document-form-engine/designer/DocumentCanvas.vue`
+      - `UniverDocumentCanvas` 改为 `defineAsyncComponent` 异步加载。
+    - `packages/document-form-engine/designer/index.ts`
+      - 移除 `UniverDocumentCanvas` 的对外静态导出，消除动态导入失效告警。
+  - 预览引擎二级按需加载：
+    - `packages/ui/src/components/preview/engines/{PdfPreviewEngine,OfficePreviewEngine,OfdPreviewEngine}.vue`
+      - 将 `@vue-office/*`、`ofdview-vue3`、`parser_x.js` 迁移为组件内动态 `import()`。
+  - 富文本 CSS 启动精简：
+    - 新增：
+      - `packages/ui/src/components/rich-text/ensure-wangeditor-style.ts`
+      - `apps/admin/src/components/rich-text/ensure-wangeditor-style.ts`
+    - 更新：
+      - `packages/ui/src/components/rich-text/RichText.vue`
+      - `apps/admin/src/components/rich-text/ObRichTextEditor.vue`
+      - 两处改为 `onMounted -> ensureWangEditorStyle()` 动态注入样式。
+    - `apps/admin/src/modules/DocumentFormManagement/engine/register.ts`
+      - 默认 `richTextEditor` 适配器改为异步组件，避免设计器入口静态绑定 `ObRichTextEditor`。
+- 额外修复：
+  - `packages/ui/src/env.d.ts` 增加 `*.css` 模块声明，支撑动态样式导入类型检查。
+  - `apps/admin/src/modules/DocumentFormManagement/engine/register.unit.test.ts` 同步调整默认适配器断言。

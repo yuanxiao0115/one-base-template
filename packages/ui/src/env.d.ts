@@ -26,6 +26,11 @@ declare module '*.webp' {
   export default src;
 }
 
+declare module '*.css' {
+  const css: string;
+  export default css;
+}
+
 declare module 'parser_x.js' {
   export interface ParserXApi {
     initOFDViewer: (config: Record<string, unknown>) => void;

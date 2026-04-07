@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, shallowRef } from 'vue';
+import { computed, onBeforeUnmount, onMounted, shallowRef } from 'vue';
 import { useFormItem } from 'element-plus';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/editor';
 import { Editor as WangEditor, Toolbar as WangToolbar } from '@wangeditor/editor-for-vue';
-import '@wangeditor/editor/dist/css/style.css';
 import { message } from '@one-base-template/ui';
 import {
   getRichTextToolbarExcludeKeys,
@@ -11,6 +10,7 @@ import {
   toSafeRichTextHtml,
   type RichTextProfile
 } from './rich-text-html';
+import { ensureWangEditorStyle } from './ensure-wangeditor-style';
 
 interface RichTextUploadPayload {
   file: File;
@@ -141,6 +141,10 @@ function handleBlur() {
 onBeforeUnmount(() => {
   editorRef.value?.destroy();
   editorRef.value = undefined;
+});
+
+onMounted(() => {
+  void ensureWangEditorStyle();
 });
 </script>
 

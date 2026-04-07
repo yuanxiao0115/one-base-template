@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import VueOfficePdf from '@vue-office/pdf/lib/v3/index.js';
+import { computed, onMounted, ref, shallowRef, watch, type DefineComponent } from 'vue';
 import type { FilePreviewSource } from '../file-meta';
+
+type PreviewRuntimeComponent = DefineComponent<
+  Record<string, unknown>,
+  Record<string, unknown>,
+  unknown
+>;
 
 defineOptions({
   name: 'PdfPreviewEngine'
@@ -19,6 +24,9 @@ const emit = defineEmits<{
 const pdfSource = ref<string | ArrayBuffer | Blob>('');
 const loading = ref(false);
 const errorMessage = ref('');
+const runtimeLoading = ref(false);
+const runtimeErrorMessage = ref('');
+const pdfComponent = shallowRef<PreviewRuntimeComponent | null>(null);
 let latestTaskId = 0;
 
 const sourceToken = computed(() => {
@@ -61,6 +69,31 @@ async function resolvePdfSource() {
   }
 }
 
+async function ensurePdfRuntime() {
+  if (pdfComponent.value) {
+    return;
+  }
+
+  runtimeErrorMessage.value = '';
+  runtimeLoading.value = true;
+
+  try {
+    const pdfModule = await import('@vue-office/pdf/lib/v3/index.js');
+    pdfComponent.value = pdfModule.default as PreviewRuntimeComponent;
+  } catch (error) {
+    runtimeErrorMessage.value = error instanceof Error ? error.message : 'PDF 引擎加载失败';
+    emit('error', error);
+  } finally {
+    runtimeLoading.value = false;
+  }
+}
+
+const pendingMessage = computed(() => {
+  return loading.value || runtimeLoading.value;
+});
+
+const currentErrorMessage = computed(() => runtimeErrorMessage.value || errorMessage.value);
+
 function handleRendered() {
   errorMessage.value = '';
   emit('ready');
@@ -78,23 +111,30 @@ watch(
   },
   { immediate: true }
 );
+
+onMounted(() => {
+  void ensurePdfRuntime();
+});
 </script>
 
 <template>
   <div class="ob-file-preview-engine ob-file-preview-engine--pdf">
-    <div v-if="loading" class="ob-file-preview-engine__state">正在加载 PDF 预览...</div>
+    <div v-if="pendingMessage" class="ob-file-preview-engine__state">正在加载 PDF 预览...</div>
 
-    <div v-else-if="errorMessage" class="ob-file-preview-engine__state is-error">
-      {{ errorMessage }}
+    <div v-else-if="currentErrorMessage" class="ob-file-preview-engine__state is-error">
+      {{ currentErrorMessage }}
     </div>
 
-    <VueOfficePdf
-      v-else
+    <component
+      :is="pdfComponent"
+      v-else-if="pdfComponent"
       class="ob-file-preview-engine__viewer"
       :src="pdfSource"
       @rendered="handleRendered"
       @error="handleRenderError"
     />
+
+    <div v-else class="ob-file-preview-engine__state">正在初始化 PDF 预览引擎...</div>
   </div>
 </template>
 

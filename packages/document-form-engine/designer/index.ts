@@ -1,7 +1,6 @@
 export { default as DocumentDesignerWorkbench } from './DocumentDesignerWorkbench.vue';
 export { default as DocumentFormDesignerLayout } from './DocumentFormDesignerLayout.vue';
 export { default as DocumentCanvas } from './DocumentCanvas.vue';
-export { default as UniverDocumentCanvas } from './UniverDocumentCanvas.vue';
 export { default as DocumentPropertyInspector } from './DocumentPropertyInspector.vue';
 export { default as MergeEditor } from './panels/MergeEditor.vue';
 export { default as SheetStyleEditor } from './panels/SheetStyleEditor.vue';

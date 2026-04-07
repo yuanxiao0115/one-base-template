@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { defineAsyncComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { DocumentTemplateSchema } from '@one-base-template/document-form-engine';
-import { DocumentFormDesignerLayout } from '@one-base-template/document-form-engine/designer';
 
 import { createMockDocumentTemplate } from '../mock/template';
 import { getDocumentFormAdminServices, setupDocumentFormEngineForAdmin } from '../engine/register';
 
 defineOptions({
   name: 'DocumentFormDesignerPage'
+});
+
+const DocumentFormDesignerLayout = defineAsyncComponent(async () => {
+  const module = await import('@one-base-template/document-form-engine/designer');
+  return module.DocumentFormDesignerLayout;
 });
 
 const router = useRouter();

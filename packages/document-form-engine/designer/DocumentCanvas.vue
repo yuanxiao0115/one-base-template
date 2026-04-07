@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
 import type { DocumentSheetRange } from '../schema/sheet';
 import type { DocumentTemplateSchema } from '../schema/types';
-import UniverDocumentCanvas from './UniverDocumentCanvas.vue';
 
 defineOptions({
   name: 'DocumentCanvas'
 });
+
+const UniverDocumentCanvas = defineAsyncComponent(() => import('./UniverDocumentCanvas.vue'));
 
 const props = defineProps<{
   template: DocumentTemplateSchema;

@@ -97,6 +97,45 @@ const VENDOR_CHUNK_RULES: AppFeatureChunk[] = [
     patterns: ['/node_modules/@wangeditor/', '/node_modules/slate/', '/node_modules/prismjs/']
   },
   {
+    // DocumentForm 设计器基于 Univer，拆成更细粒度 vendor，避免单大块告警。
+    name: 'univer-presets-vendor',
+    patterns: ['/node_modules/@univerjs/presets/']
+  },
+  {
+    name: 'univer-sheets-vendor',
+    patterns: ['/node_modules/@univerjs/preset-sheets-core/']
+  },
+  {
+    name: 'univer-runtime-vendor',
+    patterns: ['/node_modules/@univerjs/']
+  },
+  {
+    // Office 预览引擎按文件类型拆分，降低单 chunk 峰值体积。
+    name: 'vue-office-pdf-vendor',
+    patterns: ['/node_modules/@vue-office/pdf/']
+  },
+  {
+    name: 'vue-office-docx-vendor',
+    patterns: ['/node_modules/@vue-office/docx/']
+  },
+  {
+    name: 'vue-office-excel-vendor',
+    patterns: ['/node_modules/@vue-office/excel/']
+  },
+  {
+    name: 'vue-office-pptx-vendor',
+    patterns: ['/node_modules/@vue-office/pptx/']
+  },
+  {
+    // OFD 预览链路拆分 viewer 与 parser，避免单大块。
+    name: 'ofd-viewer-vendor',
+    patterns: ['/node_modules/ofdview-vue3/']
+  },
+  {
+    name: 'ofd-parser-vendor',
+    patterns: ['/node_modules/parser_x.js/']
+  },
+  {
     name: 'crypto',
     patterns: ['/node_modules/gm-crypto/', '/node_modules/crypto-js/', '/node_modules/sm-crypto/']
   },
@@ -196,6 +235,9 @@ function createAdminShellPreloadBlockedPrefixes(appName: string) {
     'assets/SystemManagement-',
     'assets/admin-management-',
     'assets/adminManagement-',
+    'assets/admin-document-form-',
+    'assets/DocumentFormManagement-',
+    'assets/UniverDocumentCanvas-',
     ...aliases.map((name) => `assets/${name}-portal-`),
     'assets/PortalManagement-',
     'assets/portal-engine-',
@@ -205,6 +247,15 @@ function createAdminShellPreloadBlockedPrefixes(appName: string) {
     'assets/list-',
     'assets/extensions-',
     'assets/sortable-grid-',
+    'assets/univer-presets-vendor-',
+    'assets/univer-sheets-vendor-',
+    'assets/univer-runtime-vendor-',
+    'assets/vue-office-pdf-vendor-',
+    'assets/vue-office-docx-vendor-',
+    'assets/vue-office-excel-vendor-',
+    'assets/vue-office-pptx-vendor-',
+    'assets/ofd-viewer-vendor-',
+    'assets/ofd-parser-vendor-',
     'assets/one-ui-shell-',
     'assets/one-ui-table-',
     'assets/iconify-ri-',
@@ -248,9 +299,20 @@ function createAdminIndexHtmlBlockedStylePrefixes(appName: string) {
   return [
     ...aliases.map((name) => `assets/${name}-entry-`),
     'assets/admin-management-',
+    'assets/admin-document-form-',
     ...aliases.map((name) => `assets/${name}-system-management-`),
     'assets/portal-engine-',
     ...aliases.map((name) => `assets/${name}-portal-`),
+    'assets/univer-presets-vendor-',
+    'assets/univer-sheets-vendor-',
+    'assets/univer-runtime-vendor-',
+    'assets/vue-office-pdf-vendor-',
+    'assets/vue-office-docx-vendor-',
+    'assets/vue-office-excel-vendor-',
+    'assets/vue-office-pptx-vendor-',
+    'assets/ofd-viewer-vendor-',
+    'assets/ofd-parser-vendor-',
+    'assets/wangeditor-',
     'assets/vxe-',
     'assets/one-ui-table-',
     'assets/one-ui-shell-'

@@ -1,6 +1,4 @@
-import type { Component } from 'vue';
-
-import ObRichTextEditor from '@/components/rich-text/ObRichTextEditor.vue';
+import { defineAsyncComponent, type Component } from 'vue';
 
 import {
   type DocumentFormEngineAdminContext,
@@ -34,7 +32,10 @@ export interface DocumentFormAdminServices {
 
 function createDefaultAdapters(): DocumentFormAdminAdapters {
   return {
-    richTextEditor: ObRichTextEditor
+    // 富文本编辑器依赖较重（wangeditor），按需异步注入，避免设计页入口静态带入。
+    richTextEditor: defineAsyncComponent(
+      () => import('@/components/rich-text/ObRichTextEditor.vue')
+    )
   };
 }
 
