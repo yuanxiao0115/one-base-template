@@ -18,7 +18,7 @@
 | ---------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | 新建管理模块并落地列表/弹层  | [/guide/crud-module-best-practice](/guide/crud-module-best-practice) | [/guide/crud-container](/guide/crud-container)                       |
 | 对齐表格页面结构与交互规则   | [/guide/table-vxe-migration](/guide/table-vxe-migration)             | [/guide/crud-module-best-practice](/guide/crud-module-best-practice) |
-| 选择或复用 Ob 组件能力       | [/guide/built-in-components](/guide/built-in-components)             | [/components/](/components/)                                         |
+| 选择或复用 Ob 组件能力       | [/components/](/components/)                                         | [/guide/iconfont](/guide/iconfont)                                   |
 | 处理菜单图标与 Iconfont 接入 | [/guide/iconfont](/guide/iconfont)                                   | [/components/ob-menu-icon-input](/components/ob-menu-icon-input)     |
 | 查询工具函数与 API 约定      | [/guide/utils](/guide/utils)                                         | [/guide/utils-api](/guide/utils-api)                                 |
 
@@ -35,7 +35,7 @@
 
 ### 组件与图标
 
-- [内置组件（Ob 系列）](/guide/built-in-components)
+- [组件库（Ob 系列）](/components/)
 - [Iconfont 集成](/guide/iconfont)
 - [组件库总览](/components/)
 

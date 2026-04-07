@@ -111,5 +111,4 @@ pnpm -C packages/ui test:coverage
 ## 9. 相关阅读
 
 - [开发规范与维护](/guide/development)
-- [内置组件（Ob 系列）](/guide/built-in-components)
 - [组件库（Ob 系列）](/components/)

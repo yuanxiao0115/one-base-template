@@ -28,7 +28,6 @@ const practiceCrudItems = [
   { text: 'CRUD 容器与 Hook（进阶）', link: '/guide/crud-container' }
 ];
 const practiceTableItems = [{ text: '表格开发规范', link: '/guide/table-vxe-migration' }];
-const practiceBuiltinItems = [{ text: '内置组件（Ob 系列）', link: '/guide/built-in-components' }];
 const practiceIconItems = [{ text: 'Iconfont 集成', link: '/guide/iconfont' }];
 const practiceUtilsItems = [
   { text: 'Utils 工具包（总览）', link: '/guide/utils' },
@@ -37,7 +36,6 @@ const practiceUtilsItems = [
 const practiceSidebarItems = [
   ...practiceCrudItems,
   ...practiceTableItems,
-  ...practiceBuiltinItems,
   ...practiceIconItems,
   ...practiceUtilsItems
 ];
@@ -274,7 +272,6 @@ export default defineConfig({
       '/guide/crud-module-best-practice': practiceSidebar,
       '/guide/practice': practiceSidebar,
       '/guide/table-vxe-migration': practiceSidebar,
-      '/guide/built-in-components': practiceSidebar,
       '/guide/iconfont': practiceSidebar,
       '/guide/utils': practiceSidebar,
       '/guide/utils-api': practiceSidebar,

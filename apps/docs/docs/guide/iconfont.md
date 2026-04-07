@@ -123,5 +123,5 @@ pnpm -C apps/docs build
 
 ## 6. 相关阅读
 
-- [内置组件（Ob 系列）](/guide/built-in-components)
+- [组件库（Ob 系列）](/components/)
 - [布局与菜单](/guide/layout-menu)

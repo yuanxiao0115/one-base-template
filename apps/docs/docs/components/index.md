@@ -6,6 +6,18 @@ outline: false
 
 该目录用于沉淀 `@one-base-template/ui/obtable` 注册的核心 `Ob*` 组件文档，重点覆盖：**属性配置、事件 API、插槽、暴露方法和可直接复制的示例**。
 
+## TL;DR
+
+- 后台应用默认通过 `OneUiObTablePlugin`（`@one-base-template/ui/obtable`）注册 `Ob*` 组件。
+- 日常列表页优先使用 `ObPageContainer + ObTableBox + ObTable + ObActionButtons`，弹层优先 `ObCrudContainer`。
+- 本页已合并原“内置组件（Ob 系列）”入口，组件能力选型与用法统一从这里进入。
+
+## 适用范围
+
+- 适用于：`apps/admin`、`apps/admin-lite` 的后台页面开发。
+- 适用于：希望按仓库标准快速搭建列表页、编辑弹层、布局壳层的场景。
+- 不适用于：需要 `VxeTable` 的页面（默认 `OneUiObTablePlugin` 不注册 `VxeTable`）。
+
 ## 前置条件
 
 应用需先注册插件（通常在 `apps/*/src/bootstrap/plugins.ts`）：
@@ -18,6 +30,48 @@ app.use(OneUiObTablePlugin, {
   aliases: false
 });
 ```
+
+## 最短执行路径
+
+### 1. 先确认插件注册
+
+```bash
+rg -n "OneUiObTablePlugin|prefix:\\s*'Ob'" \
+  apps/admin/src/bootstrap/plugins.ts \
+  apps/admin-lite/src/bootstrap/plugins.ts
+```
+
+预期结果：能看到 `app.use(OneUiObTablePlugin, { prefix: 'Ob' ... })`。
+
+### 2. 新页面先落标准骨架
+
+```vue
+<template>
+  <ObPageContainer padding="0" overflow="hidden">
+    <ObTableBox title="示例列表" :columns="columns" @search="onSearch">
+      <template #default="{ size, dynamicColumns }">
+        <ObTable
+          :size="size"
+          :columns="dynamicColumns"
+          :data="rows"
+          :pagination="pagination"
+          @page-current-change="onPageCurrentChange"
+        />
+      </template>
+    </ObTableBox>
+  </ObPageContainer>
+</template>
+```
+
+### 3. 页面完成后跑最小验证
+
+```bash
+pnpm -C apps/admin-lite typecheck
+pnpm -C apps/admin-lite lint
+pnpm -C apps/admin-lite build
+```
+
+如果你改的是 `apps/admin`，将命令中的 `admin-lite` 换成 `admin`。
 
 ## 组件目录
 

@@ -62,4 +62,4 @@
 
 - [菜单与路由规范（Schema）](/guide/menu-route-spec)
 - [表格开发规范](/guide/table-vxe-migration)
-- [内置组件（Ob 系列）](/guide/built-in-components)
+- [组件库（Ob 系列）](/components/)

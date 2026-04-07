@@ -35,7 +35,7 @@ outline: [2, 3]
 | 启动项目并跑通首轮闭环     | [快速开始](/guide/quick-start)                     | [环境变量](/guide/env)                                                                   |
 | 新增或改造模块             | [模块系统与切割](/guide/module-system)             | [admin-lite 后台基座](/guide/admin-lite-base-app)                                        |
 | 改路由与权限               | [菜单与路由规范（Schema）](/guide/menu-route-spec) | [布局与菜单](/guide/layout-menu)                                                         |
-| 做列表与 CRUD              | [CRUD 开发规范](/guide/crud-module-best-practice)  | [内置组件（Ob 系列）](/guide/built-in-components)                                        |
+| 做列表与 CRUD              | [CRUD 开发规范](/guide/crud-module-best-practice)  | [组件库（Ob 系列）](/components/)                                                        |
 | 扩展能力（门户/表单/适配） | [门户体系总览](/guide/portal/)                     | [公文表单设计引擎](/guide/document-form-designer)、[basic Adapter](/guide/adapter-basic) |
 
 ## 最短开发闭环（可直接照做）
