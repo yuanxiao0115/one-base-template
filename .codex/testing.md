@@ -11418,3 +11418,40 @@ admin 构建体积预算检查通过。
 ...
 admin-lite 构建体积预算检查通过。
 ```
+
+## 2026-04-07（选项1：moduleMeta 拆分到 meta.ts，清理无效动态导入告警）
+
+- 作用域：`apps/admin`、`apps/admin-lite` 路由注册与模块声明；脚手架模板；文档站点。
+- 命令：
+  - `node --test scripts/__tests__/new-module.test.mjs`
+  - `node --test scripts/__tests__/new-app.test.mjs`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/admin-lite build`
+  - `pnpm verify`
+- 结果：
+  - 以上命令全部通过（exit=0）。
+  - `INEFFECTIVE_DYNAMIC_IMPORT` 告警已消失；保留既有 chunk size 提示（非阻断）。
+- 输出摘要：
+
+```text
+$ node --test scripts/__tests__/new-module.test.mjs
+pass 5, fail 0
+
+$ node --test scripts/__tests__/new-app.test.mjs
+pass 5, fail 0
+
+$ pnpm -C apps/admin build
+✓ built in 9.01s
+(!) Some chunks are larger than 3000 kB after minification.
+（未出现 INEFFECTIVE_DYNAMIC_IMPORT）
+
+$ pnpm -C apps/admin-lite build
+✓ built in 6.13s
+(!) Some chunks are larger than 3000 kB after minification.
+（未出现 INEFFECTIVE_DYNAMIC_IMPORT）
+
+$ pnpm verify
+...
+admin 构建体积预算检查通过。
+admin-lite 构建体积预算检查通过。
+```

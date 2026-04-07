@@ -29,6 +29,7 @@ apps/admin/src/modules/
 
 ```text
 <module-id>/
+├── meta.ts
 ├── index.ts
 └── routes/
     ├── index.ts
@@ -39,7 +40,7 @@ apps/admin/src/modules/
 约束：
 
 1. 模块 id 统一使用 kebab-case（例如 `portal-management`）。
-2. 模块元信息统一写在 `index.ts` 的 `moduleMeta`，不再单独维护 `manifest.ts`。
+2. 模块元信息统一写在 `meta.ts` 的 `moduleMeta`，`index.ts` 只负责模块声明默认导出。
 3. 简单模块优先 `routes.ts` 单文件；复杂模块再拆 `routes/` 目录。
 
 ### 子路由自动注入（推荐）
@@ -85,8 +86,8 @@ const childRoutes = collectGlobRouteModules(
 执行顺序：
 
 1. 启动阶段读取 `platform-config`（`enabledModules`、`defaultSystemCode`、`systemHomeMap` 等）。
-2. `registry` 扫描 `apps/admin/src/modules/**/index.ts`，读取 `moduleMeta`。
-3. 按 `enabledModules` 过滤模块并加载默认导出声明。
+2. `registry` 扫描 `apps/admin/src/modules/**/meta.ts`，读取 `moduleMeta`（并映射同目录 `index.ts` 作为声明加载路径）。
+3. 按 `enabledModules` 过滤模块并动态加载 `index.ts` 默认导出声明。
 4. 合并 `routes.layout` 与 `routes.standalone`。
 5. 注入固定路由：`/login`、`/sso`、`/403`、`/404` 和 404 兜底。
 6. 守卫按 `meta.access` 执行访问控制（`open` / `auth` / `menu`）。

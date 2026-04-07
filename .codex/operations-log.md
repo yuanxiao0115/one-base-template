@@ -12774,3 +12774,35 @@
   - `pnpm verify`：通过（包含 `check:admin:bundle` 与 `check:admin-lite:bundle`）。
 - 备注：
   - 本次为 preload 过滤与内置映射重写层优化，不涉及业务路由行为变更。
+
+## 2026-04-07（选项1完成：registry 元信息拆分 + 告警治理）
+
+- 背景：
+  - 用户选择“下一步 1”：优先清理 `INEFFECTIVE_DYNAMIC_IMPORT` 告警。
+- 本次改动：
+  - `apps/admin/src/router/registry.ts`
+  - `apps/admin-lite/src/router/registry.ts`
+    - `moduleMeta` 的 eager 扫描由 `../modules/**/index.ts` 改为 `../modules/**/meta.ts`。
+    - 扫描结果映射回同目录 `index.ts` 作为模块声明动态加载路径。
+  - `apps/admin/src/modules/**`
+  - `apps/admin-lite/src/modules/**`
+    - 所有模块新增 `meta.ts`（仅承载 `moduleMeta`）。
+    - `index.ts` 收敛为模块声明默认导出，改为 `import { moduleMeta } from './meta'`。
+  - 脚手架同步：
+    - `scripts/new-module.mjs`：模块骨架新增 `meta.ts`，`index.ts` 模板改为引用 `meta.ts`。
+    - `scripts/new-app.mjs`：`starter-crud` 模板新增 `meta.ts`。
+    - `scripts/__tests__/new-module.test.mjs`、`scripts/__tests__/new-app.test.mjs` 同步更新断言。
+  - 文档同步：
+    - `apps/docs/docs/guide/module-system.md`
+    - `apps/docs/docs/guide/architecture-runtime-deep-dive.md`
+    - `apps/docs/docs/guide/architecture.md`
+    - `apps/docs/docs/guide/for-users.md`
+    - `apps/docs/docs/guide/levels/p2.md`
+    - `apps/docs/docs/guide/admin-lite-agent-redlines.md`
+    - `apps/admin/README.md`
+- 验证：
+  - `node --test scripts/__tests__/new-module.test.mjs` 通过。
+  - `node --test scripts/__tests__/new-app.test.mjs` 通过。
+  - `pnpm -C apps/admin build` 通过，未再出现 `INEFFECTIVE_DYNAMIC_IMPORT`。
+  - `pnpm -C apps/admin-lite build` 通过，未再出现 `INEFFECTIVE_DYNAMIC_IMPORT`。
+  - `pnpm verify` 全链路通过（含 admin/admin-lite bundle 门禁）。

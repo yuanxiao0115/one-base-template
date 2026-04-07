@@ -60,7 +60,7 @@
 
 ## 5. 路由与模块摘要
 
-- 模块入口：`index.ts + routes.ts`（`index.ts` 内声明 `moduleMeta`）。
+- 模块入口：`meta.ts + index.ts + routes.ts`（`meta.ts` 内声明 `moduleMeta`）。
 - 菜单模式：`remote`（后端菜单树）或 `static`（静态路由生成）。
 - 权限判定：`allowedPaths` 由菜单树推导，非菜单页通过 `meta.activePath` / `meta.access='auth'` 处理。
 

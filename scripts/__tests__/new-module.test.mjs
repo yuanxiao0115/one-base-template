@@ -94,17 +94,22 @@ test('scaffoldModule 生成 legacy 聚合模块骨架', async () => {
   );
 
   const indexPath = path.join(result.moduleDir, 'index.ts');
+  const metaPath = path.join(result.moduleDir, 'meta.ts');
   const routesPath = path.join(result.moduleDir, 'routes.ts');
   const viewPath = path.join(result.moduleDir, 'index.vue');
 
   await assertExists(indexPath);
+  await assertExists(metaPath);
   await assertExists(routesPath);
   await assertExists(viewPath);
 
+  const metaSource = await readFile(metaPath, 'utf8');
+  assert.match(metaSource, /id: 'sample-management'/);
+  assert.match(metaSource, /moduleTier: 'optional'/);
+  assert.match(metaSource, /enabledByDefault: false/);
+
   const indexSource = await readFile(indexPath, 'utf8');
-  assert.match(indexSource, /id: 'sample-management'/);
-  assert.match(indexSource, /moduleTier: 'optional'/);
-  assert.match(indexSource, /enabledByDefault: false/);
+  assert.match(indexSource, /import \{ moduleMeta \} from '\.\/meta';/);
 
   const routesSource = await readFile(routesPath, 'utf8');
   assert.match(routesSource, /const legacyModuleRoutes = collectGlobRouteModules\(/);
@@ -126,4 +131,5 @@ test('CLI 在子项目目录执行时也能正确解析仓库根目录', async (
 
   assert.match(stdout, /\[dry-run\] 计划创建以下文件：/);
   assert.match(stdout, new RegExp(`apps/admin-lite/src/modules/${moduleId}/index.ts`));
+  assert.match(stdout, new RegExp(`apps/admin-lite/src/modules/${moduleId}/meta.ts`));
 });

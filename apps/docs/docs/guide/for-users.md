@@ -46,7 +46,7 @@ outline: [2, 3]
 2. 启动目标应用：`pnpm dev` 或 `pnpm dev:admin-lite`。
 3. 生成模块骨架（建议先 dry-run）：`pnpm -C apps/admin-lite new:module user-center --dry-run`。
 4. 生成子业务骨架：`pnpm -C apps/admin-lite new:module:item user --module user-center --dry-run`。
-5. 按模块文档完成 `index.ts（moduleMeta） + routes.ts`。
+5. 按模块文档完成 `meta.ts（moduleMeta） + index.ts + routes.ts`。
 6. 在 `app.ts` 确认 `enabledModules` 已包含目标模块。
 
 ### 2. 验证命令

@@ -138,8 +138,7 @@ function createFiles(params) {
   } = params;
 
   return {
-    'index.ts': `import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
-import layoutRoutes from './routes';
+    'meta.ts': `import type { AppModuleManifestMeta } from '@one-base-template/core';
 
 export const moduleMeta = {
   id: '${moduleId}',
@@ -147,6 +146,10 @@ export const moduleMeta = {
   moduleTier: '${moduleTier}',
   enabledByDefault: ${enabledByDefault}
 } as const satisfies AppModuleManifestMeta;
+`,
+    'index.ts': `import type { AppModuleManifest } from '@one-base-template/core';
+import { moduleMeta } from './meta';
+import layoutRoutes from './routes';
 
 const ${moduleVar}: AppModuleManifest = {
   ...moduleMeta,
@@ -207,7 +210,8 @@ defineOptions({
 
 该模块为“模块级骨架”模板，默认包含：
 
-- 'index.ts'：模块声明与 moduleMeta
+- 'meta.ts'：模块元信息（moduleMeta）
+- 'index.ts'：模块声明（默认导出）
 - 'routes.ts'：legacy 聚合路由（collectGlobRouteModules + import.meta.glob）
 - 'index.vue'：模块默认占位页
 

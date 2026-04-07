@@ -1,12 +1,6 @@
-import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
+import type { AppModuleManifest } from '@one-base-template/core';
+import { moduleMeta } from './meta';
 import layoutRoutes from './routes';
-
-export const moduleMeta = {
-  id: 'home',
-  version: '1',
-  moduleTier: 'core',
-  enabledByDefault: true
-} as const satisfies AppModuleManifestMeta;
 
 const homeModule: AppModuleManifest = {
   ...moduleMeta,

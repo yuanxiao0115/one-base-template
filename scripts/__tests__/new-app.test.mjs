@@ -188,6 +188,13 @@ test('scaffoldApp 在启用 withCrudStarter 时追加 starter-crud 模块', asyn
   assert.match(uiConfig, /tenantSwitcher: true,/);
 
   await assertExists(path.join(rootDir, 'apps/sample-crud-app/src/modules/starter-crud/list.vue'));
+  await assertExists(path.join(rootDir, 'apps/sample-crud-app/src/modules/starter-crud/meta.ts'));
+
+  const starterIndex = await readFile(
+    path.join(rootDir, 'apps/sample-crud-app/src/modules/starter-crud/index.ts'),
+    'utf8'
+  );
+  assert.match(starterIndex, /import \{ moduleMeta \} from '\.\/meta';/);
 
   const starterRoutes = await readFile(
     path.join(rootDir, 'apps/sample-crud-app/src/modules/starter-crud/routes.ts'),
@@ -210,7 +217,10 @@ test('scaffoldApp 支持通过参数追加管理模块', async () => {
     withCrudStarter: false
   });
 
-  const appConfig = await readFile(path.join(rootDir, 'apps/sample-managed-app/src/config/app.ts'), 'utf8');
+  const appConfig = await readFile(
+    path.join(rootDir, 'apps/sample-managed-app/src/config/app.ts'),
+    'utf8'
+  );
   assert.match(
     appConfig,
     /enabledModules: \['home', 'admin-management', 'log-management', 'system-management'\]/

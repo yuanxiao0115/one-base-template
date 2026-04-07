@@ -13,7 +13,7 @@ import { createAppLogger } from '@/utils/logger';
 
 const moduleMetaDefinitions = import.meta.glob<{
   moduleMeta?: AppModuleManifestMeta;
-}>('../modules/**/index.ts', {
+}>('../modules/**/meta.ts', {
   eager: true
 });
 
@@ -36,7 +36,10 @@ function getAllModules(): ModuleLoadEntry[] {
 
   cachedAllModules = collectModuleLoadEntries({
     moduleMetaDefinitions: Object.fromEntries(
-      Object.entries(moduleMetaDefinitions).map(([path, mod]) => [path, mod.moduleMeta])
+      Object.entries(moduleMetaDefinitions).map(([path, mod]) => [
+        path.replace(/\/meta\.ts$/, '/index.ts'),
+        mod.moduleMeta
+      ])
     ),
     onWarn: warn
   });

@@ -494,8 +494,7 @@ async function applyOptionalManagementModules(targetDir, options, dryRun) {
 
 function createStarterCrudFiles() {
   return {
-    'src/modules/starter-crud/index.ts': `import type { AppModuleManifest, AppModuleManifestMeta } from '@one-base-template/core';
-import layoutRoutes from './routes';
+    'src/modules/starter-crud/meta.ts': `import type { AppModuleManifestMeta } from '@one-base-template/core';
 
 export const moduleMeta = {
   id: 'starter-crud',
@@ -503,6 +502,10 @@ export const moduleMeta = {
   moduleTier: 'optional',
   enabledByDefault: false
 } as const satisfies AppModuleManifestMeta;
+`,
+    'src/modules/starter-crud/index.ts': `import type { AppModuleManifest } from '@one-base-template/core';
+import { moduleMeta } from './meta';
+import layoutRoutes from './routes';
 
 const starterCrudModule: AppModuleManifest = {
   ...moduleMeta,

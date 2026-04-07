@@ -85,7 +85,7 @@ src/
 以“新建一个与 admin 并行的业务子项目”为目标：
 
 1. 复制 `apps/admin` 的启动骨架（`main.ts + bootstrap + router + config + services + types`）
-2. 保留 `router/registry.ts + module manifest` 机制（`modules/**/index.ts`）
+2. 保留 `router/registry.ts + module manifest` 机制（`modules/**/meta.ts + modules/**/index.ts`）
 3. 把业务代码只放进新项目的 `modules/**`
 4. 若后端协议不同，优先改 adapter/service，不在页面散落兼容逻辑
 5. 保持“模块只依赖 services/types/core/ui”的边界
