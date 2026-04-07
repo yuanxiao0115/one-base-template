@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObTopBar
+# ObTopBar（顶部栏）
 
 `ObTopBar` 是后台顶部栏组件，负责系统切换、用户菜单（个性设置/退出登录）和头部视觉样式。
 

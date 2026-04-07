@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObActionButtons
+# ObActionButtons（行操作按钮）
 
 `ObActionButtons` 用于行操作按钮排布：
 

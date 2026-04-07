@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObAdminLayout
+# ObAdminLayout（后台布局壳）
 
 `ObAdminLayout` 是后台应用入口布局壳组件，会根据 `layoutStore.mode` 在侧栏布局与顶部布局间切换。
 

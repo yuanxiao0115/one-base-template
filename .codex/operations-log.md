@@ -12542,3 +12542,15 @@
 - 验证：
   - `pnpm -C apps/docs lint` 通过。
   - `pnpm -C apps/docs build` 通过（保留既有 chunk size 非阻断提示）。
+
+## 2026-04-07（docs：组件库组件名补中文，提升检索）
+
+- 目标：按用户要求在组件库文档中将“英文组件名”统一改为“英文名 + 中文名”，便于快速检索。
+- 改动：
+  - `apps/docs/docs/.vitepress/config.ts`
+    - 组件库侧边栏三组清单（业务高频 / 架构壳层 / 基础能力）全部改为 `ObXxx（中文）`。
+  - `apps/docs/docs/components/index.md`
+    - 组件目录列表全部改为 `ObXxx（中文）`。
+  - `apps/docs/docs/components/ob-*.md`
+    - 23 个组件页标题统一改为 `# ObXxx（中文）`。
+- 结果：组件库入口、目录页、详情页标题命名一致，支持按中文关键词快速定位组件。

@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObFilePreview
+# ObFilePreview（文件预览）
 
 `ObFilePreview` 是统一文件在线预览组件，面向“已上传文件”的前端直渲染场景，支持 `URL` 与 `File` 两类输入，并提供嵌入式预览、全屏弹窗和下载能力。
 

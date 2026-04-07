@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObMenuIconInput
+# ObMenuIconInput（菜单图标输入）
 
 `ObMenuIconInput` 是菜单图标输入壳，支持直接输入图标值，也支持弹窗选择 Iconfont / Iconify 图标。
 

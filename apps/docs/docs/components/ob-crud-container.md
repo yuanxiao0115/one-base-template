@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObCrudContainer
+# ObCrudContainer（CRUD 容器）
 
 `ObCrudContainer` 统一新增/编辑/详情容器，可在 `dialog` 与 `drawer` 间切换。
 

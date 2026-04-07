@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObSidebarMenu
+# ObSidebarMenu（侧边菜单）
 
 `ObSidebarMenu` 是侧边菜单组件，默认消费 `menuStore.menus`，并根据当前路由自动展开父级菜单。
 

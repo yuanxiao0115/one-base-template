@@ -208,3 +208,18 @@
 
 - 备注：
   - 构建过程中仍有 chunk size 提示，为既有非阻断告警。
+
+## 2026-04-07（docs：组件库组件名补中文）
+
+- 影响范围：
+  - `apps/docs/docs/.vitepress/config.ts`
+  - `apps/docs/docs/components/index.md`
+  - `apps/docs/docs/components/ob-*.md`（23 个组件页）
+
+- 验证结论：
+  - 组件库侧边栏、组件目录、组件详情页标题已统一为“英文名 + 中文名”。
+  - `pnpm -C apps/docs lint` 通过。
+  - `pnpm -C apps/docs build` 通过。
+
+- 备注：
+  - 构建阶段仍有 chunk size 提示，为既有非阻断告警。

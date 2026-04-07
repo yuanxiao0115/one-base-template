@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObTabsBar
+# ObTabsBar（标签栏）
 
 `ObTabsBar` 是标签栏壳组件，内部直接挂载 `@one-base-template/tag` 的 `TagComponent`。
 

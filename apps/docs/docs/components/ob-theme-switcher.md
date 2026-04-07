@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObThemeSwitcher
+# ObThemeSwitcher（主题切换器）
 
 `ObThemeSwitcher` 是主题设置面板组件，提供预设主题切换、自定义主色与灰色模式开关。
 

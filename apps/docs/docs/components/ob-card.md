@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObCard
+# ObCard（卡片）
 
 `ObCard` 是轻量卡片容器，统一标题区与内容区样式。
 

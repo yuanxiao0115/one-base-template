@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObMenuIcon
+# ObMenuIcon（菜单图标）
 
 `ObMenuIcon` 是菜单图标解析组件，支持 class 图标、Iconify、外链 URL、资源 ID（经资产服务解析）四种输入形态。
 

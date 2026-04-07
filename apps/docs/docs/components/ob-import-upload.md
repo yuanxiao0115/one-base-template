@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObImportUpload
+# ObImportUpload（导入上传）
 
 `ObImportUpload` 是导入上传封装组件，内置扩展名校验、大小校验、请求成功判定与统一消息反馈。
 

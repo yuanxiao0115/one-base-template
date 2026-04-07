@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObCardTable
+# ObCardTable（卡片表格）
 
 `ObCardTable` 以卡片网格方式展示数据，内置分页和空态。
 

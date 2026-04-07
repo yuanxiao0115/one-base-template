@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObFontIcon
+# ObFontIcon（字体图标）
 
 `ObFontIcon` 是字体图标统一封装，支持 `cp/dj/om` 三套图标库前缀与基类映射。
 

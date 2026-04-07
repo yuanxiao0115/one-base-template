@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObPersonnelSelector
+# ObPersonnelSelector（人员选择器）
 
 `ObPersonnelSelector` 是组织/人员选择组件，支持组织树浏览、关键词搜索、已选列表拖拽排序，并可配合 `openPersonnelSelection` 以弹窗方式调用。
 

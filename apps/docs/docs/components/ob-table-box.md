@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObTableBox
+# ObTableBox（表格工具容器）
 
 `ObTableBox` 是列表页工具栏与内容区容器，内置关键字搜索、已选数量区和高级筛选抽屉。
 

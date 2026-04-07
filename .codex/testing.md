@@ -11001,3 +11001,13 @@
 - 结果：
   - docs lint 通过（`0 warning / 0 error`）。
   - docs build 通过（存在 chunk size warning，非阻断）。
+
+## 2026-04-07（docs：组件库组件名补中文）
+
+- 验证命令：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - docs lint 通过（`0 warning / 0 error`）。
+  - docs build 通过（chunk size warning 为既有非阻断提示）。

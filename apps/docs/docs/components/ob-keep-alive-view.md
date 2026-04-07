@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObKeepAliveView
+# ObKeepAliveView（缓存视图）
 
 `ObKeepAliveView` 是路由渲染容器：根据标签页状态自动维护 KeepAlive include 列表，并解决“组件名与路由名不一致”导致缓存失效的问题。
 

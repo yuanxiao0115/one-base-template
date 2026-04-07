@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObUploadShell
+# ObUploadShell（上传壳）
 
 `ObUploadShell` 是通用上传壳组件，基于 `el-upload` 封装统一校验、统一事件与可复用触发器。
 

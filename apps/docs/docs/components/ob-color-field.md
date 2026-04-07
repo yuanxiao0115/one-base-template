@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObColorField
+# ObColorField（颜色输入）
 
 `ObColorField` 组合了颜色选择器与文本输入框，支持透明色快捷设置和颜色格式规范化。
 

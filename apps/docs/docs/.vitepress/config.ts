@@ -45,35 +45,35 @@ const practiceNavItems = [
 const componentLibraryOverviewItems = [{ text: '组件库总览', link: '/components/' }];
 
 const componentBusinessItems = [
-  { text: 'ObPageContainer', link: '/components/ob-page-container' },
-  { text: 'ObCrudContainer', link: '/components/ob-crud-container' },
-  { text: 'ObTableBox', link: '/components/ob-table-box' },
-  { text: 'ObTable', link: '/components/ob-table' },
-  { text: 'ObCardTable', link: '/components/ob-card-table' },
-  { text: 'ObActionButtons', link: '/components/ob-action-buttons' },
-  { text: 'ObTree', link: '/components/ob-tree' },
-  { text: 'ObImportUpload', link: '/components/ob-import-upload' },
-  { text: 'ObUploadShell', link: '/components/ob-upload-shell' },
-  { text: 'ObFilePreview', link: '/components/ob-file-preview' },
-  { text: 'ObPersonnelSelector', link: '/components/ob-personnel-selector' },
-  { text: 'ObRichText', link: '/components/ob-rich-text' },
-  { text: 'ObMenuIconInput', link: '/components/ob-menu-icon-input' },
-  { text: 'ObCard', link: '/components/ob-card' },
-  { text: 'ObColorField', link: '/components/ob-color-field' }
+  { text: 'ObPageContainer（页面容器）', link: '/components/ob-page-container' },
+  { text: 'ObCrudContainer（CRUD 容器）', link: '/components/ob-crud-container' },
+  { text: 'ObTableBox（表格工具容器）', link: '/components/ob-table-box' },
+  { text: 'ObTable（数据表格）', link: '/components/ob-table' },
+  { text: 'ObCardTable（卡片表格）', link: '/components/ob-card-table' },
+  { text: 'ObActionButtons（行操作按钮）', link: '/components/ob-action-buttons' },
+  { text: 'ObTree（树组件）', link: '/components/ob-tree' },
+  { text: 'ObImportUpload（导入上传）', link: '/components/ob-import-upload' },
+  { text: 'ObUploadShell（上传壳）', link: '/components/ob-upload-shell' },
+  { text: 'ObFilePreview（文件预览）', link: '/components/ob-file-preview' },
+  { text: 'ObPersonnelSelector（人员选择器）', link: '/components/ob-personnel-selector' },
+  { text: 'ObRichText（富文本编辑器）', link: '/components/ob-rich-text' },
+  { text: 'ObMenuIconInput（菜单图标输入）', link: '/components/ob-menu-icon-input' },
+  { text: 'ObCard（卡片）', link: '/components/ob-card' },
+  { text: 'ObColorField（颜色输入）', link: '/components/ob-color-field' }
 ];
 
 const componentArchitectureItems = [
-  { text: 'ObAdminLayout', link: '/components/ob-admin-layout' },
-  { text: 'ObSidebarMenu', link: '/components/ob-sidebar-menu' },
-  { text: 'ObTopBar', link: '/components/ob-top-bar' },
-  { text: 'ObTabsBar', link: '/components/ob-tabs-bar' },
-  { text: 'ObKeepAliveView', link: '/components/ob-keep-alive-view' }
+  { text: 'ObAdminLayout（后台布局壳）', link: '/components/ob-admin-layout' },
+  { text: 'ObSidebarMenu（侧边菜单）', link: '/components/ob-sidebar-menu' },
+  { text: 'ObTopBar（顶部栏）', link: '/components/ob-top-bar' },
+  { text: 'ObTabsBar（标签栏）', link: '/components/ob-tabs-bar' },
+  { text: 'ObKeepAliveView（缓存视图）', link: '/components/ob-keep-alive-view' }
 ];
 
 const componentFoundationItems = [
-  { text: 'ObThemeSwitcher', link: '/components/ob-theme-switcher' },
-  { text: 'ObMenuIcon', link: '/components/ob-menu-icon' },
-  { text: 'ObFontIcon', link: '/components/ob-font-icon' }
+  { text: 'ObThemeSwitcher（主题切换器）', link: '/components/ob-theme-switcher' },
+  { text: 'ObMenuIcon（菜单图标）', link: '/components/ob-menu-icon' },
+  { text: 'ObFontIcon（字体图标）', link: '/components/ob-font-icon' }
 ];
 
 const extensionDocumentItems = [

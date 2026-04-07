@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObPageContainer
+# ObPageContainer（页面容器）
 
 `ObPageContainer` 是页面骨架容器，负责统一“页头 / 左栏 / 主内容 / 页脚”布局。
 

@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObTree
+# ObTree（树组件）
 
 `ObTree` 是 `el-tree` 的轻封装，统一默认字段名并提供常用实例方法。
 

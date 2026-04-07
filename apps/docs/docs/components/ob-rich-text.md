@@ -2,7 +2,7 @@
 outline: [2, 3]
 ---
 
-# ObRichText
+# ObRichText（富文本编辑器）
 
 `ObRichText` 是基于 `wangEditor` 的富文本组件，内置上传接入点、内容净化与简版工具栏配置。
 

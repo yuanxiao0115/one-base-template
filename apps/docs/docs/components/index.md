@@ -23,35 +23,35 @@ app.use(OneUiObTablePlugin, {
 
 ### 业务高频组件（优先看）
 
-- [ObPageContainer](/components/ob-page-container)
-- [ObCrudContainer](/components/ob-crud-container)
-- [ObTableBox](/components/ob-table-box)
-- [ObTable](/components/ob-table)
-- [ObCardTable](/components/ob-card-table)
-- [ObActionButtons](/components/ob-action-buttons)
-- [ObTree](/components/ob-tree)
-- [ObImportUpload](/components/ob-import-upload)
-- [ObUploadShell](/components/ob-upload-shell)
-- [ObFilePreview](/components/ob-file-preview)
-- [ObPersonnelSelector](/components/ob-personnel-selector)
-- [ObRichText](/components/ob-rich-text)
-- [ObMenuIconInput](/components/ob-menu-icon-input)
-- [ObCard](/components/ob-card)
-- [ObColorField](/components/ob-color-field)
+- [ObPageContainer（页面容器）](/components/ob-page-container)
+- [ObCrudContainer（CRUD 容器）](/components/ob-crud-container)
+- [ObTableBox（表格工具容器）](/components/ob-table-box)
+- [ObTable（数据表格）](/components/ob-table)
+- [ObCardTable（卡片表格）](/components/ob-card-table)
+- [ObActionButtons（行操作按钮）](/components/ob-action-buttons)
+- [ObTree（树组件）](/components/ob-tree)
+- [ObImportUpload（导入上传）](/components/ob-import-upload)
+- [ObUploadShell（上传壳）](/components/ob-upload-shell)
+- [ObFilePreview（文件预览）](/components/ob-file-preview)
+- [ObPersonnelSelector（人员选择器）](/components/ob-personnel-selector)
+- [ObRichText（富文本编辑器）](/components/ob-rich-text)
+- [ObMenuIconInput（菜单图标输入）](/components/ob-menu-icon-input)
+- [ObCard（卡片）](/components/ob-card)
+- [ObColorField（颜色输入）](/components/ob-color-field)
 
 ### 架构壳层组件（一般不直接用于业务页面）
 
-- [ObAdminLayout](/components/ob-admin-layout)
-- [ObSidebarMenu](/components/ob-sidebar-menu)
-- [ObTopBar](/components/ob-top-bar)
-- [ObTabsBar](/components/ob-tabs-bar)
-- [ObKeepAliveView](/components/ob-keep-alive-view)
+- [ObAdminLayout（后台布局壳）](/components/ob-admin-layout)
+- [ObSidebarMenu（侧边菜单）](/components/ob-sidebar-menu)
+- [ObTopBar（顶部栏）](/components/ob-top-bar)
+- [ObTabsBar（标签栏）](/components/ob-tabs-bar)
+- [ObKeepAliveView（缓存视图）](/components/ob-keep-alive-view)
 
 ### 基础能力组件（图标 / 主题）
 
-- [ObThemeSwitcher](/components/ob-theme-switcher)
-- [ObMenuIcon](/components/ob-menu-icon)
-- [ObFontIcon](/components/ob-font-icon)
+- [ObThemeSwitcher（主题切换器）](/components/ob-theme-switcher)
+- [ObMenuIcon（菜单图标）](/components/ob-menu-icon)
+- [ObFontIcon（字体图标）](/components/ob-font-icon)
 
 ## 使用建议
 
