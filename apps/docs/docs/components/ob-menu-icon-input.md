@@ -21,6 +21,7 @@ outline: [2, 3]
 - 弹窗支持分类：
   - Iconfont：`CP / DJ / OM / OD`
   - Iconify：`EP / RI`
+- Iconfont 候选元数据由 `packages/ui/src/assets/iconfont/*/iconfont.json` 内置提供，运行时不依赖应用层 `public/fonts/*/iconfont.json`。
 - 选择后点击“应用图标”会写回 `modelValue`。
 
 ## 示例

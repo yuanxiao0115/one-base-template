@@ -56,6 +56,7 @@
 - 行为：
   1. 支持 iconfont class、url/blob、iconify、资源 id 四类输入。
   2. 对 legacy OD 菜单图标（`icon-xxx`）自动补齐 `iconfont-od` 基类兼容。
+  3. 图标选择器候选数据由 `packages/ui` 内置 iconfont json 提供，不依赖应用 `public/fonts/*/iconfont.json` 运行时请求。
 
 ## 3. Demo 预览（直接核对）
 

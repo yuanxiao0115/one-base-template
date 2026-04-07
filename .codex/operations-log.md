@@ -2,6 +2,39 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-07（MenuIconInput 图标源收口：移除 packages 对 app public/fonts 的 json 依赖）
+
+- 背景：
+  - 用户要求确认并收口“`packages` 已封装但仍依赖 `public/fonts`”的问题，目标是让图标候选数据由包内自给。
+- 本次收口：
+  - `packages/ui/src/assets/iconfont/{cp,dj,om,od}-icons/iconfont.json` 新增四套内置 glyph 元数据。
+  - `packages/ui/src/components/menu/menu-iconfont-sources.ts`
+    - 图标源从 `jsonPath` 改为 `glyphs` 内置数据；
+    - 新增 `MenuIconfontGlyph` 类型并在 `packages/ui/src/index.ts` 对外导出。
+  - `packages/ui/src/components/menu/MenuIconInput.vue`
+    - 删除 `fetch('/fonts/*/iconfont.json')`；
+    - 图标候选改为直接读取 `source.glyphs`。
+  - `packages/portal-engine/src/materials/common/unified-container/menu-icon-sources.ts`
+    - 改为复用 `@one-base-template/ui` 的统一图标源定义，避免再次分叉。
+  - `packages/portal-engine/src/materials/common/unified-container/MenuIconSelectorInput.vue`
+    - 删除运行时 `fetch`，改为读取内置 `glyphs`。
+  - 文档同步：
+    - `apps/docs/docs/components/ob-menu-icon-input.md`
+    - `apps/docs/docs/guide/iconfont.md`
+    - 明确“菜单图标候选元数据由 `packages/ui` 内置提供”。
+- 验证结果：
+  - `pnpm -C packages/ui typecheck`：通过。
+  - `pnpm -C packages/ui lint`：通过。
+  - `pnpm -C packages/ui test:run -- src/components/menu/menu-iconfont-sources.test.ts`：通过（执行了全量测试，`21 files / 90 tests`）。
+  - `pnpm -C packages/portal-engine typecheck`：通过。
+  - `pnpm -C packages/portal-engine lint`：通过。
+  - `pnpm -C apps/admin build`：通过。
+  - `pnpm check:admin:bundle`：通过（startup js count/gzip、iconify-ri、element-plus 预算均 PASS）。
+  - `pnpm -C apps/admin-lite build`：通过。
+  - `pnpm check:admin-lite:bundle`：通过（startup js count/gzip、iconify-ri、element-plus 预算均 PASS）。
+  - `pnpm -C apps/docs lint` 与 `pnpm -C apps/docs build`：通过。
+  - 代码检索复核：`packages` 下已无 `/fonts/*/iconfont.json` 运行时请求字符串。
+
 ## 2026-04-07（Harness 工程化第一版：路由验证 + 证据落盘 + CI 对齐）
 
 - 背景：

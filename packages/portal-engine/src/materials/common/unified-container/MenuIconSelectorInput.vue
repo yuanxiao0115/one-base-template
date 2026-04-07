@@ -18,15 +18,6 @@ import {
 
 type MenuIconSelectorTab = MenuIconfontSourceKey | MenuIconifyPrefix;
 
-interface IconfontJsonGlyph {
-  name?: string;
-  font_class?: string;
-}
-
-interface IconfontJsonResponse {
-  glyphs?: IconfontJsonGlyph[];
-}
-
 interface MenuIconCandidate {
   key: string;
   name: string;
@@ -190,14 +181,7 @@ async function loadIconfontCandidates(source: MenuIconfontSource): Promise<MenuI
     return cached;
   }
 
-  const response = await fetch(source.jsonPath, { cache: 'force-cache' });
-  if (!response.ok) {
-    throw new Error(`加载图标资源失败：${source.jsonPath}`);
-  }
-
-  const payload = (await response.json()) as IconfontJsonResponse;
-  const glyphs = Array.isArray(payload.glyphs) ? payload.glyphs : [];
-  const candidates = glyphs
+  const candidates = source.glyphs
     .map((glyph) => {
       const fontClass = normalizeIconfontClass(source, glyph.font_class ?? '');
       const iconValue = buildMenuIconfontValue(source, fontClass);

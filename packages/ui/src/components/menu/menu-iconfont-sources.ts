@@ -1,39 +1,57 @@
+import cpIconfont from '../../assets/iconfont/cp-icons/iconfont.json';
+import djIconfont from '../../assets/iconfont/dj-icons/iconfont.json';
+import omIconfont from '../../assets/iconfont/om-icons/iconfont.json';
+import odIconfont from '../../assets/iconfont/od-icons/iconfont.json';
+
 export type MenuIconfontSourceKey = 'cp' | 'dj' | 'od' | 'om';
+
+export interface MenuIconfontGlyph {
+  name?: string;
+  font_class?: string;
+}
+
+interface MenuIconfontManifest {
+  glyphs?: MenuIconfontGlyph[];
+}
 
 export interface MenuIconfontSource {
   key: MenuIconfontSourceKey;
   label: string;
-  jsonPath: string;
+  glyphs: MenuIconfontGlyph[];
   baseClass: string;
   classPrefix: string;
+}
+
+function normalizeIconfontGlyphs(manifest: MenuIconfontManifest): MenuIconfontGlyph[] {
+  return Array.isArray(manifest.glyphs) ? manifest.glyphs : [];
 }
 
 export const MENU_ICONFONT_SOURCE_MAP: Record<MenuIconfontSourceKey, MenuIconfontSource> = {
   cp: {
     key: 'cp',
     label: 'CP（产品 Iconfont）',
-    jsonPath: '/fonts/cp-icons/iconfont.json',
+    glyphs: normalizeIconfontGlyphs(cpIconfont),
     baseClass: 'iconfont',
     classPrefix: 'icon-'
   },
   dj: {
     key: 'dj',
     label: 'DJ（党建 Iconfont）',
-    jsonPath: '/fonts/dj-icons/iconfont.json',
+    glyphs: normalizeIconfontGlyphs(djIconfont),
     baseClass: 'dj-icons',
     classPrefix: 'dj-icon-'
   },
   om: {
     key: 'om',
     label: 'OM（OM Iconfont）',
-    jsonPath: '/fonts/om-icons/iconfont.json',
+    glyphs: normalizeIconfontGlyphs(omIconfont),
     baseClass: 'i-icon-menu',
     classPrefix: 'i-icon-'
   },
   od: {
     key: 'od',
     label: 'OD（公文 Iconfont）',
-    jsonPath: '/fonts/od-icons/iconfont.json',
+    glyphs: normalizeIconfontGlyphs(odIconfont),
     baseClass: 'iconfont-od',
     classPrefix: 'icon-'
   }

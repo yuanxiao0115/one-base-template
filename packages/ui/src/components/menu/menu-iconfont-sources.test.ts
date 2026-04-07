@@ -11,6 +11,13 @@ describe('menu-iconfont-sources', () => {
     expect(MENU_ICONFONT_SOURCES.map((item) => item.key)).toEqual(['cp', 'dj', 'om', 'od']);
   });
 
+  it('应内置每套 iconfont glyph 数据，避免运行时依赖 public/fonts', () => {
+    MENU_ICONFONT_SOURCES.forEach((source) => {
+      expect(source.glyphs.length).toBeGreaterThan(0);
+      expect(Object.prototype.hasOwnProperty.call(source, 'jsonPath')).toBe(false);
+    });
+  });
+
   it('应在缺失前缀时自动补齐 classPrefix', () => {
     expect(normalizeIconfontClass(MENU_ICONFONT_SOURCE_MAP.cp, 'menu-home')).toBe('icon-menu-home');
     expect(normalizeIconfontClass(MENU_ICONFONT_SOURCE_MAP.dj, 'dj-icon-user')).toBe(

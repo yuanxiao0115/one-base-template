@@ -2,6 +2,24 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-07（MenuIconInput 图标源收口：packages 内置 glyph）
+
+- GREEN / 回归：
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C packages/ui lint`
+  - `pnpm -C packages/ui test:run -- src/components/menu/menu-iconfont-sources.test.ts`
+  - `pnpm -C packages/portal-engine typecheck`
+  - `pnpm -C packages/portal-engine lint`
+  - `pnpm -C apps/admin build`
+  - `pnpm check:admin:bundle`
+  - `pnpm -C apps/admin-lite build`
+  - `pnpm check:admin-lite:bundle`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 所有命令通过；`admin/admin-lite` 构建体积预算检查均为 PASS。
+  - `packages/ui` 定向测试命令触发了全量测试执行，结果 `21 files / 90 tests` 全通过（非失败，保留记录用于后续排查）。
+
 ## 2026-04-03（packages/ui：MenuIconInput + UploadShell）
 
 - GREEN / 回归：

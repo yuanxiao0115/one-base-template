@@ -34,6 +34,7 @@ export {
   type MenuIconifyPrefix
 } from './iconify/menu-iconify';
 export type {
+  MenuIconfontGlyph,
   MenuIconfontSource,
   MenuIconfontSourceKey
 } from './components/menu/menu-iconfont-sources';

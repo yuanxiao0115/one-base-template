@@ -6,7 +6,7 @@
 
 - 日期：2026-04-07
 - 文件：`.codex/verification/2026-04-07.md`
-- 补充：P0 Milestone A（AccountCenter）与 Milestone B（CommandPalette）组件沉淀及三端接入验证记录。
+- 补充：P0 Milestone A/B 组件沉淀验证记录；新增 MenuIconInput 图标源收口（packages 内置 glyph，移除对 app `public/fonts` 的 json 运行时依赖）验证记录。
 
 ## 历史归档
 
