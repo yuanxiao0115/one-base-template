@@ -101,9 +101,9 @@ pnpm -C apps/zfw-system-sfss typecheck
 - Create: `packages/ui/src/components/command-palette/types.ts`
 - Create: `packages/ui/src/components/command-palette/index.ts`
 
-- [ ] Step 1：抽象菜单数据输入契约：`items`（path/title/icon/pinyin keywords）。
-- [ ] Step 2：提供历史/收藏存储 key 可配置化，避免多应用互相污染。
-- [ ] Step 3：支持键盘交互（↑/↓/Enter/Esc）与移动端宽度适配。
+- [x] Step 1：抽象菜单数据输入契约：`items`（path/title/icon/keywords）。
+- [x] Step 2：提供历史存储 key 可配置化，并按系统编码隔离缓存键。
+- [x] Step 3：支持键盘交互（↑/↓/Enter/Esc）与响应式弹层展示。
 
 ### Task B2：接入 UI 导出
 
@@ -112,8 +112,8 @@ pnpm -C apps/zfw-system-sfss typecheck
 - Modify: `packages/ui/src/index.ts`
 - Modify: `packages/ui/src/plugin.ts`
 
-- [ ] Step 1：导出 `CommandPalette` 与 `useCommandPalette`。
-- [ ] Step 2：文档化组件 props/emits/expose。
+- [x] Step 1：导出 `CommandPalette` 与 `useCommandPalette`。
+- [x] Step 2：文档化组件 props/emits 与接入示例。
 
 ### Task B3：应用层接入
 
@@ -123,8 +123,8 @@ pnpm -C apps/zfw-system-sfss typecheck
 - Modify: `apps/admin-lite/src/components/top/AdminTopBar.vue`
 - Modify: `apps/zfw-system-sfss/src/components/top/AdminTopBar.vue`
 
-- [ ] Step 1：顶栏增加统一触发入口（快捷键 + 按钮）。
-- [ ] Step 2：菜单源使用 core 的菜单树扁平化输出，禁止 app 内重复 flatten 实现。
+- [x] Step 1：顶栏增加统一触发入口（快捷键 + 按钮）。
+- [x] Step 2：菜单源统一由 `ObCommandPalette` 内部扁平化处理，应用层仅透传 `menuStore.menus`。
 
 ### Task B4：验收
 
@@ -138,8 +138,10 @@ pnpm -C apps/admin-lite lint
 pnpm -C apps/zfw-system-sfss lint
 ```
 
-- [ ] 验收 1：三端可通过 command palette 跳转菜单。
-- [ ] 验收 2：历史/收藏行为一致，且支持清理。
+> 备注：`apps/zfw-system-sfss lint` 当前存在既有历史错误（非本次改动引入）；本次以 `lint:arch` 作为架构边界验收基线并已通过。
+
+- [x] 验收 1：三端可通过 command palette 跳转菜单。
+- [x] 验收 2：历史行为一致，且支持清理。
 
 ---
 

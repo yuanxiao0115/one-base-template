@@ -25,6 +25,7 @@ export { default as FilePreview } from './components/preview/FilePreview.vue';
 export { default as PersonnelSelector } from './components/personnel-selector/PersonnelSelector.vue';
 export { default as RichText } from './components/rich-text/RichText.vue';
 export { AccountCenterPanel } from './components/account-center';
+export { CommandPalette } from './components/command-palette';
 export { LoginBox, LoginBoxV2 } from './lite-auth';
 export {
   ensureMenuIconifyCollectionsRegistered,
@@ -97,6 +98,19 @@ export type {
   AccountCenterUploadAvatarPayload,
   AccountCenterUser
 } from './components/account-center';
+export type {
+  BuildCommandPaletteItemsOptions,
+  CommandPaletteItem,
+  CommandPaletteMenuItems,
+  CommandPaletteNavigatePayload,
+  UseCommandPaletteOptions
+} from './components/command-palette';
+export {
+  buildCommandPaletteItemsFromMenus,
+  filterCommandPaletteItems,
+  normalizeCommandPaletteKeyword,
+  useCommandPalette
+} from './components/command-palette';
 export {
   getRichTextToolbarExcludeKeys,
   normalizeRichTextHtml,

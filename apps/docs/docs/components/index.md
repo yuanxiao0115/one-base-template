@@ -36,6 +36,7 @@ app.use(OneUiObTablePlugin, {
 - [ObPersonnelSelector（人员选择器）](/components/ob-personnel-selector)
 - [ObRichText（富文本编辑器）](/components/ob-rich-text)
 - [ObAccountCenterPanel（账号中心面板）](/components/ob-account-center-panel)
+- [ObCommandPalette（菜单搜索面板）](/components/ob-command-palette)
 - [ObMenuIconInput（菜单图标输入）](/components/ob-menu-icon-input)
 - [ObCard（卡片）](/components/ob-card)
 - [ObColorField（颜色输入）](/components/ob-color-field)

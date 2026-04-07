@@ -47,6 +47,10 @@ const showSystemSwitcherMenu = computed(
 const currentSystemName = computed(() => systemStore.currentSystemName);
 const title = computed(() => `${currentSystemName.value} | ${ui.topbar.titleSuffix}`);
 const topbarHeight = computed(() => layoutStore.topbarHeight);
+const commandPaletteHistoryKeyBase = computed(() => {
+  const systemCode = systemStore.currentSystemCode || 'default';
+  return `ob_command_palette_history_${systemCode}`;
+});
 
 const isSuperAdmin = computed(() => {
   const user = authStore.user;
@@ -282,6 +286,23 @@ function openPersonalizationDrawer() {
   personalizationDrawerVisible.value = true;
 }
 
+async function onCommandPaletteNavigate(payload: { path: string; external: boolean }) {
+  if (!payload.path) {
+    return;
+  }
+
+  if (payload.external) {
+    window.open(payload.path, '_blank', 'noopener');
+    return;
+  }
+
+  if (payload.path === route.path) {
+    return;
+  }
+
+  await router.replace(payload.path);
+}
+
 async function onSwitchTenant(tenantId: string) {
   if (tenantSwitching.value || !tenantId) {
     return;
@@ -381,6 +402,11 @@ async function onSwitchTenant(tenantId: string) {
     </div>
 
     <div class="ob-topbar__right">
+      <ObCommandPalette
+        :menu-items="menuStore.menus"
+        :history-key-base="commandPaletteHistoryKeyBase"
+        @navigate="onCommandPaletteNavigate"
+      />
       <ObAccountCenterPanel
         :user="authStore.user"
         :show-profile-dialog="ui.topbar.profileDialog"

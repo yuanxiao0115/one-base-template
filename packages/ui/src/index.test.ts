@@ -17,6 +17,11 @@ describe('ui root entry source', () => {
     expect(source).not.toContain('TanStackTable');
   });
 
+  it('导出 CommandPalette 与相关 helper，保证菜单搜索能力可复用', () => {
+    expect(source).toContain("export { CommandPalette } from './components/command-palette';");
+    expect(source).toContain("} from './components/command-palette';");
+  });
+
   it('obtable 子入口应注入图标与表格主题样式，避免样式变量丢失', () => {
     expect(obtableEntrySource).toContain("import './styles/iconfont.css';");
     expect(obtableEntrySource).toContain("import './styles/table-theme.css';");

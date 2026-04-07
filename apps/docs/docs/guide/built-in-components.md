@@ -67,6 +67,7 @@ app.use(OneUiObTablePlugin, {
 | `ObSidebarMenu`        | 左侧菜单                                 |
 | `ObTopBar`             | 顶栏壳                                   |
 | `ObAccountCenterPanel` | 顶栏账号中心（头像、用户信息、修改密码） |
+| `ObCommandPalette`     | 顶栏菜单搜索面板（Ctrl/Cmd+K）           |
 | `ObTabsBar`            | 标签栏                                   |
 | `ObKeepAliveView`      | 页面缓存渲染                             |
 | `ObTree`               | 树组件封装                               |

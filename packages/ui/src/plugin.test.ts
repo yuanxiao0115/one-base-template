@@ -18,4 +18,9 @@ describe('registerOneUiComponents source', () => {
     expect(source).toContain('Table,');
     expect(source).not.toContain('TanStackTable');
   });
+
+  it('应注册 CommandPalette，供应用层统一接入菜单搜索', () => {
+    expect(source).toContain("import { CommandPalette } from './components/command-palette';");
+    expect(source).toContain('CommandPalette');
+  });
 });
