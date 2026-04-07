@@ -185,14 +185,25 @@ function createAdminShellPreloadBlockedPrefixes(appName: string) {
   const aliases = resolveAdminShellAppAliases(appName);
 
   return [
+    // 兼容“admin-xxx”与“路由文件名直出 chunk”两种命名，避免路由页被误加入启动预加载队列。
     ...aliases.map((name) => `assets/${name}-entry-`),
     ...aliases.map((name) => `assets/${name}-app-shell-`),
     ...aliases.map((name) => `assets/${name}-home-`),
+    'assets/home-',
     ...aliases.map((name) => `assets/${name}-log-management-`),
+    'assets/LogManagement-',
     ...aliases.map((name) => `assets/${name}-system-management-`),
+    'assets/SystemManagement-',
     'assets/admin-management-',
+    'assets/adminManagement-',
     ...aliases.map((name) => `assets/${name}-portal-`),
+    'assets/PortalManagement-',
     'assets/portal-engine-',
+    'assets/DocumentFormDesignerPage-',
+    'assets/DocumentFormPreviewPage-',
+    'assets/SsoCallbackPage-',
+    'assets/list-',
+    'assets/extensions-',
     'assets/sortable-grid-',
     'assets/one-ui-shell-',
     'assets/one-ui-table-',

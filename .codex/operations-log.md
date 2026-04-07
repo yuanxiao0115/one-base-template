@@ -12721,3 +12721,56 @@
 - 验证：
   - `pnpm -C apps/docs lint` 通过。
   - `pnpm -C apps/docs build` 通过（保留既有 chunk size 非阻断提示）。
+
+## 2026-04-07（Harness：主门禁排除 zfw + 非 zfw 阻塞复验）
+
+- 用户确认：`apps/zfw-system-sfss` 为迁移遗留代码，主门禁不作为阻断项。
+- 本次调整：
+  - 根脚本收敛为显式包集合（`@one-base-template/* + admin/admin-lite/docs/portal`），默认不包含 `zfw-system-sfss`：
+    - `package.json`：`typecheck/lint/build/test/test:run`
+  - 规则落盘：
+    - 根 `AGENTS.md` 增加“zfw 默认不纳入主门禁、改动时定向验证”
+    - `apps/zfw-system-sfss/AGENTS.md` 增加同口径说明
+  - 文档同步：
+    - `apps/docs/docs/guide/development.md`
+    - `apps/docs/docs/guide/harness-engineering.md`
+  - 为跨包 typecheck 补齐三方类型声明传播路径：
+    - `apps/portal/tsconfig.json` include `../../packages/ui/src/env.d.ts`
+    - `packages/portal-engine/tsconfig.json` include `../ui/src/env.d.ts`
+    - `packages/ui/src/env.d.ts` 保留第三方模块声明
+    - `packages/ui/src/components/preview/engines/OfdPreviewEngine.vue` 使用 `import Ofdview from 'ofdview-vue3'`
+- 验证：
+  - `pnpm typecheck` 通过（排除 zfw 后）
+  - `pnpm -C apps/docs lint` 通过
+  - `pnpm -C apps/docs build` 通过
+  - `pnpm verify` 仍失败：`check:admin:bundle` 超预算（startup dependency map 三项超限）
+
+## 2026-04-07（Harness：方案2执行完成，admin bundle 门禁恢复）
+
+- 背景：
+  - 用户选择“方案 2”，要求不调整预算阈值，仅通过工程优化使 `check:admin:bundle` 恢复通过。
+  - 用户明确 `zfw-system-sfss` 为迁移遗留代码，本轮不作为主阻断对象。
+- 本次改动：
+  - `scripts/vite/manual-chunks.ts`
+    - 在 `createAdminShellPreloadBlockedPrefixes` 新增“路由文件名直出 chunk”命名兼容前缀，避免路由页 chunk 进入 `admin-app-shell` 启动依赖图：
+      - `assets/home-`
+      - `assets/LogManagement-`
+      - `assets/SystemManagement-`
+      - `assets/adminManagement-`
+      - `assets/PortalManagement-`
+      - `assets/DocumentFormDesignerPage-`
+      - `assets/DocumentFormPreviewPage-`
+      - `assets/SsoCallbackPage-`
+      - `assets/list-`
+      - `assets/extensions-`
+  - `apps/admin/tests/build/manual-chunks.unit.test.ts`
+    - 扩充 `admin-app-shell` preload 过滤用例，覆盖新增前缀（`DocumentFormDesignerPage/list/LogManagement/home`）。
+- 验证：
+  - `pnpm -C apps/admin build`：通过。
+  - `node scripts/check-admin-build-size.mjs`：通过。
+    - `startup dependency map js count`：`24 -> 11`
+    - `startup dependency map js gzip`：`1753.1 KiB -> 241.7 KiB`
+    - `tiny chunks`：`16 -> 5`
+  - `pnpm verify`：通过（包含 `check:admin:bundle` 与 `check:admin-lite:bundle`）。
+- 备注：
+  - 本次为 preload 过滤与内置映射重写层优化，不涉及业务路由行为变更。

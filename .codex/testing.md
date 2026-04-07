@@ -11348,3 +11348,73 @@ vitepress v2.0.0-alpha.17
 ✓ rendering pages...
 build complete in 5.29s.
 ```
+
+## 2026-04-07（Harness工程化复验（排除zfw后））
+
+- 作用域：root scripts + docs + ui type declaration
+- 命令：
+  - `pnpm verify`
+- 结果：
+  - `pnpm verify`：失败（exit=1）
+- 输出摘要：
+
+```text
+$ pnpm verify
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[32m✓[0m building client + server bundles...
+- rendering pages...
+[32m✓[0m rendering pages...
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] Warning:[0m src/modules/demoManagement/demo-user/router/index.ts is dynamically imported by src/router/registry.ts but also statically imported by src/modules/demoManagement/routes.ts, src/router/registry.ts, dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 3000 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] Warning:[0m src/modules/demoManagement/index.ts is dynamically imported by src/router/registry.ts but also statically imported by src/router/registry.ts, dynamic import will not move module into another chunk.
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] Warning:[0m src/modules/starter-crud/index.ts is dynamically imported by src/router/registry.ts but also statically imported by src/router/registry.ts, dynamic import will not move module into another chunk.
+
+
+- startup dependency map js count: 24 / 预算 22 [FAIL]
+- startup dependency map js gzip: 1753.1 KiB / 预算 820.0 KiB [FAIL]
+- tiny chunks(12.0 KiB 以下, startup dependency map js)数量: 16 / 预算 12 [FAIL]
+admin 构建体积预算检查失败，共 3 项超限。
+
+```
+
+## 2026-04-07（Harness工程化方案2：admin 启动依赖图收敛）
+
+- 作用域：`scripts/vite/manual-chunks.ts`、`apps/admin/tests/build/manual-chunks.unit.test.ts`
+- 命令：
+  - `pnpm -C apps/admin build`
+  - `node scripts/check-admin-build-size.mjs`
+  - `pnpm verify`
+- 结果：
+  - `pnpm -C apps/admin build`：通过（exit=0）
+  - `node scripts/check-admin-build-size.mjs`：通过（exit=0）
+  - `pnpm verify`：通过（exit=0）
+- 输出摘要：
+
+```text
+$ node scripts/check-admin-build-size.mjs
+admin 构建体积预算检查：
+- iconify-ri chunk: iconify-ri-bZCvkOTp.js = 1017.2 KiB / 预算 1120.0 KiB [PASS]
+- wangeditor chunk: wangeditor-nJnViIeF.js = 781.1 KiB / 预算 980.0 KiB [PASS]
+- element-plus chunk: element-plus-COkr2W69.js = 638.8 KiB / 预算 720.0 KiB [PASS]
+- startup dependency map js count: 11 / 预算 22 [PASS]
+- startup dependency map js gzip: 241.7 KiB / 预算 820.0 KiB [PASS]
+- tiny chunks(12.0 KiB 以下, startup dependency map js)数量: 5 / 预算 12 [PASS]
+admin 构建体积预算检查通过。
+
+$ pnpm verify
+...
+> one-base-template@0.0.0 check:admin:bundle /Users/haoqiuzhi/code/one-base-template
+> node ./scripts/check-admin-build-size.mjs
+...
+admin 构建体积预算检查通过。
+> one-base-template@0.0.0 check:admin-lite:bundle /Users/haoqiuzhi/code/one-base-template
+> node ./scripts/check-admin-lite-build-size.mjs
+...
+admin-lite 构建体积预算检查通过。
+```

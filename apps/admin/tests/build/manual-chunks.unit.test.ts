@@ -55,6 +55,10 @@ describe('admin preload resolver', () => {
       'assets/portal-engine-yyy.js',
       'assets/vxe-zzz.js',
       'assets/element-plus-www.js',
+      'assets/DocumentFormDesignerPage-foo.js',
+      'assets/list-bar.js',
+      'assets/LogManagement-baz.js',
+      'assets/home-qux.js',
       'assets/vue-vendor-keep.js'
     ];
     expect(
