@@ -22,6 +22,11 @@ describe('ui root entry source', () => {
     expect(source).toContain("} from './components/command-palette';");
   });
 
+  it('导出 DialogHost 与指令式 API，支持全局弹窗编排', () => {
+    expect(source).toContain("export { DialogHost } from './components/dialog-host';");
+    expect(source).toContain("} from './components/dialog-host';");
+  });
+
   it('obtable 子入口应注入图标与表格主题样式，避免样式变量丢失', () => {
     expect(obtableEntrySource).toContain("import './styles/iconfont.css';");
     expect(obtableEntrySource).toContain("import './styles/table-theme.css';");

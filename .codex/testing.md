@@ -11519,3 +11519,45 @@ admin-lite 构建体积预算检查通过。
   - startup 依赖图：
     - JS 数量 `9 -> 7`
     - JS gzip `250.0 KiB -> 233.4 KiB`
+
+## 2026-04-09（ObDialogHost 与验证流程收口）
+
+- 作用域：apps/admin + apps/admin-lite + packages/ui + docs
+- 命令：
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin-lite lint`
+  - `pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/components/dialog-host/dialog-host.test.ts`
+- 结果：
+  - `pnpm -C apps/admin lint`：通过（exit=0）
+  - `pnpm -C apps/admin-lite lint`：通过（exit=0）
+  - `pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/components/dialog-host/dialog-host.test.ts`：通过（exit=0）
+- 输出摘要：
+
+```text
+$ pnpm -C apps/admin lint
+> admin@0.0.0 lint /Users/haoqiuzhi/code/one-base-template/apps/admin
+> vp lint .
+
+Found 0 warnings and 0 errors.
+Finished in 1.0s on 384 files with 140 rules using 8 threads.
+
+$ pnpm -C apps/admin-lite lint
+> admin-lite@0.0.0 lint /Users/haoqiuzhi/code/one-base-template/apps/admin-lite
+> node ../../scripts/run-vp-task-from-root.mjs lint
+
+Found 0 warnings and 0 errors.
+Finished in 726ms on 269 files with 140 rules using 8 threads.
+
+$ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/components/dialog-host/dialog-host.test.ts
+> @one-base-template/ui@0.0.0 test:run /Users/haoqiuzhi/code/one-base-template/packages/ui
+> vp test run -- src/index.test.ts src/plugin.test.ts src/components/dialog-host/dialog-host.test.ts
+
+ RUN  /Users/haoqiuzhi/code/one-base-template/packages/ui
+
+
+ Test Files  22 passed (22)
+      Tests  94 passed (94)
+   Start at  08:58:57
+   Duration  2.41s (transform 2.70s, setup 0ms, import 3.22s, tests 1.24s, environment 6.79s)
+
+```

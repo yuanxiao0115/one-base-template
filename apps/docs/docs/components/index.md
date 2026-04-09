@@ -79,6 +79,7 @@ pnpm -C apps/admin-lite build
 
 - [ObPageContainer（页面容器）](/components/ob-page-container)
 - [ObCrudContainer（CRUD 容器）](/components/ob-crud-container)
+- [ObDialogHost（弹层宿主）](/components/ob-dialog-host)
 - [ObTableBox（表格工具容器）](/components/ob-table-box)
 - [ObTable（数据表格）](/components/ob-table)
 - [ObCardTable（卡片表格）](/components/ob-card-table)

@@ -1,4 +1,4 @@
-import { computed, nextTick, onMounted, reactive, ref, watch, type Ref } from 'vue';
+import { computed, onMounted, reactive, ref, watch, type Ref } from 'vue';
 import type { CrudFormLike } from '@one-base-template/ui';
 import { useCrudPage } from '@one-base-template/core';
 import { message } from '@one-base-template/ui';
@@ -32,6 +32,8 @@ import { useUserStatusActions } from './useUserStatusActions';
 import { useUserDragSort } from './useUserDragSort';
 import { useUserRemoteOptions } from './useUserRemoteOptions';
 import { validateUserSavePayload } from '../utils/validateUserSavePayload';
+import { useUserCrossPageSelection } from './useUserCrossPageSelection';
+import { downloadUserTemplate, getUserTypeLabel, getUserTypeLabelMap } from './userCrudHelpers';
 
 interface SearchRefExpose {
   resetFields?: () => void;
@@ -39,39 +41,6 @@ interface SearchRefExpose {
 
 interface TreeRefExpose {
   setCurrentKey?: (key?: string | null) => void;
-}
-
-interface TableInstanceExpose {
-  clearSelection?: () => void;
-  toggleRowSelection?: (row: UserListRecord, selected?: boolean) => void;
-}
-
-interface TableRefExpose {
-  getTableRef?: () => TableInstanceExpose | null;
-}
-
-function getUserTypeLabelMap(
-  options: ReadonlyArray<{ value: number; label: string }>
-): Record<number, string> {
-  return Object.fromEntries(options.map((item) => [item.value, item.label]));
-}
-
-function getUserTypeLabel(value: number, labelMap: Record<number, string>): string {
-  return labelMap[value] || '--';
-}
-
-function resolveDownloadUrl(filename: string, baseUrl: string) {
-  const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  return `${normalizedBaseUrl}${filename}`;
-}
-
-function downloadUserTemplate(filename = '组织用户导入模板.xlsx', baseUrl = '/') {
-  const link = document.createElement('a');
-  link.href = resolveDownloadUrl(filename, baseUrl);
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 }
 
 export function useUserCrudState() {
@@ -99,9 +68,6 @@ export function useUserCrudState() {
     children: 'children',
     label: 'orgName'
   };
-
-  const crossPageSelectedMap = reactive<Record<string, UserListRecord>>({});
-  const syncingSelection = ref(false);
 
   const canDragSort = computed(() => Boolean(searchForm.orgId));
   const tableColumns = computed(() => buildUserColumns(canDragSort.value));
@@ -236,9 +202,18 @@ export function useUserCrudState() {
   const userTypeLabelMap = getUserTypeLabelMap(userTypeOptions);
   const currentOrgId = computed(() => searchForm.orgId);
   const userDataList = dataList as Ref<UserListRecord[]>;
-  const crossPageSelectedList = computed<UserListRecord[]>(() =>
-    Object.values(crossPageSelectedMap)
-  );
+  const {
+    crossPageSelectedList,
+    clearAllSelection,
+    handleSelectionChange,
+    syncCurrentPageSelectionToTable,
+    removeSelectionById
+  } = useUserCrossPageSelection({
+    tableRef,
+    dataList: userDataList,
+    onSelectionCancel,
+    onSelectionChangeRaw: handleSelectionChangeRaw
+  });
 
   const { loadOrgTree, loadPositionOptions, loadRoleOptions, checkFieldUnique, uploadAvatar } =
     useUserRemoteOptions({
@@ -246,72 +221,6 @@ export function useUserCrudState() {
       positionOptions,
       roleOptions
     });
-
-  function getUserRowId(row: UserListRecord): string {
-    const id = row?.id;
-    return typeof id === 'string' && id.trim() ? id : '';
-  }
-
-  function clearCrossPageSelection() {
-    Object.keys(crossPageSelectedMap).forEach((id) => {
-      delete crossPageSelectedMap[id];
-    });
-  }
-
-  function mergeCurrentPageSelection(selection: UserListRecord[]) {
-    const currentPageIds = new Set(
-      userDataList.value.map((row) => getUserRowId(row)).filter((id) => id.length > 0)
-    );
-
-    currentPageIds.forEach((id) => {
-      delete crossPageSelectedMap[id];
-    });
-
-    selection.forEach((row) => {
-      const id = getUserRowId(row);
-      if (!id) {
-        return;
-      }
-      crossPageSelectedMap[id] = row;
-    });
-  }
-
-  async function syncCurrentPageSelectionToTable() {
-    const tableInstance = (tableRef.value as TableRefExpose | null)?.getTableRef?.();
-    if (!tableInstance || typeof tableInstance.clearSelection !== 'function') {
-      return;
-    }
-
-    syncingSelection.value = true;
-    tableInstance.clearSelection();
-
-    if (typeof tableInstance.toggleRowSelection === 'function') {
-      userDataList.value.forEach((row) => {
-        const id = getUserRowId(row);
-        if (!id || !crossPageSelectedMap[id]) {
-          return;
-        }
-        tableInstance.toggleRowSelection?.(row, true);
-      });
-    }
-
-    await nextTick();
-    syncingSelection.value = false;
-  }
-
-  function clearAllSelection() {
-    clearCrossPageSelection();
-    onSelectionCancel(tableRef.value);
-  }
-
-  function handleSelectionChange(selection: UserListRecord[]) {
-    if (syncingSelection.value) {
-      return;
-    }
-
-    handleSelectionChangeRaw(selection);
-    mergeCurrentPageSelection(Array.isArray(selection) ? selection : []);
-  }
 
   function tableSearch(keyword: string) {
     searchForm.nickName = keyword;
@@ -354,11 +263,9 @@ export function useUserCrudState() {
   }
 
   async function handleDelete(row: UserListRecord) {
-    const deletedId = getUserRowId(row);
+    const deletedId = row.id;
     await remove(row);
-    if (deletedId) {
-      delete crossPageSelectedMap[deletedId];
-    }
+    removeSelectionById(deletedId);
   }
 
   const { handleSingleStatus, handleBatchStatus, handleResetPassword } = useUserStatusActions({

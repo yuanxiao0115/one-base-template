@@ -5,123 +5,27 @@ import { message } from '@one-base-template/ui';
 import type { ApiResponse } from '@/types/api';
 import menuColumns from '../columns';
 import { menuPermissionApi } from '../api';
-import type { MenuPermissionRecord, PermissionTypeOption } from '../types';
+import type { MenuPermissionRecord } from '../types';
 import {
   defaultMenuPermissionForm,
   type MenuPermissionForm,
   menuPermissionFormRules,
-  type ParentOption,
   toMenuPermissionForm,
   toMenuPermissionPayload
 } from '../form';
+import {
+  MENU_RESOURCE_TYPE,
+  ROOT_PARENT_ID,
+  SYSTEM_RESOURCE_TYPE,
+  getTreeRows
+} from './menuTreeHelpers';
+import { useMenuPermissionTreeState } from './useMenuPermissionTreeState';
 
 interface SearchFormExpose {
   resetFields?: () => void;
 }
 
-interface SystemOption {
-  id: string;
-  name: string;
-  row: MenuPermissionRecord;
-}
-
 type DialogMode = 'create' | 'detail' | 'edit';
-
-const ROOT_PARENT_ID = '0';
-const SYSTEM_RESOURCE_TYPE = 1;
-const MENU_RESOURCE_TYPE = 2;
-
-function isSystemNode(row: MenuPermissionRecord): boolean {
-  return (
-    row.resourceType === SYSTEM_RESOURCE_TYPE || (row.parentId ?? ROOT_PARENT_ID) === ROOT_PARENT_ID
-  );
-}
-
-function getTreeRows(data: unknown): MenuPermissionRecord[] {
-  return Array.isArray(data) ? (data as MenuPermissionRecord[]) : [];
-}
-
-function getSystemNodes(rows: MenuPermissionRecord[]): MenuPermissionRecord[] {
-  return rows.filter((row) => isSystemNode(row));
-}
-
-function findSystemNodeById(
-  rows: MenuPermissionRecord[],
-  systemId: string
-): MenuPermissionRecord | null {
-  const systems = getSystemNodes(rows);
-  const matched = systems.find((row) => row.id === systemId);
-  return matched || null;
-}
-
-function findSystemScopeIdByNodeId(
-  rows: MenuPermissionRecord[],
-  nodeId: string,
-  currentSystemId = ''
-): string {
-  for (const row of rows) {
-    const nextSystemId = isSystemNode(row) ? row.id : currentSystemId;
-
-    if (row.id === nodeId) {
-      return nextSystemId;
-    }
-
-    if (Array.isArray(row.children) && row.children.length > 0) {
-      const found = findSystemScopeIdByNodeId(row.children, nodeId, nextSystemId);
-      if (found) {
-        return found;
-      }
-    }
-  }
-
-  return '';
-}
-
-function markNodeChildren(row: MenuPermissionRecord, ids: Set<string>) {
-  if (!Array.isArray(row.children) || row.children.length === 0) {
-    return;
-  }
-
-  row.children.forEach((child) => {
-    ids.add(child.id);
-    markNodeChildren(child, ids);
-  });
-}
-
-function markDescendants(
-  rows: MenuPermissionRecord[],
-  targetId: string,
-  ids: Set<string>
-): boolean {
-  for (const row of rows) {
-    if (row.id === targetId) {
-      ids.add(row.id);
-      markNodeChildren(row, ids);
-      return true;
-    }
-
-    if (Array.isArray(row.children) && row.children.length > 0) {
-      const found = markDescendants(row.children, targetId, ids);
-      if (found) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-function toParentTreeOptions(
-  rows: MenuPermissionRecord[],
-  disabledIds: Set<string>
-): ParentOption[] {
-  return rows.map((row) => ({
-    value: row.id,
-    label: row.resourceName,
-    disabled: disabledIds.has(row.id),
-    children: toParentTreeOptions(row.children || [], disabledIds)
-  }));
-}
 
 export function useMenuManagementPageState() {
   const tableRef = ref<unknown>(null);
@@ -134,87 +38,25 @@ export function useMenuManagementPageState() {
     resourceType: ''
   });
 
-  const resourceTypeOptions = ref<PermissionTypeOption[]>([]);
-  const parentOptions = ref<ParentOption[]>([]);
-  const permissionTree = ref<MenuPermissionRecord[]>([]);
-  const activeSystemId = ref('');
-
   const inTreeMode = computed(() => !(searchForm.resourceName.trim() || searchForm.resourceType));
   const tableColumns = computed<TableColumnList>(() => menuColumns);
-
-  const systemList = computed<SystemOption[]>(() => {
-    return getSystemNodes(permissionTree.value).map((item) => ({
-      id: item.id,
-      name: item.resourceName,
-      row: item
-    }));
+  const {
+    permissionTree,
+    activeSystemId,
+    systemList,
+    activeSystemName,
+    hasSystemData,
+    tableTreeConfig,
+    parentOptions,
+    resourceTypeOptions,
+    syncPermissionTree,
+    getSystemScopedTreeRows,
+    resolveScopeSystemId,
+    loadParentOptions,
+    loadResourceTypeOptions
+  } = useMenuPermissionTreeState({
+    inTreeMode
   });
-
-  const activeSystemName = computed(() => {
-    const active = findSystemNodeById(permissionTree.value, activeSystemId.value);
-    return active?.resourceName || '未选择系统';
-  });
-
-  const hasSystemData = computed(() => systemList.value.length > 0);
-
-  const tableTreeConfig = computed<Record<string, unknown> | undefined>(() => {
-    if (!inTreeMode.value) {
-      return undefined;
-    }
-
-    return {
-      defaultExpandAll: true,
-      children: 'children'
-    };
-  });
-
-  function syncPermissionTree(treeRows: MenuPermissionRecord[]) {
-    permissionTree.value = treeRows;
-
-    const systems = getSystemNodes(treeRows);
-    if (systems.length === 0) {
-      activeSystemId.value = '';
-      return;
-    }
-
-    const activeExists = systems.some((item) => item.id === activeSystemId.value);
-    if (!activeExists) {
-      activeSystemId.value = systems[0]?.id || '';
-    }
-  }
-
-  function getSystemScopedTreeRows() {
-    const activeSystem = findSystemNodeById(permissionTree.value, activeSystemId.value);
-    if (!activeSystem) {
-      return [];
-    }
-
-    return Array.isArray(activeSystem.children) ? activeSystem.children : [];
-  }
-
-  async function ensurePermissionTreeLoaded() {
-    if (permissionTree.value.length > 0) {
-      return permissionTree.value;
-    }
-
-    const response = await menuPermissionApi.getPermissionTree();
-    if (response.code !== 200) {
-      throw new Error(response.message || '获取权限树失败');
-    }
-
-    const treeRows = getTreeRows(response.data);
-    syncPermissionTree(treeRows);
-    return treeRows;
-  }
-
-  async function resolveScopeSystemId(nodeId: string) {
-    if (!nodeId || nodeId === ROOT_PARENT_ID) {
-      return '';
-    }
-
-    const treeRows = await ensurePermissionTreeLoaded();
-    return findSystemScopeIdByNodeId(treeRows, nodeId);
-  }
 
   const tableOpt = reactive({
     query: {
@@ -347,40 +189,6 @@ export function useMenuManagementPageState() {
   });
   const drawerSize = computed(() => (isSystemForm.value ? 400 : 760));
   const drawerColumns = computed(() => (isSystemForm.value ? 1 : 2));
-
-  async function loadParentOptions(disabledId?: string, scopeSystemId = '') {
-    const treeRows = await ensurePermissionTreeLoaded();
-    const disabledIds = new Set<string>();
-    if (disabledId) {
-      markDescendants(treeRows, disabledId, disabledIds);
-    }
-
-    if (scopeSystemId) {
-      const scopedSystemNode = findSystemNodeById(treeRows, scopeSystemId);
-      parentOptions.value = scopedSystemNode
-        ? toParentTreeOptions([scopedSystemNode], disabledIds)
-        : [];
-      return;
-    }
-
-    parentOptions.value = [
-      {
-        value: ROOT_PARENT_ID,
-        label: '顶级权限（系统）',
-        children: toParentTreeOptions(treeRows, disabledIds)
-      }
-    ];
-  }
-
-  async function loadResourceTypeOptions() {
-    const response = await menuPermissionApi.getResourceTypeEnum();
-    if (response.code === 200 && Array.isArray(response.data)) {
-      resourceTypeOptions.value = response.data;
-      return;
-    }
-
-    resourceTypeOptions.value = [];
-  }
 
   function tableSearch(keyword: string) {
     searchForm.resourceName = keyword;

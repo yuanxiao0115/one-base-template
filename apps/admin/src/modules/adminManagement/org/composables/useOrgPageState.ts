@@ -14,36 +14,15 @@ import {
 import { useOrgTreeQuery } from './useOrgTreeQuery';
 import { useOrgTreeOptions } from './useOrgTreeOptions';
 import { useOrgDictionaryOptions } from './useOrgDictionaryOptions';
-
-interface AuthUserWithCompanyId {
-  companyId?: number | string | null;
-}
+import {
+  getDictLabelMap,
+  getErrorMessage,
+  getRootParentId,
+  normalizeTreeRows
+} from './orgPageHelpers';
 
 interface SearchRefExpose {
   resetFields?: () => void;
-}
-
-function getDictLabelMap(
-  items: Array<{ itemValue?: number | string; itemName?: string }>
-): Record<string, string> {
-  return Object.fromEntries(
-    items.map((item) => [String(item.itemValue ?? ''), item.itemName ?? ''])
-  );
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
-
-function normalizeTreeRows(rows: OrgRecord[]): OrgRecord[] {
-  if (!Array.isArray(rows) || rows.length === 0) {
-    return [];
-  }
-
-  return rows.map((row) => ({
-    ...row,
-    hasChildren: typeof row.hasChildren === 'boolean' ? row.hasChildren : true
-  }));
 }
 
 export function useOrgPageState() {
@@ -68,18 +47,7 @@ export function useOrgPageState() {
   const tableColumns = computed(() => orgColumns);
 
   const rootParentId = computed(() => {
-    const user = authStore.user as AuthUserWithCompanyId | null;
-    const companyId = user?.companyId;
-
-    if (typeof companyId === 'number' && Number.isFinite(companyId)) {
-      return String(companyId);
-    }
-
-    if (typeof companyId === 'string' && companyId.trim()) {
-      return companyId.trim();
-    }
-
-    return '0';
+    return getRootParentId(authStore.user);
   });
 
   const { orgTreeOptions, loadOrgTreeOptions } = useOrgTreeOptions({

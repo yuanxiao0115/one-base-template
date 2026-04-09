@@ -4,9 +4,9 @@
 
 ## 最新记录
 
-- 日期：2026-04-07
-- 文件：`.codex/verification/2026-04-07.md`
-- 补充：P0 Milestone A/B 组件沉淀验证记录；新增 MenuIconInput 图标源收口（packages 内置 glyph）与 admin/admin-lite 遗留 `public/fonts` 清理验证记录。
+- 日期：2026-04-09
+- 文件：`.codex/verification/2026-04-09.md`
+- 补充：ObDialogHost 与验证流程收口
 
 ## 历史归档
 

@@ -38,8 +38,16 @@ pnpm -C apps/<app-id> new:module:item <item-id> --module <module-id>
 pnpm lint:arch
 pnpm test:run
 pnpm check:naming
+pnpm verify:changed
+pnpm verify:evidence -- --title "本次改动验证" --cmd "pnpm verify:changed"
 pnpm verify
 ```
+
+验证脚本说明：
+
+- `pnpm verify:changed`：按改动范围自动路由验证命令（单应用 / docs / 全量）。
+- `pnpm verify:evidence`：顺序执行 `--cmd` 并写入 `.codex/testing.md`；全部通过时同步写入 `.codex/verification/YYYY-MM-DD.md`。
+- 仅查看路由不执行命令可使用：`pnpm verify:changed -- --dry-run`。
 
 ## 从 admin-lite 派生新 app
 

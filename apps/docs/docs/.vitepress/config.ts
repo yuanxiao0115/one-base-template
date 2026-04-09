@@ -52,6 +52,7 @@ const componentLibraryOverviewItems = [{ text: '组件库总览', link: '/compon
 const componentBusinessItems = [
   { text: 'ObPageContainer（页面容器）', link: '/components/ob-page-container' },
   { text: 'ObCrudContainer（CRUD 容器）', link: '/components/ob-crud-container' },
+  { text: 'ObDialogHost（弹层宿主）', link: '/components/ob-dialog-host' },
   { text: 'ObTableBox（表格工具容器）', link: '/components/ob-table-box' },
   { text: 'ObTable（数据表格）', link: '/components/ob-table' },
   { text: 'ObCardTable（卡片表格）', link: '/components/ob-card-table' },

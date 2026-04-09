@@ -2,6 +2,48 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-09（执行 1/3/4：DialogHost 落地 + warning 清理 + verify 流程收口）
+
+- 背景：
+  - 用户确认继续执行“1 / 3 / 4”：
+    1. 完成 `ObDialogHost` 及迁移样例；
+    2. 清理 `max-lines` 与 `localModel` 编译告警；
+    3. 收口 `verify:changed / verify:evidence` 流程。
+- 本次收口：
+  - `packages/ui`：
+    - 新增 `dialog-host` 能力目录并完成 `DialogHost` 组件、`openDialog/closeDialog/closeAllDialogs` API、导出与插件注册；
+    - 修复 `DialogHost.vue` 关闭钩子参数类型，消除 `vue-tsc` 隐式 `any` 报错。
+  - 迁移样例：
+    - `apps/admin/src/components/top/AdminTopBar.vue`
+    - `apps/admin-lite/src/components/top/AdminTopBar.vue`
+    - 顶栏“个性设置”由页面内 `el-drawer` 收口为 `openDialog + ObDialogHost + ObThemeSwitcher`。
+  - warning 清理：
+    - 三端 `PersonnelSelectionDialogHost.vue` 将 `v-model=\"localModel\"` 改为 `:model-value + @update:model-value` 显式更新函数，消除编译 warning；
+    - 拆分 `adminManagement` 的 4 个超长文件：
+      - `user/composables/useUserCrudState.ts`
+      - `org/composables/useOrgPageState.ts`
+      - `menu/composables/useMenuManagementPageState.ts`
+      - `org/components/OrgManagerDialog.vue`
+    - 新增拆分文件（含 `useMenuPermissionTreeState`、`useOrgManagerDialogState`、`useUserCrossPageSelection` 等），职责收敛到“编排层 + 纯函数 helper + 子面板组件”。
+  - 文档与流程：
+    - 新增 `apps/docs/docs/components/ob-dialog-host.md`；
+    - 同步组件库导航与目录：`apps/docs/docs/.vitepress/config.ts`、`apps/docs/docs/components/index.md`；
+    - `README.md` 与 `apps/docs/docs/guide/development.md` 补齐 `verify:changed / verify:evidence` 用法说明。
+  - `.codex` 证据：
+    - 执行 `pnpm verify:evidence`，已写入 `.codex/testing.md`、`.codex/verification/2026-04-09.md` 并更新 `.codex/verification.md` 最新索引。
+- 验证结果：
+  - `pnpm -C apps/admin typecheck`：通过。
+  - `pnpm -C apps/admin lint`：通过（0 warning / 0 error）。
+  - `pnpm -C apps/admin-lite typecheck`：通过。
+  - `pnpm -C apps/admin-lite lint`：通过（0 warning / 0 error）。
+  - `pnpm -C packages/ui typecheck`：通过。
+  - `pnpm -C packages/ui lint`：通过（0 warning / 0 error）。
+  - `pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/components/dialog-host/dialog-host.test.ts`：通过（`22 files / 94 tests`）。
+  - `pnpm -C apps/docs lint`：通过。
+  - `pnpm -C apps/docs build`：通过。
+  - `pnpm verify:changed -- --dry-run`：通过（当前改动路由为 `full`）。
+  - `pnpm verify:evidence -- --title \"ObDialogHost 与验证流程收口\" ...`：通过并已落盘。
+
 ## 2026-04-07（admin/admin-lite 清理遗留 MenuIconInput 与 public/fonts）
 
 - 背景：

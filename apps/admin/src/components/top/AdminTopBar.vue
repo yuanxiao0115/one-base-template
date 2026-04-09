@@ -9,7 +9,7 @@ import {
   useSystemStore
 } from '@one-base-template/core';
 import { useTagStoreHook } from '@one-base-template/tag';
-import { message } from '@one-base-template/ui';
+import { closeDialog, message, openDialog, ThemeSwitcher } from '@one-base-template/ui';
 import { ui } from '@/config';
 import { routePaths } from '@/router/constants';
 import authAccountService from '@/services/auth/auth-account-service';
@@ -28,8 +28,8 @@ const layoutStore = useLayoutStore();
 const menuStore = useMenuStore();
 const systemStore = useSystemStore();
 const tagStore = useTagStoreHook();
+const PERSONALIZATION_DIALOG_ID = 'topbar-personalization-dialog';
 
-const personalizationDrawerVisible = ref(false);
 const tenantLoading = ref(false);
 const tenantSwitching = ref(false);
 const tenantOptions = ref<TenantOption[]>([]);
@@ -177,6 +177,7 @@ async function onLogout() {
   } catch (error) {
     logoutError = error;
   } finally {
+    closeDialog(PERSONALIZATION_DIALOG_ID);
     menuStore.reset();
     systemStore.reset();
     tagStore.handleTags('equal', []);
@@ -283,7 +284,16 @@ function changePassword(payload: { oldPassword: string; newPassword: string }) {
 }
 
 function openPersonalizationDrawer() {
-  personalizationDrawerVisible.value = true;
+  openDialog({
+    id: PERSONALIZATION_DIALOG_ID,
+    container: 'drawer',
+    title: '个性设置',
+    size: 520,
+    closeOnClickModal: true,
+    destroyOnClose: false,
+    showFooter: false,
+    component: ThemeSwitcher
+  });
 }
 
 async function onCommandPaletteNavigate(payload: { path: string; external: boolean }) {
@@ -424,17 +434,7 @@ async function onSwitchTenant(tenantId: string) {
       />
     </div>
   </div>
-
-  <el-drawer
-    v-if="ui.topbar.personalization"
-    v-model="personalizationDrawerVisible"
-    title="个性设置"
-    size="520"
-    append-to-body
-    :with-header="true"
-  >
-    <ObThemeSwitcher />
-  </el-drawer>
+  <ObDialogHost />
 </template>
 
 <style scoped>

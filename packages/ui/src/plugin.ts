@@ -25,6 +25,7 @@ import PersonnelSelector from './components/personnel-selector/PersonnelSelector
 import RichText from './components/rich-text/RichText.vue';
 import { AccountCenterPanel } from './components/account-center';
 import { CommandPalette } from './components/command-palette';
+import { DialogHost } from './components/dialog-host';
 import { setUseTableDefaults, type UseTableDefaults } from '@one-base-template/core';
 import {
   ONE_UI_GLOBAL_CONFIG_KEY,
@@ -58,7 +59,8 @@ const UI_COMPONENTS = {
   PersonnelSelector,
   RichText,
   AccountCenterPanel,
-  CommandPalette
+  CommandPalette,
+  DialogHost
 } as const;
 
 export type OneUiComponentName = keyof typeof UI_COMPONENTS;

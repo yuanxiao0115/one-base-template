@@ -30,12 +30,14 @@
 
 ```bash
 pnpm verify:changed
+pnpm verify:evidence -- --title "本次改动验证" --cmd "pnpm verify:changed"
 pnpm typecheck
 pnpm lint
 pnpm build
 ```
 
 说明：`pnpm verify:changed` 会按改动范围自动路由到“单应用验证 / docs 验证 / 全量 verify”。
+补充：`pnpm verify:evidence` 会把命令结果写入 `.codex/testing.md`，全部通过时同步写入 `.codex/verification/YYYY-MM-DD.md`。
 
 补充：根级 `pnpm typecheck` / `pnpm lint` / `pnpm build` / `pnpm test:run` 默认排除 `apps/zfw-system-sfss`（迁移遗留代码）。
 若改动 `apps/zfw-system-sfss/**`，请额外执行：

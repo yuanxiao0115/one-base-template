@@ -23,4 +23,9 @@ describe('registerOneUiComponents source', () => {
     expect(source).toContain("import { CommandPalette } from './components/command-palette';");
     expect(source).toContain('CommandPalette');
   });
+
+  it('应注册 DialogHost，供应用层挂载全局弹窗宿主', () => {
+    expect(source).toContain("import { DialogHost } from './components/dialog-host';");
+    expect(source).toContain('DialogHost');
+  });
 });

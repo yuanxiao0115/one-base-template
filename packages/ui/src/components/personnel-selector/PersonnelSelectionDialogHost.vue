@@ -114,6 +114,13 @@ function syncModelFromProps() {
   localModel.positionIds = Array.from(new Set(props.initialModel.positionIds || []));
 }
 
+function onUpdateLocalModel(nextModel: PersonnelSelectionModel) {
+  localModel.userIds = Array.from(new Set(nextModel.userIds || []));
+  localModel.orgIds = Array.from(new Set(nextModel.orgIds || []));
+  localModel.roleIds = Array.from(new Set(nextModel.roleIds || []));
+  localModel.positionIds = Array.from(new Set(nextModel.positionIds || []));
+}
+
 function getSelectedItems(): PersonnelSelectedItem[] {
   return selectorRef.value?.getSelectedItems?.() || [];
 }
@@ -231,13 +238,14 @@ watch(
   >
     <PersonnelSelector
       ref="selectorRef"
-      v-model="localModel"
+      :model-value="localModel"
       :mode="props.mode"
       :selection-field="activeSelectionField"
       :allow-select-org="props.allowSelectOrg"
       :disabled="props.disabled || submitting"
       :fetch-nodes="props.fetchNodes"
       :search-nodes="props.searchNodes"
+      @update:model-value="onUpdateLocalModel"
     />
 
     <template #footer>

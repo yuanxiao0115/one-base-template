@@ -26,6 +26,7 @@ export { default as PersonnelSelector } from './components/personnel-selector/Pe
 export { default as RichText } from './components/rich-text/RichText.vue';
 export { AccountCenterPanel } from './components/account-center';
 export { CommandPalette } from './components/command-palette';
+export { DialogHost } from './components/dialog-host';
 export { LoginBox, LoginBoxV2 } from './lite-auth';
 export {
   ensureMenuIconifyCollectionsRegistered,
@@ -106,6 +107,23 @@ export type {
   CommandPaletteNavigatePayload,
   UseCommandPaletteOptions
 } from './components/command-palette';
+export {
+  closeAllDialogs,
+  closeDialog,
+  getDialogHostQueue,
+  openDialog
+} from './components/dialog-host';
+export type {
+  DialogHostActionContext,
+  DialogHostBeforeCloseContext,
+  DialogHostClassName,
+  DialogHostCloseReason,
+  DialogHostContainer,
+  DialogHostOpenOptions,
+  DialogHostQueueItem,
+  DialogHostRenderContext,
+  DialogHostRenderer
+} from './components/dialog-host';
 export {
   buildCommandPaletteItemsFromMenus,
   filterCommandPaletteItems,
