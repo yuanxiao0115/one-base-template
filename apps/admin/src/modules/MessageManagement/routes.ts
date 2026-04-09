@@ -44,7 +44,8 @@ export default [
     component: async () => import('./template/list.vue'),
     meta: createAuthRouteMeta({
       title: '消息模板',
-      keepAlive: true
+      keepAlive: true,
+      access: 'menu'
     })
   },
   {
