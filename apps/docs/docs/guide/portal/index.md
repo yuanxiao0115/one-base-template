@@ -84,6 +84,9 @@ apps/portal/src/modules/portal
 | `/portal/design?id=...`                    | 门户设计工作台         |
 | `/portal/page/edit?id=...&tabId=...`       | 页面深度编辑           |
 | `/portal/preview?templateId=...&tabId=...` | 预览渲染（匿名可访问） |
+| `/portal/login-page`                       | 登录页模板管理         |
+| `/portal/login-notice`                     | 登录弹窗通知管理       |
+| `/portal/login-page/preview/:id`           | 登录页模板预览         |
 
 ## 已落地收口（2026-03）
 

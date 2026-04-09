@@ -6,7 +6,7 @@
 
 - 日期：2026-04-09
 - 文件：`.codex/verification/2026-04-09.md`
-- 补充：ObDialogHost 与验证流程收口
+- 补充：MessageManagement + LoginManagement 迁移收口
 
 ## 历史归档
 

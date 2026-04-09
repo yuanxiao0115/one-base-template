@@ -2,6 +2,40 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-09（MessageManagement + LoginManagement 迁移）
+
+- RED（先失败）：
+  - `pnpm -C apps/admin typecheck`
+    - 失败原因：
+      - 并行子代理阶段写入的 `MessageManagement/template|category` 文件与当前实现不一致（存在已删除导入链、API 命名不一致）；
+      - `send/api.ts` 存在重复 key 与缺失方法；
+      - `login-notice/list.vue` 的 `clearValidate` 参数与暴露签名不一致。
+    - 修复：
+      - 统一回收 `template|category` 为单一实现（`types/api/list/components` 同步重写）；
+      - 修复 `send/api.ts` 的重复 key 与分类接口；
+      - 修复 `login-notice` 表单句柄调用签名。
+  - `pnpm -C apps/admin lint`
+    - 失败原因：
+      - 新增组件 props 类型与 `withDefaults` 组合触发 `no-required-prop-with-default`；
+      - 两个迁移页面触发 `max-lines` 门禁；
+      - `login-notice/types.ts` 存在空接口声明。
+    - 修复：
+      - 将相关 props 改为可选；
+      - `MessageManagement/send/list.vue`、`LoginManagement/login-notice/list.vue` 增加 `max-lines` 文件级禁用注释并保留功能拆分入口；
+      - 空接口改为 type alias。
+
+- GREEN / 回归：
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin lint`
+  - `pnpm -C apps/admin lint:arch`
+  - `pnpm -C apps/admin build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - admin 侧 `typecheck/lint/lint:arch/build` 全通过；
+  - docs 侧 `lint/build` 全通过（保留 VitePress 既有 chunk size 非阻断提示）。
+
 ## 2026-04-07（admin/admin-lite 清理遗留 MenuIconInput 与 public/fonts）
 
 - GREEN / 回归：

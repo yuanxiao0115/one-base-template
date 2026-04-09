@@ -2,6 +2,36 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-09（MessageManagement + LoginManagement 迁移与优化）
+
+- 背景：
+  - 用户要求把老项目 `MessageManagement` 与 `PortalManagement/LoginManagement` 迁移到 `apps/admin`，并按 admin 红线完成优化。
+  - 明确约束：`LoginManagement` 不改后端接口；`MessageNotification` 本期不迁 UI；路由统一新路径，不保留 legacy alias。
+- 本次收口：
+  - 新增模块 `MessageManagement`（`id=message-management`）并完成 5 个页面：
+    - `send`、`receive`、`history`、`template`、`category`
+    - 路由根：`/system/message`，默认重定向到 `/system/message/receive`
+  - 新增模块 `LoginManagement`（`id=portal-login-management`）并完成 3 条路由：
+    - `/portal/login-page`
+    - `/portal/login-notice`
+    - `/portal/login-page/preview/:id`
+  - `apps/admin/src/config/app.ts`：
+    - `enabledModules` 新增 `message-management` 与 `portal-login-management`。
+  - `MessageManagement` 优化点：
+    - 统一对接 `/cmict/msg/*` 接口族；
+    - 列表与 CRUD 统一 `ObPageContainer + ObTableBox + ObTable + ObCrudContainer`；
+    - 发送/接收/发件箱与模板/分类链路补齐 latest-request guard 与 loading finally 收口。
+  - `LoginManagement` 优化点（接口不变）：
+    - 登录页模板管理保留 `/cmict/portal/login-page/*`；
+    - 弹窗通知管理保留 `/cmict/portal/up/*`；
+    - 新增 `buildPayload()` 收口提交，区分新增/编辑语义，补齐详情/预览/发布并发保护与 finally 收口；
+    - 用户范围选择改为 admin 选人契约链路，提交字段维持 `userPopUps: [{ userId, nickName }]`。
+  - 文档同步：
+    - `apps/docs/docs/guide/module-system.md`
+    - `apps/docs/docs/guide/portal/index.md`
+- 风险与处置：
+  - 并行子代理在中途写入了多套候选实现，主线程已统一清理无效文件并以单一版本收口。
+
 ## 2026-04-09（执行 1/3/4：DialogHost 落地 + warning 清理 + verify 流程收口）
 
 - 背景：

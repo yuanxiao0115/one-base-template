@@ -55,6 +55,8 @@ const modules = {
     'system-management',
     'cms-management',
     'portal-management',
+    'message-management',
+    'portal-login-management',
     'document-form-management'
   ]
 };

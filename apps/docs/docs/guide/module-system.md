@@ -112,7 +112,14 @@ platform-config
 
 ```json
 {
-  "enabledModules": ["home", "admin-management", "log-management", "system-management"]
+  "enabledModules": [
+    "home",
+    "admin-management",
+    "log-management",
+    "system-management",
+    "message-management",
+    "portal-login-management"
+  ]
 }
 ```
 
@@ -128,6 +135,20 @@ platform-config
 
 1. 优先使用白名单，避免把非主链路模块默认带入。
 2. `enabledModules` 始终使用 kebab-case 模块 id。
+
+### 2026-04 新增模块入口（迁移收口）
+
+本轮已在 `apps/admin/src/config/app.ts` 中启用以下模块：
+
+1. `message-management`
+2. `portal-login-management`
+
+对应路由入口：
+
+| 模块 id                   | 路由入口                                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `message-management`      | `/system/message/send`、`/system/message/receive`、`/system/message/history`、`/system/message/template`、`/system/message/category` |
+| `portal-login-management` | `/portal/login-page`、`/portal/login-notice`、`/portal/login-page/preview/:id`                                                       |
 
 ## 4) compat 兼容能力（当前有效）
 
