@@ -32,15 +32,9 @@ const apiMocks = vi.hoisted(() => ({
   searchContactUsers: vi.fn()
 }));
 
-vi.mock('@one-base-template/ui', async () => {
-  const actual =
-    await vi.importActual<typeof import('@one-base-template/ui')>('@one-base-template/ui');
-
-  return {
-    ...actual,
-    message: messageMocks
-  };
-});
+vi.mock('@one-base-template/ui', () => ({
+  message: messageMocks
+}));
 
 vi.mock('@element-plus/icons-vue', () => ({
   Folder: defineComponent({

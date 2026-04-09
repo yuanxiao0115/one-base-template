@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import listSource from '@/modules/adminManagement/menu/list.vue?raw';
 import pageStateSource from '@/modules/adminManagement/menu/composables/useMenuManagementPageState.ts?raw';
+import treeStateSource from '@/modules/adminManagement/menu/composables/useMenuPermissionTreeState.ts?raw';
+import treeHelperSource from '@/modules/adminManagement/menu/composables/menuTreeHelpers.ts?raw';
 import menuColumnsSource from '@/modules/adminManagement/menu/columns.ts?raw';
 import formSource from '@/modules/adminManagement/menu/components/MenuPermissionEditForm.vue?raw';
 import systemFormSource from '@/modules/adminManagement/menu/components/SystemPermissionEditForm.vue?raw';
@@ -27,8 +29,8 @@ describe('adminManagement/menu list source', () => {
   });
 
   it('菜单管理树配置应对齐 Element Plus 字段，并支持按系统切片展示', () => {
-    expect(pageStateSource).toContain('defaultExpandAll: true');
-    expect(pageStateSource).toContain("children: 'children'");
+    expect(pageStateSource).toContain('useMenuPermissionTreeState');
+    expect(pageStateSource).toContain('tableTreeConfig');
     expect(menuColumnsSource).toContain('treeNode: true');
     expect(menuColumnsSource).toContain("label: '访问路径'");
     expect(menuColumnsSource).toContain("label: '状态'");
@@ -40,16 +42,16 @@ describe('adminManagement/menu list source', () => {
     expect(menuColumnsSource).not.toContain("label: '备注'");
     expect(pageStateSource).toContain('activeSystemId');
     expect(pageStateSource).toContain('systemList');
-    expect(pageStateSource).toContain('row: item');
+    expect(treeStateSource).toContain('row: item');
     expect(pageStateSource).toContain('selectSystem');
     expect(pageStateSource).toContain('openCreateUnderActiveSystem');
     expect(pageStateSource).toContain('getSystemScopedTreeRows()');
-    expect(pageStateSource).toContain('ensurePermissionTreeLoaded');
-    expect(pageStateSource).toContain('findSystemScopeIdByNodeId');
-    expect(pageStateSource).toContain('resolveScopeSystemId');
+    expect(treeStateSource).toContain('ensurePermissionTreeLoaded');
+    expect(treeStateSource).toContain('findSystemScopeIdByNodeId');
+    expect(treeStateSource).toContain('resolveScopeSystemId');
     expect(pageStateSource).toContain('await loadParentOptions(undefined, scopeSystemId);');
     expect(pageStateSource).toContain('await loadParentOptions(row.id, scopeSystemId);');
-    expect(pageStateSource).toContain('const treeRows = await ensurePermissionTreeLoaded();');
+    expect(treeStateSource).toContain('const treeRows = await ensurePermissionTreeLoaded();');
     expect(pageStateSource).toContain('dataList.value = getSystemScopedTreeRows();');
     expect(pageStateSource).toContain('const isSystemForm = computed(() =>');
     expect(pageStateSource).toContain(
@@ -58,6 +60,10 @@ describe('adminManagement/menu list source', () => {
     expect(pageStateSource).toContain(
       'const drawerColumns = computed(() => (isSystemForm.value ? 1 : 2));'
     );
+    expect(treeStateSource).toContain('defaultExpandAll: true');
+    expect(treeStateSource).toContain("children: 'children'");
+    expect(treeHelperSource).toContain('markDescendants');
+    expect(treeHelperSource).toContain('toParentTreeOptions');
     expect(pageStateSource).not.toContain('childrenField');
     expect(pageStateSource).not.toContain('transform: false');
   });
