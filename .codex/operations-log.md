@@ -2,6 +2,26 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-04-13（Codex 与 AI 编码经验手册落盘）
+
+- 背景：
+  - 用户要求基于历史 `plan` 与提问习惯沉淀“Codex/AI 编码经验”，并同步维护到 docs。
+- 本次收口：
+  - 新增文档页：
+    - `apps/docs/docs/guide/codex-ai-coding-playbook.md`
+  - 导航与入口同步：
+    - `apps/docs/docs/.vitepress/config.ts`（维护治理下拉、治理文档分组、sidebar 路由映射）
+    - `apps/docs/docs/guide/index.md`（维护治理卡片入口）
+    - `apps/docs/docs/guide/governance.md`（任务直达与文档协作专题入口）
+  - 页面内容结构：
+    - 已沉淀实践（10 条）
+    - 可复用执行模板（启动/实现验证/收口）
+    - 下一阶段可改进项（P0/P1/P2）
+    - 维护触发条件与最小更新命令
+- 验证结果：
+  - `pnpm -C apps/docs lint`：通过（0 warning / 0 error）。
+  - `pnpm -C apps/docs build`：通过（保留 VitePress 既有 chunk size 非阻断提示）。
+
 ## 2026-04-09（MessageManagement + LoginManagement 迁移与优化）
 
 - 背景：

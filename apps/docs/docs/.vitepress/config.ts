@@ -120,6 +120,7 @@ const governanceReleaseItems = [
   { text: '业务接入版本矩阵与迁移模板', link: '/guide/business-integration-version-matrix' }
 ];
 const governanceDocItems = [
+  { text: 'Codex 与 AI 编码经验手册', link: '/guide/codex-ai-coding-playbook' },
   { text: '技术文档协作与改造', link: '/guide/tech-doc-collaboration' },
   { text: '迁移踩坑清单（monorepo-web）', link: '/guide/monorepo-web-migration-pitfalls' },
   { text: 'Markdown 技术文档规范', link: '/guide/markdown-doc-style' }
@@ -127,6 +128,7 @@ const governanceDocItems = [
 const governanceNavItems = [
   ...governanceOverviewItems,
   ...governanceQualityItems,
+  { text: 'Codex 与 AI 编码经验手册', link: '/guide/codex-ai-coding-playbook' },
   { text: 'AGENTS 规则分层', link: '/guide/agents-scope' },
   { text: '子包发布与版本控制', link: '/guide/package-release' },
   { text: '子包版本治理 SOP（多主线）', link: '/guide/package-version-governance' }
@@ -281,6 +283,7 @@ export default defineConfig({
       '/guide/development': governanceSidebar,
       '/guide/harness-engineering': governanceSidebar,
       '/guide/testing-coverage-governance': governanceSidebar,
+      '/guide/codex-ai-coding-playbook': governanceSidebar,
       '/guide/tech-doc-collaboration': governanceSidebar,
       '/guide/monorepo-web-migration-pitfalls': governanceSidebar,
       '/guide/agents-scope': governanceSidebar,

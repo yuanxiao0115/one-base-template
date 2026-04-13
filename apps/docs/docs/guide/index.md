@@ -170,6 +170,10 @@ outline: false
     <h3>测试与覆盖率门禁（组件库）</h3>
     <p>统一 `packages/ui` 的单测执行、覆盖率阈值与测试产物处理策略。</p>
   </a>
+  <a class="guide-card" href="/guide/codex-ai-coding-playbook">
+    <h3>Codex 与 AI 编码经验手册</h3>
+    <p>沉淀可复用的计划、实现、验证与收口方法，并给出下一阶段改进建议。</p>
+  </a>
   <a class="guide-card" href="/guide/agents-scope">
     <h3>AGENTS 规则分层</h3>
     <p>全仓规则与子项目规则的适用范围和维护方式。</p>

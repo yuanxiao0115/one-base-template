@@ -2,6 +2,16 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-04-13（Codex 与 AI 编码经验手册）
+
+- GREEN / 回归：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - 文档页新增与导航接入后，docs 校验通过。
+  - 构建阶段保留 VitePress 既有 chunk size 提示，为非阻断告警。
+
 ## 2026-04-09（MessageManagement + LoginManagement 迁移）
 
 - RED（先失败）：

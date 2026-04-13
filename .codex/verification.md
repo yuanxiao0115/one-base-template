@@ -4,9 +4,9 @@
 
 ## 最新记录
 
-- 日期：2026-04-09
-- 文件：`.codex/verification/2026-04-09.md`
-- 补充：MessageManagement + LoginManagement 迁移收口
+- 日期：2026-04-13
+- 文件：`.codex/verification/2026-04-13.md`
+- 补充：Codex 与 AI 编码经验手册（docs 落盘）
 
 ## 历史归档
 

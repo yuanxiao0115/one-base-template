@@ -18,6 +18,7 @@
 | -------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | 开工前走最小闭环           | [/guide/development](/guide/development)                                                 | [/guide/harness-engineering](/guide/harness-engineering)               |
 | 只看组件库测试与覆盖率门禁 | [/guide/testing-coverage-governance](/guide/testing-coverage-governance)                 | [/guide/development](/guide/development)                               |
+| 复用 Codex 与 AI 编码方法  | [/guide/codex-ai-coding-playbook](/guide/codex-ai-coding-playbook)                       | [/guide/development](/guide/development)                               |
 | 调整或新增 AGENTS 规则     | [/guide/agents-scope](/guide/agents-scope)                                               | [/guide/agent-harness](/guide/agent-harness)                           |
 | 发布子包与版本管理         | [/guide/package-release](/guide/package-release)                                         | [/guide/package-version-governance](/guide/package-version-governance) |
 | 多业务版本线治理           | [/guide/business-integration-version-matrix](/guide/business-integration-version-matrix) | [/guide/package-version-governance](/guide/package-version-governance) |
@@ -47,6 +48,7 @@
 
 ### 文档与协作
 
+- [Codex 与 AI 编码经验手册](/guide/codex-ai-coding-playbook)
 - [技术文档协作与改造](/guide/tech-doc-collaboration)
 - [迁移踩坑清单（monorepo-web）](/guide/monorepo-web-migration-pitfalls)
 - [Markdown 技术文档规范](/guide/markdown-doc-style)
