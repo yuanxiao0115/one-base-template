@@ -277,3 +277,14 @@
   - Playwright 截图：`.codex/screenshots/management-scale-chart.png`。
 - 当前结论：
   - 本次需求已交付并完成基础构建验证。
+
+## 2026-04-14（H5 二次确认）
+
+- 本轮用户反馈项已处理完成：
+  - 去掉上下横线；
+  - 字号下调；
+  - 右侧分叉线改为分离主干，避免交叉感。
+- 验证通过：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - Playwright 截图更新：`.codex/screenshots/management-scale-chart.png`

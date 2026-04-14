@@ -13004,3 +13004,16 @@
 - 视觉校验：
   - 使用 `npx playwright screenshot` 对本地 `file://` 页面截图，产物：
     - `.codex/screenshots/management-scale-chart.png`
+
+## 2026-04-14（H5 细节二次调整）
+
+- 用户反馈：
+  1. 不需要上下横线；
+  2. 字号再小一点；
+  3. 右侧后半段分叉线有交叉感。
+- 调整文件：
+  - `apps/docs/public/h5/management-scale-chart.html`
+- 调整动作：
+  - 删除顶部与底部装饰横线；
+  - `text` 字号由 `20px` 下调为 `18px`；
+  - 右侧两组分叉线拆分不同主干坐标（上组 `x=618`，下组 `x=614`），降低交叉视觉。
