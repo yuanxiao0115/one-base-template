@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>管理规模结构图</title>
+    <style>
+      :root {
+        --bg-color: #dddddd;
+        --line-color: #505050;
+        --text-color: #111111;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-color);
+        font-family: 'STKaiti', 'KaiTi', 'Kaiti SC', 'Songti SC', serif;
+      }
+
+      .chart-wrap {
+        width: min(98vw, 983px);
+        padding: 0.5rem 0;
+      }
+
+      svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      line {
+        stroke: var(--line-color);
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+        shape-rendering: geometricPrecision;
+      }
+
+      text {
+        fill: var(--text-color);
+        font-size: 20px;
+        font-weight: 400;
+        letter-spacing: 0.3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chart-wrap" aria-label="管理规模结构图">
+      <svg viewBox="0 0 983 469" role="img">
+        <title>管理规模结构图</title>
+
+        <line x1="36" y1="8" x2="948" y2="8" />
+        <line x1="0" y1="455" x2="948" y2="455" />
+
+        <line x1="286" y1="20" x2="286" y2="426" />
+        <line x1="230" y1="197" x2="286" y2="197" />
+        <line x1="286" y1="20" x2="330" y2="20" />
+        <line x1="286" y1="197" x2="330" y2="197" />
+        <line x1="286" y1="426" x2="330" y2="426" />
+
+        <line x1="560" y1="44" x2="620" y2="44" />
+        <line x1="620" y1="8" x2="620" y2="79" />
+        <line x1="620" y1="8" x2="653" y2="8" />
+        <line x1="620" y1="44" x2="653" y2="44" />
+
+        <line x1="560" y1="197" x2="620" y2="197" />
+        <line x1="620" y1="137" x2="620" y2="258" />
+        <line x1="620" y1="137" x2="653" y2="137" />
+        <line x1="620" y1="197" x2="653" y2="197" />
+        <line x1="620" y1="258" x2="653" y2="258" />
+
+        <text x="34" y="204">管理规模 3751.87亿元</text>
+        <text x="34" y="233">较年初+5.48%,规模占比 100%</text>
+
+        <text x="330" y="24">寿险： 2775.60亿元</text>
+        <text x="330" y="53">（+5.12%, 73.98%）</text>
+
+        <text x="330" y="205">产品发行： 961.67亿元</text>
+        <text x="330" y="234">（+13.07%, 25.63%）</text>
+
+        <text x="330" y="322">自有资金： 11.56</text>
+        <text x="330" y="351">（+4.81%, 0.31%）</text>
+
+        <text x="330" y="381">委托专户： 3.03</text>
+        <text x="330" y="410">（+0.82%, 0.08%）</text>
+
+        <text x="656" y="24">非投连： 2379.22亿元</text>
+        <text x="656" y="53">（+6.46%, 63.41%）</text>
+
+        <text x="656" y="84">投连： 396.38亿元</text>
+        <text x="656" y="113">（-2.27%, 10.56%）</text>
+
+        <text x="656" y="144">组合类： 938.35亿元</text>
+        <text x="656" y="173">（+5.99%, 25.01%）</text>
+
+        <text x="656" y="204">保债计划： 23.32亿元</text>
+        <text x="656" y="233">（+35.63%, 0.62%）</text>
+
+        <text x="656" y="264">专项计划： /</text>
+      </svg>
+    </div>
+  </body>
+</html>

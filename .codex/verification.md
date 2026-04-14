@@ -265,3 +265,15 @@
   - `指南` 顶部下拉已收敛为“总览 + 高频入口”。
   - 已新增 `开发实践总览` 承接细分任务导流。
   - `pnpm -C apps/docs lint`、`pnpm -C apps/docs build` 均通过。
+
+## 2026-04-14（H5 管理规模结构图交付）
+
+- 已完成：
+  - 新增 `apps/docs/public/h5/management-scale-chart.html`，可直接打开查看；
+  - 页面效果与参考图结构一致（管理规模主干、寿险/产品发行分支、二级分支文本）。
+- 已验证：
+  - `pnpm -C apps/docs lint`：通过；
+  - `pnpm -C apps/docs build`：通过；
+  - Playwright 截图：`.codex/screenshots/management-scale-chart.png`。
+- 当前结论：
+  - 本次需求已交付并完成基础构建验证。

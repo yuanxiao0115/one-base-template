@@ -11605,3 +11605,14 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
    Duration  2.41s (transform 2.70s, setup 0ms, import 3.22s, tests 1.24s, environment 6.79s)
 
 ```
+
+## 2026-04-14（H5 管理规模结构图）
+
+- 执行命令：
+  - `npx playwright screenshot --viewport-size=983,469 "file:///Users/haoqiuzhi/code/one-base-template/apps/docs/public/h5/management-scale-chart.html" "/Users/haoqiuzhi/code/one-base-template/.codex/screenshots/management-scale-chart.png"`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 截图命令成功，页面可渲染；
+  - `apps/docs lint` 通过（0 warnings / 0 errors）；
+  - `apps/docs build` 通过（存在既有 chunk size warning，非阻断）。

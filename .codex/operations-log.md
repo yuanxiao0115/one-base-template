@@ -12990,3 +12990,17 @@
 - 额外修复：
   - `packages/ui/src/env.d.ts` 增加 `*.css` 模块声明，支撑动态样式导入类型检查。
   - `apps/admin/src/modules/DocumentFormManagement/engine/register.unit.test.ts` 同步调整默认适配器断言。
+
+## 2026-04-14（H5：管理规模结构图页面）
+
+- 需求：根据用户提供的截图，生成一个可直接打开的 H5 页面，复刻“管理规模树状结构图”视觉效果。
+- 新增文件：
+  - `apps/docs/public/h5/management-scale-chart.html`
+- 实现要点：
+  - 使用 `SVG + text` 还原连接线和分层文本；
+  - 采用 `viewBox` 保证页面在不同屏宽下等比缩放；
+  - 字体采用楷体优先回退栈（`STKaiti/KaiTi`）以贴近示例图；
+  - 通过 CSS 变量统一控制背景、线条和文字颜色。
+- 视觉校验：
+  - 使用 `npx playwright screenshot` 对本地 `file://` 页面截图，产物：
+    - `.codex/screenshots/management-scale-chart.png`
