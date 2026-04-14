@@ -11626,3 +11626,13 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
 - 结果：
   - 页面可正常渲染，截图成功更新；
   - docs lint/build 均通过（build 仅有既有 chunk size warning，非阻断）。
+
+## 2026-04-14（H5 细节三次调整）
+
+- 执行命令：
+  - `npx playwright screenshot --viewport-size=983,469 "file:///Users/haoqiuzhi/code/one-base-template/apps/docs/public/h5/management-scale-chart.html" "/Users/haoqiuzhi/code/one-base-template/.codex/screenshots/management-scale-chart.png"`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - 页面截图更新成功；
+  - docs lint/build 均通过。

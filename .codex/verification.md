@@ -288,3 +288,13 @@
   - `pnpm -C apps/docs lint`
   - `pnpm -C apps/docs build`
   - Playwright 截图更新：`.codex/screenshots/management-scale-chart.png`
+
+## 2026-04-14（H5 细节三次确认）
+
+- 用户新增两处去线需求已完成：
+  - `产品发行` 前导横线已删除；
+  - `保债计划` 前导横线已删除。
+- 验证通过：
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - Playwright 截图：`.codex/screenshots/management-scale-chart.png`
