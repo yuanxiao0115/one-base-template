@@ -150,14 +150,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/app-starter
       '@one-base-template/core':
-        specifier: workspace:*
-        version: link:../../packages/core
+        specifier: 0.1.0
+        version: 0.1.0(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
       '@one-base-template/tag':
-        specifier: workspace:*
-        version: link:../../packages/tag
+        specifier: 0.1.0
+        version: 0.1.0(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
       '@one-base-template/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
+        specifier: 0.1.1
+        version: 0.1.1(element-plus@2.13.2(vue@3.5.28(typescript@5.9.3)))(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
       cropperjs:
         specifier: ^1.6.2
         version: 1.6.2
@@ -1062,6 +1062,28 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@one-base-template/core@0.1.0':
+    resolution: {integrity: sha512-RWoKYN+ATO++25iCUyIO81715LzEcWn+9QFkgRGXSnetUQU2wCQPNgusTaJICjhphxgvFaIgI1i5CvyCqfAqlw==, tarball: http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/@one-base-template/core/-/@one-base-template/core-0.1.0.tgz}
+    peerDependencies:
+      pinia: ^3.0.4
+      vue: ^3.5.28
+      vue-router: ^5.0.2
+
+  '@one-base-template/tag@0.1.0':
+    resolution: {integrity: sha512-vcOQjeOj0fqTQlhCAYSTba8NZhVYbTxhqIxO1OQ0zdZLveKcTxGnrIf1tIwhOG3M5ph2un2rJDM4gt1UWsA2Vw==, tarball: http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/@one-base-template/tag/-/@one-base-template/tag-0.1.0.tgz}
+    peerDependencies:
+      pinia: ^3.0.4
+      vue: ^3.5.28
+      vue-router: ^5.0.2
+
+  '@one-base-template/ui@0.1.1':
+    resolution: {integrity: sha512-/VViDJoIwTg1RquAdIpk87IWQBKvMtGFL5XQDrOSke7WUE/3qpFoP3N//BgS9nDFfwxN06MLi6E96jqZ718gcg==, tarball: http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/@one-base-template/ui/-/@one-base-template/ui-0.1.1.tgz}
+    peerDependencies:
+      element-plus: ^2.13.2
+      pinia: ^3.0.4
+      vue: ^3.5.28
+      vue-router: ^5.0.2
 
   '@one-ini/wasm@0.1.1':
     resolution: {integrity: sha512-XuySG1E38YScSJoMlqovLru4KTUNSjgVTIjyh7qMX6aNN5HY5Ct5LhRJdxO79JtTzKfzV/bnWpz+zquYrISsvw==}
@@ -5830,6 +5852,57 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@one-base-template/core@0.1.0(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))':
+    dependencies:
+      axios: 1.13.5
+      pinia: 3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3))
+      qs: 6.14.1
+      vue: 3.5.28(typescript@5.9.3)
+      vue-router: 5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+    transitivePeerDependencies:
+      - debug
+
+  '@one-base-template/tag@0.1.0(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))':
+    dependencies:
+      '@iconify-icons/ep': 1.2.12
+      '@iconify-icons/ri': 1.2.10
+      '@iconify/vue': 4.3.0(vue@3.5.28(typescript@5.9.3))
+      '@vueuse/core': 10.11.1(vue@3.5.28(typescript@5.9.3))
+      mitt: 3.0.1
+      pinia: 3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3))
+      vue: 3.5.28(typescript@5.9.3)
+      vue-router: 5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+
+  '@one-base-template/ui@0.1.1(element-plus@2.13.2(vue@3.5.28(typescript@5.9.3)))(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))':
+    dependencies:
+      '@iconify-json/ep': 1.2.4
+      '@iconify-json/ri': 1.2.10
+      '@iconify/vue': 4.3.0(vue@3.5.28(typescript@5.9.3))
+      '@one-base-template/core': 0.1.0(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+      '@one-base-template/tag': 0.1.0(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+      '@vue-office/docx': 1.6.3(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+      '@vue-office/excel': 1.7.14(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+      '@vue-office/pdf': 2.0.10(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+      '@vue-office/pptx': 1.0.1(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+      '@wangeditor/editor': 5.1.23
+      '@wangeditor/editor-for-vue': 5.1.12(@wangeditor/editor@5.1.23)(vue@3.5.28(typescript@5.9.3))
+      element-plus: 2.13.2(vue@3.5.28(typescript@5.9.3))
+      gm-crypto: 0.1.12
+      ofdview-vue3: 1.0.31
+      parser_x.js: 1.1.80
+      pinia: 3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3))
+      sortablejs: 1.15.7
+      vue: 3.5.28(typescript@5.9.3)
+      vue-router: 5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+      vxe-pc-ui: 4.12.36(vue@3.5.28(typescript@5.9.3))
+      vxe-table: 4.17.48(vue@3.5.28(typescript@5.9.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - debug
+      - vue-demi
 
   '@one-ini/wasm@0.1.1': {}
 

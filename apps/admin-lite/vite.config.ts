@@ -4,9 +4,6 @@ import { adminLiteBuildConfig, adminLiteFmtConfig, createAdminLitePlugins } from
 import { normalizeAppBase } from '../../scripts/vite/app-base';
 
 const INTERNAL_WORKSPACE_PACKAGES = [
-  '@one-base-template/core',
-  '@one-base-template/ui',
-  '@one-base-template/tag',
   '@one-base-template/adapters',
   '@one-base-template/app-starter'
 ] as const;
@@ -21,15 +18,11 @@ export default defineConfig(({ mode }) => {
     plugins: createAdminLitePlugins(),
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
-        // 子路径样式显式别名，避免某些环境下 package exports 子路径解析失败
-        '@one-base-template/tag/style': fileURLToPath(
-          new URL('../../packages/tag/src/styles/global.scss', import.meta.url)
-        )
+        '@': fileURLToPath(new URL('./src', import.meta.url))
       }
     },
     optimizeDeps: {
-      // workspace 源码包频繁迭代时，不走预构建缓存，避免新增导出后 dev 仍命中旧导出表。
+      // 未发布的 workspace 源码包仍不走预构建缓存，已发布包从企业 npm 解析。
       exclude: [...INTERNAL_WORKSPACE_PACKAGES]
     },
     build: adminLiteBuildConfig,

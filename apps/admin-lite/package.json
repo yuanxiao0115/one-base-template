@@ -22,9 +22,9 @@
   "dependencies": {
     "@one-base-template/adapters": "workspace:*",
     "@one-base-template/app-starter": "workspace:*",
-    "@one-base-template/core": "workspace:*",
-    "@one-base-template/tag": "workspace:*",
-    "@one-base-template/ui": "workspace:*",
+    "@one-base-template/core": "0.1.0",
+    "@one-base-template/tag": "0.1.0",
+    "@one-base-template/ui": "0.1.1",
     "cropperjs": "^1.6.2",
     "element-plus": "^2.13.2",
     "gm-crypto": "^0.1.12",
