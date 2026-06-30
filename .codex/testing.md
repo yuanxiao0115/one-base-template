@@ -87,6 +87,24 @@
   - docs 文档说明与 CLI 输出不再要求把企业 npm 设置成全局 registry。
   - docs build 保留既有 chunk size / plugin timings 非阻断 warning。
 
+## 2026-06-30（admin-lite CLI 独立项目 Tailwind source 修复）
+
+- 问题：
+  - 对比 `apps/admin-lite` 与 `~/codex/aaa` 后发现基础 CSS 文件均存在，但独立模板缺少等价 Tailwind `@source`。
+  - 仓内 `apps/admin-lite` 扫描 `../../../../packages/ui/src/**/*`；独立项目不能使用该 monorepo 路径，导致已发布 `@one-base-template/ui` 里的工具类可能未生成，表现为布局/间距样式缺失。
+
+- 修复：
+  - CLI 模板 `src/styles/index.css` 改为扫描 `../../node_modules/@one-base-template/ui/dist/**/*.{js,css}`。
+  - `scripts/validate-admin-lite-cli.mjs` 增加断言，防止后续生成项目缺少该扫描源。
+  - 已同步修复本机验证项目 `~/codex/aaa/src/styles/index.css`。
+
+- 已通过：
+  - `pnpm build`（`/Users/haoqiuzhi/codex/aaa`）
+  - `rg -o "\\.h-screen|\\.w-screen|\\.flex-col|\\.min-h-0|\\.shrink-0|\\.min-w-0" dist/assets/index-*.css`（`/Users/haoqiuzhi/codex/aaa`，可命中 UI 壳关键布局类）
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
 ## 2026-04-13（Codex 与 AI 编码经验手册）
 
 - GREEN / 回归：

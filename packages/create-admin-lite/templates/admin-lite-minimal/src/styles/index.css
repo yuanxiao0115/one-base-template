@@ -3,6 +3,11 @@
 /* 保持历史口径：不引入 preflight，避免覆盖 Element Plus 与业务基础样式。 */
 @import 'tailwindcss/utilities.css' layer(utilities);
 
+/* Tailwind v4 的自动内容扫描可能漏掉已发布 UI 包里的工具类。
+ * 独立项目从 node_modules 扫描 @one-base-template/ui 产物，避免布局类未生成导致页面结构错乱。 */
+
+@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";
+
 html,
 body,
 #app {

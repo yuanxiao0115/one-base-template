@@ -87,6 +87,23 @@
   - `.npmrc` 只包含 registry 路由，不包含 `_auth`、token 或账号密码。
   - 企业 npm 认证仍只能放在用户本机或 CI 配置中。
 
+## 2026-06-30（admin-lite CLI 独立项目 Tailwind source 修复）
+
+- 背景：
+  - 用户对比仓内 `apps/admin-lite` 与生成项目 `~/codex/aaa`，怀疑独立项目存在 CSS 样式丢失。
+- 本次收口：
+  - 确认基础样式文件没有丢失，真实差异是 Tailwind v4 扫描源。
+  - 仓内 `apps/admin-lite` 通过 `../../../../packages/ui/src/**/*` 扫描 UI 包源码。
+  - 独立项目没有 monorepo 源码路径，因此 CLI 模板改为扫描 `../../node_modules/@one-base-template/ui/dist/**/*.{js,css}`。
+  - `scripts/validate-admin-lite-cli.mjs` 增加生成项目样式入口断言，防止后续模板漏掉该扫描源。
+  - 本机验证项目 `~/codex/aaa/src/styles/index.css` 已同步修复。
+- 验证：
+  - `pnpm build`（`/Users/haoqiuzhi/codex/aaa`）
+  - `rg -o "\\.h-screen|\\.w-screen|\\.flex-col|\\.min-h-0|\\.shrink-0|\\.min-w-0" dist/assets/index-*.css`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
 ## 2026-04-13（Codex 与 AI 编码经验手册落盘）
 
 - 背景：

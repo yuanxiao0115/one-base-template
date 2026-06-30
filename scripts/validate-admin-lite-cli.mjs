@@ -137,6 +137,12 @@ async function validateGeneratedProjectSafety() {
     '生成项目 .npmrc 缺少 @one-base-template scope registry'
   );
 
+  const styleEntry = readFileSync(join(generatedDir, 'src/styles/index.css'), 'utf8');
+  assert(
+    styleEntry.includes('@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";'),
+    '生成项目 styles/index.css 缺少 @one-base-template/ui dist 扫描源'
+  );
+
   const dependencies = {
     ...packageJson.dependencies,
     ...packageJson.devDependencies
