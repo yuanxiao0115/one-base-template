@@ -2,7 +2,6 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { readdir } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { createPublicPackageAliasTarballs } from './pack-public-package-aliases.mjs';
 
 const rootDir = resolve(import.meta.dirname, '..');
 const tempDir = resolve(rootDir, '.tmp/public-packages');
@@ -10,12 +9,6 @@ const packDir = join(tempDir, 'packs');
 const fixtureDir = join(tempDir, 'consumer');
 const firstBatch = ['core', 'utils', 'tag', 'ui'];
 const firstBatchPackageNames = firstBatch.map((pkg) => `@one-base-template/${pkg}`);
-const publishPackageNameBySourceName = {
-  '@one-base-template/core': 'one-base-template-core',
-  '@one-base-template/utils': 'one-base-template-utils',
-  '@one-base-template/tag': 'one-base-template-tag',
-  '@one-base-template/ui': 'one-base-template-ui'
-};
 const deferredPackageNames = [
   'adapters',
   'app-starter',
@@ -189,7 +182,9 @@ function packPackages() {
   rmSync(tempDir, { force: true, recursive: true });
   mkdirSync(packDir, { recursive: true });
 
-  createPublicPackageAliasTarballs({ packDir });
+  for (const pkg of firstBatch) {
+    run('pnpm', ['-C', `packages/${pkg}`, 'pack', '--pack-destination', packDir]);
+  }
 }
 
 async function createConsumerFixture() {
@@ -204,16 +199,12 @@ async function createConsumerFixture() {
     `期望 ${firstBatch.length} 个 tarball，实际 ${tarballs.length} 个`
   );
 
-  const tarballByPublishPackageName = new Map(
-    tarballs.map((tarball) => [
-      basename(tarball).replace(/-\d+\.\d+\.\d+\.tgz$/, ''),
-      `file:${tarball}`
-    ])
-  );
   const localPackageEntries = Object.fromEntries(
-    Object.entries(publishPackageNameBySourceName).map(([sourceName, publishPackageName]) => [
-      sourceName,
-      tarballByPublishPackageName.get(publishPackageName)
+    tarballs.map((tarball) => [
+      `@one-base-template/${basename(tarball)
+        .replace(/^one-base-template-/, '')
+        .replace(/-\d+\.\d+\.\d+\.tgz$/, '')}`,
+      `file:${tarball}`
     ])
   );
 

@@ -28,7 +28,7 @@
     "test:run": "vp run --filter @one-base-template/* --filter admin --filter admin-lite --filter docs --filter portal test:run",
     "changeset": "changeset",
     "version:packages": "changeset version",
-    "release:packages": "node ./scripts/publish-public-package-aliases.mjs",
+    "release:packages": "changeset publish",
     "release:build": "node ./scripts/build-public-package.mjs all",
     "release:validate": "node ./scripts/validate-public-packages.mjs",
     "check:naming:config": "node ./scripts/check-naming-whitelist-schema.mjs",
