@@ -31,6 +31,46 @@
   - 未把用户提供的 `_auth` 值写入仓库。
   - 真实制品仓库 publish/install smoke 需要在有权限的发布环境补跑。
 
+## 2026-06-30（admin-lite 最小 CLI 需求方案）
+
+- 背景：
+  - 用户期望把 `admin-lite` 中其他 monorepo 内部依赖也替换为企业 npm 包，最终生成一个以 `admin-lite` 为模板的初始化 CLI。
+- 本次收口：
+  - 用户确认第一版目标为“完全独立 + 最小可运行基座”。
+  - 新增 requirements-only 方案文档：
+    - `docs/plans/2026-06-30-002-feat-admin-lite-minimal-cli-plan.md`
+  - 方案明确第一版只覆盖登录、首页、布局、路由、运行配置与启动链路。
+  - 方案明确 `adapters`、`app-starter` 是第二批发布或模板移除/替换的关键依赖点。
+  - 方案明确第一版默认不包含管理模块、日志模块、系统字典、demo、starter-crud、模块生成器和架构检查 CLI 化。
+- 安全边界：
+  - 不把企业 npm `_auth`、token 或账号密码写入仓库或生成项目。
+  - 真实验收必须在仓库外临时目录完成 install/build smoke。
+
+## 2026-06-30（admin-lite 最小 CLI 实现）
+
+- 背景：
+  - 用户确认以 `admin-lite` 为模板生成仓库外独立初始化项目，并要求其他 monorepo 内部公共包逐步替换为企业 npm 包。
+- 本次收口：
+  - 第二批公共运行时包纳入发布流程：
+    - `@one-base-template/adapters@0.1.0`
+    - `@one-base-template/app-starter@0.1.0`
+  - 新增 CLI 包：
+    - `@one-base-template/create-admin-lite@0.1.0`
+    - CLI 使用 Node ESM 零运行时依赖，支持项目名、目标目录、`--target`、`--help`，目标目录非空时失败。
+  - 新增最小模板：
+    - `packages/create-admin-lite/templates/admin-lite-minimal`
+    - 默认仅保留 `home` 模块。
+    - 生成项目依赖全部为普通 npm semver，不包含 `workspace:`、`catalog:` 或 monorepo 相对脚本。
+  - 新增验证入口：
+    - `pnpm validate:admin-lite-cli`
+    - 本地 pack 公共包和 CLI 包后，在 `.tmp/admin-lite-cli/outside-consumer` 模拟仓库外项目生成、扫描、安装与构建。
+  - `apps/admin-lite` 剩余 `@one-base-template/adapters`、`@one-base-template/app-starter` 依赖已从 `workspace:*` 切为 `0.1.0`。
+  - `pnpm-workspace.yaml` 暂用本地 override 映射第二批尚未真实发布的包，保证 monorepo 内验证可运行；该 override 不进入 CLI 生成项目。
+  - `apps/admin-lite` 与 CLI 模板显式安装 `ElementPlus`，避免消费已打包 `@one-base-template/ui` 壳组件时出现 `el-*` 组件未解析 warning。
+- 安全边界：
+  - CLI 不写入企业 npm `_auth`、token 或账号密码。
+  - 本轮未执行真实 `pnpm release:packages`；真实 publish 后必须为每个发布成功 package 打 `<package-name>@<version>` tag。
+
 ## 2026-04-13（Codex 与 AI 编码经验手册落盘）
 
 - 背景：

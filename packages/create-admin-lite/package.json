@@ -1,0 +1,23 @@
+{
+  "name": "@one-base-template/create-admin-lite",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "create-admin-lite": "./bin/create-admin-lite.mjs"
+  },
+  "files": [
+    "bin",
+    "templates",
+    "README.md",
+    "package.json"
+  ],
+  "publishConfig": {
+    "registry": "http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ./bin/create-admin-lite.mjs --help",
+    "prepack": "pnpm build",
+    "prepublishOnly": "pnpm build"
+  }
+}

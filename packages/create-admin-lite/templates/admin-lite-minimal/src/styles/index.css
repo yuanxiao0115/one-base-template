@@ -1,0 +1,12 @@
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+/* 保持历史口径：不引入 preflight，避免覆盖 Element Plus 与业务基础样式。 */
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  font-family: var(--one-font-family-base);
+}

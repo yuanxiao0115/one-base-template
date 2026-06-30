@@ -3,11 +3,6 @@ import { defineConfig, loadEnv } from 'vite-plus';
 import { adminLiteBuildConfig, adminLiteFmtConfig, createAdminLitePlugins } from './build';
 import { normalizeAppBase } from '../../scripts/vite/app-base';
 
-const INTERNAL_WORKSPACE_PACKAGES = [
-  '@one-base-template/adapters',
-  '@one-base-template/app-starter'
-] as const;
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiBaseUrl = env.VITE_API_BASE_URL;
@@ -20,10 +15,6 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
       }
-    },
-    optimizeDeps: {
-      // 未发布的 workspace 源码包仍不走预构建缓存，已发布包从企业 npm 解析。
-      exclude: [...INTERNAL_WORKSPACE_PACKAGES]
     },
     build: adminLiteBuildConfig,
     fmt: adminLiteFmtConfig,

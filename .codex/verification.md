@@ -6,7 +6,7 @@
 
 - 日期：2026-06-30
 - 文件：`.codex/verification/2026-06-30.md`
-- 补充：首批公共包发布链路（core/utils/tag/ui）
+- 补充：admin-lite 最小 CLI 与第二批公共包发布链路
 
 ## 历史归档
 

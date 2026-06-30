@@ -31,6 +31,7 @@
     "release:packages": "changeset publish",
     "release:build": "node ./scripts/build-public-package.mjs all",
     "release:validate": "node ./scripts/validate-public-packages.mjs",
+    "validate:admin-lite-cli": "node ./scripts/validate-admin-lite-cli.mjs",
     "check:naming:config": "node ./scripts/check-naming-whitelist-schema.mjs",
     "check:naming": "pnpm check:naming:config && node ./scripts/check-naming.mjs",
     "verify": "vp run --filter @one-base-template/portal-engine verify:materials && pnpm check:naming && pnpm check:admin:route-policy && pnpm lint:arch && pnpm test:run && pnpm typecheck && pnpm lint && pnpm build && pnpm check:admin:bundle && pnpm check:admin-lite:bundle",

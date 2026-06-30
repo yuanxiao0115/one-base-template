@@ -6,6 +6,9 @@ catalog:
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.14
   vite-plus: 0.1.14
 overrides:
+  # 第二批包发布前，仓内用本地 link 保持 install/build 可用；CLI 生成项目不会携带这些 override。
+  '@one-base-template/adapters': link:./packages/adapters
+  '@one-base-template/app-starter': link:./packages/app-starter
   vite: 'catalog:'
   vitest: 'catalog:'
   'vitepress>vite': ^8.0.0

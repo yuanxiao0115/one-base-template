@@ -9,6 +9,7 @@
 - `admin-lite` 是从 `apps/admin` 收敛出来的后台基座。
 - 默认只保留 `home`、`admin-management`、`system-management`、`log-management`。
 - `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制，**默认只生成 `home` 模块**。
+- 仓库外独立项目使用 `@one-base-template/create-admin-lite`，第一版只生成最小可运行基座。
 - 强业务扩展默认不启用，需要时以可开关模块回接。
 
 ## 快速使用手册（先跑起来）
@@ -45,16 +46,16 @@ pnpm -C apps/admin-lite lint
 
 ## 配置入口速查
 
-| 目标                       | 配置文件                                        | 关键字段                                                                | 作用                                                        |
-| -------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------- |
-| 后端网关地址（apiBaseUrl） | `apps/admin-lite/.env.development.local`        | `VITE_API_BASE_URL`                                                     | 开发态代理 `/api`、`/cmict`；生产态可作为请求 `baseURL`     |
-| 统一前缀（资源 + 路由）    | `apps/admin-lite/.env.development.local`        | `VITE_APP_BASE`                                                         | 同时控制 Vite 静态资源前缀与 router base，避免路径不一致    |
-| 平台运行配置               | `apps/admin-lite/src/config/app.ts`             | `backend`、`authMode`、`menuMode`、`enabledModules`、`storageNamespace` | 统一定义鉴权模式、菜单模式、模块开关、存储命名空间          |
-| 路由模式                   | `apps/admin-lite/src/config/app.ts`             | `historyMode`（`history` \| `hash`）                                    | 控制 `createWebHistory/createWebHashHistory`                |
-| 主题配置                   | `apps/admin-lite/src/config/theme.ts`           | `defaultTheme`、`allowCustomPrimary`、`themes`                          | 控制内置主题与业务扩展主题                                  |
-| UI 开关与布局              | `apps/admin-lite/src/config/ui.ts`              | `ui.topbar`、`ui.login`、`ui.layout`、`ui.materialCache`                | 控制顶栏能力、登录文案、布局尺寸与缓存开关                  |
-| SSO 策略与接口             | `apps/admin-lite/src/config/auth.ts`            | `sso`、`authApi`                                                         | 统一配置 `/sso` 参数策略与 SSO 端点                         |
-| 请求策略                   | `apps/admin-lite/src/config/request.ts`         | `timeout`、`auth`、`successCodes`、`networkMsg`                         | 统一配置请求超时、认证头、成功码与网络错误文案              |
+| 目标                       | 配置文件                                 | 关键字段                                                                | 作用                                                     |
+| -------------------------- | ---------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------- |
+| 后端网关地址（apiBaseUrl） | `apps/admin-lite/.env.development.local` | `VITE_API_BASE_URL`                                                     | 开发态代理 `/api`、`/cmict`；生产态可作为请求 `baseURL`  |
+| 统一前缀（资源 + 路由）    | `apps/admin-lite/.env.development.local` | `VITE_APP_BASE`                                                         | 同时控制 Vite 静态资源前缀与 router base，避免路径不一致 |
+| 平台运行配置               | `apps/admin-lite/src/config/app.ts`      | `backend`、`authMode`、`menuMode`、`enabledModules`、`storageNamespace` | 统一定义鉴权模式、菜单模式、模块开关、存储命名空间       |
+| 路由模式                   | `apps/admin-lite/src/config/app.ts`      | `historyMode`（`history` \| `hash`）                                    | 控制 `createWebHistory/createWebHashHistory`             |
+| 主题配置                   | `apps/admin-lite/src/config/theme.ts`    | `defaultTheme`、`allowCustomPrimary`、`themes`                          | 控制内置主题与业务扩展主题                               |
+| UI 开关与布局              | `apps/admin-lite/src/config/ui.ts`       | `ui.topbar`、`ui.login`、`ui.layout`、`ui.materialCache`                | 控制顶栏能力、登录文案、布局尺寸与缓存开关               |
+| SSO 策略与接口             | `apps/admin-lite/src/config/auth.ts`     | `sso`、`authApi`                                                        | 统一配置 `/sso` 参数策略与 SSO 端点                      |
+| 请求策略                   | `apps/admin-lite/src/config/request.ts`  | `timeout`、`auth`、`successCodes`、`networkMsg`                         | 统一配置请求超时、认证头、成功码与网络错误文案           |
 
 ## 1. 当前定位
 
@@ -129,6 +130,24 @@ const enableDemoManagementTemplateModule = true;
 - 登录页、顶栏和启动链路不要散落业务化分支。
 
 ## 5. 新项目派生方式
+
+仓库外独立项目：
+
+```bash
+npm config set registry http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+pnpm dlx @one-base-template/create-admin-lite my-admin
+cd my-admin
+pnpm install
+pnpm dev
+```
+
+说明：
+
+- CLI 生成项目只依赖企业 npm 上的普通 semver 包。
+- 生成项目不包含 `workspace:`、`catalog:`、`../../scripts` 或本仓库绝对路径。
+- CLI 不写入 `_auth`、token 或账号密码。
+
+仓库内派生应用：
 
 从仓库根目录执行：
 

@@ -10,9 +10,10 @@
 
 ## 当前状态
 
-- 首批公共包：`@one-base-template/core`、`@one-base-template/utils`、`@one-base-template/tag`、`@one-base-template/ui`。
-- 延期发布包：`@one-base-template/adapters`、`@one-base-template/app-starter`、`@one-base-template/document-form-engine`、`@one-base-template/portal-engine`。
-- 首批公共包已使用 `dist` 产物作为默认导出；延期包仍保持 `private: true`，不进入首批发布。
+- 已纳入公共发布流程的运行时包：`@one-base-template/core`、`@one-base-template/utils`、`@one-base-template/tag`、`@one-base-template/ui`、`@one-base-template/adapters`、`@one-base-template/app-starter`。
+- 已纳入公共发布流程的 CLI 包：`@one-base-template/create-admin-lite`。
+- 延期发布包：`@one-base-template/document-form-engine`、`@one-base-template/portal-engine`。
+- 公共包均使用 `dist` 产物作为默认导出；延期包仍保持 `private: true`，不进入当前发布范围。
 
 如需让其他子包进入发布流程，先把对应 `package.json` 的 `private` 改为 `false`，补齐 `name/version/exports/files/publishConfig`，并从 `.changeset/config.json` 的 `ignore` 中移除。
 
@@ -37,10 +38,18 @@ pnpm release:validate
 
 该命令会：
 
-- 构建 `core/utils/tag/ui` 的 `dist` 产物。
-- 检查首批包与延期包的发布元数据边界。
+- 构建当前公共运行时包的 `dist` 产物。
+- 检查公共包与延期包的发布元数据边界。
 - 扫描 tracked files，阻断 `_auth` / token 被提交。
 - 生成本地 tarball，并安装到临时 Vite 消费者中构建。
+
+如果改动了 `@one-base-template/create-admin-lite` 或模板，还必须补跑：
+
+```bash
+pnpm validate:admin-lite-cli
+```
+
+该命令会本地 pack 公共包和 CLI 包，在仓库外临时目录生成项目、扫描 `workspace:` / `catalog:` / `../../scripts` / 本机路径 / `_auth`，再用本地 tarball 覆盖完成 install/build。
 
 ### 2) 记录版本变更意图
 
@@ -56,7 +65,7 @@ pnpm changeset
 
 ### 3) 合并前审阅 changeset
 
-PR 里必须包含 `.changeset/*.md`，避免“改了包但忘了升版本”。
+PR 里必须包含 `.changeset/*.md`，或已经执行 `pnpm version:packages` 并生成对应 `CHANGELOG.md`，避免“改了包但忘了升版本”。
 
 ### 4) 发布窗口执行版本推进
 
@@ -84,7 +93,7 @@ printf '%s\n' 'registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/np
 pnpm release:packages
 ```
 
-如果只发布单包，也可定向执行，但首批公共包建议一起发版，避免 `ui` 依赖的 `core/tag` 版本缺失：
+如果只发布单包，也可定向执行，但公共运行时包建议按依赖关系一起发版，避免 `ui` 依赖的 `core/tag`、`adapters` 依赖的 `core` 版本缺失：
 
 ```bash
 pnpm -C packages/<pkg-name> publish --no-git-checks --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
@@ -95,7 +104,8 @@ pnpm -C packages/<pkg-name> publish --no-git-checks --registry=http://artifact.n
 ### 6) 发布后安装冒烟
 
 ```bash
-npm install @one-base-template/core @one-base-template/utils @one-base-template/tag @one-base-template/ui --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+npm install @one-base-template/core @one-base-template/utils @one-base-template/tag @one-base-template/ui @one-base-template/adapters @one-base-template/app-starter --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+npm exec --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/ @one-base-template/create-admin-lite -- my-admin
 ```
 
 业务项目只使用包名、版本号和 registry 安装，不直接依赖 Artifactory 里很长的 tgz 物理地址。类似 `.../artifactory/one-package/@one-base-template/core/-/@one-base-template/core-0.1.0.tgz` 的地址只是 registry 返回的 tarball 存储路径，不作为对外接入契约。
@@ -104,7 +114,9 @@ npm install @one-base-template/core @one-base-template/utils @one-base-template/
 
 ## Tag 与回滚建议
 
-- 发布后打 tag：`<pkg-name>@<version>`，例如 `@one-base-template/utils@1.2.0`
+- 只有真实执行 `pnpm release:packages` 或等价 publish 且制品仓库确认成功后才打 tag。
+- 每个发布成功的 package 都必须打 tag：`<pkg-name>@<version>`，例如 `@one-base-template/utils@1.2.0`。
+- 多包同批发布时，每个 package tag 必打，批次 tag 可选。
 - 发现问题时不要覆盖旧版本，直接发修复版（`patch`）
 - 严重回滚使用“版本回退 + 新版修复说明”，避免强制删除已发布版本
 
@@ -114,11 +126,12 @@ npm install @one-base-template/core @one-base-template/utils @one-base-template/
 
 1. `pnpm install --frozen-lockfile`
 2. `pnpm release:validate`
-3. `pnpm -C apps/docs lint`
-4. `pnpm -C apps/docs build`
-5. `pnpm version:packages`（发布窗口）
-6. `pnpm release:validate`（版本推进后复验）
-7. `pnpm release:packages`（仅在 release job 执行）
+3. `pnpm validate:admin-lite-cli`（CLI 或模板改动时必跑）
+4. `pnpm -C apps/docs lint`
+5. `pnpm -C apps/docs build`
+6. `pnpm version:packages`（发布窗口）
+7. `pnpm release:validate`（版本推进后复验）
+8. `pnpm release:packages`（仅在 release job 执行）
 
 ## 延伸治理（多版本并行）
 

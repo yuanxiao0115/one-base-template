@@ -8,6 +8,7 @@
 - `admin-lite` 由 `apps/admin` 收敛而来，用于承接新的后台管理项目。
 - 默认模块只保留：`home`、`admin-management`、`system-management`、`log-management`。
 - `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制，默认仅保留 `home` 模块。
+- `@one-base-template/create-admin-lite` 面向仓库外独立项目，第一版只生成登录、首页、应用壳、路由、运行配置、HTTP、鉴权、菜单和主题闭环。
 - 强业务扩展默认不启用，确有需要时必须做成可开关能力。
 
 ## 1. 目标与边界
@@ -90,6 +91,27 @@ const moduleConfig = {
 
 ## 5. 新项目派生方式
 
+### 仓库外独立项目（企业 npm CLI）
+
+第一版 CLI 面向脱离 monorepo 的项目初始化，生成项目只使用普通 npm semver 依赖，不包含 `workspace:`、`catalog:` 或本仓库相对脚本。
+
+```bash
+npm config set registry http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+pnpm dlx @one-base-template/create-admin-lite my-admin
+cd my-admin
+pnpm install
+pnpm dev
+pnpm build
+```
+
+边界：
+
+- 默认只包含 `home` 模块。
+- 默认不包含 `admin-management`、`log-management`、`system-management`、`demo-management`、`starter-crud`。
+- CLI 不写入 `_auth`、token 或账号密码；凭证只能放在用户本机或 CI 的 npm 配置中。
+
+### 仓库内派生应用
+
 在仓库根目录执行：
 
 ```bash
@@ -158,6 +180,12 @@ pnpm -C apps/admin-lite test:run
 pnpm -C apps/admin-lite build
 ```
 
+CLI / 模板改动时补跑：
+
+```bash
+pnpm validate:admin-lite-cli
+```
+
 涉及文档或规则改动时，再补：
 
 ```bash
@@ -170,4 +198,5 @@ pnpm -C apps/docs build
 - `apps/admin-lite/README.md`
 - `apps/admin-lite/AGENTS.md`
 - `/guide/admin-lite-agent-redlines`
+- `/guide/package-release`
 - `/guide/quick-start`

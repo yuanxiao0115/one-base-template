@@ -1,0 +1,29 @@
+/* 全局 loading 规范：遮罩透明化 + 图标样式统一。 */
+
+.el-loading-mask,
+.el-loading-mask.is-fullscreen {
+  background-color: transparent !important;
+}
+
+.el-loading-parent--relative > .el-loading-mask,
+.el-loading-parent--hidden > .el-loading-mask {
+  background-color: transparent !important;
+}
+
+/* 统一 v-loading 默认圆环图标颜色与文案色阶。 */
+
+.el-loading-spinner .path {
+  stroke: var(--one-color-primary);
+}
+
+.el-loading-spinner .el-loading-text {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+
+/* 统一自定义 loading icon（例如 loading spinner class）颜色。 */
+
+.el-loading-spinner i,
+.el-icon.is-loading {
+  color: var(--one-color-primary);
+}

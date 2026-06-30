@@ -7,15 +7,25 @@ const rootDir = resolve(import.meta.dirname, '..');
 const tempDir = resolve(rootDir, '.tmp/public-packages');
 const packDir = join(tempDir, 'packs');
 const fixtureDir = join(tempDir, 'consumer');
-const firstBatch = ['core', 'utils', 'tag', 'ui'];
-const firstBatchPackageNames = firstBatch.map((pkg) => `@one-base-template/${pkg}`);
-const deferredPackageNames = [
-  'adapters',
-  'app-starter',
-  'document-form-engine',
-  'portal-engine'
-].map((pkg) => `@one-base-template/${pkg}`);
+const publicPackages = ['core', 'utils', 'tag', 'ui', 'adapters', 'app-starter'];
+const publicPackageNames = publicPackages.map((pkg) => `@one-base-template/${pkg}`);
+const cliPackageNames = ['@one-base-template/create-admin-lite'];
+const deferredPackageNames = ['document-form-engine', 'portal-engine'].map(
+  (pkg) => `@one-base-template/${pkg}`
+);
 const packageChecks = {
+  '@one-base-template/adapters': {
+    files: ['dist/index.js', 'dist/index.d.ts'],
+    imports: [
+      "import { createBasicAdapter, createDefaultAdapter } from '@one-base-template/adapters';"
+    ]
+  },
+  '@one-base-template/app-starter': {
+    files: ['dist/index.js', 'dist/index.d.ts'],
+    imports: [
+      "import { createRuntimeConfigLoader, startAppWithRuntimeConfig } from '@one-base-template/app-starter';"
+    ]
+  },
   '@one-base-template/core': {
     files: ['dist/index.js', 'dist/index.d.ts'],
     imports: ["import { createCore } from '@one-base-template/core';"]
@@ -95,7 +105,7 @@ function assert(condition, message) {
 }
 
 function validatePackageMetadata() {
-  for (const packageName of firstBatchPackageNames) {
+  for (const packageName of publicPackageNames) {
     const packageDir = join(rootDir, 'packages', packageName.replace('@one-base-template/', ''));
     const packageJson = readJson(join(packageDir, 'package.json'));
 
@@ -118,7 +128,7 @@ function validatePackageMetadata() {
   for (const packageName of deferredPackageNames) {
     const packageDir = join(rootDir, 'packages', packageName.replace('@one-base-template/', ''));
     const packageJson = readJson(join(packageDir, 'package.json'));
-    assert(packageJson.private === true, `${packageName} 不应进入首批发布`);
+    assert(packageJson.private === true, `${packageName} 不应进入当前发布范围`);
   }
 
   const uiPackageJson = readJson(join(rootDir, 'packages/ui/package.json'));
@@ -129,6 +139,12 @@ function validatePackageMetadata() {
   assert(
     uiPackageJson.dependencies['@one-base-template/tag'] === 'workspace:^',
     'ui -> tag 未使用 workspace:^'
+  );
+
+  const adaptersPackageJson = readJson(join(rootDir, 'packages/adapters/package.json'));
+  assert(
+    adaptersPackageJson.dependencies['@one-base-template/core'] === 'workspace:^',
+    'adapters -> core 未使用 workspace:^'
   );
 }
 
@@ -141,7 +157,11 @@ async function readChangesetFiles() {
 
 async function validateChangesetsAsync() {
   const changesetDir = join(rootDir, '.changeset');
-  const knownPackageNames = new Set([...firstBatchPackageNames, ...deferredPackageNames]);
+  const knownPackageNames = new Set([
+    ...publicPackageNames,
+    ...cliPackageNames,
+    ...deferredPackageNames
+  ]);
   for (const file of await readChangesetFiles()) {
     const content = readFileSync(join(changesetDir, file), 'utf8');
     const matches = [
@@ -182,7 +202,7 @@ function packPackages() {
   rmSync(tempDir, { force: true, recursive: true });
   mkdirSync(packDir, { recursive: true });
 
-  for (const pkg of firstBatch) {
+  for (const pkg of publicPackages) {
     run('pnpm', ['-C', `packages/${pkg}`, 'pack', '--pack-destination', packDir]);
   }
 }
@@ -195,8 +215,8 @@ async function createConsumerFixture() {
     .map((file) => join(packDir, file));
 
   assert(
-    tarballs.length === firstBatch.length,
-    `期望 ${firstBatch.length} 个 tarball，实际 ${tarballs.length} 个`
+    tarballs.length === publicPackages.length,
+    `期望 ${publicPackages.length} 个 tarball，实际 ${tarballs.length} 个`
   );
 
   const localPackageEntries = Object.fromEntries(
@@ -249,7 +269,7 @@ async function createConsumerFixture() {
       .flatMap((check) => check.imports)
       .join(
         '\n'
-      )}\n\nconsole.log(Boolean(createCore), Boolean(utilsVersion), Boolean(OneTagPlugin), Boolean(setTagPiniaInstance), Boolean(TableBox), Boolean(ObTablePlugin), Boolean(VxePlugin), Boolean(LoginBox), Boolean(AdminLayout));\n`
+      )}\n\nconsole.log(Boolean(createCore), Boolean(utilsVersion), Boolean(OneTagPlugin), Boolean(setTagPiniaInstance), Boolean(TableBox), Boolean(ObTablePlugin), Boolean(VxePlugin), Boolean(LoginBox), Boolean(AdminLayout), Boolean(createBasicAdapter), Boolean(createDefaultAdapter), Boolean(createRuntimeConfigLoader), Boolean(startAppWithRuntimeConfig));\n`
   );
   writeFileSync(
     join(fixtureDir, 'vite.config.ts'),

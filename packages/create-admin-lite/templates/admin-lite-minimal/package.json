@@ -1,0 +1,42 @@
+{
+  "name": "__PROJECT_NAME__",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "vp build",
+    "preview": "vp preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vp test --config vitest.config.ts",
+    "test:run": "vp test run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "@one-base-template/adapters": "0.1.0",
+    "@one-base-template/core": "0.1.0",
+    "@one-base-template/tag": "0.1.0",
+    "@one-base-template/ui": "0.1.1",
+    "element-plus": "^2.13.2",
+    "gm-crypto": "^0.1.12",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.28",
+    "vue-router": "^5.0.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.0.0",
+    "happy-dom": "^20.0.10",
+    "postcss": "^8.0.0",
+    "sass": "^1.93.2",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.0.0",
+    "unplugin-auto-import": "^21.0.0",
+    "unplugin-vue-components": "^31.0.0",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.1.14",
+    "vite-plus": "0.1.14",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.14",
+    "vue-tsc": "^2.0.0"
+  }
+}

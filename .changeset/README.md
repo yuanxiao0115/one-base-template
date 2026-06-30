@@ -5,8 +5,11 @@
 ## 常用命令
 
 ```bash
-# 1) 发布前构建首批公共包并做本地 pack/install 冒烟
+# 1) 发布前构建公共包并做本地 pack/install 冒烟
 pnpm release:validate
+
+# CLI / 模板改动时补跑仓库外生成项目验证
+pnpm validate:admin-lite-cli
 
 # 2) 记录本次变更要发布的包与版本级别（patch/minor/major）
 pnpm changeset
@@ -21,11 +24,13 @@ pnpm release:packages
 ## 约定
 
 - `.changeset/*.md`：每次变更对应一条发布说明
-- 首批公共包范围固定为 `@one-base-template/core`、`@one-base-template/utils`、`@one-base-template/tag`、`@one-base-template/ui`
-- 非首批包与私有 app 已在 `.changeset/config.json` 的 `ignore` 中排除，不应被首批发版误升级
+- 当前公共运行时包范围为 `@one-base-template/core`、`@one-base-template/utils`、`@one-base-template/tag`、`@one-base-template/ui`、`@one-base-template/adapters`、`@one-base-template/app-starter`
+- 当前公共 CLI 包范围为 `@one-base-template/create-admin-lite`
+- 私有 app 与延期包已在 `.changeset/config.json` 的 `ignore` 中排除，不应被当前发版误升级
 - `pnpm version:packages` 会消费这些文件并更新包版本
 - 发布完成后，消费过的 changeset 文件会被自动删除
 - 凭证只允许写入发布环境或开发者本机临时 npm 配置，禁止把 `_auth` / token 写入仓库
+- 真实 publish 成功后，每个发布成功的 package 必须打版本 tag，格式为 `<package-name>@<version>`
 
 ## 版本级别
 

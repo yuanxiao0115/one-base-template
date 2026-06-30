@@ -82,6 +82,22 @@ pnpm -C apps/docs dev
 
 ### 2.6 可选：10 分钟起一个新后台
 
+仓库外独立项目使用企业 npm CLI：
+
+```bash
+npm config set registry http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+pnpm dlx @one-base-template/create-admin-lite my-admin
+cd my-admin
+pnpm install
+pnpm dev
+pnpm build
+```
+
+CLI 第一版只生成最小基座，不默认携带管理模块、日志模块、系统字典、demo 或 starter-crud。
+认证信息只写入本机或 CI 的 npm 配置，不写入生成项目仓库。
+
+仓库内派生应用继续使用根脚手架：
+
 ```bash
 pnpm new:app my-admin
 pnpm new:app my-admin --with-admin-management --with-log-management --with-system-management

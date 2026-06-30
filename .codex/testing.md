@@ -25,6 +25,55 @@
   - `pnpm release:validate` 完成 metadata audit、credential scan、本地 pack、临时消费者 install/build。
   - 真实企业制品仓库 install smoke 未执行：需要发布环境提供 registry 凭证，且仓库内禁止提交 `_auth`。
 
+## 2026-06-30（admin-lite 最小 CLI 需求方案）
+
+- 文档范围：
+  - 新增 `docs/plans/2026-06-30-002-feat-admin-lite-minimal-cli-plan.md`。
+- 待验证：
+  - 本轮只产出 requirements-only 方案文档，尚未进入实现。
+  - 实施阶段需要在仓库外临时目录验证 CLI 生成项目的 install/build smoke。
+
+## 2026-06-30（admin-lite 最小 CLI 实现）
+
+- RED / 过程失败：
+  - `pnpm version:packages`
+    - 失败原因 1：`apps/admin-lite` 提前声明了待发布的 `@one-base-template/adapters@0.1.0`、`@one-base-template/app-starter@0.1.0`，changesets 要求版本推进前依赖当前版本 `0.0.0`。
+    - 失败原因 2：`.changeset/config.json` 的 `ignore` 仍包含已删除的 `zfw-system-sfss` workspace。
+    - 修复：临时把 `admin-lite` 依赖回退到 `0.0.0` 交给 changesets 推进，并移除失效 ignore。
+  - `pnpm install --lockfile-only`
+    - 失败原因：第二批包尚未真实发布，`admin-lite` 的 semver 依赖会从当前 registry 拉取 `@one-base-template/adapters@0.1.0` 并返回 404。
+    - 修复：在仓库根 `pnpm-workspace.yaml` 用本地 override 映射第二批包，保留 `admin-lite/package.json` 的普通 semver 依赖，生成项目不带该 override。
+
+- 已通过：
+  - `pnpm -C packages/adapters typecheck`
+  - `pnpm -C packages/app-starter typecheck`
+  - `pnpm version:packages`
+  - `pnpm install --lockfile-only`
+  - `pnpm release:build`
+  - `pnpm release:validate`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm -C apps/admin-lite build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `pnpm validate:admin-lite-cli`（删除模板空壳构建插件后复跑）
+  - `pnpm release:validate`（发布校验文案与 workspace override 注释调整后复跑）
+  - `pnpm -C apps/admin-lite typecheck`（补充显式安装 Element Plus 后复跑）
+  - `pnpm -C apps/admin-lite build`（补充显式安装 Element Plus 后复跑）
+  - `agent-browser --session admin-lite-cli-smoke open http://127.0.0.1:5177/`
+  - `agent-browser --session admin-lite-cli-smoke eval "({ url: location.href, title: document.title, text: document.body?.innerText?.slice(0, 1000) })"`
+
+- 结果：
+  - 第二批运行时包可构建、pack，并被临时消费者安装构建。
+  - CLI tarball 可生成仓库外项目；生成项目静态扫描通过，并可 install/build。
+  - `admin-lite` 切换剩余公共包 semver 依赖后 typecheck/build 通过。
+  - docs lint/build 通过。
+  - 删除模板空壳构建插件后，CLI 仓外生成、静态扫描、install/build 仍通过。
+  - 发布校验脚本完成 metadata、credential scan、pack、临时消费者构建复验。
+  - 生成项目浏览器冒烟可进入 `/home/index`，页面标题为 `sample-admin`，正文包含最小后台基座欢迎文案。
+  - 显式安装 Element Plus 后，浏览器冒烟不再出现 `Failed to resolve component: el-*`；仍有既有 Vue Router `next()` deprecation warning，非本轮阻断。
+  - `pnpm -C apps/admin build` 额外尝试失败，原因是当前 admin workspace 打包解析 `packages/ui/dist/*` 时触发 Rolldown `Identifier h has already been declared`，不属于本轮 admin-lite CLI 目标链路，未纳入通过口径。
+
 ## 2026-04-13（Codex 与 AI 编码经验手册）
 
 - GREEN / 回归：

@@ -7,7 +7,9 @@ const packageConfigs = {
   core: { dir: 'packages/core', declaration: 'tsc', styles: [] },
   utils: { dir: 'packages/utils', declaration: 'tsc', styles: [] },
   tag: { dir: 'packages/tag', declaration: 'vue-tsc', styles: [['src/styles', 'dist/styles']] },
-  ui: { dir: 'packages/ui', declaration: 'vue-tsc', styles: [] }
+  ui: { dir: 'packages/ui', declaration: 'vue-tsc', styles: [] },
+  adapters: { dir: 'packages/adapters', declaration: 'tsc', styles: [] },
+  'app-starter': { dir: 'packages/app-starter', declaration: 'tsc', styles: [] }
 };
 
 const target = process.argv[2];

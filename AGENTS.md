@@ -177,6 +177,7 @@ docs/
 - **Git 提交信息必须使用中文**（commit message 禁止英文）。
 - **提交策略（2026-03-13 用户新规）**：在开发分支上，每个功能完成且测试通过后默认自动执行 `git commit`，并按模块拆分提交；仅在用户明确禁止提交时暂停自动提交。
 - **package 发布 tag 规则**：普通代码 `git push` 不打 tag；只有真实执行 `pnpm release:packages` 或等价 publish 且确认制品仓库发布成功后，才为每个发布成功的 package 打版本 tag，格式固定为 `<package-name>@<version>`（如 `@one-base-template/core@0.1.0`）。多包同批次发布时，每个 package tag 必打，批次 tag 可选。
+- **admin-lite 仓外 CLI 规则**：`@one-base-template/create-admin-lite` 生成项目必须脱离 monorepo 运行，输出项目禁止包含 `workspace:`、`catalog:`、`../../scripts`、本机仓库绝对路径或真实 npm `_auth` / token；CLI / 模板改动后必须执行 `pnpm validate:admin-lite-cli` 或明确记录未执行原因。
 - **开发阶段默认不做历史配置兼容**；除非用户明确要求，否则按当前方案直接收敛实现。
 - **共享登录能力命名固定为通用名**：公共登录框组件使用 `LoginBox.vue`，公共登录动作文件使用 `login.ts`；后续新版本使用 `v1` / `v2` 后缀，禁止再使用后端名或项目名命名公共能力。
 - **`apps/portal` 维持前台独立静态应用边界**：默认不接菜单接口，不依赖 `/cmict/admin/permission/*` 菜单能力；登录后仅处理前台页面跳转与门户分流。

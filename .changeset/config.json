@@ -11,9 +11,6 @@
     "admin",
     "admin-lite",
     "portal",
-    "zfw-system-sfss",
-    "@one-base-template/adapters",
-    "@one-base-template/app-starter",
     "@one-base-template/document-form-engine",
     "@one-base-template/portal-engine"
   ]

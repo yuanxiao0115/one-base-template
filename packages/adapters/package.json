@@ -1,20 +1,34 @@
 {
   "name": "@one-base-template/adapters",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "publishConfig": {
+    "registry": "http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/",
+    "access": "public"
+  },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "pnpm typecheck",
+    "build": "node ../../scripts/build-public-package.mjs adapters",
+    "prepack": "pnpm build",
+    "prepublishOnly": "pnpm build",
     "typecheck": "tsc --noEmit",
     "lint": "vp lint ."
   },
   "dependencies": {
-    "@one-base-template/core": "workspace:*"
+    "@one-base-template/core": "workspace:^"
   }
 }

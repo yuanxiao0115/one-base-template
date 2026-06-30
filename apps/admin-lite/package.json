@@ -20,8 +20,8 @@
     "lint:fix": "node ../../scripts/run-vp-task-from-root.mjs check --fix src"
   },
   "dependencies": {
-    "@one-base-template/adapters": "workspace:*",
-    "@one-base-template/app-starter": "workspace:*",
+    "@one-base-template/adapters": "0.1.0",
+    "@one-base-template/app-starter": "0.1.0",
     "@one-base-template/core": "0.1.0",
     "@one-base-template/tag": "0.1.0",
     "@one-base-template/ui": "0.1.1",
