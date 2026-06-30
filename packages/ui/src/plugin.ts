@@ -33,7 +33,36 @@ import {
   type CrudContainerGlobalConfig
 } from './config';
 
-const UI_COMPONENTS = {
+export type OneUiComponentName =
+  | 'AdminLayout'
+  | 'SidebarMenu'
+  | 'MenuIcon'
+  | 'MenuIconInput'
+  | 'TopBar'
+  | 'TabsBar'
+  | 'ThemeSwitcher'
+  | 'KeepAliveView'
+  | 'FontIcon'
+  | 'Card'
+  | 'ColorField'
+  | 'PageContainer'
+  | 'CrudContainer'
+  | 'Tree'
+  | 'ActionButtons'
+  | 'TableBox'
+  | 'CardTable'
+  | 'VxeTable'
+  | 'Table'
+  | 'ImportUpload'
+  | 'UploadShell'
+  | 'FilePreview'
+  | 'PersonnelSelector'
+  | 'RichText'
+  | 'AccountCenterPanel'
+  | 'CommandPalette'
+  | 'DialogHost';
+
+const UI_COMPONENTS: Record<OneUiComponentName, Component> = {
   AdminLayout,
   SidebarMenu,
   MenuIcon,
@@ -61,9 +90,7 @@ const UI_COMPONENTS = {
   AccountCenterPanel,
   CommandPalette,
   DialogHost
-} as const;
-
-export type OneUiComponentName = keyof typeof UI_COMPONENTS;
+};
 
 export interface OneUiPluginOptions {
   /**
@@ -123,7 +150,7 @@ export function registerOneUiComponents(app: App, options: OneUiPluginOptions = 
   );
 }
 
-export const OneUiPlugin = {
+export const OneUiPlugin: { install(app: App, options?: OneUiPluginOptions): void } = {
   install(app: App, options?: OneUiPluginOptions) {
     app.provide(
       ONE_UI_GLOBAL_CONFIG_KEY,

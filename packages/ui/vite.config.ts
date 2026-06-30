@@ -3,14 +3,27 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite-plus';
 
 const externalPackages = [
-  '@iconify-icons/ep',
-  '@iconify-icons/ri',
+  '@iconify-json/ep',
+  '@iconify-json/ri',
   '@iconify/vue',
-  '@vueuse/core',
-  'mitt',
+  '@one-base-template/core',
+  '@one-base-template/tag',
+  '@wangeditor/editor',
+  '@wangeditor/editor-for-vue',
+  '@vue-office/docx',
+  '@vue-office/excel',
+  '@vue-office/pdf',
+  '@vue-office/pptx',
+  'element-plus',
+  'gm-crypto',
+  'ofdview-vue3',
+  'parser_x.js',
   'pinia',
+  'sortablejs',
   'vue',
-  'vue-router'
+  'vue-router',
+  'vxe-pc-ui',
+  'vxe-table'
 ];
 const isExternal = (id: string) =>
   externalPackages.some((pkg) => id === pkg || id.startsWith(`${pkg}/`));
@@ -21,7 +34,11 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
-        'store-entry': resolve(import.meta.dirname, 'src/store-entry.ts')
+        obtable: resolve(import.meta.dirname, 'src/obtable.ts'),
+        vxe: resolve(import.meta.dirname, 'src/vxe.ts'),
+        lite: resolve(import.meta.dirname, 'src/lite.ts'),
+        'lite-auth': resolve(import.meta.dirname, 'src/lite-auth.ts'),
+        shell: resolve(import.meta.dirname, 'src/shell.ts')
       },
       formats: ['es'],
       fileName: (_format, entryName) => `${entryName}.js`
@@ -37,9 +54,7 @@ export default defineConfig({
     },
     emptyOutDir: true,
     cssCodeSplit: false,
-    sourcemap: false,
-    reportCompressedSize: true,
-    cssMinify: 'lightningcss'
+    sourcemap: false
   },
   resolve: {
     alias: {

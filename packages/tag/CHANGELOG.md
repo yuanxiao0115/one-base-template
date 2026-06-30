@@ -1,27 +1,33 @@
 # @one-base-template/tag 更新日志
 
+## 0.1.0
+
+### Minor Changes
+
+- 建立首批公共包发布基线，补齐 `core`、`utils`、`tag`、`ui` 的发布元数据、产物构建与本地验证流程。
+
 ## v2.1.0 (2025-07-19)
 
 ### 🎯 重大改进
 
-- 🎨 **移除scoped样式**：完全移除Vue组件的scoped样式，改用类名前缀避免样式冲突
-- 🌍 **CSS变量全局化**：确保CSS变量在全局作用域生效，用户可以轻松覆盖样式
+- 🎨 **移除 scoped 样式**：完全移除 Vue 组件的 scoped 样式，改用类名前缀避免样式冲突
+- 🌍 **CSS 变量全局化**：确保 CSS 变量在全局作用域生效，用户可以轻松覆盖样式
 - 📦 **组件库架构优化**：提供更好的组件库使用体验，符合现代组件库标准
-- 🎨 **主题定制增强**：支持47个CSS变量定制，提供完整的主题定制能力
+- 🎨 **主题定制增强**：支持 47 个 CSS 变量定制，提供完整的主题定制能力
 - 📚 **文档完善**：添加详细的主题定制文档和使用示例
 
 ### 🔧 技术改进
 
-- 移除所有Vue组件的scoped属性
-- 优化CSS输出结构，变量不再被Vue scoped包裹
-- 增强打包配置，禁用source map保护源码
-- 完善TypeScript类型定义
+- 移除所有 Vue 组件的 scoped 属性
+- 优化 CSS 输出结构，变量不再被 Vue scoped 包裹
+- 增强打包配置，禁用 source map 保护源码
+- 完善 TypeScript 类型定义
 
 ### 📖 文档更新
 
 - 新增主题定制文档 `docs/theme-customization.md`
-- 更新README.md，添加主题定制示例
-- 完善使用指南和API文档
+- 更新 README.md，添加主题定制示例
+- 完善使用指南和 API 文档
 
 ## v1.0.10 (2025-06-25)
 
@@ -36,27 +42,27 @@
 ### Features
 
 - 🎨 **样式隔离优化**：完全解决样式污染问题
-  - 将CSS变量从`:root`作用域化到`.tags-view`选择器内
-  - 移除了全局样式导入，使用Vue scoped样式确保样式隔离
+  - 将 CSS 变量从`:root`作用域化到`.tags-view`选择器内
+  - 移除了全局样式导入，使用 Vue scoped 样式确保样式隔离
   - 样式现在完全不会影响其他组件
 
-- 🚀 **移除Element Plus依赖**：使用自定义dropdown组件
-  - 徒手实现dropdown组件，完全替换Element Plus依赖
-  - 打包体积减小约90%（CSS从约60KB减少到6.44KB）
-  - 移除了Element Plus的peerDependency要求
-  - 保持完全的API兼容性
+- 🚀 **移除 Element Plus 依赖**：使用自定义 dropdown 组件
+  - 徒手实现 dropdown 组件，完全替换 Element Plus 依赖
+  - 打包体积减小约 90%（CSS 从约 60KB 减少到 6.44KB）
+  - 移除了 Element Plus 的 peerDependency 要求
+  - 保持完全的 API 兼容性
 
 ### Code Cleanup
 
 - 🧹 **清理未使用样式**：移除了灵动模式和卡片模式相关的未使用样式
   - 删除了`.schedule-active`、`.schedule-in`、`.schedule-out`样式
   - 删除了`.card-in`、`.card-out`样式
-  - 删除了相关的CSS变量和动画关键帧
-  - 减少了约30行冗余CSS代码
+  - 删除了相关的 CSS 变量和动画关键帧
+  - 减少了约 30 行冗余 CSS 代码
 
 ### Documentation
 
-- 📚 **文档更新**：更新了CSS变量使用文档
+- 📚 **文档更新**：更新了 CSS 变量使用文档
   - 更新了变量作用域化的使用方法
   - 添加了向后兼容性说明
   - 移除了未使用变量的文档
@@ -79,7 +85,7 @@
 
 ### Major Changes
 
-- 更新了tag首页页签的隐藏逻辑
+- 更新了 tag 首页页签的隐藏逻辑
 
 ## 1.0.1
 

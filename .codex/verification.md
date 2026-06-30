@@ -4,9 +4,9 @@
 
 ## 最新记录
 
-- 日期：2026-04-13
-- 文件：`.codex/verification/2026-04-13.md`
-- 补充：Codex 与 AI 编码经验手册（docs 落盘）
+- 日期：2026-06-30
+- 文件：`.codex/verification/2026-06-30.md`
+- 补充：首批公共包发布链路（core/utils/tag/ui）
 
 ## 历史归档
 

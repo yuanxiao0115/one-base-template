@@ -1,36 +1,55 @@
 {
   "name": "@one-base-template/ui",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "publishConfig": {
+    "registry": "http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/",
+    "access": "public"
+  },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./obtable": {
-      "types": "./src/obtable.ts",
-      "default": "./src/obtable.ts"
+      "types": "./dist/obtable.d.ts",
+      "import": "./dist/obtable.js",
+      "default": "./dist/obtable.js"
     },
     "./vxe": {
-      "types": "./src/vxe.ts",
-      "default": "./src/vxe.ts"
+      "types": "./dist/vxe.d.ts",
+      "import": "./dist/vxe.js",
+      "default": "./dist/vxe.js"
     },
     "./lite": {
-      "types": "./src/lite.ts",
-      "default": "./src/lite.ts"
+      "types": "./dist/lite.d.ts",
+      "import": "./dist/lite.js",
+      "default": "./dist/lite.js"
     },
     "./lite-auth": {
-      "types": "./src/lite-auth.ts",
-      "default": "./src/lite-auth.ts"
+      "types": "./dist/lite-auth.d.ts",
+      "import": "./dist/lite-auth.js",
+      "default": "./dist/lite-auth.js"
     },
     "./shell": {
-      "types": "./src/shell.ts",
-      "default": "./src/shell.ts"
+      "types": "./dist/shell.d.ts",
+      "import": "./dist/shell.js",
+      "default": "./dist/shell.js"
     }
   },
   "scripts": {
-    "build": "pnpm typecheck",
+    "build": "node ../../scripts/build-public-package.mjs ui",
+    "prepack": "pnpm build",
+    "prepublishOnly": "pnpm build",
     "typecheck": "vue-tsc --noEmit",
     "lint": "vp lint .",
     "test": "vp test",
@@ -41,8 +60,8 @@
     "@iconify-json/ep": "^1.2.2",
     "@iconify-json/ri": "^1.2.7",
     "@iconify/vue": "^4.3.0",
-    "@one-base-template/core": "workspace:*",
-    "@one-base-template/tag": "workspace:*",
+    "@one-base-template/core": "workspace:^",
+    "@one-base-template/tag": "workspace:^",
     "@wangeditor/editor": "^5.1.23",
     "@wangeditor/editor-for-vue": "^5.1.12",
     "@vue-office/docx": "^1.6.3",

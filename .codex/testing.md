@@ -2,6 +2,29 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-06-30（首批公共包发布链路）
+
+- RED（先失败）：
+  - `pnpm release:build`
+    - 失败原因：`packages/ui` 在 `vue-tsc --declaration` 时把 Vue SFC 私有 props 类型推导进公共声明，触发 TS4023 / TS2742。
+    - 修复：为 `lite` 异步组件、插件组件注册表和插件对象补显式公共类型，避免声明文件泄露内部 SFC props。
+  - `pnpm release:validate`
+    - 失败原因 1：临时消费者依赖对象里 `element-plus` 未加引号，Node ESM 语法解析失败。
+    - 修复：修正脚本中的依赖 key。
+    - 失败原因 2：`packages/ui` 声明文件输出到 `dist/ui/src/**`，根级 `dist/index.d.ts` 缺失。
+    - 修复：`packages/ui/tsconfig.build.json` 设置 `rootDir: "./src"` 并重置 `paths`，避免继承 workspace path 后把 `core/tag` 源码纳入声明输出。
+    - 失败原因 3：临时消费者安装 `@one-base-template/ui` 时，`ui` 内部依赖的 `@one-base-template/tag` 被解析到公网 registry。
+    - 修复：临时消费者 `package.json` 写入 `pnpm.overrides`，强制首批四包都解析到本地 tarball。
+
+- GREEN / 回归：
+  - `pnpm release:build`
+  - `pnpm release:validate`
+
+- 结果：
+  - 四个首批公共包均可构建 `dist` JS 与声明文件。
+  - `pnpm release:validate` 完成 metadata audit、credential scan、本地 pack、临时消费者 install/build。
+  - 真实企业制品仓库 install smoke 未执行：需要发布环境提供 registry 凭证，且仓库内禁止提交 `_auth`。
+
 ## 2026-04-13（Codex 与 AI 编码经验手册）
 
 - GREEN / 回归：

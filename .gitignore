@@ -40,3 +40,6 @@ test-results
 playwright-report
 **/playwright-report
 *.lcov
+
+# 发布验证临时目录
+.tmp

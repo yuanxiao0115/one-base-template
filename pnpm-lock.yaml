@@ -499,10 +499,10 @@ importers:
         specifier: ^4.3.0
         version: 4.3.0(vue@3.5.28(typescript@5.9.3))
       '@one-base-template/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../core
       '@one-base-template/tag':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../tag
       '@vue-office/docx':
         specifier: ^1.6.3

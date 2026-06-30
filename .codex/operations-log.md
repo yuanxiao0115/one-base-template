@@ -2,6 +2,35 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-06-30（首批公共包发布链路）
+
+- 背景：
+  - 用户要求将 `packages` 中的公共包发布到企业 npm 制品仓库，并先考虑版本管理与发布计划。
+- 本次收口：
+  - 首批公共包限定为：
+    - `@one-base-template/core`
+    - `@one-base-template/utils`
+    - `@one-base-template/tag`
+    - `@one-base-template/ui`
+  - 延期包继续保持私有：`adapters`、`app-starter`、`document-form-engine`、`portal-engine`。
+  - 四个首批包从 `private` 仓内源码消费切换为可发布包：
+    - `exports/main/module/types` 指向 `dist`。
+    - `files` 限定发布内容。
+    - `publishConfig.registry` 指向企业制品仓库。
+    - `prepack/prepublishOnly` 统一走包构建。
+  - 新增公共包构建与发布前校验：
+    - `scripts/build-public-package.mjs`
+    - `scripts/validate-public-packages.mjs`
+    - 根脚本 `release:build` / `release:validate`
+  - 使用 changesets 将首批四包推进到 `0.1.0`，并生成各包 changelog。
+  - `.changeset/config.json` 已 ignore 私有 app 与延期包，避免首批发版误升级。
+  - 文档同步：
+    - `apps/docs/docs/guide/package-release.md`
+    - `.changeset/README.md`
+- 安全边界：
+  - 未把用户提供的 `_auth` 值写入仓库。
+  - 真实制品仓库 publish/install smoke 需要在有权限的发布环境补跑。
+
 ## 2026-04-13（Codex 与 AI 编码经验手册落盘）
 
 - 背景：

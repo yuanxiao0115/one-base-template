@@ -1,5 +1,5 @@
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, type Component } from 'vue';
 
-export const PageContainer = /*#__PURE__*/ defineAsyncComponent(
+export const PageContainer: Component = /*#__PURE__*/ defineAsyncComponent(
   () => import('../components/container/PageContainer.vue')
 );

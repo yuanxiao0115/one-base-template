@@ -1,0 +1,25 @@
+import { resolve } from 'node:path';
+import { defineConfig } from 'vite-plus';
+
+const externalPackages = ['axios', 'pinia', 'qs', 'vue', 'vue-router'];
+const isExternal = (id: string) =>
+  externalPackages.some((pkg) => id === pkg || id.startsWith(`${pkg}/`));
+
+export default defineConfig({
+  build: {
+    lib: {
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
+      formats: ['es'],
+      fileName: () => 'index.js'
+    },
+    rollupOptions: {
+      external: isExternal,
+      output: {
+        exports: 'named'
+      },
+      treeshake: true
+    },
+    emptyOutDir: true,
+    sourcemap: false
+  }
+});

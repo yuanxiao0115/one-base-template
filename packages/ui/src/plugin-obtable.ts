@@ -32,7 +32,35 @@ import {
   type CrudContainerGlobalConfig
 } from './config';
 
-const OB_TABLE_UI_COMPONENTS = {
+export type OneObTableUiComponentName =
+  | 'AdminLayout'
+  | 'SidebarMenu'
+  | 'MenuIcon'
+  | 'MenuIconInput'
+  | 'TopBar'
+  | 'TabsBar'
+  | 'ThemeSwitcher'
+  | 'KeepAliveView'
+  | 'FontIcon'
+  | 'Card'
+  | 'ColorField'
+  | 'PageContainer'
+  | 'CrudContainer'
+  | 'Tree'
+  | 'ActionButtons'
+  | 'TableBox'
+  | 'CardTable'
+  | 'Table'
+  | 'ImportUpload'
+  | 'UploadShell'
+  | 'FilePreview'
+  | 'PersonnelSelector'
+  | 'RichText'
+  | 'AccountCenterPanel'
+  | 'CommandPalette'
+  | 'DialogHost';
+
+const OB_TABLE_UI_COMPONENTS: Record<OneObTableUiComponentName, Component> = {
   AdminLayout,
   SidebarMenu,
   MenuIcon,
@@ -59,9 +87,7 @@ const OB_TABLE_UI_COMPONENTS = {
   AccountCenterPanel,
   CommandPalette,
   DialogHost
-} as const;
-
-export type OneObTableUiComponentName = keyof typeof OB_TABLE_UI_COMPONENTS;
+};
 
 export interface OneObTableUiPluginOptions {
   /**
@@ -124,7 +150,9 @@ export function registerOneObTableUiComponents(app: App, options: OneObTableUiPl
   );
 }
 
-export const OneUiObTablePlugin = {
+export const OneUiObTablePlugin: {
+  install(app: App, options?: OneObTableUiPluginOptions): void;
+} = {
   install(app: App, options?: OneObTableUiPluginOptions) {
     app.provide(
       ONE_UI_GLOBAL_CONFIG_KEY,
