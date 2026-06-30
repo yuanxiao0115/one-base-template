@@ -10,9 +10,11 @@
 
 ## 当前状态
 
-- 首批公共包：`@one-base-template/core`、`@one-base-template/utils`、`@one-base-template/tag`、`@one-base-template/ui`。
+- 首批源码包：`@one-base-template/core`、`@one-base-template/utils`、`@one-base-template/tag`、`@one-base-template/ui`。
+- 企业仓库发布包：`one-base-template-core`、`one-base-template-utils`、`one-base-template-tag`、`one-base-template-ui`。
 - 延期发布包：`@one-base-template/adapters`、`@one-base-template/app-starter`、`@one-base-template/document-form-engine`、`@one-base-template/portal-engine`。
 - 首批公共包已使用 `dist` 产物作为默认导出；延期包仍保持 `private: true`，不进入首批发布。
+- 企业 Artifactory 页面展示 scoped npm 包路径时会把 `@scope/name/-` 当成层级展示。为让仓库视图与物理文件名更清晰，正式发布到企业仓库时使用无 scope 包名；源码与仓内开发仍保持 `@one-base-template/*` 导入。
 
 如需让其他子包进入发布流程，先把对应 `package.json` 的 `private` 改为 `false`，补齐 `name/version/exports/files/publishConfig`，并从 `.changeset/config.json` 的 `ignore` 中移除。
 
@@ -40,7 +42,7 @@ pnpm release:validate
 - 构建 `core/utils/tag/ui` 的 `dist` 产物。
 - 检查首批包与延期包的发布元数据边界。
 - 扫描 tracked files，阻断 `_auth` / token 被提交。
-- 生成本地 tarball，并安装到临时 Vite 消费者中构建。
+- 生成无 scope 发布 tarball，并安装到临时 Vite 消费者中构建。
 
 ### 2) 记录版本变更意图
 
@@ -87,18 +89,29 @@ pnpm release:packages
 如果只发布单包，也可定向执行，但首批公共包建议一起发版，避免 `ui` 依赖的 `core/tag` 版本缺失：
 
 ```bash
-pnpm -C packages/<pkg-name> publish --no-git-checks --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+node ./scripts/publish-public-package-aliases.mjs
 ```
 
-注意：发布 pnpm workspace 子包时必须使用 `pnpm publish` 或 `changeset publish`，不要用 `npm publish .` 绕过 pnpm 的打包转换；否则包内可能残留 `workspace:*` / `workspace:^` 依赖，外部项目无法从 registry 安装。
+注意：企业仓库实际发布的是无 scope 包名，脚本会先用 pnpm pack 生成标准 workspace 产物，再把包名重写为 `one-base-template-*` 并发布 tarball。不要手工 `npm publish .`，否则可能残留 `workspace:*` / `workspace:^` 依赖，外部项目无法从 registry 安装。
 
 ### 6) 发布后安装冒烟
 
+推荐业务项目继续使用 `@one-base-template/*` 作为依赖名，通过 npm alias 指向企业仓库中的无 scope 包：
+
 ```bash
-npm install @one-base-template/core @one-base-template/utils @one-base-template/tag @one-base-template/ui --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+npm install @one-base-template/core@npm:one-base-template-core@0.1.0 @one-base-template/utils@npm:one-base-template-utils@0.1.0 @one-base-template/tag@npm:one-base-template-tag@0.1.0 @one-base-template/ui@npm:one-base-template-ui@0.1.1 --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
 ```
 
-业务项目只使用包名、版本号和 registry 安装，不直接依赖 Artifactory 里很长的 tgz 物理地址。类似 `.../artifactory/one-package/@one-base-template/core/-/@one-base-template/core-0.1.0.tgz` 的地址只是 registry 返回的 tarball 存储路径，不作为对外接入契约。
+项目级 `.npmrc` 推荐保持默认 registry 走公网或公司代理，并只把 `@one-base-template` scope 指到企业仓库：
+
+```ini
+registry=https://registry.npmmirror.com/
+@one-base-template:registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+```
+
+不推荐业务项目直接依赖 `one-base-template-core` 这类短包名，除非项目默认 registry 就是企业仓库或 lockfile 已固定 tarball；短包名没有 scope，无法通过 `.npmrc` 的 scope registry 单独路由。
+
+业务项目只使用包名、版本号和 registry 安装，不直接依赖 Artifactory 里很长的 tgz 物理地址。类似 `.../artifactory/one-package/@one-base-template/core/-/@one-base-template/core-0.1.0.tgz` 的地址只是 scoped npm 包的 tarball 存储路径；当前企业仓库发布包已改为无 scope 名称，仓库视图会显示为 `one-base-template-core` / `one-base-template-ui` 这类普通包名。
 
 如果执行环境没有 registry 凭证，本地收口只能验证到 `pnpm release:validate`。真实 registry 安装冒烟必须在有权限的发布环境补跑。
 
