@@ -103,9 +103,16 @@ pnpm -C packages/<pkg-name> publish --no-git-checks --registry=http://artifact.n
 
 ### 6) 发布后安装冒烟
 
+业务项目不要把企业 `one-package` 配成全局 registry；公共依赖会因此在企业仓库 404。项目级 `.npmrc` 推荐写法：
+
+```ini
+registry=https://registry.npmmirror.com
+@one-base-template:registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+```
+
 ```bash
-npm install @one-base-template/core @one-base-template/utils @one-base-template/tag @one-base-template/ui @one-base-template/adapters @one-base-template/app-starter --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
-npm exec --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/ @one-base-template/create-admin-lite -- my-admin
+pnpm add @one-base-template/core @one-base-template/utils @one-base-template/tag @one-base-template/ui @one-base-template/adapters @one-base-template/app-starter
+pnpm dlx @one-base-template/create-admin-lite my-admin
 ```
 
 业务项目只使用包名、版本号和 registry 安装，不直接依赖 Artifactory 里很长的 tgz 物理地址。类似 `.../artifactory/one-package/@one-base-template/core/-/@one-base-template/core-0.1.0.tgz` 的地址只是 registry 返回的 tarball 存储路径，不作为对外接入契约。

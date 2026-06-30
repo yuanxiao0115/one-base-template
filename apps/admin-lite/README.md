@@ -134,7 +134,6 @@ const enableDemoManagementTemplateModule = true;
 仓库外独立项目：
 
 ```bash
-npm config set registry http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
 pnpm dlx @one-base-template/create-admin-lite my-admin
 cd my-admin
 pnpm install
@@ -144,6 +143,7 @@ pnpm dev
 说明：
 
 - CLI 生成项目只依赖企业 npm 上的普通 semver 包。
+- 生成项目内置 `.npmrc`，公共依赖走 `https://registry.npmmirror.com`，`@one-base-template/*` 走企业 npm。
 - 生成项目不包含 `workspace:`、`catalog:`、`../../scripts` 或本仓库绝对路径。
 - CLI 不写入 `_auth`、token 或账号密码。
 

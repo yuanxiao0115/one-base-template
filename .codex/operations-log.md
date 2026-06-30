@@ -71,6 +71,22 @@
   - CLI 不写入企业 npm `_auth`、token 或账号密码。
   - 本轮未执行真实 `pnpm release:packages`；真实 publish 后必须为每个发布成功 package 打 `<package-name>@<version>` tag。
 
+## 2026-06-30（admin-lite 企业 npm scope registry 收口）
+
+- 背景：
+  - 真实企业 npm smoke 发现把 `one-package` 作为全局 registry 会导致公共依赖（如 `postcss`）在企业仓库 404。
+  - 用户要求将推荐配置直接体现在 `admin-lite` 中。
+- 本次收口：
+  - `apps/admin-lite/.npmrc` 新增项目级 registry：
+    - 公共依赖走 `https://registry.npmmirror.com`
+    - `@one-base-template/*` 走企业 npm `one-package`
+  - `packages/create-admin-lite/templates/admin-lite-minimal/.npmrc` 同步该配置，CLI 生成项目默认带正确 registry 路由。
+  - CLI 输出和 README / docs 去掉“把企业仓库设为全局 registry”的引导，改为说明项目内置 scoped registry。
+  - `scripts/validate-admin-lite-cli.mjs` 补充 `.npmrc` 文本扫描与显式断言，确保生成项目带 scoped registry 且不写入 `_auth`。
+- 安全边界：
+  - `.npmrc` 只包含 registry 路由，不包含 `_auth`、token 或账号密码。
+  - 企业 npm 认证仍只能放在用户本机或 CI 配置中。
+
 ## 2026-04-13（Codex 与 AI 编码经验手册落盘）
 
 - 背景：

@@ -96,7 +96,6 @@ const moduleConfig = {
 第一版 CLI 面向脱离 monorepo 的项目初始化，生成项目只使用普通 npm semver 依赖，不包含 `workspace:`、`catalog:` 或本仓库相对脚本。
 
 ```bash
-npm config set registry http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
 pnpm dlx @one-base-template/create-admin-lite my-admin
 cd my-admin
 pnpm install
@@ -108,6 +107,7 @@ pnpm build
 
 - 默认只包含 `home` 模块。
 - 默认不包含 `admin-management`、`log-management`、`system-management`、`demo-management`、`starter-crud`。
+- 生成项目内置 `.npmrc`，公共依赖走 `https://registry.npmmirror.com`，`@one-base-template/*` 走企业 npm。
 - CLI 不写入 `_auth`、token 或账号密码；凭证只能放在用户本机或 CI 的 npm 配置中。
 
 ### 仓库内派生应用

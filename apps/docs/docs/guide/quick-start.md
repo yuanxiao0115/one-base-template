@@ -85,7 +85,6 @@ pnpm -C apps/docs dev
 仓库外独立项目使用企业 npm CLI：
 
 ```bash
-npm config set registry http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
 pnpm dlx @one-base-template/create-admin-lite my-admin
 cd my-admin
 pnpm install
@@ -94,6 +93,7 @@ pnpm build
 ```
 
 CLI 第一版只生成最小基座，不默认携带管理模块、日志模块、系统字典、demo 或 starter-crud。
+生成项目内置 `.npmrc`，公共依赖走 `https://registry.npmmirror.com`，`@one-base-template/*` 走企业 npm。
 认证信息只写入本机或 CI 的 npm 配置，不写入生成项目仓库。
 
 仓库内派生应用继续使用根脚手架：

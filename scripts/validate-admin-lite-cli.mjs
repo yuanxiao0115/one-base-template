@@ -81,6 +81,7 @@ async function listFiles(dir) {
 
 function isTextFile(path) {
   const textExtensions = [
+    '.npmrc',
     '.css',
     '.html',
     '.js',
@@ -122,6 +123,20 @@ async function validateGeneratedProjectSafety() {
   }
 
   const packageJson = readJson(join(generatedDir, 'package.json'));
+  const npmrcPath = join(generatedDir, '.npmrc');
+  assert(existsSync(npmrcPath), '生成项目缺少 .npmrc');
+  const npmrcContent = readFileSync(npmrcPath, 'utf8');
+  assert(
+    npmrcContent.includes('registry=https://registry.npmmirror.com'),
+    '生成项目 .npmrc 缺少公共 registry'
+  );
+  assert(
+    npmrcContent.includes(
+      '@one-base-template:registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/'
+    ),
+    '生成项目 .npmrc 缺少 @one-base-template scope registry'
+  );
+
   const dependencies = {
     ...packageJson.dependencies,
     ...packageJson.devDependencies

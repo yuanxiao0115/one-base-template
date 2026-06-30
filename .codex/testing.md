@@ -74,6 +74,19 @@
   - 显式安装 Element Plus 后，浏览器冒烟不再出现 `Failed to resolve component: el-*`；仍有既有 Vue Router `next()` deprecation warning，非本轮阻断。
   - `pnpm -C apps/admin build` 额外尝试失败，原因是当前 admin workspace 打包解析 `packages/ui/dist/*` 时触发 Rolldown `Identifier h has already been declared`，不属于本轮 admin-lite CLI 目标链路，未纳入通过口径。
 
+## 2026-06-30（admin-lite 企业 npm scope registry 收口）
+
+- 已通过：
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 结果：
+  - CLI 生成项目包含 `.npmrc`，且只配置 `registry=https://registry.npmmirror.com` 与 `@one-base-template:registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`。
+  - 生成项目不包含 `_auth`、token 或账号密码。
+  - docs 文档说明与 CLI 输出不再要求把企业 npm 设置成全局 registry。
+  - docs build 保留既有 chunk size / plugin timings 非阻断 warning。
+
 ## 2026-04-13（Codex 与 AI 编码经验手册）
 
 - GREEN / 回归：

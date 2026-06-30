@@ -7,10 +7,13 @@ import { dirname, join, resolve } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-const registryUrl = 'http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/';
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const templateDir = join(packageRoot, 'templates/admin-lite-minimal');
+const projectNpmrc = `registry=https://registry.npmmirror.com
+@one-base-template:registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+`;
 const textFileExtensions = new Set([
+  '.npmrc',
   '.css',
   '.html',
   '.js',
@@ -37,7 +40,8 @@ function printHelp() {
 
 说明:
   生成项目不会写入 npm _auth、token 或账号密码。
-  企业 npm registry 请在用户本机或 CI 环境中配置。`);
+  生成项目已内置 @one-base-template scope registry。
+  企业 npm 认证信息请在用户本机或 CI 环境中配置。`);
 }
 
 function fail(message) {
@@ -152,17 +156,19 @@ async function createProject(params) {
   const absoluteTargetDir = assertCanCreateProject(projectName, targetDir);
   mkdirSync(absoluteTargetDir, { recursive: true });
   await cp(templateDir, absoluteTargetDir, { recursive: true, force: false });
+  writeFileSync(join(absoluteTargetDir, '.npmrc'), projectNpmrc);
   await replaceTemplateTokens(absoluteTargetDir, projectName);
 
   log(`已生成 ${projectName}: ${absoluteTargetDir}`);
   log('');
   log('下一步:');
   log(`  cd ${absoluteTargetDir}`);
-  log(`  npm config set registry ${registryUrl}`);
   log('  pnpm install');
   log('  pnpm dev');
   log('');
-  log('认证信息请写入本机或 CI 的 npm 配置，不要写入项目仓库。');
+  log(
+    '项目 .npmrc 已配置 @one-base-template scope registry；认证信息请写入本机或 CI 的 npm 配置，不要写入项目仓库。'
+  );
 }
 
 const parsed = parseArgs(process.argv.slice(2));
