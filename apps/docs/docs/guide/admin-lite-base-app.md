@@ -109,6 +109,7 @@ pnpm build
 - 默认不包含 `admin-management`、`log-management`、`system-management`、`demo-management`、`starter-crud`。
 - 生成项目内置 `.npmrc`，公共依赖走 `https://registry.npmmirror.com`，`@one-base-template/*` 走企业 npm。
 - 生成项目的 Tailwind 扫描源指向 `node_modules/@one-base-template/ui/dist`，避免已发布 UI 包中的工具类缺失。
+- 生成项目通过 `@one-base-template/tag/style` 引入页签组件完整样式，包含页签栏、右键菜单与下拉菜单选择器。
 - CLI 不写入 `_auth`、token 或账号密码；凭证只能放在用户本机或 CI 的 npm 配置中。
 
 ### 仓库内派生应用

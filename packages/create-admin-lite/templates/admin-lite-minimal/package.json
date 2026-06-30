@@ -14,7 +14,7 @@
   "dependencies": {
     "@one-base-template/adapters": "0.1.0",
     "@one-base-template/core": "0.1.0",
-    "@one-base-template/tag": "0.1.0",
+    "@one-base-template/tag": "^0.1.0",
     "@one-base-template/ui": "0.1.1",
     "element-plus": "^2.13.2",
     "gm-crypto": "^0.1.12",

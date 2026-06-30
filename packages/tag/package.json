@@ -26,7 +26,7 @@
       "import": "./dist/store-entry.js",
       "default": "./dist/store-entry.js"
     },
-    "./style": "./dist/styles/global.scss"
+    "./style": "./dist/style.css"
   },
   "scripts": {
     "build": "node ../../scripts/build-public-package.mjs tag",

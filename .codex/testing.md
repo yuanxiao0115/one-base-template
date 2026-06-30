@@ -105,6 +105,29 @@
   - `pnpm -C apps/docs lint`
   - `pnpm -C apps/docs build`
 
+## 2026-06-30（tag 包样式入口修复）
+
+- 问题：
+  - `~/codex/aaa` 已导入 `@one-base-template/tag/style`，但最终 CSS 只命中 `--tag-*` 变量。
+  - `node_modules/@one-base-template/tag/dist/style.css` 内存在 `.tags-view`、`.context-menu`、`.dropdown-menu` 等组件选择器，说明样式产物存在。
+  - 根因是 `@one-base-template/tag/style` export 指向 `dist/styles/global.scss`，该入口只 `@use` 变量文件，没有暴露编译后的完整组件样式。
+
+- 修复：
+  - `packages/tag/package.json` 的 `exports["./style"]` 改为 `./dist/style.css`。
+  - `scripts/validate-admin-lite-cli.mjs` 增加 build 后 CSS 断言，要求最终产物包含 tag 组件选择器与 UI 壳布局类。
+  - 已临时修复 `~/codex/aaa/node_modules/@one-base-template/tag/package.json` 用于即时验证；正式消费需发布新版 tag 包。
+
+- 已通过：
+  - `pnpm -C packages/tag typecheck`
+  - `pnpm -C packages/tag lint`
+  - `pnpm -C packages/tag build`
+  - `pnpm build`（`/Users/haoqiuzhi/codex/aaa`）
+  - `rg -o -- "--tag-|\\.context-menu|\\.dropdown-menu|\\.tags-view|\\.scroll-container|\\.custom-dropdown|tag-zoom|dropdown-fade|\\.h-screen|\\.w-screen|\\.flex-col" /Users/haoqiuzhi/codex/aaa/dist/assets/*.css`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
 ## 2026-04-13（Codex 与 AI 编码经验手册）
 
 - GREEN / 回归：

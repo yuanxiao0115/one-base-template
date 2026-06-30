@@ -40,6 +40,7 @@ const packageChecks = {
       'dist/index.d.ts',
       'dist/store-entry.js',
       'dist/store-entry.d.ts',
+      'dist/style.css',
       'dist/styles/global.scss'
     ],
     imports: [
@@ -145,6 +146,12 @@ function validatePackageMetadata() {
   assert(
     adaptersPackageJson.dependencies['@one-base-template/core'] === 'workspace:^',
     'adapters -> core 未使用 workspace:^'
+  );
+
+  const tagPackageJson = readJson(join(rootDir, 'packages/tag/package.json'));
+  assert(
+    tagPackageJson.exports?.['./style'] === './dist/style.css',
+    'tag 样式入口未指向 dist/style.css'
   );
 }
 

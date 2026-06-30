@@ -237,12 +237,35 @@ function installAndBuildGeneratedProject() {
   run('pnpm', ['build'], { cwd: generatedDir });
 }
 
+function validateGeneratedCss() {
+  const assetsDir = join(generatedDir, 'dist/assets');
+  const cssFiles = readdirSync(assetsDir)
+    .filter((file) => file.endsWith('.css'))
+    .map((file) => join(assetsDir, file));
+  assert(cssFiles.length > 0, '生成项目 dist/assets 缺少 CSS 产物');
+
+  const cssContent = cssFiles.map((file) => readFileSync(file, 'utf8')).join('\n');
+  const requiredStyleMarkers = [
+    '--tag-text-color',
+    '.tags-view',
+    '.context-menu',
+    '.dropdown-menu',
+    '.h-screen',
+    '.w-screen',
+    '.flex-col'
+  ];
+  for (const marker of requiredStyleMarkers) {
+    assert(cssContent.includes(marker), `生成项目 CSS 产物缺少 ${marker}`);
+  }
+}
+
 async function main() {
   packRuntimePackages();
   const cliBin = extractCliPackage();
   generateProject(cliBin);
   await validateGeneratedProjectSafety();
   installAndBuildGeneratedProject();
+  validateGeneratedCss();
   console.log('admin-lite CLI 校验通过：本地 pack、仓库外生成、静态扫描、install/build 均完成。');
 }
 
