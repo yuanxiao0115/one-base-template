@@ -9,7 +9,10 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@one-base-template/core": ["../core/dist/index.d.ts"],
+      "@one-base-template/tag": ["../tag/dist/index.d.ts"],
+      "@one-base-template/tag/store": ["../tag/dist/store-entry.d.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

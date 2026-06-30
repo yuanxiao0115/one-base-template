@@ -87,14 +87,18 @@ pnpm release:packages
 如果只发布单包，也可定向执行，但首批公共包建议一起发版，避免 `ui` 依赖的 `core/tag` 版本缺失：
 
 ```bash
-pnpm -C packages/<pkg-name> publish --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
+pnpm -C packages/<pkg-name> publish --no-git-checks --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
 ```
+
+注意：发布 pnpm workspace 子包时必须使用 `pnpm publish` 或 `changeset publish`，不要用 `npm publish .` 绕过 pnpm 的打包转换；否则包内可能残留 `workspace:*` / `workspace:^` 依赖，外部项目无法从 registry 安装。
 
 ### 6) 发布后安装冒烟
 
 ```bash
 npm install @one-base-template/core @one-base-template/utils @one-base-template/tag @one-base-template/ui --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
 ```
+
+业务项目只使用包名、版本号和 registry 安装，不直接依赖 Artifactory 里很长的 tgz 物理地址。类似 `.../artifactory/one-package/@one-base-template/core/-/@one-base-template/core-0.1.0.tgz` 的地址只是 registry 返回的 tarball 存储路径，不作为对外接入契约。
 
 如果执行环境没有 registry 凭证，本地收口只能验证到 `pnpm release:validate`。真实 registry 安装冒烟必须在有权限的发布环境补跑。
 

@@ -11,7 +11,12 @@ const packageConfigs = {
 };
 
 const target = process.argv[2];
-const targets = target === 'all' ? Object.keys(packageConfigs) : [target];
+const targets =
+  target === 'all'
+    ? Object.keys(packageConfigs)
+    : target === 'ui'
+      ? ['core', 'tag', 'ui']
+      : [target];
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, {
