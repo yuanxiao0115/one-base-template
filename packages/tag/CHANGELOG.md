@@ -1,5 +1,11 @@
 # @one-base-template/tag 更新日志
 
+## 0.1.1
+
+### Patch Changes
+
+- 134058d: 修复 `@one-base-template/tag/style` 样式入口，确保独立项目能引入编译后的 tag 组件完整样式。
+
 ## 0.1.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @one-base-template/create-admin-lite
 
+## 0.1.2
+
+### Patch Changes
+
+- 134058d: 修复 `@one-base-template/tag/style` 样式入口，确保独立项目能引入编译后的 tag 组件完整样式。
+- 5fb849f: 修复独立项目模板的 Tailwind 扫描源，避免已发布 UI 包中的工具类未生成导致样式缺失。
+
 ## 0.1.1
 
 ### Patch Changes

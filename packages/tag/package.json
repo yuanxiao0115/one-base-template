@@ -1,6 +1,6 @@
 {
   "name": "@one-base-template/tag",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "One Tag Component - 标签页管理组件（workspace）",
   "type": "module",
   "main": "./dist/index.js",
