@@ -13297,3 +13297,15 @@
   - `pnpm release:packages` 已发布 `@one-base-template/ui@0.1.2` 与 `@one-base-template/create-admin-lite@0.3.0` 到企业 npm。
   - `npm view` 已确认两个新版均能从企业 npm 查询到 `version` 与 `dist.tarball`。
   - `pnpm install --lockfile-only` 已在发布后重新执行通过，`pnpm-lock.yaml` 同步到新版 UI 包。
+
+## 2026-07-01（admin-lite CLI 0.2.2 升级白名单补丁）
+
+- 背景：
+  - 使用企业 npm 上的 `@one-base-template/create-admin-lite@0.3.0` 升级 `/Users/haoqiuzhi/code/aa` 时，`src/components/top/AdminTopBar.vue` 与 `tests/scaffold/template-baseline.unit.test.ts` 被误判为用户冲突。
+  - 两个文件 hash 分别为 `216fdf9...` 与 `d800da...`，确认属于 `0.2.2` 官方模板旧形态，不是用户自定义。
+- 修复：
+  - `create-admin-lite` upgrade 白名单补齐这两个官方 hash。
+  - `validate:admin-lite-cli` 增加同款旧模板 fixture，确保旧账号区样式和旧 baseline 可被自动升级。
+- 验证：
+  - `pnpm validate:admin-lite-cli` 通过，升级报告中 `Conflicts: None`。
+  - `pnpm release:validate` 通过。

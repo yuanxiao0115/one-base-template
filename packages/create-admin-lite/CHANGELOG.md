@@ -1,5 +1,11 @@
 # @one-base-template/create-admin-lite
 
+## 0.3.1
+
+### Patch Changes
+
+- 修复 `0.2.2` 官方模板项目升级到新版时，`AdminTopBar.vue` 与 baseline 测试被误判为用户冲突的问题；旧项目可通过 `upgrade` 自动补齐账号区无边框样式断言。
+
 ## 0.3.0
 
 ### Minor Changes

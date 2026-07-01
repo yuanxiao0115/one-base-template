@@ -11973,3 +11973,15 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
   - `pnpm-lock.yaml` 已同步到 `@one-base-template/ui@0.1.2`。
   - docs lint/build 均通过。
   - `pnpm install --lockfile-only` 在 `@one-base-template/ui@0.1.2` 发布前曾失败，原因是企业 npm 尚无该版本；发布后已重新执行并通过。
+
+## 2026-07-01（admin-lite CLI 0.2.2 升级白名单补丁）
+
+- 执行命令：
+  - `node --check packages/create-admin-lite/bin/create-admin-lite.mjs`
+  - `node --check scripts/validate-admin-lite-cli.mjs`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+- 结果：
+  - 已复现 `/Users/haoqiuzhi/code/aa` 同款 `0.2.2` 官方模板文件 hash：`AdminTopBar.vue` 为 `216fdf9...`，baseline 测试为 `d800da...`。
+  - CLI upgrade 白名单补齐后，`validate:admin-lite-cli` 中 `0.2.2` 视觉旧模板升级无冲突，`AdminTopBar.vue` 与 baseline 均可自动更新到当前模板。
+  - 公共包发布前校验通过：metadata、credential scan、pack、临时消费者构建均完成。

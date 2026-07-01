@@ -369,3 +369,15 @@
   - `pnpm -C apps/docs build`
 - 当前结论：
   - 企业 npm 已可消费新版 UI/CLI；下一步在 `/Users/haoqiuzhi/code/aa` 升级并做样式验证。
+
+## 2026-07-01（admin-lite CLI 0.2.2 升级白名单补丁）
+
+- 已完成：
+  - `@one-base-template/create-admin-lite` 版本提升到 `0.3.1`。
+  - CLI upgrade 已识别 `0.2.2` 官方模板中的旧账号区样式与旧 baseline 测试，不再误判为用户冲突。
+  - `validate:admin-lite-cli` 增加同款旧模板回归验证，确认 `AdminTopBar.vue` 与 baseline 会被自动升级。
+- 验证通过：
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+- 当前结论：
+  - 可以发布 `@one-base-template/create-admin-lite@0.3.1` 后再升级 `/Users/haoqiuzhi/code/aa`。

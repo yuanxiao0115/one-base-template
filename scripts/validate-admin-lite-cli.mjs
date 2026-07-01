@@ -146,7 +146,10 @@ const managedTemplateFilePaths = [
 ];
 const previousOfficialThemeFileHashes = {
   topbar: '75433dd15ed3508f27367da59cf15289e4ac708015615a94a266f5b7e0cdd72c',
-  topbarWithThemeEntryAndBorder: '1c9ce9f909f5ed2bf49f44a66f694e209b897a90a0e9d74352895b4801298824',
+  topbarWithThemeEntryAndBorderNoHover:
+    '216fdf9ca9eb07f19e2a1998a35f78460d1420b2e5f7b5d729372604fcfef602',
+  baselineWithThemeEntryNoVisualAssertions:
+    'd800da578ce5a4c2cce16c6c27d7028a4507779fe5eaf7db78698154d32607f5',
   uiConfig: 'c293656f517749968122a0c160263acda3badbc1e7e453a5cd23ba12778b4447'
 };
 const additivePackageScriptNames = ['test:run:file', 'new:module', 'new:module:item'];
@@ -741,7 +744,7 @@ async function onCommandPaletteNavigate`
   writeFileSync(uiConfigPath, previousUiConfig);
 }
 
-function preparePreviousOfficialTopbarVisualStyle(targetDir) {
+function preparePreviousOfficialTopbarVisualStyleWithoutHover(targetDir) {
   const topbarPath = join(targetDir, 'src/components/top/AdminTopBar.vue');
   const previousTopbar = readFileSync(topbarPath, 'utf8')
     .replace('  font: inherit;\n', '')
@@ -750,21 +753,50 @@ function preparePreviousOfficialTopbarVisualStyle(targetDir) {
   border: 0;
   outline: none;
   appearance: none;
+  border-radius: 999px;
+  transition: background-color 150ms ease;
+}
+
+.ob-topbar__account:hover,
+.ob-topbar__account:focus-visible {
+  background: rgb(255 255 255 / 14%);
 `,
       `  background: rgb(255 255 255 / 12%);
   border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 999px;
 `
-    )
-    .replace(
-      `.ob-topbar__account:hover,
-.ob-topbar__account:focus-visible {`,
-      `.ob-topbar__account:hover {`
     );
   assert(
-    sha256(previousTopbar) === previousOfficialThemeFileHashes.topbarWithThemeEntryAndBorder,
-    '旧官方 AdminTopBar 视觉 fixture hash 不匹配'
+    sha256(previousTopbar) === previousOfficialThemeFileHashes.topbarWithThemeEntryAndBorderNoHover,
+    '0.2.2 官方 AdminTopBar fixture hash 不匹配'
   );
   writeFileSync(topbarPath, previousTopbar);
+}
+
+function preparePreviousOfficialBaselineWithoutVisualAssertions(targetDir) {
+  const baselinePath = join(targetDir, 'tests/scaffold/template-baseline.unit.test.ts');
+  const previousBaseline = readFileSync(baselinePath, 'utf8').replace(
+    `    const topbar = readProjectFile('src/components/top/AdminTopBar.vue');
+
+    expect(topbar).toContain('ThemeSwitcher');
+    expect(topbar).toContain('markRaw(ThemeSwitcher)');
+    expect(topbar).toContain('个性设置');
+    expect(topbar).toContain('<ObDialogHost />');
+    expect(topbar).toContain('background: transparent;');
+    expect(topbar).toContain('border: 0;');`,
+    `    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('ThemeSwitcher');
+    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain(
+      'markRaw(ThemeSwitcher)'
+    );
+    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('个性设置');
+    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('<ObDialogHost />');`
+  );
+  assert(
+    sha256(previousBaseline) ===
+      previousOfficialThemeFileHashes.baselineWithThemeEntryNoVisualAssertions,
+    '0.2.2 官方 baseline fixture hash 不匹配'
+  );
+  writeFileSync(baselinePath, previousBaseline);
 }
 
 async function validateUpgradeDryRun(cliBin) {
@@ -828,7 +860,8 @@ async function validateUpgradeApply(cliBin) {
 function validateUpgradeVisualStyle(cliBin) {
   cpSync(generatedDir, upgradeVisualStyleDir, { recursive: true });
   rmSync(join(upgradeVisualStyleDir, metadataFileName), { force: true });
-  preparePreviousOfficialTopbarVisualStyle(upgradeVisualStyleDir);
+  preparePreviousOfficialTopbarVisualStyleWithoutHover(upgradeVisualStyleDir);
+  preparePreviousOfficialBaselineWithoutVisualAssertions(upgradeVisualStyleDir);
 
   run('node', [cliBin, 'upgrade', '--yes'], { cwd: upgradeVisualStyleDir });
 
@@ -839,6 +872,20 @@ function validateUpgradeVisualStyle(cliBin) {
   assert(topbar.includes('background: transparent;'), 'upgrade 后账号区仍有独立底色');
   assert(topbar.includes('border: 0;'), 'upgrade 后账号区仍有边框');
   assert(!topbar.includes('border: 1px solid rgb(255 255 255 / 20%);'), 'upgrade 后残留旧边框');
+  const baselineTest = readFileSync(
+    join(upgradeVisualStyleDir, 'tests/scaffold/template-baseline.unit.test.ts'),
+    'utf8'
+  );
+  assert(
+    baselineTest.includes("const topbar = readProjectFile('src/components/top/AdminTopBar.vue')"),
+    'upgrade 后未更新 baseline 顶栏读取逻辑'
+  );
+  assert(
+    baselineTest.includes("expect(topbar).toContain('border: 0;')"),
+    'upgrade 后 baseline 未校验账号区无边框'
+  );
+  const metadata = readJson(join(upgradeVisualStyleDir, metadataFileName));
+  assert(metadata.templateVersion === cliPackageVersion, 'upgrade 视觉旧模板后元信息未更新');
 }
 
 function validateUpgradeConflict(cliBin) {
