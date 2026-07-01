@@ -1,5 +1,12 @@
 # @one-base-template/create-admin-lite
 
+## 0.2.0
+
+### Minor Changes
+
+- a5695f0: 增强 admin-lite CLI 的仓外项目生产化能力：新增 doctor 自检命令，模板内置项目级模块脚手架和基线测试，upgrade 可安全补齐新增脚本与测试文件，并扩展发布前仓外生命周期验证。
+- 7091929: 新增 admin-lite 已生成项目的保守 upgrade 能力，生成项目写入模板元信息，并支持 dry-run、指定来源版本、指定目标版本和冲突报告。
+
 ## 0.1.2
 
 ### Patch Changes
