@@ -80,12 +80,14 @@ describe('admin-lite template baseline', () => {
 
   it('默认提供主题切换入口', () => {
     expect(readProjectFile('src/config/ui.ts')).toContain('personalization: true');
-    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('ThemeSwitcher');
-    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain(
-      'markRaw(ThemeSwitcher)'
-    );
-    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('个性设置');
-    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('<ObDialogHost />');
+    const topbar = readProjectFile('src/components/top/AdminTopBar.vue');
+
+    expect(topbar).toContain('ThemeSwitcher');
+    expect(topbar).toContain('markRaw(ThemeSwitcher)');
+    expect(topbar).toContain('个性设置');
+    expect(topbar).toContain('<ObDialogHost />');
+    expect(topbar).toContain('background: transparent;');
+    expect(topbar).toContain('border: 0;');
   });
 
   it('提供仓外项目的基础开发脚本', () => {

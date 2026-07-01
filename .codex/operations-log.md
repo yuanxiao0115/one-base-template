@@ -13280,3 +13280,16 @@
   - 文档同步更新 CLI 默认能力、自检与升级口径。
 - 本机样例：
   - `/Users/haoqiuzhi/code/aa` 已通过本地 CLI `upgrade --yes` 升级到主题入口与 baseline 最新模板。
+
+## 2026-07-01（admin-lite 顶栏搜索视觉与发包）
+
+- 背景：
+  - 截图反馈顶栏账号区域不应有独立边框/底色，菜单搜索触发器文字与激活态视觉过重。
+  - 菜单搜索样式属于 `@one-base-template/ui`，仓外项目必须通过企业 npm 新版消费。
+- 修复：
+  - `@one-base-template/ui` 优化 `ObCommandPalette` 顶栏触发器 hover/focus/active 样式，避免被 Element Plus `el-button text` 白底覆盖。
+  - `@one-base-template/ui` 优化搜索结果激活态，改为主题色浅底 + 左侧主色强调。
+  - `@one-base-template/create-admin-lite` 模板账号按钮改为透明背景、无边框，hover/focus 只保留轻量反馈。
+  - CLI `doctor` / baseline / upgrade 校验补充账号区无边框检查。
+  - CLI 生成项目复制模板时跳过 `node_modules`、`.tmp`、`dist`、`coverage`，并通过 `.npmignore` 排除模板缓存。
+  - changeset 版本化到 `@one-base-template/ui@0.1.2` 与 `@one-base-template/create-admin-lite@0.3.0`。

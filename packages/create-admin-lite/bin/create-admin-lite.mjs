@@ -60,7 +60,9 @@ const knownOfficialTemplateFileHashes = {
   ]),
   'src/components/top/AdminTopBar.vue': new Set([
     'bee673c8707b8053e7496a3b84b3d2814b52cdc231ff7816749a61c3ed950b54',
-    'c3cc5f6d45e306e86551d5e586b327389213bda7c39929275047c34ba3ae4152'
+    'c3cc5f6d45e306e86551d5e586b327389213bda7c39929275047c34ba3ae4152',
+    '1c9ce9f909f5ed2bf49f44a66f694e209b897a90a0e9d74352895b4801298824',
+    '75433dd15ed3508f27367da59cf15289e4ac708015615a94a266f5b7e0cdd72c'
   ]),
   'src/config/ui.ts': new Set(['c293656f517749968122a0c160263acda3badbc1e7e453a5cd23ba12778b4447'])
 };
@@ -74,6 +76,7 @@ const ignoredDoctorDirs = new Set([
   '.output',
   '.tmp'
 ]);
+const ignoredTemplateCopyDirs = new Set(['node_modules', '.tmp', 'coverage', 'dist']);
 const textFileExtensions = new Set([
   '.npmrc',
   '.css',
@@ -265,6 +268,15 @@ function shouldReplaceText(filePath) {
   return textFileExtensions.has(filePath.slice(filePath.lastIndexOf('.')));
 }
 
+function shouldCopyTemplatePath(sourcePath) {
+  const relativePath = sourcePath.slice(templateDir.length + 1);
+  if (!relativePath) {
+    return true;
+  }
+  const segments = relativePath.split(/[/\\]/);
+  return !segments.some((segment) => ignoredTemplateCopyDirs.has(segment));
+}
+
 function readJsonFile(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
 }
@@ -319,7 +331,11 @@ async function createProject(params) {
   const { projectName, targetDir } = params;
   const absoluteTargetDir = assertCanCreateProject(projectName, targetDir);
   mkdirSync(absoluteTargetDir, { recursive: true });
-  await cp(templateDir, absoluteTargetDir, { recursive: true, force: false });
+  await cp(templateDir, absoluteTargetDir, {
+    recursive: true,
+    force: false,
+    filter: shouldCopyTemplatePath
+  });
   writeFileSync(join(absoluteTargetDir, '.npmrc'), projectNpmrc);
   await replaceTemplateTokens(absoluteTargetDir, projectName);
   writeTemplateMetadata(absoluteTargetDir, projectName);
@@ -629,11 +645,13 @@ function createDoctorReport(projectDir) {
     topbarContent.includes('ThemeSwitcher') &&
     topbarContent.includes('openDialog') &&
     topbarContent.includes('<ObDialogHost />') &&
-    topbarContent.includes('个性设置')
+    topbarContent.includes('个性设置') &&
+    topbarContent.includes('background: transparent;') &&
+    topbarContent.includes('border: 0;')
   ) {
-    push('ok', 'topbar theme switcher', '已提供个性设置主题切换入口');
+    push('ok', 'topbar theme switcher', '已提供个性设置主题切换入口且账号区无边框');
   } else {
-    push('error', 'topbar theme switcher', '缺少个性设置主题切换入口');
+    push('error', 'topbar theme switcher', '缺少个性设置主题切换入口或账号区仍有边框底色');
   }
 
   for (const relativePath of additiveTemplateFilePaths) {

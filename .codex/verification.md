@@ -348,3 +348,19 @@
   - 浏览器验证 `/home/index` 账号下拉可打开“个性设置”抽屉，抽屉包含主题切换、主色微调、灰色模式。
 - 当前结论：
   - CLI 生成项目具备默认主题切换能力；旧官方生成项目可通过 `upgrade` 无冲突补齐。
+
+## 2026-07-01（admin-lite 顶栏搜索视觉与发包）
+
+- 已完成：
+  - `@one-base-template/ui` 中菜单搜索触发器和结果激活态已优化。
+  - CLI 模板顶栏账号触发区已改为无边框、透明背景。
+  - CLI `doctor` / baseline / upgrade 覆盖账号区无边框要求。
+  - `@one-base-template/ui` 已版本化到 `0.1.2`，`@one-base-template/create-admin-lite` 已版本化到 `0.3.0`。
+- 验证通过：
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 当前结论：
+  - 发布前验证已通过；下一步发布企业 npm 后，重新同步 lockfile 和 `/Users/haoqiuzhi/code/aa` 即可消费新版 UI/CLI。

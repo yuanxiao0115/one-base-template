@@ -11949,3 +11949,20 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
   - `aa` 升级无冲突，doctor 通过；唯一 warning 为本机未检测到企业 npm auth。
   - `aa` baseline/typecheck/build 均通过。
   - 浏览器服务输出无 `ThemeSwitcher` reactive warning；仅有既有 Vue Router `next()` deprecation warning。
+
+## 2026-07-01（admin-lite 顶栏搜索视觉与发包）
+
+- 执行命令：
+  - `node --check packages/create-admin-lite/bin/create-admin-lite.mjs`
+  - `node --check scripts/validate-admin-lite-cli.mjs`
+  - `git diff --check`
+  - `pnpm -C packages/ui typecheck`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+- 结果：
+  - CLI 仓外生成、doctor、upgrade、install、test、typecheck、build 全流程通过。
+  - 公共包发布校验通过：metadata、credential scan、pack、临时消费者构建均完成。
+  - docs lint/build 均通过。
+  - `pnpm install --lockfile-only` 在 `@one-base-template/ui@0.1.2` 发布前失败，原因是企业 npm 尚无该版本；发布成功后需重新执行以同步 lockfile 与 `aa`。

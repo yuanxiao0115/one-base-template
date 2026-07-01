@@ -21,6 +21,7 @@ const outsideDir = join(tempDir, 'outside-consumer');
 const generatedDir = join(outsideDir, 'sample-admin');
 const upgradeDryRunDir = join(outsideDir, 'sample-admin-upgrade-dry-run');
 const upgradeApplyDir = join(outsideDir, 'sample-admin-upgrade-apply');
+const upgradeVisualStyleDir = join(outsideDir, 'sample-admin-upgrade-visual-style');
 const upgradeConflictDir = join(outsideDir, 'sample-admin-upgrade-conflict');
 const upgradeCurrentLegacyDir = join(outsideDir, 'sample-admin-current-legacy');
 const doctorFailureDir = join(outsideDir, 'sample-admin-doctor-failure');
@@ -144,7 +145,8 @@ const managedTemplateFilePaths = [
   'src/config/ui.ts'
 ];
 const previousOfficialThemeFileHashes = {
-  topbar: 'bee673c8707b8053e7496a3b84b3d2814b52cdc231ff7816749a61c3ed950b54',
+  topbar: '75433dd15ed3508f27367da59cf15289e4ac708015615a94a266f5b7e0cdd72c',
+  topbarWithThemeEntryAndBorder: '1c9ce9f909f5ed2bf49f44a66f694e209b897a90a0e9d74352895b4801298824',
   uiConfig: 'c293656f517749968122a0c160263acda3badbc1e7e453a5cd23ba12778b4447'
 };
 const additivePackageScriptNames = ['test:run:file', 'new:module', 'new:module:item'];
@@ -340,6 +342,8 @@ async function validateGeneratedProjectSafety(projectDir = generatedDir, options
   assert(topbar.includes('openDialog'), '生成项目顶栏缺少个性设置抽屉打开逻辑');
   assert(topbar.includes('<ObDialogHost />'), '生成项目顶栏缺少 ObDialogHost 宿主');
   assert(topbar.includes('个性设置'), '生成项目顶栏缺少个性设置菜单项');
+  assert(topbar.includes('background: transparent;'), '生成项目顶栏账号区不应有独立底色');
+  assert(topbar.includes('border: 0;'), '生成项目顶栏账号区不应有边框');
 
   const dependencies = {
     ...packageJson.dependencies,
@@ -396,6 +400,10 @@ function extractCliPackage() {
 
   assert(cliTarball, `${cliPackageName} tarball 缺失`);
   run('tar', ['-xzf', cliTarball, '-C', cliExtractDir]);
+  assert(
+    !existsSync(join(cliExtractDir, 'package/templates/admin-lite-minimal/node_modules')),
+    `${cliPackageName} tarball 不应包含模板 node_modules`
+  );
   return join(cliExtractDir, 'package/bin/create-admin-lite.mjs');
 }
 
@@ -403,6 +411,7 @@ function generateProject(cliBin) {
   mkdirSync(outsideDir, { recursive: true });
   run('node', [cliBin, 'sample-admin', generatedDir], { cwd: outsideDir });
   assert(existsSync(join(generatedDir, 'package.json')), '生成项目缺少 package.json');
+  assert(!existsSync(join(generatedDir, 'node_modules')), '生成项目不应包含模板缓存 node_modules');
 }
 
 function runDoctor(cliBin, projectDir, options = {}) {
@@ -505,6 +514,8 @@ function validateGeneratedCss(projectDir = generatedDir) {
     '.context-menu',
     '.dropdown-menu',
     '.ob-side-layout__collapse-btn',
+    '.ob-command-palette__trigger',
+    '.ob-command-palette-result__row.is-active',
     '.h-screen',
     '.w-screen',
     '.flex-col'
@@ -730,6 +741,32 @@ async function onCommandPaletteNavigate`
   writeFileSync(uiConfigPath, previousUiConfig);
 }
 
+function preparePreviousOfficialTopbarVisualStyle(targetDir) {
+  const topbarPath = join(targetDir, 'src/components/top/AdminTopBar.vue');
+  const previousTopbar = readFileSync(topbarPath, 'utf8')
+    .replace('  font: inherit;\n', '')
+    .replace(
+      `  background: transparent;
+  border: 0;
+  outline: none;
+  appearance: none;
+`,
+      `  background: rgb(255 255 255 / 12%);
+  border: 1px solid rgb(255 255 255 / 20%);
+`
+    )
+    .replace(
+      `.ob-topbar__account:hover,
+.ob-topbar__account:focus-visible {`,
+      `.ob-topbar__account:hover {`
+    );
+  assert(
+    sha256(previousTopbar) === previousOfficialThemeFileHashes.topbarWithThemeEntryAndBorder,
+    '旧官方 AdminTopBar 视觉 fixture hash 不匹配'
+  );
+  writeFileSync(topbarPath, previousTopbar);
+}
+
 async function validateUpgradeDryRun(cliBin) {
   prepareOldProjectFixture(upgradeDryRunDir);
   const before = await snapshotTextFiles(upgradeDryRunDir);
@@ -788,6 +825,22 @@ async function validateUpgradeApply(cliBin) {
   validateGeneratedCss(upgradeApplyDir);
 }
 
+function validateUpgradeVisualStyle(cliBin) {
+  cpSync(generatedDir, upgradeVisualStyleDir, { recursive: true });
+  rmSync(join(upgradeVisualStyleDir, metadataFileName), { force: true });
+  preparePreviousOfficialTopbarVisualStyle(upgradeVisualStyleDir);
+
+  run('node', [cliBin, 'upgrade', '--yes'], { cwd: upgradeVisualStyleDir });
+
+  const topbar = readFileSync(
+    join(upgradeVisualStyleDir, 'src/components/top/AdminTopBar.vue'),
+    'utf8'
+  );
+  assert(topbar.includes('background: transparent;'), 'upgrade 后账号区仍有独立底色');
+  assert(topbar.includes('border: 0;'), 'upgrade 后账号区仍有边框');
+  assert(!topbar.includes('border: 1px solid rgb(255 255 255 / 20%);'), 'upgrade 后残留旧边框');
+}
+
 function validateUpgradeConflict(cliBin) {
   prepareOldProjectFixture(upgradeConflictDir, { conflict: true });
   mkdirSync(join(upgradeConflictDir, 'scripts'), { recursive: true });
@@ -844,6 +897,7 @@ async function main() {
   validateDoctorFailure(cliBin);
   await validateUpgradeDryRun(cliBin);
   await validateUpgradeApply(cliBin);
+  validateUpgradeVisualStyle(cliBin);
   validateUpgradeConflict(cliBin);
   validateCurrentLegacyInference(cliBin);
   await validateGeneratedProjectScaffold();

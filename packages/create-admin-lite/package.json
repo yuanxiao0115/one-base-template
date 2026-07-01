@@ -1,13 +1,26 @@
 {
   "name": "@one-base-template/create-admin-lite",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "type": "module",
   "bin": {
     "create-admin-lite": "./bin/create-admin-lite.mjs"
   },
   "files": [
     "bin",
-    "templates",
+    "templates/admin-lite-minimal/.admin-lite-template.json",
+    "templates/admin-lite-minimal/.env.example",
+    "templates/admin-lite-minimal/build",
+    "templates/admin-lite-minimal/index.html",
+    "templates/admin-lite-minimal/package.json",
+    "templates/admin-lite-minimal/postcss.config.js",
+    "templates/admin-lite-minimal/README.md",
+    "templates/admin-lite-minimal/scripts",
+    "templates/admin-lite-minimal/src",
+    "templates/admin-lite-minimal/tailwind.config.ts",
+    "templates/admin-lite-minimal/tests",
+    "templates/admin-lite-minimal/tsconfig.json",
+    "templates/admin-lite-minimal/vite.config.ts",
+    "templates/admin-lite-minimal/vitest.config.ts",
     "README.md",
     "package.json"
   ],

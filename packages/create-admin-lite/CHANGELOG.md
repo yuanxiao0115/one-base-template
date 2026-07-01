@@ -1,5 +1,16 @@
 # @one-base-template/create-admin-lite
 
+## 0.3.0
+
+### Minor Changes
+
+- d56ad1f: 生成项目默认提供顶栏个性设置入口，支持打开主题切换、主色微调和灰色模式，并让 upgrade/doctor 覆盖该模板能力。
+
+### Patch Changes
+
+- efe0a9b: 修复 admin-lite 独立项目未加载 UI 包 scoped 样式的问题。CLI 模板、doctor 与 upgrade 会检查并补齐 `@one-base-template/ui` dist 样式入口，UI 包新增 `./style` 样式导出供后续稳定消费。
+- 优化 admin-lite 顶栏账号区与菜单搜索视觉：账号触发区移除边框和独立底色，菜单搜索触发器与结果激活态改为更克制的主题色层级。
+
 ## 0.2.2
 
 ### Patch Changes

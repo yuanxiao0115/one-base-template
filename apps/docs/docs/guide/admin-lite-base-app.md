@@ -112,7 +112,7 @@ pnpm build
 - 生成项目显式导入 `node_modules/@one-base-template/ui/dist/style.css`，确保布局壳、侧栏折叠按钮等 `@one-base-template/ui` scoped 样式不会丢失；该路径用于兼容已发布 UI 包，后续 UI 新版可通过 `@one-base-template/ui/style` 稳定入口消费。
 - 生成项目的 Tailwind 扫描源指向 `node_modules/@one-base-template/ui/dist`，避免已发布 UI 包中的工具类缺失。
 - 生成项目通过 `@one-base-template/tag/style` 引入页签组件完整样式，包含页签栏、右键菜单与下拉菜单选择器。
-- 生成项目默认启用顶栏账号下拉里的“个性设置”，可打开主题切换、主色微调和灰色模式；个人中心、改密和租户切换仍默认关闭。
+- 生成项目默认启用顶栏账号下拉里的“个性设置”，账号触发区与顶栏同底色且无独立边框，可打开主题切换、主色微调和灰色模式；个人中心、改密和租户切换仍默认关闭。
 - 生成项目包含 `.admin-lite-template.json`，记录 CLI 包名、模板名、模板版本和生成时间。
 - 生成项目包含 `packageManager: pnpm@10.32.1`，仓库外使用 `corepack pnpm` 时会自动采用验证过的 pnpm 版本。
 - 生成项目内置 `test:run` 基线测试，可验证模板元信息、registry、安全配置、样式入口和脚本基线。

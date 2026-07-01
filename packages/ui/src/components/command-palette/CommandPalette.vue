@@ -265,32 +265,46 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.ob-command-palette__trigger {
-  color: #fff;
+.ob-command-palette .ob-command-palette__trigger.el-button.is-text {
+  color: rgb(255 255 255 / 88%);
   border-radius: 999px;
-  border: 1px solid rgb(255 255 255 / 24%);
-  background: rgb(255 255 255 / 12%);
+  border: 0;
+  background: rgb(255 255 255 / 16%);
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 7px 14px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 16%);
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
-.ob-command-palette__trigger:hover {
+.ob-command-palette .ob-command-palette__trigger.el-button.is-text:hover,
+.ob-command-palette .ob-command-palette__trigger.el-button.is-text:focus,
+.ob-command-palette .ob-command-palette__trigger.el-button.is-text:active {
   color: #fff;
-  background: rgb(255 255 255 / 20%);
+  background: rgb(255 255 255 / 22%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 24%);
 }
 
 .ob-command-palette__trigger-icon {
   font-size: 14px;
+  color: rgb(255 255 255 / 76%);
 }
 
 .ob-command-palette__trigger kbd {
-  border-radius: 4px;
-  border: 1px solid rgb(255 255 255 / 28%);
-  background: rgb(0 0 0 / 12%);
-  padding: 1px 4px;
+  border-radius: 6px;
+  border: 0;
+  background: rgb(255 255 255 / 22%);
+  color: rgb(255 255 255 / 92%);
+  padding: 2px 6px;
   font-size: 11px;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+  font-weight: 600;
 }
 
 .ob-command-palette__panel {

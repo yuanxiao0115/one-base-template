@@ -1,0 +1,4 @@
+templates/admin-lite-minimal/node_modules
+templates/admin-lite-minimal/.tmp
+templates/admin-lite-minimal/dist
+templates/admin-lite-minimal/coverage

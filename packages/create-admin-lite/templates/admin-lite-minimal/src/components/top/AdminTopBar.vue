@@ -305,9 +305,18 @@ async function onCommandPaletteNavigate(payload: { path: string; external: boole
   padding: 0 10px 0 6px;
   color: #fff;
   cursor: pointer;
-  background: rgb(255 255 255 / 12%);
-  border: 1px solid rgb(255 255 255 / 20%);
+  font: inherit;
+  background: transparent;
+  border: 0;
+  outline: none;
+  appearance: none;
   border-radius: 999px;
+  transition: background-color 150ms ease;
+}
+
+.ob-topbar__account:hover,
+.ob-topbar__account:focus-visible {
+  background: rgb(255 255 255 / 14%);
 }
 
 .ob-topbar__avatar {

@@ -83,15 +83,33 @@ function getRowClass(index: number) {
   justify-content: space-between;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid transparent;
   cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .ob-command-palette-result__row:hover,
 .ob-command-palette-result__row.is-active {
-  background: var(--el-color-primary-light-9);
-  border-color: var(--el-color-primary-light-5);
+  background: color-mix(in srgb, var(--el-color-primary) 8%, #fff);
+  border-color: color-mix(in srgb, var(--el-color-primary) 22%, transparent);
+  box-shadow: inset 3px 0 0 var(--el-color-primary);
+}
+
+.ob-command-palette-result__row.is-active {
+  background: color-mix(in srgb, var(--el-color-primary) 11%, #fff);
+}
+
+.ob-command-palette-result__row.is-active .ob-command-palette-result__title {
+  color: var(--el-color-primary);
+  font-weight: 600;
+}
+
+.ob-command-palette-result__row.is-active .ob-command-palette-result__path {
+  color: var(--el-text-color-regular);
 }
 
 .ob-command-palette-result__left {
