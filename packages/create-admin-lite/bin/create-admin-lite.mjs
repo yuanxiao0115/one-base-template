@@ -16,7 +16,7 @@ const packageJson = JSON.parse(readFileSync(join(packageRoot, 'package.json'), '
 const cliPackageName = packageJson.name;
 const cliPackageVersion = packageJson.version;
 const templateName = 'admin-lite-minimal';
-const latestLegacyTemplateVersion = '0.1.2';
+const latestLegacyTemplateVersion = '0.2.2';
 const metadataFileName = '.admin-lite-template.json';
 const reportFileName = '.admin-lite-upgrade-report.md';
 const uiStyleImportLine = "@import '../../node_modules/@one-base-template/ui/dist/style.css';";
@@ -46,10 +46,23 @@ const additiveTemplateFilePaths = [
   'scripts/new-module-item.mjs',
   'tests/scaffold/template-baseline.unit.test.ts'
 ];
+const managedTemplateFilePaths = [
+  ...additiveTemplateFilePaths,
+  'src/components/top/AdminTopBar.vue',
+  'src/config/ui.ts'
+];
 const knownOfficialTemplateFileHashes = {
   'tests/scaffold/template-baseline.unit.test.ts': new Set([
-    'a824556a053b8c2090f00a57d5e2bbafe15be051bdf04a23d7ab28a16bf25160'
-  ])
+    'a824556a053b8c2090f00a57d5e2bbafe15be051bdf04a23d7ab28a16bf25160',
+    'a5f3e97ae0fbcd873178d3377a9d353e01e6609776ff48a96a5465623ab304ff',
+    'b4c514e8669d0f956d2b804ddb83bc40b7b948816e89a4933dab275715969e68',
+    'c67e6cc20cccc6f45fb1f0d36b5580a2fc6ad6452c004b7b5f597fbfb9233c96'
+  ]),
+  'src/components/top/AdminTopBar.vue': new Set([
+    'bee673c8707b8053e7496a3b84b3d2814b52cdc231ff7816749a61c3ed950b54',
+    'c3cc5f6d45e306e86551d5e586b327389213bda7c39929275047c34ba3ae4152'
+  ]),
+  'src/config/ui.ts': new Set(['c293656f517749968122a0c160263acda3badbc1e7e453a5cd23ba12778b4447'])
 };
 const ignoredDoctorDirs = new Set([
   '.git',
@@ -602,6 +615,27 @@ function createDoctorReport(projectDir) {
     push('error', 'tag style import', '缺少 @one-base-template/tag/style');
   }
 
+  const uiConfigPath = join(projectDir, 'src/config/ui.ts');
+  const uiConfigContent = existsSync(uiConfigPath) ? readFileSync(uiConfigPath, 'utf8') : '';
+  if (uiConfigContent.includes('personalization: true')) {
+    push('ok', 'topbar personalization config', '已默认启用个性设置入口');
+  } else {
+    push('error', 'topbar personalization config', '缺少 personalization: true');
+  }
+
+  const topbarPath = join(projectDir, 'src/components/top/AdminTopBar.vue');
+  const topbarContent = existsSync(topbarPath) ? readFileSync(topbarPath, 'utf8') : '';
+  if (
+    topbarContent.includes('ThemeSwitcher') &&
+    topbarContent.includes('openDialog') &&
+    topbarContent.includes('<ObDialogHost />') &&
+    topbarContent.includes('个性设置')
+  ) {
+    push('ok', 'topbar theme switcher', '已提供个性设置主题切换入口');
+  } else {
+    push('error', 'topbar theme switcher', '缺少个性设置主题切换入口');
+  }
+
   for (const relativePath of additiveTemplateFilePaths) {
     if (existsSync(join(projectDir, relativePath))) {
       push('ok', relativePath, '文件存在');
@@ -1040,7 +1074,7 @@ function applyTemplateFileMigration(context, actions, dryRun, relativePath) {
 }
 
 function applyTemplateFileMigrations(context, actions, dryRun) {
-  for (const relativePath of additiveTemplateFilePaths) {
+  for (const relativePath of managedTemplateFilePaths) {
     applyTemplateFileMigration(context, actions, dryRun, relativePath);
   }
 }

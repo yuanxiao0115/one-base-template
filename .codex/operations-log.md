@@ -13264,3 +13264,19 @@
   - CLI `doctor` 增加 UI dist 样式入口检查，`upgrade` 可自动补齐 UI 样式入口与 Tailwind 扫描源。
   - `@one-base-template/ui` 新增 `./style -> dist/style.css` 导出，并在公共包发布校验中覆盖。
   - 已直接修复本机生成项目 `/Users/haoqiuzhi/code/aa/src/styles/index.css`。
+
+## 2026-07-01（admin-lite CLI 默认主题入口）
+
+- 背景：
+  - 用户希望脚手架项目具备 admin/admin-lite 中有价值的通用能力，其中“切换主题”优先。
+  - `@one-base-template/create-admin-lite` 生成的仓外项目此前默认关闭 `ui.topbar.personalization`，账号下拉只有退出登录。
+- 修复：
+  - CLI 模板 `src/config/ui.ts` 默认启用 `topbar.personalization: true`。
+  - CLI 模板 `src/components/top/AdminTopBar.vue` 增加“个性设置”菜单项，打开 `ThemeSwitcher` 抽屉，并挂载 `ObDialogHost`。
+  - `apps/admin` / `apps/admin-lite` / CLI 模板在传入 `ThemeSwitcher` 时统一使用 `markRaw(ThemeSwitcher)`，消除 Vue 组件对象被响应式化的告警。
+  - CLI `doctor` 增加顶栏主题入口检查。
+  - CLI `upgrade` 将 `src/components/top/AdminTopBar.vue` 与 `src/config/ui.ts` 纳入旧官方模板安全升级范围，并扩充旧官方 baseline hash 白名单。
+  - CLI baseline 测试增加主题入口与 `markRaw(ThemeSwitcher)` 断言。
+  - 文档同步更新 CLI 默认能力、自检与升级口径。
+- 本机样例：
+  - `/Users/haoqiuzhi/code/aa` 已通过本地 CLI `upgrade --yes` 升级到主题入口与 baseline 最新模板。

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, markRaw } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   type AppMenuItem,
@@ -9,7 +9,7 @@ import {
   useSystemStore
 } from '@one-base-template/core';
 import { useTagStoreHook } from '@one-base-template/tag';
-import { message } from '@one-base-template/ui';
+import { closeDialog, message, openDialog, ThemeSwitcher } from '@one-base-template/ui';
 import { ui } from '@/config';
 import { routePaths } from '@/router/constants';
 
@@ -20,6 +20,7 @@ const layoutStore = useLayoutStore();
 const menuStore = useMenuStore();
 const systemStore = useSystemStore();
 const tagStore = useTagStoreHook();
+const PERSONALIZATION_DIALOG_ID = 'topbar-personalization-dialog';
 
 const currentSystemCode = computed(() => systemStore.currentSystemCode);
 const systems = computed(() => systemStore.systems);
@@ -78,6 +79,7 @@ async function onLogout() {
   } catch (error) {
     logoutError = error;
   } finally {
+    closeDialog(PERSONALIZATION_DIALOG_ID);
     menuStore.reset();
     systemStore.reset();
     tagStore.handleTags('equal', []);
@@ -115,6 +117,19 @@ async function onSwitchSystem(systemCode: string) {
 
 function onSelectSystemMenu(systemCode: string) {
   void onSwitchSystem(systemCode);
+}
+
+function openPersonalizationDrawer() {
+  openDialog({
+    id: PERSONALIZATION_DIALOG_ID,
+    container: 'drawer',
+    title: '个性设置',
+    size: 520,
+    closeOnClickModal: true,
+    destroyOnClose: false,
+    showFooter: false,
+    component: markRaw(ThemeSwitcher)
+  });
 }
 
 async function onCommandPaletteNavigate(payload: { path: string; external: boolean }) {
@@ -188,19 +203,23 @@ async function onCommandPaletteNavigate(payload: { path: string; external: boole
         :history-key-base="commandPaletteHistoryKeyBase"
         @navigate="onCommandPaletteNavigate"
       />
-      <el-dropdown @command="onLogout">
+      <el-dropdown>
         <button type="button" class="ob-topbar__account">
           <span class="ob-topbar__avatar">{{ userName.slice(0, 1) }}</span>
           <span class="ob-topbar__user">{{ userName }}</span>
         </button>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+            <el-dropdown-item v-if="ui.topbar.personalization" @click="openPersonalizationDrawer">
+              个性设置
+            </el-dropdown-item>
+            <el-dropdown-item divided @click="onLogout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
     </div>
   </div>
+  <ObDialogHost />
 </template>
 
 <style scoped>

@@ -78,6 +78,16 @@ describe('admin-lite template baseline', () => {
     );
   });
 
+  it('默认提供主题切换入口', () => {
+    expect(readProjectFile('src/config/ui.ts')).toContain('personalization: true');
+    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('ThemeSwitcher');
+    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain(
+      'markRaw(ThemeSwitcher)'
+    );
+    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('个性设置');
+    expect(readProjectFile('src/components/top/AdminTopBar.vue')).toContain('<ObDialogHost />');
+  });
+
   it('提供仓外项目的基础开发脚本', () => {
     const packageJson = JSON.parse(readProjectFile('package.json'));
 

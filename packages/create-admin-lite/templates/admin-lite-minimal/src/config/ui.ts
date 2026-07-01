@@ -84,7 +84,7 @@ export const ui: UiConfig = {
     /** 修改密码开关 */
     changePassword: false,
     /** 个性化设置开关 */
-    personalization: false
+    personalization: true
   },
   /** 登录页文案配置 */
   login: {

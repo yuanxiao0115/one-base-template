@@ -8,7 +8,7 @@
 - `admin-lite` 由 `apps/admin` 收敛而来，用于承接新的后台管理项目。
 - 默认模块只保留：`home`、`admin-management`、`system-management`、`log-management`。
 - `pnpm new:app <app-id>` 已切到从 `apps/admin-lite` 复制，默认仅保留 `home` 模块。
-- `@one-base-template/create-admin-lite` 面向仓库外独立项目，第一版只生成登录、首页、应用壳、路由、运行配置、HTTP、鉴权、菜单和主题闭环。
+- `@one-base-template/create-admin-lite` 面向仓库外独立项目，默认生成登录、首页、应用壳、路由、运行配置、HTTP、鉴权、菜单和主题闭环。
 - 强业务扩展默认不启用，确有需要时必须做成可开关能力。
 
 ## 1. 目标与边界
@@ -112,6 +112,7 @@ pnpm build
 - 生成项目显式导入 `node_modules/@one-base-template/ui/dist/style.css`，确保布局壳、侧栏折叠按钮等 `@one-base-template/ui` scoped 样式不会丢失；该路径用于兼容已发布 UI 包，后续 UI 新版可通过 `@one-base-template/ui/style` 稳定入口消费。
 - 生成项目的 Tailwind 扫描源指向 `node_modules/@one-base-template/ui/dist`，避免已发布 UI 包中的工具类缺失。
 - 生成项目通过 `@one-base-template/tag/style` 引入页签组件完整样式，包含页签栏、右键菜单与下拉菜单选择器。
+- 生成项目默认启用顶栏账号下拉里的“个性设置”，可打开主题切换、主色微调和灰色模式；个人中心、改密和租户切换仍默认关闭。
 - 生成项目包含 `.admin-lite-template.json`，记录 CLI 包名、模板名、模板版本和生成时间。
 - 生成项目包含 `packageManager: pnpm@10.32.1`，仓库外使用 `corepack pnpm` 时会自动采用验证过的 pnpm 版本。
 - 生成项目内置 `test:run` 基线测试，可验证模板元信息、registry、安全配置、样式入口和脚本基线。
@@ -127,7 +128,7 @@ pnpm dlx @one-base-template/create-admin-lite@latest doctor
 pnpm dlx @one-base-template/create-admin-lite@latest doctor --json
 ```
 
-`doctor` 会检查模板元信息、Node/pnpm 版本、项目级 registry、企业 npm 认证是否可见、内部依赖协议、脚本和样式入口。它会同时检查 UI dist 样式入口与 UI Tailwind 扫描源，任一缺失都说明独立项目可能出现布局组件样式丢失。它不会打印 `_auth`、token 或账号密码。
+`doctor` 会检查模板元信息、Node/pnpm 版本、项目级 registry、企业 npm 认证是否可见、内部依赖协议、脚本、样式入口和顶栏主题切换入口。它会同时检查 UI dist 样式入口与 UI Tailwind 扫描源，任一缺失都说明独立项目可能出现布局组件样式丢失。它不会打印 `_auth`、token 或账号密码。
 
 项目内新增模块：
 
@@ -152,6 +153,7 @@ pnpm dlx @one-base-template/create-admin-lite@latest upgrade --to 0.1.2 --yes
 - `--dry-run` 只输出计划，不写入文件；真实升级会写入 `.admin-lite-upgrade-report.md`。
 - 新版本缺失的项目级脚手架脚本、模板基线测试、`packageManager` 和 package scripts 会通过 upgrade 安全补齐。
 - 新版本缺失的 UI dist 样式入口、UI Tailwind 扫描源和 tag 样式入口会通过 upgrade 安全补齐。
+- 新版本缺失的官方顶栏主题切换入口和 `personalization: true` 配置会通过 upgrade 安全补齐。
 - 旧官方模板文件会自动更新到当前版本；目标文件疑似被业务改过时，CLI 记录冲突并跳过自动覆盖，人工合并后可重新执行 upgrade。
 
 ### 仓库内派生应用

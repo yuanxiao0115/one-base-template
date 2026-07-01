@@ -12,13 +12,15 @@ pnpm dev
 
 项目声明 `packageManager: pnpm@10.32.1`，建议通过 `corepack pnpm` 执行安装、开发和构建命令。
 
+顶栏账号下拉默认提供“个性设置”，可打开主题切换、主色微调和灰色模式；个人中心、改密和租户切换默认关闭，可在 `src/config/ui.ts` 中按需开启。
+
 ## 项目自检
 
 ```bash
 pnpm dlx @one-base-template/create-admin-lite@latest doctor
 ```
 
-自检会检查模板元信息、Node/pnpm 版本、项目级 registry、企业 npm 认证、依赖协议、基础脚本和样式入口。它只报告认证状态，不打印认证值。
+自检会检查模板元信息、Node/pnpm 版本、项目级 registry、企业 npm 认证、依赖协议、基础脚本、样式入口和顶栏主题切换入口。它只报告认证状态，不打印认证值。
 
 ## 新增模块
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, markRaw, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   type AppMenuItem,
@@ -292,7 +292,7 @@ function openPersonalizationDrawer() {
     closeOnClickModal: true,
     destroyOnClose: false,
     showFooter: false,
-    component: ThemeSwitcher
+    component: markRaw(ThemeSwitcher)
   });
 }
 

@@ -11922,3 +11922,30 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
   - 公共包 metadata、credential scan、pack、临时消费者构建均通过。
   - docs lint/build 通过。
   - `/Users/haoqiuzhi/code/aa` 本地构建通过。
+
+## 2026-07-01（admin-lite CLI 默认主题入口）
+
+- 执行命令：
+  - `node --check packages/create-admin-lite/bin/create-admin-lite.mjs`
+  - `node --check scripts/validate-admin-lite-cli.mjs`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `cd /Users/haoqiuzhi/code/aa && node /Users/haoqiuzhi/code/one-base-template/packages/create-admin-lite/bin/create-admin-lite.mjs upgrade --yes`
+  - `cd /Users/haoqiuzhi/code/aa && node /Users/haoqiuzhi/code/one-base-template/packages/create-admin-lite/bin/create-admin-lite.mjs doctor`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm test:run:file tests/scaffold/template-baseline.unit.test.ts`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm typecheck`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm build`
+- 浏览器验证：
+  - `cd /Users/haoqiuzhi/code/aa && pnpm dev --host 127.0.0.1 --port 5188`
+  - 使用 `agent-browser` mock `/cmict/auth/token/verify` 与 `/cmict/admin/permission/my-tree`。
+  - 打开 `http://127.0.0.1:5188/home/index`，写入 `aa_TOKEN` 后刷新。
+  - hover 账号按钮，菜单出现“个性设置”；点击后抽屉出现“主题切换”“主色微调”“界面显示”。
+- 结果：
+  - CLI 仓外生成、doctor、upgrade、install、test、typecheck、build 全流程通过。
+  - `aa` 升级无冲突，doctor 通过；唯一 warning 为本机未检测到企业 npm auth。
+  - `aa` baseline/typecheck/build 均通过。
+  - 浏览器服务输出无 `ThemeSwitcher` reactive warning；仅有既有 Vue Router `next()` deprecation warning。

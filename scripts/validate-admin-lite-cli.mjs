@@ -11,6 +11,7 @@ import {
 import { readdir } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 
 const rootDir = resolve(import.meta.dirname, '..');
 const tempDir = resolve(rootDir, '.tmp/admin-lite-cli');
@@ -137,6 +138,15 @@ const additiveTemplateFilePaths = [
   'scripts/new-module-item.mjs',
   'tests/scaffold/template-baseline.unit.test.ts'
 ];
+const managedTemplateFilePaths = [
+  ...additiveTemplateFilePaths,
+  'src/components/top/AdminTopBar.vue',
+  'src/config/ui.ts'
+];
+const previousOfficialThemeFileHashes = {
+  topbar: 'bee673c8707b8053e7496a3b84b3d2814b52cdc231ff7816749a61c3ed950b54',
+  uiConfig: 'c293656f517749968122a0c160263acda3badbc1e7e453a5cd23ba12778b4447'
+};
 const additivePackageScriptNames = ['test:run:file', 'new:module', 'new:module:item'];
 const ignoredScanDirs = new Set([
   '.git',
@@ -196,6 +206,10 @@ function readJson(path) {
 
 function writeJson(path, value) {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function sha256(content) {
+  return createHash('sha256').update(content).digest('hex');
 }
 
 function writeLocalOverrideWorkspace(projectDir, overrides) {
@@ -318,6 +332,14 @@ async function validateGeneratedProjectSafety(projectDir = generatedDir, options
     styleBootstrap.includes(tagStyleImportLine),
     '生成项目 bootstrap/admin-lite-styles.ts 缺少 @one-base-template/tag/style'
   );
+  const uiConfig = readFileSync(join(projectDir, 'src/config/ui.ts'), 'utf8');
+  assert(uiConfig.includes('personalization: true'), '生成项目默认未启用个性化设置入口');
+  const topbar = readFileSync(join(projectDir, 'src/components/top/AdminTopBar.vue'), 'utf8');
+  assert(topbar.includes('ThemeSwitcher'), '生成项目顶栏缺少 ThemeSwitcher 入口');
+  assert(topbar.includes('markRaw(ThemeSwitcher)'), '生成项目顶栏未使用 markRaw 包裹主题组件');
+  assert(topbar.includes('openDialog'), '生成项目顶栏缺少个性设置抽屉打开逻辑');
+  assert(topbar.includes('<ObDialogHost />'), '生成项目顶栏缺少 ObDialogHost 宿主');
+  assert(topbar.includes('个性设置'), '生成项目顶栏缺少个性设置菜单项');
 
   const dependencies = {
     ...packageJson.dependencies,
@@ -607,6 +629,7 @@ function prepareOldProjectFixture(targetDir, options = {}) {
   for (const relativePath of additiveTemplateFilePaths) {
     rmSync(join(targetDir, relativePath), { force: true, recursive: true });
   }
+  preparePreviousOfficialThemeFiles(targetDir);
   if (options.previousOfficialTest) {
     mkdirSync(join(targetDir, 'tests/scaffold'), { recursive: true });
     writeFileSync(
@@ -630,6 +653,81 @@ function prepareOldProjectFixture(targetDir, options = {}) {
     bootstrapStylePath,
     options.conflict ? "/* 用户自定义样式入口 */\nimport '../styles/index.css';\n" : bootstrapStyle
   );
+}
+
+function preparePreviousOfficialThemeFiles(targetDir) {
+  const topbarPath = join(targetDir, 'src/components/top/AdminTopBar.vue');
+  const previousTopbar = readFileSync(topbarPath, 'utf8')
+    .replace("import { computed, markRaw } from 'vue';", "import { computed } from 'vue';")
+    .replace(
+      "import { closeDialog, message, openDialog, ThemeSwitcher } from '@one-base-template/ui';",
+      "import { message } from '@one-base-template/ui';"
+    )
+    .replace("const PERSONALIZATION_DIALOG_ID = 'topbar-personalization-dialog';\n", '')
+    .replace('    closeDialog(PERSONALIZATION_DIALOG_ID);\n', '')
+    .replace(
+      `
+function openPersonalizationDrawer() {
+  openDialog({
+    id: PERSONALIZATION_DIALOG_ID,
+    container: 'drawer',
+    title: '个性设置',
+    size: 520,
+    closeOnClickModal: true,
+    destroyOnClose: false,
+    showFooter: false,
+    component: markRaw(ThemeSwitcher)
+  });
+}
+
+async function onCommandPaletteNavigate`,
+      `
+async function onCommandPaletteNavigate`
+    )
+    .replace(
+      `      <el-dropdown>
+        <button type="button" class="ob-topbar__account">
+          <span class="ob-topbar__avatar">{{ userName.slice(0, 1) }}</span>
+          <span class="ob-topbar__user">{{ userName }}</span>
+        </button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item v-if="ui.topbar.personalization" @click="openPersonalizationDrawer">
+              个性设置
+            </el-dropdown-item>
+            <el-dropdown-item divided @click="onLogout">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>`,
+      `      <el-dropdown @command="onLogout">
+        <button type="button" class="ob-topbar__account">
+          <span class="ob-topbar__avatar">{{ userName.slice(0, 1) }}</span>
+          <span class="ob-topbar__user">{{ userName }}</span>
+        </button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>`
+    )
+    .replace('\n  <ObDialogHost />\n</template>', '\n</template>');
+  assert(
+    sha256(previousTopbar) === previousOfficialThemeFileHashes.topbar,
+    '旧官方 AdminTopBar fixture hash 不匹配'
+  );
+  writeFileSync(topbarPath, previousTopbar);
+
+  const uiConfigPath = join(targetDir, 'src/config/ui.ts');
+  const previousUiConfig = readFileSync(uiConfigPath, 'utf8').replace(
+    'personalization: true',
+    'personalization: false'
+  );
+  assert(
+    sha256(previousUiConfig) === previousOfficialThemeFileHashes.uiConfig,
+    '旧官方 ui.ts fixture hash 不匹配'
+  );
+  writeFileSync(uiConfigPath, previousUiConfig);
 }
 
 async function validateUpgradeDryRun(cliBin) {
@@ -671,7 +769,7 @@ async function validateUpgradeApply(cliBin) {
   for (const scriptName of additivePackageScriptNames) {
     assert(packageJson.scripts[scriptName], `upgrade 后缺少 ${scriptName} 脚本`);
   }
-  for (const relativePath of additiveTemplateFilePaths) {
+  for (const relativePath of managedTemplateFilePaths) {
     assert(existsSync(join(upgradeApplyDir, relativePath)), `upgrade 后缺少 ${relativePath}`);
   }
   const baselineTest = readFileSync(
@@ -731,7 +829,8 @@ function validateCurrentLegacyInference(cliBin) {
   });
   assert(
     output.includes('Source version: 0.1.2 (inferred)') ||
-      output.includes('来源版本: 0.1.2 (inferred)'),
+      output.includes('Source version: 0.2.2 (inferred)') ||
+      output.includes('来源版本: 0.2.2 (inferred)'),
     '当前模板特征的无元信息项目不应被推断为 0.1.0'
   );
 }

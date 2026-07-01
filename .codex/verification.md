@@ -331,3 +331,20 @@
   - `/Users/haoqiuzhi/code/aa` 执行 `pnpm build`
 - 当前结论：
   - 侧栏折叠按钮样式丢失已确认并修复；独立项目后续生成和旧项目升级均会带上 UI 样式入口。
+
+## 2026-07-01（admin-lite CLI 默认主题入口）
+
+- 已完成：
+  - CLI 模板默认启用顶栏“个性设置”主题切换入口。
+  - `upgrade` 可将旧官方 `AdminTopBar.vue` / `ui.ts` / baseline 测试升级到当前模板。
+  - `doctor` 可检查顶栏主题入口是否存在。
+  - `apps/admin`、`apps/admin-lite` 与 CLI 模板均使用 `markRaw(ThemeSwitcher)`，避免打开主题抽屉时出现组件对象响应式化 warning。
+  - 本机 `/Users/haoqiuzhi/code/aa` 已升级并验证主题入口。
+- 验证通过：
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm -C apps/admin typecheck`
+  - `pnpm -C apps/admin-lite typecheck`
+  - `/Users/haoqiuzhi/code/aa` 执行 `doctor`、baseline、typecheck、build。
+  - 浏览器验证 `/home/index` 账号下拉可打开“个性设置”抽屉，抽屉包含主题切换、主色微调、灰色模式。
+- 当前结论：
+  - CLI 生成项目具备默认主题切换能力；旧官方生成项目可通过 `upgrade` 无冲突补齐。
