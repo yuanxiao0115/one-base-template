@@ -38,6 +38,7 @@ const requiredProjectScriptNames = [
   'new:module:item'
 ];
 const additivePackageScriptNames = ['test:run:file', 'new:module', 'new:module:item'];
+const packageManagerFieldName = 'packageManager';
 const additiveTemplateFilePaths = [
   'scripts/new-module.mjs',
   'scripts/new-module-item.mjs',
@@ -530,6 +531,13 @@ function createDoctorReport(projectDir) {
   }
 
   if (packageJsonValue) {
+    const packageManager = String(packageJsonValue.packageManager ?? '');
+    if (packageManager === readTemplatePackageJson().packageManager) {
+      push('ok', packageManagerFieldName, packageManager);
+    } else {
+      push('error', packageManagerFieldName, '缺少 pnpm@10.32.1 packageManager 声明');
+    }
+
     const allDependencies = getAllDependencies(packageJsonValue);
     const unsafeDeps = Object.entries(allDependencies).filter(([, version]) =>
       /^(?:workspace:|catalog:|file:|link:)/.test(String(version))
@@ -926,6 +934,40 @@ function applyPackageScriptMigration(context, actions, dryRun) {
   }
 }
 
+function applyPackageManagerMigration(context, actions, dryRun) {
+  const templatePackageJson = readTemplatePackageJson();
+  const templatePackageManager = templatePackageJson.packageManager;
+  const packageJsonPath = join(context.projectDir, 'package.json');
+  pushPlan(actions, `确保 package.json 声明 ${packageManagerFieldName}=${templatePackageManager}`);
+
+  if (!templatePackageManager) {
+    actions.warnings.push(`模板缺少 package.json ${packageManagerFieldName}`);
+    return;
+  }
+  if (context.projectPackageJson.packageManager === templatePackageManager) {
+    actions.skipped.push(`package.json ${packageManagerFieldName} 已是 ${templatePackageManager}`);
+    return;
+  }
+  if (
+    context.projectPackageJson.packageManager &&
+    context.projectPackageJson.packageManager !== templatePackageManager
+  ) {
+    actions.conflicts.push(
+      `package.json ${packageManagerFieldName} 已被自定义为 ${context.projectPackageJson.packageManager}，已跳过自动修改`
+    );
+    return;
+  }
+
+  if (!dryRun) {
+    writeJsonFile(packageJsonPath, {
+      ...context.projectPackageJson,
+      packageManager: templatePackageManager
+    });
+    context.projectPackageJson.packageManager = templatePackageManager;
+  }
+  actions.applied.push(`package.json 已补齐 ${packageManagerFieldName}: ${templatePackageManager}`);
+}
+
 function applyTemplateFileMigration(context, actions, dryRun, relativePath) {
   const templatePath = join(templateDir, relativePath);
   const targetPath = join(context.projectDir, relativePath);
@@ -998,6 +1040,7 @@ function planAndMaybeApplyUpgrade(context, dryRun) {
   applyStyleSourceMigration(context, actions, dryRun);
   applyTagStyleMigration(context, actions, dryRun);
   applyPackageScriptMigration(context, actions, dryRun);
+  applyPackageManagerMigration(context, actions, dryRun);
   applyTemplateFileMigrations(context, actions, dryRun);
   applyMetadataMigration(context, actions, dryRun);
   return actions;

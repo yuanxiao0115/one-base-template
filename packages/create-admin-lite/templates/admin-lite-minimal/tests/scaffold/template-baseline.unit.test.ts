@@ -78,6 +78,7 @@ describe('admin-lite template baseline', () => {
   it('提供仓外项目的基础开发脚本', () => {
     const packageJson = JSON.parse(readProjectFile('package.json'));
 
+    expect(packageJson.packageManager).toBe('pnpm@10.32.1');
     expect(packageJson.scripts['test:run']).toBe('vp test run --config vitest.config.ts');
     expect(packageJson.scripts['test:run:file']).toContain('vp test run --config vitest.config.ts');
     expect(packageJson.scripts['new:module']).toBe('node ./scripts/new-module.mjs');

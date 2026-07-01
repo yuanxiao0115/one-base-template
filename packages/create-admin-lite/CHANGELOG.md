@@ -1,5 +1,11 @@
 # @one-base-template/create-admin-lite
 
+## 0.2.1
+
+### Patch Changes
+
+- 修复 admin-lite 生成项目未声明 pnpm 版本的问题，模板与 upgrade 现在会补齐 `packageManager: pnpm@10.32.1`，避免 doctor 在本机默认 pnpm 版本偏低时误失败。
+
 ## 0.2.0
 
 ### Minor Changes
