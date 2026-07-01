@@ -68,6 +68,9 @@ describe('admin-lite template baseline', () => {
 
   it('保留独立项目需要的样式入口', () => {
     expect(readProjectFile('src/styles/index.css')).toContain(
+      "@import '../../node_modules/@one-base-template/ui/dist/style.css';"
+    );
+    expect(readProjectFile('src/styles/index.css')).toContain(
       '@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";'
     );
     expect(readProjectFile('src/bootstrap/admin-lite-styles.ts')).toContain(

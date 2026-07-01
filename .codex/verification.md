@@ -314,3 +314,20 @@
   - `pnpm install --lockfile-only`
 - 当前结论：
   - `tag` 完整样式入口修复已发布，CLI 新版模板可消费 `@one-base-template/tag@^0.1.1`。
+
+## 2026-07-01（admin-lite 独立项目 UI scoped 样式入口修复）
+
+- 已完成：
+  - 修复 `admin-lite` 与 CLI 模板未导入 `@one-base-template/ui` scoped CSS 的问题。
+  - CLI `doctor` 可发现 UI dist 样式入口缺失，`upgrade` 可为旧项目自动补齐。
+  - 本机 `/Users/haoqiuzhi/code/aa` 已同步补齐样式入口。
+- 验证通过：
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin-lite build`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `/Users/haoqiuzhi/code/aa` 执行 `pnpm build`
+- 当前结论：
+  - 侧栏折叠按钮样式丢失已确认并修复；独立项目后续生成和旧项目升级均会带上 UI 样式入口。

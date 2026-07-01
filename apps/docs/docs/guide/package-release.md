@@ -55,6 +55,7 @@ CLI 模板行为发生变化时：
 
 - 必须包含 `.changeset/*.md`。
 - 新增向后兼容能力使用 `minor`，只修复模板或验证脚本使用 `patch`。
+- 样式入口必须同时覆盖“真实 CSS import”和“Tailwind 内容扫描源”：`@one-base-template/ui` 的 scoped CSS 需要显式导入，`@source` 只负责生成工具类，不能替代 CSS import。
 - 发布完成后仍按每个包打 tag，CLI 包 tag 示例：`@one-base-template/create-admin-lite@0.2.0`。
 - 升级说明必须写清 `create`、`doctor` 与 `upgrade` 的关系：`create` 生成新项目，`doctor` 检查已生成项目，`upgrade` 维护已生成项目。
 
@@ -158,6 +159,7 @@ pnpm dlx @one-base-template/create-admin-lite my-admin
 
 - [ ] `package.json` 不再设置 `private: true`
 - [ ] `exports/files/publishConfig` 完整
+- [ ] 若包发布 CSS 产物，`exports` 必须提供稳定样式入口；例如 `@one-base-template/ui` 保持 `./style -> dist/style.css`
 - [ ] README 包含接入与升级说明
 - [ ] 已加入 changeset 流程（PR 含 `.changeset/*.md`）
 - [ ] 已从 `.changeset/config.json` 的 `ignore` 中移除

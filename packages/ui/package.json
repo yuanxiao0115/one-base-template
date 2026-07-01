@@ -44,7 +44,8 @@
       "types": "./dist/shell.d.ts",
       "import": "./dist/shell.js",
       "default": "./dist/shell.js"
-    }
+    },
+    "./style": "./dist/style.css"
   },
   "scripts": {
     "build": "node ../../scripts/build-public-package.mjs ui",

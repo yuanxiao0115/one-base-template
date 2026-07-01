@@ -19,6 +19,7 @@ const templateName = 'admin-lite-minimal';
 const latestLegacyTemplateVersion = '0.1.2';
 const metadataFileName = '.admin-lite-template.json';
 const reportFileName = '.admin-lite-upgrade-report.md';
+const uiStyleImportLine = "@import '../../node_modules/@one-base-template/ui/dist/style.css';";
 const uiSourceLine = '@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";';
 const tagStyleImportLine = "import '@one-base-template/tag/style';";
 const enterpriseRegistryLine =
@@ -579,7 +580,13 @@ function createDoctorReport(projectDir) {
   }
 
   const stylePath = join(projectDir, 'src/styles/index.css');
-  if (existsSync(stylePath) && readFileSync(stylePath, 'utf8').includes(uiSourceLine)) {
+  const styleContent = existsSync(stylePath) ? readFileSync(stylePath, 'utf8') : '';
+  if (styleContent.includes(uiStyleImportLine)) {
+    push('ok', 'ui style import', '已导入 @one-base-template/ui dist 样式');
+  } else {
+    push('error', 'ui style import', '缺少 @one-base-template/ui dist 样式入口');
+  }
+  if (styleContent.includes(uiSourceLine)) {
     push('ok', 'ui tailwind source', '已扫描 @one-base-template/ui dist');
   } else {
     push('error', 'ui tailwind source', '缺少 @one-base-template/ui dist Tailwind 扫描源');
@@ -809,27 +816,46 @@ function canPatchStyleEntry(content) {
 
 function applyStyleSourceMigration(context, actions, dryRun) {
   const stylePath = join(context.projectDir, 'src/styles/index.css');
+  pushPlan(actions, `确保 src/styles/index.css 导入 @one-base-template/ui dist 样式`);
   pushPlan(actions, `确保 src/styles/index.css 包含 @one-base-template/ui dist Tailwind 扫描源`);
   if (!existsSync(stylePath)) {
-    actions.conflicts.push('src/styles/index.css 不存在，无法自动补齐 UI Tailwind 扫描源');
+    actions.conflicts.push('src/styles/index.css 不存在，无法自动补齐 UI 样式入口');
     return;
   }
 
   const content = readFileSync(stylePath, 'utf8');
-  if (content.includes(uiSourceLine)) {
-    actions.skipped.push('src/styles/index.css 已包含 UI Tailwind 扫描源');
+  const hasUiStyleImport = content.includes(uiStyleImportLine);
+  const hasUiSource = content.includes(uiSourceLine);
+  if (hasUiStyleImport && hasUiSource) {
+    actions.skipped.push('src/styles/index.css 已包含 UI 样式入口与 Tailwind 扫描源');
     return;
   }
   if (!canPatchStyleEntry(content)) {
-    actions.conflicts.push('src/styles/index.css 不是可识别的官方样式入口，已跳过自动修改');
+    actions.conflicts.push('src/styles/index.css 不是可识别的官方样式入口，已跳过自动补齐 UI 样式');
     return;
   }
 
   if (!dryRun) {
-    const next = content.trimEnd() + `\n\n${uiSourceLine}\n`;
+    const lines = content.split('\n');
+    if (!hasUiStyleImport) {
+      const utilitiesIndex = lines.findIndex((line) =>
+        line.includes("@import 'tailwindcss/utilities.css' layer(utilities);")
+      );
+      lines.splice(utilitiesIndex >= 0 ? utilitiesIndex + 1 : 0, 0, uiStyleImportLine);
+    }
+    if (!hasUiSource) {
+      lines.push('', uiSourceLine);
+    }
+    const next = `${lines.join('\n').trimEnd()}\n`;
     writeFileSync(stylePath, next);
   }
-  actions.applied.push('src/styles/index.css 已补齐 UI Tailwind 扫描源');
+  if (!hasUiStyleImport && !hasUiSource) {
+    actions.applied.push('src/styles/index.css 已补齐 UI 样式入口与 Tailwind 扫描源');
+  } else if (!hasUiStyleImport) {
+    actions.applied.push('src/styles/index.css 已补齐 UI 样式入口');
+  } else {
+    actions.applied.push('src/styles/index.css 已补齐 UI Tailwind 扫描源');
+  }
 }
 
 function canPatchBootstrapStyles(content) {

@@ -11901,3 +11901,24 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
   - 企业 npm 发布成功：`@one-base-template/tag@0.1.1`、`@one-base-template/create-admin-lite@0.1.2`。
   - 企业 npm 反查成功，两个新版均可查询到 `version` 与 `dist.tarball`。
   - `pnpm-lock.yaml` 已同步到 `@one-base-template/tag@0.1.1`。
+
+## 2026-07-01（admin-lite 独立项目 UI scoped 样式入口修复）
+
+- 执行命令：
+  - `node --check packages/create-admin-lite/bin/create-admin-lite.mjs`
+  - `node --check scripts/validate-admin-lite-cli.mjs`
+  - `pnpm -C packages/ui build`
+  - `pnpm -C apps/admin-lite build`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm build`
+- 浏览器验证：
+  - 修复前 `/home/index` 的折叠按钮为浏览器原生按钮样式：`appearance: auto`、`background: rgb(239, 239, 239)`、`border: 2px outset`、`borderRadius: 0px`、`height: 29px`。
+  - 修复后同一按钮命中 `.ob-side-layout__collapse-btn[data-v-f36edf44]`，计算样式变为 `display: flex`、`appearance: none`、`border: 0px`、`borderRadius: 8px`、`width/height: 40px`。
+- 结果：
+  - CLI 仓外生成、doctor、upgrade、install、test、typecheck、build 均通过。
+  - 公共包 metadata、credential scan、pack、临时消费者构建均通过。
+  - docs lint/build 通过。
+  - `/Users/haoqiuzhi/code/aa` 本地构建通过。

@@ -31,6 +31,7 @@ const metadataFileName = '.admin-lite-template.json';
 const reportFileName = '.admin-lite-upgrade-report.md';
 const uiSourceLine = '@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";';
 const tagStyleImportLine = "import '@one-base-template/tag/style';";
+const uiStyleImportLine = "@import '../../node_modules/@one-base-template/ui/dist/style.css';";
 const previousOfficialTemplateBaselineTest = `import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -302,8 +303,20 @@ async function validateGeneratedProjectSafety(projectDir = generatedDir, options
 
   const styleEntry = readFileSync(join(projectDir, 'src/styles/index.css'), 'utf8');
   assert(
+    styleEntry.includes(uiStyleImportLine),
+    '生成项目 styles/index.css 缺少 @one-base-template/ui dist 样式入口'
+  );
+  assert(
     styleEntry.includes(uiSourceLine),
     '生成项目 styles/index.css 缺少 @one-base-template/ui dist 扫描源'
+  );
+  const styleBootstrap = readFileSync(
+    join(projectDir, 'src/bootstrap/admin-lite-styles.ts'),
+    'utf8'
+  );
+  assert(
+    styleBootstrap.includes(tagStyleImportLine),
+    '生成项目 bootstrap/admin-lite-styles.ts 缺少 @one-base-template/tag/style'
   );
 
   const dependencies = {
@@ -469,6 +482,7 @@ function validateGeneratedCss(projectDir = generatedDir) {
     '.tags-view',
     '.context-menu',
     '.dropdown-menu',
+    '.ob-side-layout__collapse-btn',
     '.h-screen',
     '.w-screen',
     '.flex-col'
@@ -602,7 +616,9 @@ function prepareOldProjectFixture(targetDir, options = {}) {
   }
 
   const stylePath = join(targetDir, 'src/styles/index.css');
-  const styleEntry = readFileSync(stylePath, 'utf8').replace(`\n${uiSourceLine}\n`, '\n');
+  const styleEntry = readFileSync(stylePath, 'utf8')
+    .replace(`${uiStyleImportLine}\n`, '')
+    .replace(`\n${uiSourceLine}\n`, '\n');
   writeFileSync(stylePath, styleEntry);
 
   const bootstrapStylePath = join(targetDir, 'src/bootstrap/admin-lite-styles.ts');
@@ -645,6 +661,7 @@ async function validateUpgradeApply(cliBin) {
   assert(metadata.previousTemplateVersion === '0.1.0', 'upgrade 后缺少 previousTemplateVersion');
 
   const styleEntry = readFileSync(join(upgradeApplyDir, 'src/styles/index.css'), 'utf8');
+  assert(styleEntry.includes(uiStyleImportLine), 'upgrade 后缺少 UI dist 样式入口');
   assert(styleEntry.includes(uiSourceLine), 'upgrade 后缺少 UI Tailwind 扫描源');
   const bootstrapStyle = readFileSync(
     join(upgradeApplyDir, 'src/bootstrap/admin-lite-styles.ts'),

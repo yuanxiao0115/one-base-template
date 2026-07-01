@@ -13250,3 +13250,17 @@
 - 验证动作：
   - `npm view @one-base-template/tag@0.1.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
   - `npm view @one-base-template/create-admin-lite@0.1.2 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+
+## 2026-07-01（admin-lite 独立项目 UI scoped 样式入口修复）
+
+- 背景：
+  - `~/code/aa` 中 `.ob-side-layout__collapse-panel` 下的侧栏折叠按钮呈现浏览器原生按钮样式。
+  - 浏览器计算样式显示按钮为 `appearance: auto`、`2px outset`、`borderRadius: 0px`，说明 `packages/ui` 中 `SideLayout.vue` 的 scoped CSS 未进入消费端。
+- 根因：
+  - `admin-lite` 与 CLI 模板只配置了 `@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}"`。
+  - `@source` 只让 Tailwind 扫描工具类，不会导入 UI 包构建出的 scoped CSS。
+- 修复：
+  - `apps/admin-lite/src/styles/index.css` 与 CLI 模板样式入口显式导入 `../../node_modules/@one-base-template/ui/dist/style.css`。
+  - CLI `doctor` 增加 UI dist 样式入口检查，`upgrade` 可自动补齐 UI 样式入口与 Tailwind 扫描源。
+  - `@one-base-template/ui` 新增 `./style -> dist/style.css` 导出，并在公共包发布校验中覆盖。
+  - 已直接修复本机生成项目 `/Users/haoqiuzhi/code/aa/src/styles/index.css`。

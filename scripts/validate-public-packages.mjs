@@ -65,14 +65,16 @@ const packageChecks = {
       'dist/lite-auth.js',
       'dist/lite-auth.d.ts',
       'dist/shell.js',
-      'dist/shell.d.ts'
+      'dist/shell.d.ts',
+      'dist/style.css'
     ],
     imports: [
       "import { TableBox } from '@one-base-template/ui';",
       "import ObTablePlugin from '@one-base-template/ui/obtable';",
       "import VxePlugin from '@one-base-template/ui/vxe';",
       "import { LoginBox } from '@one-base-template/ui/lite-auth';",
-      "import { AdminLayout } from '@one-base-template/ui/shell';"
+      "import { AdminLayout } from '@one-base-template/ui/shell';",
+      "import '@one-base-template/ui/style';"
     ]
   }
 };
@@ -167,6 +169,11 @@ function validatePackageMetadata() {
   assert(
     tagPackageJson.exports?.['./style'] === './dist/style.css',
     'tag 样式入口未指向 dist/style.css'
+  );
+
+  assert(
+    uiPackageJson.exports?.['./style'] === './dist/style.css',
+    'ui 样式入口未指向 dist/style.css'
   );
 }
 
