@@ -49,7 +49,7 @@ pnpm release:validate
 pnpm validate:admin-lite-cli
 ```
 
-该命令会本地 pack 公共包和 CLI 包，在仓库外临时目录生成项目，覆盖 `create`、`doctor`、项目级模块脚手架、`upgrade --dry-run`、真实 `upgrade`、冲突保护、静态安全扫描、本地 tarball install、`test:run`、`typecheck`、`build` 和 CSS marker。
+该命令会本地 pack 公共包和 CLI 包，在仓库外临时目录生成项目，覆盖 `create`、`doctor`、项目级模块脚手架、`upgrade --dry-run`、真实 `upgrade`、旧官方模板文件升级、冲突保护、静态安全扫描、本地 tarball install、`test:run`、`typecheck`、`build` 和 CSS marker。
 
 CLI 模板行为发生变化时：
 

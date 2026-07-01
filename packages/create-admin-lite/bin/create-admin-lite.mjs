@@ -2,6 +2,7 @@
 
 import { error, log } from 'node:console';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { cp, readdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -44,6 +45,11 @@ const additiveTemplateFilePaths = [
   'scripts/new-module-item.mjs',
   'tests/scaffold/template-baseline.unit.test.ts'
 ];
+const knownOfficialTemplateFileHashes = {
+  'tests/scaffold/template-baseline.unit.test.ts': new Set([
+    'a824556a053b8c2090f00a57d5e2bbafe15be051bdf04a23d7ab28a16bf25160'
+  ])
+};
 const ignoredDoctorDirs = new Set([
   '.git',
   '.idea',
@@ -394,6 +400,10 @@ function runQuiet(command, args) {
     env: { ...process.env },
     timeout: 5000
   });
+}
+
+function sha256(content) {
+  return createHash('sha256').update(content).digest('hex');
 }
 
 function getPnpmVersion() {
@@ -983,6 +993,13 @@ function applyTemplateFileMigration(context, actions, dryRun, relativePath) {
     const currentContent = readFileSync(targetPath, 'utf8');
     if (currentContent === templateContent) {
       actions.skipped.push(`${relativePath} 已存在`);
+      return;
+    }
+    if ((knownOfficialTemplateFileHashes[relativePath] ?? new Set()).has(sha256(currentContent))) {
+      if (!dryRun) {
+        writeFileSync(targetPath, templateContent);
+      }
+      actions.applied.push(`${relativePath} 已从旧官方模板更新到当前版本`);
       return;
     }
     actions.conflicts.push(`${relativePath} 已存在且内容不同，已跳过自动覆盖`);

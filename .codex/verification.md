@@ -6,7 +6,7 @@
 
 - 日期：2026-07-01
 - 文件：`.codex/verification/2026-07-01.md`
-- 补充：admin-lite CLI 生产化最小增强
+- 补充：create-admin-lite 0.2.2 企业 npm 发布与 `~/code/aa` 升级验证
 
 ## 历史归档
 

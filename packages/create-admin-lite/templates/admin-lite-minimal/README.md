@@ -10,6 +10,8 @@ pnpm dev
 项目内置 `.npmrc`：公共依赖走 `https://registry.npmmirror.com`，`@one-base-template/*` 走企业 npm。
 认证信息请写入本机或 CI 的 npm 配置，不要提交 `_auth`、token 或账号密码。
 
+项目声明 `packageManager: pnpm@10.32.1`，建议通过 `corepack pnpm` 执行安装、开发和构建命令。
+
 ## 项目自检
 
 ```bash
@@ -49,4 +51,4 @@ pnpm dlx @one-base-template/create-admin-lite@latest upgrade
 pnpm dlx @one-base-template/create-admin-lite@latest upgrade --dry-run
 ```
 
-如果升级报告提示冲突，说明对应模板文件疑似被业务改过，需要人工合并后再重新执行 upgrade。
+旧官方模板文件会自动更新到当前版本。如果升级报告提示冲突，说明对应模板文件疑似被业务改过，需要人工合并后再重新执行 upgrade。

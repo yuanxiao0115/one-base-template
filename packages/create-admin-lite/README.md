@@ -11,6 +11,8 @@ pnpm dev
 
 生成项目只包含登录、首页、应用壳、路由、运行时配置、HTTP、鉴权、菜单和主题启动闭环。
 
+生成项目声明 `packageManager: pnpm@10.32.1`，保证 `corepack pnpm` 在仓库外也使用 CLI 验证过的 pnpm 版本。
+
 生成项目内置 `.npmrc`：公共依赖走 `https://registry.npmmirror.com`，`@one-base-template/*` 走企业 npm。CLI 不会写入 `_auth`、token 或账号密码，认证信息只放在用户环境或 CI 环境。
 
 生成项目的 `src/styles/index.css` 会从 `node_modules/@one-base-template/ui/dist` 扫描 Tailwind 工具类，避免已发布 UI 包中的布局类在独立项目中缺失。
@@ -65,4 +67,4 @@ pnpm dlx @one-base-template/create-admin-lite@latest upgrade
 - `--from <version>`：手动指定来源版本，用于没有模板元信息且无法可靠推断的旧项目。
 - `--yes`：跳过确认，适合 CI 或脚本执行。
 
-upgrade 采用保守迁移：同步 `@one-base-template/*` 依赖到当前模板声明版本，补齐已知样式入口、项目级脚手架脚本和模板基线测试，并写入升级报告 `.admin-lite-upgrade-report.md`。当目标文件疑似被业务改过时，CLI 会跳过自动修改并在报告中列出冲突，不会强行覆盖。
+upgrade 采用保守迁移：同步 `@one-base-template/*` 依赖到当前模板声明版本，补齐已知样式入口、`packageManager`、项目级脚手架脚本和模板基线测试，并写入升级报告 `.admin-lite-upgrade-report.md`。旧官方模板文件会自动更新到当前版本；当目标文件疑似被业务改过时，CLI 会跳过自动修改并在报告中列出冲突，不会强行覆盖。

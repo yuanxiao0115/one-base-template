@@ -1,5 +1,11 @@
 # @one-base-template/create-admin-lite
 
+## 0.2.2
+
+### Patch Changes
+
+- 修复 upgrade 在旧官方模板文件存在时误判冲突的问题；官方基线测试文件可安全更新到当前模板，用户自定义文件仍保持冲突保护。
+
 ## 0.2.1
 
 ### Patch Changes

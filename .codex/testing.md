@@ -2,6 +2,47 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-07-01（create-admin-lite 0.2.x 发布与 aa 验证）
+
+- 过程失败：
+  - 首次 `pnpm -C packages/create-admin-lite publish --no-git-checks` 未发布成功：
+    - 失败原因：该调用方式在当前 pnpm/npm 组合下把目录参数转给内部 `npm publish`，触发 `npm error code EUSAGE`。
+    - 修复：切到 `packages/create-admin-lite` 目录后直接执行 `corepack pnpm publish --no-git-checks --registry=...`。
+  - `~/code/aa` 使用 `0.2.0` 执行 `doctor` 失败：
+    - 失败原因：生成项目缺少 `packageManager`，仓库外 `corepack pnpm` 解析到本机默认 `pnpm@10.28.1`，低于模板要求 `10.32.1`。
+    - 修复：发布 `0.2.1`，模板和 upgrade 均补齐 `packageManager: pnpm@10.32.1`。
+  - `~/code/aa` 使用 `0.2.1` 执行 `upgrade` 发现旧官方基线测试文件冲突：
+    - 失败原因：冲突保护无法区分“旧官方模板文件”和“用户自定义文件”。
+    - 修复：发布 `0.2.2`，用旧官方文件 hash 识别可安全升级文件，用户自定义文件仍报冲突。
+
+- 已通过：
+  - `CI=true corepack pnpm validate:admin-lite-cli`（0.2.0 发布前）
+  - `CI=true corepack pnpm release:validate`（0.2.0 发布前）
+  - `corepack pnpm publish --dry-run --no-git-checks --registry=...`（0.2.0）
+  - `corepack pnpm publish --no-git-checks --registry=...`（0.2.0）
+  - `npm view @one-base-template/create-admin-lite version --registry=...` -> `0.2.0`
+  - `CI=true corepack pnpm validate:admin-lite-cli`（0.2.1 补丁）
+  - `CI=true corepack pnpm release:validate`（0.2.1 发布前）
+  - `corepack pnpm publish --no-git-checks --registry=...`（0.2.1）
+  - `npm view @one-base-template/create-admin-lite version --registry=...` -> `0.2.1`
+  - `CI=true corepack pnpm validate:admin-lite-cli`（0.2.2 补丁）
+    - 覆盖旧官方 `tests/scaffold/template-baseline.unit.test.ts` 自动升级到当前模板。
+  - `CI=true corepack pnpm release:validate`（0.2.2 发布前）
+  - `corepack pnpm publish --no-git-checks --registry=...`（0.2.2）
+  - `npm view @one-base-template/create-admin-lite version --registry=...` -> `0.2.2`
+  - `corepack pnpm dlx @one-base-template/create-admin-lite@latest upgrade --yes`（`/Users/haoqiuzhi/code/aa`）
+  - `corepack pnpm dlx @one-base-template/create-admin-lite@latest doctor`（`/Users/haoqiuzhi/code/aa`）
+    - 通过；保留 1 个企业 npm auth 可见性 warning，安装与 dlx 已证明实际认证可用。
+  - `corepack pnpm install`（`/Users/haoqiuzhi/code/aa`）
+  - `CI=true corepack pnpm test:run`（`/Users/haoqiuzhi/code/aa`）
+  - `CI=true corepack pnpm test:run:file tests/scaffold/template-baseline.unit.test.ts`（`/Users/haoqiuzhi/code/aa`）
+  - `CI=true corepack pnpm typecheck`（`/Users/haoqiuzhi/code/aa`）
+  - `CI=true corepack pnpm build`（`/Users/haoqiuzhi/code/aa`）
+
+- 结果：
+  - 企业 npm latest 已是 `@one-base-template/create-admin-lite@0.2.2`。
+  - `~/code/aa` 已升级到模板 `0.2.2`，`packageManager` 为 `pnpm@10.32.1`，测试、类型检查和构建均通过。
+
 ## 2026-07-01（admin-lite CLI 生产化最小增强）
 
 - RED / 过程失败：

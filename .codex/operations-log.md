@@ -2,6 +2,26 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-07-01（create-admin-lite 0.2.x 企业 npm 发布与 aa 验证）
+
+- 背景：
+  - 用户确认发布新版 CLI，并要求在 `~/code/aa` 中验证升级链路。
+- 本次收口：
+  - 已真实发布企业 npm：
+    - `@one-base-template/create-admin-lite@0.2.0`
+    - `@one-base-template/create-admin-lite@0.2.1`
+    - `@one-base-template/create-admin-lite@0.2.2`
+  - `0.2.1` 修复：
+    - 生成项目模板新增 `packageManager: pnpm@10.32.1`。
+    - `upgrade` 可为旧项目补齐 `packageManager`，避免仓库外默认 pnpm 版本偏低导致 `doctor` 失败。
+  - `0.2.2` 修复：
+    - `upgrade` 可识别旧官方模板基线测试文件并自动更新到当前版本。
+    - 用户自定义文件仍保持冲突保护，不强行覆盖。
+  - `~/code/aa` 已通过企业 npm latest 升级到模板 `0.2.2`。
+- 安全边界：
+  - 发布与验证过程中未把企业 npm `_auth`、token 或账号密码写入仓库。
+  - `doctor` 仍只报告认证可见性，不打印凭证值。
+
 ## 2026-07-01（admin-lite CLI 生产化最小增强）
 
 - 背景：
