@@ -13149,3 +13149,19 @@
 - 调整内容：
   - 删除 `产品发行` 前导线（`x1=286,y1=197 -> x2=330,y2=197`）。
   - 删除 `保债计划` 前导线（`x1=614,y1=205 -> x2=653,y2=205`）。
+
+## 2026-07-01（admin-lite CLI 与 tag 样式修复发布）
+
+- 背景：
+  - `admin-lite` 生成的独立项目需要消费企业 npm 上的新 `tag` 样式入口，避免标签页组件选择器缺失。
+- 本次发布：
+  - `@one-base-template/tag@0.1.1`
+  - `@one-base-template/create-admin-lite@0.1.2`
+- 发布动作：
+  - `pnpm version:packages` 消费 changeset 并生成 changelog。
+  - `pnpm release:validate` 发布前校验通过。
+  - `pnpm release:packages` 发布到企业 npm，并创建 git tag。
+  - `pnpm install --lockfile-only` 将 `apps/admin-lite` 的 `@one-base-template/tag` 锁到企业 npm `0.1.1` tarball。
+- 验证动作：
+  - `npm view @one-base-template/tag@0.1.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `npm view @one-base-template/create-admin-lite@0.1.2 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`

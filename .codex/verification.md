@@ -298,3 +298,19 @@
   - `pnpm -C apps/docs lint`
   - `pnpm -C apps/docs build`
   - Playwright 截图：`.codex/screenshots/management-scale-chart.png`
+
+## 2026-07-01（admin-lite CLI 与 tag 样式修复发布）
+
+- 已完成：
+  - 发布 `@one-base-template/tag@0.1.1` 到企业 npm。
+  - 发布 `@one-base-template/create-admin-lite@0.1.2` 到企业 npm。
+  - 同步 `pnpm-lock.yaml`，使 `apps/admin-lite` 锁定企业 npm 的 `@one-base-template/tag@0.1.1`。
+- 验证通过：
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm release:packages`
+  - `npm view @one-base-template/tag@0.1.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `npm view @one-base-template/create-admin-lite@0.1.2 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `pnpm install --lockfile-only`
+- 当前结论：
+  - `tag` 完整样式入口修复已发布，CLI 新版模板可消费 `@one-base-template/tag@^0.1.1`。

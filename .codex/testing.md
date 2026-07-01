@@ -11762,3 +11762,23 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
 - 结果：
   - 页面截图更新成功；
   - docs lint/build 均通过。
+
+## 2026-07-01（admin-lite CLI 与 tag 样式修复发布）
+
+- 执行命令：
+  - `pnpm -C packages/tag typecheck`
+  - `pnpm -C packages/tag lint`
+  - `pnpm -C packages/tag build`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm release:packages`
+  - `npm view @one-base-template/tag@0.1.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `npm view @one-base-template/create-admin-lite@0.1.2 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `pnpm install --lockfile-only`
+- 结果：
+  - `tag` 包类型检查、lint、构建通过。
+  - CLI 仓外生成、安装、构建和最终 CSS 扫描通过。
+  - 公共包发布校验通过：metadata、credential scan、pack、临时消费者构建均完成。
+  - 企业 npm 发布成功：`@one-base-template/tag@0.1.1`、`@one-base-template/create-admin-lite@0.1.2`。
+  - 企业 npm 反查成功，两个新版均可查询到 `version` 与 `dist.tarball`。
+  - `pnpm-lock.yaml` 已同步到 `@one-base-template/tag@0.1.1`。
