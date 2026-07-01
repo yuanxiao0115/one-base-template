@@ -13309,3 +13309,6 @@
 - 验证：
   - `pnpm validate:admin-lite-cli` 通过，升级报告中 `Conflicts: None`。
   - `pnpm release:validate` 通过。
+- 发布：
+  - `pnpm release:packages` 已发布 `@one-base-template/create-admin-lite@0.3.1` 到企业 npm。
+  - `npm view @one-base-template/create-admin-lite@0.3.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/` 反查成功。

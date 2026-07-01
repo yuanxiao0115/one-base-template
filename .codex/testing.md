@@ -11981,7 +11981,10 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
   - `node --check scripts/validate-admin-lite-cli.mjs`
   - `pnpm validate:admin-lite-cli`
   - `pnpm release:validate`
+  - `pnpm release:packages`
+  - `npm view @one-base-template/create-admin-lite@0.3.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
 - 结果：
   - 已复现 `/Users/haoqiuzhi/code/aa` 同款 `0.2.2` 官方模板文件 hash：`AdminTopBar.vue` 为 `216fdf9...`，baseline 测试为 `d800da...`。
   - CLI upgrade 白名单补齐后，`validate:admin-lite-cli` 中 `0.2.2` 视觉旧模板升级无冲突，`AdminTopBar.vue` 与 baseline 均可自动更新到当前模板。
   - 公共包发布前校验通过：metadata、credential scan、pack、临时消费者构建均完成。
+  - 企业 npm 发布成功：`@one-base-template/create-admin-lite@0.3.1`，远程反查可获得 `version` 与 `dist.tarball`。

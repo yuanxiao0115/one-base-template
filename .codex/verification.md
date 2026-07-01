@@ -379,5 +379,7 @@
 - 验证通过：
   - `pnpm validate:admin-lite-cli`
   - `pnpm release:validate`
+  - `pnpm release:packages`
+  - `npm view @one-base-template/create-admin-lite@0.3.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
 - 当前结论：
-  - 可以发布 `@one-base-template/create-admin-lite@0.3.1` 后再升级 `/Users/haoqiuzhi/code/aa`。
+  - 企业 npm 已可消费 `@one-base-template/create-admin-lite@0.3.1`，可用于升级 `/Users/haoqiuzhi/code/aa`。
