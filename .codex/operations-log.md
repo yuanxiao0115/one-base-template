@@ -2,6 +2,37 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-07-01（admin-lite CLI 存量项目升级能力）
+
+- 背景：
+  - 用户提出 CLI 生成项目后，如果模板版本有 bug 并重新发布新版，需要已生成项目具备安全升级能力。
+- 本次收口：
+  - 新增实施计划：
+    - `docs/plans/2026-07-01-001-feat-admin-lite-cli-upgrade-plan.md`
+  - `@one-base-template/create-admin-lite` 新增 `upgrade` 命令：
+    - `--dry-run`：只输出计划，不写项目文件。
+    - `--to <version>`：指定目标模板版本。
+    - `--from <version>`：给无元信息旧项目手动指定来源版本。
+    - `--yes`：跳过确认，适合 CI。
+  - 新生成项目写入 `.admin-lite-template.json`，记录 CLI 包名、模板名、模板版本、项目名和生成时间。
+  - 第一版 upgrade 保守迁移：
+    - 同步 `@one-base-template/*` 依赖到当前模板声明版本。
+    - 补齐 UI dist Tailwind 扫描源。
+    - 补齐 `@one-base-template/tag/style` 样式入口。
+    - 生成 `.admin-lite-upgrade-report.md` 报告 applied/skipped/conflicts/warnings。
+  - `scripts/validate-admin-lite-cli.mjs` 增加仓外旧项目 fixture，覆盖 dry-run、真实 upgrade、冲突保护和 install/build。
+  - 文档同步：
+    - `packages/create-admin-lite/README.md`
+    - `packages/create-admin-lite/templates/admin-lite-minimal/README.md`
+    - `apps/docs/docs/guide/admin-lite-base-app.md`
+    - `apps/docs/docs/guide/package-release.md`
+  - 新增 changeset：
+    - `.changeset/admin-lite-cli-upgrade.md`
+- 安全边界：
+  - upgrade 不写入 npm `_auth`、token、账号密码或本机绝对路径。
+  - 目标模板文件疑似被业务改过时只报告冲突，不强行覆盖。
+  - 真实发布后仍必须按 `<package-name>@<version>` 打 tag。
+
 ## 2026-06-30（首批公共包发布链路）
 
 - 背景：

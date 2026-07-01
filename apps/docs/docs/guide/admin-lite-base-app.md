@@ -110,7 +110,24 @@ pnpm build
 - 生成项目内置 `.npmrc`，公共依赖走 `https://registry.npmmirror.com`，`@one-base-template/*` 走企业 npm。
 - 生成项目的 Tailwind 扫描源指向 `node_modules/@one-base-template/ui/dist`，避免已发布 UI 包中的工具类缺失。
 - 生成项目通过 `@one-base-template/tag/style` 引入页签组件完整样式，包含页签栏、右键菜单与下拉菜单选择器。
+- 生成项目包含 `.admin-lite-template.json`，记录 CLI 包名、模板名、模板版本和生成时间。
 - CLI 不写入 `_auth`、token 或账号密码；凭证只能放在用户本机或 CI 的 npm 配置中。
+
+已生成项目升级：
+
+```bash
+pnpm dlx @one-base-template/create-admin-lite@latest upgrade
+pnpm dlx @one-base-template/create-admin-lite@latest upgrade --dry-run
+pnpm dlx @one-base-template/create-admin-lite@latest upgrade --to 0.1.2 --yes
+```
+
+升级口径：
+
+- `create` 只负责生成新项目，模板代码随 CLI 包发布，不运行时读取本仓库 `apps/admin-lite`。
+- `upgrade` 只负责维护已生成项目，默认目标版本为当前运行的 CLI 版本；推荐使用 `@latest` 执行。
+- 缺少 `.admin-lite-template.json` 的旧项目会先按项目特征推断来源版本，推断不可靠时需要 `--from <version>`。
+- `--dry-run` 只输出计划，不写入文件；真实升级会写入 `.admin-lite-upgrade-report.md`。
+- 目标文件疑似被业务改过时，CLI 记录冲突并跳过自动覆盖，人工合并后可重新执行 upgrade。
 
 ### 仓库内派生应用
 

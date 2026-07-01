@@ -9,3 +9,21 @@ pnpm dev
 
 项目内置 `.npmrc`：公共依赖走 `https://registry.npmmirror.com`，`@one-base-template/*` 走企业 npm。
 认证信息请写入本机或 CI 的 npm 配置，不要提交 `_auth`、token 或账号密码。
+
+## 模板升级
+
+本项目根目录包含 `.admin-lite-template.json`，用于记录生成时的模板来源和版本。
+
+后续 CLI 发布模板修复后，可在项目根目录执行：
+
+```bash
+pnpm dlx @one-base-template/create-admin-lite@latest upgrade
+```
+
+预检但不写文件：
+
+```bash
+pnpm dlx @one-base-template/create-admin-lite@latest upgrade --dry-run
+```
+
+如果升级报告提示冲突，说明对应模板文件疑似被业务改过，需要人工合并后再重新执行 upgrade。

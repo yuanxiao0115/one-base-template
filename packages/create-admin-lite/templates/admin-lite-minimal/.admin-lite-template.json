@@ -1,0 +1,7 @@
+{
+  "packageName": "@one-base-template/create-admin-lite",
+  "templateName": "admin-lite-minimal",
+  "templateVersion": "__TEMPLATE_VERSION__",
+  "projectName": "__PROJECT_NAME__",
+  "generatedAt": "__GENERATED_AT__"
+}

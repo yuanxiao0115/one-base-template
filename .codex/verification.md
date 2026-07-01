@@ -4,9 +4,9 @@
 
 ## 最新记录
 
-- 日期：2026-06-30
-- 文件：`.codex/verification/2026-06-30.md`
-- 补充：admin-lite 最小 CLI 与第二批公共包发布链路
+- 日期：2026-07-01
+- 文件：`.codex/verification/2026-07-01.md`
+- 补充：admin-lite CLI 存量项目升级能力
 
 ## 历史归档
 

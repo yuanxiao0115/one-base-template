@@ -2,6 +2,42 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-07-01（admin-lite CLI 存量项目升级能力）
+
+- 计划验证目标：
+  - `pnpm -C packages/create-admin-lite build`
+  - `pnpm validate:admin-lite-cli`
+  - `pnpm release:validate`
+  - `pnpm -C apps/docs lint`
+  - `pnpm -C apps/docs build`
+
+- 已通过：
+  - `node --check packages/create-admin-lite/bin/create-admin-lite.mjs`
+  - `node --check scripts/validate-admin-lite-cli.mjs`
+  - `pnpm -C packages/create-admin-lite build`
+  - `pnpm validate:admin-lite-cli`
+    - 覆盖本地 pack、仓库外生成、`upgrade --dry-run` 不写文件、真实 upgrade、冲突保护、静态扫描和 install/build。
+    - 代码审查后复跑通过：补充覆盖“无元信息但已是当前模板特征”的来源版本推断。
+  - `pnpm release:validate`
+    - 覆盖公共包 metadata、credential scan、pack 和临时消费者构建。
+    - 代码审查修复后已复跑通过，确认发布链路仍可用。
+  - `pnpm -C apps/docs lint`
+    - 0 warning / 0 error。
+  - `pnpm -C apps/docs build`
+    - 通过；保留既有 chunk size 非阻断提示。
+  - `pnpm exec vp dev --host 127.0.0.1 --port 3000`（仓外生成项目 `.tmp/admin-lite-cli/outside-consumer/sample-admin`）
+  - `agent-browser open http://127.0.0.1:3000/`
+  - `curl -s -o /tmp/admin-lite-cli-browser-index.html -w '%{http_code}' http://127.0.0.1:3000/`
+    - 返回 `200`。
+  - `agent-browser eval "({ url: location.href, title: document.title, text: document.body?.innerText?.slice(0, 1200) })"`
+    - URL 自动进入 `/home/index`，标题为 `sample-admin`，正文包含“这是一个最小后台基座”。
+  - `agent-browser screenshot /tmp/admin-lite-cli-browser-home.png`
+
+- 结果：
+  - admin-lite CLI create / upgrade 主路径均已通过仓外验证。
+  - release 校验与 docs 校验均通过。
+  - 浏览器冒烟通过；存在既有 Vue Router `next()` deprecated warning，非本轮阻断。
+
 ## 2026-06-30（首批公共包发布链路）
 
 - RED（先失败）：

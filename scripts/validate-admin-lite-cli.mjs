@@ -1,4 +1,5 @@
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -17,9 +18,18 @@ const packDir = join(tempDir, 'packs');
 const cliExtractDir = join(tempDir, 'cli-package');
 const outsideDir = join(tempDir, 'outside-consumer');
 const generatedDir = join(outsideDir, 'sample-admin');
+const upgradeDryRunDir = join(outsideDir, 'sample-admin-upgrade-dry-run');
+const upgradeApplyDir = join(outsideDir, 'sample-admin-upgrade-apply');
+const upgradeConflictDir = join(outsideDir, 'sample-admin-upgrade-conflict');
+const upgradeCurrentLegacyDir = join(outsideDir, 'sample-admin-current-legacy');
 const runtimePackageDirs = ['core', 'tag', 'ui', 'adapters'];
 const cliPackageDir = 'packages/create-admin-lite';
 const cliPackageName = '@one-base-template/create-admin-lite';
+const cliPackageVersion = readJson(join(rootDir, cliPackageDir, 'package.json')).version;
+const metadataFileName = '.admin-lite-template.json';
+const reportFileName = '.admin-lite-upgrade-report.md';
+const uiSourceLine = '@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";';
+const tagStyleImportLine = "import '@one-base-template/tag/style';";
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -97,8 +107,8 @@ function isTextFile(path) {
   return textExtensions.some((ext) => path.endsWith(ext));
 }
 
-async function validateGeneratedProjectSafety() {
-  const files = await listFiles(generatedDir);
+async function validateGeneratedProjectSafety(projectDir = generatedDir) {
+  const files = await listFiles(projectDir);
   const unsafePatterns = [
     { pattern: /workspace:/, label: 'workspace 协议' },
     { pattern: /catalog:/, label: 'catalog 协议' },
@@ -122,8 +132,8 @@ async function validateGeneratedProjectSafety() {
     }
   }
 
-  const packageJson = readJson(join(generatedDir, 'package.json'));
-  const npmrcPath = join(generatedDir, '.npmrc');
+  const packageJson = readJson(join(projectDir, 'package.json'));
+  const npmrcPath = join(projectDir, '.npmrc');
   assert(existsSync(npmrcPath), '生成项目缺少 .npmrc');
   const npmrcContent = readFileSync(npmrcPath, 'utf8');
   assert(
@@ -137,9 +147,19 @@ async function validateGeneratedProjectSafety() {
     '生成项目 .npmrc 缺少 @one-base-template scope registry'
   );
 
-  const styleEntry = readFileSync(join(generatedDir, 'src/styles/index.css'), 'utf8');
+  const metadataPath = join(projectDir, metadataFileName);
+  assert(existsSync(metadataPath), '生成项目缺少 .admin-lite-template.json');
+  const metadata = readJson(metadataPath);
+  assert(metadata.packageName === cliPackageName, '模板元信息 packageName 不正确');
+  assert(metadata.templateName === 'admin-lite-minimal', '模板元信息 templateName 不正确');
+  assert(typeof metadata.templateVersion === 'string', '模板元信息缺少 templateVersion');
+  assert(!metadata.templateVersion.includes('__'), '模板元信息 templateVersion 仍包含占位符');
+  assert(typeof metadata.generatedAt === 'string', '模板元信息缺少 generatedAt');
+  assert(!metadata.generatedAt.includes('__'), '模板元信息 generatedAt 仍包含占位符');
+
+  const styleEntry = readFileSync(join(projectDir, 'src/styles/index.css'), 'utf8');
   assert(
-    styleEntry.includes('@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";'),
+    styleEntry.includes(uiSourceLine),
     '生成项目 styles/index.css 缺少 @one-base-template/ui dist 扫描源'
   );
 
@@ -155,7 +175,7 @@ async function validateGeneratedProjectSafety() {
     assert(!version.startsWith('link:'), `${name} 使用 link 本地路径`);
   }
 
-  const moduleDir = join(generatedDir, 'src/modules');
+  const moduleDir = join(projectDir, 'src/modules');
   const modules = readdirSync(moduleDir)
     .filter((name) => statSync(join(moduleDir, name)).isDirectory())
     .sort();
@@ -194,7 +214,7 @@ function generateProject(cliBin) {
   assert(existsSync(join(generatedDir, 'package.json')), '生成项目缺少 package.json');
 }
 
-function collectRuntimeOverrides() {
+function collectRuntimeOverrides(projectDir = generatedDir) {
   const tarballs = readdirSync(packDir)
     .filter((file) => file.endsWith('.tgz'))
     .map((file) => join(packDir, file))
@@ -203,7 +223,7 @@ function collectRuntimeOverrides() {
   const tarballByPackageName = new Map(
     tarballs.map((tarball) => [packageNameFromTarball(tarball), `file:${tarball}`])
   );
-  const packageJson = readJson(join(generatedDir, 'package.json'));
+  const packageJson = readJson(join(projectDir, 'package.json'));
   const dependencies = {
     ...packageJson.dependencies,
     ...packageJson.devDependencies
@@ -222,23 +242,23 @@ function collectRuntimeOverrides() {
   return overrides;
 }
 
-function installAndBuildGeneratedProject() {
-  const packageJsonPath = join(generatedDir, 'package.json');
+function installAndBuildGeneratedProject(projectDir = generatedDir) {
+  const packageJsonPath = join(projectDir, 'package.json');
   const packageJson = readJson(packageJsonPath);
   packageJson.pnpm = {
     ...packageJson.pnpm,
-    overrides: collectRuntimeOverrides()
+    overrides: collectRuntimeOverrides(projectDir)
   };
   writeJson(packageJsonPath, packageJson);
 
   run('pnpm', ['install', '--ignore-workspace', '--config.ignore-workspace=true'], {
-    cwd: generatedDir
+    cwd: projectDir
   });
-  run('pnpm', ['build'], { cwd: generatedDir });
+  run('pnpm', ['build'], { cwd: projectDir });
 }
 
-function validateGeneratedCss() {
-  const assetsDir = join(generatedDir, 'dist/assets');
+function validateGeneratedCss(projectDir = generatedDir) {
+  const assetsDir = join(projectDir, 'dist/assets');
   const cssFiles = readdirSync(assetsDir)
     .filter((file) => file.endsWith('.css'))
     .map((file) => join(assetsDir, file));
@@ -259,14 +279,144 @@ function validateGeneratedCss() {
   }
 }
 
+async function snapshotTextFiles(projectDir) {
+  const files = await listFiles(projectDir);
+  const snapshot = new Map();
+  for (const file of files) {
+    if (!isTextFile(file)) {
+      continue;
+    }
+    snapshot.set(file.slice(projectDir.length + 1), readFileSync(file, 'utf8'));
+  }
+  return snapshot;
+}
+
+async function assertSnapshotEqual(projectDir, before, message) {
+  const after = await snapshotTextFiles(projectDir);
+  assert(before.size === after.size, `${message}：文件数量发生变化`);
+  for (const [file, content] of before) {
+    assert(after.get(file) === content, `${message}：${file} 被修改`);
+  }
+}
+
+function prepareOldProjectFixture(targetDir, options = {}) {
+  cpSync(generatedDir, targetDir, { recursive: true });
+  rmSync(join(targetDir, metadataFileName), { force: true });
+
+  const packageJsonPath = join(targetDir, 'package.json');
+  const packageJson = readJson(packageJsonPath);
+  packageJson.dependencies['@one-base-template/tag'] = '^0.1.0';
+  packageJson.dependencies['@one-base-template/ui'] = '0.1.0';
+  writeJson(packageJsonPath, packageJson);
+
+  const stylePath = join(targetDir, 'src/styles/index.css');
+  const styleEntry = readFileSync(stylePath, 'utf8').replace(`\n${uiSourceLine}\n`, '\n');
+  writeFileSync(stylePath, styleEntry);
+
+  const bootstrapStylePath = join(targetDir, 'src/bootstrap/admin-lite-styles.ts');
+  const bootstrapStyle = readFileSync(bootstrapStylePath, 'utf8').replace(
+    `${tagStyleImportLine}\n`,
+    ''
+  );
+  writeFileSync(
+    bootstrapStylePath,
+    options.conflict ? "/* 用户自定义样式入口 */\nimport '../styles/index.css';\n" : bootstrapStyle
+  );
+}
+
+async function validateUpgradeDryRun(cliBin) {
+  prepareOldProjectFixture(upgradeDryRunDir);
+  const before = await snapshotTextFiles(upgradeDryRunDir);
+  run('node', [cliBin, 'upgrade', '--dry-run', '--yes'], { cwd: upgradeDryRunDir });
+  await assertSnapshotEqual(upgradeDryRunDir, before, 'upgrade dry-run 不应修改项目文件');
+}
+
+async function validateUpgradeApply(cliBin) {
+  prepareOldProjectFixture(upgradeApplyDir);
+  run('node', [cliBin, 'upgrade', '--yes'], { cwd: upgradeApplyDir });
+
+  const packageJson = readJson(join(upgradeApplyDir, 'package.json'));
+  const templatePackageJson = readJson(
+    join(rootDir, 'packages/create-admin-lite/templates/admin-lite-minimal/package.json')
+  );
+  for (const name of Object.keys(packageJson.dependencies).filter((dep) =>
+    dep.startsWith('@one-base-template/')
+  )) {
+    assert(
+      packageJson.dependencies[name] === templatePackageJson.dependencies[name],
+      `upgrade 后 ${name} 未同步到模板版本`
+    );
+  }
+
+  const metadata = readJson(join(upgradeApplyDir, metadataFileName));
+  assert(metadata.templateVersion === cliPackageVersion, 'upgrade 后模板版本未更新到当前 CLI 版本');
+  assert(metadata.previousTemplateVersion === '0.1.0', 'upgrade 后缺少 previousTemplateVersion');
+
+  const styleEntry = readFileSync(join(upgradeApplyDir, 'src/styles/index.css'), 'utf8');
+  assert(styleEntry.includes(uiSourceLine), 'upgrade 后缺少 UI Tailwind 扫描源');
+  const bootstrapStyle = readFileSync(
+    join(upgradeApplyDir, 'src/bootstrap/admin-lite-styles.ts'),
+    'utf8'
+  );
+  assert(bootstrapStyle.includes(tagStyleImportLine), 'upgrade 后缺少 tag style 入口');
+  assert(existsSync(join(upgradeApplyDir, reportFileName)), 'upgrade 后缺少升级报告');
+
+  await validateGeneratedProjectSafety(upgradeApplyDir);
+  installAndBuildGeneratedProject(upgradeApplyDir);
+  validateGeneratedCss(upgradeApplyDir);
+}
+
+function validateUpgradeConflict(cliBin) {
+  prepareOldProjectFixture(upgradeConflictDir, { conflict: true });
+  const result = spawnSync('node', [cliBin, 'upgrade', '--yes'], {
+    cwd: upgradeConflictDir,
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+    stdio: 'pipe',
+    env: { ...process.env }
+  });
+  assert(result.status !== 0, '冲突场景 upgrade 应返回非零状态');
+  const bootstrapStyle = readFileSync(
+    join(upgradeConflictDir, 'src/bootstrap/admin-lite-styles.ts'),
+    'utf8'
+  );
+  assert(bootstrapStyle.includes('用户自定义样式入口'), '冲突场景不应覆盖用户样式入口');
+  const report = readFileSync(join(upgradeConflictDir, reportFileName), 'utf8');
+  assert(report.includes('Conflicts'), '冲突报告缺少 Conflicts 区块');
+  assert(
+    report.includes('src/bootstrap/admin-lite-styles.ts 不是可识别的官方样式入口'),
+    '冲突报告缺少用户改动文件说明'
+  );
+}
+
+function validateCurrentLegacyInference(cliBin) {
+  cpSync(generatedDir, upgradeCurrentLegacyDir, { recursive: true });
+  rmSync(join(upgradeCurrentLegacyDir, metadataFileName), { force: true });
+  const output = run('node', [cliBin, 'upgrade', '--dry-run', '--yes'], {
+    cwd: upgradeCurrentLegacyDir,
+    capture: true
+  });
+  assert(
+    output.includes('Source version: 0.1.2 (inferred)') ||
+      output.includes('来源版本: 0.1.2 (inferred)'),
+    '当前模板特征的无元信息项目不应被推断为 0.1.0'
+  );
+}
+
 async function main() {
   packRuntimePackages();
   const cliBin = extractCliPackage();
   generateProject(cliBin);
   await validateGeneratedProjectSafety();
+  await validateUpgradeDryRun(cliBin);
+  await validateUpgradeApply(cliBin);
+  validateUpgradeConflict(cliBin);
+  validateCurrentLegacyInference(cliBin);
   installAndBuildGeneratedProject();
   validateGeneratedCss();
-  console.log('admin-lite CLI 校验通过：本地 pack、仓库外生成、静态扫描、install/build 均完成。');
+  console.log(
+    'admin-lite CLI 校验通过：本地 pack、仓库外生成、upgrade dry-run、upgrade apply、冲突保护、静态扫描、install/build 均完成。'
+  );
 }
 
 main();
