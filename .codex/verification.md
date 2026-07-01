@@ -355,12 +355,17 @@
   - `@one-base-template/ui` 中菜单搜索触发器和结果激活态已优化。
   - CLI 模板顶栏账号触发区已改为无边框、透明背景。
   - CLI `doctor` / baseline / upgrade 覆盖账号区无边框要求。
-  - `@one-base-template/ui` 已版本化到 `0.1.2`，`@one-base-template/create-admin-lite` 已版本化到 `0.3.0`。
+  - `@one-base-template/ui@0.1.2` 与 `@one-base-template/create-admin-lite@0.3.0` 已发布到企业 npm，并完成远程反查。
+  - `pnpm-lock.yaml` 已同步到企业 npm 的 `@one-base-template/ui@0.1.2`。
 - 验证通过：
   - `pnpm validate:admin-lite-cli`
   - `pnpm release:validate`
+  - `pnpm release:packages`
+  - `npm view @one-base-template/ui@0.1.2 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `npm view @one-base-template/create-admin-lite@0.3.0 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `pnpm install --lockfile-only`
   - `pnpm -C packages/ui typecheck`
   - `pnpm -C apps/docs lint`
   - `pnpm -C apps/docs build`
 - 当前结论：
-  - 发布前验证已通过；下一步发布企业 npm 后，重新同步 lockfile 和 `/Users/haoqiuzhi/code/aa` 即可消费新版 UI/CLI。
+  - 企业 npm 已可消费新版 UI/CLI；下一步在 `/Users/haoqiuzhi/code/aa` 升级并做样式验证。

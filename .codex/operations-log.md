@@ -13293,3 +13293,7 @@
   - CLI `doctor` / baseline / upgrade 校验补充账号区无边框检查。
   - CLI 生成项目复制模板时跳过 `node_modules`、`.tmp`、`dist`、`coverage`，并通过 `.npmignore` 排除模板缓存。
   - changeset 版本化到 `@one-base-template/ui@0.1.2` 与 `@one-base-template/create-admin-lite@0.3.0`。
+- 发布：
+  - `pnpm release:packages` 已发布 `@one-base-template/ui@0.1.2` 与 `@one-base-template/create-admin-lite@0.3.0` 到企业 npm。
+  - `npm view` 已确认两个新版均能从企业 npm 查询到 `version` 与 `dist.tarball`。
+  - `pnpm install --lockfile-only` 已在发布后重新执行通过，`pnpm-lock.yaml` 同步到新版 UI 包。

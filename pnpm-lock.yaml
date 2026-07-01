@@ -158,8 +158,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
       '@one-base-template/ui':
-        specifier: 0.1.1
-        version: 0.1.1(element-plus@2.13.2(vue@3.5.28(typescript@5.9.3)))(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
+        specifier: 0.1.2
+        version: 0.1.2(element-plus@2.13.2(vue@3.5.28(typescript@5.9.3)))(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))
       cropperjs:
         specifier: ^1.6.2
         version: 1.6.2
@@ -996,8 +996,8 @@ packages:
       vue: ^3.5.28
       vue-router: ^5.0.2
 
-  '@one-base-template/ui@0.1.1':
-    resolution: {integrity: sha512-/VViDJoIwTg1RquAdIpk87IWQBKvMtGFL5XQDrOSke7WUE/3qpFoP3N//BgS9nDFfwxN06MLi6E96jqZ718gcg==, tarball: http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/@one-base-template/ui/-/@one-base-template/ui-0.1.1.tgz}
+  '@one-base-template/ui@0.1.2':
+    resolution: {integrity: sha512-np05nteiyNT9GiDVtLccqpxTYhyrgX7heSy+hFlA28OYXGZ59O5d9oGZGzi7U6Ns+W44HU8bJ9I/cCVL8Eb23g==, tarball: http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/@one-base-template/ui/-/@one-base-template/ui-0.1.2.tgz}
     peerDependencies:
       element-plus: ^2.13.2
       pinia: ^3.0.4
@@ -5795,7 +5795,7 @@ snapshots:
     transitivePeerDependencies:
       - '@vue/composition-api'
 
-  '@one-base-template/ui@0.1.1(element-plus@2.13.2(vue@3.5.28(typescript@5.9.3)))(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))':
+  '@one-base-template/ui@0.1.2(element-plus@2.13.2(vue@3.5.28(typescript@5.9.3)))(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue-demi@0.14.10(vue@3.5.28(typescript@5.9.3)))(vue-router@5.0.2(@vue/compiler-sfc@3.5.28)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3)))(vue@3.5.28(typescript@5.9.3))':
     dependencies:
       '@iconify-json/ep': 1.2.4
       '@iconify-json/ri': 1.2.10

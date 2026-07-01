@@ -11959,10 +11959,17 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
   - `pnpm -C packages/ui typecheck`
   - `pnpm validate:admin-lite-cli`
   - `pnpm release:validate`
+  - `pnpm release:packages`
+  - `npm view @one-base-template/ui@0.1.2 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `npm view @one-base-template/create-admin-lite@0.3.0 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
+  - `pnpm install --lockfile-only`
   - `pnpm -C apps/docs lint`
   - `pnpm -C apps/docs build`
 - 结果：
   - CLI 仓外生成、doctor、upgrade、install、test、typecheck、build 全流程通过。
   - 公共包发布校验通过：metadata、credential scan、pack、临时消费者构建均完成。
+  - 企业 npm 发布成功：`@one-base-template/ui@0.1.2`、`@one-base-template/create-admin-lite@0.3.0`。
+  - 企业 npm 反查成功，两个新版均可查询到 `version` 与 `dist.tarball`。
+  - `pnpm-lock.yaml` 已同步到 `@one-base-template/ui@0.1.2`。
   - docs lint/build 均通过。
-  - `pnpm install --lockfile-only` 在 `@one-base-template/ui@0.1.2` 发布前失败，原因是企业 npm 尚无该版本；发布成功后需重新执行以同步 lockfile 与 `aa`。
+  - `pnpm install --lockfile-only` 在 `@one-base-template/ui@0.1.2` 发布前曾失败，原因是企业 npm 尚无该版本；发布后已重新执行并通过。
