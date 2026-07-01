@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { error, log } from 'node:console';
+import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { cp, readdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -19,9 +20,39 @@ const metadataFileName = '.admin-lite-template.json';
 const reportFileName = '.admin-lite-upgrade-report.md';
 const uiSourceLine = '@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";';
 const tagStyleImportLine = "import '@one-base-template/tag/style';";
-const projectNpmrc = `registry=https://registry.npmmirror.com
-@one-base-template:registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/
-`;
+const enterpriseRegistryLine =
+  '@one-base-template:registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/';
+const publicRegistryLine = 'registry=https://registry.npmmirror.com';
+const enterpriseAuthConfigKeys = [
+  '//artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/:_auth',
+  '//artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/:_authToken'
+];
+const projectNpmrc = `${publicRegistryLine}\n${enterpriseRegistryLine}\n`;
+const requiredProjectScriptNames = [
+  'dev',
+  'build',
+  'typecheck',
+  'test:run',
+  'test:run:file',
+  'new:module',
+  'new:module:item'
+];
+const additivePackageScriptNames = ['test:run:file', 'new:module', 'new:module:item'];
+const additiveTemplateFilePaths = [
+  'scripts/new-module.mjs',
+  'scripts/new-module-item.mjs',
+  'tests/scaffold/template-baseline.unit.test.ts'
+];
+const ignoredDoctorDirs = new Set([
+  '.git',
+  '.idea',
+  '.vscode',
+  'coverage',
+  'dist',
+  'node_modules',
+  '.output',
+  '.tmp'
+]);
 const textFileExtensions = new Set([
   '.npmrc',
   '.css',
@@ -43,16 +74,19 @@ function printHelp() {
 用法:
   create-admin-lite <project-name> [target-dir]
   create-admin-lite <project-name> --target <target-dir>
+  create-admin-lite doctor [--json]
   create-admin-lite upgrade [--to <version>] [--from <version>] [--dry-run] [--yes]
 
 示例:
   create-admin-lite my-admin
   create-admin-lite my-admin ./apps/my-admin
+  create-admin-lite doctor
   create-admin-lite upgrade --dry-run
   create-admin-lite upgrade --to ${cliPackageVersion} --yes
 
 说明:
   create 用于生成新项目，upgrade 用于维护已生成项目。
+  doctor 用于检查已生成项目的模板元信息、registry、脚本、依赖协议和样式入口。
   upgrade 默认目标版本为当前运行的 CLI 版本；推荐通过 @latest 执行。
   生成项目不会写入 npm _auth、token 或账号密码。
   生成项目已内置 @one-base-template scope registry。
@@ -71,6 +105,9 @@ function parseArgs(argv) {
 
   if (argv[0] === 'upgrade') {
     return parseUpgradeArgs(argv.slice(1));
+  }
+  if (argv[0] === 'doctor') {
+    return parseDoctorArgs(argv.slice(1));
   }
 
   const positional = [];
@@ -107,6 +144,24 @@ function parseArgs(argv) {
     projectName,
     targetDir: targetDir || positionalTarget || projectName
   };
+}
+
+function parseDoctorArgs(argv) {
+  const result = {
+    command: 'doctor',
+    help: false,
+    json: false
+  };
+
+  for (const arg of argv) {
+    if (arg === '--json') {
+      result.json = true;
+      continue;
+    }
+    fail(`未知参数 ${arg}`);
+  }
+
+  return result;
 }
 
 function parseUpgradeArgs(argv) {
@@ -300,6 +355,272 @@ function getInternalDependencies(packageJsonValue) {
   );
 }
 
+function getAllDependencies(packageJsonValue) {
+  return {
+    ...packageJsonValue.dependencies,
+    ...packageJsonValue.devDependencies
+  };
+}
+
+function parseVersionParts(value) {
+  const match = /^v?(\d+)\.(\d+)\.(\d+)(?:-.+)?$/.exec(String(value).trim());
+  return match ? match.slice(1).map((part) => Number(part)) : null;
+}
+
+function isVersionAtLeast(value, minimum) {
+  const current = parseVersionParts(value);
+  const required = parseVersionParts(minimum);
+  if (!current || !required) {
+    return false;
+  }
+  for (let i = 0; i < 3; i += 1) {
+    if (current[i] > required[i]) {
+      return true;
+    }
+    if (current[i] < required[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function runQuiet(command, args) {
+  return spawnSync(command, args, {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+    stdio: 'pipe',
+    env: { ...process.env },
+    timeout: 5000
+  });
+}
+
+function getPnpmVersion() {
+  const result = runQuiet('pnpm', ['--version']);
+  return result.status === 0 ? result.stdout.trim() : '';
+}
+
+function hasUserLevelEnterpriseAuth() {
+  for (const key of enterpriseAuthConfigKeys) {
+    const result = runQuiet('npm', ['config', 'get', key]);
+    if (result.status !== 0) {
+      continue;
+    }
+    const value = result.stdout.trim();
+    if (value && value !== 'undefined' && value !== 'null') {
+      return true;
+    }
+  }
+  return false;
+}
+
+function collectTextFilesSync(dir) {
+  if (!existsSync(dir)) {
+    return [];
+  }
+  const files = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (ignoredDoctorDirs.has(entry.name)) {
+      continue;
+    }
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...collectTextFilesSync(fullPath));
+      continue;
+    }
+    if (entry.isFile() && shouldReplaceText(fullPath)) {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
+function relativeProjectPath(projectDir, filePath) {
+  return filePath.slice(projectDir.length + 1);
+}
+
+function createDoctorReport(projectDir) {
+  const checks = [];
+
+  function push(status, name, message) {
+    checks.push({ status, name, message });
+  }
+
+  const packageJsonPath = join(projectDir, 'package.json');
+  const packageJsonValue = existsSync(packageJsonPath) ? readJsonFile(packageJsonPath) : null;
+
+  if (!packageJsonValue) {
+    push('error', 'package.json', '当前目录缺少 package.json');
+  } else {
+    push('ok', 'package.json', `项目名 ${packageJsonValue.name ?? '(未命名)'}`);
+  }
+
+  const metadataPath = join(projectDir, metadataFileName);
+  const metadata = existsSync(metadataPath) ? readJsonFile(metadataPath) : null;
+  if (!metadata) {
+    push('error', metadataFileName, `缺少 ${metadataFileName}，当前目录不像 CLI 生成项目`);
+  } else if (metadata.packageName !== cliPackageName || metadata.templateName !== templateName) {
+    push('error', metadataFileName, `${metadataFileName} 与 admin-lite 模板不匹配`);
+  } else if (
+    String(metadata.templateVersion ?? '').includes('__') ||
+    String(metadata.projectName ?? '').includes('__')
+  ) {
+    push('error', metadataFileName, `${metadataFileName} 仍包含未替换占位符`);
+  } else {
+    push('ok', metadataFileName, `模板 ${metadata.templateName}@${metadata.templateVersion}`);
+  }
+
+  const nodeVersion = process.versions.node;
+  if (isVersionAtLeast(nodeVersion, '20.19.0')) {
+    push('ok', 'node', `Node ${nodeVersion}`);
+  } else {
+    push('error', 'node', `Node ${nodeVersion} 低于 20.19.0`);
+  }
+
+  const pnpmVersion = getPnpmVersion();
+  if (!pnpmVersion) {
+    push('warn', 'pnpm', '无法读取 pnpm 版本');
+  } else if (isVersionAtLeast(pnpmVersion, '10.32.1')) {
+    push('ok', 'pnpm', `pnpm ${pnpmVersion}`);
+  } else {
+    push('error', 'pnpm', `pnpm ${pnpmVersion} 低于 10.32.1`);
+  }
+
+  const npmrcPath = join(projectDir, '.npmrc');
+  if (!existsSync(npmrcPath)) {
+    push('error', '.npmrc', '缺少项目级 .npmrc');
+  } else {
+    const npmrcContent = readFileSync(npmrcPath, 'utf8');
+    if (npmrcContent.includes(publicRegistryLine)) {
+      push('ok', '.npmrc public registry', publicRegistryLine);
+    } else {
+      push('error', '.npmrc public registry', `缺少 ${publicRegistryLine}`);
+    }
+    if (npmrcContent.includes(enterpriseRegistryLine)) {
+      push('ok', '.npmrc enterprise registry', enterpriseRegistryLine);
+    } else {
+      push('error', '.npmrc enterprise registry', `缺少 ${enterpriseRegistryLine}`);
+    }
+  }
+
+  const unsafeAuthFiles = collectTextFilesSync(projectDir).filter((filePath) => {
+    const content = readFileSync(filePath, 'utf8');
+    return /(?:_auth|_authToken)\s*=\s*\S+/i.test(content);
+  });
+  if (unsafeAuthFiles.length === 0) {
+    push('ok', 'project auth safety', '项目文件未发现 npm auth 明文配置');
+  } else {
+    push(
+      'error',
+      'project auth safety',
+      `以下文件包含疑似 npm 认证配置：${unsafeAuthFiles
+        .map((filePath) => relativeProjectPath(projectDir, filePath))
+        .join(', ')}`
+    );
+  }
+
+  if (hasUserLevelEnterpriseAuth()) {
+    push('ok', 'enterprise npm auth', '检测到用户级企业 npm auth 配置');
+  } else {
+    push(
+      'warn',
+      'enterprise npm auth',
+      '未检测到用户级企业 npm auth；安装企业包前请在本机或 CI 配置'
+    );
+  }
+
+  if (packageJsonValue) {
+    const allDependencies = getAllDependencies(packageJsonValue);
+    const unsafeDeps = Object.entries(allDependencies).filter(([, version]) =>
+      /^(?:workspace:|catalog:|file:|link:)/.test(String(version))
+    );
+    if (unsafeDeps.length === 0) {
+      push('ok', 'dependency protocols', '依赖版本均为仓外可安装协议');
+    } else {
+      push(
+        'error',
+        'dependency protocols',
+        `以下依赖不是仓外可安装协议：${unsafeDeps
+          .map(([name, version]) => `${name}@${version}`)
+          .join(', ')}`
+      );
+    }
+
+    const scripts = packageJsonValue.scripts ?? {};
+    const missingScripts = [];
+    for (const name of requiredProjectScriptNames) {
+      if (!scripts[name]) {
+        missingScripts.push(name);
+      }
+    }
+    if (missingScripts.length === 0) {
+      push('ok', 'package scripts', '基础开发脚本完整');
+    } else {
+      push('error', 'package scripts', `缺少脚本：${missingScripts.join(', ')}`);
+    }
+  }
+
+  const stylePath = join(projectDir, 'src/styles/index.css');
+  if (existsSync(stylePath) && readFileSync(stylePath, 'utf8').includes(uiSourceLine)) {
+    push('ok', 'ui tailwind source', '已扫描 @one-base-template/ui dist');
+  } else {
+    push('error', 'ui tailwind source', '缺少 @one-base-template/ui dist Tailwind 扫描源');
+  }
+
+  const bootstrapStylesPath = join(projectDir, 'src/bootstrap/admin-lite-styles.ts');
+  if (
+    existsSync(bootstrapStylesPath) &&
+    readFileSync(bootstrapStylesPath, 'utf8').includes(tagStyleImportLine)
+  ) {
+    push('ok', 'tag style import', '已导入 @one-base-template/tag/style');
+  } else {
+    push('error', 'tag style import', '缺少 @one-base-template/tag/style');
+  }
+
+  for (const relativePath of additiveTemplateFilePaths) {
+    if (existsSync(join(projectDir, relativePath))) {
+      push('ok', relativePath, '文件存在');
+    } else {
+      push('error', relativePath, '文件缺失，请执行 upgrade 补齐');
+    }
+  }
+
+  const errors = checks.filter((check) => check.status === 'error');
+  const warnings = checks.filter((check) => check.status === 'warn');
+  return {
+    ok: errors.length === 0,
+    errors: errors.length,
+    warnings: warnings.length,
+    checks
+  };
+}
+
+function printDoctorReport(report) {
+  log('admin-lite doctor');
+  for (const check of report.checks) {
+    const prefix = check.status === 'ok' ? '[OK]' : check.status === 'warn' ? '[WARN]' : '[ERROR]';
+    log(`${prefix} ${check.name}: ${check.message}`);
+  }
+  log('');
+  log(
+    report.ok
+      ? `doctor 通过：${report.warnings} 个 warning`
+      : `doctor 未通过：${report.errors} 个 error，${report.warnings} 个 warning`
+  );
+}
+
+function doctorProject(options) {
+  const report = createDoctorReport(process.cwd());
+  if (options.json) {
+    log(JSON.stringify(report, null, 2));
+  } else {
+    printDoctorReport(report);
+  }
+  if (!report.ok) {
+    process.exit(1);
+  }
+}
+
 function readExistingMetadata(projectDir) {
   const metadataPath = join(projectDir, metadataFileName);
   if (!existsSync(metadataPath)) {
@@ -310,7 +631,9 @@ function readExistingMetadata(projectDir) {
 
 function inferSourceVersion(projectDir, projectPackageJson) {
   const internalDependencies = getInternalDependencies(projectPackageJson);
-  const requiredNames = Object.keys(getInternalDependencies(readTemplatePackageJson()));
+  const templatePackageJson = readTemplatePackageJson();
+  const templateInternalDependencies = getInternalDependencies(templatePackageJson);
+  const requiredNames = Object.keys(templateInternalDependencies);
   const missingInternalDeps = requiredNames.filter((name) => !internalDependencies[name]);
   if (missingInternalDeps.length > 0) {
     return {
@@ -324,17 +647,19 @@ function inferSourceVersion(projectDir, projectPackageJson) {
   const stylePath = join(projectDir, 'src/styles/index.css');
   const bootstrapStylesPath = join(projectDir, 'src/bootstrap/admin-lite-styles.ts');
   const modulesPath = join(projectDir, 'src/modules');
+  const npmrcContent = existsSync(npmrcPath) ? readFileSync(npmrcPath, 'utf8') : '';
+  const styleContent = existsSync(stylePath) ? readFileSync(stylePath, 'utf8') : '';
+  const bootstrapStyleContent = existsSync(bootstrapStylesPath)
+    ? readFileSync(bootstrapStylesPath, 'utf8')
+    : '';
   const reasons = [];
   let score = 0;
 
-  if (
-    existsSync(npmrcPath) &&
-    readFileSync(npmrcPath, 'utf8').includes('@one-base-template:registry=')
-  ) {
+  if (npmrcContent.includes('@one-base-template:registry=')) {
     score += 1;
     reasons.push('存在 @one-base-template scoped registry');
   }
-  if (existsSync(stylePath) && readFileSync(stylePath, 'utf8').includes('tailwindcss')) {
+  if (styleContent.includes('tailwindcss')) {
     score += 1;
     reasons.push('存在 admin-lite 样式入口');
   }
@@ -355,15 +680,11 @@ function inferSourceVersion(projectDir, projectPackageJson) {
     };
   }
 
-  const templateInternalDependencies = getInternalDependencies(readTemplatePackageJson());
   const dependenciesMatchCurrentTemplate = Object.entries(templateInternalDependencies).every(
     ([name, version]) => internalDependencies[name] === version
   );
   const hasCurrentStyleFixes =
-    existsSync(stylePath) &&
-    existsSync(bootstrapStylesPath) &&
-    readFileSync(stylePath, 'utf8').includes(uiSourceLine) &&
-    readFileSync(bootstrapStylesPath, 'utf8').includes(tagStyleImportLine);
+    styleContent.includes(uiSourceLine) && bootstrapStyleContent.includes(tagStyleImportLine);
 
   return {
     version:
@@ -565,6 +886,80 @@ function applyDependencyMigration(context, actions, dryRun) {
   }
 }
 
+function applyPackageScriptMigration(context, actions, dryRun) {
+  const templatePackageJson = readTemplatePackageJson();
+  const templateScripts = templatePackageJson.scripts ?? {};
+  const packageJsonPath = join(context.projectDir, 'package.json');
+  const currentScripts = context.projectPackageJson.scripts ?? {};
+  const updates = [];
+
+  for (const scriptName of additivePackageScriptNames) {
+    const templateValue = templateScripts[scriptName];
+    if (!templateValue) {
+      actions.warnings.push(`模板缺少 package.json 脚本 ${scriptName}`);
+      continue;
+    }
+    pushPlan(actions, `确保 package.json 包含 ${scriptName} 脚本`);
+    if (currentScripts[scriptName] === templateValue) {
+      actions.skipped.push(`package.json ${scriptName} 脚本已存在`);
+      continue;
+    }
+    if (currentScripts[scriptName]) {
+      actions.conflicts.push(`package.json ${scriptName} 脚本已被自定义，已跳过自动修改`);
+      continue;
+    }
+    updates.push(scriptName);
+    if (!dryRun) {
+      currentScripts[scriptName] = templateValue;
+    }
+  }
+
+  if (updates.length > 0) {
+    if (!dryRun) {
+      writeJsonFile(packageJsonPath, {
+        ...context.projectPackageJson,
+        scripts: currentScripts
+      });
+      context.projectPackageJson.scripts = currentScripts;
+    }
+    actions.applied.push(`package.json 已补齐脚本：${updates.join(', ')}`);
+  }
+}
+
+function applyTemplateFileMigration(context, actions, dryRun, relativePath) {
+  const templatePath = join(templateDir, relativePath);
+  const targetPath = join(context.projectDir, relativePath);
+  pushPlan(actions, `确保 ${relativePath} 存在`);
+
+  if (!existsSync(templatePath)) {
+    actions.warnings.push(`模板文件不存在：${relativePath}`);
+    return;
+  }
+
+  const templateContent = readFileSync(templatePath, 'utf8');
+  if (existsSync(targetPath)) {
+    const currentContent = readFileSync(targetPath, 'utf8');
+    if (currentContent === templateContent) {
+      actions.skipped.push(`${relativePath} 已存在`);
+      return;
+    }
+    actions.conflicts.push(`${relativePath} 已存在且内容不同，已跳过自动覆盖`);
+    return;
+  }
+
+  if (!dryRun) {
+    mkdirSync(dirname(targetPath), { recursive: true });
+    writeFileSync(targetPath, templateContent);
+  }
+  actions.applied.push(`${relativePath} 已从当前模板补齐`);
+}
+
+function applyTemplateFileMigrations(context, actions, dryRun) {
+  for (const relativePath of additiveTemplateFilePaths) {
+    applyTemplateFileMigration(context, actions, dryRun, relativePath);
+  }
+}
+
 function applyMetadataMigration(context, actions, dryRun) {
   pushPlan(actions, `写入 ${metadataFileName} 模板元信息`);
   if (actions.conflicts.length > 0) {
@@ -602,6 +997,8 @@ function planAndMaybeApplyUpgrade(context, dryRun) {
   applyDependencyMigration(context, actions, dryRun);
   applyStyleSourceMigration(context, actions, dryRun);
   applyTagStyleMigration(context, actions, dryRun);
+  applyPackageScriptMigration(context, actions, dryRun);
+  applyTemplateFileMigrations(context, actions, dryRun);
   applyMetadataMigration(context, actions, dryRun);
   return actions;
 }
@@ -668,6 +1065,8 @@ if (parsed.help) {
   printHelp();
 } else if (parsed.command === 'upgrade') {
   await upgradeProject(parsed);
+} else if (parsed.command === 'doctor') {
+  doctorProject(parsed);
 } else {
   await createProject(parsed);
 }

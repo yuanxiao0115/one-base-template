@@ -49,14 +49,14 @@ pnpm release:validate
 pnpm validate:admin-lite-cli
 ```
 
-该命令会本地 pack 公共包和 CLI 包，在仓库外临时目录生成项目，覆盖 `create`、`upgrade --dry-run`、真实 `upgrade`、冲突保护、静态安全扫描和本地 tarball install/build。
+该命令会本地 pack 公共包和 CLI 包，在仓库外临时目录生成项目，覆盖 `create`、`doctor`、项目级模块脚手架、`upgrade --dry-run`、真实 `upgrade`、冲突保护、静态安全扫描、本地 tarball install、`test:run`、`typecheck`、`build` 和 CSS marker。
 
 CLI 模板行为发生变化时：
 
 - 必须包含 `.changeset/*.md`。
 - 新增向后兼容能力使用 `minor`，只修复模板或验证脚本使用 `patch`。
 - 发布完成后仍按每个包打 tag，CLI 包 tag 示例：`@one-base-template/create-admin-lite@0.2.0`。
-- 升级说明必须写清 `create` 与 `upgrade` 的关系：`create` 生成新项目，`upgrade` 维护已生成项目。
+- 升级说明必须写清 `create`、`doctor` 与 `upgrade` 的关系：`create` 生成新项目，`doctor` 检查已生成项目，`upgrade` 维护已生成项目。
 
 ### 2) 记录版本变更意图
 

@@ -2,6 +2,48 @@
 
 > 说明：按时间记录本次改动相关的验证命令与结果（含失败信息与修复过程）。
 
+## 2026-07-01（admin-lite CLI 生产化最小增强）
+
+- RED / 过程失败：
+  - `CI=true corepack pnpm release:validate`
+    - 失败原因 1：临时消费者仍依赖 `package.json#pnpm.overrides`，pnpm 10 没有按预期读取，导致 `@one-base-template/core` 去企业仓库拉取并失败。
+    - 修复：临时消费者改为写入 `pnpm-workspace.yaml` 的 `catalogs.local-tarballs` 与 `overrides`。
+    - 失败原因 2：校验脚本内部直接调用 PATH 上的 `pnpm@11.7.0`，与 `corepack pnpm@10.32.1` 不一致，CI 下 ignored builds 行为不同。
+    - 修复：脚本内部通过 `process.env.npm_execpath` / `process.execPath` 复用当前 corepack pnpm 调用链。
+
+- 已通过：
+  - `node --check packages/create-admin-lite/bin/create-admin-lite.mjs`
+  - `node --check packages/create-admin-lite/templates/admin-lite-minimal/scripts/new-module.mjs`
+  - `node --check packages/create-admin-lite/templates/admin-lite-minimal/scripts/new-module-item.mjs`
+  - `node --check scripts/validate-admin-lite-cli.mjs`
+  - `node --check scripts/validate-public-packages.mjs`
+  - `git diff --check`
+  - `CI=true corepack pnpm -C packages/create-admin-lite build`
+  - `CI=true corepack pnpm validate:admin-lite-cli`
+    - 覆盖本地 pack、仓库外生成、doctor、缺失 scoped registry 失败检测、upgrade dry-run / apply / conflict / current legacy 推断、项目内脚手架 dry-run / apply / duplicate、install、test、typecheck、build 和 CSS 标记检查。
+    - 简化审查修复后已复跑通过：registry 常量去重复、doctor 脚本清单收敛、项目内脚手架参数收敛、校验脚本参数复用。
+    - 代码审查修复后已复跑通过：补充覆盖 `new:module:item` 不传 `--title` 的默认标题 dry-run，并实际执行 `test:run:file tests/scaffold/template-baseline.unit.test.ts`，防止定向测试参数被吞。
+    - reliability 审查修复后已复跑通过：`doctor` 外部命令探测增加 5s timeout，避免 `pnpm --version` / `npm config get` 卡死导致自检挂起。
+  - `CI=true corepack pnpm release:validate`
+    - 覆盖公共包 metadata、credential scan、pack 和临时消费者构建。
+    - 简化审查修复后已复跑通过：继续验证临时 tarball overrides 与当前 corepack pnpm 调用链。
+  - `CI=true corepack pnpm -C apps/docs lint`
+    - 0 warning / 0 error。
+  - `CI=true corepack pnpm -C apps/docs build`
+    - 通过；保留既有 chunk size / plugin timings 非阻断提示。
+  - 仓外生成项目浏览器冒烟：
+    - `CI=true corepack pnpm dev --host 127.0.0.1 --port 3177`
+    - `curl -s -o /tmp/admin-lite-cli-productization-index.html -w '%{http_code}' http://127.0.0.1:3177/`
+    - `agent-browser --session admin-lite-cli-productization open http://127.0.0.1:3177/`
+    - `agent-browser --session admin-lite-cli-productization eval "({ url: location.href, title: document.title, text: document.body?.innerText?.slice(0, 1200) })"`
+    - `agent-browser --session admin-lite-cli-productization errors`
+    - `agent-browser --session admin-lite-cli-productization screenshot /tmp/admin-lite-cli-productization-home.png`
+
+- 结果：
+  - CLI 生成项目已具备 doctor、自检提示、项目内模块脚手架、模板基线测试和安全 upgrade 补齐能力。
+  - 仓外生成项目可安装、测试、类型检查、构建，并可在浏览器进入 `/home/index`。
+  - 浏览器冒烟未发现控制台错误；仍保留既有 Vue Router `next()` deprecated warning，非本轮阻断。
+
 ## 2026-07-01（admin-lite CLI 存量项目升级能力）
 
 - 计划验证目标：

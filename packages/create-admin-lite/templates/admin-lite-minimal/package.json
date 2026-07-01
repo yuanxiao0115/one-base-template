@@ -9,13 +9,17 @@
     "preview": "vp preview",
     "typecheck": "vue-tsc --noEmit",
     "test": "vp test --config vitest.config.ts",
-    "test:run": "vp test run --config vitest.config.ts"
+    "test:run": "vp test run --config vitest.config.ts",
+    "test:run:file": "sh -c 'vp test run --config vitest.config.ts \"$@\"' --",
+    "new:module": "node ./scripts/new-module.mjs",
+    "new:module:item": "node ./scripts/new-module-item.mjs"
   },
   "dependencies": {
     "@one-base-template/adapters": "0.1.0",
     "@one-base-template/core": "0.1.0",
     "@one-base-template/tag": "^0.1.1",
     "@one-base-template/ui": "0.1.1",
+    "@element-plus/icons-vue": "^2.3.2",
     "element-plus": "^2.13.2",
     "gm-crypto": "^0.1.12",
     "pinia": "^3.0.4",

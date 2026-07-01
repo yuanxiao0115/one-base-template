@@ -100,6 +100,7 @@ pnpm dlx @one-base-template/create-admin-lite my-admin
 cd my-admin
 pnpm install
 pnpm dev
+pnpm test:run
 pnpm build
 ```
 
@@ -111,7 +112,27 @@ pnpm build
 - 生成项目的 Tailwind 扫描源指向 `node_modules/@one-base-template/ui/dist`，避免已发布 UI 包中的工具类缺失。
 - 生成项目通过 `@one-base-template/tag/style` 引入页签组件完整样式，包含页签栏、右键菜单与下拉菜单选择器。
 - 生成项目包含 `.admin-lite-template.json`，记录 CLI 包名、模板名、模板版本和生成时间。
+- 生成项目内置 `test:run` 基线测试，可验证模板元信息、registry、安全配置、样式入口和脚本基线。
+- 生成项目内置项目级模块脚手架：
+  - `pnpm new:module <module-id>`
+  - `pnpm new:module:item <item-id> --module <module-id>`
 - CLI 不写入 `_auth`、token 或账号密码；凭证只能放在用户本机或 CI 的 npm 配置中。
+
+已生成项目自检：
+
+```bash
+pnpm dlx @one-base-template/create-admin-lite@latest doctor
+pnpm dlx @one-base-template/create-admin-lite@latest doctor --json
+```
+
+`doctor` 会检查模板元信息、Node/pnpm 版本、项目级 registry、企业 npm 认证是否可见、内部依赖协议、脚本和样式入口。它不会打印 `_auth`、token 或账号密码。
+
+项目内新增模块：
+
+```bash
+pnpm new:module demo-management --title "Demo 管理" --route demo/management
+pnpm new:module:item user --module demo-management --title "用户管理" --route /demo/management/user
+```
 
 已生成项目升级：
 
@@ -127,6 +148,7 @@ pnpm dlx @one-base-template/create-admin-lite@latest upgrade --to 0.1.2 --yes
 - `upgrade` 只负责维护已生成项目，默认目标版本为当前运行的 CLI 版本；推荐使用 `@latest` 执行。
 - 缺少 `.admin-lite-template.json` 的旧项目会先按项目特征推断来源版本，推断不可靠时需要 `--from <version>`。
 - `--dry-run` 只输出计划，不写入文件；真实升级会写入 `.admin-lite-upgrade-report.md`。
+- 新版本缺失的项目级脚手架脚本、模板基线测试和 package scripts 会通过 upgrade 安全补齐。
 - 目标文件疑似被业务改过时，CLI 记录冲突并跳过自动覆盖，人工合并后可重新执行 upgrade。
 
 ### 仓库内派生应用
@@ -204,6 +226,8 @@ CLI / 模板改动时补跑：
 ```bash
 pnpm validate:admin-lite-cli
 ```
+
+该命令会在仓库外临时目录验证 CLI 生命周期：本地 pack、生成项目、doctor、项目级模块脚手架、upgrade dry-run / apply / conflict、静态安全扫描、install、test、typecheck、build 和 CSS marker。
 
 涉及文档或规则改动时，再补：
 

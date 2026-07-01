@@ -7,6 +7,9 @@ const rootDir = resolve(import.meta.dirname, '..');
 const tempDir = resolve(rootDir, '.tmp/public-packages');
 const packDir = join(tempDir, 'packs');
 const fixtureDir = join(tempDir, 'consumer');
+const pnpmCliPath = process.env.npm_execpath || '';
+const pnpmCommand = pnpmCliPath ? process.execPath : 'pnpm';
+const pnpmBaseArgs = pnpmCliPath ? [pnpmCliPath] : [];
 const publicPackages = ['core', 'utils', 'tag', 'ui', 'adapters', 'app-starter'];
 const publicPackageNames = publicPackages.map((pkg) => `@one-base-template/${pkg}`);
 const cliPackageNames = ['@one-base-template/create-admin-lite'];
@@ -94,6 +97,10 @@ function run(command, args, options = {}) {
   return result.stdout ?? '';
 }
 
+function runPnpm(args, options = {}) {
+  return run(pnpmCommand, [...pnpmBaseArgs, ...args], options);
+}
+
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
@@ -103,6 +110,14 @@ function assert(condition, message) {
     console.error(`发布校验失败：${message}`);
     process.exit(1);
   }
+}
+
+function writeLocalOverrideWorkspace(projectDir, overrides) {
+  const lines = ['packages:', '  - .', 'overrides:'];
+  for (const [name, value] of Object.entries(overrides)) {
+    lines.push(`  '${name}': ${JSON.stringify(value)}`);
+  }
+  writeFileSync(join(projectDir, 'pnpm-workspace.yaml'), `${lines.join('\n')}\n`);
 }
 
 function validatePackageMetadata() {
@@ -210,7 +225,7 @@ function packPackages() {
   mkdirSync(packDir, { recursive: true });
 
   for (const pkg of publicPackages) {
-    run('pnpm', ['-C', `packages/${pkg}`, 'pack', '--pack-destination', packDir]);
+    runPnpm(['-C', `packages/${pkg}`, 'pack', '--pack-destination', packDir]);
   }
 }
 
@@ -255,15 +270,13 @@ async function createConsumerFixture() {
           vue: '^3.5.28',
           'vue-router': '^5.0.2',
           ...localPackageEntries
-        },
-        pnpm: {
-          overrides: localPackageEntries
         }
       },
       null,
       2
     )
   );
+  writeLocalOverrideWorkspace(fixtureDir, localPackageEntries);
 
   writeFileSync(
     join(fixtureDir, 'index.html'),
@@ -285,14 +298,12 @@ async function createConsumerFixture() {
 }
 
 function installAndBuildConsumer() {
-  run('pnpm', ['install', '--ignore-workspace', '--config.ignore-workspace=true'], {
-    cwd: fixtureDir
-  });
-  run('pnpm', ['build'], { cwd: fixtureDir });
+  runPnpm(['install'], { cwd: fixtureDir });
+  runPnpm(['build'], { cwd: fixtureDir });
 }
 
 async function main() {
-  run('pnpm', ['release:build']);
+  runPnpm(['release:build']);
   validatePackageMetadata();
   await validateChangesetsAsync();
   validateTrackedCredentialSafety();

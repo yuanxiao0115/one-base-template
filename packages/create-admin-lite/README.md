@@ -4,6 +4,9 @@
 
 ```bash
 pnpm dlx @one-base-template/create-admin-lite my-admin
+cd my-admin
+pnpm install
+pnpm dev
 ```
 
 生成项目只包含登录、首页、应用壳、路由、运行时配置、HTTP、鉴权、菜单和主题启动闭环。
@@ -13,6 +16,39 @@ pnpm dlx @one-base-template/create-admin-lite my-admin
 生成项目的 `src/styles/index.css` 会从 `node_modules/@one-base-template/ui/dist` 扫描 Tailwind 工具类，避免已发布 UI 包中的布局类在独立项目中缺失。
 
 生成项目通过 `@one-base-template/tag/style` 引入页签组件完整样式，包含页签栏、右键菜单与下拉菜单选择器。
+
+## 项目自检
+
+在生成项目根目录执行：
+
+```bash
+pnpm dlx @one-base-template/create-admin-lite@latest doctor
+```
+
+`doctor` 会检查模板元信息、Node/pnpm 版本、项目级 registry、企业 npm 认证是否可见、依赖协议、基础脚本和样式入口。它只报告认证是否存在，不会打印 `_auth`、token 或账号密码。
+
+如需给 CI 读取结构化结果：
+
+```bash
+pnpm dlx @one-base-template/create-admin-lite@latest doctor --json
+```
+
+## 新增模块
+
+生成项目内置项目级脚手架，不依赖本 monorepo 路径：
+
+```bash
+pnpm new:module demo-management --title "Demo 管理" --route demo/management
+pnpm new:module:item user --module demo-management --title "用户管理" --route /demo/management/user
+```
+
+生成后建议至少执行：
+
+```bash
+pnpm test:run
+pnpm typecheck
+pnpm build
+```
 
 ## 升级已生成项目
 
@@ -29,4 +65,4 @@ pnpm dlx @one-base-template/create-admin-lite@latest upgrade
 - `--from <version>`：手动指定来源版本，用于没有模板元信息且无法可靠推断的旧项目。
 - `--yes`：跳过确认，适合 CI 或脚本执行。
 
-第一版 upgrade 采用保守迁移：同步 `@one-base-template/*` 依赖到当前模板声明版本，补齐已知样式入口，并写入升级报告 `.admin-lite-upgrade-report.md`。当目标文件疑似被业务改过时，CLI 会跳过自动修改并在报告中列出冲突，不会强行覆盖。
+upgrade 采用保守迁移：同步 `@one-base-template/*` 依赖到当前模板声明版本，补齐已知样式入口、项目级脚手架脚本和模板基线测试，并写入升级报告 `.admin-lite-upgrade-report.md`。当目标文件疑似被业务改过时，CLI 会跳过自动修改并在报告中列出冲突，不会强行覆盖。

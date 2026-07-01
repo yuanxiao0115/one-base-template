@@ -2,6 +2,40 @@
 
 > 说明：本文件用于记录本仓库内由 Agent 执行的关键操作，便于追溯与复盘。
 
+## 2026-07-01（admin-lite CLI 生产化最小增强）
+
+- 背景：
+  - 用户要求对基于 CLI 在 `~/code/aa` 生成的项目做脚手架能力走查，并同步优化 `admin-lite` 模板与 CLI 工具。
+- 本次收口：
+  - 新增实施计划：
+    - `docs/plans/2026-07-01-002-feat-admin-lite-cli-productization-plan.md`
+  - `@one-base-template/create-admin-lite` 新增 `doctor [--json]`：
+    - 检查 `package.json`、`.admin-lite-template.json`、Node / pnpm 版本、项目级 `.npmrc`、用户级企业 npm 认证存在性、依赖协议、必需脚本、UI Tailwind source、tag 样式入口和模板增量文件。
+    - 只检查认证配置是否存在，不输出 `_auth`、token、账号密码。
+  - `upgrade` 增强为可补齐新版模板增量能力：
+    - 补齐 `test:run:file`、`new:module`、`new:module:item` 脚本。
+    - 补齐项目内 `scripts/new-module.mjs`、`scripts/new-module-item.mjs`、`tests/scaffold/template-baseline.unit.test.ts`。
+    - 目标文件一致则跳过，用户已改动则报告冲突，不强制覆盖。
+  - CLI 模板新增项目内模块脚手架能力：
+    - `pnpm new:module <module-id>`
+    - `pnpm new:module:item <item-id> --module <module-id>`
+    - 新增模板基线单测，锁定 registry、样式入口、元信息占位符、脚本与 home 模块。
+  - `scripts/validate-admin-lite-cli.mjs` 扩展为完整生命周期校验：
+    - 本地 pack、仓库外生成、doctor、upgrade、项目内脚手架、静态扫描、install、test、typecheck、build、CSS 标记检查。
+  - `scripts/validate-public-packages.mjs` 与 CLI 校验脚本统一使用当前 `corepack pnpm` 调用链，避免 PATH 上其他 pnpm 版本影响验证结果。
+  - 临时消费者改用 `pnpm-workspace.yaml` 写本地 tarball overrides，避免已弃用的 `package.json#pnpm.overrides` 导致企业仓库误拉取。
+  - 文档同步：
+    - `packages/create-admin-lite/README.md`
+    - `packages/create-admin-lite/templates/admin-lite-minimal/README.md`
+    - `apps/docs/docs/guide/admin-lite-base-app.md`
+    - `apps/docs/docs/guide/package-release.md`
+  - 新增 changeset：
+    - `.changeset/admin-lite-cli-productization.md`
+- 安全边界：
+  - 模板与生成项目不写入 npm `_auth`、token、账号密码或本机仓库绝对路径。
+  - 企业 npm 认证仍只放在用户本机或 CI 环境。
+  - `doctor` 只报告缺失项和安全风险，不泄露真实凭证值。
+
 ## 2026-07-01（admin-lite CLI 存量项目升级能力）
 
 - 背景：

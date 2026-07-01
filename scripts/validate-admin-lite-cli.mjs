@@ -22,6 +22,7 @@ const upgradeDryRunDir = join(outsideDir, 'sample-admin-upgrade-dry-run');
 const upgradeApplyDir = join(outsideDir, 'sample-admin-upgrade-apply');
 const upgradeConflictDir = join(outsideDir, 'sample-admin-upgrade-conflict');
 const upgradeCurrentLegacyDir = join(outsideDir, 'sample-admin-current-legacy');
+const doctorFailureDir = join(outsideDir, 'sample-admin-doctor-failure');
 const runtimePackageDirs = ['core', 'tag', 'ui', 'adapters'];
 const cliPackageDir = 'packages/create-admin-lite';
 const cliPackageName = '@one-base-template/create-admin-lite';
@@ -30,6 +31,28 @@ const metadataFileName = '.admin-lite-template.json';
 const reportFileName = '.admin-lite-upgrade-report.md';
 const uiSourceLine = '@source "../../node_modules/@one-base-template/ui/dist/**/*.{js,css}";';
 const tagStyleImportLine = "import '@one-base-template/tag/style';";
+const pnpmCliPath = process.env.npm_execpath || '';
+const pnpmCommand = pnpmCliPath ? process.execPath : 'pnpm';
+const pnpmBaseArgs = pnpmCliPath ? [pnpmCliPath] : [];
+const generatedModuleId = 'demo-management';
+const generatedItemId = 'user';
+const defaultTitleItemId = 'audit-log';
+const additiveTemplateFilePaths = [
+  'scripts/new-module.mjs',
+  'scripts/new-module-item.mjs',
+  'tests/scaffold/template-baseline.unit.test.ts'
+];
+const additivePackageScriptNames = ['test:run:file', 'new:module', 'new:module:item'];
+const ignoredScanDirs = new Set([
+  '.git',
+  '.idea',
+  '.output',
+  '.tmp',
+  '.vscode',
+  'coverage',
+  'dist',
+  'node_modules'
+]);
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -51,6 +74,20 @@ function run(command, args, options = {}) {
   return result.stdout ?? '';
 }
 
+function runPnpm(args, options = {}) {
+  return run(pnpmCommand, [...pnpmBaseArgs, ...args], options);
+}
+
+function spawnPnpm(args, options = {}) {
+  return spawnSync(pnpmCommand, [...pnpmBaseArgs, ...args], {
+    cwd: options.cwd ?? rootDir,
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+    stdio: 'pipe',
+    env: { ...process.env, ...options.env }
+  });
+}
+
 function assert(condition, message) {
   if (!condition) {
     console.error(`admin-lite CLI 校验失败：${message}`);
@@ -66,6 +103,14 @@ function writeJson(path, value) {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+function writeLocalOverrideWorkspace(projectDir, overrides) {
+  const lines = ['packages:', '  - .', 'overrides:'];
+  for (const [name, value] of Object.entries(overrides)) {
+    lines.push(`  '${name}': ${JSON.stringify(value)}`);
+  }
+  writeFileSync(join(projectDir, 'pnpm-workspace.yaml'), `${lines.join('\n')}\n`);
+}
+
 function packageNameFromTarball(tarball) {
   const name = basename(tarball)
     .replace(/^one-base-template-/, '')
@@ -77,6 +122,9 @@ async function listFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
+    if (ignoredScanDirs.has(entry.name)) {
+      continue;
+    }
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
       files.push(...(await listFiles(fullPath)));
@@ -107,7 +155,8 @@ function isTextFile(path) {
   return textExtensions.some((ext) => path.endsWith(ext));
 }
 
-async function validateGeneratedProjectSafety(projectDir = generatedDir) {
+async function validateGeneratedProjectSafety(projectDir = generatedDir, options = {}) {
+  const { expectOnlyHomeModule = true } = options;
   const files = await listFiles(projectDir);
   const unsafePatterns = [
     { pattern: /workspace:/, label: 'workspace 协议' },
@@ -179,21 +228,34 @@ async function validateGeneratedProjectSafety(projectDir = generatedDir) {
   const modules = readdirSync(moduleDir)
     .filter((name) => statSync(join(moduleDir, name)).isDirectory())
     .sort();
-  assert(
-    modules.length === 1 && modules[0] === 'home',
-    `默认模块不是仅 home：${modules.join(', ')}`
-  );
+  if (expectOnlyHomeModule) {
+    assert(
+      modules.length === 1 && modules[0] === 'home',
+      `默认模块不是仅 home：${modules.join(', ')}`
+    );
+  } else {
+    assert(modules.includes('home'), `模块清单缺少 home：${modules.join(', ')}`);
+  }
+
+  const scripts = packageJson.scripts ?? {};
+  assert(scripts['test:run'], '生成项目缺少 test:run 脚本');
+  for (const scriptName of additivePackageScriptNames) {
+    assert(scripts[scriptName], `生成项目缺少 ${scriptName} 脚本`);
+  }
+  for (const relativePath of additiveTemplateFilePaths) {
+    assert(existsSync(join(projectDir, relativePath)), `生成项目缺少 ${relativePath}`);
+  }
 }
 
 function packRuntimePackages() {
   rmSync(tempDir, { force: true, recursive: true });
   mkdirSync(packDir, { recursive: true });
 
-  run('pnpm', ['release:build']);
+  runPnpm(['release:build']);
   for (const pkg of runtimePackageDirs) {
-    run('pnpm', ['-C', `packages/${pkg}`, 'pack', '--pack-destination', packDir]);
+    runPnpm(['-C', `packages/${pkg}`, 'pack', '--pack-destination', packDir]);
   }
-  run('pnpm', ['-C', cliPackageDir, 'pack', '--pack-destination', packDir]);
+  runPnpm(['-C', cliPackageDir, 'pack', '--pack-destination', packDir]);
 }
 
 function extractCliPackage() {
@@ -212,6 +274,44 @@ function generateProject(cliBin) {
   mkdirSync(outsideDir, { recursive: true });
   run('node', [cliBin, 'sample-admin', generatedDir], { cwd: outsideDir });
   assert(existsSync(join(generatedDir, 'package.json')), '生成项目缺少 package.json');
+}
+
+function runDoctor(cliBin, projectDir, options = {}) {
+  const { expectSuccess = true } = options;
+  const result = spawnSync('node', [cliBin, 'doctor', '--json'], {
+    cwd: projectDir,
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+    stdio: 'pipe',
+    env: { ...process.env }
+  });
+
+  if (expectSuccess) {
+    assert(result.status === 0, `doctor 应通过：${result.stdout}${result.stderr}`);
+  } else {
+    assert(result.status !== 0, 'doctor 应返回非零状态');
+  }
+
+  const report = JSON.parse(result.stdout);
+  assert(typeof report.ok === 'boolean', 'doctor JSON 缺少 ok 字段');
+  const serialized = JSON.stringify(report);
+  assert(!serialized.includes('_auth='), 'doctor 输出不应包含 _auth 值');
+  assert(!serialized.includes('_authToken='), 'doctor 输出不应包含 _authToken 值');
+  return report;
+}
+
+function validateDoctorFailure(cliBin) {
+  cpSync(generatedDir, doctorFailureDir, { recursive: true });
+  writeFileSync(join(doctorFailureDir, '.npmrc'), 'registry=https://registry.npmmirror.com\n');
+
+  const report = runDoctor(cliBin, doctorFailureDir, { expectSuccess: false });
+  assert(report.errors > 0, 'doctor 失败场景应包含 error');
+  assert(
+    report.checks.some(
+      (check) => check.status === 'error' && check.name === '.npmrc enterprise registry'
+    ),
+    'doctor 失败场景应指出缺少 @one-base-template scope registry'
+  );
 }
 
 function collectRuntimeOverrides(projectDir = generatedDir) {
@@ -242,19 +342,24 @@ function collectRuntimeOverrides(projectDir = generatedDir) {
   return overrides;
 }
 
-function installAndBuildGeneratedProject(projectDir = generatedDir) {
-  const packageJsonPath = join(projectDir, 'package.json');
-  const packageJson = readJson(packageJsonPath);
-  packageJson.pnpm = {
-    ...packageJson.pnpm,
-    overrides: collectRuntimeOverrides(projectDir)
-  };
-  writeJson(packageJsonPath, packageJson);
+function installGeneratedProject(projectDir = generatedDir) {
+  writeLocalOverrideWorkspace(projectDir, collectRuntimeOverrides(projectDir));
 
-  run('pnpm', ['install', '--ignore-workspace', '--config.ignore-workspace=true'], {
+  runPnpm(['install'], { cwd: projectDir });
+}
+
+function validateGeneratedProjectCommands(projectDir = generatedDir) {
+  runPnpm(['test:run'], { cwd: projectDir });
+  runPnpm(['test:run:file', 'tests/scaffold/template-baseline.unit.test.ts'], {
     cwd: projectDir
   });
-  run('pnpm', ['build'], { cwd: projectDir });
+  runPnpm(['typecheck'], { cwd: projectDir });
+  runPnpm(['build'], { cwd: projectDir });
+}
+
+function installAndBuildGeneratedProject(projectDir = generatedDir) {
+  installGeneratedProject(projectDir);
+  validateGeneratedProjectCommands(projectDir);
 }
 
 function validateGeneratedCss(projectDir = generatedDir) {
@@ -299,6 +404,85 @@ async function assertSnapshotEqual(projectDir, before, message) {
   }
 }
 
+async function validateGeneratedProjectScaffold(projectDir = generatedDir) {
+  const moduleArgs = [
+    'new:module',
+    generatedModuleId,
+    '--title',
+    'Demo 管理',
+    '--route',
+    'demo/management'
+  ];
+  const itemArgs = [
+    'new:module:item',
+    generatedItemId,
+    '--module',
+    generatedModuleId,
+    '--title',
+    '用户管理',
+    '--route',
+    '/demo/management/user'
+  ];
+
+  const moduleDryRunSnapshot = await snapshotTextFiles(projectDir);
+  runPnpm([...moduleArgs, '--dry-run'], { cwd: projectDir });
+  await assertSnapshotEqual(projectDir, moduleDryRunSnapshot, 'new:module dry-run 不应写文件');
+
+  runPnpm(moduleArgs, { cwd: projectDir });
+
+  const moduleDir = join(projectDir, 'src/modules', generatedModuleId);
+  for (const relativePath of ['meta.ts', 'index.ts', 'routes.ts', 'index.vue', 'README.md']) {
+    assert(existsSync(join(moduleDir, relativePath)), `new:module 缺少 ${relativePath}`);
+  }
+  assert(
+    readFileSync(join(moduleDir, 'routes.ts'), 'utf8').includes('/demo/management/index'),
+    'new:module 路由前缀未生效'
+  );
+
+  const duplicateModule = spawnPnpm(['new:module', generatedModuleId], {
+    cwd: projectDir
+  });
+  assert(duplicateModule.status !== 0, '重复 new:module 应失败');
+
+  const defaultTitleItemSnapshot = await snapshotTextFiles(projectDir);
+  runPnpm(['new:module:item', defaultTitleItemId, '--module', generatedModuleId, '--dry-run'], {
+    cwd: projectDir
+  });
+  await assertSnapshotEqual(
+    projectDir,
+    defaultTitleItemSnapshot,
+    'new:module:item 默认标题 dry-run 不应写文件'
+  );
+
+  const itemDryRunSnapshot = await snapshotTextFiles(projectDir);
+  runPnpm([...itemArgs, '--dry-run'], { cwd: projectDir });
+  await assertSnapshotEqual(projectDir, itemDryRunSnapshot, 'new:module:item dry-run 不应写文件');
+
+  runPnpm(itemArgs, { cwd: projectDir });
+
+  const itemDir = join(moduleDir, generatedItemId);
+  for (const relativePath of [
+    'router/index.ts',
+    'types.ts',
+    'api.ts',
+    'form.ts',
+    'columns.tsx',
+    'const.ts',
+    'list.vue'
+  ]) {
+    assert(existsSync(join(itemDir, relativePath)), `new:module:item 缺少 ${relativePath}`);
+  }
+  const itemList = readFileSync(join(itemDir, 'list.vue'), 'utf8');
+  assert(itemList.includes('ObTableBox'), 'new:module:item list.vue 未使用 ObTableBox');
+  assert(itemList.includes('ObTable'), 'new:module:item list.vue 未使用 ObTable');
+
+  const duplicateItem = spawnPnpm(
+    ['new:module:item', generatedItemId, '--module', generatedModuleId],
+    { cwd: projectDir }
+  );
+  assert(duplicateItem.status !== 0, '重复 new:module:item 应失败');
+}
+
 function prepareOldProjectFixture(targetDir, options = {}) {
   cpSync(generatedDir, targetDir, { recursive: true });
   rmSync(join(targetDir, metadataFileName), { force: true });
@@ -307,7 +491,14 @@ function prepareOldProjectFixture(targetDir, options = {}) {
   const packageJson = readJson(packageJsonPath);
   packageJson.dependencies['@one-base-template/tag'] = '^0.1.0';
   packageJson.dependencies['@one-base-template/ui'] = '0.1.0';
+  for (const scriptName of additivePackageScriptNames) {
+    delete packageJson.scripts[scriptName];
+  }
   writeJson(packageJsonPath, packageJson);
+
+  for (const relativePath of additiveTemplateFilePaths) {
+    rmSync(join(targetDir, relativePath), { force: true, recursive: true });
+  }
 
   const stylePath = join(targetDir, 'src/styles/index.css');
   const styleEntry = readFileSync(stylePath, 'utf8').replace(`\n${uiSourceLine}\n`, '\n');
@@ -359,15 +550,27 @@ async function validateUpgradeApply(cliBin) {
     'utf8'
   );
   assert(bootstrapStyle.includes(tagStyleImportLine), 'upgrade 后缺少 tag style 入口');
+  for (const scriptName of additivePackageScriptNames) {
+    assert(packageJson.scripts[scriptName], `upgrade 后缺少 ${scriptName} 脚本`);
+  }
+  for (const relativePath of additiveTemplateFilePaths) {
+    assert(existsSync(join(upgradeApplyDir, relativePath)), `upgrade 后缺少 ${relativePath}`);
+  }
   assert(existsSync(join(upgradeApplyDir, reportFileName)), 'upgrade 后缺少升级报告');
 
   await validateGeneratedProjectSafety(upgradeApplyDir);
+  runDoctor(cliBin, upgradeApplyDir);
   installAndBuildGeneratedProject(upgradeApplyDir);
   validateGeneratedCss(upgradeApplyDir);
 }
 
 function validateUpgradeConflict(cliBin) {
   prepareOldProjectFixture(upgradeConflictDir, { conflict: true });
+  mkdirSync(join(upgradeConflictDir, 'scripts'), { recursive: true });
+  writeFileSync(
+    join(upgradeConflictDir, 'scripts/new-module.mjs'),
+    "console.log('user custom new-module');\n"
+  );
   const result = spawnSync('node', [cliBin, 'upgrade', '--yes'], {
     cwd: upgradeConflictDir,
     encoding: 'utf8',
@@ -386,6 +589,10 @@ function validateUpgradeConflict(cliBin) {
   assert(
     report.includes('src/bootstrap/admin-lite-styles.ts 不是可识别的官方样式入口'),
     '冲突报告缺少用户改动文件说明'
+  );
+  assert(
+    report.includes('scripts/new-module.mjs 已存在且内容不同'),
+    '冲突报告缺少用户自定义脚手架说明'
   );
 }
 
@@ -408,14 +615,18 @@ async function main() {
   const cliBin = extractCliPackage();
   generateProject(cliBin);
   await validateGeneratedProjectSafety();
+  runDoctor(cliBin, generatedDir);
+  validateDoctorFailure(cliBin);
   await validateUpgradeDryRun(cliBin);
   await validateUpgradeApply(cliBin);
   validateUpgradeConflict(cliBin);
   validateCurrentLegacyInference(cliBin);
+  await validateGeneratedProjectScaffold();
+  await validateGeneratedProjectSafety(generatedDir, { expectOnlyHomeModule: false });
   installAndBuildGeneratedProject();
   validateGeneratedCss();
   console.log(
-    'admin-lite CLI 校验通过：本地 pack、仓库外生成、upgrade dry-run、upgrade apply、冲突保护、静态扫描、install/build 均完成。'
+    'admin-lite CLI 校验通过：本地 pack、仓库外生成、doctor、项目内脚手架、upgrade、静态扫描、install/test/typecheck/build 均完成。'
   );
 }
 
