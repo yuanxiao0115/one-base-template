@@ -383,3 +383,20 @@
   - `npm view @one-base-template/create-admin-lite@0.3.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/`
 - 当前结论：
   - 企业 npm 已可消费 `@one-base-template/create-admin-lite@0.3.1`，可用于升级 `/Users/haoqiuzhi/code/aa`。
+
+## 2026-07-02（aa 远程 CLI 升级与顶栏样式验证）
+
+- 已完成：
+  - `/Users/haoqiuzhi/code/aa` 已使用远程 `@one-base-template/create-admin-lite@0.3.1` 升级到模板 `0.3.1`。
+  - `aa` 已安装企业 npm 上的 `@one-base-template/ui@0.1.2`。
+  - 顶栏账号按钮、菜单搜索触发器和搜索结果激活态已做浏览器计算样式验证。
+- 验证通过：
+  - `pnpm dlx @one-base-template/create-admin-lite@0.3.1 upgrade --yes`
+  - `pnpm install`
+  - `pnpm dlx @one-base-template/create-admin-lite@0.3.1 doctor`
+  - `pnpm test:run:file tests/scaffold/template-baseline.unit.test.ts`
+  - `pnpm typecheck`
+  - `pnpm build`
+  - `agent-browser` 计算样式检查
+- 当前结论：
+  - 截图反馈的顶栏账号边框/底色与菜单搜索颜色问题已在 `aa` 中通过远程包升级修复。

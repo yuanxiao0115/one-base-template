@@ -11988,3 +11988,24 @@ $ pnpm -C packages/ui test:run -- src/index.test.ts src/plugin.test.ts src/compo
   - CLI upgrade 白名单补齐后，`validate:admin-lite-cli` 中 `0.2.2` 视觉旧模板升级无冲突，`AdminTopBar.vue` 与 baseline 均可自动更新到当前模板。
   - 公共包发布前校验通过：metadata、credential scan、pack、临时消费者构建均完成。
   - 企业 npm 发布成功：`@one-base-template/create-admin-lite@0.3.1`，远程反查可获得 `version` 与 `dist.tarball`。
+
+## 2026-07-02（aa 远程 CLI 升级与顶栏样式验证）
+
+- 执行命令：
+  - `cd /Users/haoqiuzhi/code/aa && pnpm dlx @one-base-template/create-admin-lite@0.3.1 upgrade --yes`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm install`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm dlx @one-base-template/create-admin-lite@0.3.1 doctor`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm test:run:file tests/scaffold/template-baseline.unit.test.ts`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm typecheck`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm build`
+  - `cd /Users/haoqiuzhi/code/aa && pnpm dev --host 127.0.0.1 --port 5188`
+- 浏览器验证：
+  - 使用 `agent-browser` mock `/cmict/auth/token/verify` 与 `/cmict/admin/permission/my-tree`。
+  - 写入 `localStorage['aa-token']='mock-token'` 后打开 `http://127.0.0.1:5188/home/index`。
+  - 顶栏账号按钮计算样式：`background: rgba(0, 0, 0, 0)`、`borderWidth: 0px`。
+  - 菜单搜索触发器计算样式：`color: rgba(255, 255, 255, 0.88)`、`background: rgba(255, 255, 255, 0.16)`、`borderWidth: 0px`。
+  - 搜索结果激活态 scoped CSS 已加载并命中：浅主题色背景、`boxShadow: rgb(15, 121, 233) 3px 0px 0px 0px inset`、标题 `fontWeight: 600`。
+- 结果：
+  - `aa` 使用远程 `@one-base-template/create-admin-lite@0.3.1` 升级成功，升级报告 `Conflicts: None`。
+  - `pnpm install` 将 `@one-base-template/ui` 从 `0.1.1` 更新到 `0.1.2`。
+  - doctor、baseline、typecheck、build 均通过；doctor 唯一 warning 为无法读取受保护的用户级企业 npm auth，但实际 install 已成功。

@@ -13312,3 +13312,15 @@
 - 发布：
   - `pnpm release:packages` 已发布 `@one-base-template/create-admin-lite@0.3.1` 到企业 npm。
   - `npm view @one-base-template/create-admin-lite@0.3.1 version dist.tarball --registry=http://artifact.nc.rdcloud.4c.hq.cmcc/artifactory/api/npm/one-package/` 反查成功。
+
+## 2026-07-02（aa 远程 CLI 升级与顶栏样式验证）
+
+- 动作：
+  - `/Users/haoqiuzhi/code/aa` 使用企业 npm 远程 `@one-base-template/create-admin-lite@0.3.1` 执行 `upgrade --yes`。
+  - `pnpm install` 后 `@one-base-template/ui` 从 `0.1.1` 更新到 `0.1.2`。
+  - 执行 doctor、baseline、typecheck、build。
+  - 启动 `pnpm dev --host 127.0.0.1 --port 5188`，用 `agent-browser` mock 鉴权和菜单接口后读取计算样式。
+- 结论：
+  - `aa` 升级报告 `Conflicts: None`，模板元信息为 `admin-lite-minimal@0.3.1`。
+  - 顶栏账号区已是透明背景和 0 边框。
+  - 菜单搜索触发器使用半透明白色层级，搜索结果激活态使用主题色浅底和左侧主色强调。
